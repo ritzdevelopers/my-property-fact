@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import "./sidenav.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
@@ -11,6 +11,7 @@ import axios from "axios";
 export default function SideNav({ onLinkClick }) {
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const [activeSubDropdown, setActiveSubDropdown] = useState(null);
   const router = useRouter();
   // Check if a path matches the current pathname
   const isActive = (path) => {
@@ -31,8 +32,13 @@ export default function SideNav({ onLinkClick }) {
     return paths.some((path) => isActive(path));
   };
 
-  // Auto-open dropdowns that contain active items
+  const prevPathnameRef = useRef(null);
+
+  // Auto-open dropdowns only when pathname changes (on navigation), not when user toggles
   useEffect(() => {
+    if (prevPathnameRef.current === pathname) return;
+    prevPathnameRef.current = pathname;
+
     const dropdownPaths = {
       dropdown1: [
         "/admin/dashboard/project-amenity",
@@ -70,18 +76,28 @@ export default function SideNav({ onLinkClick }) {
         "/admin/dashboard/web-story-category",
         "/admin/dashboard/web-story",
       ],
+      dropdown6: ["/admin/dashboard/manage-home-banners"],
     };
 
-    // Check each dropdown and open if it contains active item
     Object.keys(dropdownPaths).forEach((dropdownId) => {
       if (isDropdownActive(dropdownPaths[dropdownId])) {
         setActiveDropdown(dropdownId);
       }
     });
+
+    if (isActive("/admin/dashboard/manage-home-banners")) {
+      setActiveSubDropdown("dropdown6-home-page");
+    }
   }, [pathname]);
 
-  const toggleDropdown = (id) => {
-    setActiveDropdown(activeDropdown === id ? null : id);
+  const toggleDropdown = (e, id) => {
+    e?.preventDefault();
+    setActiveDropdown((current) => (current === id ? null : id));
+  };
+
+  const toggleSubDropdown = (e, id) => {
+    e?.preventDefault();
+    setActiveSubDropdown((current) => (current === id ? null : id));
   };
 
   const handleLinkClick = () => {
@@ -105,7 +121,7 @@ export default function SideNav({ onLinkClick }) {
       );
 
       if (response.status === 200) {
-        toast.success("Logout successful...");
+        toast.success("Logout successful...");      
         window.location.href = "/admin";
       }
     } catch (error) {
@@ -146,6 +162,72 @@ export default function SideNav({ onLinkClick }) {
         </li>
         <li
           className={
+            activeDropdown === "dropdown6" ||
+            isDropdownActive(["/admin/dashboard/manage-home-banners"])
+              ? "active"
+              : ""
+          }
+        >
+          <Link
+            href="#"
+            onClick={(e) => toggleDropdown(e, "dropdown6")}
+            data-toggle="collapse"
+            aria-expanded="false"
+            className="dropdown-toggle"
+          >
+            Manage Website
+          </Link>
+          <ul
+            className={`collapse list-unstyled ms-4 ${
+              activeDropdown === "dropdown6"
+                ? "show"
+                : ""
+            }`}
+          >
+            <li
+              className={
+                activeSubDropdown === "dropdown6-home-page" ||
+                isDropdownActive(["/admin/dashboard/manage-home-banners"])
+                  ? "active"
+                  : ""
+              }
+            >
+              <Link
+                href="#"
+                onClick={(e) => toggleSubDropdown(e, "dropdown6-home-page")}
+                data-toggle="collapse"
+                aria-expanded="false"
+                className="dropdown-toggle"
+              >
+                Home Page
+              </Link>
+              <ul
+                className={`collapse list-unstyled ms-4 ${
+                  activeSubDropdown === "dropdown6-home-page"
+                    ? "show"
+                    : ""
+                }`}
+              >
+                <li
+                  className={
+                    isActive("/admin/dashboard/manage-home-banners")
+                      ? "active"
+                      : ""
+                  }
+                >
+                  <Link
+                    href="/admin/dashboard/manage-home-banners"
+                    onClick={handleLinkClick}
+                  >
+                    Banners
+                  </Link>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </li>
+        <li
+          className={
             activeDropdown === "dropdown3" ||
             isDropdownActive([
               "/admin/dashboard/manage-countries",
@@ -165,7 +247,7 @@ export default function SideNav({ onLinkClick }) {
         >
           <Link
             href="#"
-            onClick={() => toggleDropdown("dropdown3")}
+            onClick={(e) => toggleDropdown(e, "dropdown3")}
             data-toggle="collapse"
             aria-expanded="false"
             className="dropdown-toggle"
@@ -321,7 +403,7 @@ export default function SideNav({ onLinkClick }) {
             href="#"
             data-toggle="collapse"
             aria-expanded="false"
-            onClick={() => toggleDropdown("dropdown1")}
+            onClick={(e) => toggleDropdown(e, "dropdown1")}
             className="dropdown-toggle"
           >
             Management
@@ -472,7 +554,7 @@ export default function SideNav({ onLinkClick }) {
         >
           <Link
             href="#"
-            onClick={() => toggleDropdown("dropdown2")}
+            onClick={(e) => toggleDropdown(e, "dropdown2")}
             data-toggle="collapse"
             aria-expanded="false"
             className="dropdown-toggle"
@@ -593,7 +675,7 @@ export default function SideNav({ onLinkClick }) {
         >
           <Link
             href="#"
-            onClick={() => toggleDropdown("dropdown4")}
+            onClick={(e) => toggleDropdown(e, "dropdown4")}
             data-toggle="collapse"
             aria-expanded="false"
             className="dropdown-toggle"
@@ -650,7 +732,7 @@ export default function SideNav({ onLinkClick }) {
         >
           <Link
             href="#"
-            onClick={() => toggleDropdown("dropdown5")}
+            onClick={(e) => toggleDropdown(e, "dropdown5")}
             data-toggle="collapse"
             aria-expanded="false"
             className="dropdown-toggle"

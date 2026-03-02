@@ -19,7 +19,11 @@ export default function ManageBanners({ list, config = {} }) {
     const showProjectSelect = config.showProjectSelect !== false;
     const showProjectNameColumn = config.showProjectNameColumn !== false;
     const showAltTag = config.showAltTag !== false;
+    const uploadEndpoint = config.uploadEndpoint ?? "project-banner/add-banner";
+    const showBannerLink = Boolean(config.showBannerLink);
+    const deleteEndpoint = config.deleteEndpoint ?? "project-banner/delete";
     const [showModal, setShowModal] = useState(false);
+    const [bannerLink, setBannerLink] = useState("");
     const [title, setTitle] = useState(null);
     const [buttonName, setButtonName] = useState(null);
     const [validated, setValidated] = useState(false);
@@ -38,6 +42,31 @@ export default function ManageBanners({ list, config = {} }) {
     const [imagePopUp, setImagePopUp] = useState(false);
     const [popUpImageSrc, setPopUpImageSrc] = useState(null);
     const [isEditBanner, setIsEditBanner] = useState(false);
+    const [homeBannerListFromApi, setHomeBannerListFromApi] = useState(Array.isArray(list) && uploadEndpoint === "home-banner/add-banners" ? list : null);
+    const isHomeBannerUpload = uploadEndpoint === "home-banner/add-banners";
+
+    // Client-side fetch for home banners so data loads in browser (avoids server fetch / URL issues)
+    useEffect(() => {
+        if (!isHomeBannerUpload) return;
+        const base = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/?$/, "");
+        const url = base ? `${base}/home-banner/all` : "";
+        if (!url) return;
+        let cancelled = false;
+        axios.get(url, { withCredentials: true })
+            .then((res) => {
+                if (!cancelled && Array.isArray(res?.data)) setHomeBannerListFromApi(res.data);
+            })
+            .catch(() => {
+                if (!cancelled) setHomeBannerListFromApi([]);
+            });
+        return () => { cancelled = true; };
+    }, [isHomeBannerUpload]);
+
+    // When server passes updated list (e.g. after router.refresh() on add/delete), sync it
+    useEffect(() => {
+        if (isHomeBannerUpload && Array.isArray(list)) setHomeBannerListFromApi(list);
+    }, [isHomeBannerUpload, list]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -48,61 +77,102 @@ export default function ManageBanners({ list, config = {} }) {
             return;
         }
         if (form.checkValidity() === true) {
+            if (isHomeBannerUpload) {
+                const hasAnyFile = [desktopBannerImages, mobileBannerImages, tabletBannerImages].some(
+                    (arr) => arr?.some((img) => img?.file)
+                );
+                if (!hasAnyFile) {
+                    setValidated(true);
+                    toast.error("At least one image (desktop, mobile, or tablet) is required.");
+                    return;
+                }
+            }
             setShowLoading(true);
             setButtonName("");
-            if (showProjectSelect) {
-                formData.append("projectId", projectId);
+
+            if (isHomeBannerUpload) {
+                if (bannerLink && bannerLink.trim()) {
+                    formData.append("banner.bannerLink", bannerLink.trim());
+                }
+                desktopBannerImages
+                    .filter(img => img?.file)
+                    .forEach(img => {
+                        if (typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("desktopImages", img.file);
+                        }
+                    });
+                mobileBannerImages
+                    .filter(img => img?.file)
+                    .forEach(img => {
+                        if (typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("mobileImages", img.file);
+                        }
+                    });
+                tabletBannerImages
+                    .filter(img => img?.file)
+                    .forEach(img => {
+                        if (typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("tabletImages", img.file);
+                        }
+                    });
+            } else {
+                if (showProjectSelect) {
+                    formData.append("projectId", projectId);
+                }
+                if (showAltTag) {
+                    formData.append("altTag", altTag);
+                }
+                formData.append("deletedMobileImageIds", deletedMobileImageIds);
+                formData.append("deletedTabletImageIds", deletedTabletImageIds);
+                formData.append("deletedDesktopImageIds", deletedDesktopImageIds);
+                mobileBannerImages
+                    .filter(img => img.file)
+                    .forEach(img => {
+                        if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("projectMobileBannerImageList", img.file);
+                        }
+                    });
+                tabletBannerImages
+                    .filter(img => img.file)
+                    .forEach(img => {
+                        if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("projectTabletBannerImageList", img.file);
+                        }
+                    });
+                desktopBannerImages
+                    .filter(img => img.file)
+                    .forEach(img => {
+                        if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
+                            formData.append("projectDesktopBannerImageList", img.file);
+                        }
+                    });
             }
-            if (showAltTag) {
-                formData.append("altTag", altTag);
-            }
-            formData.append("deletedMobileImageIds", deletedMobileImageIds);
-            formData.append("deletedTabletImageIds", deletedTabletImageIds);
-            formData.append("deletedDesktopImageIds", deletedDesktopImageIds);
-            mobileBannerImages
-                .filter(img => img.file)
-                .forEach(img => {
-                    if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
-                        formData.append("projectMobileBannerImageList", img.file);
-                    }
-                });
-            tabletBannerImages
-                .filter(img => img.file)
-                .forEach(img => {
-                    if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
-                        formData.append("projectTabletBannerImageList", img.file);
-                    }
-                });
-            desktopBannerImages
-                .filter(img => img.file)
-                .forEach(img => {
-                    if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
-                        formData.append("projectDesktopBannerImageList", img.file);
-                    }
-                });
+
             try {
                 const response = await axios.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}project-banner/add-banner`,
+                    `${process.env.NEXT_PUBLIC_API_URL}${uploadEndpoint}`,
                     formData,
                     {
                         headers: {
                             "Content-Type": "multipart/form-data",
                         },
+                        withCredentials: true,
                     }
                 );
-                if (response.data.isSuccess === 1) {
+                if (response.data?.isSuccess === 1) {
                     router.refresh();
-                    toast.success(response.data.message);
+                    toast.success(response.data.message ?? "Banner added successfully");
                     setShowModal(false);
                 } else {
-                    toast.error(response.data.message);
+                    toast.error(response.data?.message ?? "Upload failed");
                 }
             } catch (error) {
                 console.error("Error uploading file:", error);
-                toast.error(error.response?.data?.message || "An error occurred while uploading the banner.");
+                const msg = error.response?.data?.message || error.message || "An error occurred while uploading the banner.";
+                toast.error(msg);
             } finally {
                 setShowLoading(false);
-                setButtonName("Add");
+                setButtonName(isEditBanner ? "Update" : "Add");
             }
         }
     };
@@ -112,6 +182,7 @@ export default function ManageBanners({ list, config = {} }) {
         setShowModal(true);
         setTitle("Add Banner");
         setAltTag("");
+        setBannerLink("");
         setProjectId(0);
         setButtonName("Add");
         setMobileBannerImages([]);
@@ -121,12 +192,19 @@ export default function ManageBanners({ list, config = {} }) {
         setDeletedTabletImageIds([]);
         setDeletedDesktopImageIds([]);
         setIsEditBanner(false);
-        setProjectList(showProjectSelect ? list.filter(item => item.projectBannerList.length === 0) : []);
+        // Project banner mode only: list is projects; home banner mode ignores projectList
+        if (!isHomeBannerUpload && showProjectSelect && Array.isArray(list)) {
+            setProjectList(list.filter(item => (item.projectBannerList?.length ?? 0) === 0));
+        } else {
+            setProjectList([]);
+        }
     };
 
     const openEditModel = (item) => {
+        // Project banner mode only (Edit not shown for home banners)
+        if (isHomeBannerUpload || !item?.projectMobileBannerDtoList || !item?.projectDesktopBannerDtoList) return;
         // Bind existing mobile images
-        const formattedMobileBanners = item.projectMobileBannerDtoList.map((img) => ({
+        const formattedMobileBanners = (item.projectMobileBannerDtoList || []).map((img) => ({
             id: img.id,
             preview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${img.mobileImage}`,
             isNew: false
@@ -154,13 +232,12 @@ export default function ManageBanners({ list, config = {} }) {
         setDesktopBannerImages(formattedDesktopBanners);
         setShowModal(true);
         setTitle("Edit Banner");
-        item.projectBannerList.map(image => {
-            setAltTag(image.altTag);
-        })
+        const firstAlt = item.projectBannerList?.[0]?.altTag;
+        if (firstAlt != null) setAltTag(firstAlt);
         setProjectId(item.id);
         setButtonName("Update");
         setIsEditBanner(true);
-        setProjectList(list);
+        setProjectList(Array.isArray(list) ? list : []);
     };
 
     // Handle file change
@@ -196,7 +273,32 @@ export default function ManageBanners({ list, config = {} }) {
     const openConfirmationBox = (id) => {
         setConfirmBox(true);
         setBannerId(id);
-    }
+    };
+
+    // Home banner: update link/alt in local state and persist to API
+    const updateHomeBannerInList = (id, updates) => {
+        setHomeBannerListFromApi((prev) => {
+            if (!Array.isArray(prev)) return prev;
+            return prev.map((b) => (b.id === id ? { ...b, ...updates } : b));
+        });
+    };
+
+    const saveHomeBannerLink = async (id, bannerLink, imageAlt) => {
+        const base = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/?$/, "");
+        const url = base ? `${base}/home-banner/update/${id}` : "";
+        if (!url) return;
+        try {
+            await axios.put(
+                url,
+                { bannerLink: bannerLink ?? "", imageAlt: imageAlt ?? "" },
+                { withCredentials: true, headers: { "Content-Type": "application/json" } }
+            );
+            updateHomeBannerInList(id, { bannerLink: bannerLink ?? "", imageAlt: imageAlt ?? "" });
+            toast.success("Banner updated");
+        } catch (err) {
+            toast.error(err.response?.data?.message || "Failed to update");
+        }
+    };
 
     const getTabletBannerList = (row) => {
         if (Array.isArray(row?.projectTabletBannerDtoList)) {
@@ -207,8 +309,90 @@ export default function ManageBanners({ list, config = {} }) {
         }
         return [];
     };
-    //Defining table columns
-    const columns = [
+    // Home banner mode: use client-fetched list (homeBannerListFromApi) or initial list from server
+    const rawHomeList = isHomeBannerUpload
+        ? (homeBannerListFromApi !== null ? homeBannerListFromApi : (Array.isArray(list) ? list : []))
+        : [];
+    const homeBannerList = rawHomeList.map((row, i) => ({ ...row, index: i + 1 }));
+
+    // Project banner mode: list is projects with projectDesktopBannerDtoList, etc.
+    const projectBannerList = !isHomeBannerUpload && Array.isArray(list)
+        ? list.filter(item => (item.projectDesktopBannerDtoList?.length > 0) || (item.projectMobileBannerDtoList?.length > 0))
+        : [];
+
+    const homeBannerColumns = [
+        { field: "index", headerName: "S.no", width: 80 },
+        { field: "deviceType", headerName: "Device", width: 100 },
+        {
+            field: "image",
+            headerName: "Image",
+            flex: 1,
+            renderCell: (params) => {
+                const name = params.row.imageName;
+                if (!name) return null;
+                const src = `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}home-banners/${name}`;
+                return (
+                    <Image
+                        src={src}
+                        alt={params.row.imageAlt || "Banner"}
+                        width={params.row.deviceType === "desktop" ? 120 : 60}
+                        height={50}
+                        className="rounded-2"
+                    />
+                );
+            },
+        },
+        {
+            field: "imageAlt",
+            headerName: "Alt",
+            flex: 1,
+            renderCell: (params) => (
+                <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    value={params.row.imageAlt || ""}
+                    onChange={(e) => updateHomeBannerInList(params.row.id, { imageAlt: e.target.value })}
+                    onBlur={(e) => saveHomeBannerLink(params.row.id, params.row.bannerLink, e.target.value.trim())}
+                    placeholder="Alt text"
+                    style={{ minWidth: "100px" }}
+                />
+            ),
+        },
+        {
+            field: "bannerLink",
+            headerName: "Link",
+            flex: 1,
+            renderCell: (params) => (
+                <input
+                    type="url"
+                    className="form-control form-control-sm"
+                    value={params.row.bannerLink || ""}
+                    onChange={(e) => updateHomeBannerInList(params.row.id, { bannerLink: e.target.value })}
+                    onBlur={(e) => saveHomeBannerLink(params.row.id, e.target.value.trim(), params.row.imageAlt)}
+                    placeholder="https://..."
+                    style={{ minWidth: "140px" }}
+                />
+            ),
+        },
+        {
+            field: "action",
+            headerName: "Action",
+            width: 90,
+            renderCell: (params) => (
+                <div className="d-flex gap-2 mt-3">
+                    <FontAwesomeIcon
+                        className="text-danger"
+                        style={{ cursor: "pointer" }}
+                        icon={faTrash}
+                        onClick={() => openConfirmationBox(params.row.id)}
+                    />
+                </div>
+            ),
+        },
+    ];
+
+    //Defining table columns (project banners vs home banners)
+    const columns = isHomeBannerUpload ? homeBannerColumns : [
         { field: "index", headerName: "S.no", width: 100 },
         ...(showProjectNameColumn
             ? [{ field: "projectName", headerName: "Project Name", flex: 1 }]
@@ -220,7 +404,7 @@ export default function ManageBanners({ list, config = {} }) {
             renderCell: (params) => (
                 <>
                     {
-                        params.row.projectMobileBannerDtoList.map((item, index) => (
+                        params.row.projectMobileBannerDtoList?.map((item, index) => (
                             <Image
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.mobileImage}`}
@@ -241,7 +425,7 @@ export default function ManageBanners({ list, config = {} }) {
             renderCell: (params) => (
                 <>
                     {
-                        params.row.projectDesktopBannerDtoList.map((item, index) => (
+                        params.row.projectDesktopBannerDtoList?.map((item, index) => (
                             <Image
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.desktopImage}`}
@@ -383,7 +567,10 @@ export default function ManageBanners({ list, config = {} }) {
                     heading={headingLabel}
                 />
                 <div className="table-container">
-                    <DataTable columns={columns} list={list.filter(item => (item.projectDesktopBannerDtoList.length > 0) || (item.projectMobileBannerDtoList.length > 0))} />
+                    <DataTable
+                        columns={columns}
+                        list={isHomeBannerUpload ? homeBannerList : projectBannerList}
+                    />
                 </div>
             </div>
             {/* form for adding banner for project  */}
@@ -604,6 +791,17 @@ export default function ManageBanners({ list, config = {} }) {
                                 </Form.Control.Feedback>
                             </Form.Group>
                         )}
+                        {showBannerLink && (
+                            <Form.Group className="mb-3 fw-bold" controlId="bannerLink">
+                                <Form.Label>Banner link (optional)</Form.Label>
+                                <FormControl
+                                    placeholder="https://..."
+                                    type="url"
+                                    value={bannerLink || ""}
+                                    onChange={(e) => setBannerLink(e.target.value)}
+                                />
+                            </Form.Group>
+                        )}
                         {showAltTag && (
                             <Form.Group md="4" controlId="projectBannerAltTag"
                                 className="fw-bold">
@@ -629,7 +827,7 @@ export default function ManageBanners({ list, config = {} }) {
             <CommonModal
                 confirmBox={confirmBox}
                 setConfirmBox={setConfirmBox}
-                api={`${process.env.NEXT_PUBLIC_API_URL}project-banner/delete/${bannerId}`}
+                api={`${process.env.NEXT_PUBLIC_API_URL}${deleteEndpoint}/${bannerId}`}
             />
             <Modal
                 size="lg"

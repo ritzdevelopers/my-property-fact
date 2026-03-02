@@ -207,7 +207,7 @@ export default function Chatbot() {
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="MPF Logo"
                 width={40}
                 height={37}

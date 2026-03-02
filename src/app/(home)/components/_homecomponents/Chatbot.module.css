@@ -225,14 +225,13 @@
 
 .scrollArrow {
     position: absolute;
-    right: 0;
     top: 50%;
-    transform: translateY(-50%) translateX(50%);
+    transform: translateY(-50%);
     background: #C9A24D;
     border: 1px solid #B8923F;
     box-shadow: 0 4px 6px rgba(201, 162, 77, 0.2);
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -240,21 +239,45 @@
     cursor: pointer;
     z-index: 10;
     color: #ffffff;
-    font-weight: bold;
     transition: all 0.2s ease;
     opacity: 0;
     pointer-events: none;
 }
 
+.scrollArrowLeft {
+    left: 0;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.scrollArrowRight {
+    right: 0;
+    transform: translateY(-50%) translateX(35%);
+}
+
 .scrollArrow.visible {
     opacity: 1;
     pointer-events: auto;
-    transform: translateY(-50%) translateX(25%);
+}
+
+.scrollArrowLeft.visible {
+    transform: translateY(-50%) translateX(-35%);
+}
+
+.scrollArrowRight.visible {
+    transform: translateY(-50%) translateX(20%);
 }
 
 .scrollArrow:hover {
     background: #B8923F;
     box-shadow: 0 6px 12px rgba(201, 162, 77, 0.3);
+}
+
+.scrollArrowLeft:active {
+    transform: translateY(-50%) translateX(-35%) scale(0.95);
+}
+
+.scrollArrowRight:active {
+    transform: translateY(-50%) translateX(20%) scale(0.95);
 }
 
 .projectSlider {
@@ -264,9 +287,15 @@
     padding: 4px;
     padding-bottom: 12px;
     margin-top: 8px;
-    scrollbar-width: thin;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     width: 100%;
     min-height: 380px;
+    align-items: stretch;
+}
+
+.projectSlider::-webkit-scrollbar {
+    display: none;
 }
 
 .projectCard {
@@ -279,10 +308,11 @@
     flex-shrink: 0;
     transition: transform 0.2s;
     border: 1px solid #E2E8F0;
+    border-top: 3px solid #0D5834;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    min-height: 350px;
+    height: 430px;
+    min-height: 430px;
 }
 
 .projectCard:hover {
@@ -292,19 +322,40 @@
 
 .projectCard img {
     width: 100%;
-    object-fit: contain;
+    height: 180px;
+    object-fit: cover;
+    object-position: center;
+    display: block;
     background-color: #f8fafc;
 }
 
 .pCardContent {
     padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
-.pCardContent h4 {
+.pTitleRow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.pTitle {
     margin: 0 0 6px 0;
     font-size: 1rem;
     color: #1E293B;
     font-weight: 600;
+    line-height: 1.35;
+    flex: 1;
+    min-height: 2.7em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .pLoc {
@@ -312,15 +363,23 @@
     font-size: 0.8rem;
     color: #64748B;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 4px;
+    line-height: 1.35;
+    min-height: 2.2em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .pDetails {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     font-size: 0.85rem;
+    min-height: 24px;
 }
 
 .pPrice {
@@ -334,12 +393,30 @@
     padding: 2px 6px;
     border-radius: 4px;
     font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.pTypeTag {
+    background: #DBEAFE;
+    color: #1E40AF;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    white-space: nowrap;
+    margin-top: 1px;
 }
 
 .pBuilder {
     font-size: 0.75rem;
     color: #64748B;
     margin-bottom: 12px;
+    min-height: 2.2em;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .pCta,
@@ -358,6 +435,7 @@
 .pCta {
     background: #334155;
     color: #FFFFFF;
+    margin-top: auto;
 }
 
 .pCta:hover {
@@ -484,6 +562,37 @@
 .sendBtn:disabled {
     background: #CBD5E1;
     cursor: not-allowed;
+}
+
+.chatScrollHint {
+    position: absolute;
+    left: 50%;
+    bottom: 68px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 50%;
+    background: #C9A24D;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transform: translateX(-50%);
+    border: 1px solid #B8923F;
+    box-shadow: 0 4px 10px rgba(201, 162, 77, 0.35);
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.chatScrollHint:hover {
+    background: #B8923F;
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 14px rgba(201, 162, 77, 0.4);
+}
+
+.chatScrollHint:active {
+    transform: translateX(-50%) scale(0.96);
 }
 
 /* Typing Indicator */
@@ -679,7 +788,7 @@
         padding: 10px;
     }
 
-    .pCardContent h4 {
+    .pTitle {
         font-size: 0.9rem;
     }
 

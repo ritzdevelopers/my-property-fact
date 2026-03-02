@@ -141,17 +141,39 @@ function ensureSessionShape(sessionId) {
   if (!session.data) session.data = {};
   if (!session.results) session.results = { allProjects: [], currentIndex: 0 };
 
-  session.step = session.step || CHAT_STATES.WELCOME;
+  // Migrate legacy step names from old chatbot implementation.
+  const legacyToV2Step = {
+    TYPE: CHAT_STATES.AWAIT_CITY,
+    CITY: CHAT_STATES.AWAIT_BUDGET,
+    RESULTS: CHAT_STATES.SHOWING_RESULTS,
+  };
+  const rawStep = session.step || CHAT_STATES.WELCOME;
+  session.step = legacyToV2Step[rawStep] || rawStep;
+
+  const validSteps = new Set(Object.values(CHAT_STATES));
+  if (!validSteps.has(session.step)) {
+    session.step = CHAT_STATES.WELCOME;
+  }
+
   session.flags = session.flags || null;
   session.data.type = session.data.type || null;
   session.data.city = session.data.city || null;
   session.data.budget = session.data.budget || null;
+
+  
+  const legacyAllProjects = Array.isArray(session.data.allProjects)
+    ? session.data.allProjects
+    : [];
   session.results.allProjects = Array.isArray(session.results.allProjects)
     ? session.results.allProjects
-    : [];
+    : legacyAllProjects;
+
+  const legacyCurrentIndex = Number.isFinite(session.data.currentIndex)
+    ? session.data.currentIndex
+    : 0;
   session.results.currentIndex = Number.isFinite(session.results.currentIndex)
     ? session.results.currentIndex
-    : 0;
+    : legacyCurrentIndex;
 
   return session;
 }

@@ -74,9 +74,8 @@ export default function PropertyApprovalsPage() {
     try {
       const response = await axios.post(
         `${API_BASE_URL}admin/property-listings/${propertyId}/approve`,
-        {
-          withCredentials: true,
-        },
+        {},
+        { withCredentials: true },
       );
 
       if (response.status === 200) {

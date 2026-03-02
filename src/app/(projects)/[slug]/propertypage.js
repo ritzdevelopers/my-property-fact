@@ -37,7 +37,7 @@ import { LoadingSpinner } from "../../(home)/contact-us/page";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row } from "react-bootstrap";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Property({ projectDetail }) {
   const [isAnswerVisible, setIsAnswerVisible] = useState([false, false]);
@@ -60,6 +60,7 @@ export default function Property({ projectDetail }) {
     pageName: "",
   });
   const pathname = usePathname();
+  const router = useRouter();
   const [validated, setValidated] = useState(false);
   const [validated1, setValidated1] = useState(false);
   //Defining loading state
@@ -534,6 +535,37 @@ const addNearbyImageIcon = (benefit) => {
     }
   };
 
+  const handleBackToHomeClick = (e) => {
+    if (e?.preventDefault) e.preventDefault();
+
+    const menu = document.getElementById("property-mbdiv");
+    const menuButtons = document.querySelectorAll(".project-menuBtn");
+    const header = document.querySelector(".project-detail-header");
+
+    if (menu) {
+      menu.classList.remove("active");
+      menu.style.display = "none";
+    }
+    menuButtons?.forEach((btn) => btn.classList.remove("closeMenuBtn"));
+    header?.classList.remove("notfixed");
+    setMenuOpen(false);
+
+    // Ensure page is fully unlocked before route change.
+    document.body.classList.remove("menu-open");
+    document.body.classList.remove("overflow-hidden");
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+
+    router.push("/");
+
+    // Fallback for cases where client navigation is blocked by runtime state.
+    window.setTimeout(() => {
+      if (window.location.pathname !== "/") {
+        window.location.assign("/");
+      }
+    }, 250);
+  };
+
   //Generating banner src
   // const imageSrc = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail.banners[0].desktopImage}`;
   // const imageSrc = `/properties/${projectDetail.slugURL}/${projectDetail.projectThumbnail}`;
@@ -542,6 +574,11 @@ const addNearbyImageIcon = (benefit) => {
   if (!projectDetail) {
     return <NotFound />;
   }
+
+  const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+  const slugURL = projectDetail.slugURL || "";
+  const projectImageSrc = (filename) =>
+    filename && slugURL ? `${imageBase}properties/${slugURL}/${filename}` : "/static/no_image.png";
 
   const viewAllAmenities = () => {
     const amenitiesList = projectDetail.amenities || [];
@@ -565,6 +602,7 @@ const addNearbyImageIcon = (benefit) => {
         href="/"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
         aria-label="Back to MyPropertyFact home page"
+        onClick={handleBackToHomeClick}
       >
         <span className="back-to-home-floating__text">Back To Home</span>
         <span className="back-to-home-floating__icon">
@@ -584,7 +622,7 @@ const addNearbyImageIcon = (benefit) => {
                 <Image
                   width={198}
                   height={50.75}
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail.projectLogo}`}
+                  src={projectImageSrc(projectDetail.projectLogo)}
                   alt="logo"
                   className="img-fluid"
                 />
@@ -652,7 +690,7 @@ const addNearbyImageIcon = (benefit) => {
                 <div className="project-mbMenu-header d-flex align-items-center justify-content-between mb-4">
                   <Link href="/">
                     <Image
-                      src="/logo.png"
+                      src="/logo.webp"
                       alt="My Property Fact"
                       width={50}
                       height={55}
@@ -675,23 +713,7 @@ const addNearbyImageIcon = (benefit) => {
                     <Link
                       href="/"
                       className="text-decoration-none"
-                      onClick={() => {
-                        if (menuOpen) {
-                          const menu = document.getElementById("property-mbdiv");
-                          const menuButtons = document.querySelectorAll(".project-menuBtn");
-                          const header = document.querySelector(".project-detail-header");
-                          if (menu) {
-                            menu.classList.remove("active");
-                            menu.style.display = "none";
-                          }
-                          menuButtons?.forEach((btn) => btn.classList.remove("closeMenuBtn"));
-                          header?.classList.remove("notfixed");
-                          setMenuOpen(false);
-                          document.body.classList.remove("menu-open");
-                          document.body.style.overflow = "";
-                          document.body.style.position = "";
-                        }
-                      }}
+                      onClick={handleBackToHomeClick}
                     >
                       Back to Home
                     </Link>
@@ -757,7 +779,7 @@ const addNearbyImageIcon = (benefit) => {
             <div className="logo d-none d-lg-block px-4">
               <Link href="/">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="mpf-logo"
                   width={70}
                   height={70}
@@ -779,22 +801,24 @@ const addNearbyImageIcon = (benefit) => {
               return (
                 <picture className="image-con" key={`${item.id}-${index}`}>
                   {/* Mobile first */}
-                  {mobileItem && (
+                  {mobileItem?.mobileImage && (
                     <source
-                      srcSet={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${mobileItem.mobileImage}`}
+                      srcSet={projectImageSrc(mobileItem.mobileImage)}
                       media="(max-width: 640px)" // mobile breakpoint
                     />
                   )}
 
                   {/* Tablet/Laptop (falls back to desktopImage) */}
-                  <source
-                    srcSet={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${item.desktopImage}`}
-                    media="(min-width: 641px)" // tablet/laptop/desktop
-                  />
+                  {item.desktopImage && (
+                    <source
+                      srcSet={projectImageSrc(item.desktopImage)}
+                      media="(min-width: 641px)" // tablet/laptop/desktop
+                    />
+                  )}
 
                   {/* Default fallback */}
                   <Image
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${item.desktopImage}`}
+                    src={projectImageSrc(item.desktopImage)}
                     alt={item.altTag || "Property Banner"}
                     width={2225}
                     height={1065}
@@ -1094,7 +1118,7 @@ const addNearbyImageIcon = (benefit) => {
                       className="project-detail-gallery-container "
                     >
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${item.imageName}`}
+                        src={projectImageSrc(item.imageName)}
                         alt={item.altTag || "Gallery Image"}
                         fill
                         className="img-fluid rounded-5 object-fit-cover px-2 "
@@ -1188,7 +1212,7 @@ const addNearbyImageIcon = (benefit) => {
                 style={{ height: "350px" }}
               >
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail.locationMap}`}
+                  src={projectImageSrc(projectDetail.locationMap)}
                   alt="Project Location Map"
                   fill
                   className="object-fit-cover"
@@ -1208,7 +1232,7 @@ const addNearbyImageIcon = (benefit) => {
       <div
         className="container-fluid py-5 mb-5"
         style={{
-          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail?.desktopImages?.[0]?.desktopImage || ""}`})`,
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${projectImageSrc(projectDetail?.desktopImages?.[0]?.desktopImage)})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

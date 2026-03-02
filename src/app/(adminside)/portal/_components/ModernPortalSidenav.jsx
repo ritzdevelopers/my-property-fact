@@ -116,7 +116,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
           <CSidebarBrand>
             <div className="brand-container">
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="portal-logo"
                 height={40}
                 width={40}
@@ -153,7 +153,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
             >
               <div className="user-profile">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="user-avatar"
                   height={32}
                   width={32}
@@ -168,9 +168,6 @@ export default function ModernPortalSidenav({ onNavigate }) {
             <CDropdownMenu className="pt-0 user-dropdown-menu" placement="bottom-end">
               <CDropdownItem onClick={() => handleNavigation("/portal/dashboard/profile")}>
                 Profile
-              </CDropdownItem>
-              <CDropdownItem onClick={() => handleNavigation("/portal/dashboard/settings")}>
-                Settings
               </CDropdownItem>
               <CDropdownItem onClick={() => handleNavigation("/portal/dashboard/notifications")}>
                 Notifications

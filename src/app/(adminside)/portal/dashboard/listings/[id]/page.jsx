@@ -49,11 +49,11 @@ export default function ListingDetailPage() {
         },
       );
 
-      if (!response.ok) {
+      if (!response.status === 200) {
         throw new Error(`Failed to fetch property: ${response.status}`);
       }
 
-      const result = await response.json();
+      const result = await response.data;
 
       if (result.success && result.property) {
         setListing(result.property);
@@ -196,16 +196,15 @@ export default function ListingDetailPage() {
     // Split the path: property-listings/{id}/{filename}
     const pathParts = cleanImageUrl.split("/");
     if (pathParts.length >= 3 && pathParts[0] === "property-listings") {
-      // Use the specific property listing endpoint: /get/images/property-listings/{id}/{filename}
       const listingId = pathParts[1];
       const filename = pathParts.slice(2).join("/");
-      return `${apiUrl}/get/images/property-listings/${listingId}/${filename}`;
+      return `${apiUrl}get/images/property-listings/${listingId}/${filename}`;
     } else if (pathParts.length === 2) {
       // Use the 2-level endpoint: /get/images/{blogFolder}/{filename}
-      return `${apiUrl}/get/images/${pathParts[0]}/${pathParts[1]}`;
+      return `${apiUrl}get/images/${pathParts[0]}/${pathParts[1]}`;
     }
     // Fallback: try direct path
-    return `${apiUrl}/get/images/${cleanImageUrl}`;
+    return `${apiUrl}get/images/${cleanImageUrl}`;
   };
 
   const getStatusBadge = (status) => {

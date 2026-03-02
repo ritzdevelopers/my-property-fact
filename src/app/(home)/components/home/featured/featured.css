@@ -89,6 +89,17 @@
     border: 1px solid #0D5834;
 }
 
+/* Keep filter buttons centered on mobile/tablet, left on desktop */
+.featured-filter-buttons {
+    justify-content: center;
+}
+
+@media (min-width: 1024px) {
+    .featured-filter-buttons {
+        justify-content: flex-start;
+    }
+}
+
 @media (max-width: 576px) {
     .home-featured-status-badge {
         font-size: 0.65rem;

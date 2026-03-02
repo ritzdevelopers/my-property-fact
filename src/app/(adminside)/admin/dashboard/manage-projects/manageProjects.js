@@ -119,11 +119,15 @@ export default function ManageProjects({
     setFormData({
       ...initialFormData, // You can retain the initial values if needed
       ...item, // Overwrite with item data
+      amenityDescription: item.amenityDesc,
+      locationDescription: item.locationDesc,
+      floorPlanDescription: item.floorPlanDesc,
       locationMap: null,
       projectLogo: null,
       projectThumbnail: null,
-      locationMapPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.locationMapImage}`,
-      projectLogoPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.projectLogoImage}`,
+      builderId: item.builder.id,
+      locationMapPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.locationMap}`,
+      projectLogoPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.projectLogo}`,
       projectThumbnailPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.projectThumbnailImage}`,
     });
     const country = countryData?.find((c) => c.id === item.countryId);
@@ -433,7 +437,7 @@ export default function ManageProjects({
       label: "Amenity Description",
       name: "amenityDescription",
       type: "jodit",
-      // value: amenityDescription,
+      value: formData.amenityDescription,
       required: true,
       colSize: 12, // full width
     },
@@ -441,7 +445,7 @@ export default function ManageProjects({
       label: "Location Description",
       name: "locationDescription",
       type: "jodit",
-      // value: locationDescription,
+      value: formData.locationDescription,
       required: true,
       colSize: 12, // full width
     },
@@ -449,7 +453,7 @@ export default function ManageProjects({
       label: "Floor Plan Description",
       name: "floorPlanDescription",
       type: "jodit",
-      // value: floorPlanDescription,
+      value: formData.floorPlanDescription,
       required: true,
       colSize: 12, // full width
     },

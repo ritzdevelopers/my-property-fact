@@ -235,9 +235,9 @@ export default function ListingPage() {
         withCredentials: true,
       });
 
-      const result = await response.json();
+      const result = await response.data;
 
-      if (response.ok && result.success) {
+      if (response.status === 200) {
         alert('Property deleted successfully');
         // Refresh the listings
         fetchUserProperties();

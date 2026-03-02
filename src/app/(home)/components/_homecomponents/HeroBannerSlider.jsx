@@ -7,32 +7,38 @@ import Link from "next/link";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
+const DEFAULT_FALLBACK_SLIDE = {
+  id: "hero-fallback",
+  desktop: "/mpf-banner.jpg",
+  tablet: "/mpf-banner.jpg",
+  mobile: "/mpf-banner.jpg",
+  alt: "Hero banner",
+};
+
 const HeroBannerSlider = ({ slides = [] }) => {
+  const effectiveSlides = Array.isArray(slides) && slides.length > 0 ? slides : [DEFAULT_FALLBACK_SLIDE];
+
   const resolveDesktopSrc = (slide) =>
     slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
 
   const updateHeaderBackground = useCallback((slideIndex) => {
     if (typeof document === "undefined") return;
-    const slide = slides[slideIndex];
+    const slide = effectiveSlides[slideIndex];
     if (!slide) return;
     const desktopSrc = resolveDesktopSrc(slide);
     document.documentElement.style.setProperty(
       "--hero-header-bg",
       `url("${desktopSrc}")`
     );
-  }, [slides]);
+  }, [effectiveSlides]);
 
   useEffect(() => {
-    if (slides.length > 0) {
+    if (effectiveSlides.length > 0) {
       updateHeaderBackground(0);
     }
-  }, [slides, updateHeaderBackground]);
+  }, [effectiveSlides, updateHeaderBackground]);
 
-  if (!slides.length) {
-    return null;
-  }
-
-  const isSingleSlide = slides.length === 1;
+  const isSingleSlide = effectiveSlides.length === 1;
 
   const settings = {
     dots: !isSingleSlide, // Hide dots for single slide
@@ -51,7 +57,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
   return (
     <div className="hero-banner-slider">
       <Slider {...settings}>
-        {slides.map((slide, index) => {
+        {effectiveSlides.map((slide, index) => {
           const {
             id,
             desktop,

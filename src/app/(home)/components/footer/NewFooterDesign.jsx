@@ -205,7 +205,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             <div className="new-design-footer-top-left-content">
               <div className="new-design-footer-top-left-logo">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
                   alt="MPF Logo"
                   width={113}
                   height={103}

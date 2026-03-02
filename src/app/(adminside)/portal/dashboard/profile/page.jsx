@@ -60,7 +60,7 @@ const calculateProfileCompletion = (profile) => {
   if (profile.location && profile.location.trim()) filledFields++;
   if (profile.bio && profile.bio.trim()) filledFields++;
   if (profile.experience && profile.experience.trim()) filledFields++;
-  if (profile.avatar && profile.avatar.trim() && profile.avatar !== "/logo.png")
+  if (profile.avatar && profile.avatar.trim() && profile.avatar !== "/logo.webp")
     filledFields++;
 
   return Math.round((filledFields / totalFields) * 100);
@@ -228,8 +228,8 @@ export default function Profile() {
         withCredentials: true,
       });
 
-      if (response.ok) {
-        const updatedUser = await response.json();
+      if (response.status === 200) {
+        const updatedUser = await response.data;
         const updatedProfile = {
           name: updatedUser.fullName || profile.name,
           email: updatedUser.email || profile.email,
@@ -266,7 +266,7 @@ export default function Profile() {
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(null), 3000);
       } else {
-        const errorData = await response.json().catch(() => ({}));
+        const errorData = response.data;
         setError(
           errorData.message || "Failed to update profile. Please try again.",
         );

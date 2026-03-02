@@ -16,7 +16,7 @@ export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHe
 
     setIsDeleting(true);
     try {
-      const response = await axios.delete(api);
+      const response = await axios.delete(api, { withCredentials: true });
       
       // Handle successful response (204 No Content or 200 OK with message)
       if (response.status === 204 || response.status === 200) {

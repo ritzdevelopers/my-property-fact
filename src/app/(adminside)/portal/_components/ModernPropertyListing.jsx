@@ -112,6 +112,7 @@ const getFieldVisibility = (listingType, subType, status) => {
 };
 
 export default function ModernPropertyListing({ listingId: propListingId }) {
+  const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -786,13 +787,14 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     loadCities();
     loadBuilders();
     loadProjects();
-    // loadAmenities();
-    // loadFeatures();
-    // loadNearbyBenefits();
+    loadAmenities();
+    loadFeatures();
+    loadNearbyBenefits();
   }, []);
 
   // Load existing property data when listingId is provided (edit mode)
   useEffect(() => {
+   
     // Update savedListingId when propListingId changes
     if (propListingId && propListingId !== savedListingId) {
       setSavedListingId(propListingId);
@@ -808,7 +810,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     const fetchPropertyData = async () => {
       setLoadingProperty(true);
       setIsEditMode(true);
-
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL;
       try {
         const token = Cookies.get("token");
         if (!token) {
@@ -824,12 +826,10 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
           },
         );
 
-        if (!response.ok) {
+        if (!response.status === 200) {
           throw new Error(`Failed to fetch property: ${response.status}`);
         }
-
-        const result = await response.json();
-
+        const result = response.data;
         if (result.success && result.property) {
           const property = result.property;
           // Get initial form state first, then override with property data
@@ -1070,7 +1070,6 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateStep(currentStep)) {
       return;
     }
@@ -1078,25 +1077,6 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     setIsSubmitting(true);
 
     try {
-      // Get authentication token (skip check in dev so form can be tested without login)
-      
-      // if (!token && !isDev) {
-      //   alert("You must be logged in to submit a property");
-      //   setIsSubmitting(false);
-      //   return;
-      // }
-
-      // Dev only: bypass API and simulate success so you can verify form resets (no pre-filled data after submit)
-      // if (isDev) {
-      //   setFormData(getInitialFormState());
-      //   setErrors({});
-      //   setCurrentStep(1);
-      //   setCreatedProperty({ id: "dev-mock" });
-      //   setShowSuccessModal(true);
-      //   setIsSubmitting(false);
-      //   return;
-      // }
-
       // Create FormData for file upload
       const formDataObj = new FormData();
 
@@ -1126,22 +1106,12 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
       const method = isEditMode && listingId ? "PUT" : "POST";
 
-      const response = await axios.post(url, {
-        property: formDataObj,
+      const response = await axios.post(url, formDataObj, {
         withCredentials: true,
       });
 
-      const responseText = await response.text();
-      let result = null;
-      if (responseText) {
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error("Failed to parse response JSON", parseError);
-        }
-      }
-
-      if (!response.ok || !(result && result.success)) {
+      const result = response.data;
+      if (!(result && result.success)) {
         const message =
           result?.message ||
           `Failed to ${isEditMode ? "update" : "create"} property (status ${response.status})`;
@@ -1381,22 +1351,12 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
       const method = isEditMode && listingId ? "PUT" : "POST";
 
-      const response = await axios.post(url, {
-        property: formDataObj,
+      const response = await axios.post(url, formDataObj, {
         withCredentials: true,
       });
 
-      const responseText = await response.text();
-      let result = null;
-      if (responseText) {
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseError) {
-          console.error("Failed to parse response JSON", parseError);
-        }
-      }
-
-      if (!response.ok || !(result && result.success)) {
+      const result = response.data;
+      if (!(result && result.success)) {
         const message =
           result?.message ||
           `Failed to ${isEditMode ? "update" : "save draft"} (status ${response.status})`;
@@ -2501,7 +2461,7 @@ function LocationAreaStep({
 
   // Filter projects based on search term
   const filteredProjects = projectList
-    .filter((project) => {
+    .filter(project => project.propertyTypeName === data.listingType).filter((project) => {
       if (!projectSearchTerm.trim()) return false; // Don't show all when empty
       const projectName = (
         project.projectName ||

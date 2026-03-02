@@ -937,7 +937,7 @@ const HeaderComponent = () => {
               className="mobile-menu-logo"
             >
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="My Property Fact"
                 height={50}
                 width={55}

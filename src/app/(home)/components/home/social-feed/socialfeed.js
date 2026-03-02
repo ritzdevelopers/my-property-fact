@@ -17,14 +17,14 @@ export default function SocialFeed({ data }) {
           </div>
         ) : (
           <div className="container">
-            <div className="row">
+            <div className="row investor-blog-grid">
               {data?.map((blog, index) => {
                 // Always show first two cards
                 if (index < 2) {
                   return (
                     <div
                       key={index}
-                      className="col-12 col-md-6 col-lg-4 d-flex"
+                      className="col-12 col-md-6 col-lg-4 d-flex investor-blog-col"
                     >
                       <BlogCard blog={blog} />
                     </div>
@@ -36,7 +36,7 @@ export default function SocialFeed({ data }) {
                   return (
                     <div
                       key={index}
-                      className="col-12 col-md-6 col-lg-4 d-none d-lg-flex justify-content-between"
+                      className="col-12 col-md-6 col-lg-4 d-none d-lg-flex justify-content-between investor-blog-col"
                     >
                       <BlogCard blog={blog} />
                     </div>

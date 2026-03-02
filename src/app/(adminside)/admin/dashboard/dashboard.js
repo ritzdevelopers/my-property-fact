@@ -474,6 +474,48 @@ export default function Dashboard({
                                 width: '48px',
                                 height: '48px',
                                 borderRadius: '10px',
+                                background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginBottom: '1rem'
+                            }}>
+                                <span style={{ fontSize: '1.5rem' }}>🖼️</span>
+                            </div>
+                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
+                                Manage Banners
+                            </h5>
+                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
+                                Add and manage project banners and hero images.
+                            </p>
+                        </div>
+                        <Link 
+                            href="/admin/dashboard/manage-banners" 
+                            className="btn admin-action-btn"
+                            style={{
+                                background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '0.625rem 1.25rem',
+                                fontWeight: 500,
+                                transition: 'all 0.3s ease',
+                                textDecoration: 'none',
+                                display: 'inline-block'
+                            }}
+                        >
+                            Manage Banners →
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="col-md-6 col-lg-4">
+                    <div className="admin-content-card">
+                        <div className="mb-3">
+                            <div style={{
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '10px',
                                 background: 'linear-gradient(135deg, #16a085 0%, #138d75 100%)',
                                 display: 'flex',
                                 alignItems: 'center',

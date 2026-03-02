@@ -8,9 +8,8 @@ import CommonBreadCrum from "../components/common/breadcrum";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import { LoadingSpinner } from "../contact-us/page";
 import { useProjectContext } from "@/app/_global_components/contexts/projectsContext";
+import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
-  fetchCityData,
-  fetchProjectTypes,
   fetchProjectStatus,
 } from "@/app/_global_components/masterFunction";
 import { Form, Badge } from "react-bootstrap";
@@ -33,6 +32,13 @@ export default function Projects() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
   const { projectData, setProjectData } = useProjectContext();
+  const {
+    cityList: siteCityList,
+    builderList: siteBuilderList,
+    projectTypes: siteProjectTypes,
+    projectList: siteProjectList,
+    loading: siteDataLoading,
+  } = useSiteData();
   const observer = useRef(null);
   const loadMoreRef = useRef(null);
   const [isActive, setIsActive] = useState("");
@@ -64,6 +70,30 @@ export default function Projects() {
 
   // UI states
   const [showFilters, setShowFilters] = useState(false);
+  const [pendingQueryFilters, setPendingQueryFilters] = useState(null);
+
+  const toNumber = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const matchesBudgetRange = (projectPrice, budgetFilter) => {
+    const price = Number(projectPrice);
+    if (!Number.isFinite(price)) return false;
+
+    switch (budgetFilter) {
+      case "Up to 1Cr*":
+        return price <= 1;
+      case "1-3 Cr*":
+        return price >= 1 && price < 3;
+      case "3-5 Cr*":
+        return price >= 3 && price < 5;
+      case "Above 5 Cr*":
+        return price >= 5;
+      default:
+        return true;
+    }
+  };
 
   // Fetch projects with pagination
   const fetchProjects = useCallback(
@@ -110,27 +140,70 @@ export default function Projects() {
     [setProjectData, pageSize]
   );
 
-  // Fetch filtered projects
-  const fetchParamsData = async (queryP) => {
-    try {
+  // Filter projects locally using SiteDataContext (same source as chatbot).
+  const fetchParamsData = useCallback(
+    (queryP) => {
       setLoading(true);
       setInitialLoad(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}projects/search-by-type-city-budget`,
-        {
-          params: queryP,
+
+      let filtered = Array.isArray(siteProjectList) ? [...siteProjectList] : [];
+
+      if (queryP?.propertyType) {
+        const selectedType = siteProjectTypes.find(
+          (pt) => toNumber(pt.id) === toNumber(queryP.propertyType)
+        );
+        if (selectedType) {
+          if (selectedType.projectTypeName === "New Launches") {
+            filtered = filtered.filter(
+              (item) => item.projectStatusName === "New Launched"
+            );
+          } else {
+            filtered = filtered.filter(
+              (item) =>
+                item.propertyTypeName === selectedType.projectTypeName ||
+                toNumber(item.propertyTypeId) === toNumber(selectedType.id)
+            );
+          }
+        } else {
+          filtered = filtered.filter(
+            (item) => toNumber(item.propertyTypeId) === toNumber(queryP.propertyType)
+          );
         }
-      );
-      const filtered = response.data || [];
+      }
+
+      if (queryP?.propertyLocation) {
+        const selectedCity = siteCityList.find(
+          (city) => toNumber(city.id) === toNumber(queryP.propertyLocation)
+        );
+        if (selectedCity) {
+          filtered = filtered.filter(
+            (item) =>
+              item.cityName === selectedCity.cityName ||
+              toNumber(item.cityId) === toNumber(selectedCity.id)
+          );
+        } else {
+          filtered = filtered.filter(
+            (item) =>
+              toNumber(item.cityId) === toNumber(queryP.propertyLocation) ||
+              String(item.cityName || "").toLowerCase() ===
+                String(queryP.propertyLocation || "").toLowerCase()
+          );
+        }
+      }
+
+      if (queryP?.budget) {
+        filtered = filtered.filter((item) =>
+          matchesBudgetRange(item.projectPrice, queryP.budget)
+        );
+      }
+
       setAllProjectsList(filtered);
-      setHasMore(false); // Search results are not paginated
-    } catch (error) {
-      // Error handled silently - user will see empty results
-    } finally {
+      setHasMore(false); // Query-based results are not paginated
       setLoading(false);
       setInitialLoad(false);
-    }
-  };
+    },
+    [siteProjectList, siteProjectTypes, siteCityList]
+  );
 
   // Extract BHK types from projects
   useEffect(() => {
@@ -154,29 +227,23 @@ export default function Projects() {
     }
   }, [allProjectsList]);
 
-  // Fetch filter data
+  // Load filter options from SiteDataContext, and status from API.
   useEffect(() => {
-    const loadFilterData = async () => {
-      try {
-        const [typesData, citiesData, statusData, buildersData] =
-          await Promise.all([
-            fetchProjectTypes(),
-            fetchCityData(),
-            fetchProjectStatus(),
-            axios
-              .get(`${process.env.NEXT_PUBLIC_API_URL}builder/get-all`)
-              .catch(() => ({ data: [] })),
-          ]);
+    setPropertyTypes(Array.isArray(siteProjectTypes) ? siteProjectTypes : []);
+    setCities(Array.isArray(siteCityList) ? siteCityList : []);
+    setBuilders(Array.isArray(siteBuilderList) ? siteBuilderList : []);
+  }, [siteProjectTypes, siteCityList, siteBuilderList]);
 
-        setPropertyTypes(typesData?.data || typesData || []);
-        setCities(citiesData?.data || citiesData || []);
+  useEffect(() => {
+    const loadProjectStatuses = async () => {
+      try {
+        const statusData = await fetchProjectStatus();
         setProjectStatuses(statusData?.data || statusData || []);
-        setBuilders(buildersData?.data || []);
       } catch (error) {
-        console.error("Error loading filter data:", error);
+        console.error("Error loading project statuses:", error);
       }
     };
-    loadFilterData();
+    loadProjectStatuses();
   }, []);
 
   // Sync context with allProjectsList state
@@ -184,42 +251,55 @@ export default function Projects() {
     setProjectData(allProjectsList);
   }, [allProjectsList, setProjectData]);
 
-  // Initial load - check URL params first, then sessionStorage, then default
+  // Initial decision: URL/session filters or default paginated projects.
   useEffect(() => {
-    // Check for URL query parameters
     const propertyType = searchParams.get("propertyType");
     const propertyLocation = searchParams.get("propertyLocation");
     const budget = searchParams.get("budget");
-    
+
     if (propertyType || propertyLocation || budget) {
-      // URL parameters are present
       setHasUrlParams(true);
-      setShowFilters(false); // Hide filters when URL params are present
+      setShowFilters(false);
       const queryParams = {};
-      
+
       if (propertyType) queryParams.propertyType = propertyType;
       if (propertyLocation) queryParams.propertyLocation = propertyLocation;
       if (budget) queryParams.budget = budget;
-      
-      fetchParamsData(queryParams);
+
+      setPendingQueryFilters(queryParams);
       setIsActive("All");
     } else {
-      // No URL params, check sessionStorage
       setHasUrlParams(false);
+      setShowFilters(false);
       const searched_query = sessionStorage.getItem("mpf-querry");
       if (searched_query) {
         try {
           const queryP = JSON.parse(searched_query);
-          fetchParamsData(queryP);
+          setPendingQueryFilters(queryP);
           setIsActive("All");
         } catch (error) {
+          setPendingQueryFilters(null);
           fetchProjects(0, false);
         }
       } else {
+        setPendingQueryFilters(null);
         fetchProjects(0, false);
       }
     }
   }, [fetchProjects, searchParams]);
+
+  // Apply query-based filters only after SiteDataContext is ready.
+  useEffect(() => {
+    if (!pendingQueryFilters) return;
+
+    if (siteDataLoading) {
+      setLoading(true);
+      setInitialLoad(true);
+      return;
+    }
+
+    fetchParamsData(pendingQueryFilters);
+  }, [pendingQueryFilters, siteDataLoading, fetchParamsData]);
 
   // Load more handler
   const loadMore = useCallback(() => {

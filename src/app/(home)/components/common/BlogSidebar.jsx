@@ -190,7 +190,11 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
             {latestProject ? (
               <Link href={`/${latestProject.slugURL}`} className="latest-property-link-fill" prefetch={false}>
                 <Image
-                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${latestProject.slugURL}/${latestProject.projectBannerImage}`}
+                  src={
+                    latestProject.projectBannerImage && latestProject.slugURL
+                      ? `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${latestProject.slugURL}/${latestProject.projectBannerImage}`
+                      : "/static/no_image.png"
+                  }
                   alt={latestProject.projectName || "Latest Property"}
                   fill
                   sizes="(max-width: 992px) 100vw, 100vw"

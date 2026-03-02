@@ -278,8 +278,12 @@ export default function NoidaProjectsSection() {
                 delay: 5000,
                 disableOnInteraction: false,
                 pauseOnMouseEnter: true,
+                waitForTransition: false,
               }}
-              loop={cityCards.length > 3}
+              loop={cityCards.length > 1}
+              loopedSlides={cityCards.length}
+              watchOverflow={false}
+              centerInsufficientSlides={false}
               spaceBetween={8}
               slidesPerView={3}
               breakpoints={{

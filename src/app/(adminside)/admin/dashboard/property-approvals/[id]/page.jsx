@@ -63,7 +63,7 @@ export default function AdminPropertyDetailPage() {
         },
       );
 
-      if (response.data.success && response.data.property) {
+      if (response.status === 200) {
         setProperty(response.data.property);
       } else {
         setError(response.data.message || "Property not found");

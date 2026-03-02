@@ -89,7 +89,7 @@ function AdminPageContent() {
               height={100}
               width={100}
               alt="project-logo"
-              src="/logo.png"
+              src="/logo.webp"
             />
           </h3>
           <form
@@ -166,7 +166,7 @@ export default function AdminPage() {
               height={100}
               width={100}
               alt="project-logo"
-              src="/logo.png"
+              src="/logo.webp"
             />
           </h3>
           <div className="text-center">

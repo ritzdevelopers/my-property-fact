@@ -47,7 +47,7 @@ export default function RootLayout({ children }) {
               "@type": "Organization",
               name: "My Property Fact",
               url: process.env.NEXT_PUBLIC_UI_URL,
-              logo: `${process.env.NEXT_PUBLIC_UI_URL}/logo.png`,
+              logo: `${process.env.NEXT_PUBLIC_UI_URL}/logo.webp`,
               description:
                 "Discover top property insights, LOCATE scores, and real estate trends across India.",
               sameAs: [

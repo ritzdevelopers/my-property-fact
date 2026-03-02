@@ -148,7 +148,7 @@ export default function Featured({
         <div className="container">
           {autoPlay && type !== "Similar" && (
             <div
-              className={`d-flex justify-content-center justify-content-lg-start mt-4 mt-lg-2 gap-3`}
+              className="d-flex featured-filter-buttons mt-4 mt-lg-2 gap-3"
             >
               <button
                 className={`mpf-btn-primary ${projectType === "Residential" ? "active" : ""}`}

@@ -3,6 +3,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./Chatbot.module.css";
+import {
+  createInitialChatSession,
+  generateClientChatResponse,
+} from "./chatbotLogicClient";
+import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -36,34 +41,120 @@ function toMessage(payload, type = "bot") {
 }
 
 export default function ChatbotV2() {
+  const { projectList = [], projectTypes = [] } = useSiteData();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState([getInitialBotMessage()]);
+  const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [sessionId, setSessionId] = useState("");
+  const [chatSession, setChatSession] = useState(createInitialChatSession());
   const [isInputDisabled, setIsInputDisabled] = useState(true);
   const [placeholder, setPlaceholder] = useState("Please select an option");
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const [hasShownOpenTyping, setHasShownOpenTyping] = useState(false);
+  const messagesContainerRef = useRef(null);
+  const latestProjectMessageRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const openTypingTimeoutRef = useRef(null);
 
   useEffect(() => {
     setSessionId(createSessionId());
   }, []);
 
   useEffect(() => {
+    return () => {
+      if (openTypingTimeoutRef.current) {
+        clearTimeout(openTypingTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const updateScrollHint = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
+    setShowScrollHint(distanceFromBottom > 24);
+  };
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return undefined;
+
+    const handleScroll = () => updateScrollHint();
+    container.addEventListener("scroll", handleScroll);
+    updateScrollHint();
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const latestMessage = messages[messages.length - 1];
+
+    if (latestMessage?.projectCards?.length) {
+      // Keep first visible area at project cards, not CTA/follow-up buttons.
+      latestProjectMessageRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+      setTimeout(updateScrollHint, 250);
+      return;
+    }
+
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      setTimeout(updateScrollHint, 250);
     }
   }, [messages, isTyping]);
 
-  const toggleChat = () => setIsOpen((prev) => !prev);
+  const startOpenTypingIntro = () => {
+    if (openTypingTimeoutRef.current) {
+      clearTimeout(openTypingTimeoutRef.current);
+    }
+
+    setMessages([]);
+    setIsTyping(true);
+    setIsInputDisabled(true);
+    setPlaceholder("Please wait...");
+
+    openTypingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      setMessages([getInitialBotMessage()]);
+      setIsInputDisabled(true);
+      setPlaceholder("Please select an option");
+      setHasShownOpenTyping(true);
+      openTypingTimeoutRef.current = null;
+    }, 900);
+  };
+
+  const toggleChat = () => {
+    if (isOpen) {
+      if (openTypingTimeoutRef.current) {
+        clearTimeout(openTypingTimeoutRef.current);
+        openTypingTimeoutRef.current = null;
+      }
+      setIsTyping(false);
+      setIsOpen(false);
+      return;
+    }
+
+    setIsOpen(true);
+    if (!hasShownOpenTyping && messages.length === 0) {
+      startOpenTypingIntro();
+    }
+  };
 
   const resetChatOnClient = () => {
     setSessionId(createSessionId());
+    setChatSession(createInitialChatSession());
     setMessages([getInitialBotMessage()]);
     setInputValue("");
     setIsTyping(false);
     setIsInputDisabled(true);
     setPlaceholder("Please select an option");
+    setHasShownOpenTyping(true);
   };
 
   const addUserMessage = (text) => {
@@ -105,30 +196,35 @@ export default function ChatbotV2() {
     addUserMessage(messageText);
     setInputValue("");
     setIsTyping(true);
+    const typingStartTs = Date.now();
+    const minTypingDurationMs = 900;
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          message: messageText,
-        }),
-      });
-
-      const data = await response.json();
+      const { nextSession, payload } = await generateClientChatResponse(
+        messageText,
+        chatSession,
+        projectList,
+        projectTypes,
+      );
+      const elapsedTypingMs = Date.now() - typingStartTs;
+      if (elapsedTypingMs < minTypingDurationMs) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, minTypingDurationMs - elapsedTypingMs)
+        );
+      }
+      setChatSession(nextSession);
       setIsTyping(false);
 
-      if (data.reply || data.projectCards || data.options || data.followUp) {
-        addBotMessageFromPayload(data);
+      if (payload.reply || payload.projectCards || payload.options || payload.followUp) {
+        addBotMessageFromPayload(payload);
       }
 
-      if (data.redirectUrl || data.redirectPath) {
+      if (payload.redirectUrl || payload.redirectPath) {
         setTimeout(() => {
           const redirectUrl =
-            typeof data.redirectUrl === "string" ? data.redirectUrl : "";
+            typeof payload.redirectUrl === "string" ? payload.redirectUrl : "";
           const redirectPath =
-            typeof data.redirectPath === "string" ? data.redirectPath : "";
+            typeof payload.redirectPath === "string" ? payload.redirectPath : "";
           const invalidUrl =
             redirectUrl.startsWith("undefined") || redirectUrl.startsWith("null");
 
@@ -143,6 +239,12 @@ export default function ChatbotV2() {
       }
     } catch (error) {
       console.error("Chatbot sendMessage failed:", error);
+      const elapsedTypingMs = Date.now() - typingStartTs;
+      if (elapsedTypingMs < minTypingDurationMs) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, minTypingDurationMs - elapsedTypingMs)
+        );
+      }
       setIsTyping(false);
       addBotMessageFromPayload({
         reply: "Could not connect right now. Please try again.",
@@ -173,6 +275,15 @@ export default function ChatbotV2() {
     sendMessage(optionText);
   };
 
+  const scrollMessagesToBottom = () => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
+    });
+  };
+
   return (
     <>
       <button
@@ -183,16 +294,24 @@ export default function ChatbotV2() {
         {!isOpen ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
+            width="40"
+            height="40"
+            viewBox="0 0 32 32"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
           >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            <path d="M12 6h8" />
+            <path d="M16 3.5v2.5" />
+            <rect x="6" y="7.5" width="20" height="15" rx="5.5" />
+            <circle cx="12.2" cy="14.5" r="1.2" fill="currentColor" stroke="none" />
+            <circle cx="19.8" cy="14.5" r="1.2" fill="currentColor" stroke="none" />
+            <path d="M12 18.5h8" />
+            <path d="M10 22.5v3.2l3.2-3.2" />
+            <path d="M20.5 22.5v2.2h-9v-2.2" />
+            <path d="M13 24.7v-1.6h6v1.6" />
           </svg>
         ) : (
           <svg
@@ -217,7 +336,7 @@ export default function ChatbotV2() {
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
               <Image
-                src="/logo.png"
+                src="/logo.webp"
                 alt="MPF Logo"
                 width={40}
                 height={37}
@@ -252,7 +371,7 @@ export default function ChatbotV2() {
           </button>
         </div>
 
-        <div className={styles.messages}>
+        <div className={styles.messages} ref={messagesContainerRef}>
           {messages.map((message, index) => {
             const isLastMessage = index === messages.length - 1;
 
@@ -269,23 +388,31 @@ export default function ChatbotV2() {
                 ) : null}
 
                 {message.projectCards?.length ? (
-                  <ProjectSlider
-                    cards={message.projectCards}
-                    followUp={message.followUp}
-                    options={message.options}
-                    disabled={!isLastMessage}
-                    onOptionClick={handleOptionClick}
-                    onEnquire={(projectName) => {
-                      setMessages((prev) => [
-                        ...prev,
-                        {
-                          id: `form-${Date.now()}`,
-                          type: "form",
-                          projectName,
-                        },
-                      ]);
-                    }}
-                  />
+                  <div
+                    ref={
+                      isLastMessage && message.projectCards?.length
+                        ? latestProjectMessageRef
+                        : null
+                    }
+                  >
+                    <ProjectSlider
+                      cards={message.projectCards}
+                      followUp={message.followUp}
+                      options={message.options}
+                      disabled={!isLastMessage}
+                      onOptionClick={handleOptionClick}
+                      onEnquire={(projectName) => {
+                        setMessages((prev) => [
+                          ...prev,
+                          {
+                            id: `form-${Date.now()}`,
+                            type: "form",
+                            projectName,
+                          },
+                        ]);
+                      }}
+                    />
+                  </div>
                 ) : null}
 
                 {message.followUp && !message.projectCards?.length ? (
@@ -329,6 +456,29 @@ export default function ChatbotV2() {
           ) : null}
           <div ref={messagesEndRef} />
         </div>
+
+        {showScrollHint ? (
+          <button
+            className={styles.chatScrollHint}
+            onClick={scrollMessagesToBottom}
+            aria-label="Scroll down"
+            title="Scroll down"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+        ) : null}
 
         <div className={styles.inputArea}>
           <input
@@ -377,12 +527,14 @@ function ProjectSlider({
   disabled,
 }) {
   const sliderRef = useRef(null);
-  const [showArrow, setShowArrow] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   const checkScroll = () => {
     if (!sliderRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-    setShowArrow(scrollLeft < scrollWidth - clientWidth - 5);
+    setCanScrollLeft(scrollLeft > 5);
+    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 5);
   };
 
   useEffect(() => {
@@ -390,6 +542,10 @@ function ProjectSlider({
     window.addEventListener("resize", checkScroll);
     return () => window.removeEventListener("resize", checkScroll);
   }, [cards]);
+
+  const scrollLeft = () => {
+    sliderRef.current?.scrollBy({ left: -300, behavior: "smooth" });
+  };
 
   const scrollRight = () => {
     sliderRef.current?.scrollBy({ left: 300, behavior: "smooth" });
@@ -416,7 +572,12 @@ function ProjectSlider({
               }}
             />
             <div className={styles.pCardContent}>
-              <h4>{card.name}</h4>
+              <div className={styles.pTitleRow}>
+                <h4 className={styles.pTitle}>{card.name}</h4>
+                {card.propertyType ? (
+                  <span className={styles.pTypeTag}>{card.propertyType}</span>
+                ) : null}
+              </div>
               <p className={styles.pLoc}>📍 {card.location}</p>
               <div className={styles.pDetails}>
                 <span className={styles.pPrice}>{card.price}</span>
@@ -441,10 +602,45 @@ function ProjectSlider({
       </div>
 
       <button
-        className={`${styles.scrollArrow} ${showArrow ? styles.visible : ""}`}
-        onClick={scrollRight}
+        className={`${styles.scrollArrow} ${styles.scrollArrowLeft} ${canScrollLeft ? styles.visible : ""}`}
+        onClick={scrollLeft}
+        aria-label="Scroll left"
+        type="button"
       >
-        &#8594;
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+      </button>
+
+      <button
+        className={`${styles.scrollArrow} ${styles.scrollArrowRight} ${canScrollRight ? styles.visible : ""}`}
+        onClick={scrollRight}
+        aria-label="Scroll right"
+        type="button"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="m9 18 6-6-6-6" />
+        </svg>
       </button>
 
       {followUp || cards?.length ? (

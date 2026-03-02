@@ -54,7 +54,7 @@ export default function MpfTopPicks({ topProject }) {
       ? `${imageBase}properties/${slugURL}/${projectLogo}`
       : projectLogo?.startsWith("http")
         ? projectLogo
-        : "/logo.png";
+        : "/logo.webp";
 
   // Returning the MPF top picks section
   return (

@@ -11,8 +11,14 @@ import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
-export default function ManageBanners({ list }) {
+export default function ManageBanners({ list, config = {} }) {
     const router = useRouter();
+    const addButtonLabel = config.addButtonLabel || "+ Add Project Banner";
+    const headingLabel = config.headingLabel || "Manage Project Banners";
+    const showTabletBannerColumn = Boolean(config.showTabletBannerColumn);
+    const showProjectSelect = config.showProjectSelect !== false;
+    const showProjectNameColumn = config.showProjectNameColumn !== false;
+    const showAltTag = config.showAltTag !== false;
     const [showModal, setShowModal] = useState(false);
     const [title, setTitle] = useState(null);
     const [buttonName, setButtonName] = useState(null);
@@ -24,8 +30,10 @@ export default function ManageBanners({ list }) {
     const [showLoading, setShowLoading] = useState(false);
     const [confirmBox, setConfirmBox] = useState(false);
     const [mobileBannerImages, setMobileBannerImages] = useState([]);
+    const [tabletBannerImages, setTabletBannerImages] = useState([]);
     const [desktopBannerImages, setDesktopBannerImages] = useState([]);
     const [deletedMobileImageIds, setDeletedMobileImageIds] = useState([]);
+    const [deletedTabletImageIds, setDeletedTabletImageIds] = useState([]);
     const [deletedDesktopImageIds, setDeletedDesktopImageIds] = useState([]);
     const [imagePopUp, setImagePopUp] = useState(false);
     const [popUpImageSrc, setPopUpImageSrc] = useState(null);
@@ -42,15 +50,27 @@ export default function ManageBanners({ list }) {
         if (form.checkValidity() === true) {
             setShowLoading(true);
             setButtonName("");
-            formData.append("projectId", projectId);
-            formData.append("altTag", altTag);
+            if (showProjectSelect) {
+                formData.append("projectId", projectId);
+            }
+            if (showAltTag) {
+                formData.append("altTag", altTag);
+            }
             formData.append("deletedMobileImageIds", deletedMobileImageIds);
+            formData.append("deletedTabletImageIds", deletedTabletImageIds);
             formData.append("deletedDesktopImageIds", deletedDesktopImageIds);
             mobileBannerImages
                 .filter(img => img.file)
                 .forEach(img => {
                     if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
                         formData.append("projectMobileBannerImageList", img.file);
+                    }
+                });
+            tabletBannerImages
+                .filter(img => img.file)
+                .forEach(img => {
+                    if (img && typeof img.file.name === "string" && img.file.size && img.file.type) {
+                        formData.append("projectTabletBannerImageList", img.file);
                     }
                 });
             desktopBannerImages
@@ -95,11 +115,13 @@ export default function ManageBanners({ list }) {
         setProjectId(0);
         setButtonName("Add");
         setMobileBannerImages([]);
+        setTabletBannerImages([]);
         setDesktopBannerImages([]);
         setDeletedMobileImageIds([]);
+        setDeletedTabletImageIds([]);
         setDeletedDesktopImageIds([]);
         setIsEditBanner(false);
-        setProjectList(list.filter(item => item.projectBannerList.length === 0));
+        setProjectList(showProjectSelect ? list.filter(item => item.projectBannerList.length === 0) : []);
     };
 
     const openEditModel = (item) => {
@@ -110,6 +132,19 @@ export default function ManageBanners({ list }) {
             isNew: false
         }));
         setMobileBannerImages(formattedMobileBanners);
+        const existingTabletList = getTabletBannerList(item);
+        const formattedTabletBanners = existingTabletList
+            .map((img) => {
+                const imageName = img.tabletImage || img.image || img.bannerImage;
+                if (!imageName) return null;
+                return {
+                    id: img.id,
+                    preview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${imageName}`,
+                    isNew: false,
+                };
+            })
+            .filter(Boolean);
+        setTabletBannerImages(formattedTabletBanners);
         // Bind existing desktop images
         const formattedDesktopBanners = item.projectDesktopBannerDtoList.map((img) => ({
             id: img.id,
@@ -148,15 +183,36 @@ export default function ManageBanners({ list }) {
         setDesktopBannerImages((prev) => [...prev, ...newImages]);
     };
 
+    const handleTabletBannerFileChange = (e) => {
+        const files = Array.from(e.target.files);
+        const newImages = files.map((file) => ({
+            file,
+            preview: URL.createObjectURL(file),
+        }));
+        setTabletBannerImages((prev) => [...prev, ...newImages]);
+    };
+
     //Handling deletion of banner
     const openConfirmationBox = (id) => {
         setConfirmBox(true);
         setBannerId(id);
     }
+
+    const getTabletBannerList = (row) => {
+        if (Array.isArray(row?.projectTabletBannerDtoList)) {
+            return row.projectTabletBannerDtoList;
+        }
+        if (Array.isArray(row?.tabletBannerDtoList)) {
+            return row.tabletBannerDtoList;
+        }
+        return [];
+    };
     //Defining table columns
     const columns = [
         { field: "index", headerName: "S.no", width: 100 },
-        { field: "projectName", headerName: "Project Name", flex: 1 },
+        ...(showProjectNameColumn
+            ? [{ field: "projectName", headerName: "Project Name", flex: 1 }]
+            : []),
         {
             field: "mobileBanner",
             headerName: "Mobile Banner",
@@ -198,16 +254,50 @@ export default function ManageBanners({ list }) {
                 </>
             ),
         },
-        {
-            field: "altTag", headerName: "Alt Tag", flex: 1,
-            renderCell: (params) => (
-                <div>
-                    {params.row.projectBannerList
-                        ?.map(image => image.altTag)
-                        .join(", ")}
-                </div>
-            )
-        },
+        ...(showTabletBannerColumn
+            ? [
+                {
+                    field: "tabletBanner",
+                    headerName: "Tablet Banner",
+                    flex: 1,
+                    renderCell: (params) => (
+                        <>
+                            {getTabletBannerList(params.row).map((item, index) => {
+                                const slug = item.slugURL || params.row?.slugURL;
+                                const imageName = item.tabletImage || item.image || item.bannerImage;
+                                if (!slug || !imageName) return null;
+                                return (
+                                    <Image
+                                        key={index}
+                                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${slug}/${imageName}`}
+                                        alt={item.tabletAltTag || item.altTag || "Home Tablet Banner"}
+                                        width={120}
+                                        height={50}
+                                        className="rounded-2 mx-1"
+                                    />
+                                );
+                            })}
+                        </>
+                    ),
+                },
+            ]
+            : []),
+        ...(showAltTag
+            ? [
+                {
+                    field: "altTag",
+                    headerName: "Alt Tag",
+                    flex: 1,
+                    renderCell: (params) => (
+                        <div>
+                            {params.row.projectBannerList
+                                ?.map(image => image.altTag)
+                                .join(", ")}
+                        </div>
+                    ),
+                },
+            ]
+            : []),
         {
             field: "action",
             headerName: "Action",
@@ -263,6 +353,22 @@ export default function ManageBanners({ list }) {
         });
     };
 
+    const removeTabletImage = (index) => {
+        setTabletBannerImages((prev) => {
+            const updated = [...prev];
+            const removed = updated.splice(index, 1)[0];
+            if (removed.isNew === false) {
+                setDeletedTabletImageIds((prevIds) => {
+                    if (!prevIds.includes(removed.id)) {
+                        return [...prevIds, removed.id];
+                    }
+                    return prevIds;
+                });
+            }
+            return updated;
+        });
+    };
+
     //Opening image popup to view image
     const openImagePopUp = (src) => {
         setPopUpImageSrc(src);
@@ -272,9 +378,9 @@ export default function ManageBanners({ list }) {
         <div>
             <div className="conatiner">
                 <DashboardHeader
-                    buttonName={"+ Add Project Banner"}
+                    buttonName={addButtonLabel}
                     functionName={openAddBanner}
-                    heading={"Manage Project Banners"}
+                    heading={headingLabel}
                 />
                 <div className="table-container">
                     <DataTable columns={columns} list={list.filter(item => (item.projectDesktopBannerDtoList.length > 0) || (item.projectMobileBannerDtoList.length > 0))} />
@@ -287,30 +393,32 @@ export default function ManageBanners({ list }) {
                 </Modal.Header>
                 <Modal.Body>
                     <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                        <Form.Group className="fw-bold mb-3" md="4" controlId="selectProjectForBanner">
-                            <Form.Label>Select Project</Form.Label>
-                            <Form.Select
-                                aria-label="Default select example"
-                                onChange={(e) => setProjectId(e.target.value)}
-                                value={projectId}
-                                required
-                                disabled={isEditBanner}
-                            >
-                                <option value="">Select Project</option>
-                                {projectList.map((item) => (
-                                    <option
-                                        className="text-uppercase"
-                                        key={item.id}
-                                        value={item.id}
-                                    >
-                                        {item.projectName}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                            <Form.Control.Feedback type="invalid">
-                                Project is required !
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                        {showProjectSelect && (
+                            <Form.Group className="fw-bold mb-3" md="4" controlId="selectProjectForBanner">
+                                <Form.Label>Select Project</Form.Label>
+                                <Form.Select
+                                    aria-label="Default select example"
+                                    onChange={(e) => setProjectId(e.target.value)}
+                                    value={projectId}
+                                    required
+                                    disabled={isEditBanner}
+                                >
+                                    <option value="">Select Project</option>
+                                    {projectList.map((item) => (
+                                        <option
+                                            className="text-uppercase"
+                                            key={item.id}
+                                            value={item.id}
+                                        >
+                                            {item.projectName}
+                                        </option>
+                                    ))}
+                                </Form.Select>
+                                <Form.Control.Feedback type="invalid">
+                                    Project is required !
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        )}
                         <Form.Group className="mb-3">
                             <Form.Label className="fw-bold">Select Mobile Banner</Form.Label>
                             {/* Container */}
@@ -435,20 +543,83 @@ export default function ManageBanners({ list }) {
                                 Project desktop banner is required !
                             </Form.Control.Feedback>
                         </Form.Group>
-                        <Form.Group md="4" controlId="projectBannerAltTag"
-                            className="fw-bold">
-                            <Form.Label>Alt Tag</Form.Label>
-                            <FormControl
-                                placeholder="Alt Tag"
-                                type="text"
-                                value={altTag || ""}
-                                onChange={(e) => setAltTag(e.target.value)}
-                                required
-                            />
-                            <Form.Control.Feedback type="invalid">
-                                Alt tag is required !
-                            </Form.Control.Feedback>
-                        </Form.Group>
+                        {showTabletBannerColumn && (
+                            <Form.Group className="mb-3">
+                                <Form.Label className="fw-bold">Select Tablet Banner</Form.Label>
+                                <div className="p-3 border rounded" style={{ minHeight: "120px" }}>
+                                    {tabletBannerImages.length > 0 ? (
+                                        <div className="d-flex flex-wrap gap-3">
+                                            {tabletBannerImages.map((img, index) => (
+                                                <div key={index} style={{ position: "relative" }}>
+                                                    <Image
+                                                        className="rounded-2 d-block my-2"
+                                                        src={img.preview}
+                                                        alt="preview"
+                                                        width={160}
+                                                        height={90}
+                                                        onClick={() => openImagePopUp(img.preview)}
+                                                    />
+                                                    <Button
+                                                        variant="danger"
+                                                        size="sm"
+                                                        style={{
+                                                            position: "absolute",
+                                                            top: "-8px",
+                                                            right: "-8px",
+                                                            borderRadius: "50%",
+                                                            padding: "0px 6px",
+                                                        }}
+                                                        onClick={() => removeTabletImage(index)}
+                                                    >
+                                                        ×
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-muted">No images selected</p>
+                                    )}
+                                </div>
+
+                                <div className="mt-2">
+                                    <Form.Control
+                                        type="file"
+                                        multiple
+                                        onChange={handleTabletBannerFileChange}
+                                        style={{ display: "none" }}
+                                        id="tabletImageUploadInput"
+                                    />
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        onClick={() =>
+                                            document.getElementById("tabletImageUploadInput").click()
+                                        }
+                                    >
+                                        + Add More Images
+                                    </Button>
+                                </div>
+                                <Form.Control.Feedback type="invalid">
+                                    Tablet banner is required !
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        )}
+                        {showAltTag && (
+                            <Form.Group md="4" controlId="projectBannerAltTag"
+                                className="fw-bold">
+                                <Form.Label>Alt Tag</Form.Label>
+                                <FormControl
+                                    placeholder="Alt Tag"
+                                    type="text"
+                                    value={altTag || ""}
+                                    onChange={(e) => setAltTag(e.target.value)}
+                                    required
+                                />
+                                <Form.Control.Feedback type="invalid">
+                                    Alt tag is required !
+                                </Form.Control.Feedback>
+                            </Form.Group>
+                        )}
                         <Button className="mt-3 btn btn-success" type="submit" disabled={showLoading}>
                             {buttonName} <LoadingSpinner show={showLoading} />
                         </Button>

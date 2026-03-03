@@ -8,6 +8,7 @@ import {
   generateClientChatResponse,
 } from "./chatbotLogicClient";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import { usePathname } from "next/navigation";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -401,13 +402,14 @@ export default function ChatbotV2() {
                       options={message.options}
                       disabled={!isLastMessage}
                       onOptionClick={handleOptionClick}
-                      onEnquire={(projectName) => {
+                      onEnquire={(projectName, projectLink) => {
                         setMessages((prev) => [
                           ...prev,
                           {
                             id: `form-${Date.now()}`,
                             type: "form",
                             projectName,
+                            projectLink,
                           },
                         ]);
                       }}
@@ -424,6 +426,7 @@ export default function ChatbotV2() {
                 {message.type === "form" ? (
                   <LeadForm
                     projectName={message.projectName}
+                    projectLink={message.projectLink}
                     sessionId={sessionId}
                     onSuccess={handleEnquirySuccess}
                   />
@@ -592,7 +595,7 @@ function ProjectSlider({
               </button>
               <button
                 className={styles.pEnquire}
-                onClick={() => onEnquire(card.name)}
+                onClick={() => onEnquire(card.name, card.link)}
               >
                 Enquire
               </button>
@@ -684,24 +687,35 @@ function ProjectSlider({
   );
 }
 
-function LeadForm({ projectName, sessionId, onSuccess }) {
-  const [name, setName] = useState("");
-  const [mobile, setMobile] = useState("");
-  const [email, setEmail] = useState("");
+function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    enquiryFrom: "",
+    projectLink: "",
+    pageName: "",
+  });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const pathName = usePathname();
+
+  const handleChange = (field, value) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async () => {
-    if (!name || name.trim().length < 3) {
+    if (!formData.name || formData.name.trim().length < 3) {
       setError("Name must be at least 3 characters.");
       return;
     }
-    if (!/^[6-9]\d{9}$/.test(mobile)) {
+    if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ""))) {
       setError("Please enter a valid 10-digit mobile number.");
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError("Please enter a valid email address.");
       return;
     }
@@ -710,20 +724,32 @@ function LeadForm({ projectName, sessionId, onSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/enquiry", {
+      const submitData = {
+        ...formData,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.replace(/\D/g, "").slice(-10),
+        message: formData.message || `Enquiry for ${projectName || "project"} from Chatbot`,
+        enquiryFrom: "Chatbot",
+        projectLink: projectLink || (() => {
+          const base = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
+          return projectName
+            ? `${base}/${String(projectName).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`
+            : `${base}/`;
+        })(),
+        pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
+        sessionId,
+      };
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}enquiry/post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          name: name.trim(),
-          mobile,
-          email: email.trim(),
-          project: projectName,
-        }),
+        body: JSON.stringify(submitData),
       });
 
       const payload = await response.json();
-      if (payload.success) {
+      const isOk = payload.success || payload.isSuccess === 1;
+      if (isOk) {
         setIsSuccess(true);
         onSuccess(payload.reply, payload.followUp, payload.options);
       } else {
@@ -759,23 +785,31 @@ function LeadForm({ projectName, sessionId, onSuccess }) {
         type="text"
         className={styles.formInput}
         placeholder="Full Name *"
-        value={name}
-        onChange={(event) => setName(event.target.value)}
+        value={formData.name}
+        onChange={(e) => handleChange("name", e.target.value)}
       />
       <input
         type="tel"
         className={styles.formInput}
         placeholder="Mobile Number (10 digits) *"
         maxLength="10"
-        value={mobile}
-        onChange={(event) => setMobile(event.target.value)}
+        value={formData.phone}
+        onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
       />
       <input
         type="email"
         className={styles.formInput}
         placeholder="Email ID *"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        value={formData.email}
+        onChange={(e) => handleChange("email", e.target.value)}
+      />
+      <textarea
+        className={styles.formInput}
+        placeholder="Message (optional)"
+        rows={3}
+        value={formData.message}
+        onChange={(e) => handleChange("message", e.target.value)}
+        style={{ resize: "vertical", minHeight: "60px" }}
       />
       <button
         className={styles.submitBtn}

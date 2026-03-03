@@ -1,8 +1,9 @@
 import Image from "next/image";
-import dynamic from "next/dynamic";
+// import dynamic from "next/dynamic";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
 
+/* --- SLIDER CODE (commented for Holi static banner) ---
 const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
   ssr: true,
   loading: () => (
@@ -91,12 +92,6 @@ function getHomeBannersApiUrl() {
   return base ? `${base}/home-banner/all` : "";
 }
 
-/**
- * Groups banners into slides by bannerLink. Each slide uses device-specific images:
- * - desktop breakpoint: desktop image, fallback tablet then mobile if missing
- * - tablet breakpoint: tablet image, fallback desktop then mobile if missing
- * - mobile breakpoint: mobile image, fallback tablet then desktop if missing
- */
 function transformBannersToSlides(banners, imageBaseUrl) {
   if (!Array.isArray(banners) || banners.length === 0 || !imageBaseUrl) return [];
   const imageUrl = (name) => (name ? `${imageBaseUrl}/${name}` : null);
@@ -126,7 +121,6 @@ function transformBannersToSlides(banners, imageBaseUrl) {
   const slides = [];
   let slideIndex = 0;
   for (const [key, s] of byLink) {
-    // Use each device's own image; fallback to other devices only when that device image is missing
     const desktop = s.desktop || s.tablet || s.mobile || "/mpf-banner.jpg";
     const tablet = s.tablet || s.desktop || s.mobile || "/mpf-banner.jpg";
     const mobile = s.mobile || s.tablet || s.desktop || "/mpf-banner.jpg";
@@ -157,20 +151,61 @@ async function fetchHomeBanners() {
   }
   return [];
 }
+--- END SLIDER CODE ---
+*/
+
+/** Static Holi banner - for Holi purpose only. Tablet & desktop use the same wide image. */
+const HOLI_BANNER = {
+  mobile: "/static/banners/Happy-Holi-MPF-mobile.png",
+  tablet: "/static/banners/Happy-Holi-MPF-desktop.png", // desktop image for tablet
+  desktop: "/static/banners/Happy-Holi-MPF-desktop.png",
+  alt: "Happy Holi - My Property Fact",
+};
 
 export default async function HeroSection({ projectTypeList, cityList }) {
-  const banners = await fetchHomeBanners();
-  const imageBaseUrl = getImageBaseUrl();
-  const apiSlides = transformBannersToSlides(banners, imageBaseUrl);
-  const heroSlides = apiSlides.length > 0 ? apiSlides : FALLBACK_SLIDES;
-
   return (
     <>
       <div className="position-relative hero-section-wrapper">
         <div className="mpf-hero-banner position-relative">
           <div className="position-relative">
-            {/* LCP: first slide rendered as priority image; slider loads after */}
-            <HeroBannerSlider slides={heroSlides} />
+            {/* Static Holi banner - no API fetch, no slider */}
+            <div className="hero-banner-slider hero-lcp-fallback">
+              <div className="position-relative home-banner hero-banner-responsive-images">
+                <Image
+                  src={HOLI_BANNER.mobile}
+                  alt={HOLI_BANNER.alt}
+                  width={768}
+                  height={430}
+                  className="img-fluid w-100 d-md-none"
+                  priority
+                  fetchPriority="high"
+                  quality={75}
+                  sizes="100vw"
+                />
+                <Image
+                  src={HOLI_BANNER.tablet}
+                  alt={HOLI_BANNER.alt}
+                  width={1024}
+                  height={576}
+                  className="img-fluid w-100 d-none d-md-block d-lg-none"
+                  priority
+                  fetchPriority="high"
+                  quality={75}
+                  sizes="100vw"
+                />
+                <Image
+                  src={HOLI_BANNER.desktop}
+                  alt={HOLI_BANNER.alt}
+                  width={1920}
+                  height={600}
+                  className="img-fluid w-100 d-none d-lg-block"
+                  priority
+                  fetchPriority="high"
+                  quality={75}
+                  sizes="100vw"
+                />
+              </div>
+            </div>
             {/* Republic day emblem component on hero section*/}
             {/* <div className="hero-center-emblem">
               <Image

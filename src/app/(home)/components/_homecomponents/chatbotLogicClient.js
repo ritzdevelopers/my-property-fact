@@ -134,18 +134,28 @@ function resolveProjectTypeId(typeKey, projectTypes = []) {
 function resolveCity(message) {
   const normalizedInput = normalizeCityInput(message);
   if (!normalizedInput) return null;
+  if (CITY_MAP[normalizedInput]) return normalizedInput;
+  if (CITY_ALIASES[normalizedInput]) return CITY_ALIASES[normalizedInput];
+  return null;
+}
 
-  const matchable = [...Object.keys(CITY_MAP), ...Object.keys(CITY_ALIASES)].sort(
-    (a, b) => b.length - a.length,
+function resolveCustomCity(message, projectList = []) {
+  const normalizedInput = normalizeText(message);
+  if (!normalizedInput) return null;
+
+  // Accept only pure city text; reject mixed inputs like "2cr faridabad".
+  if (!/^[a-z\s]+$/.test(normalizedInput)) return null;
+
+  const knownCity = resolveCity(normalizedInput);
+  if (knownCity) return knownCity;
+
+  const allProjects = Array.isArray(projectList) ? projectList : [];
+  const projectCityMatch = allProjects.find(
+    (project) => normalizeCityInput(project?.cityName || "") === normalizedInput,
   );
+  if (projectCityMatch) return normalizedInput;
 
-  const hit = matchable.find((key) => {
-    const regex = new RegExp(`\\b${escapeRegex(key)}\\b`, "i");
-    return regex.test(normalizedInput);
-  });
-
-  if (!hit) return null;
-  return CITY_MAP[hit] ? hit : CITY_ALIASES[hit];
+  return null;
 }
 
 function resolveBudget(message) {
@@ -516,22 +526,20 @@ export async function generateClientChatResponse(
       };
     }
 
-    const city = resolveCity(msg);
-    const customCity = normalizeCityInput(message);
-    if (!city && !customCity) {
+    const selectedCity = resolveCustomCity(message, projectList);
+    if (!selectedCity) {
       return {
         nextSession,
         payload: {
-          reply: "Please type your preferred city name.",
-          options: [],
+          reply: "You Entered Wrong Input. Select City Name from Below or Provide Correct City Name",
+          options: CITY_OPTIONS,
         },
       };
     }
 
-    const selectedCity = city || customCity;
-    const hasRelatedProjects =
-      Array.isArray(projectList) &&
-      projectList.some((project) => projectMatchesSelectedCity(project, selectedCity));
+    const hasRelatedProjects = Array.isArray(projectList)
+      ? projectList.some((project) => projectMatchesSelectedCity(project, selectedCity))
+      : false;
 
     if (!hasRelatedProjects) {
       return {

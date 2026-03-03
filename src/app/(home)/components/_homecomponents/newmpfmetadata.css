@@ -172,7 +172,7 @@
 /* Stable layout for 425px–1023px - prevents hero section instability */
 @media (min-width: 425px) and (max-width: 1023.98px) {
   .mpf-metadata-container {
-    padding-top: 50px;
+    padding-top: 0px;
     padding-left: 16px;
     padding-right: 16px;
     margin-top: 55px !important;

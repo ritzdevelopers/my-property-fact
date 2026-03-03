@@ -157,8 +157,8 @@ async function fetchHomeBanners() {
 /** Static Holi banner - for Holi purpose only. Tablet & desktop use the same wide image. */
 const HOLI_BANNER = {
   mobile: "/static/banners/Happy-Holi-MPF-mobile.png",
-  tablet: "/static/banners/Happy-Holi-MPF-desktop.png", // desktop image for tablet
-  desktop: "/static/banners/Happy-Holi-MPF-desktop.png",
+  tablet: "/static/banners/Happy-Holi-MPF.png", 
+  desktop: "/static/banners/Happy-Holi-MPF.png",
   alt: "Happy Holi - My Property Fact",
 };
 
@@ -179,7 +179,7 @@ export default async function HeroSection({ projectTypeList, cityList }) {
                   className="img-fluid w-100 d-md-none"
                   priority
                   fetchPriority="high"
-                  quality={75}
+                  quality={100}
                   sizes="100vw"
                 />
                 <Image
@@ -190,8 +190,8 @@ export default async function HeroSection({ projectTypeList, cityList }) {
                   className="img-fluid w-100 d-none d-md-block d-lg-none"
                   priority
                   fetchPriority="high"
-                  quality={75}
-                  sizes="100vw"
+                  quality={100}
+               
                 />
                 <Image
                   src={HOLI_BANNER.desktop}
@@ -201,8 +201,8 @@ export default async function HeroSection({ projectTypeList, cityList }) {
                   className="img-fluid w-100 d-none d-lg-block"
                   priority
                   fetchPriority="high"
-                  quality={75}
-                  sizes="100vw"
+                
+   
                 />
               </div>
             </div>

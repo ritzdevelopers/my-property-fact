@@ -212,7 +212,7 @@ export default function NewContactUs() {
       {/* Contact inforamtion of MPF here  */}
       <div className="container-fluid">
         <div className="container">
-          <div className="row py-5">
+          <div className="row py-5 contact-cards-row">
             <div className="col-lg-4 col-md-6 col-sm-12 p-2">
               <div className="contact-info-container border">
                 <div className="contact-info-container-child">
@@ -225,7 +225,9 @@ export default function NewContactUs() {
                     />
                   </div>
                   <h3 className="plus-jakarta-sans-semi-bold">Address</h3>
-                  <p>6th Floor Tower A1, Corporate Park, Noida-142, India</p>
+                  <p className="contact-address-text">
+                    6th Floor, Unit No.603, Corporate Park Tower A, Plot No. 7A/1, Near Advant Building, Sector 142, Gautam Buddha Nagar, Noida, Pin-201305.(UP)
+                  </p>
                 </div>
               </div>
             </div>

@@ -226,7 +226,7 @@ export default function NewContactUs() {
                   </div>
                   <h3 className="plus-jakarta-sans-semi-bold">Address</h3>
                   <p className="contact-address-text">
-                    6th Floor, Unit No.603, Corporate Park Tower A, Plot No. 7A/1, Near Advant Building, Sector 142, Gautam Buddha Nagar, Noida, Pin-201305.(UP)
+                    Unit no: 603, 6th Floor, Corporate Park Tower A1, Sector 142 Noida
                   </p>
                 </div>
               </div>

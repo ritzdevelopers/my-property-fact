@@ -220,7 +220,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               <div className="contact-item-footer contact-item-full">
                 <span className="contact-label">ADDRESS:</span>
                 <span className="contact-value">
-                  6th Floor Tower A1, Corporate Park Noida-142, India
+                  Unit no: 603, 6th Floor, Corporate Park Tower A1, Sector 142 Noida
                 </span>
               </div>
               <div className="contact-item-row">

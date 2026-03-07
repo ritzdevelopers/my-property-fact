@@ -6,12 +6,11 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/a/macros/ritzmediaworld.com/s/AKfycbxQfo3z2oSU6WNkTJfqJQDsk7mQa7ZX-xPn5AZIaLhHXabRY4bUHi99ETeGtylw0Ka0/exec';
-const SHEET_NAME = 'Google Display';
 
-async function submitToGoogleSheets(formData, formType = 'contact') {
+async function submitToGoogleSheets(formData, formType = 'contact', sheetName = 'Google Display') {
   try {
     const data = {
-      sheetName: SHEET_NAME,
+      sheetName,
       Name: formData.name || formData.get('name'),
       Email: formData.email || formData.get('email'),
       Phone: formData.phone || formData.get('phone'),
@@ -64,7 +63,9 @@ async function handleCRMData(formData) {
   }
 }
 
-function Page() {
+function Page({ sheet_name }) {
+  const sheetName = sheet_name ?? 'Google Display';
+
   useEffect(() => {
     function openContactModal() {
       const modal = document.getElementById('contactModal');
@@ -97,7 +98,7 @@ function Page() {
       }
       try {
         const formData = new FormData(form);
-        const result = await submitToGoogleSheets(formData, 'contact');
+        const result = await submitToGoogleSheets(formData, 'contact', sheetName);
         await handleCRMData(formData);
         if (result.success) {
           sessionStorage.setItem('previousUrl', window.location.href);
@@ -129,7 +130,7 @@ function Page() {
       if (submitLoading) submitLoading.classList.remove('hidden');
       try {
         const formData = new FormData(form);
-        const result = await submitToGoogleSheets(formData, 'modal');
+        const result = await submitToGoogleSheets(formData, 'modal', sheetName);
         if (result.success) {
           closeContactModal();
           sessionStorage.setItem('previousUrl', window.location.href);
@@ -430,7 +431,7 @@ function Page() {
       modalEl?.removeEventListener('click', onModalBackdropClick);
       window.removeEventListener('resize', onHighlightsResize);
     };
-  }, []);
+  }, [sheetName]);
 
   return (
        
@@ -438,7 +439,7 @@ function Page() {
 
 {/* Desktop Header */}
 <nav id="navbar"
-    className="hidden lg:flex w-full fixed  top-0 z-50 justify-between items-center px-4 xl:px-6 py-2 lg:py-5 transition-all duration-300 bg-transparent">
+    className="navbar-desktop w-full fixed top-0 z-50 justify-between items-center px-4 xl:px-6 py-2 lg:py-5 transition-all duration-300 bg-transparent">
     <div className="w-full max-w-7xl mx-auto md:w-[668px] lg:w-full flex justify-between  items-center">
         <div className="flex items-center">
             <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco"
@@ -476,7 +477,7 @@ function Page() {
 
 {/* Mobile / Tablet Header */}
 <nav id="mobile-navbar"
-    className="lg:hidden w-full fixed top-0 z-50 flex justify-between items-center px-3 xs:px-4 sm:px-4 py-2.5 xs:py-3 transition-all duration-300 bg-transparent">
+    className="navbar-mobile w-full fixed top-0 z-50 flex justify-between items-center px-3 xs:px-4 sm:px-4 py-2.5 xs:py-3 transition-all duration-300 bg-transparent">
     <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco"
             className="h-9 xs:h-10 sm:h-12 w-auto max-w-[100px] xs:max-w-[110px] sm:max-w-[130px] object-contain" /></a>
     <button id="menu-toggle" className="z-50 p-1.5 xs:p-2 cursor-pointer rounded-lg hover:bg-white/10 transition-colors"
@@ -537,24 +538,24 @@ function Page() {
                 style={{ width: '300%', height: '100%' }}>
                 <div className="banner-slide w-1/3 h-full shrink-0">
                     <img src="/eldeco-imgs/img/sl-phone.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover block sm:hidden" />
+                        className="banner-slide-img-mobile w-full h-full object-cover" />
 
                     <img src="/eldeco-imgs/images/sl1.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover hidden sm:block" />
+                        className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
                 <div className="banner-slide w-1/3 h-full shrink-0">
                     <img src="/eldeco-imgs/img/sl-phone2.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover block sm:hidden" />
+                        className="banner-slide-img-mobile w-full h-full object-cover" />
 
                     <img src="/eldeco-imgs/images/sl2.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover hidden sm:block" />
+                        className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
                 <div className="banner-slide w-1/3 h-full shrink-0">
                     <img src="/eldeco-imgs/img/sl-phone3.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover block sm:hidden" />
+                        className="banner-slide-img-mobile w-full h-full object-cover" />
 
                     <img src="/eldeco-imgs/images/sl3.jpg" alt="Oxy-Rich Luxury Residences"
-                        className="w-full h-full object-cover hidden sm:block" />
+                        className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
             </div>
         </div>
@@ -1353,7 +1354,7 @@ function Page() {
                     className="order-1 lg:order-2 w-full lg:flex-[0_0_38%] xl:flex-[0_0_440px] xl:max-w-[440px] h-[250px] xs:h-[280px] sm:h-[320px] md:h-[380px] lg:h-auto min-w-0">
                     <div className="rounded-[5px] overflow-hidden h-full shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
                         <iframe
-                            src="/eldeco-imgs/https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14030.252661278177!2d77.55240669787192!3d28.462581926303006!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cbff868cf6827%3A0x6a32ae78fa7f9172!2sOmicron%20I%2C%20Greater%20Noida%2C%20Uttar%20Pradesh%20201310!5e0!3m2!1sen!2sin!4v1770264712441!5m2!1sen!2sin"
+                            src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d28060.510347442774!2d77.562706!3d28.462563!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cbff868cf6827%3A0x6a32ae78fa7f9172!2sOmicron%20I%2C%20Greater%20Noida%2C%20Uttar%20Pradesh%20201310!5e0!3m2!1sen!2sin!4v1772882494247!5m2!1sen!2sin"
                             className="w-full h-full" style={{ border: 0 }} allowFullScreen loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                             title="Omicron I, Greater Noida Map"></iframe>

@@ -250,6 +250,42 @@
       overflow: hidden;
     }
   }
+
+  /* Desktop navbar: hidden below lg, flex at 1024px+ */
+  .eldeco-7-peaks-layout .navbar-desktop {
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .eldeco-7-peaks-layout .navbar-desktop {
+      display: flex;
+    }
+  }
+
+  /* Mobile navbar: visible below lg, hidden at 1024px+ */
+  .eldeco-7-peaks-layout .navbar-mobile {
+    display: flex;
+  }
+  @media (min-width: 1024px) {
+    .eldeco-7-peaks-layout .navbar-mobile {
+      display: none;
+    }
+  }
+
+  /* Banner slider: mobile vs desktop images - pure CSS, no Tailwind */
+  .eldeco-7-peaks-layout .banner-slide-img-mobile {
+    display: block;
+  }
+  .eldeco-7-peaks-layout .banner-slide-img-desktop {
+    display: none;
+  }
+  @media (min-width: 640px) {
+    .eldeco-7-peaks-layout .banner-slide-img-mobile {
+      display: none;
+    }
+    .eldeco-7-peaks-layout .banner-slide-img-desktop {
+      display: block;
+    }
+  }
   
   
   /* Highlights slider - JS sets width to fill container */

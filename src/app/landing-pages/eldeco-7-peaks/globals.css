@@ -1,0 +1,334 @@
+/* Custom styles - scoped to Eldeco 7 Peaks layout (fonts from next/font in layout.js) */
+.eldeco-7-peaks-layout {
+  font-family: var(--font-opensans), 'Open Sans', sans-serif;
+}
+
+.eldeco-7-peaks-layout h1,
+.eldeco-7-peaks-layout h2,
+.eldeco-7-peaks-layout h3 {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif;
+}
+
+.eldeco-7-peaks-layout * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Prevent horizontal overflow on mobile */
+.eldeco-7-peaks-layout {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+  
+  /* Sizes card gradient */
+  .hero-info-card-sizes {
+    background: linear-gradient(97.36deg, #976431 -4.11%, #b28254 106.33%);
+  }
+  
+  /* Enquire Now button gradient */
+  .btn-enquire {
+    background: linear-gradient(97.36deg, #976431 -4.11%, #b28254 106.33%);
+  }
+  
+  /* Overview section Download Brochure button */
+  .btn-overview-solid {
+    background: linear-gradient(97.36deg, #976431 -4.11%, #b28254 106.33%);
+  }
+  
+  /* Overview property details card - light brown/gold border & shadow */
+  .overview-property-card {
+    background: #fff;
+    border: 1px solid #e8dfd0;
+    box-shadow: 0 2px 12px rgba(151, 100, 49, 0.06);
+  }
+  
+  /* Overview stats separator - light brown/gold */
+  .overview-stat-line {
+    background: #FADEC3;
+    ;
+  }
+  
+  /* Overview right column - city image aligned right on desktop */
+  @media (min-width: 1024px) {
+    .overview-right-col .aspect-square {
+      margin-left: auto;
+    }
+  }
+  
+  /* Overview section responsive adjustments between lg and xl */
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .overview-property-card {
+      padding: 1.5rem;
+    }
+    
+    #overview .overview-right-col {
+      flex-shrink: 0;
+    }
+    
+    /* Ensure flex items work properly with percentages */
+    #overview .order-1 {
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+    
+    #overview .order-1 > div:last-child > div:first-child {
+      flex: 0 0 45%;
+      max-width: 45%;
+    }
+    
+    #overview .order-1 > div:last-child > div:last-child {
+      flex: 0 0 48%;
+      max-width: 48%;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .overview-property-card {
+      padding: 2rem;
+    }
+    
+    /* Reset to fixed widths on xl+ screens */
+    #overview .order-1 > div:last-child > div:first-child {
+      flex: 0 0 423px;
+      max-width: 423px;
+    }
+    
+    #overview .order-1 > div:last-child > div:last-child {
+      flex: 0 0 544px;
+      max-width: 480px;
+    }
+  }
+  
+  /* RERA & QR Code container - Figma layout */
+  .rera-qr-container {
+    max-width: calc(100vw - 1rem);
+    top: 105px;
+  }
+  
+  .rera-qr-text {
+    width: 404px;
+    max-width: 100%;
+    min-height: 45px;
+  }
+  
+  .rera-qr-img {
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+  }
+  
+  .rera-qr-img-wrapper {
+    flex-shrink: 0;
+  }
+  
+  /* Extra small devices (phones, less than 375px) */
+  @media (max-width: 374px) {
+    .rera-qr-container {
+      width: auto;
+      max-width: min(180px, calc(100vw - 1rem));
+      top: 4rem;
+      overflow: visible;
+    }
+  
+    .rera-qr-text {
+      width: auto;
+      max-width: 140px;
+      min-width: 0;
+      min-height: auto;
+      height: auto;
+      overflow: visible;
+      word-break: break-word;
+      flex: 1;
+      min-width: 0;
+      display: block;
+    }
+  
+    .rera-text-mobile {
+      font-size: 7px;
+      line-height: 1.4;
+      letter-spacing: 0.01em;
+    }
+  
+    .rera-qr-img-wrapper {
+      width: 30px !important;
+      height: 30px !important;
+    }
+  
+    .rera-qr-img {
+      width: 24px !important;
+      height: 24px !important;
+      flex-shrink: 0;
+    }
+  }
+  
+  /* Small devices (phones, 375px and up) */
+  @media (min-width: 375px) and (max-width: 639px) {
+    .rera-qr-container {
+      width: auto;
+      top: 4.5rem;
+      overflow: visible;
+    }
+  
+    .rera-qr-text {
+      width: auto; 
+      min-width: 0;
+      min-height: auto;
+      height: auto;
+      overflow: visible;
+      word-break: break-word;
+      flex: 1;
+      min-width: 0;
+      display: block;
+    }
+  
+    .rera-text-mobile {
+      font-size: 8px;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+    }
+  
+    .rera-qr-img {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+  }
+  
+  /* Medium devices (tablets, 640px and up) */
+  @media (min-width: 640px) and (max-width: 1024px) {
+    .rera-qr-container {
+      width: auto;
+      max-width:  calc(100vw - 3rem);
+      top: 5rem; 
+      overflow: visible;
+    }
+  
+    .rera-qr-text {
+      width: auto; 
+      min-width: 0;
+      min-height: auto;
+      height: auto;
+      overflow: visible;
+      word-break: break-word;
+      flex: 1;
+      min-width: 0;
+      display: block;
+    }
+  
+    .rera-text-mobile {
+      font-size: 10px;
+      line-height: 1.45;
+      letter-spacing: 0.02em;
+    }
+  
+    .rera-qr-img {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+  }
+  
+  /* Hero info cards responsive adjustments */
+  @media (max-width: 374px) {
+    .hero-info-cards {
+      gap: 0.75rem;
+    }
+    
+    .hero-info-card {
+      min-width: 100px;
+    }
+  }
+  
+  /* Ensure hero section doesn't overflow on small screens */
+  @media (max-width: 639px) {
+    #home {
+      overflow-x: hidden;
+    }
+    
+    .banner-slider-container {
+      overflow: hidden;
+    }
+  }
+  
+  
+  /* Highlights slider - JS sets width to fill container */
+  .highlights-slide-width {
+    min-width: 280px;
+  }
+  
+  /* Responsive adjustments for highlights section */
+  @media (min-width: 640px) {
+    .highlights-slide-width {
+      min-width: 300px;
+    }
+  }
+  
+  @media (min-width: 768px) {
+    .highlights-slide-width {
+      min-width: 400px;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .highlights-slide-width {
+      min-width: 450px;
+    }
+  }
+  
+  @media (min-width: 1280px) {
+    .highlights-slide-width {
+      min-width: 513px;
+    }
+  }
+  
+  /* Specifications list bullet */
+  .spec-bullet {
+    width: 6px;
+    height: 6px;
+    background: #000;
+    border-radius: 50%;
+  }
+  
+  /* Location Advantage list bullet */
+  .location-bullet {
+    width: 6px;
+    height: 6px;
+    background: #000;
+    border-radius: 50%;
+  }
+  
+  /* Amenities slider - JS sets width to fill container */
+  .amenities-slide-width {
+    min-width: 200px;
+  }
+  
+  /* Amenities section - maintain consistent image heights */
+  @media (min-width: 768px) {
+    /* TOP GRID - ensure row-span-2 items match middle column height */
+    #amenities .flex.flex-col.sm\:flex-row:first-of-type {
+      align-items: stretch;
+    }
+    
+    #amenities .sm\:row-span-2 {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    #amenities .sm\:row-span-2 > div:first-child {
+      flex: 1;
+      min-height: 0;
+    }
+    
+    /* BOTTOM GRID - ensure all images have same height */
+    #amenities .flex.flex-col.sm\:flex-row:last-of-type {
+      align-items: stretch;
+    }
+    
+  
+    
+    /* Ensure images fill their containers */
+    #amenities img {
+      min-height: 100%;
+    }
+  }

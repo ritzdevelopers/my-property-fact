@@ -9,7 +9,6 @@ import {
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NotFound from "@/app/not-found";
-import FeaturedPage from "@/app/(home)/components/home/featured/page";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 export const dynamic = "force-dynamic";
 
@@ -75,19 +74,7 @@ export default async function PropertyPage({ params }) {
   } else if (isProjectSlug) {
     return (
       <>
-        <Property projectDetail={projectDetail} />
-        <div className="container-fluid mb-5">
-          {similarProject.length > 0 && (
-            <h2 className="text-center mb-4 fw-bold">Similar Projects</h2>
-          )}
-          <FeaturedPage
-            title="Similar Projects"
-            autoPlay={true}
-            allFeaturedProperties={similarProject}
-            type={"Similar"}
-          />
-        </div>
-        {/* <Footer cityList={cityList} projectTypes={projectTypesList} /> */}
+        <Property projectDetail={projectDetail} similarProjects={similarProject} />
         <NewFooterDesign cityList={cityList} compactTop={true} />
       </>
     );

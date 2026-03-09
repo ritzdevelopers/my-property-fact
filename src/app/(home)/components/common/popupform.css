@@ -1,0 +1,112 @@
+.enquiry-popup .modal-dialog {
+  max-width: 540px;
+}
+
+.enquiry-popup .modal-content {
+  border: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #fffaf0 100%);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.3);
+}
+
+.enquiry-popup.modal.show .modal-dialog {
+  animation: enquiryZoomIn 0.78s cubic-bezier(0.16, 0.84, 0.22, 1) both;
+}
+
+.enquiry-popup.modal .modal-dialog {
+  transition: transform 0.78s cubic-bezier(0.16, 0.84, 0.22, 1);
+}
+
+@keyframes enquiryZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.76) translateY(34px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.02) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.enquiry-popup-header {
+  background: linear-gradient(120deg, #0d5834 0%, #1a7f4d 45%, #c9a24d 100%);
+  color: #ffffff;
+  padding: 1.05rem 1.15rem 0.5rem 1.15rem;
+}
+
+.enquiry-popup-title {
+  color: #ffffff;
+  font-size: 1.24rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.enquiry-popup .btn-close {
+  background-color: rgba(255, 255, 255, 0.24);
+  border-radius: 50%;
+  opacity: 0.95;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.enquiry-popup .btn-close:hover {
+  transform: rotate(90deg);
+  background-color: rgba(255, 255, 255, 0.38);
+}
+
+.enquiry-popup-subtitle {
+  color: #475569;
+  font-size: 0.93rem;
+  line-height: 1.45;
+  margin-top: 1.5rem;
+}
+
+.enquiry-popup-form {
+  background: transparent;
+}
+
+.enquiry-popup-input {
+  border-radius: 13px;
+  border: 1px solid #d6deea;
+  background: #ffffff;
+  padding: 0.84rem 0.98rem;
+  font-size: 0.95rem;
+  color: #0f172a;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.enquiry-popup-input::placeholder {
+  color: #64748b;
+}
+
+.enquiry-popup-input:focus {
+  border-color: #c9a24d;
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 0.22rem rgba(201, 162, 77, 0.16);
+}
+
+.enquiry-popup-submit {
+  width: 100%;
+  border-radius: 999px;
+  padding: 0.78rem 1rem;
+  background: #0D5834 !important;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+  font-family: 'plus-jakarta' !important;
+  font-weight: 600;
+  padding: 10px 0 10px 0;
+}
+
+.enquiry-popup-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(69, 49, 6, 0.32);
+}
+
+.enquiry-popup-submit:disabled {
+  opacity: 0.85;
+}

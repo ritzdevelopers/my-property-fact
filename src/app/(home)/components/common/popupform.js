@@ -4,6 +4,7 @@ import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "../../contact-us/page";
 import { usePathname } from "next/navigation";
+import "./popupform.css";
 
 export default function CommonPopUpform({ show, handleClose, from, data }) {
   const [validated, setValidated] = useState(false);
@@ -145,20 +146,30 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
 
   return (
     <>
-      <Modal show={show} onHide={() => handleClose(false)} centered>
-        <Modal.Header closeButton className="gradient-bg">
-          <Modal.Title className="fw-bold text-white">
+      <Modal
+        show={show}
+        onHide={() => handleClose(false)}
+        centered
+        className="enquiry-popup"
+        dialogClassName="enquiry-popup-dialog"
+      >
+        {/* <Modal.Header closeButton className="enquiry-popup-header border-0 pb-0">
+          <Modal.Title className="enquiry-popup-title">
             We will connect you soon.
           </Modal.Title>
-        </Modal.Header>
+        </Modal.Header> */}
+        <p className="enquiry-popup-subtitle px-6 px-md-4 mb-0">
+          Share your details and our team will contact you shortly.
+        </p>
         <Form
           noValidate
           validated={validated}
           onSubmit={handleSubmit}
-          className="p-3"
+          className="enquiry-popup-form p-3 p-md-4 pt-3"
         >
           <Form.Group className="mb-3" controlId="full_name">
             <Form.Control
+              className="enquiry-popup-input"
               type="text"
               placeholder="Full name"
               value={formData.name}
@@ -172,6 +183,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
           </Form.Group>
           <Form.Group className="mb-3" controlId="email_id">
             <Form.Control
+              className="enquiry-popup-input"
               type="email"
               placeholder="Email id"
               value={formData.email}
@@ -185,6 +197,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
           </Form.Group>
           <Form.Group className="mb-3" controlId="phone_number">
             <Form.Control
+              className="enquiry-popup-input"
               type="tel"
               placeholder="Phone Number"
               value={formData.phone}
@@ -200,6 +213,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
           </Form.Group>
           <Form.Group className="mb-3" controlId="message">
             <Form.Control
+              className="enquiry-popup-input"
               as="textarea"
               rows={3}
               placeholder="Message"
@@ -213,7 +227,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
           </Form.Group>
           <Button
             type="submit"
-            className="fw-bold btn btn-background border-0"
+            className="fw-bold border-0 enquiry-popup-submit"
             disabled={showLoading}
           >
             {buttonName} <LoadingSpinner show={showLoading} />

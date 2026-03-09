@@ -77,7 +77,42 @@
   transform: all 0.8s ease;
 }
 
-
+/* Equal-height contact cards (Address, Phone, Email same height) */
+.contact-cards-row {
+  align-items: stretch;
+}
+.contact-cards-row > [class*="col-"] {
+  display: flex;
+}
+.contact-cards-row .contact-info-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  height: 300px;
+  min-height: 300px;
+  max-height: 300px;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+.contact-cards-row .contact-info-container-child {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-width: 100%;
+}
+.contact-cards-row .contact-info-container-child p {
+  margin-bottom: 0;
+  overflow-wrap: break-word;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.contact-address-text {
+  flex: 1;
+  min-height: 0;
+}
 
 /* ============================================
    2. GET A QUOTE SECTION

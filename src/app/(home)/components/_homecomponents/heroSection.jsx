@@ -1,9 +1,8 @@
 import Image from "next/image";
-// import dynamic from "next/dynamic";
+import dynamic from "next/dynamic";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
 
-/* --- SLIDER CODE (commented for Holi static banner) ---
 const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
   ssr: true,
   loading: () => (
@@ -151,74 +150,21 @@ async function fetchHomeBanners() {
   }
   return [];
 }
---- END SLIDER CODE ---
-*/
-
-/** Static Holi banner - for Holi purpose only. Tablet & desktop use the same wide image. */
-const HOLI_BANNER = {
-  mobile: "/static/banners/Happy-Holi-MPF-mobile.png",
-  tablet: "/static/banners/Happy-Holi-MPF.png", 
-  desktop: "/static/banners/Happy-Holi-MPF.png",
-  alt: "Happy Holi - My Property Fact",
-};
 
 export default async function HeroSection({ projectTypeList, cityList }) {
+  const banners = await fetchHomeBanners();
+  const imageBaseUrl = getImageBaseUrl();
+  const apiSlides = transformBannersToSlides(banners, imageBaseUrl);
+  const heroSlides = apiSlides.length > 0 ? apiSlides : FALLBACK_SLIDES;
+
   return (
     <>
       <div className="position-relative hero-section-wrapper">
         <div className="mpf-hero-banner position-relative">
           <div className="position-relative">
-            {/* Static Holi banner - no API fetch, no slider */}
-            <div className="hero-banner-slider hero-lcp-fallback">
-              <div className="position-relative home-banner hero-banner-responsive-images">
-                <Image
-                  src={HOLI_BANNER.mobile}
-                  alt={HOLI_BANNER.alt}
-                  width={768}
-                  height={430}
-                  className="img-fluid w-100 d-md-none"
-                  priority
-                  fetchPriority="high"
-                  quality={100}
-                  sizes="100vw"
-                />
-                <Image
-                  src={HOLI_BANNER.tablet}
-                  alt={HOLI_BANNER.alt}
-                  width={1024}
-                  height={576}
-                  className="img-fluid w-100 d-none d-md-block d-lg-none"
-                  priority
-                  fetchPriority="high"
-                  quality={100}
-               
-                />
-                <Image
-                  src={HOLI_BANNER.desktop}
-                  alt={HOLI_BANNER.alt}
-                  width={1920}
-                  height={600}
-                  className="img-fluid w-100 d-none d-lg-block"
-                  priority
-                  fetchPriority="high"
-                
-   
-                />
-              </div>
-            </div>
-            {/* Republic day emblem component on hero section*/}
-            {/* <div className="hero-center-emblem">
-              <Image
-                src="/static/banners/ch.svg"
-                alt="Republic Day emblem"
-                width={280}
-                height={280}
-                priority
-              />
-            </div> */}
+            <HeroBannerSlider slides={heroSlides} />
           </div>
 
-          {/* Search filter component  */}
           <SearchFilter projectTypeList={projectTypeList} cityList={cityList} />
         </div>
       </div>

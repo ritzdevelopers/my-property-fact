@@ -9,7 +9,7 @@ const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
     <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
       <div className="position-relative home-banner hero-banner-responsive-images">
         <Image
-          src="/static/banners/Irish_phone.jpg"
+          src="/static/banners/ghd_mobile_final.jpg"
           alt="Irish - Laying Foundation For Tomorrow"
           width={768}
           height={430}
@@ -20,7 +20,7 @@ const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
           sizes="100vw"
         />
         <Image
-          src="/static/banners/Irish_tablet.jpg"
+          src="/static/banners/ghd_tablet_final.jpg"
           alt="Irish - Laying Foundation For Tomorrow"
           width={1024}
           height={576}
@@ -31,7 +31,7 @@ const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
           sizes="100vw"
         />
         <Image
-          src="/static/banners/Irish_desktop.jpg"
+          src="/static/banners/ghd_desktop_final.jpg"
           alt="Irish - Laying Foundation For Tomorrow"
           width={1920}
           height={600}
@@ -48,28 +48,28 @@ const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
 
 const FALLBACK_SLIDES = [
   {
-    id: "hero-irish",
-    desktop: "/static/banners/Irish_desktop.jpg",
-    tablet: "/static/banners/Irish_tablet.jpg",
-    mobile: "/static/banners/Irish_phone.jpg",
-    alt: "Irish - Laying Foundation For Tomorrow",
-    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/irish-platinum`,
-  },
-  {
-    id: "hero-eldeco",
-    desktop: "/static/banners/new_eldeco_desktop.jpg",
-    tablet: "/static/banners/eldeco_tablet.jpg",
-    mobile: "/static/banners/eldeco_phone.jpg",
-    alt: "Eldeco",
-    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/eldeco-7-peaks-residences`,
-  },
-  {
     id: "hero-ghd",
-    desktop: "/static/banners/ghd_laptop.jpg",
-    tablet: "/static/banners/ghd_tablet.jpg",
-    mobile: "/static/banners/ghd_phone.jpg",
+    desktop: "/static/banners/ghd_desktop_final.jpg",
+    tablet: "/static/banners/ghd_tablet_final.jpg",
+    mobile: "/static/banners/ghd_mobile_final.jpg",
     alt: "GHD Group - Velvet Vista",
     href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/ghd-velvet-vista`,
+  },
+  {
+    id: "hero-exotica",
+    desktop: "/static/banners/exotica_desktop_final.jpg",
+    tablet: "/static/banners/exotica_tablet_final.jpg",
+    mobile: "/static/banners/exotica_mobile_final.jpg",
+    alt: "Exotica - 132",
+    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/exotica-132`,
+  },
+  {
+    id: "hero-irish",
+    desktop: "/static/banners/irish_desktop.jpg",
+    tablet: "/static/banners/irish_tablet.jpg",
+    mobile: "/static/banners/irish_mobile.jpg",
+    alt: "Irish - Laying Foundation For Tomorrow",
+    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/irish-platinum`,
   },
   {
     id: "hero-saya",
@@ -78,6 +78,14 @@ const FALLBACK_SLIDES = [
     mobile: "/static/banners/new_saya_mobile.jpg",
     alt: "Saya - Relationships Forever",
     href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/saya-gold-avenue`,
+  },
+  {
+    id: "hero-eldeco",
+    desktop: "/static/banners/new_eldeco_desktop.jpg",
+    tablet: "/static/banners/eldeco_tablet.jpg",
+    mobile: "/static/banners/eldeco_phone.jpg",
+    alt: "Eldeco",
+    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/eldeco-7-peaks-residences`,
   },
 ];
 

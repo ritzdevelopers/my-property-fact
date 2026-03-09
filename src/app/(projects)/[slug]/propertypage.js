@@ -214,6 +214,17 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     ],
   };
 
+  // Floor plan area: support areaSqFt, areaSqft, area, size; show sq mt if available
+  const getFloorPlanArea = (plan) => {
+    const sqFt = plan?.areaSqFt ?? plan?.areaSqft ?? plan?.area ?? plan?.size;
+    const sqMt = plan?.areaSqMt != null ? parseFloat(plan.areaSqMt) : null;
+    if (!sqFt && sqMt == null) return "On Request";
+    const parts = [];
+    if (sqFt) parts.push(`${String(sqFt).trim()} sq ft`);
+    if (Number.isFinite(sqMt)) parts.push(`${sqMt.toFixed(2)} sq mt`);
+    return parts.length ? parts.join(" • ") : "On Request";
+  };
+
   //Generating price in lakh & cr
   const generatePrice = (price) => {
     if (/[a-zA-Z]/.test(price)) {
@@ -1090,8 +1101,7 @@ const addNearbyImageIcon = (benefit) => {
                       />{" "}
                       Area
                     </p>
-                    {/* <p>{item.areaSqFt} sqft*</p>
-                    <p>{parseFloat(item.areaSqMt).toFixed(2)} sqmt*</p> */}
+                    <p>{getFloorPlanArea(item)}</p>
                   </div>
                   <div className="pb-4 ps-2 mt-4">
                     <button

@@ -68,7 +68,7 @@ export default function NewInsight() {
             </div>
           </div>
           <div className="insight-image-wrapper">
-            <Link href="https://sayahomes.com/" target="_blank" rel="noopener noreferrer">
+            <Link href={`${process.env.NEXT_PUBLIC_UI_URL}/saya-gold-avenue`} target="_blank" rel="noopener noreferrer">
             <Image
               src="/static/saya.png"
               alt="Family"

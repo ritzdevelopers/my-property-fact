@@ -86,8 +86,8 @@ export default function Featured({
     }
   }, [filteredProjects, isLoading]);
 
-  // Show arrows on mobile for Featured section (autoPlay false); always for Residential/Commercial (autoPlay true)
-  const showArrows = autoPlay || type === "Featured";
+  // Show arrows for Featured, Similar, and Residential/Commercial (autoPlay true)
+  const showArrows = autoPlay || type === "Featured" || type === "Similar";
   const settings = useMemo(
     () => ({
       dots: false,

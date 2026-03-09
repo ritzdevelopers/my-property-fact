@@ -58,6 +58,7 @@ export default async function PropertyPage({ params }) {
   const isProjectSlug = projectDetail.slugURL === slug;
   const isCitySlug = await isCityTypeUrl(slug);
 
+  const projectCity = projectDetail.city || projectDetail.cityName;
   const similarProject = featuredProjects.filter(
     (item) =>
       item.cityName === projectDetail.city &&

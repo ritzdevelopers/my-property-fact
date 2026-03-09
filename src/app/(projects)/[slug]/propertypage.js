@@ -5,173 +5,49 @@ import "./property.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
-import { useEffect, useRef, useState } from "react";
+// Import Swiper React components
+import { Swiper, SwiperSlide } from "swiper/react";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
+// import './styles.css';
+
+// import required modules
+import { Navigation } from "swiper/modules";
+
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowDown,
   faArrowLeft,
-  faArrowRight,
-  faMinus,
-  faPlus,
-  faTimes,
+  faBed,
+  faChartArea,
+  faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Modal from "react-bootstrap/Modal";
 import Image from "next/image";
 import NotFound from "../../not-found";
 import CommonPopUpform from "../../(home)/components/common/popupform";
-import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Featured from "../../(home)/components/home/featured/featured";
-import PopularCitiesSection from "../../(home)/components/home/popular-cities/PopularCitiesSection";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row } from "react-bootstrap";
 import { usePathname, useRouter } from "next/navigation";
 
-function ScrollFadeSection({
-  as: Tag = "section",
-  className = "",
-  threshold = 0.2,
-  children,
-  ...rest
-}) {
-  const sectionRef = useRef(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const node = sectionRef.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-        setIsVisible(true);
-        observer.disconnect();
-      },
-      { threshold, rootMargin: "0px 0px -10% 0px" },
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  return (
-    <Tag
-      ref={sectionRef}
-      className={`scroll-fade-section ${isVisible ? "is-visible" : ""} ${className}`.trim()}
-      {...rest}
-    >
-      {children}
-    </Tag>
-  );
-}
-
-function ParallaxImageStrip({ imageSrc, startWidth = 383, startHeight = 247, children }) {
-  const wrapperRef = useRef(null);
-  const innerRef = useRef(null);
-  const overlayRef = useRef(null);
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    const inner = innerRef.current;
-    const overlay = overlayRef.current;
-    if (!wrapper || !inner) return;
-
-    const lerp = (current, target, ease) => current + (target - current) * ease;
-    const EASE = 0.08;
-    const THRESHOLD = 0.0005;
-
-    let smoothProgress = 0;
-    let targetProgress = 0;
-    let running = true;
-
-    const getTargetProgress = () => {
-      const wrapperRect = wrapper.getBoundingClientRect();
-      const windowH = window.innerHeight;
-      const scrollableHeight = wrapper.offsetHeight - windowH;
-      if (scrollableHeight <= 0) return 0;
-      const scrolled = Math.max(0, -wrapperRect.top);
-      return Math.min(1, scrolled / scrollableHeight);
-    };
-
-    const isMobile = window.innerWidth <= 768;
-
-    const tick = () => {
-      if (!running) return;
-
-      targetProgress = getTargetProgress();
-      smoothProgress = lerp(smoothProgress, targetProgress, EASE);
-
-      if (Math.abs(smoothProgress - targetProgress) < THRESHOLD) {
-        smoothProgress = targetProgress;
-      }
-
-      const p = smoothProgress;
-
-      const zoomEnd = isMobile ? 0.35 : 0.5;
-      const zoomP = Math.min(1, p / zoomEnd);
-      const stickyEl = wrapper.querySelector(".parallax-strip-sticky");
-      const fullW = stickyEl ? stickyEl.offsetWidth : wrapper.offsetWidth;
-      const fullH = window.innerHeight;
-      const w = startWidth + (fullW - startWidth) * zoomP;
-      const h = startHeight + (fullH - startHeight) * zoomP;
-     
-
-      inner.style.width = `${w.toFixed(1)}px`;
-      inner.style.height = `${h.toFixed(1)}px`;
-     
-
-      if (overlay) {
-        const fadeStart = isMobile ? 0.25 : 0.4;
-        const fadeEnd = isMobile ? 0.55 : 0.85;
-        const oP = p <= fadeStart ? 0 : p >= fadeEnd ? 1 : (p - fadeStart) / (fadeEnd - fadeStart);
-
-        overlay.style.opacity = oP.toFixed(3);
-        overlay.style.pointerEvents = oP > 0.15 ? "auto" : "none";
-        overlay.style.transform = `translateY(${(Math.max(0, 1 - oP) * (isMobile ? 30 : 50)).toFixed(1)}px)`;
-      }
-
-      requestAnimationFrame(tick);
-    };
-
-    requestAnimationFrame(tick);
-
-    return () => {
-      running = false;
-    };
-  }, [startWidth, startHeight]);
-
-  return (
-    <div className="parallax-strip-wrapper" ref={wrapperRef}>
-      <div className="parallax-strip-sticky">
-        <div
-          className="parallax-strip-inner"
-          ref={innerRef}
-          style={{ backgroundImage: `url(${imageSrc})` }}
-        />
-        {children && (
-          <div className="parallax-strip-overlay" ref={overlayRef}>
-            {children}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function Property({ projectDetail, similarProjects = [] }) {
-  const [isAnswerVisible, setIsAnswerVisible] = useState({});
+  const [isAnswerVisible, setIsAnswerVisible] = useState([false, false]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
-  const [amenitiesSlideIndex, setAmenitiesSlideIndex] = useState(0);
-  const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
-  const [isAmenitiesInView, setIsAmenitiesInView] = useState(false);
-  const [visibleFloorPlanCards, setVisibleFloorPlanCards] = useState({});
-  const [showGalleryModal, setShowGalleryModal] = useState(false);
-  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
+  const [amenities, setAllAmenities] = useState([]);
+  const [amenityButtonName, setAmenityButtonName] = useState("VIEW MORE");
+  const [amenityButtonStatus, setAmenityButtonStatus] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backToHomeExpanded, setBackToHomeExpanded] = useState(false);
   const [allNearbyBenefits, setAllNearbyBenefits] = useState([]);
@@ -186,6 +62,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   });
   const pathname = usePathname();
   const router = useRouter();
+  const [validated, setValidated] = useState(false);
   const [validated1, setValidated1] = useState(false);
   //Defining loading state
   const [loading, setLoading] = useState(true);
@@ -246,11 +123,10 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   };
 
   //Handling answer div
-  const toggleAnswer = (faqKey) => {
-    setIsAnswerVisible((prev) => ({
-      ...prev,
-      [faqKey]: !prev[faqKey],
-    }));
+  const toggleAnswer = (index) => {
+    const updatedVisibility = [...isAnswerVisible];
+    updatedVisibility[index] = !updatedVisibility[index];
+    setIsAnswerVisible(updatedVisibility);
   };
 
   //Setting for banner slider
@@ -265,58 +141,72 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     autoplaySpeed: 3000,
   };
 
-  const AmenityPrevArrow = (props) => {
-    const { className, onClick } = props;
+  // Gallery arrows: same style as Similar Projects (featured) – white circle + SVG icons
+  const GalleryPrevArrow = (props) => {
+    const { className, style, onClick } = props;
     return (
       <button
         type="button"
-        className={`${className || ""} amenities-custom-arrow amenities-custom-arrow-prev`}
+        className={`${className || ""} custom-featured-arrow custom-featured-arrow-prev gallery-featured-arrow`}
+        style={style}
         onClick={onClick}
-        aria-label="Previous amenities"
+        aria-label="Previous slide"
       >
-        <Image src="/icon/arrow-left-s-line.svg" alt="Previous" width={24} height={24} />
+        <Image
+          src="/icon/arrow-left-s-line.svg"
+          alt="Previous"
+          width={32}
+          height={32}
+        />
+      </button>
+    );
+  };
+  const GalleryNextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <button
+        type="button"
+        className={`${className || ""} custom-featured-arrow custom-featured-arrow-next gallery-featured-arrow`}
+        style={style}
+        onClick={onClick}
+        aria-label="Next slide"
+      >
+        <Image
+          src="/icon/arrow-right-s-line.svg"
+          alt="Next"
+          width={32}
+          height={32}
+        />
       </button>
     );
   };
 
-  const AmenityNextArrow = (props) => {
-    const { className, onClick } = props;
-    return (
-      <button
-        type="button"
-        className={`${className || ""} amenities-custom-arrow amenities-custom-arrow-next`}
-        onClick={onClick}
-        aria-label="Next amenities"
-      >
-        <Image src="/icon/arrow-right-s-line.svg" alt="Next" width={24} height={24} />
-      </button>
-    );
-  };
-
-  const amenitiesSliderSettings = {
+  //Setting for gallery slider
+  const settings1 = {
     dots: false,
-    infinite: (projectDetail.amenities?.length ?? 0) > 4,
+    infinite: (projectDetail.galleryImages?.length ?? 0) > 1,
     speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
+    autoplay: (projectDetail.galleryImages?.length ?? 0) > 1,
+    slidesToShow: 2, // Default for large screens
     arrows: true,
-    prevArrow: <AmenityPrevArrow />,
-    nextArrow: <AmenityNextArrow />,
+    prevArrow: <GalleryPrevArrow />,
+    nextArrow: <GalleryNextArrow />,
+    slidesToScroll: 1,
     responsive: [
       {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-      {
-        breakpoint: 992,
+        breakpoint: 1024, // Tablets
         settings: {
           slidesToShow: 2,
         },
       },
       {
-        breakpoint: 576,
+        breakpoint: 768, // Mobile (Medium screens)
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+      {
+        breakpoint: 480, // Small mobile screens
         settings: {
           slidesToShow: 1,
         },
@@ -370,7 +260,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   };
 
   //Handle submit form
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, form_position) => {
     e.preventDefault();
     const form = e.currentTarget;
 
@@ -395,11 +285,20 @@ export default function Property({ projectDetail, similarProjects = [] }) {
       !phoneError &&
       formData.message.trim() !== "";
 
-    if (!isFormValid) {
-      e.stopPropagation();
-      setValidated1(true);
-      toast.error("Please fill all fields correctly!");
-      return;
+    if (form_position === "bottom_form") {
+      if (!isFormValid) {
+        e.stopPropagation();
+        setValidated1(true);
+        toast.error("Please fill all fields correctly!");
+        return;
+      }
+    } else {
+      if (!isFormValid) {
+        e.stopPropagation();
+        setValidated(true);
+        toast.error("Please fill all fields correctly!");
+        return;
+      }
     }
 
     try {
@@ -431,7 +330,11 @@ export default function Property({ projectDetail, similarProjects = [] }) {
           email: "",
           phone: "",
         });
-        setValidated1(false);
+        if (form_position === "bottom_form") {
+          setValidated1(false);
+        } else {
+          setValidated(false);
+        }
         toast.success(response.data.message);
       } else {
         toast.error(response.data.message);
@@ -498,7 +401,6 @@ const addNearbyImageIcon = (benefit) => {
       try {
         const res = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/get-all`
-          
         );
         setAllNearbyBenefits(res.data);
       } catch (err) {
@@ -508,9 +410,9 @@ const addNearbyImageIcon = (benefit) => {
   
     fetchBenefits();
   }, []);
-  
 
   useEffect(() => {
+    setAllAmenities((projectDetail?.amenities || []).slice(0, 18));
     const header = document.querySelector(".project-detail-header");
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -540,68 +442,6 @@ const addNearbyImageIcon = (benefit) => {
       window.removeEventListener("resize", handleResize);
     };
   }, [projectDetail?.amenities]);
-
-  useEffect(() => {
-    const amenitySection = document.getElementById("amenities");
-    if (!amenitySection) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsAmenitiesInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.2 },
-    );
-
-    observer.observe(amenitySection);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleViewportChange = () => {
-      setIsMobileOrTablet(window.innerWidth <= 991);
-    };
-    handleViewportChange();
-    window.addEventListener("resize", handleViewportChange);
-    return () => window.removeEventListener("resize", handleViewportChange);
-  }, []);
-
-  useEffect(() => {
-    setVisibleFloorPlanCards({});
-    const totalCards = projectDetail?.floorPlans?.length || 0;
-    if (!totalCards) return;
-
-    const floorPlanSection = document.getElementById("floorplan");
-    if (!floorPlanSection) return;
-
-    const timeoutIds = [];
-    let hasStarted = false;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting || hasStarted) return;
-
-        hasStarted = true;
-        for (let index = 0; index < totalCards; index += 1) {
-          const timeoutId = window.setTimeout(() => {
-            setVisibleFloorPlanCards((prev) => ({ ...prev, [index]: true }));
-          }, index * 1000);
-          timeoutIds.push(timeoutId);
-        }
-
-        observer.disconnect();
-      },
-      { threshold: 0.2 },
-    );
-
-    observer.observe(floorPlanSection);
-    return () => {
-      observer.disconnect();
-      timeoutIds.forEach((id) => window.clearTimeout(id));
-    };
-  }, [projectDetail?.floorPlans?.length]);
 
   // Cleanup scroll lock when component unmounts or menu closes
   useEffect(() => {
@@ -740,117 +580,26 @@ const addNearbyImageIcon = (benefit) => {
   const slugURL = projectDetail.slugURL || "";
   const projectImageSrc = (filename) =>
     filename && slugURL ? `${imageBase}properties/${slugURL}/${filename}` : "/static/no_image.png";
-  const amenitiesList = projectDetail.amenities || [];
-  const floorPlans = projectDetail.floorPlans || [];
-  const galleryImages = projectDetail.galleryImages || [];
-  const nearbyBenefitsMaster = Array.isArray(allNearbyBenefits)
-    ? allNearbyBenefits
-    : Array.isArray(allNearbyBenefits?.data)
-      ? allNearbyBenefits.data
-      : [];
-  const AMENITIES_PER_SLIDE = 8;
-  const amenitiesChunks = [];
-  for (let i = 0; i < amenitiesList.length; i += AMENITIES_PER_SLIDE) {
-    amenitiesChunks.push(amenitiesList.slice(i, i + AMENITIES_PER_SLIDE));
-  }
-  const showAmenityCards = isAmenitiesInView;
-  const aboutBuilderImage =
-    projectDetail?.builder?.builderImage ||
-    projectDetail?.builder?.image ||
-    projectDetail?.projectThumbnail ||  
-    projectDetail?.desktopImages?.[0]?.desktopImage ||
-    "";
-  const aboutBuilderImageSrc = aboutBuilderImage
-    ? /^https?:\/\//i.test(aboutBuilderImage) || aboutBuilderImage.startsWith("/")
-      ? aboutBuilderImage
-      : projectImageSrc(aboutBuilderImage)
-    : "/static/no_image.png";
-  const getInTouchPoints = [
-    "Book a Site Visit",
-    "Ask For a Brochure",
-    "Speak to a Representative",
-    "Ask for a Quotation",
-  ];
-  const locationBenefitList =
-    projectDetail.locationBenefits || projectDetail.projectLocationBenefitList || [];
-  const normalizeBenefitText = (value) =>
-    String(value || "")
-      .trim()
-      .toLowerCase();
-  const formatDistanceLabel = (value) => {
-    if (value === undefined || value === null) return "";
-    const text = String(value).trim();
-    if (!text) return "";
-    return /km/i.test(text) ? text : `${text} KM`;
-  };
-  const getNearbyDistanceLabel = (benefit) => {
-    const directDistance =
-      benefit?.distance ?? benefit?.distanceKm ?? benefit?.distanceInKm;
-    const formattedDirect = formatDistanceLabel(directDistance);
-    if (formattedDirect) return formattedDirect;
 
-    const benefitName = normalizeBenefitText(
-      benefit?.benefitName || benefit?.name || benefit?.title,
-    );
-
-    const matchedItem = locationBenefitList.find((item) => {
-      const itemName = normalizeBenefitText(
-        item?.benefitName || item?.name || item?.title,
-      );
-      return (
-        !!itemName &&
-        !!benefitName &&
-        (itemName === benefitName ||
-          itemName.includes(benefitName) ||
-          benefitName.includes(itemName))
-      );
+  const viewAllAmenities = () => {
+    const amenitiesList = projectDetail.amenities || [];
+    setAmenityButtonStatus((prev) => {
+      if (prev === true) {
+        setAllAmenities(amenitiesList.slice(0, 18));
+      } else {
+        setAllAmenities(amenitiesList);
+      }
+      return !prev; // toggle status
     });
 
-    const matchedDistance =
-      matchedItem?.distance ?? matchedItem?.distanceKm ?? matchedItem?.distanceInKm;
-    return formatDistanceLabel(matchedDistance);
-  };
-  const faqList = projectDetail.faqs || [];
-  const getFloorPlanImage = (plan) => {
-    const imageName =
-      plan?.planImage ||
-      plan?.floorPlanImage ||
-      plan?.imageName ||
-      plan?.image ||
-      plan?.planMap ||
-      "";
-    if (!imageName) return "/static/generic-floorplan.jpg";
-    if (/^https?:\/\//i.test(imageName) || imageName.startsWith("/")) return imageName
-    return projectImageSrc(imageName);
-  };
-
-  const getFloorPlanArea = (plan) => {
-    const areaValue = plan?.areaSqFt || plan?.area || plan?.areaSqft || plan?.size;
-    if (!areaValue) return "On Request";
-    const areaText = String(areaValue).trim();
-    return /sq|ft|mtr|meter/i.test(areaText) ? areaText : `${areaText} Sq Ft`;
-  };
-
-  const goToNextAmenitiesSlide = () => {
-    setAmenitiesSlideIndex((prev) => Math.min(prev + 1, amenitiesChunks.length - 1));
-  };
-
-  const goToPrevAmenitiesSlide = () => {
-    setAmenitiesSlideIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  const openGalleryModal = (index) => {
-    setActiveGalleryIndex(index);
-    setShowGalleryModal(true);
-  };
-
-  const closeGalleryModal = () => {
-    setShowGalleryModal(false);
+    setAmenityButtonName((prev) =>
+      prev === "VIEW MORE" ? "VIEW LESS" : "VIEW MORE",
+    );
   };
 
   return (
     <>
-      {/* <Link
+      <Link
         href="/"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
         aria-label="Back to MyPropertyFact home page"
@@ -860,7 +609,7 @@ const addNearbyImageIcon = (benefit) => {
         <span className="back-to-home-floating__icon">
           <FontAwesomeIcon icon={faArrowLeft} />
         </span>
-      </Link> */}
+      </Link>
       {/* Header for property detail page */}
       <header
         className={`project-detail-header px-4 ${
@@ -961,7 +710,7 @@ const addNearbyImageIcon = (benefit) => {
                 </div>
 
                 <ul className="project-mb-list d-lg-none">
-                  {/* <li>
+                  <li>
                     <Link
                       href="/"
                       className="text-decoration-none"
@@ -969,7 +718,7 @@ const addNearbyImageIcon = (benefit) => {
                     >
                       Back to Home
                     </Link>
-                  </li> */}
+                  </li>
                   <li>
                     <Link
                       href="#overview"
@@ -1079,31 +828,89 @@ const addNearbyImageIcon = (benefit) => {
               );
             })}
           </Slider>
-          <div className="hero-content-overlay">
-            <h1>{projectDetail.projectName}</h1>
-            <button
-              className="hero-enquire-btn"
-              onClick={() => setShowPopUp(true)}
-              type="button"
+
+          {/* Defining form on banner container  */}
+          <div className="banner-form d-none d-lg-block">
+            <Form
+              noValidate
+              validated={validated}
+              onSubmit={(e) => handleSubmit(e, "top_form")}
             >
-              <Image
-                src="/icon/enquire_now.svg"
-                alt=""
-                width={32}
-                height={32}
-                className="hero-enquire-btn__icon"
-              />
-              <span>Enquire Now</span>
-            </button>
-          </div>
-          <div className="hero-get-detail-card">
-            <p className="hero-get-location">
-              {projectDetail.projectLocality}, {projectDetail.city},{" "}
-              {projectDetail.state}
-            </p>
-            <p className="hero-get-price">{generatePrice(projectDetail.projectPrice)}</p>
-            <p className="hero-get-config">{projectDetail.projectConfiguration}</p>
-            <p className="hero-get-rera">RERA: {projectDetail.reraNo || "Not found"}</p>
+              <Form.Group className="mb-3" controlId="full_name">
+                <Form.Control
+                  type="text"
+                  placeholder="Full name"
+                  value={formData.name || ""}
+                  onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
+                  name="name"
+                  isInvalid={
+                    !!errors.name || (validated && !formData.name.trim())
+                  }
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.name || "Please provide a valid name."}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="email_id">
+                <Form.Control
+                  type="email"
+                  placeholder="Email id"
+                  value={formData.email || ""}
+                  onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
+                  name="email"
+                  isInvalid={
+                    !!errors.email || (validated && !formData.email.trim())
+                  }
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.email || "Please provide a valid email."}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="phone_number">
+                <Form.Control
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={formData.phone || ""}
+                  onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
+                  name="phone"
+                  isInvalid={
+                    !!errors.phone || (validated && !formData.phone.trim())
+                  }
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.phone || "Please provide a valid phone number."}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="message">
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="Message"
+                  value={formData.message || ""}
+                  onChange={(e) => handleChange(e)}
+                  name="message"
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid message.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <div>
+                <Button
+                  className="btn btn-background border-0 w-50"
+                  type="submit"
+                  disabled={showLoading}
+                >
+                  Submit <LoadingSpinner show={showLoading} />
+                </Button>
+              </div>
+            </Form>
           </div>
           <div
             className="scroll-down-btn d-none d-md-flex"
@@ -1119,349 +926,416 @@ const addNearbyImageIcon = (benefit) => {
           </div>
         </div>
 
-        <div id="overview" className="container overview-section py-5 mt-3 mb-3">
-          <div className="overview-lines-layer" aria-hidden="true">
-            {[8, 18, 28, 38, 50, 62, 72, 82, 92].map((position, index) => (
-              <span
-                key={`overview-line-${position}`}
-                className="overview-line"
-                style={{
-                  left: `${position}%`,
-                  animationDelay: `${index * 0.5}s`,
-                }}
-              ></span>
-            ))}
-          </div>
-          <div className="overview-content-wrap text-center mx-auto">
-            <h2 className="overview-title">Project Overview</h2>
-            <div
-              className="overview-description"
-              dangerouslySetInnerHTML={{
-                __html: projectDetail.projectWalkthroughDescription,
-              }}
-            ></div>
+        <div
+          id="overview"
+          className="container py-5 bg-white rounded-3 mt-3 mb-3"
+        >
+          <div className="row gy-5 align-items-stretch">
+            {/* Project Info */}
+            <div className="col-lg-4">
+              <div className="p-2 p-lg-5 rounded-4 bg-white h-100 d-flex flex-column justify-content-center align-items-center custom-shadow">
+                <div>
+                  <h1 className="mb-3 text-dark fw-bold">
+                    {projectDetail.projectName}
+                  </h1>
+
+                  <p className="fs-5 mb-3 text-muted d-flex align-items-center">
+                    <FontAwesomeIcon
+                      icon={faLocationDot}
+                      className="text-success me-2 fs-5"
+                    />
+                    <span>{projectDetail.projectLocality}, {projectDetail.city}, {projectDetail.state}</span>
+                  </p>
+
+                  <p className="fs-5 text-dark mb-2">
+                    <strong>
+                      Price: {generatePrice(projectDetail.projectPrice)}
+                    </strong>
+                  </p>
+
+                  <p className="fs-6 text-muted mb-2">
+                    {projectDetail.projectConfiguration}
+                  </p>
+
+                  <p className="fs-6 text-muted">
+                    <strong className="text-dark">RERA:</strong>{" "}
+                    {projectDetail.reraNo || "Not found"}
+                  </p>
+                </div>
+                <button
+                  className="btn btn-success border-0 btn-background text-white w-100 p-2"
+                  onClick={() => setShowPopUp(true)}
+                >
+                  <h5 className="m-0">Get Detail</h5>
+                </button>
+              </div>
+            </div>
+            {/* Walkthrough Description */}
+            <div className="col-lg-8">
+              <div className="bg-white p-4 p-md-5 rounded-4 custom-shadow h-100">
+                <h2 className="text-dark fw-bold mb-4 text-center text-md-start">
+                  Project Overview
+                </h2>
+
+                <div
+                  className="text-muted fs-6 lh-lg"
+                  dangerouslySetInnerHTML={{
+                    __html: projectDetail.projectWalkthroughDescription,
+                  }}
+                ></div>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Amenities section */}
-        <div className="container-fluid py-5 mb-5 amenities-section" id="amenities">
-          <div className="container amenities-content">
-            <div className="amenities-head">
-              <h2 className="amenities-title">Amenities</h2>
-              {amenitiesChunks.length > 1 && (
-                <>
-                  {amenitiesSlideIndex < amenitiesChunks.length - 1 && (
-                    <button
-                      type="button"
-                      className="amenities-toggle-btn"
-                      onClick={goToNextAmenitiesSlide}
-                    >
-                      <span>View More</span>
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        className="amenities-toggle-btn__icon"
-                      />
-                    </button>
-                  )}
-                  {amenitiesSlideIndex > 0 && (
-                    <button
-                      type="button"
-                      className="amenities-toggle-btn amenities-toggle-btn--less ms-2"
-                      onClick={goToPrevAmenitiesSlide}
-                    >
-                      <span>View Less</span>
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
+        <div className="container-fluid py-5 text-white mb-5" id="amenities">
+          {/* Title */}
+          <h2 className="text-center fw-bold mb-5">Amenities</h2>
 
-            <div className="amenities-slide-container">
-              <div
-                className="amenities-slide-track"
-                style={{ transform: `translateX(-${amenitiesSlideIndex * 100}%)` }}
-              >
-                {amenitiesChunks.map((chunk, chunkIndex) => (
-                  <div key={chunkIndex} className="amenities-slide">
-                    <div className="amenities-grid">
-                      {chunk.map((item, index) => (
-                        <div
-                          key={`${item.id || item.title}-${index}`}
-                          className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
-                          style={{ transitionDelay: `${index * 80}ms` }}
-                        >
-                          <div className="amenity-modern-icon-wrap">
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
-                              height={40}
-                              width={40}
-                              alt={item.altTag || item.title || "Amenity icon"}
-                              className="d-flex mx-auto"
-                            />
-                          </div>
-                          <p className="amenity-modern-title">{item.title}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+          {/* Description (API may return amenityDesc or amenityDescription) */}
+          {(projectDetail.amenityDescription || projectDetail.amenityDesc) && (
+            <div
+              className="text-center container mb-5"
+              dangerouslySetInnerHTML={{
+                __html: projectDetail.amenityDescription || projectDetail.amenityDesc || "",
+              }}
+            />
+          )}
+
+          {/* Amenities Grid */}
+          <div className="container d-flex flex-wrap justify-content-center gap-3 mb-5 amenity-container">
+            {amenities.map((item, index) => (
+              <div key={index} className="amenity-detail-container">
+                <div className="bg-white mb-3 p-3 rounded-2">
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
+                    height={60}
+                    width={60}
+                    alt={item.altTag || ""}
+                    className="mb-3 d-flex mx-auto"
+                  />
+                </div>
+                <p className="text-white text-center fs-6">{item.title}</p>
               </div>
-            </div>
+            ))}
+          </div>
+
+          {/* View All Button */}
+          <div className="text-center">
+            <Button
+              className="btn btn-background rounded-3 text-white border-0 px-5 py-3"
+              onClick={() => viewAllAmenities(amenityButtonName)}
+            >
+              {amenityButtonName}
+            </Button>
           </div>
         </div>
 
         {/* Floor plans section */}
-        <div className="container mb-5 floorplan-section" id="floorplan">
+        <div className="container mb-5" id="floorplan">
           <div className="">
-            <h2 className="text-center fw-bold mb-4 floorplan-heading">Floor Plans</h2>
-            {projectDetail.floorPlanDescription && (
+            <h2 className="text-center fw-bold mb-4">Floor Plans</h2>
+            {(projectDetail.floorPlanDescription || projectDetail.floorPlanDesc) && (
               <div
-                className="text-center mb-4 floorplan-description"
+                className="text-center mb-4"
                 dangerouslySetInnerHTML={{
-                  __html: projectDetail.floorPlanDescription,
+                  __html: projectDetail.floorPlanDescription || projectDetail.floorPlanDesc || "",
                 }}
-              ></div>
+              />
             )}
           </div>
-          {!!floorPlans.length && (
-            <div className={`floorplan-grid${floorPlans.length === 1 ? " floorplan-grid--single" : ""}`}>
-              {floorPlans.map((item, index) => (
-                <article
-                  key={`${item.id || item.planType || "plan"}-${index}`}
-                  data-floor-index={index}
-                  className={`floorplan-card ${visibleFloorPlanCards[index] ? "is-visible" : ""}`}
-                >
-                  <div className="floorplan-card-top-meta">
-                    <p>
-                      <span>Type</span>
-                      <strong>{item.planType || item.type || "Offices"}</strong>
-                    </p>
-                    <p>
-                      <span>Size</span>
-                      <strong>{getFloorPlanArea(item)}</strong>
-                    </p>
-                  </div>
-
-                  <div className="floorplan-image-wrap">
+          {/* <div className="d-flex justify-content-center p-2 d-flex flex-column flex-md-row gap-md-3 flex-wrap flex-lg-nowrap"> */}
+          <Swiper
+            direction="horizontal"
+            navigation={true}
+            pagination={{ clickable: true }}
+            spaceBetween={20}
+            loop={true}
+            breakpoints={{
+              320: { slidesPerView: 1 },
+              576: { slidesPerView: 1.5 },
+              768: { slidesPerView: 2 },
+              992: { slidesPerView: 3 },
+              1200: { slidesPerView: 4 },
+            }}
+            modules={[Navigation]}
+            className="mySwiper p-2"
+          >
+            {projectDetail.floorPlans?.map((item, index) => (
+              <SwiperSlide key={`${item.planType}-${index}`}>
+                <div className="card">
+                  <div className="p-3 rounded-sm d-flex mx-auto">
                     <Image
-                      width={500}
-                      height={300}
-                      className="img-fluid floorplan-image"
-                      src={getFloorPlanImage(item)}
-                      alt={item.altTag || item.planType || "Floor plan"}
+                      width={300}
+                      height={200}
+                      className="img-fluid rounded-3"
+                      src="/static/generic-floorplan.jpg"
+                      alt="floor plan"
                     />
                   </div>
-
-                  <button
-                    type="button"
-                    className="floorplan-expand-btn"
-                    onClick={() => setShowPopUp(true)}
-                    aria-label={`Enquire for ${item.planType || "floor plan"}`}
-                  >
-                    <FontAwesomeIcon icon={faArrowRight} />
-                  </button>
-                </article>
-              ))}
-            </div>
-          )}
+                  <div className="border-bottom property-type-detail">
+                    <p>
+                      <FontAwesomeIcon icon={faBed} width={20} color="green" />{" "}
+                      Type
+                    </p>
+                    <p>{item.planType}</p>
+                  </div>
+                  <div className="mt-2 property-type-detail">
+                    <p>
+                      <FontAwesomeIcon
+                        icon={faChartArea}
+                        width={20}
+                        color="green"
+                      />{" "}
+                      Area
+                    </p>
+                    {/* <p>{item.areaSqFt} sqft*</p>
+                    <p>{parseFloat(item.areaSqMt).toFixed(2)} sqmt*</p> */}
+                  </div>
+                  <div className="pb-4 ps-2 mt-4">
+                    <button
+                      className="btn btn-background text-white"
+                      onClick={() => setShowPopUp(true)}
+                    >
+                      PRICE ON REQUEST
+                    </button>
+                  </div>
+                </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+          {/* </div> */}
         </div>
 
         {/* Gallery section */}
-        <div className="container py-5 mb-5 gallery-modern-section" id="gallery">
-          <h2 className="gallery-modern-title">Gallery</h2>
-          {!!galleryImages.length && (
-            <div className="gallery-modern-grid">
-              {galleryImages.map((item, index) => (
-                <button
-                  type="button"
-                  key={`${index}-${item.id || item.imageName}`}
-                  className="gallery-modern-item"
-                  onClick={() => openGalleryModal(index)}
-                  aria-label={`Open gallery image ${index + 1}`}
-                >
-                  <Image
-                    src={projectImageSrc(item.imageName)}
-                    alt={item.altTag || `Gallery image ${index + 1}`}
-                    fill
-                    className="gallery-modern-image"
-                  />
-                </button>
-              ))}
+        <div className="container-fluid bg-light py-5 mb-5" id="gallery">
+          <h2 className="text-center mb-4 fw-bold">Gallery</h2>
+          <div className="container-fluid mt-4">
+            <div className="row justify-content-center">
+              <div className="col-12">
+                <Slider {...settings1} className="gallery-slider">
+                  {(projectDetail.galleryImages || []).map((item, index) => (
+                    <div
+                      key={`${index}-${item.id}`}
+                      className="project-detail-gallery-container "
+                    >
+                      <Image
+                        src={projectImageSrc(item.imageName)}
+                        alt={item.altTag || "Gallery Image"}
+                        fill
+                        className="img-fluid rounded-5 object-fit-cover px-2 "
+                      />
+                    </div>
+                  ))}
+                </Slider>
+              </div>
             </div>
-          )}
+          </div>
         </div>
         {/* Location section */}
-        <ScrollFadeSection
-          as="section"
-          className="location-modern-section mb-5"
-          id="location"
-        >
-          
-          <div className="container location-modern-container">
-            <div className="location-modern-map">
-              <Image
-                src={projectImageSrc(projectDetail.locationMap)}
-                alt="Project Location Map"
-                fill
-                className="location-modern-map-image"
+        <div className="container mb-5" id="location">
+          <div>
+            <h2 className="text-center fw-bold">Location</h2>
+          </div>
+          <div className="text-center p-2 p-md-4 p-lg-5">
+            {(projectDetail.locationDescription || projectDetail.locationDesc) && (
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: projectDetail.locationDescription || projectDetail.locationDesc || "",
+                }}
               />
-            </div>
-
-            <div className="location-modern-panel">
-              <h2 className="location-modern-title">Location</h2>
-              <div className="location-modern-info-card">
-                <div className="location-modern-row">
-                  <span>Address</span>
-                  <strong>{projectDetail.projectLocality || "NA"}</strong>
-                </div>
-                <div className="location-modern-row">
-                  <span>State</span>
-                  <strong>{projectDetail.state || "NA"}</strong>
-                </div>
-                <div className="location-modern-row">
-                  <span>City</span>
-                  <strong>{projectDetail.city || "NA"}</strong>
-                </div>
-                <div className="location-modern-row">
-                  <span>Country</span>
-                  <strong>{projectDetail.country || "NA"}</strong>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className="location-modern-map-btn"
-                onClick={() => setShowPopUp(true)}
-              >
-                <span>View Map</span>
-                <span className="location-modern-map-btn-icon">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-              </button>
-            </div>
+            )}
           </div>
-
-          {!!nearbyBenefitsMaster.length && (
-            <div className="container location-nearby-wrap">
-              <h3 className="location-nearby-title">Nearby Benefits</h3>
-              <div className="location-nearby-marquee">
-                <div className="location-nearby-track">
-                  {[...nearbyBenefitsMaster, ...nearbyBenefitsMaster].map((benefit, index) => {
-                    const benefitName = benefit.benefitName || benefit.name || benefit.title || "Benefit";
-                    const linkedDistance = getNearbyDistanceLabel(benefit);
-                    return (
-                    <article
-                      key={`${benefit.id || benefit.benefitName || "benefit"}-${index}`}
-                      className="location-nearby-card"
-                    >
-                      <div className="location-nearby-card-icon">
+          <div className="row">
+            <div className="col-md-6">
+              {/* Nearby Benefits Section */}
+              <div className="row g-3">
+                {(projectDetail.locationBenefits || []).map((item, index) => (
+                  <div key={index} className="col-6">
+                    <div className="border rounded-4 p-3 h-100 d-flex align-items-center gap-3 bg-light shadow-sm">
+                      {item.benefitName != null ? (
                         <Image
-                          src={
-                            addNearbyImageIcon(benefit.benefitName) ||
-                            "/icon/fallback-icon.png"
-                          }
-                          alt={benefitName}
-                          width={22}
-                          height={22}
+                          src={addNearbyImageIcon(item.benefitName) || `/icon/fallback-icon.png`}
+                          alt={item.benefitName || ""}
+                          width={40}
+                          height={40}
                         />
+                      ) : (
+                        <Image
+                          src={`/icon/fallback-icon.png`}
+                          alt="fallback-icon"
+                          width={40}
+                          height={40}
+                        />
+                      )}
+                      <div>
+                        <p className="mb-1 fw-semibold text-dark">
+                          {item.benefitName}
+                        </p>
+                        <small className="text-muted">{item.distance}</small>
                       </div>
-                      <div className="location-nearby-card-content">
-                        <p>{benefitName}</p>
-                        {linkedDistance && <span>{linkedDistance}</span>}
-                      </div>
-                    </article>
-                    );
-                  })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Address Section */}
+              <div className="mt-4 p-4">
+                <div className="row">
+                  <div className="col-sm-6 mb-3">
+                    <p className="mb-1 text-success fw-semibold">Address</p>
+                    <p className="mb-0">{projectDetail.projectLocality || ""}</p>
+                  </div>
+                  <div className="col-sm-6 mb-3">
+                    <p className="mb-1 text-success fw-semibold">State</p>
+                    <p className="mb-0">{projectDetail.state || ""}</p>
+                  </div>
+                  <div className="col-sm-6 mb-3">
+                    <p className="mb-1 text-success fw-semibold">City</p>
+                    <p className="mb-0">{projectDetail.city || ""}</p>
+                  </div>
+                  <div className="col-sm-6 mb-3">
+                    <p className="mb-1 text-success fw-semibold">Country</p>
+                    <p className="mb-0">{projectDetail.country || ""}</p>
+                  </div>
+                </div>
+
+                <div className="text-center mt-3">
+                  <button
+                    className="btn btn-background text-white px-4 py-2 rounded-pill"
+                    onClick={() => setShowPopUp(true)}
+                  >
+                    View On Map
+                  </button>
                 </div>
               </div>
             </div>
-          )}
-        </ScrollFadeSection>
-      </div>
+            <div className="col-md-6 p-3">
+              <div
+                className="position-relative border rounded-4 overflow-hidden shadow-sm"
+                style={{ height: "350px" }}
+              >
+                <Image
+                  src={projectImageSrc(projectDetail.locationMap)}
+                  alt="Project Location Map"
+                  fill
+                  className="object-fit-cover"
+                />
 
-      {/* About the project */}
-      <ScrollFadeSection as="section" className="about-modern-section mb-5">
-        <div className="container about-modern-container">
-          <div className="about-modern-image-wrap">
-            <Image
-              src={aboutBuilderImageSrc}
-              alt={projectDetail.builder?.builderName || "Builder"}
-              fill
-              className="about-modern-image"
-            />
-          </div>
-
-          <div className="about-modern-content">
-            <p className="about-modern-label">About</p>
-            <h2 className="about-modern-title">
-              The Builder {projectDetail.builder?.builderName || ""}
-            </h2>
-            <div
-              className="about-modern-description"
-              dangerouslySetInnerHTML={{
-                __html: sanitizeHtml(projectDetail.builder?.builderDescription || ""),
-              }}
-            ></div>
-
-            <Link
-              href={`/builder/${projectDetail.builder?.slugURL || "#"}`}
-              className="about-modern-link-btn"
-              aria-label="Open builder details"
-            >
-              <FontAwesomeIcon icon={faArrowRight} />
-            </Link>
+                {/* Overlay text */}
+                <div className="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white text-center">
+                  <small className="fw-semibold">Project Location</small>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </ScrollFadeSection>
+      </div>
 
-      <ParallaxImageStrip imageSrc={aboutBuilderImageSrc}>
-        <div className="get-touch-overlay-inner">
-          <h2 className="get-touch-title">Get in Touch</h2>
-          <p className="get-touch-copy">
-            If you have any additional queries regarding the project or would like to
-            take the next step in your investment journey, you can fill out this query
-            form and our team will be happy to assist you with what you need.
-          </p>
+      
 
-          <div className="get-touch-point-list">
-            {getInTouchPoints.map((point) => (
-              <span key={point} className="get-touch-point-item">
-                <span className="get-touch-point-icon">
-                  <Image src="/icon/verify.svg" alt="" width={12} height={12} />
-                </span>
-                <span>{point}</span>
-              </span>
-            ))}
+      {/* About the project */}
+      <div
+        className="container-fluid py-5 mb-5"
+        style={{
+          backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url(${projectImageSrc(projectDetail?.desktopImages?.[0]?.desktopImage)})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          height: "600px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Section Heading */}
+        <div>
+          <h2 className="text-center text-white fw-bold mb-5">
+            About The Builder {projectDetail.builder?.builderName || ""}
+          </h2>
+
+          {/* Description */}
+          <div>
+            <div className="container mb-5">
+              <div
+                className="text-center project-about-container text-white"
+                dangerouslySetInnerHTML={{
+                  __html: sanitizeHtml(projectDetail.builder?.builderDescription || ""),
+                }}
+              ></div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="text-center">
+              <Link
+                href={`/builder/${projectDetail.builder?.slugURL || "#"}`}
+                className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
+              >
+                LEARN MORE
+              </Link>
+            </div>
           </div>
+        </div>
+      </div>
 
-          <div className="project-detail-contact-form get-touch-form-wrap">
-            <Form
-              noValidate
-              validated={validated1}
-              className="w-100"
-              onSubmit={(e) => handleSubmit(e)}
+      {/* Contact us section */}
+      <div className="container mb-5">
+        <div>
+          <h2 className="text-center fw-bold mb-4">Get in Touch</h2>
+          <div className="row">
+            <div
+              className="col-12 col-md-6 col-lg-6 col-xl-6 
+            d-flex justify-content-center align-items-center"
             >
-              <Row className="g-2">
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="first_name">
-                    <Form.Control
-                      type="text"
-                      placeholder="Full Name"
-                      value={formData.name || ""}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="name"
-                      isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.name || "Please provide a valid name."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="email_id">
+              <div className="">
+                <div className="w-100 w-md-50 w-lg-50 mb-3 contactus-content">
+                  <p className="fs-5 mb-5">
+                    If you have any additional queries regarding the project or
+                    would like to take the next step in your investment journey,
+                    you can fill out this query form and our team will be happy
+                    to assist you with what you need.
+                  </p>
+                  <ul className="fs-5">
+                    <li className="my-3">Book a Site Visit</li>
+                    <li className="my-3">Ask For a Brochure</li>
+                    <li className="my-3">Speak to a Representative</li>
+                    <li className="my-3">Ask for a Quotation</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6 col-lg-6 col-xl-6">
+              <div className="container d-flex justify-content-center project-detail-contact-form">
+                <Form
+                  noValidate
+                  validated={validated1}
+                  className="w-100 rounded-3 p-3"
+                  onSubmit={(e) => handleSubmit(e, "bottom_form")}
+                >
+                  <Row>
+                    <Col>
+                      <Form.Group className="mb-3" controlId="first_name">
+                        <Form.Control
+                          type="text"
+                          placeholder="Full Name"
+                          value={formData.name || ""}
+                          onChange={(e) => handleChange(e)}
+                          onBlur={handleBlur}
+                          name="name"
+                          isInvalid={
+                            !!errors.name ||
+                            (validated1 && !formData.name.trim())
+                          }
+                          required
+                        />
+                        <Form.Control.Feedback type="invalid">
+                          {errors.name || "Please provide a valid name."}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    </Col>
+                  </Row>
+                  <Form.Group className="mb-3" controlId="email_id">
                     <Form.Control
                       type="email"
                       placeholder="Email Id"
@@ -1469,17 +1343,16 @@ const addNearbyImageIcon = (benefit) => {
                       onChange={(e) => handleChange(e)}
                       onBlur={handleBlur}
                       name="email"
-                      isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
+                      isInvalid={
+                        !!errors.email || (validated1 && !formData.email.trim())
+                      }
                       required
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.email || "Please provide a valid email."}
                     </Form.Control.Feedback>
                   </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="phone_number">
+                  <Form.Group className="mb-3" controlId="phone_number">
                     <Form.Control
                       type="tel"
                       placeholder="Phone Number"
@@ -1487,97 +1360,94 @@ const addNearbyImageIcon = (benefit) => {
                       onChange={(e) => handleChange(e)}
                       onBlur={handleBlur}
                       name="phone"
-                      isInvalid={!!errors.phone || (validated1 && !formData.phone.trim())}
+                      isInvalid={
+                        !!errors.phone || (validated1 && !formData.phone.trim())
+                      }
                       required
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.phone || "Please provide a valid phone number."}
                     </Form.Control.Feedback>
                   </Form.Group>
-                </Col>
-              </Row>
-
-              <Form.Group className="mb-2" controlId="message">
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  placeholder="Message"
-                  value={formData.message || ""}
-                  onChange={(e) => handleChange(e)}
-                  name="message"
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a valid message.
-                </Form.Control.Feedback>
-              </Form.Group>
-
-              <Button
-                className="btn btn-background text-white border-0 w-100 py-3 text-capitalize get-touch-submit-btn"
-                type="submit"
-                disabled={showLoading}
-              >
-                Submit
-                <LoadingSpinner show={showLoading} />
-              </Button>
-            </Form>
-          </div>
-        </div>
-      </ParallaxImageStrip>
-
-      {/* Similar Projects */}
-      {similarProjects.length > 0 && (
-        <div className="container-fluid mb-5 mt-5">
-          <h2 className="text-center mb-4 fw-bold">Similar Projects</h2>
-          <Featured
-            title="Similar Projects"
-            autoPlay={true}
-            allProjects={similarProjects}
-            type="Similar"
-            badgeVariant="default"
-          />
-        </div>
-      )}
-
-      {/* FAQs */}
-      {!!faqList.length && (
-        <section className="faq-modern-section mb-5">
-          <div className="container">
-            <h2 className="faq-modern-title">Frequently Asked Question</h2>
-            <p className="faq-modern-subtitle">
-              Find answers to common questions about this project.
-            </p>
-
-            <div className="faq-modern-list">
-              {faqList.map((item, index) => {
-                const faqKey = item.id ?? index;
-                const isOpen = !!isAnswerVisible[faqKey];
-                return (
-                  <article key={`${faqKey}-${index}`} className="faq-modern-item">
-                    <button
-                      type="button"
-                      className="faq-modern-question"
-                      onClick={() => toggleAnswer(faqKey)}
-                      aria-expanded={isOpen}
+                  <Form.Group className="mb-3" controlId="message">
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="Message"
+                      value={formData.message || ""}
+                      onChange={(e) => handleChange(e)}
+                      name="message"
+                      required
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please provide a valid message.
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <div className="d-flex flex-wrap gap-3 justify-content-center">
+                    <Button
+                      className="btn btn-background text-white border-0 px-5 py-3 fs-5 text-uppercase"
+                      type="submit"
+                      disabled={showLoading}
                     >
-                      <span>{item.question}</span>
-                      <span className="faq-modern-icon-wrap">
-                        <FontAwesomeIcon icon={isOpen ? faMinus : faPlus} />
-                      </span>
-                    </button>
-                    <div className={`faq-modern-answer ${isOpen ? "show" : ""}`}>
-                      <p>{item.answer}</p>
-                    </div>
-                  </article>
-                );
-              })}
+                      Submit Enquiry
+                      <LoadingSpinner show={showLoading} />
+                    </Button>
+                  </div>
+                </Form>
+              </div>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </div>
+      <div className="container-fluid bg-white mb-5">
+        <h2 className="text-center mb-4 fw-bold">FAQs</h2>
 
-      {/* Popular Cities */}
-      <PopularCitiesSection />
+        <div className="faq-container">
+          {(projectDetail.faqs || []).map((item, index) => (
+            <div key={`${item.id}-${index}`} className="faq-item mb-3">
+              {/* Question */}
+              <div
+                className="faq-question d-flex justify-content-between align-items-center p-3 rounded-3"
+                onClick={() => toggleAnswer(item.id)}
+              >
+                <h5 className="m-0">
+                  Q{index + 1}: {item.question}
+                </h5>
+                <span className="faq-icon">
+                  {isAnswerVisible[item.id] ? "−" : "+"}
+                </span>
+              </div>
+
+              {/* Answer */}
+              <div
+                className={`faq-answer px-3 pb-3 ${
+                  isAnswerVisible[item.id] ? "show" : ""
+                }`}
+              >
+                <p className="m-0">
+                  <strong className="text-success">Ans:</strong> {item.answer}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Similar Projects */}
+      {Array.isArray(similarProjects) && similarProjects.length > 0 && (
+        <div className="container-fluid py-5 mb-5" id="similar-projects">
+          <div className="container">
+            <h2 className="text-center fw-bold mb-4 mb-lg-5">Similar Projects</h2>
+            <Featured
+              type="Similar"
+              allProjects={similarProjects}
+              title="Similar Projects"
+              autoPlay={false}
+              badgeVariant="default"
+            />
+          </div>
+        </div>
+      )}
 
       <CommonPopUpform
         show={showPopUp}
@@ -1585,38 +1455,6 @@ const addNearbyImageIcon = (benefit) => {
         from={"Project Detail"}
         data={projectDetail}
       />
-
-      <Modal
-        show={showGalleryModal}
-        onHide={closeGalleryModal}
-        centered
-        size="xl"
-        className="gallery-zoom-modal"
-        backdropClassName="gallery-zoom-backdrop"
-      >
-        <Modal.Body>
-          <button
-            type="button"
-            className="gallery-modal-close-btn"
-            aria-label="Close gallery preview"
-            onClick={closeGalleryModal}
-          >
-            <FontAwesomeIcon icon={faTimes} />
-          </button>
-
-          <div className="gallery-zoom-viewer">
-            {galleryImages[activeGalleryIndex] && (
-              <Image
-                src={projectImageSrc(galleryImages[activeGalleryIndex].imageName)}
-                alt={galleryImages[activeGalleryIndex].altTag || "Gallery preview"}
-                width={1400}
-                height={1000}
-                className="gallery-zoom-image"
-              />
-            )}
-          </div>
-        </Modal.Body>
-      </Modal>
     </>
   );
 }

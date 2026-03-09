@@ -11,7 +11,7 @@ import {
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { LoadingSpinner } from "./page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 export default function ContactUs() {
   const [validated, setValidated] = useState(false);

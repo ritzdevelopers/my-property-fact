@@ -5,7 +5,7 @@ import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { LoadingSpinner } from "../../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import BlogSidebar from "../../components/common/BlogSidebar";
 import BlogFaqSection from "../../components/common/BlogFaqSection";

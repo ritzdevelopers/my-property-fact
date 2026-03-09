@@ -3,7 +3,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { fetchAllProjects } from "../masterFunction";
 import PropertyContainer from "@/app/(home)/components/common/page";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Link from "next/link";
 
 export default function MasterBHKProjectList() {

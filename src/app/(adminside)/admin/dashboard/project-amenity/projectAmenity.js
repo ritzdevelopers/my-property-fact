@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Multiselect from "multiselect-react-dropdown";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPencil } from "@fortawesome/free-solid-svg-icons";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "../common-model/dashboardHeader";

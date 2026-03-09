@@ -1,4 +1,4 @@
-import { LoadingSpinner } from "../../(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import "bootstrap/dist/css/bootstrap.min.css";
 export default function LoadingProperty() {
   return (

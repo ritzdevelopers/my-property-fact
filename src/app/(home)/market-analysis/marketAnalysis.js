@@ -4,7 +4,7 @@ import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import CommonBreadCrum from "../components/common/breadcrum";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { LoadingSpinner } from "../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { Pagination, Stack } from "@mui/material";
 import BlogCard from "../components/common/blogcard";
 export default function MarketAnalysis() {

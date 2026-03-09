@@ -2,7 +2,7 @@
 import styles from "./page.module.css";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import { useEffect, useState } from "react";
-import { LoadingSpinner } from "../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { Pagination, Stack } from "@mui/material";
 import BlogListItem from "../components/common/BlogListItem";
 import BlogSidebar from "../components/common/BlogSidebar";

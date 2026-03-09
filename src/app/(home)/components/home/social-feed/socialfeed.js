@@ -1,4 +1,4 @@
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import BlogCard from "../../common/blogcard";
 import "../../common/common.css";
 

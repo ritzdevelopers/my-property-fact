@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Image from "next/image";
-import { LoadingSpinner } from "../../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import "./popupform.css";
 

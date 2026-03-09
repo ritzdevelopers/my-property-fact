@@ -22,7 +22,7 @@ import Modal from "react-bootstrap/Modal";
 import Image from "next/image";
 import NotFound from "../../not-found";
 import CommonPopUpform from "../../(home)/components/common/popupform";
-import { LoadingSpinner } from "../../(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Featured from "../../(home)/components/home/featured/featured";
 import PopularCitiesSection from "../../(home)/components/home/popular-cities/PopularCitiesSection";
 import { toast } from "react-toastify";

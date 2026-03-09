@@ -4,7 +4,7 @@ import "../../components/home/home.css";
 import Link from "next/link";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
-import { LoadingSpinner } from "../../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Image from "next/image";
 
 export default function CityPage({ cityData }) {

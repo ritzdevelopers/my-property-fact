@@ -5,7 +5,7 @@ import DataTable from "../common-model/data-table";
 import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";

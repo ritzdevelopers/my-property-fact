@@ -8,6 +8,7 @@ import {
   generateClientChatResponse,
 } from "./chatbotLogicClient";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+
 import { usePathname } from "next/navigation";
 
 function createSessionId() {

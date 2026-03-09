@@ -498,6 +498,21 @@
   transform: translateX(3px);
 }
 
+.amenities-slide-container {
+  overflow: hidden;
+  width: 100%;
+}
+
+.amenities-slide-track {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.amenities-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
 .amenities-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2243,3 +2258,5 @@ a {
 #location {
   scroll-margin-top: 100px;
 }
+
+

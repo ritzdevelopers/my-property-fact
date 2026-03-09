@@ -73,12 +73,12 @@ export default function ContactUs() {
     if (!/^\d+$/.test(cleanedPhone)) {
       return "Phone number can only contain digits, spaces, dashes, and parentheses";
     }
-    // Check length (exactly 10 digits)
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
+
+    if (cleanedPhone.length < 8 || cleanedPhone.length > 10) {
+      return "Phone number must be between 8 to 10 digits"
     }
-    // Check if first digit is between 6-9
-    if (!/^[6-9]/.test(cleanedPhone)) {
+    // If number is 10 digits then check Indian mobile rule
+    if (cleanedPhone.length === 10 && !/^[6-9]/.test(cleanedPhone)) {
       return "Phone number must start with 6, 7, 8, or 9";
     }
     return "";
@@ -253,6 +253,7 @@ export default function ContactUs() {
               placeholder="Enter your phone number"
               name="phone"
               type="tel"
+              maxLength={10}
               value={formData.phone}
               onChange={(e) => handleChange(e)}
               onBlur={(e) => handleBlur(e)}

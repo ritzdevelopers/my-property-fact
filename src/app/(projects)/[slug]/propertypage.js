@@ -166,7 +166,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
-  const [showAmenitiesSlider, setShowAmenitiesSlider] = useState(false);
+  const [amenitiesSlideIndex, setAmenitiesSlideIndex] = useState(0);
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
   const [isAmenitiesInView, setIsAmenitiesInView] = useState(false);
   const [visibleFloorPlanCards, setVisibleFloorPlanCards] = useState({});
@@ -748,9 +748,12 @@ const addNearbyImageIcon = (benefit) => {
     : Array.isArray(allNearbyBenefits?.data)
       ? allNearbyBenefits.data
       : [];
-  const initialAmenities = amenitiesList.slice(0, 8);
-  const showAmenitiesAsSlider = isMobileOrTablet || showAmenitiesSlider;
-  const showAmenityCards = isAmenitiesInView || showAmenitiesAsSlider;
+  const AMENITIES_PER_SLIDE = 8;
+  const amenitiesChunks = [];
+  for (let i = 0; i < amenitiesList.length; i += AMENITIES_PER_SLIDE) {
+    amenitiesChunks.push(amenitiesList.slice(i, i + AMENITIES_PER_SLIDE));
+  }
+  const showAmenityCards = isAmenitiesInView;
   const aboutBuilderImage =
     projectDetail?.builder?.builderImage ||
     projectDetail?.builder?.image ||
@@ -828,8 +831,12 @@ const addNearbyImageIcon = (benefit) => {
     return /sq|ft|mtr|meter/i.test(areaText) ? areaText : `${areaText} Sq Ft`;
   };
 
-  const viewAllAmenities = () => {
-    setShowAmenitiesSlider((prev) => !prev);
+  const goToNextAmenitiesSlide = () => {
+    setAmenitiesSlideIndex((prev) => Math.min(prev + 1, amenitiesChunks.length - 1));
+  };
+
+  const goToPrevAmenitiesSlide = () => {
+    setAmenitiesSlideIndex((prev) => Math.max(prev - 1, 0));
   };
 
   const openGalleryModal = (index) => {
@@ -1141,72 +1148,65 @@ const addNearbyImageIcon = (benefit) => {
           <div className="container amenities-content">
             <div className="amenities-head">
               <h2 className="amenities-title">Amenities</h2>
-              {amenitiesList.length > 8 && !isMobileOrTablet && (
-                <button
-                  type="button"
-                  className="amenities-toggle-btn"
-                  onClick={viewAllAmenities}
-                >
-                  <span>{showAmenitiesSlider ? "View Less" : "View More"}</span>
-                  {!showAmenitiesSlider && (
-                    <FontAwesomeIcon
-                      icon={faArrowRight}
-                      className="amenities-toggle-btn__icon"
-                    />
+              {amenitiesChunks.length > 1 && (
+                <>
+                  {amenitiesSlideIndex < amenitiesChunks.length - 1 && (
+                    <button
+                      type="button"
+                      className="amenities-toggle-btn"
+                      onClick={goToNextAmenitiesSlide}
+                    >
+                      <span>View More</span>
+                      <FontAwesomeIcon
+                        icon={faArrowRight}
+                        className="amenities-toggle-btn__icon"
+                      />
+                    </button>
                   )}
-                </button>
+                  {amenitiesSlideIndex > 0 && (
+                    <button
+                      type="button"
+                      className="amenities-toggle-btn amenities-toggle-btn--less ms-2"
+                      onClick={goToPrevAmenitiesSlide}
+                    >
+                      <span>View Less</span>
+                    </button>
+                  )}
+                </>
               )}
             </div>
 
-            {!showAmenitiesAsSlider ? (
-              <div className="amenities-grid">
-                {initialAmenities.map((item, index) => (
-                  <div
-                    key={`${item.id || item.title}-${index}`}
-                    className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
-                    style={{ transitionDelay: `${index * 80}ms` }}
-                  >
-                    <div className="amenity-modern-icon-wrap">
-                      <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
-                        height={40}
-                        width={40}
-                        alt={item.altTag || item.title || "Amenity icon"}
-                        className="d-flex mx-auto"
-                      />
+            <div className="amenities-slide-container">
+              <div
+                className="amenities-slide-track"
+                style={{ transform: `translateX(-${amenitiesSlideIndex * 100}%)` }}
+              >
+                {amenitiesChunks.map((chunk, chunkIndex) => (
+                  <div key={chunkIndex} className="amenities-slide">
+                    <div className="amenities-grid">
+                      {chunk.map((item, index) => (
+                        <div
+                          key={`${item.id || item.title}-${index}`}
+                          className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
+                          style={{ transitionDelay: `${index * 80}ms` }}
+                        >
+                          <div className="amenity-modern-icon-wrap">
+                            <Image
+                              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
+                              height={40}
+                              width={40}
+                              alt={item.altTag || item.title || "Amenity icon"}
+                              className="d-flex mx-auto"
+                            />
+                          </div>
+                          <p className="amenity-modern-title">{item.title}</p>
+                        </div>
+                      ))}
                     </div>
-                    <p className="amenity-modern-title">{item.title}</p>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="amenities-slider-wrap">
-                <Slider {...amenitiesSliderSettings}>
-                  {amenitiesList.map((item, index) => (
-                    <div
-                      key={`${item.id || item.title}-${index}`}
-                      className="amenities-slide-item"
-                    >
-                      <div
-                        className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
-                        style={{ transitionDelay: `${Math.min(index, 8) * 70}ms` }}
-                      >
-                        <div className="amenity-modern-icon-wrap">
-                          <Image
-                            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
-                            height={40}
-                            width={40}
-                            alt={item.altTag || item.title || "Amenity icon"}
-                            className="d-flex mx-auto"
-                          />
-                        </div>
-                        <p className="amenity-modern-title">{item.title}</p>
-                      </div>
-                    </div>
-                  ))}
-                </Slider>
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
@@ -1527,7 +1527,7 @@ const addNearbyImageIcon = (benefit) => {
 
       {/* Similar Projects */}
       {similarProjects.length > 0 && (
-        <div className="container-fluid mb-5 mt-[25px]">
+        <div className="container-fluid mb-5 mt-5">
           <h2 className="text-center mb-4 fw-bold">Similar Projects</h2>
           <Featured
             title="Similar Projects"

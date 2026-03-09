@@ -2,9 +2,25 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { LoadingSpinner } from "../../contact-us/page";
+import Image from "next/image";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import "./popupform.css";
+
+function getProjectImageSrc(data) {
+  if (!data?.slugURL) return "/static/no_image.png";
+  const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+  const slug = data.slugURL;
+  const filename =
+    data.desktopImages?.[0]?.desktopImage ||
+    data.projectThumbnail ||
+    data.projectBannerImage ||
+    data.projectLogo ||
+    "";
+  if (!filename) return "/static/no_image.png";
+  if (/^https?:\/\//i.test(filename) || filename.startsWith("/")) return filename;
+  return `${imageBase}properties/${slug}/${filename}`;
+}
 
 export default function CommonPopUpform({ show, handleClose, from, data }) {
   const [validated, setValidated] = useState(false);
@@ -144,95 +160,197 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
     }
   };
 
+  const isProjectDetail = from === "Project Detail" && data?.slugURL;
+  const projectImageSrc = isProjectDetail ? getProjectImageSrc(data) : null;
+
   return (
     <>
       <Modal
         show={show}
         onHide={() => handleClose(false)}
         centered
-        className="enquiry-popup"
+        className={`enquiry-popup ${isProjectDetail ? "enquiry-popup--split" : ""}`}
         dialogClassName="enquiry-popup-dialog"
       >
-        {/* <Modal.Header closeButton className="enquiry-popup-header border-0 pb-0">
-          <Modal.Title className="enquiry-popup-title">
-            We will connect you soon.
-          </Modal.Title>
-        </Modal.Header> */}
-        <p className="enquiry-popup-subtitle px-6 px-md-4 mb-0">
-          Share your details and our team will contact you shortly.
-        </p>
-        <Form
-          noValidate
-          validated={validated}
-          onSubmit={handleSubmit}
-          className="enquiry-popup-form p-3 p-md-4 pt-3"
-        >
-          <Form.Group className="mb-3" controlId="full_name">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="text"
-              placeholder="Full name"
-              value={formData.name}
-              onChange={(e) => handleChange(e)}
-              name="name"
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid name.
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="email_id">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="email"
-              placeholder="Email id"
-              value={formData.email}
-              onChange={(e) => handleChange(e)}
-              name="email"
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid email.
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="phone_number">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="tel"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={(e) => handleChange(e)}
-              onBlur={handleBlur}
-              name="phone"
-              isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.phone || "Please provide a valid phone number."}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="message">
-            <Form.Control
-              className="enquiry-popup-input"
-              as="textarea"
-              rows={3}
-              placeholder="Message"
-              value={formData.message}
-              onChange={(e) => handleChange(e)}
-              name="message"
-            />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid message.
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Button
-            type="submit"
-            className="fw-bold border-0 enquiry-popup-submit"
-            disabled={showLoading}
-          >
-            {buttonName} <LoadingSpinner show={showLoading} />
-          </Button>
-        </Form>
+        <button
+          type="button"
+          className="btn-close enquiry-popup-close"
+          aria-label="Close"
+          onClick={() => handleClose(false)}
+        />
+        {isProjectDetail ? (
+          <div className="enquiry-popup-split">
+            <div className="enquiry-popup-image">
+              <Image
+                src={projectImageSrc}
+                alt={data?.projectName || "Project"}
+                fill
+                className="enquiry-popup-image-img"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="enquiry-popup-form-wrap">
+              <p className="enquiry-popup-intro">
+                We offer various property listings for you to explore.
+              </p>
+              <h2 className="enquiry-popup-title-main">
+                Start Your Journey to the{" "}
+                <span className="enquiry-popup-title-accent">Perfect Home.</span>
+              </h2>
+              <Form
+                noValidate
+                validated={validated}
+                onSubmit={handleSubmit}
+                className="enquiry-popup-form"
+              >
+                <Form.Group className="mb-3" controlId="full_name">
+                  <Form.Control
+                    className="enquiry-popup-input"
+                    type="text"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={(e) => handleChange(e)}
+                    name="name"
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please provide a valid name.
+                  </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="email_id">
+                  <Form.Control
+                    className="enquiry-popup-input"
+                    type="email"
+                    placeholder="Email Address"
+                    value={formData.email}
+                    onChange={(e) => handleChange(e)}
+                    name="email"
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please provide a valid email.
+                  </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="phone_number">
+                  <Form.Control
+                    className="enquiry-popup-input"
+                    type="tel"
+                    placeholder="Phone Number"
+                    value={formData.phone}
+                    onChange={(e) => handleChange(e)}
+                    onBlur={handleBlur}
+                    name="phone"
+                    isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
+                    required
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {errors.phone || "Please provide a valid phone number."}
+                  </Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="message">
+                  <Form.Control
+                    className="enquiry-popup-input"
+                    as="textarea"
+                    rows={3}
+                    placeholder="Message"
+                    value={formData.message}
+                    onChange={(e) => handleChange(e)}
+                    name="message"
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please provide a valid message.
+                  </Form.Control.Feedback>
+                </Form.Group>
+                <Button
+                  type="submit"
+                  className="fw-bold border-0 enquiry-popup-submit enquiry-popup-submit--callback"
+                  disabled={showLoading}
+                >
+                  Request a Callback <LoadingSpinner show={showLoading} />
+                </Button>
+              </Form>
+              <p className="enquiry-popup-footer">Ready to help! Fill the form, and we&apos;ll call soon.</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="enquiry-popup-subtitle px-6 px-md-4 mb-0">
+              Share your details and our team will contact you shortly.
+            </p>
+            <Form
+              noValidate
+              validated={validated}
+              onSubmit={handleSubmit}
+              className="enquiry-popup-form p-3 p-md-4 pt-3"
+            >
+              <Form.Group className="mb-3" controlId="full_name">
+                <Form.Control
+                  className="enquiry-popup-input"
+                  type="text"
+                  placeholder="Full name"
+                  value={formData.name}
+                  onChange={(e) => handleChange(e)}
+                  name="name"
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid name.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="email_id">
+                <Form.Control
+                  className="enquiry-popup-input"
+                  type="email"
+                  placeholder="Email id"
+                  value={formData.email}
+                  onChange={(e) => handleChange(e)}
+                  name="email"
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid email.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="phone_number">
+                <Form.Control
+                  className="enquiry-popup-input"
+                  type="tel"
+                  placeholder="Phone Number"
+                  value={formData.phone}
+                  onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
+                  name="phone"
+                  isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.phone || "Please provide a valid phone number."}
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="message">
+                <Form.Control
+                  className="enquiry-popup-input"
+                  as="textarea"
+                  rows={3}
+                  placeholder="Message"
+                  value={formData.message}
+                  onChange={(e) => handleChange(e)}
+                  name="message"
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please provide a valid message.
+                </Form.Control.Feedback>
+              </Form.Group>
+              <Button
+                type="submit"
+                className="fw-bold border-0 enquiry-popup-submit"
+                disabled={showLoading}
+              >
+                {buttonName} <LoadingSpinner show={showLoading} />
+              </Button>
+            </Form>
+          </>
+        )}
       </Modal>
     </>
   );

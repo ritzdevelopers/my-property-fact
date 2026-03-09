@@ -1,5 +1,5 @@
 "use client";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import { useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";

@@ -1,4 +1,4 @@
-import { LoadingSpinner } from "../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 
 export default function LoadingAboutusPage(){
     return(

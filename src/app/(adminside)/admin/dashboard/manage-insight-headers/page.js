@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import CommonModal from "../common-model/common-model";
 import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 
 export default function CityHeaders() {
   // Defining states

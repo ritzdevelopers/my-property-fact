@@ -4,7 +4,7 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
 import { useState } from "react";
 import CommonModal from "../common-model/common-model";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";

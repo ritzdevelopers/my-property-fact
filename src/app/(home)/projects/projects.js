@@ -6,7 +6,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import axios from "axios";
 import CommonBreadCrum from "../components/common/breadcrum";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
-import { LoadingSpinner } from "../contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useProjectContext } from "@/app/_global_components/contexts/projectsContext";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {

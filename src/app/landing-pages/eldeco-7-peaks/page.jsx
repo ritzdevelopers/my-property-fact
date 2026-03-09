@@ -674,7 +674,7 @@ function Page({ sheet_name }) {
                             announce the launch of Eldeco 7 Peaks Residences, a community that includes luxurious 3
                             & 4 BHK residences in Greater Noida, more particularly within Omicron 1A. The Eldeco 7
                             Peaks project represents a combination of premium quality construction, modern-day
-                            design and peaceful living. The Eldeco Group's commitment to trust, creativity and
+                            design and peaceful living. The Eldeco Group&apos;s commitment to trust, creativity and
                             innovation is firmly established through its willingness to provide the absolute best in
                             real estate development for our clients
                         </p>
@@ -689,7 +689,7 @@ function Page({ sheet_name }) {
                                 className="text-[#000000] text-[13px] xs:text-[14px] sm:text-[16px] md:text-base leading-[1.7] font-opensans font-normal">
                                 Situated in a serene area where architecture blends in seamlessly with the
                                 surrounding natural beauty, and vast oxygen-rich green belts with well-developed
-                                highways. Inspired by the world's seven peaks, the Eldeco Group 7 Peaks Residences
+                                highways. Inspired by the world&apos;s seven peaks, the Eldeco Group 7 Peaks Residences
                                 were created with grand double-height entrances, lots of outdoor space, and striking
                                 entry points; every element conveys luxury even before you enter the structure.
 
@@ -1414,7 +1414,7 @@ function Page({ sheet_name }) {
                 group</h2>
             <p
                 className="text-[#000000] text-[14px] xs:text-[15px] sm:text-base md:text-[16px] lg:text-[16px] leading-relaxed font-opensans w-full max-w-[840px] mx-auto px-2">
-                With over four decades of expertise, Eldeco has been a pioneer in North India's real estate
+                With over four decades of expertise, Eldeco has been a pioneer in North India&apos;s real estate
                 landscape, known for its residential projects in Noida, Greater Noida and other cities. Having
                 successfully delivered 200+ projects across 20+ cities, Eldeco has served over 30000+ satisfied
                 homeowners, and developed 60+ million sq.ft.</p>

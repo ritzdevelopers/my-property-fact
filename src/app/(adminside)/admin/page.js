@@ -6,7 +6,7 @@ import { useState, useEffect, Suspense } from "react";
 import "./dashboard/dashboard.css";
 import Image from "next/image";
 import Cookies from "js-cookie";
-import { LoadingSpinner } from "@/app/(home)/contact-us/page";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 
 function AdminPageContent() {

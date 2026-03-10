@@ -5,6 +5,7 @@ import "../home/home.css";
 
 const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
   ssr: true,
+  preload: true,
   loading: () => (
     <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
       <div className="position-relative home-banner hero-banner-responsive-images">

@@ -267,9 +267,9 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       message: "PIN code must be 6 digits",
     },
     carpetArea: {
-      required: true,
-      min: 50,
-      message: "Carpet area must be at least 50 sq ft",
+      required: false,
+      // min: 50,
+      // message: "Carpet area must be at least 50 sq ft",
     },
 
     // Step 3 validations
@@ -2230,8 +2230,6 @@ function BasicInformationStep({
                     <option value="Villa">🏡 Villa</option>
                     <option value="Plot">📐 Plot</option>
                     <option value="Studio">🏠 Studio</option>
-                    <option value="Penthouse">🏗️ Penthouse</option>
-                    <option value="Farmhouse">🌾 Farmhouse</option>
                     <option value="Independent House">
                       🏘️ Independent House
                     </option>
@@ -2240,9 +2238,7 @@ function BasicInformationStep({
                   <>
                     <option value="Office">💼 Office</option>
                     <option value="Retail">🛍️ Retail</option>
-                    <option value="Warehouse">🏭 Warehouse</option>
-                    <option value="Industrial">🏗️ Industrial</option>
-                    <option value="Land">📐 Land</option>
+                    <option value="Showroom">🛍️ Showroom</option>
                   </>
                 )}
               </Form.Select>
@@ -3270,18 +3266,18 @@ function LocationAreaStep({
         {fieldVisibility.showCarpetArea && (
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Carpet Area (sq ft) *</Form.Label>
+              <Form.Label>Carpet Area (sq ft)</Form.Label>
               <Form.Control
                 type="number"
                 value={data.carpetArea}
                 onChange={(e) => onChange("carpetArea", e.target.value)}
                 placeholder="Enter carpet area"
                 min={50}
-                isInvalid={!!errors.carpetArea}
+                // isInvalid={!!errors.carpetArea}
               />
-              <Form.Control.Feedback type="invalid">
+              {/* <Form.Control.Feedback type="invalid">
                 {errors.carpetArea}
-              </Form.Control.Feedback>
+              </Form.Control.Feedback> */}
               <Form.Text className="text-muted">
                 <CIcon icon={cilCheck} className="me-1" />
                 Used for automatic price calculations

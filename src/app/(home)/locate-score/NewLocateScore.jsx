@@ -487,7 +487,7 @@ export default function NewLocateScore() {
                     const summary = scoreResult.summary;
                     const total = Number(summary?.totalScore) ?? 0;
                     const maxTotal = Number(summary?.maxTotalScore) ?? 1000;
-                    const displayValue = maxTotal > 0 ? Math.round((total / maxTotal) * 100) : 0;
+                    const displayValue = maxTotal > 0 ? total : 0;
                     return (
                       <Gauge
                         value={displayValue}

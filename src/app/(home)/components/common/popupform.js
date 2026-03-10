@@ -41,25 +41,48 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
 
   //Validation errors state
   const [errors, setErrors] = useState({
+    name: "",
+    email: "",
     phone: "",
   });
 
-  //Validation function for phone
+  //Validation functions (aligned with contact us page)
+  const validateName = (name) => {
+    if (!name.trim()) {
+      return "Name is required";
+    }
+    if (name.trim().length < 2) {
+      return "Name must be at least 2 characters";
+    }
+    const nameRegex = /^[a-zA-Z\s'-]+$/;
+    if (!nameRegex.test(name.trim())) {
+      return "Name can only contain letters, spaces, hyphens, and apostrophes";
+    }
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (!email.trim()) {
+      return "Email is required";
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  };
+
   const validatePhone = (phone) => {
     if (!phone.trim()) {
       return "Phone number is required";
     }
-    // Remove spaces, dashes, and parentheses for validation
     const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    // Check if it's all digits
     if (!/^\d+$/.test(cleanedPhone)) {
       return "Phone number can only contain digits, spaces, dashes, and parentheses";
     }
-    // Check length (exactly 10 digits)
     if (cleanedPhone.length !== 10) {
       return "Phone number must be exactly 10 digits";
     }
-    // Check if first digit is between 6-9
     if (!/^[6-9]/.test(cleanedPhone)) {
       return "Phone number must start with 6, 7, 8, or 9";
     }
@@ -86,12 +109,16 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   //Handle blur validation
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    if (name === "phone") {
-      const error = validatePhone(value);
-      setErrors((prev) => ({
-        ...prev,
-        [name]: error,
-      }));
+    let error = "";
+    if (name === "name") {
+      error = validateName(value);
+    } else if (name === "email") {
+      error = validateEmail(value);
+    } else if (name === "phone") {
+      error = validatePhone(value);
+    }
+    if (name === "name" || name === "email" || name === "phone") {
+      setErrors((prev) => ({ ...prev, [name]: error }));
     }
   };
 
@@ -100,7 +127,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
     if (!show) {
       setFormData(intitalData);
       setValidated(false);
-      setErrors({ phone: "" });
+      setErrors({ name: "", email: "", phone: "" });
     }
   }, [show]);
 
@@ -109,21 +136,28 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
     event.preventDefault();
     const form = event.currentTarget;
 
-    // Validate phone
+    // Validate all fields (aligned with contact us page)
+    const nameError = validateName(formData.name);
+    const emailError = validateEmail(formData.email);
     const phoneError = validatePhone(formData.phone);
+
     const newErrors = {
+      name: nameError,
+      email: emailError,
       phone: phoneError,
     };
     setErrors(newErrors);
+    setValidated(true);
 
-    // Check if form is valid
     const isFormValid =
       form.checkValidity() &&
+      !nameError &&
+      !emailError &&
       !phoneError;
 
     if (!isFormValid) {
       event.stopPropagation();
-      setValidated(true);
+      toast.error("Please fill all fields correctly!");
       return;
     }
 
@@ -146,7 +180,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
         handleClose(false);
         setValidated(false); // Reset validation state
         setFormData(intitalData);
-        setErrors({ phone: "" });
+        setErrors({ name: "", email: "", phone: "" });
         toast.success(response.data.message);
       } else {
         toast.error(response.data.message);
@@ -194,8 +228,11 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                 We offer various property listings for you to explore.
               </p>
               <h2 className="enquiry-popup-title-main">
-                Start Your Journey to the{" "}
-                <span className="enquiry-popup-title-accent">Perfect Home.</span>
+                <span className="enquiry-popup-title-regular">Start Your Journey to the </span>
+                <span className="enquiry-popup-title-accent-wrap">
+                  <span className="enquiry-popup-title-accent">Perfect Home.</span>
+                  <div className="enquiry-popup-title-highlight" aria-hidden="true" />
+                </span>
               </h2>
               <Form
                 noValidate
@@ -210,11 +247,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                     placeholder="Full Name"
                     value={formData.name}
                     onChange={(e) => handleChange(e)}
+                    onBlur={handleBlur}
                     name="name"
+                    isInvalid={!!errors.name || (validated && !formData.name.trim())}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
-                    Please provide a valid name.
+                    {errors.name || "Please provide a valid name."}
                   </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="email_id">
@@ -224,11 +263,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                     placeholder="Email Address"
                     value={formData.email}
                     onChange={(e) => handleChange(e)}
+                    onBlur={handleBlur}
                     name="email"
+                    isInvalid={!!errors.email || (validated && !formData.email.trim())}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
-                    Please provide a valid email.
+                    {errors.email || "Please provide a valid email."}
                   </Form.Control.Feedback>
                 </Form.Group>
                 <Form.Group className="mb-3" controlId="phone_number">
@@ -290,11 +331,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                   placeholder="Full name"
                   value={formData.name}
                   onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
                   name="name"
+                  isInvalid={!!errors.name || (validated && !formData.name.trim())}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  Please provide a valid name.
+                  {errors.name || "Please provide a valid name."}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="email_id">
@@ -304,11 +347,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                   placeholder="Email id"
                   value={formData.email}
                   onChange={(e) => handleChange(e)}
+                  onBlur={handleBlur}
                   name="email"
+                  isInvalid={!!errors.email || (validated && !formData.email.trim())}
                   required
                 />
                 <Form.Control.Feedback type="invalid">
-                  Please provide a valid email.
+                  {errors.email || "Please provide a valid email."}
                 </Form.Control.Feedback>
               </Form.Group>
               <Form.Group className="mb-3" controlId="phone_number">

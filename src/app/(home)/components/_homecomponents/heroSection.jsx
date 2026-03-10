@@ -5,6 +5,7 @@ import "../home/home.css";
 
 const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
   ssr: true,
+
   loading: () => (
     <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
       <div className="position-relative home-banner hero-banner-responsive-images">
@@ -65,9 +66,9 @@ const FALLBACK_SLIDES = [
   },
   {
     id: "hero-irish",
-    desktop: "/static/banners/irish_desktop.jpg",
-    tablet: "/static/banners/irish_tablet.jpg",
-    mobile: "/static/banners/irish_mobile.jpg",
+    desktop: "/static/banners/Irish_desktop.jpg",
+    tablet: "/static/banners/Irish_tablet.jpg",
+    mobile: "/static/banners/Irish_mobile.jpg",
     alt: "Irish - Laying Foundation For Tomorrow",
     href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/irish-platinum`,
   },

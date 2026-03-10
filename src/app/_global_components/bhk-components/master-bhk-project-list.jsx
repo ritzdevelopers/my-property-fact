@@ -16,7 +16,11 @@ export default function MasterBHKProjectList() {
   const [floorTypeList, setFloorTypeList] = useState([]);
 
   const normalizeFloorType = (value = "") => {
-    const normalized = value.toLowerCase().trim().replace(/\s+/g, " ");
+    // Remove number and sq.ft from project config 
+    const withoutSqft = value
+      .replace(/\s*-\s*\d+\s*(?:sq\.ft|sq\s*ft)\s*/gi, "")
+      .trim();
+    const normalized = withoutSqft.toLowerCase().trim().replace(/\s+/g, " ");
     if (normalized === "shop" || normalized === "shops") {
       return { label: "Shops", slugType: "shops" };
     }

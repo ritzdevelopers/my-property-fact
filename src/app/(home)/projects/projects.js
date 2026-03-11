@@ -364,14 +364,19 @@ export default function Projects() {
     };
   }, [hasMore, loading, loadingMore, initialLoad, isActive, loadMore]);
 
-  // Apply filters
+  // Apply filters - use siteProjectList (full dataset) when available so Show Filters
+  // has same data as home-page filtered navigation; otherwise fall back to allProjectsList
   const applyFilters = useCallback(() => {
-    if (allProjectsList.length === 0) {
+    const sourceList = Array.isArray(siteProjectList) && siteProjectList.length > 0
+      ? siteProjectList
+      : allProjectsList;
+
+    if (sourceList.length === 0) {
       setFilteredProjectData([]);
       return;
     }
 
-    let filtered = [...allProjectsList];
+    let filtered = [...sourceList];
 
     if (filters.propertyType && propertyTypes.length > 0) {
       const selectedType = propertyTypes.find(
@@ -521,6 +526,7 @@ export default function Projects() {
     window.scrollTo({ top: 260, behavior: "smooth" });
   }, [
     allProjectsList,
+    siteProjectList,
     filters,
     propertyTypes,
     cities,
@@ -594,6 +600,12 @@ export default function Projects() {
       facing: "",
     });
 
+    // Use full siteProjectList when available (same as Show Filters) so quick filters
+    // don't miss projects outside the first paginated batch
+    const sourceList = Array.isArray(siteProjectList) && siteProjectList.length > 0
+      ? siteProjectList
+      : allProjectsList;
+
     // Use setTimeout to ensure state updates don't conflict
     setTimeout(() => {
       let filtered = [];
@@ -602,17 +614,17 @@ export default function Projects() {
         const totalLoaded = allProjectsList.length;
         setHasMore(totalLoaded >= pageSize && totalLoaded % pageSize === 0);
       } else if (tabName === "Commercial") {
-        filtered = allProjectsList.filter(
+        filtered = sourceList.filter(
           (item) => item.propertyTypeName === "Commercial"
         );
         setHasMore(false);
       } else if (tabName === "Residential") {
-        filtered = allProjectsList.filter(
+        filtered = sourceList.filter(
           (item) => item.propertyTypeName === "Residential"
         );
         setHasMore(false);
       } else if (tabName === "New Launched") {
-        filtered = allProjectsList.filter(
+        filtered = sourceList.filter(
           (item) => item.projectStatusName === "New Launched"
         );
         setHasMore(false);

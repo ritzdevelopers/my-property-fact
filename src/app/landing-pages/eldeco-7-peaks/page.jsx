@@ -102,7 +102,7 @@ function Page({ sheet_name }) {
         await handleCRMData(formData);
         if (result.success) {
           sessionStorage.setItem('previousUrl', window.location.href);
-          window.location.href = 'thankyou.html';
+          window.location.href = '/landing-pages/eldeco-7-peaks/thank-you';
         } else {
           alert('Error: ' + result.message);
           if (submitBtn) {
@@ -134,7 +134,7 @@ function Page({ sheet_name }) {
         if (result.success) {
           closeContactModal();
           sessionStorage.setItem('previousUrl', window.location.href);
-          window.location.href = 'thankyou.html';
+          window.location.href = '/landing-pages/eldeco-7-peaks/thank-you';
         } else {
           alert('Error: ' + result.message);
           if (submitBtn) submitBtn.disabled = false;

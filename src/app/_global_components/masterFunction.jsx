@@ -104,7 +104,6 @@ export const fetchProjectDetailsBySlug = cache(async (slug) => {
 
 //Fetch all floor plans
 export const isFloorTypeUrl = async (slug) => {
-  debugger;
   const res = await fetch(`${apiUrl}floor-plans/get-all`, {
     next: { revalidate: 60 },
   });
@@ -125,12 +124,22 @@ export const isFloorTypeUrl = async (slug) => {
     }
   });
   const floorType = slug.split("-in-")[0];
-  return uniqueUrls.has(floorType.toLowerCase());
+  const floorSlug = floorType.toLowerCase();
+  // Fallback: known floor types that may not be in floor-plans API (e.g. offices-and-shop)
+  const knownFloorSlugs = [
+    "offices-and-shop",
+    "offices-and-shops",
+    "office-and-shop",
+    "offices",
+    "shops",
+    "office",
+    "shop",
+  ];
+  return uniqueUrls.has(floorSlug) || knownFloorSlugs.includes(floorSlug);
 };
 
 //Checking is ctiy slug
 export const isCityTypeUrl = async (slug) => {
-  debugger;
   const cities = await fetchCityData();
   const slugParts = slug.split("-in-");
   const isFloorUrl = await isFloorTypeUrl(slug);

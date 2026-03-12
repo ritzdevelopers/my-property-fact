@@ -1,7 +1,8 @@
 .scroll-to-top-btn {
   position: fixed;
-  bottom: 100px;
-  right: 30px;
+  /* Chatbot launcher: bottom 24px, size 60px -> place this just above it */
+  bottom: 96px;
+  right: 29px;
   width: 50px;
   height: 50px;
   border-radius: 50%; 
@@ -44,19 +45,29 @@
   .scroll-to-top-btn {
     width: 45px;
     height: 45px;
-    bottom: 90px;
+    /* Chatbot launcher: bottom 20px, size 56px */
+    bottom: 88px;
     right: 20px;
     font-size: 18px;
   }
 }
 
-@media (max-width: 426px) {
+@media (max-width: 480px) {
   .scroll-to-top-btn {
     width: 40px;
     height: 40px;
-    bottom: 85px;
-    right: 15px;
+    /* Chatbot launcher: bottom 16px, size 50px */
+    bottom: 78px;
+    right: 16px;
     font-size: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .scroll-to-top-btn {
+    /* Chatbot launcher: bottom 12px, size 48px */
+    bottom: 72px;
+    right: 16px;
   }
 }
 

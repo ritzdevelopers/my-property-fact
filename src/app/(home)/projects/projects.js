@@ -31,6 +31,7 @@ export default function Projects() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [listLoading, setListLoading] = useState(false);
   const { projectData, setProjectData } = useProjectContext();
   const {
     cityList: siteCityList,
@@ -70,7 +71,33 @@ export default function Projects() {
 
   // UI states
   const [showFilters, setShowFilters] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [pendingQueryFilters, setPendingQueryFilters] = useState(null);
+
+  // Toggle mobile filter modal (like properties page)
+  const toggleMobileFilter = () => {
+    setIsMobileFilterOpen(!isMobileFilterOpen);
+    if (!isMobileFilterOpen) {
+      document.body.style.overflow = "hidden";
+      document.body.classList.add("projects-filter-modal-open");
+    } else {
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("projects-filter-modal-open");
+    }
+  };
+
+  const closeMobileFilter = () => {
+    setIsMobileFilterOpen(false);
+    document.body.style.overflow = "unset";
+    document.body.classList.remove("projects-filter-modal-open");
+  };
+
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "unset";
+      document.body.classList.remove("projects-filter-modal-open");
+    };
+  }, []);
 
   const toNumber = (value) => {
     const parsed = Number(value);
@@ -205,7 +232,14 @@ export default function Projects() {
     [siteProjectList, siteProjectTypes, siteCityList]
   );
 
-  // Extract BHK types from projects
+  // Extract individual BHK types from config string (splits "3 BHK 4 BHK" into ["3 BHK", "4 BHK"])
+  const extractIndividualBHKTypes = (configStr) => {
+    if (!configStr || typeof configStr !== "string") return [];
+    const matches = configStr.match(/\d+\s*BHK/gi);
+    return matches ? [...new Set(matches.map((m) => m.trim()))] : [];
+  };
+
+  // Extract BHK types from projects (split combined "3 BHK 4 BHK" into separate options)
   useEffect(() => {
     if (allProjectsList.length > 0) {
       const uniqueBHKTypes = new Set();
@@ -213,16 +247,23 @@ export default function Projects() {
         if (project.projectConfiguration) {
           const configs = project.projectConfiguration
             .split(",")
-            .map((config) => config.trim())
-            .filter((config) => /BHK/i.test(config));
-          configs.forEach((bhk) => uniqueBHKTypes.add(bhk));
+            .map((c) => c.trim())
+            .filter(Boolean);
+          configs.forEach((config) => {
+            extractIndividualBHKTypes(config).forEach((bhk) =>
+              uniqueBHKTypes.add(bhk)
+            );
+          });
         }
       });
-      const sortedBHKTypes = Array.from(uniqueBHKTypes).sort((a, b) => {
-        const aNum = parseInt(a.match(/\d+/)?.[0] || "0");
-        const bNum = parseInt(b.match(/\d+/)?.[0] || "0");
-        return aNum - bNum;
-      });
+      const excludeBHK = ["1 BHK", "2 BHK", "1 BR", "2 BR"];
+      const sortedBHKTypes = Array.from(uniqueBHKTypes)
+        .filter((bhk) => !excludeBHK.includes(bhk))
+        .sort((a, b) => {
+          const aNum = parseInt(a.match(/\d+/)?.[0] || "0");
+          const bNum = parseInt(b.match(/\d+/)?.[0] || "0");
+          return aNum - bNum;
+        });
       setBhkTypes(sortedBHKTypes);
     }
   }, [allProjectsList]);
@@ -367,12 +408,14 @@ export default function Projects() {
   // Apply filters - use siteProjectList (full dataset) when available so Show Filters
   // has same data as home-page filtered navigation; otherwise fall back to allProjectsList
   const applyFilters = useCallback(() => {
+    setListLoading(true);
     const sourceList = Array.isArray(siteProjectList) && siteProjectList.length > 0
       ? siteProjectList
       : allProjectsList;
 
     if (sourceList.length === 0) {
       setFilteredProjectData([]);
+      setListLoading(false);
       return;
     }
 
@@ -468,14 +511,16 @@ export default function Projects() {
       }
     }
 
-    // BHK Type filter
+    // BHK Type filter (check against individual BHKs, not combined "3 BHK 4 BHK")
     if (filters.bhkType) {
       filtered = filtered.filter((item) => {
         if (!item.projectConfiguration) return false;
         const configs = item.projectConfiguration
           .split(",")
-          .map((config) => config.trim());
-        return configs.includes(filters.bhkType);
+          .map((c) => c.trim())
+          .filter(Boolean);
+        const allBHKs = configs.flatMap((c) => extractIndividualBHKTypes(c));
+        return allBHKs.includes(filters.bhkType);
       });
     }
 
@@ -524,6 +569,7 @@ export default function Projects() {
     setHasMore(false); // Filters don't support pagination
     setFadeKey((prev) => prev + 1);
     window.scrollTo({ top: 260, behavior: "smooth" });
+    setListLoading(false);
   }, [
     allProjectsList,
     siteProjectList,
@@ -536,6 +582,7 @@ export default function Projects() {
 
   // Clear all filters
   const clearFilters = () => {
+    setListLoading(true);
     setFilters({
       propertyType: "",
       city: "",
@@ -553,6 +600,7 @@ export default function Projects() {
     const totalLoaded = allProjectsList.length;
     setHasMore(totalLoaded >= pageSize && totalLoaded % pageSize === 0);
     setFadeKey((prev) => prev + 1);
+    setListLoading(false);
   };
 
   // Handle filter change
@@ -569,11 +617,14 @@ export default function Projects() {
       (value) => value !== ""
     );
     const hasQuickFilter = isActive !== "" && isActive !== "All";
+    let timerId = null;
 
     // Only handle advanced filters, not quick filter tabs
     if (hasActiveFilters) {
       // Apply filters when there are active filters
-      applyFilters();
+      timerId = setTimeout(() => {
+        applyFilters();
+      }, 0);
     } else if (!hasQuickFilter && isActive !== "All") {
       // Only clear filtered data if no quick filter is active and not "All" tab
       // (quick filters handle their own filteredProjectData)
@@ -581,9 +632,14 @@ export default function Projects() {
       const totalLoaded = allProjectsList.length;
       setHasMore(totalLoaded >= pageSize && totalLoaded % pageSize === 0);
     }
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
   }, [filters, allProjectsList, applyFilters, isActive]);
 
   const filterSectionTab = (tabName) => {
+    setListLoading(true);
     setIsActive(tabName);
     setPage(0);
 
@@ -633,6 +689,7 @@ export default function Projects() {
       // Set filtered data
       setFilteredProjectData(filtered);
       setFadeKey((prev) => prev + 1);
+      setListLoading(false);
     }, 0);
 
     window.scrollTo({ top: 260, behavior: "smooth" });
@@ -669,123 +726,131 @@ export default function Projects() {
 
   return (
     <div className="projects-page-wrapper">
-      <CommonHeaderBanner 
-      headerText={pageName} 
-      image={"realestate-bg.jpg"}
-      firstPage={"projects"}
+      <CommonHeaderBanner
+        headerText={pageName}
+        image={"realestate-bg.jpg"}
+        firstPage={"projects"}
       />
-      {/* <CommonBreadCrum pageName={pageName} /> */}
-
       <div className="container py-4">
-        {/* Page Header with Quick Filters */}
-        <div className="page-header-section mb-4">
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-3">
-            <div>
-              {/* <h1 className="page-main-title">
-                <FontAwesomeIcon icon={faHome} className="me-2 text-success" />
-                {pageName}
-              </h1> */}
-              <p className="page-subtitle mb-0">
-                Showing <strong>{displayProjects.length}</strong>{" "}
-                {displayProjects.length === 1 ? "project" : "projects"}
-                {!hasUrlParams && (hasQuickFilter || activeFiltersCount > 0) && (
-                  <span className="ms-2">
-                    <Badge bg="success" className="ms-1">
-                      {activeFiltersCount + (hasQuickFilter ? 1 : 0)} active
-                    </Badge>
-                  </span>
-                )}
-              </p>
+        {/* Page Header - minimal, project count shown in pills block for All/Commercial only */}
+        {/* <div className="page-header-section mb-4">
+          {!hasUrlParams && (hasQuickFilter || activeFiltersCount > 0) && (
+            <div className="d-flex justify-content-end mb-2">
+              <Badge bg="success" className="ms-1">
+                {activeFiltersCount + (hasQuickFilter ? 1 : 0)} active
+              </Badge>
             </div>
-            {!hasUrlParams && (
-              <div className="d-flex gap-2">
-                <button
-                  className="btn btn-outline-primary btn-sm"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <FontAwesomeIcon icon={faSlidersH} className="me-2" />
-                  {showFilters ? "Hide" : "Show"} Filters
-                  {activeFiltersCount > 0 && (
-                    <Badge bg="danger" className="ms-2">
-                      {activeFiltersCount}
-                    </Badge>
-                  )}
-                </button>
-                {(hasQuickFilter || activeFiltersCount > 0) && (
-                  <button
-                    className="btn btn-outline-danger btn-sm"
-                    onClick={clearFilters}
-                  >
-                    <FontAwesomeIcon icon={faTimes} className="me-2" />
-                    Clear
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
+          )}
+        </div> */}
 
-          {/* Quick Filter Pills - Hide when URL params are present */}
-          {!hasUrlParams && (
-            <div className="quick-filters-row">
-              <div className="filter-pills-container">
+        <div className="row g-4">
+        {/* Mobile controls: quick tabs + filter icon button */}
+        {!hasUrlParams && (
+          <div className="col-12 projects-mobile-controls-wrapper">
+            <div className="projects-mobile-controls-bar">
+              <div className="projects-mobile-tabs-scroll" role="tablist" aria-label="Project categories">
                 <button
-                  className={`filter-pill-btn ${
-                    isActive === "All" ? "active" : ""
-                  }`}
+                  className={`projects-mobile-tab-btn ${isActive === "All" ? "active" : ""}`}
                   onClick={() => filterSectionTab("All")}
                 >
                   All Projects
                 </button>
                 <button
-                  className={`filter-pill-btn ${
-                    isActive === "Commercial" ? "active" : ""
-                  }`}
+                  className={`projects-mobile-tab-btn ${isActive === "Commercial" ? "active" : ""}`}
                   onClick={() => filterSectionTab("Commercial")}
                 >
                   Commercial
                 </button>
                 <button
-                  className={`filter-pill-btn ${
-                    isActive === "Residential" ? "active" : ""
-                  }`}
+                  className={`projects-mobile-tab-btn ${isActive === "Residential" ? "active" : ""}`}
                   onClick={() => filterSectionTab("Residential")}
                 >
                   Residential
                 </button>
                 <button
-                  className={`filter-pill-btn ${
-                    isActive === "New Launched" ? "active" : ""
-                  }`}
+                  className={`projects-mobile-tab-btn ${isActive === "New Launched" ? "active" : ""}`}
                   onClick={() => filterSectionTab("New Launched")}
                 >
                   New Launch
                 </button>
               </div>
-            </div>
-          )}
-        </div>
 
-        <div className="row g-4">
-          {/* Collapsible Filter Sidebar */}
-          {!hasUrlParams && showFilters && (
-            <div className="col-12 col-lg-3">
-              <div className="filter-sidebar-card">
-                <div className="filter-card-header">
-                  <h5 className="mb-0">
-                    <FontAwesomeIcon
-                      icon={faFilter}
-                      className="me-2 text-success"
-                    />
-                    Refine Search
-                  </h5>
-                  <button
-                    className="btn-close"
-                    onClick={() => setShowFilters(false)}
-                    aria-label="Close filters"
-                  ></button>
-                </div>
-                <div className="filter-card-body">
-                  <Form className="filter-form">
+              <button
+                className="projects-mobile-filter-btn"
+                onClick={toggleMobileFilter}
+                aria-label="Open filters"
+              >
+                <FontAwesomeIcon icon={faFilter} />
+                <span className="projects-mobile-filter-text">Filters</span>
+                {activeFiltersCount > 0 && (
+                  <span className="projects-mobile-filter-count">
+                    {activeFiltersCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+          {/* Projects column: pills + filters in same sticky block */}
+          <div className="col-12 projects-main-with-filter">
+            {/* Wrapper so sticky filter has tall parent - extends to include grid */}
+            <div className="projects-sticky-wrapper">
+              {/* Pills + Filters - direct child of wrapper so sticky works on large screens */}
+              {!hasUrlParams ? (
+                <div className="projects-filter-inline-card projects-sticky-filters projects-desktop-filters projects-filters-below mb-4">
+                  {/* Pills row: project count (All/Commercial only) + tabs + Show Filters + Clear */}
+                  <div className="quick-filters-row filter-pills-in-card">
+                    {(isActive === "All" || isActive === "Commercial") && (
+                      <span className="projects-count-in-pills text-muted">
+                        Showing <strong>{displayProjects.length}</strong>{" "}
+                        {displayProjects.length === 1 ? "project" : "projects"}
+                      </span>
+                    )}
+                    <div className="filter-pills-container">
+                      <button
+                        className={`filter-pill-btn ${isActive === "All" ? "active" : ""}`}
+                        onClick={() => filterSectionTab("All")}
+                      >
+                        All Projects
+                      </button>
+                      <button
+                        className={`filter-pill-btn ${isActive === "Commercial" ? "active" : ""}`}
+                        onClick={() => filterSectionTab("Commercial")}
+                      >
+                        Commercial
+                      </button>
+                      <button
+                        className={`filter-pill-btn ${isActive === "Residential" ? "active" : ""}`}
+                        onClick={() => filterSectionTab("Residential")}
+                      >
+                        Residential
+                      </button>
+                      <button
+                        className={`filter-pill-btn ${isActive === "New Launched" ? "active" : ""}`}
+                        onClick={() => filterSectionTab("New Launched")}
+                      >
+                        New Launch
+                      </button>
+                    </div>
+                    <button
+                      className="btn btn-outline-primary btn-sm ms-auto align-self-center"
+                      onClick={() => setShowFilters(!showFilters)}
+                    >
+                      <FontAwesomeIcon icon={faSlidersH} className="me-2" />
+                      {showFilters ? "Hide" : "Show"} Filters
+                    </button>
+                    <button
+                      className="btn btn-outline-secondary btn-sm align-self-center"
+                      onClick={clearFilters}
+                    >
+                      <FontAwesomeIcon icon={faTimes} className="me-2" />
+                      Clear
+                    </button>
+                  </div>
+                  {showFilters && (
+                  <div className="filter-card-body">
+                <Form className="filter-form filter-form-inline">
                     <Form.Group className="filter-group">
                       <Form.Label className="filter-label">
                         Property Type
@@ -938,23 +1003,18 @@ export default function Projects() {
                     </Form.Group> */}
                   </Form>
                 </div>
-              </div>
-            </div>
-          )}
+                  )}
+                </div>
+              ) : null}
 
-          {/* Projects Grid */}
-          <div
-            key={fadeKey}
-            className={`col-12 ${
-              showFilters ? "col-lg-9" : "col-lg-12"
-            } projects-content-wrapper`}
-          >
-            {initialLoad && loading ? (
+            {/* Projects Grid */}
+            <div key={fadeKey} className="col-12 projects-content-wrapper">
+            {(loading || listLoading) ? (
               <div className="projects-loading-state">
                 <LoadingSpinner show={true} height="auto" />
                 <p className="text-muted mt-3">Loading projects...</p>
               </div>
-            ) : displayProjects.length > 0 ? (
+            ) : (displayProjects.length >= 1) ? (
               <>
                 <div className="projects-grid-layout">
                   {displayProjects.map((item, index) => (
@@ -973,7 +1033,7 @@ export default function Projects() {
                 {hasMore &&
                   isActive === "All" &&
                   !initialLoad &&
-                  displayProjects.length > 0 && (
+                  (displayProjects.length > 0) && (
                     <div ref={loadMoreRef} className="load-more-section">
                       {loadingMore && (
                         <div className="load-more-spinner">
@@ -1020,7 +1080,80 @@ export default function Projects() {
             ) : null}
           </div>
         </div>
+        </div>
+        </div>
+
+        {/* Mobile Filter Modal - like properties page */}
+        {!hasUrlParams && isMobileFilterOpen && (
+          <div className="projects-mobile-filter-overlay" onClick={closeMobileFilter}>
+            <div className="projects-mobile-filter-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="projects-mobile-filter-header">
+                <div className="projects-mobile-filter-title">
+                  <FontAwesomeIcon icon={faFilter} className="me-2" />
+                  <span>Filters</span>
+                </div>
+                <button className="projects-mobile-filter-close" onClick={closeMobileFilter} aria-label="Close">
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              </div>
+              <div className="projects-mobile-filter-body">
+                <Form className="filter-form">
+                  <Form.Group className="filter-group">
+                    <Form.Label className="filter-label">Property Type</Form.Label>
+                    <Form.Select size="sm" value={filters.propertyType} onChange={(e) => handleFilterChange("propertyType", e.target.value)}>
+                      <option value="">All Types</option>
+                      {propertyTypes.map((type) => (
+                        <option key={type.id} value={type.id}>{type.projectTypeName}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="filter-group">
+                    <Form.Label className="filter-label">Location</Form.Label>
+                    <Form.Select size="sm" value={filters.city} onChange={(e) => handleFilterChange("city", e.target.value)}>
+                      <option value="">All Cities</option>
+                      {cities.map((city) => (
+                        <option key={city.id} value={city.id}>{city.cityName}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="filter-group">
+                    <Form.Label className="filter-label">Budget Range</Form.Label>
+                    <Form.Select size="sm" value={filters.budget} onChange={(e) => handleFilterChange("budget", e.target.value)}>
+                      <option value="">All Budgets</option>
+                      <option value="Up to 1Cr*">Up to 1Cr*</option>
+                      <option value="1-3 Cr*">1-3 Cr*</option>
+                      <option value="3-5 Cr*">3-5 Cr*</option>
+                      <option value="Above 5 Cr*">Above 5 Cr*</option>
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="filter-group">
+                    <Form.Label className="filter-label">Project Status</Form.Label>
+                    <Form.Select size="sm" value={filters.projectStatus} onChange={(e) => handleFilterChange("projectStatus", e.target.value)}>
+                      <option value="">All Status</option>
+                      {projectStatuses.map((status) => (
+                        <option key={status.id} value={status.id}>{status.statusName}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="filter-group">
+                    <Form.Label className="filter-label">BHK Type</Form.Label>
+                    <Form.Select size="sm" value={filters.bhkType} onChange={(e) => handleFilterChange("bhkType", e.target.value)}>
+                      <option value="">All BHK Types</option>
+                      {bhkTypes.map((bhk, index) => (
+                        <option key={`${bhk}-${index}`} value={bhk}>{bhk}</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Form>
+              </div>
+              <div className="projects-mobile-filter-footer">
+                <button className="projects-mobile-filter-reset" onClick={clearFilters}>Reset</button>
+                <button className="projects-mobile-filter-apply" onClick={closeMobileFilter}>Apply Filters</button>
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
       </div>
-    </div>
   );
 }

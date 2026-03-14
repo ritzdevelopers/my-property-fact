@@ -1,0 +1,72 @@
+/* Floating lead form popup trigger button */
+.lead-form-popup-trigger {
+  position: fixed;
+  right: 0;
+  bottom: 160px;
+  z-index: 9998;
+
+  border: 0;
+  padding: 12px 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #fff;
+
+  background: linear-gradient(135deg, #0d5834 0%, #0a4729 100%);
+  border-radius: 8px 0 0 8px;
+
+  width: 40px;
+  height: 150px;
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition: all 0.3s ease;
+}
+
+/* Hover slide effect */
+.lead-form-popup-trigger:hover {
+  right: 4px;
+  background: linear-gradient(135deg, #0a4729 0%, #083d22 100%);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Vertical text */
+.lead-form-popup-trigger__text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .lead-form-popup-trigger {
+    bottom: 140px;
+    width: 48px;
+    height: 130px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lead-form-popup-trigger {
+    bottom: 120px;
+    width: 44px;
+    height: 120px;
+  }
+}
+
+@media (max-width: 360px) {
+  .lead-form-popup-trigger {
+    bottom: 110px;
+  }
+}

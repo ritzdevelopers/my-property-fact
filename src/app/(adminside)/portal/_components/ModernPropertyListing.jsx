@@ -252,6 +252,20 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       message: "Description must be between 50 and 1200 characters",
     },
     status: { required: true, message: "Please select property status" },
+    possession: {
+      required: true,
+      message: "Possession date is required",
+      conditional: (data) => {
+        // Skip validation for Studio apartments under construction
+        if (data.subType === "Studio") return false;
+        const isUnderConstruction =
+          data.status &&
+          (data.status.toLowerCase().includes("under") ||
+            data.status.toLowerCase().includes("construction") ||
+            data.status.toLowerCase().includes("upcoming"));
+        return isUnderConstruction && data.listingType === "Residential";
+      },
+    },
 
     // Step 2 validations
     projectName: {
@@ -266,20 +280,16 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       pattern: /^\d{6}$/,
       message: "PIN code must be 6 digits",
     },
-    carpetArea: {
-      required: false,
-      // min: 50,
-      // message: "Carpet area must be at least 50 sq ft",
-    },
+    carpetArea: { required: false },
+    plotArea: { required: false },
+    builtUpArea: { required: false },
+    superBuiltUpArea: { required: false },
 
-    // Step 3 validations
-    totalPrice: {
-      required: true,
-      min: 50000,
-      message: "Price must be realistic (minimum ₹50,000)",
-    },
-    floor: { required: true, message: "Floor number is required" },
-    totalFloors: { required: true, message: "Total floors is required" },
+    // Step 3 validations (pricing and floor/area - all optional for all property sub types)
+    totalPrice: { required: false },
+    pricePerSqFt: { required: false },
+    floor: { required: false },
+    totalFloors: { required: false },
 
     // Step 4 validations (conditional based on listing type)
     bedrooms: {
@@ -326,16 +336,29 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
     // Define which fields belong to which step (with conditional logic)
     const stepFields = {
-      1: ["listingType", "transaction", "subType", "description", "status"],
+      1: [
+        "listingType",
+        "transaction",
+        "subType",
+        "description",
+        "status",
+        ...(formData.subType !== "Studio" &&
+        formData.status &&
+        (formData.status.toLowerCase().includes("under") ||
+          formData.status.toLowerCase().includes("construction") ||
+          formData.status.toLowerCase().includes("upcoming")) &&
+        formData.listingType === "Residential"
+          ? ["possession"]
+          : []),
+      ],
       2: [
         "projectName",
         "address",
         "locality",
         "city",
         "pincode",
-        "carpetArea",
       ],
-      3: ["totalPrice", "floor", "totalFloors"],
+      3: [],
       4: [], // Will be populated conditionally
       5: [
         "contactName",
@@ -404,25 +427,6 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         }
       }
     });
-
-    // Cross-field validation for Step 3
-    if (step === 3) {
-      const floor = Number(formData.floor);
-      const totalFloors = Number(formData.totalFloors);
-
-      // Check for negative values
-      if (formData.floor && floor < 0) {
-        stepErrors.floor = "Floor number cannot be negative";
-      }
-      if (formData.totalFloors && totalFloors < 0) {
-        stepErrors.totalFloors = "Total floors cannot be negative";
-      }
-
-      // Check if floor is greater than total floors
-      if (floor && totalFloors && floor > totalFloors) {
-        stepErrors.floor = `Floor number cannot be greater than total floors (${totalFloors})`;
-      }
-    }
 
     // Virtual tour URL validation (if provided)
     if (
@@ -2353,7 +2357,9 @@ function BasicInformationStep({
               <label className="form-label-enhanced">
                 <CIcon icon={cilCalendar} className="label-icon" />
                 Possession Date
-                <span className="required-indicator">*</span>
+                {data.subType !== "Studio" && (
+                  <span className="required-indicator">*</span>
+                )}
               </label>
               <Form.Control
                 type="date"
@@ -3247,13 +3253,12 @@ function LocationAreaStep({
         {fieldVisibility.showPlotArea && (
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Plot Area (sq ft) *</Form.Label>
+              <Form.Label>{data.subType === "Independent House" ? "Super Build Up (sq ft)" : "Plot Area (sq ft)"}</Form.Label>
               <Form.Control
                 type="number"
                 value={data.plotArea}
                 onChange={(e) => onChange("plotArea", e.target.value)}
-                placeholder="Enter plot area"
-                min={50}
+                placeholder={data.subType === "Independent House" ? "Enter super build up area" : "Enter plot area"}
                 isInvalid={!!errors.plotArea}
               />
               <Form.Control.Feedback type="invalid">
@@ -3272,7 +3277,6 @@ function LocationAreaStep({
                 value={data.carpetArea}
                 onChange={(e) => onChange("carpetArea", e.target.value)}
                 placeholder="Enter carpet area"
-                min={50}
                 // isInvalid={!!errors.carpetArea}
               />
               {/* <Form.Control.Feedback type="invalid">
@@ -3295,7 +3299,6 @@ function LocationAreaStep({
                 value={data.builtUpArea}
                 onChange={(e) => onChange("builtUpArea", e.target.value)}
                 placeholder="Enter built-up area"
-                min={0}
               />
             </Form.Group>
           </Col>
@@ -3310,7 +3313,6 @@ function LocationAreaStep({
                 value={data.superBuiltUpArea}
                 onChange={(e) => onChange("superBuiltUpArea", e.target.value)}
                 placeholder="Enter super built-up area"
-                min={0}
               />
             </Form.Group>
           </Col>
@@ -3391,13 +3393,13 @@ function PricingDetailsStep({ data, onChange, errors }) {
           <Form.Group>
             <Form.Label>
               Total Price (₹)
-              <span className="required-indicator">*</span>
+              {/* <span className="required-indicator">*</span> */}
             </Form.Label>
             <Form.Control
               type="text"
               value={formatNumberWithCommas(data.totalPrice)}
               onChange={(e) => handleTotalPriceChange(e.target.value)}
-              placeholder="Enter total price (e.g., 50,00,000)"
+              placeholder="Price on request or enter amount (e.g., 50,00,000)"
               isInvalid={!!errors.totalPrice}
               className="form-control-enhanced price-field"
             />
@@ -3479,7 +3481,7 @@ function PricingDetailsStep({ data, onChange, errors }) {
         {fieldVisibility.showFloor && (
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Floor Number *</Form.Label>
+              <Form.Label>Floor Number</Form.Label>
               <Form.Control
                 type="number"
                 min="0"
@@ -3514,7 +3516,9 @@ function PricingDetailsStep({ data, onChange, errors }) {
         {fieldVisibility.showTotalFloors && (
           <Col md={6}>
             <Form.Group>
-              <Form.Label>Total Floors *</Form.Label>
+              <Form.Label>
+                {data.subType === "Villa" ? "Total Floors/Units" : "Total Floors"}
+              </Form.Label>
               <Form.Control
                 type="number"
                 min="0"
@@ -3536,7 +3540,7 @@ function PricingDetailsStep({ data, onChange, errors }) {
                     onChange("totalFloors", "");
                   }
                 }}
-                placeholder="Total floors in building"
+                placeholder={data.subType === "Villa" ? "Total floors/units" : "Total floors in building"}
                 isInvalid={!!errors.totalFloors}
               />
               <Form.Control.Feedback type="invalid">

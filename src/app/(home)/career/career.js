@@ -165,7 +165,7 @@ export default function Career({ jobsArr }) {
                         width={50}
                         height={50}
                         className="img-fluid mb-3 position-absolute"
-                        style={{ top: "-8px" }}
+                        style={{ top: "12px" }}
                       />
                     </div>
                   </div>

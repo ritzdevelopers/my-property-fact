@@ -86,6 +86,10 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
     if (!/^[6-9]/.test(cleanedPhone)) {
       return "Phone number must start with 6, 7, 8, or 9";
     }
+
+    if (/^(\d)\1{9}$/.test(cleanedPhone)) {
+      return "Please enter a valid phone number";
+    }
     return "";
   };
 
@@ -164,15 +168,16 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
     try {
       setShowLoading(true);
       setButtonName("");
-      // Make API request
-      if (from === "Project Detail") {
-        formData.enquiryFrom = data.projectName;
-        formData.projectLink = process.env.NEXT_PUBLIC_UI_URL + pathname;
-        formData.pageName = "Project Detail";
-      }
+      // Build payload metadata based on source page
+      const submitData = {
+        ...formData,
+        enquiryFrom: from === "Project Detail" ? (data?.projectName || "Project Detail") : "Home Page",
+        projectLink: from === "Project Detail" ? `${process.env.NEXT_PUBLIC_UI_URL}${pathname}` : `${process.env.NEXT_PUBLIC_UI_URL}`,
+        pageName: from === "Project Detail" ? "Project Detail" : "Home",
+      };
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
-        formData
+        submitData
       );
       // Check if response is successful
       if (response.data.isSuccess === 1) {

@@ -1,7 +1,8 @@
-/* Projects Page Wrapper */
+/* Projects Page Wrapper - overflow: visible required for sticky filter to work */
 .projects-page-wrapper {
   background-color: #f5f7fa;
   min-height: 100vh;
+  overflow: visible;
 }
 
 /* Page Header Section */
@@ -26,10 +27,26 @@
   font-size: 0.95rem;
 }
 
-/* Quick Filters Row */
+/* Quick Filters Row - in page header (legacy) */
 .quick-filters-row {
   padding-top: 1rem;
   border-top: 1px solid #e8eaed;
+}
+
+/* Pills inside filter card - same block as Refine Search */
+.filter-pills-in-card {
+  border-top: none;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid #e8eaed;
+}
+
+.filter-pills-in-card .filter-pills-container {
+  flex: 1;
+  min-width: 0;
 }
 
 .filter-pills-container {
@@ -65,19 +82,42 @@
   box-shadow: 0 2px 8px rgba(0, 164, 0, 0.3);
 }
 
-/* Filter Sidebar Card */
-.filter-sidebar-card {
+/* Projects filter inline: no max-height scroll when below pills */
+.projects-filters-below .filter-card-body {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Sticky wrapper - tall parent for filter card so sticky works on scroll (large displays) */
+.projects-sticky-wrapper {
+  overflow: visible;
+  position: relative;
+}
+
+.projects-main-with-filter {
+  overflow: visible;
+}
+
+/* Inline Filter Card - normal flow (not sticky) */
+.projects-filter-inline-card {
   background: white;
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  position: sticky;
-  top: 100px; /* Account for fixed header height */
-  align-self: flex-start;
-  z-index: 10;
-  max-height: calc(100vh - 120px);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 4px 20px rgba(0, 0, 0, 0.06);
+  position: relative;
+}
+
+/* Filter form in horizontal layout when below pills */
+.filter-form-inline {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1.25rem;
+  flex-direction: unset !important;
+}
+
+/* Inline filter card body - no max-height/scroll */
+.projects-filter-inline-card .filter-card-body {
+  max-height: none;
+  overflow: visible;
 }
 
 .filter-card-header {
@@ -161,6 +201,23 @@
   outline: none;
 }
 
+/* Desktop: keep filter in normal document flow */
+@media (min-width: 992px) {
+  .projects-page-wrapper,
+  .projects-page-wrapper .container,
+  .projects-page-wrapper .row,
+  .projects-main-with-filter,
+  .projects-sticky-wrapper {
+    overflow: visible !important;
+  }
+
+  .projects-filter-inline-card.projects-sticky-filters {
+    position: relative;
+    background: white !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 6px 24px rgba(0, 0, 0, 0.06);
+  }
+}
+
 /* Projects Content Wrapper */
 .projects-content-wrapper {
   min-height: 500px;
@@ -168,9 +225,45 @@
 
 .projects-grid-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(406px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
   animation: fadeIn 0.4s ease-in-out;
+}
+
+/* Grid: 3 cols desktop, 2 tablet, 1 mobile (filters now below pills, always full width) */
+@media (min-width: 993px) and (max-width: 1199px) {
+  .projects-grid-layout {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .project-card-wrapper .project-container {
+    max-width: 100%;
+    width: 100%;
+    height: auto;
+    min-height: 434px;
+  }
+
+  .project-card-wrapper .project-container .project-image-container {
+    height: 240px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .projects-grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .project-card-wrapper .project-container {
+    max-width: 100%;
+  }
+}
+
+@media (min-width: 1500px) {
+  .projects-grid-layout {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
 }
 
 /* Projects page cards: same layout as Featured (406×434, 12px radius) */
@@ -207,6 +300,12 @@
 
 .project-card-wrapper:hover {
   transform: translateY(-6px);
+}
+
+/* Keep cards below sticky filter - do not let them overlap */
+.projects-sticky-wrapper .project-card-wrapper {
+  position: relative;
+  z-index: 0;
 }
 
 /* Loading State */
@@ -308,14 +407,257 @@
   animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Responsive Design */
-@media (max-width: 992px) {
-  .filter-sidebar-card {
-    position: relative;
-    top: 0;
-    max-height: none;
+/* Prevent body scroll when filter modal is open */
+body.projects-filter-modal-open {
+  overflow: hidden !important;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Hide chatbot when filter modal is open */
+body.projects-filter-modal-open [class*="chatbotContainer"],
+body.projects-filter-modal-open [class*="launcher"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Mobile Filter Button - hidden on desktop */
+.projects-mobile-controls-wrapper {
+  display: none;
+  padding: 0 0 16px 0;
+  margin-bottom: 0.5rem;
+}
+
+.projects-mobile-controls-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.projects-mobile-tabs-scroll {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.projects-mobile-tab-btn {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  white-space: normal;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.projects-mobile-tab-btn.active {
+  background: rgb(0, 164, 0);
+  color: #fff;
+  border-color: rgb(0, 164, 0);
+}
+
+.projects-mobile-filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #374151;
+}
+
+.projects-mobile-filter-btn:hover {
+  border-color: rgb(0, 164, 0);
+  background: #f9fafb;
+  color: rgb(0, 164, 0);
+}
+
+.projects-mobile-filter-text {
+  display: inline;
+}
+
+.projects-mobile-filter-count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: rgb(0, 164, 0);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mobile Filter Modal */
+.projects-mobile-filter-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: projects-fade 0.3s ease;
+}
+
+.projects-mobile-filter-modal {
+  width: 100%;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  animation: projects-slide 0.3s ease;
+}
+
+@keyframes projects-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes projects-slide {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.projects-mobile-filter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.projects-mobile-filter-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.projects-mobile-filter-close {
+  width: 36px;
+  height: 36px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.projects-mobile-filter-close:hover {
+  background: #e5e7eb;
+  color: #000;
+}
+
+.projects-mobile-filter-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+.projects-mobile-filter-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.projects-mobile-filter-reset {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.projects-mobile-filter-apply {
+  flex: 2;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: rgb(0, 164, 0);
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.projects-mobile-filter-apply:hover {
+  background: rgb(0, 140, 0);
+}
+
+/* Responsive: tablet/mobile - show mobile filter, hide desktop */
+@media (max-width: 991px) {
+  .projects-desktop-filter-toggle {
+    display: none !important;
   }
 
+  .projects-desktop-filters {
+    display: none !important;
+  }
+
+  .projects-mobile-controls-wrapper {
+    display: block;
+  }
+
+  .projects-mobile-filter-btn {
+    width: 100%;
+    height: 40px;
+    border-radius: 10px;
+    position: relative;
+  }
+
+  .projects-mobile-filter-count {
+    position: absolute;
+    top: -7px;
+    right: 8px;
+  }
+
+  .projects-mobile-filter-modal {
+    max-width: 560px;
+    border-radius: 20px;
+    margin: auto 20px 20px;
+    max-height: 85vh;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
   .filter-card-body {
     max-height: none;
   }

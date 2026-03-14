@@ -82,6 +82,7 @@ const HeaderComponent = () => {
   //Defining scroll variable
   const [isScrolled, setIsScrolled] = useState(false);
   const [isConditionalHeader, setIsConditionalHeader] = useState(false);
+  const [headerVisible, setHeaderVisible] = useState(true); // hide on scroll down, show on scroll up
   // Project search state
   const [projectSearchInput, setProjectSearchInput] = useState("");
   const [projectSearchQuery, setProjectSearchQuery] = useState("");
@@ -92,6 +93,7 @@ const HeaderComponent = () => {
   const [mobileSearchSlideIndex, setMobileSearchSlideIndex] = useState(0);
   const projectsDropdownRef = useRef(null);
   const scrollPositionRef = useRef(0);
+  const lastScrollYRef = useRef(0);
   const projectSearchInputRef = useRef(null);
   const mobileProjectSearchInputRef = useRef(null);
 
@@ -145,10 +147,22 @@ const HeaderComponent = () => {
 
       // Only update scroll state if menu is not open
       if (!isMenuOpen) {
-        if (window.scrollY > 100) {
+        const currentY = window.scrollY;
+        if (currentY > 100) {
           setIsScrolled(true);
+          // Hide header when scrolling down, show when scrolling up
+          const scrollDelta = 60; // min px moved to trigger
+          if (currentY > lastScrollYRef.current + scrollDelta) {
+            setHeaderVisible(false);
+            lastScrollYRef.current = currentY;
+          } else if (currentY < lastScrollYRef.current - scrollDelta) {
+            setHeaderVisible(true);
+            lastScrollYRef.current = currentY;
+          }
         } else {
           setIsScrolled(false);
+          setHeaderVisible(true);
+          lastScrollYRef.current = currentY;
         }
       }
     };
@@ -413,7 +427,7 @@ const HeaderComponent = () => {
     <>
       <div
         className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isScrolled ? "fixed-header" : ""
-          } ${isPropertiesRoute ? "properties-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""}`}
+          } ${isPropertiesRoute ? "properties-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
         <div className="container d-flex justify-content-between align-items-center">
           <div className="mpf-logo d-flex align-items-center gap-4">
@@ -496,7 +510,7 @@ const HeaderComponent = () => {
                             ))}
                           </ul>
                         </div>
-                        <div className="dropdown-footer-bar">
+                        <div className="dropdown-footer-bar city-dropdown-footer-bar">
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
                             <span className="dropdown-footer-phone">
@@ -860,7 +874,7 @@ const HeaderComponent = () => {
                             </div>
                           </div>
                         </div>
-                        <div className="dropdown-footer-bar">
+                        <div className="dropdown-footer-bar city-dropdown-footer-bar">
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
                             <span className="dropdown-footer-phone">

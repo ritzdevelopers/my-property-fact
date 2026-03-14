@@ -32,7 +32,6 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Image from "next/image";
 import NotFound from "../../not-found";
-import LeadFormPopupTrigger from "../../(home)/components/_homecomponents/LeadFormPopupTrigger";
 import Featured from "../../(home)/components/home/featured/featured";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
@@ -1459,10 +1458,6 @@ const addNearbyImageIcon = (benefit) => {
         </div>
       )}
 
-      <LeadFormPopupTrigger
-        showOnMobileOnly
-        onOpen={() => setShowPopUp(true)}
-      />
       <Modal
         show={showPopUp}
         onHide={() => setShowPopUp(false)}

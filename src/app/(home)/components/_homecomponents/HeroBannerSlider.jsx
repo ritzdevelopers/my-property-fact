@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import Slider from "react-slick";
 import Image from "next/image";
 import Link from "next/link";
@@ -17,9 +17,22 @@ const DEFAULT_FALLBACK_SLIDE = {
 
 const HeroBannerSlider = ({ slides = [] }) => {
   const effectiveSlides = Array.isArray(slides) && slides.length > 0 ? slides : [DEFAULT_FALLBACK_SLIDE];
+  const [deviceType, setDeviceType] = useState("mobile");
 
   const resolveDesktopSrc = (slide) =>
     slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
+
+  const resolveDeviceSrc = (slide, type) => {
+    if (type === "desktop") return slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
+    if (type === "tablet") return slide?.tablet || slide?.desktop || slide?.mobile || "/mpf-banner.jpg";
+    return slide?.mobile || slide?.tablet || slide?.desktop || "/mpf-banner.jpg";
+  };
+
+  const getImageDimensions = (type) => {
+    if (type === "desktop") return { width: 1920, height: 600 };
+    if (type === "tablet") return { width: 1024, height: 576 };
+    return { width: 768, height: 430 };
+  };
 
   const updateHeaderBackground = useCallback((slideIndex) => {
     if (typeof document === "undefined") return;
@@ -38,6 +51,22 @@ const HeroBannerSlider = ({ slides = [] }) => {
     }
   }, [effectiveSlides, updateHeaderBackground]);
 
+  useEffect(() => {
+    const updateDeviceType = () => {
+      if (window.innerWidth >= 992) {
+        setDeviceType("desktop");
+      } else if (window.innerWidth >= 768) {
+        setDeviceType("tablet");
+      } else {
+        setDeviceType("mobile");
+      }
+    };
+
+    updateDeviceType();
+    window.addEventListener("resize", updateDeviceType);
+    return () => window.removeEventListener("resize", updateDeviceType);
+  }, []);
+
   const isSingleSlide = effectiveSlides.length === 1;
 
   const settings = {
@@ -51,6 +80,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
     pauseOnFocus: false,
     fade: true,
     adaptiveHeight: false,
+    lazyLoad: "ondemand",
     afterChange: (current) => updateHeaderBackground(current),
   };
 
@@ -72,47 +102,24 @@ const HeroBannerSlider = ({ slides = [] }) => {
 
           // For single slide, always prioritize. Otherwise, prioritize first slide or use slide's priority prop
           const priority = isSingleSlide ? true : (slidePriority !== undefined ? slidePriority : index === 0);
-
-          const desktopSrc = desktop || "/mpf-banner.jpg";
-          const tabletSrc = tablet || desktopSrc;
-          const mobileSrc = mobile || tabletSrc;
+          const selectedSrc = resolveDeviceSrc({ desktop, tablet, mobile }, deviceType);
+          const { width, height: responsiveHeight } = getImageDimensions(deviceType);
           const navigationLink = link || href;
 
-          // Use Next/Image per breakpoint so Next.js can optimize (WebP, correct sizes)
+          // Render only one banner image per slide based on viewport.
           const imageContent = (
             <div className="position-relative home-banner hero-banner-responsive-images">
               <Image
-                src={mobileSrc}
+                src={selectedSrc}
                 alt={alt}
-                width={768}
-                height={height}
-                className="img-fluid w-100 d-md-none"
+                width={width}
+                height={height || responsiveHeight}
+                className="img-fluid w-100"
                 priority={priority}
                 fetchPriority={priority ? "high" : "auto"}
                 quality={75}
                 sizes="100vw"
-              />
-              <Image
-                src={tabletSrc}
-                alt={alt}
-                width={1024}
-                height={height}
-                className="img-fluid w-100 d-none d-md-block d-lg-none"
-                priority={priority}
-                fetchPriority={priority ? "high" : "auto"}
-                quality={75}
-                sizes="100vw"
-              />
-              <Image
-                src={desktopSrc}
-                alt={alt}
-                width={1920}
-                height={height}
-                className="img-fluid w-100 d-none d-lg-block"
-                priority={priority}
-                fetchPriority={priority ? "high" : "auto"}
-                quality={75}
-                sizes="100vw"
+                loading={priority ? "eager" : "lazy"}
               />
             </div>
           );

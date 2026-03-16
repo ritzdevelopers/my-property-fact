@@ -83,7 +83,7 @@ export default function MpfTopPicks({ topProject }) {
                       width={56}
                       height={56}
                       className="img-fluid"
-                      priority
+                      quality={75}
                       sizes="56px"
                     />
                   </div>
@@ -141,8 +141,8 @@ export default function MpfTopPicks({ topProject }) {
                   src={bannerImageSrc}
                   alt={projectName || "Project banner"}
                   fill
-                  sizes="(max-width: 992px) 100vw, 50vw"
-                  priority
+                  sizes="(max-width: 576px) 100vw, (max-width: 992px) 92vw, 42vw"
+                  quality={75}
                   className="mpf-top-picks-card__media-img"
                 />
                 <div className="mpf-top-picks-card__tag">

@@ -50,6 +50,33 @@ html {
   display: block;
 }
 
+.hero-banner-responsive-images {
+  width: 100%;
+}
+
+.hero-banner-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-banner-frame-mobile {
+  aspect-ratio: 458 / 810;
+}
+
+.hero-banner-frame-tablet {
+  aspect-ratio: 1 / 1;
+}
+
+.hero-banner-frame-desktop {
+  aspect-ratio: 1920 / 600;
+}
+
+.hero-banner-image {
+  object-fit: cover;
+  object-position: center;
+}
+
 /* Critical Typography */
 h1, h2, h3, h4, h5, h6, button, a {
   font-family: var(--heaing-font) !important;

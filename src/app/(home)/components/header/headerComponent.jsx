@@ -435,12 +435,14 @@ const HeaderComponent = () => {
               href="/"
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
             >
-              <Image
+              <img
                 src="/logo.webp"
                 alt="My Property fact"
                 height={74}
                 width={80}
-                loading="lazy"
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </Link>
           </div>
@@ -950,12 +952,14 @@ const HeaderComponent = () => {
               }}
               className="mobile-menu-logo"
             >
-              <Image
+              <img
                 src="/logo.webp"
                 alt="My Property Fact"
                 height={50}
                 width={55}
-                priority
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
               />
             </Link>
             <button

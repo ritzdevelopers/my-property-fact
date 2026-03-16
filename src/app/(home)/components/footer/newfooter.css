@@ -252,6 +252,11 @@
 .footer-links li {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
+@media (min-width: 992px) {
+    .new-design-footer-bottom {
+        min-height: 260px !important;
+    }
+}
 
 /* Bottom Section */
 .new-design-footer-bottom {

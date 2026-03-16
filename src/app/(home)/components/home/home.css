@@ -46,9 +46,9 @@
   .hero-lcp-fallback {
     min-height: 400px;
   }
-  .mpf-hero-banner {
-    min-height: 493px !important;
-  }
+    /* .mpf-hero-banner {
+      min-height: 493px !important;
+    } */
 }
 
 .hero-banner-slider .slick-dots {

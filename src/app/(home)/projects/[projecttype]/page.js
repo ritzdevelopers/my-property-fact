@@ -11,7 +11,7 @@ export async function generateMetadata({ params }) {
       title: response.metaTitle || `Projects - ${projecttype}`,
       description: response.metaDesc || `Browse ${projecttype} projects`,
       alternates: {
-        canonical: `${process.env.NEXT_PUBLIC_ROOT_URL}projects/${projecttype}`,
+        canonical: `/projects/${projecttype}`,
       },
     };
   } catch (error) {

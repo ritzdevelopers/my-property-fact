@@ -8,7 +8,10 @@ export async function generateMetadata({ params }) {
   return {
     title: response.metaTitle,
     description: response.metaDescription,
-    keywords: response.metaKeywords
+    keywords: response.metaKeywords,
+    alternates: {
+      canonical: `/builder/${buildername}`,
+    },
   };
 }
 

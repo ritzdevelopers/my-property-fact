@@ -1,7 +1,6 @@
 "use client";
 import "./citypage.css";
 import "../../components/home/home.css";
-import Link from "next/link";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -45,11 +44,6 @@ export default function CityPage({ cityData }) {
           </div>
           <div>
             <p>{cityData?.cityDescription}</p>
-            <div className="text-center">
-              <Link href="#" className="btn text-white btn-background about-us-read-more">
-                Read More
-              </Link>
-            </div>
           </div>
           <div>
             <Image
@@ -68,7 +62,7 @@ export default function CityPage({ cityData }) {
             <LoadingSpinner show={loading} />
           </div>
         ) : (
-          <div className="container my-3">
+          <div className="container my-3 pb-5">
             <div className="row g-3">
               {projects.length > 0 ? (
                 projects.map((item, index) => (

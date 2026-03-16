@@ -9,7 +9,7 @@ export const metadata = {
   description:
     "Browse top residential and commercial real estate projects across India. Discover new launches, ongoing developments, and upcoming properties with MyPropertyFact.",
   alternates: {
-    canonical: `${process.env.NEXT_PUBLIC_ROOT_URL}projects`,
+    canonical: "/projects",
   },
 };
 

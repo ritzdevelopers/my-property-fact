@@ -1,6 +1,7 @@
 import "./critical.css";
 import "./globals.css";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import Providers from "./_global_components/providers/Providers";
@@ -82,9 +83,11 @@ export default function RootLayout({ children }) {
         </noscript>
 
         <Providers>
-          <SiteDataProvider>
-            {children}
-          </SiteDataProvider>
+          <Suspense fallback={null}>
+            <SiteDataProvider>
+              {children}
+            </SiteDataProvider>
+          </Suspense>
         </Providers>
 
         {/* third party scripts are loaded here */}

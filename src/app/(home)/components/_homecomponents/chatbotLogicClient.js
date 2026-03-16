@@ -290,20 +290,20 @@ function buildProjectCards(projects = []) {
   });
 }
 
-function buildRedirect(data) {
+function buildProjectsNavigationPayload(data) {
   const typeId = data.propertyTypeId || PROPERTY_TYPE_MAP[data.type] || 1;
   const normalizedCity = normalizeCityInput(data.city);
   const cityId = CITY_MAP[normalizedCity];
   const budget = data.budget;
   if (!cityId || !budget) return null;
 
-  const cityName = encodeURIComponent(normalizedCity || "");
-  const redirectPath = `/projects?propertyType=${typeId}&propertyLocation=${cityId}&cityName=${cityName}&budget=${encodeURIComponent(budget)}`;
-  const uiBase = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
-
   return {
-    redirectPath,
-    redirectUrl: uiBase ? `${uiBase}${redirectPath}` : redirectPath,
+    navigateToProjects: true,
+    queryFilters: {
+      propertyType: String(typeId),
+      propertyLocation: String(cityId),
+      budget,
+    },
   };
 }
 
@@ -382,14 +382,14 @@ function handleResultsState(message, session) {
   }
 
   if (["view all", "open all"].includes(msg)) {
-    const redirect = buildRedirect(session.data);
-    if (!redirect) {
-      return { reply: "Redirect link not available. Please restart once.", options: ["Restart"] };
+    const navigation = buildProjectsNavigationPayload(session.data);
+    if (!navigation) {
+      return { reply: "Project filters are incomplete. Please restart once.", options: ["Restart"] };
     }
     return {
       reply: "Redirecting you to all matching projects...",
       options: ["Restart"],
-      ...redirect,
+      ...navigation,
     };
   }
 

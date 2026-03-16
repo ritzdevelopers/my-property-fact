@@ -503,7 +503,7 @@
 
 /* Target all placeholders inside Bootstrap Form.Control */
 .banner-form input.form-control::placeholder,
-textarea.form-control::placeholder {
+.banner-form textarea.form-control::placeholder {
   color: #333 !important; /* Dark gray so it’s visible on white-gray */
   opacity: 1 !important; /* Ensure it doesn’t look faded */
 }
@@ -546,7 +546,7 @@ textarea.form-control::placeholder {
 
 /* Project detail page buttons - green theme */
 .btn-background,
-.btn-success {
+#home .btn-success {
   background-color: #0d5834 !important;
   background-image: none !important;
   color: #fff !important;
@@ -554,7 +554,7 @@ textarea.form-control::placeholder {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 .btn-background:hover,
-.btn-success:hover {
+#home .btn-success:hover {
   background-color: #0a4729 !important;
   background-image: none !important;
   color: #fff !important;

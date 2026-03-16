@@ -29,6 +29,23 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
     return `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${data.slugURL}/${bannerImage}`;
   };
 
+  const formatProjectAddress = (address) => {
+    const parts = String(address || "")
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+    if (!parts.length) return "";
+
+    const normalized = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
+    const deduped = [];
+    for (const part of parts) {
+      const prev = deduped[deduped.length - 1];
+      if (prev && normalized(prev) === normalized(part)) continue;
+      deduped.push(part);
+    }
+    return deduped.join(", ");
+  };
+
   //Generating price in lakh & cr
   const generatePrice = (price) => {
     if (/[a-zA-Z]/.test(price)) {
@@ -136,7 +153,7 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
           <span className="flex-shrink-0">
             <FontAwesomeIcon icon={faLocationDot} style={{ color: "#35A332" }} />
           </span>
-          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{data.projectAddress}</p>
+          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{formatProjectAddress(data.projectAddress)}</p>
         </div>
       </Link>
     </>

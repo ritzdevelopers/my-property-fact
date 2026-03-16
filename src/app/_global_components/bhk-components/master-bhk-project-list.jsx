@@ -1,17 +1,16 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchAllProjects } from "../masterFunction";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Link from "next/link";
+import { useSiteData } from "../contexts/SiteDataContext";
 
 export default function MasterBHKProjectList() {
   const pathName = usePathname();
   const searchParams = useSearchParams();
-  const [projects, setProjects] = useState([]);
+  const { projectList: projects = [], loading: siteDataLoading } = useSiteData();
   const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [cityName, setCityName] = useState("");
   const [floorTypeList, setFloorTypeList] = useState([]);
 
@@ -20,6 +19,61 @@ export default function MasterBHKProjectList() {
     if (!value || typeof value !== "string") return [];
     const matches = value.match(/\d+\s*BHK/gi);
     return matches ? [...new Set(matches.map((m) => m.trim()))] : [];
+  };
+
+  const normalizeType = (value = "") =>
+    String(value)
+      .toLowerCase()
+      .replace(/%20/g, " ")
+      .replace(/-/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const extractTypesFromProjectConfiguration = (value = "") => {
+    if (!value || typeof value !== "string") return [];
+    const types = new Set();
+    const parts = value
+      .split(",")
+      .map((part) => part.trim())
+      .filter(Boolean);
+
+    parts.forEach((part) => {
+      const cleanedPart = part
+        .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
+        .trim();
+      if (!cleanedPart) return;
+
+      const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
+      let bhkMatch;
+      let foundBhk = false;
+      while ((bhkMatch = bhkRegex.exec(cleanedPart)) !== null) {
+        foundBhk = true;
+        if (bhkMatch[1]) types.add(`${bhkMatch[1]} bhk`);
+        if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
+      }
+
+      if (!foundBhk) {
+        types.add(normalizeType(cleanedPart));
+      }
+    });
+
+    return Array.from(types);
+  };
+
+  const matchesProjectConfigurationType = (projectConfiguration, selectedType) => {
+    const wanted = normalizeType(selectedType);
+    if (!wanted) return true;
+    const configTypes = extractTypesFromProjectConfiguration(projectConfiguration);
+    if (!configTypes.length) return false;
+
+    const bhkWanted = wanted.match(/(\d+)\s*bhk/i);
+    if (bhkWanted?.[1]) {
+      return configTypes.includes(`${bhkWanted[1]} bhk`);
+    }
+
+    return configTypes.some(
+      (type) => type === wanted || type.includes(wanted) || wanted.includes(type)
+    );
   };
 
   const normalizeFloorType = (value = "") => {
@@ -67,18 +121,11 @@ export default function MasterBHKProjectList() {
   };
 
   const cityMatches = (item, cityKey) => {
-    const ck = (cityKey || "").trim().toLowerCase();
+    const ck = normalizeType(cityKey);
     if (!ck) return false;
-    const cityNorm = (item.cityName || "").toLowerCase();
-    const addrNorm = (item.projectAddress || "").toLowerCase();
-    const localityNorm = (item.projectLocality || "").toLowerCase();
-    if (ck === "noida") {
-      const hasGreaterNoida =
-        cityNorm.includes("greater noida") ||
-        addrNorm.includes("greater noida") ||
-        localityNorm.includes("greater noida");
-      if (hasGreaterNoida) return false;
-    }
+    const cityNorm = normalizeType(item.cityName || "");
+    const addrNorm = normalizeType(item.projectAddress || "");
+    const localityNorm = normalizeType(item.projectLocality || "");
     return (
       cityNorm === ck ||
       cityNorm.includes(ck) ||
@@ -136,7 +183,7 @@ export default function MasterBHKProjectList() {
       .filter((ft) => !excludeSlugTypes.includes(ft.slugType.toLowerCase()) && !isBareNumber(ft.slugType))
       .sort((a, b) => a.label.localeCompare(b.label));
   };
-  const getListOfProjectFromBkType = async () => {
+  const getListOfProjectFromBkType = () => {
     const bkType = searchParams.get("type");
     let cat = "";
     if(pathName.includes("commercial") || pathName.includes("offices-and-shop") || pathName.includes("offices") || pathName.includes("shop")) {
@@ -150,27 +197,6 @@ export default function MasterBHKProjectList() {
     }
     if (projects.length > 0) {
       let filteredData = projects;
-      if (bkType) {
-        filteredData = projects.filter((item) => {
-          if (!item.projectConfiguration) return false;
-          const configs = item.projectConfiguration
-            .split(",")
-            .map((type) => type.trim());
-          const allTypes = configs.flatMap((c) => {
-            const bhks = extractIndividualBHKTypes(c);
-            return bhks.length > 0 ? bhks : [c];
-          });
-          const bkTypeNormalized = bkType.replace(/-/g, " ").trim();
-          const matches = allTypes.some(
-            (t) =>
-              t === bkType ||
-              t.replace(/\s+/g, "-").toLowerCase() ===
-                bkType.replace(/\s+/g, "-").toLowerCase()
-          );
-          setLoading(false);
-          return matches;
-        });
-      }
       const cityKey = cityName.trim().toLowerCase();
       switch (cat) {
         case "apartments":
@@ -210,7 +236,13 @@ export default function MasterBHKProjectList() {
           setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
           break;
       }
-      setLoading(false);
+
+      if (bkType) {
+        filteredData = filteredData.filter((item) =>
+          matchesProjectConfigurationType(item.projectConfiguration, bkType)
+        );
+      }
+
       return filteredData;
     }
     return [];
@@ -224,45 +256,31 @@ export default function MasterBHKProjectList() {
       "/new-projects-in-",
       "/offices-and-shop-in-",
     ];
-    async function fetchData() {
-      const data = await fetchAllProjects();
-      setProjects(data);
-      let foundCity = "";
-      slugPrefix.forEach((slug) => {
-        if (pathName.includes(slug)) {
-          foundCity = pathName.replace(slug, "").replace(/-/g, " ").trim();
-        }
-      });
-      setCityName(foundCity);
-    }
-    fetchData();
+    let foundCity = "";
+    slugPrefix.forEach((slug) => {
+      if (pathName.includes(slug)) {
+        foundCity = pathName.replace(slug, "").replace(/-/g, " ").trim();
+      }
+    });
+    setCityName(foundCity);
   }, [pathName]);
 
   useEffect(() => {
     if (!projects.length || !cityName) {
-      setLoading(false);
       setFilteredProjectsByBrType([]);
       return;
     }
-    setLoading(true);
-    async function updateFilteredProjects() {
-      try {
-        const filteredData = await getListOfProjectFromBkType();
-        setFilteredProjectsByBrType(filteredData);
-      } finally {
-        setLoading(false);
-      }
-    }
-    updateFilteredProjects();
-  }, [projects, cityName]);
+    const filteredData = getListOfProjectFromBkType();
+    setFilteredProjectsByBrType(filteredData);
+  }, [projects, cityName, pathName, searchParams]);
 
   return (
     <>
       <div className="container my-5">
         <div className="row g-3">
-          {loading ? (
+          {siteDataLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100">
-              <LoadingSpinner show={loading} />
+              <LoadingSpinner show={siteDataLoading} />
             </div>
           ) : filteredProjectsByBrType.length > 0 ? (
             filteredProjectsByBrType.map((project, index) => (
@@ -271,7 +289,7 @@ export default function MasterBHKProjectList() {
               </div>
             ))
           ) : (
-            !loading && (
+            !siteDataLoading && (
               <p>
                 No projects found for the selected {cityName.toUpperCase()}{" "}
                 type.

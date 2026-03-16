@@ -1,10 +1,17 @@
 /** @type {import('next-sitemap').IConfig} */
+const SITE_URL = (process.env.NEXT_PUBLIC_UI_URL || process.env.NEXT_PUBLIC_ROOT_URL || "https://www.mypropertyfact.in").replace(/\/+$/, "");
+
+function toPathSlug(value) {
+  return String(value || "").trim().replace(/^\/+|\/+$/g, "");
+}
+
 module.exports = {
-  siteUrl: process.env.NEXT_PUBLIC_UI_URL,
+  siteUrl: SITE_URL,
   generateRobotsTxt: true,
   sitemapSize: 5000,
   changefreq: "daily",
   priority: 0.7,
+  trailingSlash: false,
   transform: async (config, path) => {
     const dynamicPatterns = [
       "/projects/[projecttype]",
@@ -39,8 +46,10 @@ module.exports = {
     if (!projects.ok) throw new Error("Failed to fetch projects");
     const data = await projects.json();
     allPaths = allPaths.concat(
-      data.map((p) => ({
-        loc: `/${p.slugURL}`, //
+      data
+        .filter((p) => p?.slugURL)
+        .map((p) => ({
+        loc: `/${toPathSlug(p.slugURL)}`,
         changefreq: "weekly",
         priority: 0.8,
         lastmod: new Date().toISOString(),
@@ -54,8 +63,10 @@ module.exports = {
     const blogs = await blogsRes.json();
 
     allPaths = allPaths.concat(
-      blogs.map((b) => ({
-        loc: `/blog/${b.slugUrl}`,
+      blogs
+        .filter((b) => b?.slugUrl)
+        .map((b) => ({
+        loc: `/blog/${toPathSlug(b.slugUrl)}`,
         changefreq: "monthly",
         priority: 0.6,
         lastmod: new Date().toISOString(),
@@ -69,8 +80,10 @@ module.exports = {
     const buildersObj = await buildersRes.json();
 
     allPaths = allPaths.concat(
-      buildersObj.builders.map((prop) => ({
-        loc: `/builder/${prop.slugUrl}`,
+      (buildersObj?.builders || [])
+        .filter((prop) => prop?.slugUrl)
+        .map((prop) => ({
+        loc: `/builder/${toPathSlug(prop.slugUrl)}`,
         changefreq: "weekly",
         priority: 0.7,
         lastmod: new Date().toISOString(),
@@ -84,8 +97,10 @@ module.exports = {
     const cities = await citiesRes.json();
 
     allPaths = allPaths.concat(
-      cities.map((prop) => ({
-        loc: `/city/${prop.slugURL}`,
+      cities
+        .filter((prop) => prop?.slugURL)
+        .map((prop) => ({
+        loc: `/city/${toPathSlug(prop.slugURL)}`,
         changefreq: "weekly",
         priority: 0.7,
         lastmod: new Date().toISOString(),
@@ -99,23 +114,10 @@ module.exports = {
     const projectTypes = await projectTypesRes.json();
 
     allPaths = allPaths.concat(
-      projectTypes.map((prop) => ({
-        loc: `/projects/${prop.slugUrl}`,
-        changefreq: "weekly",
-        priority: 0.7,
-        lastmod: new Date().toISOString(),
-      }))
-    );
-
-    // Web stories
-    const webstoriesRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get-all`
-    );
-    const webstories = await webstoriesRes.json();
-
-    allPaths = allPaths.concat(
-      webstories.map((prop) => ({
-        loc: `${process.env.NEXT_PUBLIC_API_URL}web-story/${prop.categoryName}`,
+      projectTypes
+        .filter((prop) => prop?.slugUrl)
+        .map((prop) => ({
+        loc: `/projects/${toPathSlug(prop.slugUrl)}`,
         changefreq: "weekly",
         priority: 0.7,
         lastmod: new Date().toISOString(),

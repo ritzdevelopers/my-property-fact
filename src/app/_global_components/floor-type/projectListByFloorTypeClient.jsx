@@ -110,6 +110,9 @@ export default function ProjectListByFloorTypeClient({ title }) {
   return (
     <>
       <div className="container my-5">
+        <h2 className="master-bhk-section-heading mb-3 mb-md-4">
+          Projects
+        </h2>
         <div className="row g-3">
           {siteDataLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100">

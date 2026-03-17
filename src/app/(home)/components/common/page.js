@@ -142,11 +142,11 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
         </div>
         {renderStatusBadge()}
         <div className="mt-3 ms-3">
-          <h5 className="mb-2 plus-jakarta-sans-semi-bold">{data.projectName}</h5>
+          <h3 className="mb-2 h5 plus-jakarta-sans-semi-bold">{data.projectName}</h3>
           <p className="mb-2 plus-jakarta-sans-semi-bold project-property-type-text">{data.propertyTypeName}</p>
-          <h5 className="text-success d-flex gap-2 mb-0">
+          <p className="text-success d-flex gap-2 mb-0">
             <span className="plus-jakarta-sans-semi-bold"> {generatePrice(data.projectPrice)}</span>
-          </h5>
+          </p>
         </div>
 
         <div className="ms-3 pb-3 text-truncate small fw-medium mt-2 d-flex align-items-center gap-2">

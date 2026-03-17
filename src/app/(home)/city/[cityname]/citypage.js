@@ -63,6 +63,9 @@ export default function CityPage({ cityData }) {
           </div>
         ) : (
           <div className="container my-3 pb-5">
+            <h2 className="city-projects-heading mb-4">
+              Projects in {cityData?.cityName || "this city"}
+            </h2>
             <div className="row g-3">
               {projects.length > 0 ? (
                 projects.map((item, index) => (

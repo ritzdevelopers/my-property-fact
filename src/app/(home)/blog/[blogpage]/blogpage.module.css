@@ -65,23 +65,14 @@
   font-family: "plus-jakarta", sans-serif !important;
 }
 
-/* Content cards – each project/section in a box for easier reading */
+/* Content card – full blog content in one soft card */
 .contentCard {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1.5rem 1.75rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 12px rgba(13, 88, 52, 0.06);
-  border: 1px solid #e8eee9;
-}
-
-.contentCard:last-child {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 1.75rem 2rem;
   margin-bottom: 0;
-}
-
-.contentCardIntro {
-  background: #fafaf8;
-  border-left: 4px solid #0D5834;
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.08);
+  border: 1px solid #edf0f2;
 }
 
 .contentCard h2:first-child {
@@ -99,7 +90,6 @@
 @media (max-width: 767px) {
   .contentCard {
     padding: 1.25rem 1rem;
-    margin-bottom: 1.25rem;
   }
 }
 
@@ -183,6 +173,19 @@
 .articleContent table th {
   border: 1px solid #e0e6e2;
   padding: 0.75rem 1rem !important;
+  text-align: left !important;
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
+  text-justify: auto !important;
+}
+
+.articleContent table td p,
+.articleContent table th p,
+.articleContent table td span,
+.articleContent table th span {
+  text-align: left !important;
+  word-spacing: normal !important;
+  letter-spacing: normal !important;
 }
 
 .articleContent blockquote {
@@ -526,16 +529,11 @@
   }
 }
 
-/* Content cards – padding and headings on small screens */
+/* Content card – padding and headings on small screens */
 @media (max-width: 575px) {
   .contentCard {
     padding: 1rem 0.875rem;
-    margin-bottom: 1rem;
     border-radius: 8px;
-  }
-
-  .contentCardIntro {
-    border-left-width: 3px;
   }
 
   .articleContent h2 {

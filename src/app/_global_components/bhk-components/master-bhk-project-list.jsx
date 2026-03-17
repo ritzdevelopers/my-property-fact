@@ -248,6 +248,15 @@ export default function MasterBHKProjectList() {
     return [];
   };
 
+  const getSectionHeadingFromPath = () => {
+    if (pathName.includes("/commercial-property-in-")) return "Commercial Property";
+    if (pathName.includes("/new-projects-in-")) return "New Projects";
+    if (pathName.includes("/flats-in-")) return "Flats";
+    if (pathName.includes("/apartments-in-")) return "Apartments";
+    if (pathName.includes("/offices-and-shop-in-")) return "Offices and Shop";
+    return "Projects";
+  };
+
   useEffect(() => {
     const slugPrefix = [
       "/flats-in-",
@@ -277,6 +286,9 @@ export default function MasterBHKProjectList() {
   return (
     <>
       <div className="container my-5">
+        <h2 className="master-bhk-section-heading mb-3 mb-md-4">
+          {getSectionHeadingFromPath()}
+        </h2>
         <div className="row g-3">
           {siteDataLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100">

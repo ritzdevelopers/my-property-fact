@@ -58,6 +58,9 @@ export default function BuilderPage({ builderDetail, projectsList }) {
         </div>
       ) : (
         <div className="container my-3 pb-5">
+          <h2 className="builder-projects-heading mb-4">
+            Projects by {builderDetail?.builderName || "this builder"}
+          </h2>
           <div className="row g-3">
             {builderDetail.projectList.length > 0 ? (
               builderDetail.projectList.map((item, index) => (

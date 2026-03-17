@@ -681,9 +681,9 @@ const HeaderComponent = () => {
                             <div className="projects-search-wrapper">
                                       {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
                                 <>
-                                  <h3 className="projects-search-title plus-jakarta-sans-semi-bold">
+                                  <p className="projects-search-title plus-jakarta-sans-semi-bold">
                                     Search Your Dream Home
-                                  </h3>
+                                  </p>
                                   <div className="projects-search-container">
                                     <div className="projects-search-input-wrapper">
                                       <FontAwesomeIcon
@@ -821,11 +821,11 @@ const HeaderComponent = () => {
                                                   />
                                                 </div>
                                                 <div className="project-search-card-body">
-                                                  <h6 className="project-search-card-title plus-jakarta-sans-semi-bold">
+                                                  <p className="project-search-card-title plus-jakarta-sans-semi-bold mb-0">
                                                     {[project.projectName || project.name, project.cityName]
                                                       .filter(Boolean)
                                                       .join(" ")}
-                                                  </h6>
+                                                  </p>
                                                   {(project.projectAddress || project.cityName) && (
                                                     <p className="project-search-card-location">
                                                       {project.projectAddress || project.cityName}
@@ -977,9 +977,9 @@ const HeaderComponent = () => {
             <div className="mobile-projects-search">
               {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
                 <>
-                  <h3 className="mobile-projects-search-title plus-jakarta-sans-semi-bold">
+                  <p className="mobile-projects-search-title plus-jakarta-sans-semi-bold">
                     Search Your Dream Home
-                  </h3>
+                  </p>
                   <div className="mobile-projects-search-container">
                     <div className="mobile-projects-search-input-wrapper">
                       <FontAwesomeIcon

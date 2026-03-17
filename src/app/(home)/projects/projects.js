@@ -624,6 +624,9 @@ export default function Projects() {
 
             {/* Projects Grid */}
             <div key={fadeKey} className="col-12 projects-content-wrapper">
+            <h2 className="projects-page-section-heading mb-3 mb-md-4">
+              Browse all projects
+            </h2>
             {(loading || listLoading) ? (
               <div className="projects-loading-state">
                 <LoadingSpinner show={true} height="auto" />

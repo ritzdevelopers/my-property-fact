@@ -145,7 +145,7 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
       )}
       {showRecentPosts && (
         <div className="recent-posts-container sidebar-align-right mb-4">
-          <h6 className="fw-semibold mb-2">Recent Posts</h6>
+          <h3 className="fw-semibold mb-2 h6">Recent Posts</h3>
           <div className="recent-posts-list">
             {recent.map((b, i) => (
               <Link
@@ -184,7 +184,7 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
       )}
       {showLatestProperty && (
         <div className="latest-property-container sidebar-align-right mb-4">
-          <h6 className="fw-semibold mb-2">Latest Property</h6>
+          <h3 className="fw-semibold mb-2 h6">Latest Property</h3>
           <hr className="my-2" />
           <div className="latest-property-image">
             {latestProject ? (

@@ -245,6 +245,12 @@
 }
 
 /* Projects Content Wrapper */
+.projects-page-section-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bs-dark, #212529);
+}
+
 .projects-content-wrapper {
   min-height: 500px;
 }

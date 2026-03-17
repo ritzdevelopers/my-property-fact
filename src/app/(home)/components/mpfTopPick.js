@@ -88,7 +88,7 @@ export default function MpfTopPicks({ topProject }) {
                     />
                   </div>
                   <div className="mpf-top-picks-card__builder-info">
-                    <h4 className="mpf-top-pic-project-name plus-jakarta-sans-semi-bold">{builderName}</h4>
+                    <h3 className="mpf-top-pic-project-name plus-jakarta-sans-semi-bold h4">{builderName}</h3>
                     {builderSlug && (
                       <Link
                         href={`/builder/${builderSlug}`}
@@ -102,7 +102,7 @@ export default function MpfTopPicks({ topProject }) {
                 </div>
 
                 <div className="mpf-top-picks-card__project">
-                  <h3 className="mpf-top-picks-card__project-name">{projectName}</h3>
+                  <h4 className="mpf-top-picks-card__project-name">{projectName}</h4>
                   <div className="mpf-top-pic-address-container">
                     <FontAwesomeIcon icon={faLocationDot} />
                     <span>{projectAddress}</span>

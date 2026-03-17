@@ -426,7 +426,7 @@ export default function Calculator() {
                                             <div className='d-flex justify-content-center align-items-center'>
                                                 <div className='text-center'>
                                                     <h5 className='p-0 m-0 text-danger'>{loanTenure}</h5>
-                                                    <h6 >Month(s)</h6>
+                                                    <p className='mb-0'>Month(s)</p>
                                                 </div>
                                                 <PieChart
                                                     series={[
@@ -518,7 +518,7 @@ export default function Calculator() {
                             </ol>
                         </div>
                         <div className='mb-5 d-flex'>
-                            <h6>Disclaimer:</h6>
+                            <h5 className='h6 mb-0'>Disclaimer:</h5>
                             <p className='ms-2 fst-italic'>Figures are estimates for planning only. Actual loan offers depend on lender policies, your credit profile, and prevailing market rates.
                                 Always review final sanction letters carefully before commitment.</p>
                         </div>

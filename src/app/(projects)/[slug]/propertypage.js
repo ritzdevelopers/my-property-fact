@@ -960,7 +960,7 @@ const addNearbyImageIcon = (benefit) => {
                   className="btn btn-success border-0 btn-background text-white w-100 p-2"
                   onClick={() => setShowPopUp(true)}
                 >
-                  <h5 className="m-0">Get Detail</h5>
+                  <span className="m-0 d-inline-block fw-semibold">Get Detail</span>
                 </button>
               </div>
             </div>
@@ -1404,9 +1404,9 @@ const addNearbyImageIcon = (benefit) => {
                 className="faq-question d-flex justify-content-between align-items-center p-3 rounded-3"
                 onClick={() => toggleAnswer(item.id)}
               >
-                <h5 className="m-0">
+                <p className="m-0 fw-semibold">
                   Q{index + 1}: {item.question}
-                </h5>
+                </p>
                 <span className="faq-icon">
                   {isAnswerVisible[item.id] ? "−" : "+"}
                 </span>

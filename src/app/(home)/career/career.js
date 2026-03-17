@@ -122,7 +122,7 @@ export default function Career({ jobsArr }) {
       <CommonHeaderBanner image={"career.jpg"} headerText={"Career"} />
       <CommonBreadCrum pageName={"Career"} />
       <section className="container mt-3 mb-5">
-        <h1 className="text-center mb-3">Your next career move starts here.</h1>
+        <h2 className="text-center mb-3">Your next career move starts here.</h2>
         <p className="text-center mb-3">
           At My Property Fact, we’re building the future of real estate
           intelligence with innovation, creativity, and data-driven insights.

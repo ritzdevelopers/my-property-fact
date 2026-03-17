@@ -46,27 +46,27 @@ export default function CommonTableForInsight({ insightData = [] }) {
             case !!row.projectName:
                 return (
                     <div>
-                        <h6 className="m-0">{row.projectName}</h6>
+                        <p className="m-0 fw-semibold">{row.projectName}</p>
                         {row.noOfProjects}
                     </div>
                 );
             case !!row.microMarket:
                 return (
                     <div>
-                        <h6 className="m-0">{row.microMarket}</h6>
+                        <p className="m-0 fw-semibold">{row.microMarket}</p>
                         {row.noOfProjects}
                     </div>
                 );
             case !!row.developerName:
                 return (
                     <div>
-                        <h6 className="m-0">{row.developerName}</h6>
+                        <p className="m-0 fw-semibold">{row.developerName}</p>
                     </div>
                 )
             default:
                 return (
                     <div>
-                        <h6 className="m-0">{row.location}</h6>
+                        <p className="m-0 fw-semibold">{row.location}</p>
                         {row.noOfProjects}
                     </div>
                 );

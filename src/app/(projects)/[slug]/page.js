@@ -638,6 +638,9 @@ export async function generateMetadata({ params }) {
         "plots",
         "BHK flats in India",
       ],
+      alternates: {
+        canonical: `/${slug}`,
+      },
     };
   }
 
@@ -652,6 +655,9 @@ export async function generateMetadata({ params }) {
       " | Price List & Brochure, Floor Plan, Location Map & Reviews",
     description: response.metaDescription,
     keywords: response.metaKeyword,
+    alternates: {
+      canonical: `/${slug}`,
+    },
   };
 }
 

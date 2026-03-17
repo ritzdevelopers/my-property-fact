@@ -16,8 +16,11 @@ export async function generateMetadata({params}) {
     return {
         title: res.blogTitle,
         description: res.blogMetaDescription,
-        keywords: res.blogKeywords
-    }
+        keywords: res.blogKeywords,
+        alternates: {
+            canonical: `/blog/${blogpage}`,
+        },
+    };
 }
 
 export default async function BlogPage({ params }) {

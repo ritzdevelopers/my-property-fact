@@ -13,7 +13,7 @@ config.autoAddCss = false;
 export const metadata = {
   title: "My Property Fact | A valuable platform for buyers and sellers",
   description: "MPF provides accurate information about project and properties with verified details.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://www.mypropertyfact.in")
+  metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in")
 };
 
 // local fonts are loaded here

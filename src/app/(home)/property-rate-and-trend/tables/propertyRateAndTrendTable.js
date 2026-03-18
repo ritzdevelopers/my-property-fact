@@ -6,23 +6,23 @@ export default function PropertyRateAndTrendTable({ tableHeaders = [], data = []
 
         if (hasCityHeader) {
             return <div>
-                <h6 className="m-0">{row.city}</h6>
+                <p className="m-0 fw-semibold">{row.city}</p>
                 {row.noOfProjects}
             </div>;
         } else if (hasLocationHeader) {
             return <div>
-                <h6 className="m-0">{row.location}</h6>
+                <p className="m-0 fw-semibold">{row.location}</p>
                 {row.city}
             </div>;
         } else if (row.projectName) {
             return (
                 <div>
-                    <h6 className="m-0">{row.projectName}</h6>
+                    <p className="m-0 fw-semibold">{row.projectName}</p>
                     {row.noOfProjects}
                 </div>
             );
         } else if (row.developerName) {
-            return <div><h6 className="m-0">{row.developerName}</h6></div>;
+            return <div><p className="m-0 fw-semibold">{row.developerName}</p></div>;
         }
     };
 

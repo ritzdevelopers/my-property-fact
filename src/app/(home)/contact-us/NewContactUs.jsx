@@ -224,7 +224,7 @@ export default function NewContactUs() {
                       height={36}
                     />
                   </div>
-                  <h3 className="plus-jakarta-sans-semi-bold">Address</h3>
+                  <h2 className="plus-jakarta-sans-semi-bold h3">Address</h2>
                   <p className="contact-address-text">
                     Unit no: 603, 6th Floor, Corporate Park Tower A1, Sector 142 Noida
                   </p>
@@ -242,7 +242,7 @@ export default function NewContactUs() {
                       height={31}
                     />
                   </div>
-                  <h3 className="plus-jakarta-sans-semi-bold">Phone Number</h3>
+                  <h2 className="plus-jakarta-sans-semi-bold h3">Phone Number</h2>
                   <p>8920024793</p>
                 </div>
               </div>
@@ -258,7 +258,7 @@ export default function NewContactUs() {
                       height={27}
                     />
                   </div>
-                  <h3 className="plus-jakarta-sans-semi-bold">Email Address</h3>
+                  <h2 className="plus-jakarta-sans-semi-bold h3">Email Address</h2>
                   <p>social@mypropertyfact.com</p>
                 </div>
               </div>

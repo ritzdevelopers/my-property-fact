@@ -11,25 +11,36 @@
   transform: translateY(-1px); /* header height ke barabar */
 }
 
-
-/* Reserve space for LCP hero to prevent CLS (mobile ~56vw, desktop smaller) */
-.mpf-hero-banner {
-  min-height: 56vw;
-}
-@media (min-width: 768px) {
-  .mpf-hero-banner {
-    min-height: 42vw;
-  }
-}
-@media (min-width: 992px) {
-  .mpf-hero-banner {
-    min-height: 330px;
-  }
-}
-
 .hero-banner-slider {
   width: 100%;
   overflow: hidden;
+}
+
+.hero-banner-responsive-images {
+  width: 100%;
+}
+
+.hero-banner-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-banner-frame-mobile {
+  aspect-ratio: 458 / 810;
+}
+
+.hero-banner-frame-tablet {
+  aspect-ratio: 1 / 1;
+}
+
+.hero-banner-frame-desktop {
+  aspect-ratio: 1920 / 600;
+}
+
+.hero-banner-image {
+  object-fit: cover;
+  object-position: center;
 }
 
 .hero-banner-slide {
@@ -62,6 +73,9 @@
   .hero-lcp-fallback {
     min-height: 400px;
   }
+    /* .mpf-hero-banner {
+      min-height: 493px !important;
+    } */
 }
 
 .hero-banner-slider .slick-dots {

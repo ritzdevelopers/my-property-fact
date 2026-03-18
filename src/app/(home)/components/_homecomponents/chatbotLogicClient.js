@@ -1,3 +1,8 @@
+import {
+  CHAT_BUDGET_OPTIONS,
+  matchesBudgetRangeForProject,
+  normalizeBudgetSelection,
+} from "@/app/_global_components/projectFilterUtils";
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/`;
 
 const PROPERTY_TYPE_MAP = {
@@ -59,12 +64,7 @@ const CITY_OPTIONS = [
   "Other",
 ];
 
-const BUDGET_OPTIONS = [
-  "Up to ₹1 Cr",
-  "₹1 Cr – ₹3 Cr",
-  "₹3 Cr – ₹5 Cr",
-  "Above ₹5 Cr",
-];
+const BUDGET_OPTIONS = CHAT_BUDGET_OPTIONS;
 
 const RESTART_KEYWORDS = new Set(["restart", "reset", "start over", "start again"]);
 
@@ -159,28 +159,7 @@ function resolveCustomCity(message, projectList = []) {
 }
 
 function resolveBudget(message) {
-  const msg = normalizeText(message);
-  const mapped = {
-    "up to ₹1 cr": "Up to 1Cr*",
-    "₹1 cr – ₹3 cr": "1-3 Cr*",
-    "₹3 cr – ₹5 cr": "3-5 Cr*",
-    "above ₹5 cr": "Above 5 Cr*",
-    "up to 1 cr": "Up to 1Cr*",
-    "upto 1 cr": "Up to 1Cr*",
-    "up to 1cr+": "Up to 1Cr*",
-    "upto 1cr+": "Up to 1Cr*",
-    "1 cr - 3 cr": "1-3 Cr*",
-    "3 cr - 5 cr": "3-5 Cr*",
-    "above 5 cr": "Above 5 Cr*",
-    "above 5cr": "Above 5 Cr*",
-  };
-  return mapped[msg] || null;
-}
-
-function parseProjectPrice(project) {
-  const rawPrice = project?.projectPrice;
-  const price = parseFloat(rawPrice);
-  return Number.isFinite(price) ? price : null;
+  return normalizeBudgetSelection(message, "web");
 }
 
 function formatProjectDisplayPrice(project) {
@@ -248,22 +227,7 @@ function applyWebsiteLikeFilters(projects, session, projectTypes = []) {
     }
 
     if (!selectedBudget) return true;
-
-    const price = parseProjectPrice(project);
-    if (price === null) return false;
-
-    switch (selectedBudget) {
-      case "Up to 1Cr*":
-        return price <= 1;
-      case "1-3 Cr*":
-        return price >= 1 && price < 3;
-      case "3-5 Cr*":
-        return price >= 3 && price < 5;
-      case "Above 5 Cr*":
-        return price >= 5;
-      default:
-        return true;
-    }
+    return matchesBudgetRangeForProject(project, selectedBudget);
   });
 }
 
@@ -326,20 +290,20 @@ function buildProjectCards(projects = []) {
   });
 }
 
-function buildRedirect(data) {
+function buildProjectsNavigationPayload(data) {
   const typeId = data.propertyTypeId || PROPERTY_TYPE_MAP[data.type] || 1;
   const normalizedCity = normalizeCityInput(data.city);
   const cityId = CITY_MAP[normalizedCity];
   const budget = data.budget;
   if (!cityId || !budget) return null;
 
-  const cityName = encodeURIComponent(normalizedCity || "");
-  const redirectPath = `/projects?propertyType=${typeId}&propertyLocation=${cityId}&cityName=${cityName}&budget=${encodeURIComponent(budget)}`;
-  const uiBase = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
-
   return {
-    redirectPath,
-    redirectUrl: uiBase ? `${uiBase}${redirectPath}` : redirectPath,
+    navigateToProjects: true,
+    queryFilters: {
+      propertyType: String(typeId),
+      propertyLocation: String(cityId),
+      budget,
+    },
   };
 }
 
@@ -418,14 +382,14 @@ function handleResultsState(message, session) {
   }
 
   if (["view all", "open all"].includes(msg)) {
-    const redirect = buildRedirect(session.data);
-    if (!redirect) {
-      return { reply: "Redirect link not available. Please restart once.", options: ["Restart"] };
+    const navigation = buildProjectsNavigationPayload(session.data);
+    if (!navigation) {
+      return { reply: "Project filters are incomplete. Please restart once.", options: ["Restart"] };
     }
     return {
       reply: "Redirecting you to all matching projects...",
       options: ["Restart"],
-      ...redirect,
+      ...navigation,
     };
   }
 

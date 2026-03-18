@@ -2,10 +2,19 @@
   font-family: var(--heaing-font);
 } */
 .image-con {
+  position: relative;
+  width: 100%;
   height: calc(100vh);
-  display: flex !important;
+  min-height: 100vh;
   opacity: 0;
   transition: opacity 0.8s ease-in-out;
+}
+.image-con .slick-banner-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* Default: only icon visible (no pink-orange pill). z-index below header so header stays on top; above slider so button is clickable on mobile */
@@ -130,8 +139,31 @@
   height: 100vh;
 }
 
+/* Reserve fixed height from first paint to prevent CLS from slick-track */
 .slick-slider-container {
   position: relative;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
+}
+.slick-slider-container .slick-list {
+  height: 100% !important;
+  overflow: hidden;
+}
+.slick-slider-container .slick-track {
+  height: 100% !important;
+}
+.slick-slider-container .slick-slide {
+  height: 100vh;
+}
+.slick-slider-container .slick-slide > div {
+  height: 100%;
+}
+.slick-slider-container .slick-slide .slick-banner-img,
+.slick-slider-container .slick-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .slick-slider-container::after {
   content: "";
@@ -158,12 +190,6 @@
 
 .slick-slider-container .slick-arrow {
   display: none !important;
-}
-
-.slick-slider-container .slick-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .theme-bg {
@@ -503,7 +529,7 @@
 
 /* Target all placeholders inside Bootstrap Form.Control */
 .banner-form input.form-control::placeholder,
-textarea.form-control::placeholder {
+.banner-form textarea.form-control::placeholder {
   color: #333 !important; /* Dark gray so it’s visible on white-gray */
   opacity: 1 !important; /* Ensure it doesn’t look faded */
 }
@@ -546,7 +572,7 @@ textarea.form-control::placeholder {
 
 /* Project detail page buttons - green theme */
 .btn-background,
-.btn-success {
+#home .btn-success {
   background-color: #0d5834 !important;
   background-image: none !important;
   color: #fff !important;
@@ -554,7 +580,7 @@ textarea.form-control::placeholder {
   transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
 }
 .btn-background:hover,
-.btn-success:hover {
+#home .btn-success:hover {
   background-color: #0a4729 !important;
   background-image: none !important;
   color: #fff !important;
@@ -754,7 +780,20 @@ a {
   }
 
   .image-con {
-    height: auto !important;
+    min-height: 50vh;
+    height: 50vh;
+  }
+  .slick-slider-container {
+    height: 50vh;
+    min-height: 50vh;
+  }
+  .slick-slider-container .slick-list,
+  .slick-slider-container .slick-track {
+    min-height: 50vh;
+    height: 100% !important;
+  }
+  .slick-slider-container .slick-slide {
+    height: 50vh;
   }
 }
 
@@ -889,7 +928,15 @@ a {
     right: 0 !important;
   }
   .image-con {
-    height: auto !important;
+    min-height: 50vh;
+    height: 50vh;
+  }
+  .slick-slider-container {
+    height: 50vh;
+    min-height: 50vh;
+  }
+  .slick-slider-container .slick-slide {
+    height: 50vh;
   }
 }
 

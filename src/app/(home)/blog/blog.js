@@ -89,6 +89,9 @@ export default function Blog() {
       </div>
       {/* <CommonBreadCrum pageName={"Blog"} /> */}
       <div className={`container my-3 my-lg-5 ${styles.blogSectionWrap}`}>
+        {/* <h2 className="blog-page-section-heading mb-3 mb-md-4">
+          Articles &amp; News
+        </h2> */}
         <div className={`row gy-4 ${styles.blogContentRow}`}>
           <div className="col-lg-8 align-items-center">
             {loading ? (

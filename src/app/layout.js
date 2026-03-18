@@ -1,6 +1,7 @@
 import "./critical.css";
 import "./globals.css";
 import localFont from "next/font/local";
+import { Suspense } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import Providers from "./_global_components/providers/Providers";
@@ -12,7 +13,7 @@ config.autoAddCss = false;
 export const metadata = {
   title: "My Property Fact | A valuable platform for buyers and sellers",
   description: "MPF provides accurate information about project and properties with verified details.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://www.mypropertyfact.in")
+  metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in")
 };
 
 // local fonts are loaded here
@@ -35,10 +36,27 @@ const gothamLight = localFont({
 export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
-      <head>
+      {/* <head> */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        {/* Preload LCP hero image for home (mobile-first) */}
-        <link rel="preload" as="image" href="/static/banners/Irish_phone.jpg" />
+        {/* Preload LCP hero image variant by viewport */}
+        <link
+          rel="preload"
+          as="image"
+          href="/static/banners/ghd_mobile_final.jpg"
+          media="(max-width: 767px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/static/banners/ghd_tablet_final.jpg"
+          media="(min-width: 768px) and (max-width: 1023px)"
+        />
+        <link
+          rel="preload"
+          as="image"
+          href="/static/banners/ghd_desktop_final.jpg"
+          media="(min-width: 1024px)"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -57,7 +75,7 @@ export default function RootLayout({ children }) {
             }),
           }}
         />
-      </head>
+      {/* </head> */}
       <body
         className={`${gothamBold.variable} ${gothamLight.variable}`} suppressHydrationWarning={true}>
         {/* Google Tag Manager (noscript) */}
@@ -82,9 +100,11 @@ export default function RootLayout({ children }) {
         </noscript>
 
         <Providers>
-          <SiteDataProvider>
-            {children}
-          </SiteDataProvider>
+          <Suspense fallback={null}>
+            <SiteDataProvider>
+              {children}
+            </SiteDataProvider>
+          </Suspense>
         </Providers>
 
         {/* third party scripts are loaded here */}

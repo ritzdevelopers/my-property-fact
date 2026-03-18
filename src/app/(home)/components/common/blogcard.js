@@ -30,7 +30,7 @@ export default function BlogCard({ blog }) {
                         dateStyle: 'medium',
                         // timeStyle: 'short'
                     })}</p>
-                    <h4 className="card-title fw-bold" title={blog.blogTitle}>{blog.blogTitle}</h4>
+                    <h3 className="card-title fw-bold h4" title={blog.blogTitle}>{blog.blogTitle}</h3>
 
                     <div className="flex-grow-1 mb-1">
                         <p className="card-text text-muted small">

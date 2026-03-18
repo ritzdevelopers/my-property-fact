@@ -72,6 +72,9 @@ const HeroBannerSlider = ({ slides = [] }) => {
 
           // For single slide, always prioritize. Otherwise, prioritize first slide or use slide's priority prop
           const priority = isSingleSlide ? true : (slidePriority !== undefined ? slidePriority : index === 0);
+          const mobilePriority = priority;
+          const tabletPriority = false;
+          const desktopPriority = false;
 
           const desktopSrc = desktop || "/mpf-banner.jpg";
           const tabletSrc = tablet || desktopSrc;
@@ -87,10 +90,10 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 width={768}
                 height={height}
                 className="img-fluid w-100 d-md-none"
-                priority={priority}
-                fetchPriority={priority ? "high" : "auto"}
+                priority={mobilePriority}
+                fetchPriority={mobilePriority ? "high" : "auto"}
                 quality={75}
-                sizes="100vw"
+                sizes="(max-width: 767px) 100vw, 1px"
               />
               <Image
                 src={tabletSrc}
@@ -98,10 +101,10 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 width={1024}
                 height={height}
                 className="img-fluid w-100 d-none d-md-block d-lg-none"
-                priority={priority}
-                fetchPriority={priority ? "high" : "auto"}
+                priority={tabletPriority}
+                fetchPriority={tabletPriority ? "high" : "auto"}
                 quality={75}
-                sizes="100vw"
+                sizes="(min-width: 768px) and (max-width: 1023px) 100vw, 1px"
               />
               <Image
                 src={desktopSrc}
@@ -109,10 +112,10 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 width={1920}
                 height={height}
                 className="img-fluid w-100 d-none d-lg-block"
-                priority={priority}
-                fetchPriority={priority ? "high" : "auto"}
+                priority={desktopPriority}
+                fetchPriority={desktopPriority ? "high" : "auto"}
                 quality={75}
-                sizes="100vw"
+                sizes="(min-width: 1024px) 100vw, 1px"
               />
             </div>
           );

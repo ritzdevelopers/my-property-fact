@@ -9,39 +9,42 @@ const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
   loading: () => (
     <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
       <div className="position-relative home-banner hero-banner-responsive-images">
-        <Image
-          src="/static/banners/ghd_mobile_final.jpg"
-          alt="Irish - Laying Foundation For Tomorrow"
-          width={768}
-          height={430}
-          className="img-fluid w-100 d-md-none"
-          priority
-          fetchPriority="high"
-          quality={75}
-          sizes="100vw"
-        />
-        <Image
-          src="/static/banners/ghd_tablet_final.jpg"
-          alt="Irish - Laying Foundation For Tomorrow"
-          width={1024}
-          height={576}
-          className="img-fluid w-100 d-none d-md-block d-lg-none"
-          priority
-          fetchPriority="high"
-          quality={75}
-          sizes="100vw"
-        />
-        <Image
-          src="/static/banners/ghd_desktop_final.jpg"
-          alt="Irish - Laying Foundation For Tomorrow"
-          width={1920}
-          height={600}
-          className="img-fluid w-100 d-none d-lg-block"
-          priority
-          fetchPriority="high"
-          quality={75}
-          sizes="100vw"
-        />
+        <div className="hero-banner-frame hero-banner-frame-mobile d-md-none">
+          <Image
+            src="/static/banners/ghd_mobile_final.jpg"
+            alt="GHD Group - Velvet Vista"
+            fill
+            className="hero-banner-image"
+            priority
+            fetchPriority="high"
+            quality={75}
+            sizes="100vw"
+          />
+        </div>
+        <div className="hero-banner-frame hero-banner-frame-tablet d-none d-md-block d-lg-none">
+          <Image
+            src="/static/banners/ghd_tablet_final.jpg"
+            alt="GHD Group - Velvet Vista"
+            fill
+            className="hero-banner-image"
+            priority
+            fetchPriority="high"
+            quality={75}
+            sizes="100vw"
+          />
+        </div>
+        <div className="hero-banner-frame hero-banner-frame-desktop d-none d-lg-block">
+          <Image
+            src="/static/banners/ghd_desktop_final.jpg"
+            alt="GHD Group - Velvet Vista"
+            fill
+            className="hero-banner-image"
+            priority
+            fetchPriority="high"
+            quality={75}
+            sizes="100vw"
+          />
+        </div>
       </div>
     </div>
   ),
@@ -57,12 +60,12 @@ const FALLBACK_SLIDES = [
     href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/ghd-velvet-vista`,
   },
   {
-    id: "hero-exotica",
-    desktop: "/static/banners/exotica_desktop_final.jpg",
-    tablet: "/static/banners/exotica_tablet_final.jpg",
-    mobile: "/static/banners/exotica_mobile_final.jpg",
+    id: "hero-onyx",
+    desktop: "/static/banners/MPF-12 Mar-02.jpg",
+    tablet: "/static/banners/tablet 1.jpg",
+    mobile: "/static/banners/MPF-12 Mar-05.jpg",
     alt: "Exotica - 132",
-    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/exotica-132`,
+    href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/splendor-onyx-blue`,
   },
   {
     id: "hero-irish",
@@ -151,11 +154,19 @@ function transformBannersToSlides(banners, imageBaseUrl) {
 async function fetchHomeBanners() {
   const url = getHomeBannersApiUrl();
   if (!url) return [];
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1500);
   try {
-    const res = await fetch(url, { cache: "no-store", headers: { "Content-Type": "application/json" } });
+    const res = await fetch(url, {
+      next: { revalidate: 300 },
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
+    });
     if (res.ok) return await res.json();
   } catch (_) {
     // ignore
+  } finally {
+    clearTimeout(timeout);
   }
   return [];
 }

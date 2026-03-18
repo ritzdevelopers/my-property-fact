@@ -1036,7 +1036,7 @@ export default function PropertyDetailPage() {
               </div>
               {property.additionalNotes && (
                 <div className="mt-3">
-                  <h6 className="mb-2">Additional Notes:</h6>
+                  <h5 className="mb-2 h6">Additional Notes:</h5>
                   <p className="text-muted">{property.additionalNotes}</p>
                 </div>
               )}
@@ -1455,7 +1455,7 @@ export default function PropertyDetailPage() {
                   {/* Display project description if available */}
                   {projectDetails?.projectDescription && (
                     <div className="mt-3">
-                      <h6 className="mb-2">About Project</h6>
+                      <h5 className="mb-2 h6">About Project</h5>
                       <p className="text-muted">
                         {projectDetails.projectDescription}
                       </p>
@@ -1537,7 +1537,7 @@ export default function PropertyDetailPage() {
                           />
                         )}
                         <div className="sponsored-property-info">
-                          <h6>{related.title || "Property"}</h6>
+                          <h5 className="h6 mb-1">{related.title || "Property"}</h5>
                           <p className="text-muted small">
                             {related.locality || ""} {related.city || ""}
                           </p>

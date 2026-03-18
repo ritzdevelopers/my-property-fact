@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -12,38 +12,6 @@ import BlogFaqSection from "../../components/common/BlogFaqSection";
 import "../../components/common/common.css";
 import styles from "../page.module.css";
 import detailStyles from "./blogpage.module.css";
-
-/**
- * Splits blog HTML into intro + sections by H2/H3 without DOMParser,
- * so server (Node) and client (browser) produce identical output and avoid hydration mismatch.
- */
-function getContentSections(htmlString) {
-  if (!htmlString || typeof htmlString !== "string") return null;
-  const trimmed = htmlString.trim();
-  if (!trimmed) return null;
-
-  // Split before any <h2 or <h3 (case-insensitive), keeping content before first heading and between headings
-  const hasHeading = /<\s*h[23](?:\s|>)/i;
-  const parts = trimmed.split(/(?=<\s*h[23](?:\s|>))/i).map((s) => s.trim()).filter(Boolean);
-  if (parts.length === 0) return null;
-
-  // No heading in content: single part with no H2/H3 → return null so fallback single div is used
-  if (parts.length === 1 && !hasHeading.test(parts[0])) return null;
-
-  const sections = [];
-  let isFirst = true;
-  for (const part of parts) {
-    const isIntro = isFirst && !/^<\s*h[23](?:\s|>)/i.test(part);
-    if (isIntro) {
-      sections.push({ html: part, isIntro: true });
-      isFirst = false;
-    } else {
-      sections.push({ html: part, isIntro: false });
-      isFirst = false;
-    }
-  }
-  return sections.length ? sections : null;
-}
 
 export default function BlogDetail({ blogDetail }) {
   const [showLoading, setShowLoading] = useState(false);
@@ -90,11 +58,6 @@ export default function BlogDetail({ blogDetail }) {
     ? categoriesList
     : categoriesList.slice(0, initialCategoriesCount);
   const hasMoreCategories = categoriesList.length > initialCategoriesCount;
-
-  const contentSections = useMemo(
-    () => getContentSections(blogDetail.blogDescription),
-    [blogDetail.blogDescription]
-  );
 
   //Validation function for phone
   const validatePhone = (phone) => {
@@ -229,22 +192,12 @@ export default function BlogDetail({ blogDetail }) {
             </h1>
 
             <div className={detailStyles.articleContent}>
-              {contentSections ? (
-                contentSections.map((section, idx) => (
-                  <div
-                    key={idx}
-                    className={`${detailStyles.contentCard} ${section.isIntro ? detailStyles.contentCardIntro : ""}`}
-                    dangerouslySetInnerHTML={{ __html: section.html }}
-                  />
-                ))
-              ) : (
-                <div
-                  className={detailStyles.contentCard}
-                  dangerouslySetInnerHTML={{
-                    __html: blogDetail.blogDescription || "",
-                  }}
-                />
-              )}
+              <div
+                className={detailStyles.contentCard}
+                dangerouslySetInnerHTML={{
+                  __html: blogDetail.blogDescription || "",
+                }}
+              />
             </div>
           </article>
 

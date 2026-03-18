@@ -14,7 +14,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-// import './styles.css';
+// import './styles.css'; 
 
 // import required modules
 import { Navigation } from "swiper/modules";
@@ -633,10 +633,11 @@ const addNearbyImageIcon = (benefit) => {
               <Link href="#">
                 <Image
                   width={198}
-                  height={50.75}
+                  height={51}
                   src={projectImageSrc(projectDetail.projectLogo)}
                   alt="logo"
                   className="img-fluid"
+                  sizes="(max-width: 768px) 50vw, 198px"
                 />
               </Link>
             </div>
@@ -807,37 +808,19 @@ const addNearbyImageIcon = (benefit) => {
         {/* Banner container for property detail page  */}
         <div className="slick-slider-container">
           <Slider {...settings}>
-            {projectDetail.desktopImages && projectDetail.desktopImages.map((item, index) => {
-              const mobileItem =
-                projectDetail.mobileImages?.[index]; // pick same index mobile banner
-              return (
-                <picture className="image-con" key={`${item.id}-${index}`}>
-                  {/* Mobile first */}
-                  {mobileItem?.mobileImage && (
-                    <source
-                      srcSet={projectImageSrc(mobileItem.mobileImage)}
-                      media="(max-width: 640px)" // mobile breakpoint
-                    />
-                  )}
-
-                  {/* Tablet/Laptop (falls back to desktopImage) */}
-                  {item.desktopImage && (
-                    <source
-                      srcSet={projectImageSrc(item.desktopImage)}
-                      media="(min-width: 641px)" // tablet/laptop/desktop
-                    />
-                  )}
-
-                  {/* Default fallback */}
-                  <Image
-                    src={projectImageSrc(item.desktopImage)}
-                    alt={item.altTag || "Property Banner"}
-                    width={2225}
-                    height={1065}
-                  />
-                </picture>
-              );
-            })}
+            {projectDetail.desktopImages && projectDetail.desktopImages.map((item, index) => (
+              <div className="image-con" key={`${item.id}-${index}`}>
+                <Image
+                  src={projectImageSrc(item.desktopImage)}
+                  alt={item.altTag || "Property Banner"}
+                  width={2225}
+                  height={1065}
+                  priority={index === 0}
+                  sizes="(max-width: 640px) 100vw, (max-width: 1920px) 100vw, 1920px"
+                  className="slick-banner-img"
+                />
+              </div>
+            ))}
           </Slider>
 
           {/* Defining form on banner container - desktop only; mobile uses popup via floating Enquire button */}
@@ -977,7 +960,7 @@ const addNearbyImageIcon = (benefit) => {
                   className="btn btn-success border-0 btn-background text-white w-100 p-2"
                   onClick={() => setShowPopUp(true)}
                 >
-                  <h5 className="m-0">Get Detail</h5>
+                  <span className="m-0 d-inline-block fw-semibold">Get Detail</span>
                 </button>
               </div>
             </div>
@@ -1023,8 +1006,9 @@ const addNearbyImageIcon = (benefit) => {
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
                     height={60}
                     width={60}
-                    alt={item.altTag || ""}
+                    alt={item.altTag || item.title || "Amenity"}
                     className="mb-3 d-flex mx-auto"
+                    sizes="60px"
                   />
                 </div>
                 <p className="text-white text-center fs-6">{item.title}</p>
@@ -1420,9 +1404,9 @@ const addNearbyImageIcon = (benefit) => {
                 className="faq-question d-flex justify-content-between align-items-center p-3 rounded-3"
                 onClick={() => toggleAnswer(item.id)}
               >
-                <h5 className="m-0">
+                <p className="m-0 fw-semibold">
                   Q{index + 1}: {item.question}
-                </h5>
+                </p>
                 <span className="faq-icon">
                   {isAnswerVisible[item.id] ? "−" : "+"}
                 </span>

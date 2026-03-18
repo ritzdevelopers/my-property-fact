@@ -37,42 +37,6 @@ html {
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Hero Banner Critical Styles */
-.mpf-hero-banner,
-.hero-lcp-fallback {
-  position: relative;
-  width: 100%;
-}
-
-@media (min-width: 992px) {
-  .mpf-hero-banner,
-  .hero-lcp-fallback {
-    min-height: 400px;
-    aspect-ratio: unset;
-  }
-}
-
-/* @media (min-width: 768px) and (max-width: 991.98px) {
-  .mpf-hero-banner,
-  .hero-lcp-fallback {
-    aspect-ratio: 16 / 9;
-  }
-} */
-
-@media (max-width: 767.98px) {
-  .mpf-hero-banner,
-  .hero-lcp-fallback {
-    aspect-ratio: 768 / 430;
-  }
-}
-
-@media (max-width: 426px) {
-  .mpf-hero-banner,
-  .hero-lcp-fallback {
-    aspect-ratio: 9 / 16;
-  }
-}
-
 .home-banner {
   width: 100%;
   display: block;
@@ -84,6 +48,33 @@ html {
   width: 100%;
   height: auto;
   display: block;
+}
+
+.hero-banner-responsive-images {
+  width: 100%;
+}
+
+.hero-banner-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.hero-banner-frame-mobile {
+  aspect-ratio: 458 / 810;
+}
+
+.hero-banner-frame-tablet {
+  aspect-ratio: 1 / 1;
+}
+
+.hero-banner-frame-desktop {
+  aspect-ratio: 1920 / 600;
+}
+
+.hero-banner-image {
+  object-fit: cover;
+  object-position: center;
 }
 
 /* Critical Typography */

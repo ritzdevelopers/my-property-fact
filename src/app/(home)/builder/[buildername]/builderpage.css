@@ -1,3 +1,8 @@
+.builder-projects-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--bs-dark, #212529);
+}
 
 .about-builder-container{
     display: flex;

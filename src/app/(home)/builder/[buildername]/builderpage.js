@@ -1,5 +1,4 @@
 import "./builderpage.css";
-import Link from "next/link";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -40,14 +39,6 @@ export default function BuilderPage({ builderDetail, projectsList }) {
         </div>
         <div>
           <p>{builderDetail.builderDescription}</p>
-          <div className="text-center">
-            <Link
-              href="#"
-              className="btn text-white btn-background about-builder-read-more"
-            >
-              Read More
-            </Link>
-          </div>
         </div>
         <div>
           <Image
@@ -66,7 +57,10 @@ export default function BuilderPage({ builderDetail, projectsList }) {
           <LoadingSpinner show={loading} />
         </div>
       ) : (
-        <div className="container my-3">
+        <div className="container my-3 pb-5">
+          <h2 className="builder-projects-heading mb-4">
+            Projects by {builderDetail?.builderName || "this builder"}
+          </h2>
           <div className="row g-3">
             {builderDetail.projectList.length > 0 ? (
               builderDetail.projectList.map((item, index) => (

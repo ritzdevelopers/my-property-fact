@@ -75,7 +75,8 @@ export default function NewInsight() {
               width={604}
               height={308}
               className="insight-main-image"
-              priority
+              quality={75}
+              sizes="(max-width: 1200px) 100vw, 604px"
               />
               </Link>
             {/* <div className="insight-logo-wrapper">

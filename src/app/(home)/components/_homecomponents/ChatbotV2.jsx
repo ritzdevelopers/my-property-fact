@@ -9,7 +9,7 @@ import {
 } from "./chatbotLogicClient";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -43,7 +43,14 @@ function toMessage(payload, type = "bot") {
 }
 
 export default function ChatbotV2() {
-  const { projectList = [], projectTypes = [] } = useSiteData();
+  const {
+    projectList = [],
+    projectTypes = [],
+    setQueryFilters,
+    setQuickProjectFilter,
+    resetProjectFilters,
+  } = useSiteData();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
@@ -221,22 +228,15 @@ export default function ChatbotV2() {
         addBotMessageFromPayload(payload);
       }
 
-      if (payload.redirectUrl || payload.redirectPath) {
+      if (payload.navigateToProjects && payload.queryFilters) {
         setTimeout(() => {
-          const redirectUrl =
-            typeof payload.redirectUrl === "string" ? payload.redirectUrl : "";
-          const redirectPath =
-            typeof payload.redirectPath === "string" ? payload.redirectPath : "";
-          const invalidUrl =
-            redirectUrl.startsWith("undefined") || redirectUrl.startsWith("null");
-
-          if (redirectUrl && !invalidUrl) {
-            window.location.assign(redirectUrl);
-            return;
+          setQuickProjectFilter("All");
+          resetProjectFilters();
+          setQueryFilters(payload.queryFilters);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("mpf-querry", JSON.stringify(payload.queryFilters));
           }
-          if (redirectPath) {
-            window.location.assign(redirectPath);
-          }
+          router.push("/projects");
         }, 900);
       }
     } catch (error) {

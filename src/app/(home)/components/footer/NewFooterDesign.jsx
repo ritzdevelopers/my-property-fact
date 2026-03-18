@@ -240,7 +240,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
           {/* Right Section - Newsletter */}
           <div className="new-design-footer-top-right">
             <div className="new-design-footer-top-right-newsletter">
-              <h3 className="newsletter-heading plus-jakarta-sans-semi-bold">Newsletter Signup</h3>
+              <h2 className="newsletter-heading plus-jakarta-sans-semi-bold h3">Newsletter Signup</h2>
               <div className="newsletter-form">
                 <input
                   type="email"
@@ -252,7 +252,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             </div>
             <div className="new-design-footer-top-right-content">
               <div className="new-design-footer-top-right-left">
-                <h4 className="footer-section-heading">Company info</h4>
+                <h2 className="footer-section-heading h4">Company info</h2>
                 <ul className="footer-links">
                   <li>
                     <Link href="/about-us" className="footer-link">About MPF</Link>
@@ -269,7 +269,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                 </ul>
               </div>
               <div className="new-design-footer-top-right-right">
-                <h4 className="footer-section-heading">Resources</h4>
+                <h2 className="footer-section-heading h4">Resources</h2>
                 <ul className="footer-links">
                   <li>
                     <Link href="/career" className="footer-link">Careers</Link>
@@ -300,28 +300,28 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
         {/* Bottom Section - Property Categories */}
         <div className="new-design-footer-bottom">
           <div className="footer-bottom-column">
-            <h4 className="footer-section-heading">Apartments in India</h4>
+            <h2 className="footer-section-heading h4">Apartments in India</h2>
             {renderCityList(apartmentsCities, "apartments", "Apartments in ", generateSlug)}
           </div>
           <div className="footer-bottom-column">
-            <h4 className="footer-section-heading">New Projects in India</h4>
+            <h2 className="footer-section-heading h4">New Projects in India</h2>
             {renderCityList(newProjectsCities, "newProjects", "New Projects in ", generateSlug)}
           </div>
           <div className="footer-bottom-column">
-            <h4 className="footer-section-heading">
+            <h2 className="footer-section-heading h4">
               Commercial Property in India
-            </h4>
+            </h2>
             {renderCityList(commercialCities, "commercial", "Commercial Property in ", generateSlug)}
           </div>
           <div className="footer-bottom-column">
-            <h4 className="footer-section-heading">Flats in India</h4>
+            <h2 className="footer-section-heading h4">Flats in India</h2>
             {renderCityList(flatsCities, "flats", "Flats in ", generateSlug)}
           </div>
         </div>
 
         {/* Stay Updated Section */}
         <div className="footer-stay-updated">
-          <h4 className="stay-updated-heading m-0 p-0">Stay Updated With Us</h4>
+          <h2 className="stay-updated-heading m-0 p-0 h4">Stay Updated With Us</h2>
           <div className="social-media-icons">
             <a
               href="https://www.facebook.com/mypropertyfact1/"

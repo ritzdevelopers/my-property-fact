@@ -1,9 +1,95 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+ 
+  htmlLimitedBots: /.*/,
+  async redirects() {
+    return [
+      // Blog legacy slugs
+      {
+        source:
+          "/blog/taxpoliciesinindiaanoverviewofthesystemanditsimplications",
+        destination:
+          "/blog/tax-policies-in-india-an-overview-of-the-system-and-its-implications",
+        permanent: true,
+      },
+      {
+        source: "/blog/zoningregulationsthingstoknow",
+        destination: "/blog/zoning-regulations-things-to-know",
+        permanent: true,
+      },
+      {
+        source: "/blog/theultimateguidetobuyingyourfirsthome",
+        destination: "/blog/the-ultimate-guide-to-buying-your-first-home",
+        permanent: true,
+      },
+
+      // Builder legacy/typo slugs
+      {
+        source: "/builder/gaurs",
+        destination: "/builder/gaurs-group",
+        permanent: true,
+      },
+      {
+        source: "/builder/anant-raj-builders",
+        destination: "/builder/anant-raj",
+        permanent: true,
+      },
+      {
+        source: "/builder/bhutani",
+        destination: "/builder/bhutani-infra",
+        permanent: true,
+      },
+      { source: "/builder/bptp%7D", destination: "/builder/bptp", permanent: true },
+      { source: "/builder/eldeco%7D", destination: "/builder/eldeco", permanent: true },
+      {
+        source: "/builder/landcraft-builders%7D",
+        destination: "/builder/landcraft-builders",
+        permanent: true,
+      },
+      {
+        source: "/builder/oasis-group%7D",
+        destination: "/builder/oasis-group",
+        permanent: true,
+      },
+      {
+        source: "/builder/shubhashish-homes%7D",
+        destination: "/builder/shubhashish-homes",
+        permanent: true,
+      },
+
+      // Invalid/legacy public paths
+      { source: "/builder/eleque", destination: "/", permanent: true },
+      { source: "/builder/embessy", destination: "/", permanent: true },
+      { source: "/builder/irajc-ventures", destination: "/", permanent: true },
+      {
+        source: "/landing-pages/disclaimer.html",
+        destination: "/landing-pages/eldeco-la-vida-bella",
+        permanent: true,
+      },
+      {
+        source: "/promotional-pages/eldeco-la-vida-bella",
+        destination: "/landing-pages/eldeco-la-vida-bella",
+        permanent: true,
+      },
+      {
+        source: "/promotional-pages/sikka-kimaya",
+        destination: "/landing-pages/sikka-kimaya",
+        permanent: true,
+      },
+     
+
+      // Spam and scanner paths
+      { source: "/cdn-cgi/l/email-protection", destination: "/", permanent: false },
+      {
+        source: "/__media__/js/netsoltrademark.php",
+        destination: "/",
+        permanent: false,
+      },
+    ];
+  },
   // Ensure MUI and other packages are transpiled so vendor chunks are generated correctly
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
-    unoptimized: true, 
     remotePatterns: [
       {
         protocol: "http",

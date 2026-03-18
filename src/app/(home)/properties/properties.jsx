@@ -1077,7 +1077,7 @@ export default function Properties() {
                     {appliedFilters.length > 0 && (
                       <div className="filter-section">
                         <div className="d-flex justify-content-between align-items-center mb-3">
-                          <h6 className="mb-0 fw-bold">Applied Filters</h6>
+                          <p className="mb-0 fw-bold">Applied Filters</p>
                           <button
                             className="clear-all-btn"
                             onClick={clearAllFilters}
@@ -1104,7 +1104,7 @@ export default function Properties() {
                     {/* Budget */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="budget-title">Budget</h6>
+                        <p className="budget-title">Budget</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("budget")}
@@ -1144,9 +1144,9 @@ export default function Properties() {
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
                         <div className="d-flex align-items-center gap-2">
-                          <h6 className="property-type-title">
+                          <p className="property-type-title">
                             Type of Property
-                          </h6>
+                          </p>
                           {selectedPropertyTypes.length > 0 && (
                             <button
                               className="clear-btn"
@@ -1194,7 +1194,7 @@ export default function Properties() {
                     {/* Bedrooms */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="bedrooms-title">Bedrooms</h6>
+                        <p className="bedrooms-title">Bedrooms</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("bedrooms")}
@@ -1226,9 +1226,9 @@ export default function Properties() {
                     {/* Construction Status */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">
+                        <p className="filter-section-title">
                           Construction Status
-                        </h6>
+                        </p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("constructionStatus")}
@@ -1271,7 +1271,7 @@ export default function Properties() {
                     {/* Listing Type */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">Listing Type</h6>
+                        <p className="filter-section-title">Listing Type</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("listingType")}
@@ -1303,7 +1303,7 @@ export default function Properties() {
                     {/* Location */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">Location</h6>
+                        <p className="filter-section-title">Location</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("location")}
@@ -1360,7 +1360,7 @@ export default function Properties() {
                     {/* Area Range */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">Area (sq ft)</h6>
+                        <p className="filter-section-title">Area (sq ft)</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("area")}
@@ -1401,7 +1401,7 @@ export default function Properties() {
                     {/* Bathrooms */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">Bathrooms</h6>
+                        <p className="filter-section-title">Bathrooms</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("additional")}
@@ -1433,7 +1433,7 @@ export default function Properties() {
                     {/* Furnished */}
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="filter-section-title">Furnished</h6>
+                        <p className="filter-section-title">Furnished</p>
                         <button
                           className="btn-link border-0 bg-transparent p-0 toggle-btn"
                           onClick={() => toggleSection("furnished")}
@@ -1511,7 +1511,7 @@ export default function Properties() {
                   {appliedFilters.length > 0 && (
                     <div className="filter-section">
                       <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h6 className="mb-0 fw-bold">Applied Filters</h6>
+                        <p className="mb-0 fw-bold">Applied Filters</p>
                         <button
                           className="clear-all-btn"
                           onClick={clearAllFilters}
@@ -1538,7 +1538,7 @@ export default function Properties() {
                   {/* Budget */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="budget-title">Budget</h6>
+                      <p className="budget-title">Budget</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("budget")}
@@ -1580,9 +1580,9 @@ export default function Properties() {
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
                       <div className="d-flex align-items-center gap-2">
-                        <h6 className="property-type-title">
+                        <p className="property-type-title">
                           Type of Property
-                        </h6>
+                        </p>
                         {selectedPropertyTypes.length > 0 && (
                           <button
                             className="clear-btn"
@@ -1627,7 +1627,7 @@ export default function Properties() {
                   {/* Bedrooms */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="bedrooms-title">Bedrooms</h6>
+                      <p className="bedrooms-title">Bedrooms</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("bedrooms")}
@@ -1659,9 +1659,9 @@ export default function Properties() {
                   {/* Construction Status */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">
+                      <p className="filter-section-title">
                         Construction Status
-                      </h6>
+                      </p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("constructionStatus")}
@@ -1699,7 +1699,7 @@ export default function Properties() {
                   {/* Listing Type */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Listing Type</h6>
+                      <p className="filter-section-title">Listing Type</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("listingType")}
@@ -1731,7 +1731,7 @@ export default function Properties() {
                   {/* Sub Type */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Sub Type</h6>
+                      <p className="filter-section-title">Sub Type</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("subType")}
@@ -1767,7 +1767,7 @@ export default function Properties() {
                   {/* Transaction */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Transaction</h6>
+                      <p className="filter-section-title">Transaction</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("transaction")}
@@ -1799,7 +1799,7 @@ export default function Properties() {
                   {/* Location */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Location</h6>
+                      <p className="filter-section-title">Location</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("location")}
@@ -1870,7 +1870,7 @@ export default function Properties() {
                   {/* Area Range */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Area (sq ft)</h6>
+                      <p className="filter-section-title">Area (sq ft)</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("area")}
@@ -1909,7 +1909,7 @@ export default function Properties() {
                   {/* Additional Filters */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Bathrooms</h6>
+                      <p className="filter-section-title">Bathrooms</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("additional")}
@@ -1941,7 +1941,7 @@ export default function Properties() {
                   {/* Furnished */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Furnished</h6>
+                      <p className="filter-section-title">Furnished</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("furnished")}
@@ -1973,7 +1973,7 @@ export default function Properties() {
                   {/* Parking */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Parking</h6>
+                      <p className="filter-section-title">Parking</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("parking")}
@@ -2005,7 +2005,7 @@ export default function Properties() {
                   {/* Facing */}
                   <div className="filter-section">
                     <div className="d-flex justify-content-between align-items-center mb-2">
-                      <h6 className="filter-section-title">Facing</h6>
+                      <p className="filter-section-title">Facing</p>
                       <button
                         className="btn-link border-0 bg-transparent p-0 toggle-btn"
                         onClick={() => toggleSection("facing")}

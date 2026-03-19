@@ -47,18 +47,6 @@ export default function Layout({ children }) {
             <Script src={`${ASSETS}/js/selectordie.js`} strategy="afterInteractive" />
             <Script src={`${ASSETS}/js/custom.js`} strategy="afterInteractive" />
 
-            <Script
-                src="https://www.googletagmanager.com/gtag/js?id=AW-16457709652"
-                strategy="lazyOnload"
-            />
-            <Script id="gtag-config-eldeco-aw" strategy="lazyOnload">
-                {`
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'AW-16457709652');
-                `}
-            </Script>
             {children}
         </>
     );

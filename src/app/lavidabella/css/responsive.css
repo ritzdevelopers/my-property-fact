@@ -1,0 +1,791 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+@media (min-width: 992px){
+.navbar-expand-lg .navbar-nav .nav-link {
+          padding-right: 0rem;
+        padding-left: 1.2rem;
+    font-size: 15px;
+    font-weight: 500;
+    color: #000;
+}
+	   
+}
+
+ @media (min-width: 1200px) {
+    .container {
+        max-width: 1246px;
+    }
+}
+  
+
+@media (max-width: 992px) {
+    ul.highlights-list li {
+        flex: 0 0 33.33%;
+        max-width: 33.33%;
+    }
+}
+
+/* Responsive (Mobile) */
+@media (max-width: 576px) {
+    ul.highlights-list li {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+}
+
+ @media screen and (min-device-width:320px) and (max-device-width:767px){
+	 
+	
+	 
+	  #gallery {
+    scroll-margin-top: 55px; /* offset for fixed header – keep small to avoid over-scrolling */
+} #overview {
+    scroll-margin-top: 28px;
+}
+	 #highlights,  #eldeco-group, #amenities, #floors-plan, #location, #contact {
+    scroll-margin-top: 28px;  
+}  
+	 
+	 
+	 .desktop-slider{display:none;}
+.mobile-slider{display:block;}
+	 
+	 
+	 .tableft { 
+    background: transparent; 
+} 
+	 
+	.overview-section {
+    padding: 30px 0 !important;
+} 
+	 
+	 .navbar-toggler-icon {  width: 1.3em;
+    height: 1.3em; 
+}
+	    .navbar-toggler { 
+        padding: 6px; 
+    }
+	 .navbar-light .navbar-nav .nav-link {
+   font-size: 15px;
+}
+	 
+	 
+	.registration img {
+          top: -12px;
+          width: 71px;
+          margin-left: 0px;
+          float: right;
+          margin-right: 10px;
+}.registration span {
+    /* float: right; */
+    display: inline-block;
+    margin-right: 14px;
+    font-size: 10px;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    top: -16px;
+}
+	 .amenities-banner {
+    float: left;
+    margin: 0 0 0; 
+    top: 5px;
+    bottom: 0; 
+    text-align: left;
+}
+	 .registration {
+          text-align: left;
+        top: 0;
+        background: #000;
+        left: -5%;
+        padding: 0 0 0 5%;
+}
+	 
+	 .width80{width:100%}
+	 .navbar-brand { margin-left: 20px;}
+	 .nav-link {
+    display: block;
+    padding: .3rem 1rem;
+}
+	 .navbar-light .navbar-toggler-icon {
+        background-color: #00984a;
+    border-radius: 100%;
+} 
+	 .carousel-item {
+    height: 488px; 
+} 
+.desktop{display:none;}
+.mobile{display:block;}
+	 .logo-vida-bella img{width:252px;}
+	  
+	 .carousel-caption-left { 
+   top: 15%; width: 100%
+}.logo-vida-sector12 {   line-height: 14px;
+    font-size: 16px; 
+}.logo-vida-bella {
+    margin-bottom: 0px;
+}
+	 .pay30text {  width: 34%;
+     font-size: 13px;
+    line-height: 20px;
+    top: 8px; 
+}.carousel-caption-right {
+                 top: 61%;
+    left: 5%;
+    width: 100%;
+}.paylater {
+    background: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    display: flex;
+    padding: 10px 20px;
+    margin-left: -18px;
+}
+	 .paylater strong {
+    font-size: 20px;
+    font-weight: 700;
+}.paylater span {
+    float: left;
+    text-transform: uppercase;
+    font-size: 9px;
+    margin-right: 0px;
+    line-height: 15px;
+    width: 50%;
+}.pay30 {
+    position: relative;
+    margin-bottom: 10px;
+    top: 10px;
+}
+	  .luxurious-living {
+    font-size: 16px;
+    text-align: left;
+    line-height: 20px;
+    margin-bottom: 10px;
+}
+	 .luxurious-living span {
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+	 
+	 .amenities-banner {
+    float: left; 
+    text-align: left;
+}
+	 .amenities-banner img {
+    width: 28px;
+    margin-right: 10px;
+}
+	 
+	 .carousel-indicators {
+		bottom: 5%;
+		left: 44%;
+		}
+	 
+	.navbar-nav {
+    background: #00984a;
+    padding: 5px 20px;
+    /* background: rgba(0, 152, 74, 0.9); */
+    /* background: #d1cfcf; */
+}
+	.nav-item .text-white {/* color:#000!important; */}
+	 /* Active link: bright mint green on green menu bar (still reads “green”, good contrast) */
+	 .navbar-nav .nav-link.active {
+    color: #004d26 !important;
+    font-weight: 700 !important;
+  } .container70 {
+    padding: 40px 0 20px;
+}h2 {
+    font-size: 22px; 
+    color: #000;
+    line-height: 30px; 
+}p {  font-size: 14px;
+    line-height: 24px;        text-align: center; 
+}
+	.price-box-gray { 
+    display: none;
+}.price-box { 
+    width: 100%;  
+    margin: 30px 0;
+}
+.price-box-outer {   float: none;}	 
+.about2img {
+    float: none;
+    margin: 0;
+}	 
+	.about2img img {
+    width: 93%;
+} 
+.livebox-box-gray { 
+    display: none;
+}	 
+	.livebox-box {  width: 100%;
+    height: auto;
+     margin: 20px 0;
+} 
+	ul.highlights-list li p {
+    margin: 0;
+} .about-developer-text h3 {
+    text-align: center;
+}.about-developer { top: 0;
+    height: auto;
+}.stat-box {
+	padding: 10px;}
+	 
+	.stat-box h4 {
+    color: #019A44;
+    font-size: 33px;
+    font-weight: 700;
+    line-height: 30px;
+} 
+.tableft {padding: 10px;
+    width: 100%;
+     float: none; 
+    height: auto;
+}	 
+ 
+	.tableft-inner {
+    width: 100%;  height: auto; 
+    overflow-x: inherit; 
+    white-space: normal; 
+    scroll-behavior: auto;
+} 
+	.tabright {
+    width: 100%;
+    display: block;
+    float: none;
+    position: relative;
+    left: 0;
+    right: auto;
+} 
+	.amenities-tabs .nav button img {
+    margin-right: 10px;
+    width: 28px; display: none;
+} 
+	 
+    .nav {
+        display: flex;
+        flex-wrap: wrap;
+        padding-left: 0;
+        margin-bottom: 0;
+        list-style: none;
+    }
+  .amenities-tabs .nav-tabs .nav-item {  flex: 0 0 50%;       /* 2 columns = 50% each */
+    max-width: 50%;
+    text-align: center; }
+	 
+	 
+	 .amenities-tabs .nav button {
+      padding: 12px 16px;   font-size: 13px;
+       text-align: center;
+}
+	 .starting { 
+    text-align: left;
+}
+	 .tabrighthdng h2 { 
+    text-align: center;
+}
+	.gallery-section {
+    margin-top: 40px;
+} 
+	 .gallerycolheight img {
+    height: auto;
+}.galleryrowminus {
+    margin-bottom: 0px !important;
+}
+	 .gallery .twoheight img {
+    height: 100%;
+    max-height: 180px;
+    margin-bottom: 0px;
+}.masterplan {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+.floorplan {
+    padding: 20px;
+    background: #EBEBEB;
+    min-height: auto;
+}
+.owl-theme .owl-prev {
+      top: -25%;
+    width: 22px;
+    left: 87%;
+}.owl-theme .owl-next {
+    right: 0;
+    top: -25%; 
+    left: 95%;
+}
+	 
+  
+	.eldecolocation-points .row-flex {
+    display: flex;
+    justify-content: space-between;   
+    align-items: flex-start;      
+    flex-wrap: wrap;                 
+}
+
+ 
+.icon-wrap {
+     background: #009846;
+    border-radius: 50%;
+    display: flex;                 
+    align-items: center;            
+    justify-content: center;
+} 
+	.feature-text { 
+    text-align: left;
+} .icon-wrap { 
+        display: none;
+    }
+	 .eldecolocation-points .ml-3 {
+    margin-left:0rem !important;
+}
+	.location-section {
+    padding-bottom: 40px;
+    padding-top: 40px;
+} 
+	 .googlemap{margin-top:20px;} 
+	 
+	 .location-section h2{margin-top:20px;}
+	 
+	 .visit-section {
+    background: #f5f5f5;
+    padding: 40px 0;
+}.visit-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #000;
+    font-family: "Montserrat", sans-serif;
+    text-align: center;
+    line-height: 10px;
+    font-size: 24px;
+    color: #000;
+    line-height: 24px;
+}.visit-subtitle {
+    font-size: 16px;
+    margin-top: 0;
+    color: #222;
+    margin-bottom: 30px;
+}
+	 
+.submit-btn {  width: 100%;
+}	 
+	 
+.disclaimer-text {
+    font-size: 14px;
+    padding: 0;
+    line-height: 24px; 
+}	 
+	 
+	.navbar-light .navbar-toggler-icon { 
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+} 
+	 
+	 .navbar-toggler {
+    background-color: #00984a;
+    border-radius: 100%;
+    padding: 6px;
+    margin-right: 20px;
+}
+	 
+	.nav-item .text-dark {
+    color: #fff !important;
+} 
+	 
+	.amenities-tabs .nav button { 
+    color: #000 !important; 
+} 
+	.tabrighthdng p { 
+    width: 100%;
+    float: none;
+} 
+	 
+	 
+	 
+	}  
+
+
+
+ @media screen and (min-device-width:768px) and (max-device-width:1023px){
+	 #gallery {
+    scroll-margin-top: 55px; /* offset for fixed header – keep small to avoid over-scrolling */
+} #overview {
+    scroll-margin-top: 28px;
+}
+	 #highlights,  #eldeco-group, #amenities, #floors-plan, #location, #contact {
+    scroll-margin-top: 28px;  
+}  
+	 
+	 
+	 .navbar-light .navbar-nav .nav-link {
+    color: rgba(0, 0, 0, .5);
+    color: #fff !important;
+}
+	 .navbar-light .navbar-brand { 
+    margin-left: 5%;
+}
+	 
+	 .carousel-caption-left {
+    width: 47%;
+}
+	.paylater strong {
+    font-size: 20px;
+} 
+	 
+	 .luxurious-living {line-height: 28px;
+    font-size: 18px; 
+}
+	 
+	 .luxurious-living span {  font-size: 18px; }
+	 
+	 
+	 .desktop-slider{display:block;}
+.mobile-slider{display:none;}
+	 
+	.livebox-box h3 { 
+    float: left; 
+    margin-right: 20px;
+} .livebox-box p {
+    margin-left: 40px; 
+    text-align: left;
+}
+	 .nav {
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 0;
+    margin-bottom: 0;
+    list-style: none;
+}
+
+.amenities-tabs .nav-tabs .nav-item {
+    flex: 0 0 25%;      /* 4 columns */
+    max-width: 25%;     /* 4 columns */
+    text-align: center;
+}
+	.amenities-tabs .nav button img {  display: none;  } 
+	.active-arrow {   display: none;  } 
+	 
+	 .amenities-tabs .nav button { 
+    padding: 7px 16px; 
+    font-size: 14px;  text-align: center; line-height: 22px;
+}
+	 ul.highlights-list li p {
+    line-height: 20px;
+    font-size: 14px;
+}
+	 ul.highlights-list li {
+    flex: 0 0 20%;
+    max-width: 20%;
+    text-align: center;
+    padding: 0px 10px; 
+}
+	 
+	 
+	 
+	.container {
+    max-width: 100%;
+} .gallery-section {
+    margin-top: 20px;
+}.project-footer { padding: 50px 0 30px; }
+	 .visit-title { 
+    text-align: center;
+}.visit-subtitle { 
+    margin-top: 0; 
+    margin-bottom: 40px;
+    line-height: 10px;
+}.visit-section {  padding: 40px 0 50px;}
+	    .eldecolocation {
+        display: block;
+        margin: 0 auto 20px;
+        width: 60%;
+    }
+	 .location-section {
+    padding-bottom: 50px;
+    padding-top: 30px;
+}
+	 .location-section h2{text-align: center;}
+	 
+	 .floor-plan-section{padding: 30px 0!important;margin-bottom: 20px!important;text-align: center}
+	 .floorplan{padding:30px!important;margin-top: 20px;text-align: center;}
+	 .masterplan{padding:30px!important;}
+	 
+	 .gallerycolheight img {
+    height: 287px;
+}.owl-theme .owl-prev { 
+    left: 640px;
+}.owl-theme .owl-next { 
+    left: 665px;
+}  
+	 .tableft {
+  width: 100%;
+        float: none;
+        height: auto;
+        padding: 10px;
+        margin-bottom: 10px;
+}    .tableft-inner {
+        width: 100%;
+        height: auto;
+        overflow-x: inherit;
+        white-space: normal;
+        scroll-behavior: auto;
+    }.tabright {
+        width: 100%;
+        display: block;
+        float: none;
+        position: relative;
+        left: 0;
+        right: auto;
+    }.desktop{display:none;}
+.mobile{display:block;}
+	 
+	 .tabrighthdng h2 {
+        text-align: center;
+    }    .tabrighthdng p {
+        width: 100%;
+        float: none;
+        font-size: 16px;
+        line-height: 28px;
+    }    .stat-box h4 {
+        color: #019A44;
+        font-size: 33px;
+        font-weight: 700;
+        line-height: 30px;
+    }   .about-developer {
+    position: relative;
+    top: -70px;
+    height: 330px;
+}
+	 .about-developer-text h3 {  text-align: center;}
+	   p {  text-align: center;}
+	 .width80 {  width: 100%;  }
+	   
+	 .container70 { padding: 50px 0;}
+	 
+	.navbar-nav {
+    background: #00984a;
+    padding: 20px;
+    
+} 
+	 .navbar-nav .nav-link.active {
+    color: #004d26 !important;
+    font-weight: 700 !important;
+  } .container70 {
+    padding: 40px 0 20px;
+}
+	 .livebox-box-gray { 
+    display: none;
+}
+	 .price-box-gray {  
+    display: none;
+}
+	 .price-box {
+    width: 100%;
+    height: auto;
+    margin: 30px 0 10px;
+    display: inline-block;
+}
+	.starting {
+    text-align: left;
+    font-size: 16px;
+} 
+	.about2img img {
+    width: 100%;
+} .livebox-box {
+  width: 100%;
+  height: auto;
+  margin: 20px 0;
+}.about2img {
+    float: none;
+    margin: 0;width: 100%;
+}.price-box-outer { 
+    float: none;
+} 
+	.price-text1 {   padding-top: 10px;
+    margin-bottom: 50px;
+    float: left;
+    display: inline-block;
+    margin-right: 40px;
+ 
+} 
+	 .price-text2 {
+    float: left;
+    display: inline-block;
+}.navbar-light .navbar-toggler-icon {
+        background-color: #00984a;
+        border-radius: 100%;
+    }    
+	 
+		.navbar-light .navbar-toggler-icon { 
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 1)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}     .navbar-toggler {
+        background-color: #00984a;
+        border-radius: 100%;
+        padding: 7px;
+        margin-right: 4%;
+    }.nav-link {
+    display: block;
+    padding: .3rem 4rem;
+    font-size: 15px;
+}
+	 .logo-vida-bella img{}
+	 .logo-vida-bella {margin-bottom: 0}
+	     .logo-vida-bella img {
+        width: 72%;
+    }
+	 
+	 .logo-vida-sector12 { 
+    line-height: 16px;
+    font-size: 16px; 
+}
+	.carousel-caption-left { 
+    top: 26%; 
+} 
+	.carousel-caption-right { 
+    top: 28%; 
+} .pay30 { 
+    margin-bottom: 10px;
+    margin-top: 15px;
+}
+	 .pay30text {  width: 44%;
+    padding: 10px 0px 10px 10px;
+    font-size: 14px;
+    line-height: 20px;
+    top: 10px; 
+}
+	    .paylater {
+        /* background: rgba(0, 0, 0, 0.5); */
+        width: 90%;
+        display: flex;
+        padding: 10px 0px;
+    } 
+	     .paylater span {
+        float: left;
+        text-transform: uppercase;
+        font-size: 10px;
+        margin-right: 0px;
+        line-height: 15px;
+        width: 50%;
+    }
+	 
+}	 
+
+
+@media screen and (min-device-width:1024px) and (max-device-width:1200px){
+	.container{width: 100%}
+	    .navbar-expand-lg .navbar-nav .nav-link {
+                  padding-right: 0.7rem;
+        padding-left: 0.7rem;
+        font-size: 14px; 
+    } 
+	.tableft {
+    width: 50%;
+    display: block;
+    background: #f7f7f7;
+    border-radius: 5px;
+    padding: 20px 20px;
+    float: left;
+    position: relative;
+    height: 455px;
+}
+	
+	.tableft-inner {
+    width: 82%;
+    overflow-x: auto; 
+    white-space: nowrap;
+    height: 410px;
+    scroll-behavior: smooth;
+}
+	.tabright {
+   width: 57%;
+        display: block;
+        float: right;
+        position: absolute;
+        left: 41%;
+        right: 10%;
+}
+	
+	.amenities-tabs .nav button { 
+    padding: 9px 16px;}
+		.amenities-tabs .nav button.active img {
+    background: #fff;
+    border-radius: 100%;
+    width: 42px;
+    padding: 5px;
+}.amenities-section {
+    padding-top: 30px;
+    padding-bottom: 0;
+}
+	
+	.owl-theme .owl-prev { 
+    left: 550px;
+}
+		.owl-theme .owl-next { 
+    left: 576px;
+}
+	
+	.stat-box h4 {
+    color: #019A44;
+    font-size: 30px;
+    font-weight: 700;
+}
+	.about2img { 
+    display: none;
+}
+	
+	.livebox-box-gray {
+          background: #F5F6E4;
+        width: 180px;
+        height: 124px;
+        position: absolute;
+        z-index: 1;
+        top: 0px;
+        right: -160px;
+}
+	.livebox-box-gray img{width:100%;}
+	/*.livebox-box-gray { 
+    display: none;
+}*/
+	ul.highlights-list li {
+         flex: 0 0 20%;
+        max-width: 20%;
+        text-align: center;
+        padding: 15px;
+}
+	
+	.width80 {
+    width: 100%; 
+}
+.carousel-caption-left { 
+       top: 26%;     width: 50%;
+}	
+	.logo-vida-bella{   margin-bottom: 44px;}
+	.logo-vida-bella img{        width: 78%;}
+	
+	.logo-vida-sector12 { 
+    font-size: 21px; 
+}
+	.pay30 {
+    position: relative;
+    margin-bottom: 20px;
+}
+	.carousel-caption-right {  top: 28%;
+    width: 50%;
+}
+	.registration { 
+    top: 10px;
+}
+	
+.about-developer {
+    position: relative;
+    top: -260px;
+    height: 280px;
+}	
+	
+	
+	
+}
+	 
+
+
+

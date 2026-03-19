@@ -161,6 +161,12 @@ export default function Thanks() {
                     gtag('config', 'AW-16457709652');
                 `}
             </Script>
+            {/* Event snippet for Submit lead form (2) conversion page */}
+            <Script id="gtag-conversion-submit-lead-thanks" strategy="afterInteractive">
+                {`
+                    gtag('event', 'conversion', {'send_to': 'AW-17892647835/MGkvCLi52YscEJvH8NNC'});
+                `}
+            </Script>
             <style dangerouslySetInnerHTML={{ __html: thanksStyles }} />
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">

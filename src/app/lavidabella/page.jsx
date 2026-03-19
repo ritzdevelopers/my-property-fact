@@ -1,5 +1,6 @@
 "use client";
 import { useEffect } from "react";
+import Script from "next/script";
 
 function Home() {
     useEffect(() => {
@@ -354,6 +355,18 @@ function Home() {
 
     return (
         <>
+            <Script
+                src="https://www.googletagmanager.com/gtag/js?id=AW-16457709652"
+                strategy="afterInteractive"
+            />
+            <Script id="gtag-config-lavidabella-home" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'AW-16457709652');
+                `}
+            </Script>
 
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">

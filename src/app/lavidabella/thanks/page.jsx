@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+import Script from "next/script";
 
 const HOME = "/lavidabella";
 const IMG = "/eldeco-la-vida-bella-images2/images";
@@ -131,11 +132,6 @@ export default function Thanks() {
     }, [countdown]);
 
     useEffect(() => {
-        if (typeof window === "undefined" || typeof window.gtag !== "function") return;
-        window.gtag("event", "conversion", { send_to: "AW-16457709652/4bs9CKjL5OwZENTw0qc9" });
-    }, []);
-
-    useEffect(() => {
         const $ = window.jQuery;
         if (!$) return;
         const onScroll = () => {
@@ -153,6 +149,18 @@ export default function Thanks() {
 
     return (
         <>
+            <Script
+                src="https://www.googletagmanager.com/gtag/js?id=AW-16457709652"
+                strategy="afterInteractive"
+            />
+            <Script id="gtag-config-lavidabella-thanks" strategy="afterInteractive">
+                {`
+                    window.dataLayer = window.dataLayer || [];
+                    function gtag(){dataLayer.push(arguments);}
+                    gtag('js', new Date());
+                    gtag('config', 'AW-16457709652');
+                `}
+            </Script>
             <style dangerouslySetInnerHTML={{ __html: thanksStyles }} />
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">

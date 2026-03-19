@@ -36,7 +36,7 @@ const gothamLight = localFont({
 export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
-      {/* <head> */}
+      <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         {/* Preload LCP hero image variant by viewport */}
         <link
@@ -59,6 +59,7 @@ export default function RootLayout({ children }) {
         />
         <script
           type="application/ld+json"
+          async=""
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -75,7 +76,7 @@ export default function RootLayout({ children }) {
             }),
           }}
         />
-      {/* </head> */}
+      </head>
       <body
         className={`${gothamBold.variable} ${gothamLight.variable}`} suppressHydrationWarning={true}>
         {/* Google Tag Manager (noscript) */}

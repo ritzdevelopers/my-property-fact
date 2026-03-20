@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useCallback, useMemo, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade, A11y } from "swiper/modules";
+import { Autoplay, A11y } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/effect-fade";
 
 const DEFAULT_FALLBACK_SLIDE = {
   id: "hero-fallback",
@@ -16,42 +15,114 @@ const DEFAULT_FALLBACK_SLIDE = {
   alt: "Hero banner",
 };
 
-const HeroBannerSlider = ({ slides = [] }) => {
-  const effectiveSlides = Array.isArray(slides) && slides.length > 0 ? slides : [DEFAULT_FALLBACK_SLIDE];
+function subscribeToViewport(callback) {
+  if (typeof window === "undefined") return () => {};
+  const mqDesktop = window.matchMedia("(min-width: 1024px)");
+  const mqTablet = window.matchMedia("(min-width: 768px)");
+  const onChange = () => callback();
+  mqDesktop.addEventListener("change", onChange);
+  mqTablet.addEventListener("change", onChange);
+  return () => {
+    mqDesktop.removeEventListener("change", onChange);
+    mqTablet.removeEventListener("change", onChange);
+  };
+}
 
-  const resolveDesktopSrc = (slide) =>
-    slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
+function getViewportSnapshot() {
+  if (typeof window === "undefined") return "mobile";
+  if (window.matchMedia("(min-width: 1024px)").matches) return "desktop";
+  if (window.matchMedia("(min-width: 768px)").matches) return "tablet";
+  return "mobile";
+}
 
-  const updateHeaderBackground = useCallback((slideIndex) => {
-    if (typeof document === "undefined") return;
-    const slide = effectiveSlides[slideIndex];
-    if (!slide) return;
-    const desktopSrc = resolveDesktopSrc(slide);
-    document.documentElement.style.setProperty(
-      "--hero-header-bg",
-      `url("${desktopSrc}")`
-    );
-  }, [effectiveSlides]);
+function useHeroViewport() {
+  return useSyncExternalStore(subscribeToViewport, getViewportSnapshot, () => "mobile");
+}
 
-  useEffect(() => {
-    if (effectiveSlides.length > 0) {
-      updateHeaderBackground(0);
-    }
-  }, [effectiveSlides, updateHeaderBackground]);
+function resolveSrcForViewport(slide, viewport) {
+  const desktop = slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
+  const tablet = slide?.tablet || slide?.desktop || slide?.mobile || desktop;
+  const mobile = slide?.mobile || slide?.tablet || slide?.desktop || desktop;
+  if (viewport === "desktop") return desktop;
+  if (viewport === "tablet") return tablet;
+  return mobile;
+}
+
+function resolveDesktopForHeader(slide) {
+  return slide?.desktop || slide?.tablet || slide?.mobile || "/mpf-banner.jpg";
+}
+
+export default function HeroBannerSlider({ slides = [] }) {
+  const effectiveSlides =
+    Array.isArray(slides) && slides.length > 0 ? slides : [DEFAULT_FALLBACK_SLIDE];
+
+  const viewport = useHeroViewport();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [swiperReady, setSwiperReady] = useState(false);
 
   const isSingleSlide = effectiveSlides.length === 1;
   const shouldAutoplay = !isSingleSlide;
 
+  const nextIndex = useMemo(() => {
+    const n = effectiveSlides.length;
+    if (n <= 1) return 0;
+    return activeIndex >= n - 1 ? 0 : activeIndex + 1;
+  }, [activeIndex, effectiveSlides.length]);
+
+  const prevIndex = useMemo(() => {
+    const n = effectiveSlides.length;
+    if (n <= 1) return 0;
+    return activeIndex === 0 ? n - 1 : activeIndex - 1;
+  }, [activeIndex, effectiveSlides.length]);
+
+  const setHeaderBg = useCallback(
+    (index) => {
+      if (typeof document === "undefined") return;
+      const slide = effectiveSlides[index];
+      if (!slide) return;
+      const desktopSrc = resolveDesktopForHeader(slide);
+      document.documentElement.style.setProperty(
+        "--hero-header-bg",
+        `url("${desktopSrc}")`
+      );
+    },
+    [effectiveSlides]
+  );
+
+  const handleSwiper = useCallback(
+    (swiper) => {
+      const idx = swiper.realIndex ?? swiper.activeIndex ?? 0;
+      setActiveIndex(idx);
+      setHeaderBg(idx);
+      setSwiperReady(true);
+    },
+    [setHeaderBg]
+  );
+
+  const handleSlideChange = useCallback(
+    (swiper) => {
+      const idx = swiper.realIndex ?? swiper.activeIndex ?? 0;
+      setActiveIndex(idx);
+      setHeaderBg(idx);
+    },
+    [setHeaderBg]
+  );
+
   return (
-    <div className="hero-banner-slider hero-lcp-fallback">
+    <div
+      className={`hero-banner-slider hero-lcp-fallback hero-swiper-layer ${
+        swiperReady ? "hero-swiper-layer--ready" : ""
+      }`}
+    >
       <Swiper
-        className="hero-banner-swiper"
-        modules={[Autoplay, EffectFade, A11y]}
-        effect="fade"
-        fadeEffect={{ crossFade: true }}
-        speed={800}
+        className="hero-banner-swiper hero-banner-swiper--fill"
+        modules={[Autoplay, A11y]}
+        speed={650}
+        /* loop duplicates slides in DOM; keep for seamless infinite autoplay (Swiper 10 has no rewind) */
         loop={!isSingleSlide}
         allowTouchMove={!isSingleSlide}
+        slidesPerView={1}
+        spaceBetween={0}
         autoplay={
           shouldAutoplay
             ? {
@@ -61,85 +132,61 @@ const HeroBannerSlider = ({ slides = [] }) => {
               }
             : false
         }
-        onSwiper={(swiper) => updateHeaderBackground(swiper.realIndex || 0)}
-        onSlideChange={(swiper) => updateHeaderBackground(swiper.realIndex || 0)}
+        onSwiper={handleSwiper}
+        onSlideChange={handleSlideChange}
       >
         {effectiveSlides.map((slide, index) => {
           const {
             id,
-            desktop,
-            tablet,
-            mobile,
             alt = "Hero banner",
-            priority: slidePriority,
             link,
             href,
+            className: slideClass = "",
           } = slide;
 
-          // For single slide, always prioritize. Otherwise, prioritize first slide or use slide's priority prop
-          const priority = isSingleSlide ? true : (slidePriority !== undefined ? slidePriority : index === 0);
-          const mobilePriority = priority;
-          const tabletPriority = false;
-          const desktopPriority = false;
-
-          const desktopSrc = desktop || "/mpf-banner.jpg";
-          const tabletSrc = tablet || desktopSrc;
-          const mobileSrc = mobile || tabletSrc;
           const navigationLink = link || href;
+          const src = resolveSrcForViewport(slide, viewport);
+          const n = effectiveSlides.length;
+          const shouldLoadImage =
+            index === activeIndex ||
+            index === nextIndex ||
+            index === prevIndex ||
+            /* loop clones often show first/last during wrap */
+            (!isSingleSlide && n > 1 && (index === 0 || index === n - 1));
 
-          // Use fixed aspect-ratio frames per breakpoint to reserve layout space and avoid CLS.
-          const imageContent = (
-            <div className="position-relative home-banner hero-banner-responsive-images">
-              <div className="hero-banner-frame hero-banner-frame-mobile d-md-none">
+          const frame = (
+            <div className={`hero-slide-frame ${slideClass}`}>
+              {shouldLoadImage ? (
                 <Image
-                  src={mobileSrc}
+                  src={src}
                   alt={alt}
                   fill
                   className="hero-banner-image"
-                  priority={mobilePriority}
-                  fetchPriority={mobilePriority ? "high" : "auto"}
+                  priority={index === 0 && activeIndex === 0}
+                  fetchPriority={
+                    index === 0 && activeIndex === 0 ? "high" : "auto"
+                  }
+                  loading={
+                    index === 0 && activeIndex === 0 ? "eager" : "lazy"
+                  }
                   quality={60}
                   sizes="100vw"
                 />
-              </div>
-              <div className="hero-banner-frame hero-banner-frame-tablet d-none d-md-block d-lg-none">
-                <Image
-                  src={tabletSrc}
-                  alt={alt}
-                  fill
-                  className="hero-banner-image"
-                  priority={tabletPriority}
-                  fetchPriority={tabletPriority ? "high" : "auto"}
-                  quality={60}
-                  sizes="100vw"
-                />
-              </div>
-              <div className="hero-banner-frame hero-banner-frame-desktop d-none d-lg-block">
-                <Image
-                  src={desktopSrc}
-                  alt={alt}
-                  fill
-                  className="hero-banner-image"
-                  priority={desktopPriority}
-                  fetchPriority={desktopPriority ? "high" : "auto"}
-                  quality={60}
-                  sizes="100vw"
-                />
-              </div>
+              ) : null}
             </div>
           );
 
           return (
             <SwiperSlide
               key={id || `hero-slide-${index}`}
-              className={`hero-banner-slide ${slide.className || ""}`}
+              className={`hero-banner-slide ${slideClass}`}
             >
               {navigationLink ? (
-                <Link href={navigationLink} className="d-block">
-                  {imageContent}
+                <Link href={navigationLink} className="d-block text-decoration-none">
+                  {frame}
                 </Link>
               ) : (
-                imageContent
+                frame
               )}
             </SwiperSlide>
           );
@@ -147,6 +194,4 @@ const HeroBannerSlider = ({ slides = [] }) => {
       </Swiper>
     </div>
   );
-};
-
-export default HeroBannerSlider;
+}

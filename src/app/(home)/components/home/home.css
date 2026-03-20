@@ -62,6 +62,63 @@
   display: block;
 }
 
+/* Static LCP shell + client-only Swiper overlay */
+.hero-carousel-host {
+  position: relative;
+  width: 100%;
+}
+
+.hero-static-lcp {
+  width: 100%;
+}
+
+.hero-swiper-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.hero-swiper-layer--ready {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-carousel-host:has(.hero-swiper-layer--ready) .hero-static-lcp {
+  visibility: hidden;
+}
+
+/* One responsive frame per slide (matches mobile / tablet / desktop art direction) */
+.hero-slide-frame {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  aspect-ratio: 458 / 810;
+}
+
+@media (min-width: 768px) {
+  .hero-slide-frame {
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-slide-frame {
+    aspect-ratio: 1920 / 600;
+  }
+}
+
+.hero-banner-swiper--fill {
+  height: 100%;
+}
+
+.hero-banner-swiper--fill .swiper-wrapper,
+.hero-banner-swiper--fill .swiper-slide {
+  height: 100%;
+}
+
 .hero-lcp-fallback {
   min-height: 56vw;
 }

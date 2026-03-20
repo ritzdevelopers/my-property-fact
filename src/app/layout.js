@@ -38,25 +38,6 @@ export default function RootLayout({ children }) {
     <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        {/* Preload LCP hero image variant by viewport */}
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_mobile_final.jpg"
-          media="(max-width: 767px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_tablet_final.jpg"
-          media="(min-width: 768px) and (max-width: 1023px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_desktop_final.jpg"
-          media="(min-width: 1024px)"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

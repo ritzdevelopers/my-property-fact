@@ -1,54 +1,7 @@
-  import Image from "next/image";
-  import dynamic from "next/dynamic";
   import SearchFilter from "./searchFIlter";
+  import HeroStaticFirst from "./HeroStaticFirst";
+  import HeroCarouselClient from "./HeroCarouselClient";
   import "../home/home.css";
-
-  const HeroBannerSlider = dynamic(() => import("./HeroBannerSlider"), {
-    ssr: true,
-
-    loading: () => (
-      <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
-        <div className="position-relative home-banner hero-banner-responsive-images">
-          <div className="hero-banner-frame hero-banner-frame-mobile d-md-none">
-            <Image
-              src="/static/banners/ghd_mobile_final.jpg"
-              alt="GHD Group - Velvet Vista"
-              fill
-              className="hero-banner-image"
-              priority
-              fetchPriority="high"
-              quality={60}
-              sizes="100vw"
-            />
-          </div>
-          <div className="hero-banner-frame hero-banner-frame-tablet d-none d-md-block d-lg-none">
-            <Image
-              src="/static/banners/ghd_tablet_final.jpg"
-              alt="GHD Group - Velvet Vista"
-              fill
-              className="hero-banner-image"
-              priority
-              fetchPriority="high"
-              quality={60}
-              sizes="100vw"
-            />
-          </div>
-          <div className="hero-banner-frame hero-banner-frame-desktop d-none d-lg-block">
-            <Image
-              src="/static/banners/ghd_desktop_final.jpg"
-              alt="GHD Group - Velvet Vista"
-              fill
-              className="hero-banner-image"
-              priority
-              fetchPriority="high"
-              quality={60}
-              sizes="100vw"
-            />
-          </div>
-        </div>
-      </div>
-    ),
-  });
 
   const FALLBACK_SLIDES = [
     {
@@ -181,12 +134,13 @@
       <>
         <div className="position-relative hero-section-wrapper">
           <div className="mpf-hero-banner position-relative">
-            <div className="position-relative">
-              <HeroBannerSlider slides={heroSlides} />
+            <div className="position-relative hero-carousel-host">
+              <HeroStaticFirst slide={heroSlides[0]} />
+              <HeroCarouselClient slides={heroSlides} />
             </div>
 
             <SearchFilter projectTypeList={projectTypeList} cityList={cityList} />
-          </div>
+          </div>  
         </div>
       </>
     );

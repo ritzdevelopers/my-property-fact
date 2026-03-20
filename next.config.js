@@ -118,11 +118,6 @@ const nextConfig = {
         pathname: "/fetch-image/**",
       },
     ],
-    // Include smaller responsive widths so tiny logos don't get a 256px rendition.
-    imageSizes: [16, 32, 48, 55, 64, 80, 96, 110, 128, 160, 192, 256, 384],
-    formats: ["image/avif", "image/webp"],
-    // Next.js 16 requires explicit allowlist for quality values used in <Image />
-    qualities: [60, 75, 80, 85, 90, 95, 100],
   },
   compiler: {
     styledComponents: true,

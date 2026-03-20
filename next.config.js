@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
  
-  htmlLimitedBots: /.*/,
+  
   async redirects() {
     return [
       // Blog legacy slugs
@@ -77,13 +77,12 @@ const nextConfig = {
         permanent: true,
       },
      
-
-      // Spam and scanner paths
-      { source: "/cdn-cgi/l/email-protection", destination: "/", permanent: false },
+      
+ 
       {
         source: "/__media__/js/netsoltrademark.php",
         destination: "/",
-        permanent: false,
+        permanent: true,
       },
     ];
   },
@@ -119,13 +118,6 @@ const nextConfig = {
         pathname: "/fetch-image/**",
       },
     ],
-    // Cache optimized images for 1 year (improves "Use efficient cache lifetimes" in Lighthouse)
-    minimumCacheTTL: 31536000,
-    // Add device sizes and image sizes for better optimization
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Configure allowed quality values for Next.js 16 compatibility
-    qualities: [75, 80, 85, 90, 95, 100],
   },
   compiler: {
     styledComponents: true,

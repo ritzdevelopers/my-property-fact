@@ -2,6 +2,7 @@ import "./bootstrap-critical.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 
 const LazyBelowFold = dynamic(
   () => import("./components/_homecomponents/LazyBelowFold"),
@@ -15,7 +16,15 @@ const HeaderComponent = dynamic(
     loading: () => (
       <header className="d-flex justify-content-between align-items-center px-2 px-lg-4 header" style={{ minHeight: 74 }}>
         <Link href="/" aria-label="My Property Fact Home">
-          <img src="/logo.webp" alt="" width={80} height={74} decoding="async" fetchPriority="high" />
+          <Image
+            src="/logo.webp"
+            alt="My Property fact"
+            width={80}
+            height={74}
+            priority
+            quality={60}
+            sizes="80px"
+          />
         </Link>
       </header>
     ),

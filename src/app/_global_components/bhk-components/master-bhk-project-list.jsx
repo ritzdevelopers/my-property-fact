@@ -174,7 +174,7 @@ export default function MasterBHKProjectList() {
       });
 
     // Exclude 1 BHK, 2 BHK, 1 BR, 2 BR, bare numbers (3, 4, 5), standalone "BHK", "Offices and Shop"; exclude SCO Plots for new-projects and apartments/flats
-    const excludeSlugTypes = ["1-bhk", "2-bhk", "1-br", "2-br", "1br", "2br", "bhk", "offices-and-shop", "office-and-shop"];
+    const excludeSlugTypes = ["1-bhk", "1-br", "2-br", "1br", "2br", "bhk", "offices-and-shop", "office-and-shop"];
     if (category === "new-projects" || category === "apartments" || category === "flats") {
       excludeSlugTypes.push("sco-plots");
     }

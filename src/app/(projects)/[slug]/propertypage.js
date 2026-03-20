@@ -360,21 +360,6 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     }
   };
 
-  // Back to home: show text while scrolling, icon only when scroll stopped
-  useEffect(() => {
-    let scrollEndTimer = null;
-    const handleBackToHomeScroll = () => {
-      setBackToHomeExpanded(true);
-      if (scrollEndTimer) clearTimeout(scrollEndTimer);
-      scrollEndTimer = setTimeout(() => setBackToHomeExpanded(false), 1200);
-    };
-    window.addEventListener("scroll", handleBackToHomeScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleBackToHomeScroll);
-      if (scrollEndTimer) clearTimeout(scrollEndTimer);
-    };
-  }, []);
-
 // Add nearby image icon to the nearby benefits
 const addNearbyImageIcon = (benefit) => {
   const name = typeof benefit === "string" ? benefit.trim() : "";
@@ -813,10 +798,9 @@ const addNearbyImageIcon = (benefit) => {
                 <Image
                   src={projectImageSrc(item.desktopImage)}
                   alt={item.altTag || "Property Banner"}
-                  width={2225}
-                  height={1065}
+                  fill
                   priority={index === 0}
-                  sizes="(max-width: 640px) 100vw, (max-width: 1920px) 100vw, 1920px"
+                  sizes="100vw"
                   className="slick-banner-img"
                 />
               </div>
@@ -1118,6 +1102,7 @@ const addNearbyImageIcon = (benefit) => {
                         src={projectImageSrc(item.imageName)}
                         alt={item.altTag || "Gallery Image"}
                         fill
+                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="img-fluid rounded-5 object-fit-cover px-2 "
                       />
                     </div>
@@ -1214,6 +1199,7 @@ const addNearbyImageIcon = (benefit) => {
                   src={projectImageSrc(projectDetail.locationMap)}
                   alt="Project Location Map"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-fit-cover"
                 />
 

@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import Slider from "react-slick";
 import Image from "next/image";
 import Link from "next/link";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, EffectFade, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/effect-fade";
 
 const DEFAULT_FALLBACK_SLIDE = {
   id: "hero-fallback",
@@ -39,24 +40,30 @@ const HeroBannerSlider = ({ slides = [] }) => {
   }, [effectiveSlides, updateHeaderBackground]);
 
   const isSingleSlide = effectiveSlides.length === 1;
-
-  const settings = {
-    dots: !isSingleSlide, // Hide dots for single slide
-    arrows: false,
-    infinite: !isSingleSlide, // Disable infinite for single slide
-    speed: 800,
-    autoplay: !isSingleSlide, // Disable autoplay for single slide
-    autoplaySpeed: 5000,
-    pauseOnHover: false,
-    pauseOnFocus: false,
-    fade: true,
-    adaptiveHeight: false,
-    afterChange: (current) => updateHeaderBackground(current),
-  };
+  const shouldAutoplay = !isSingleSlide;
 
   return (
-    <div className="hero-banner-slider">
-      <Slider {...settings}>
+    <div className="hero-banner-slider hero-lcp-fallback">
+      <Swiper
+        className="hero-banner-swiper"
+        modules={[Autoplay, EffectFade, A11y]}
+        effect="fade"
+        fadeEffect={{ crossFade: true }}
+        speed={800}
+        loop={!isSingleSlide}
+        allowTouchMove={!isSingleSlide}
+        autoplay={
+          shouldAutoplay
+            ? {
+                delay: 5000,
+                disableOnInteraction: false,
+                pauseOnMouseEnter: false,
+              }
+            : false
+        }
+        onSwiper={(swiper) => updateHeaderBackground(swiper.realIndex || 0)}
+        onSlideChange={(swiper) => updateHeaderBackground(swiper.realIndex || 0)}
+      >
         {effectiveSlides.map((slide, index) => {
           const {
             id,
@@ -65,7 +72,6 @@ const HeroBannerSlider = ({ slides = [] }) => {
             mobile,
             alt = "Hero banner",
             priority: slidePriority,
-            height = 600,
             link,
             href,
           } = slide;
@@ -81,47 +87,50 @@ const HeroBannerSlider = ({ slides = [] }) => {
           const mobileSrc = mobile || tabletSrc;
           const navigationLink = link || href;
 
-          // Use Next/Image per breakpoint so Next.js can optimize (WebP, correct sizes)
+          // Use fixed aspect-ratio frames per breakpoint to reserve layout space and avoid CLS.
           const imageContent = (
             <div className="position-relative home-banner hero-banner-responsive-images">
-              <Image
-                src={mobileSrc}
-                alt={alt}
-                width={768}
-                height={height}
-                className="img-fluid w-100 d-md-none"
-                priority={mobilePriority}
-                fetchPriority={mobilePriority ? "high" : "auto"}
-                quality={75}
-                sizes="(max-width: 767px) 100vw, 1px"
-              />
-              <Image
-                src={tabletSrc}
-                alt={alt}
-                width={1024}
-                height={height}
-                className="img-fluid w-100 d-none d-md-block d-lg-none"
-                priority={tabletPriority}
-                fetchPriority={tabletPriority ? "high" : "auto"}
-                quality={75}
-                sizes="(min-width: 768px) and (max-width: 1023px) 100vw, 1px"
-              />
-              <Image
-                src={desktopSrc}
-                alt={alt}
-                width={1920}
-                height={height}
-                className="img-fluid w-100 d-none d-lg-block"
-                priority={desktopPriority}
-                fetchPriority={desktopPriority ? "high" : "auto"}
-                quality={75}
-                sizes="(min-width: 1024px) 100vw, 1px"
-              />
+              <div className="hero-banner-frame hero-banner-frame-mobile d-md-none">
+                <Image
+                  src={mobileSrc}
+                  alt={alt}
+                  fill
+                  className="hero-banner-image"
+                  priority={mobilePriority}
+                  fetchPriority={mobilePriority ? "high" : "auto"}
+                  quality={60}
+                  sizes="100vw"
+                />
+              </div>
+              <div className="hero-banner-frame hero-banner-frame-tablet d-none d-md-block d-lg-none">
+                <Image
+                  src={tabletSrc}
+                  alt={alt}
+                  fill
+                  className="hero-banner-image"
+                  priority={tabletPriority}
+                  fetchPriority={tabletPriority ? "high" : "auto"}
+                  quality={60}
+                  sizes="100vw"
+                />
+              </div>
+              <div className="hero-banner-frame hero-banner-frame-desktop d-none d-lg-block">
+                <Image
+                  src={desktopSrc}
+                  alt={alt}
+                  fill
+                  className="hero-banner-image"
+                  priority={desktopPriority}
+                  fetchPriority={desktopPriority ? "high" : "auto"}
+                  quality={60}
+                  sizes="100vw"
+                />
+              </div>
             </div>
           );
 
           return (
-            <div
+            <SwiperSlide
               key={id || `hero-slide-${index}`}
               className={`hero-banner-slide ${slide.className || ""}`}
             >
@@ -132,10 +141,10 @@ const HeroBannerSlider = ({ slides = [] }) => {
               ) : (
                 imageContent
               )}
-            </div>
+            </SwiperSlide>
           );
         })}
-      </Slider>
+      </Swiper>
     </div>
   );
 };

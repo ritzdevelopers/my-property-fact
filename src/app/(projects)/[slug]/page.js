@@ -1,4 +1,4 @@
-import Property from "./propertypage";
+import Property from "./propertypage-server";
 import {
   fetchAllProjects,
   fetchCityData,

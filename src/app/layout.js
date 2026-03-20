@@ -59,21 +59,33 @@ export default function RootLayout({ children }) {
         />
         <script
           type="application/ld+json"
-          async=""
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "My Property Fact",
-              url: process.env.NEXT_PUBLIC_UI_URL,
-              logo: `${process.env.NEXT_PUBLIC_UI_URL}/logo.webp`,
-              description:
-                "Discover top property insights, LOCATE scores, and real estate trends across India.",
-              sameAs: [
-                "https://www.facebook.com/mypropertyfact1",
-                "https://www.instagram.com/my.property.fact",
-              ],
-            }),
+            __html: JSON.stringify([
+              {
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                name: "My Property Fact",
+                url: process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in",
+                logo: `${process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in"}/logo.webp`,
+                description:
+                  "Discover top property insights, LOCATE scores, and real estate trends across India.",
+                sameAs: [
+                  "https://www.facebook.com/mypropertyfact1",
+                  "https://www.instagram.com/my.property.fact",
+                ],
+              },
+              {
+                "@context": "https://schema.org",
+                "@type": "WebSite",
+                name: "My Property Fact",
+                url: process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in",
+                potentialAction: {
+                  "@type": "SearchAction",
+                  target: `${process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in"}/projects?search={search_term_string}`,
+                  "query-input": "required name=search_term_string",
+                },
+              },
+            ]),
           }}
         />
       </head>

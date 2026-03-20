@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
  
-  htmlLimitedBots: /.*/,
+  
   async redirects() {
     return [
       // Blog legacy slugs
@@ -78,8 +78,7 @@ const nextConfig = {
       },
      
 
-      // Spam and scanner paths
-      { source: "/cdn-cgi/l/email-protection", destination: "/", permanent: false },
+ 
       {
         source: "/__media__/js/netsoltrademark.php",
         destination: "/",

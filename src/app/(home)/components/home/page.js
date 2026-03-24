@@ -45,13 +45,14 @@ export default async function HomePage() {
 
   // Allowed slugs for featured projects
   const allowedSlugs = [
+    "eldeco-camelot",
     "eldeco-7-peaks-residences",
     "eldeco-whispers-of-wonder",
-    "eldeco-camelot",
   ];
 
   // Residential project slugs for "Explore Our Premier Residential Projects"
   const residentialSlugs = [
+    "eldeco-camelot",
     "saya-gold-avenue",
     "eldeco-7-peaks-residences",
     "ghd-velvet-vista",
@@ -72,11 +73,10 @@ export default async function HomePage() {
     fetchBuilderData(),
   ]);
 
-  // Filtering only featured projects from projects list
-  const featuredProjects = projects.filter((project) => {
-    if (!project.slugURL) return false;
-    return allowedSlugs.includes(project.slugURL);
-  });
+  // Featured: slug-ordered first
+  const featuredProjects = allowedSlugs
+    .map((slug) => projects.find((project) => project.slugURL === slug))
+    .filter(Boolean);
   // top cities
   const topCities = ["Noida", "Delhi", "Ghaziabad"];
   // Residential: slug-ordered first, then rest from getAllProjects (Residential type)

@@ -5,6 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function NewMpfMetaDataContainer({ propertyTypes, projects, builders, cities }) {
+  const normalizePropertyTypeName = (value = "") => value.trim().toLowerCase();
+  const semanticPropertyHeadings = ["Commercial", "New Launches", "Residential"].filter(
+    (heading) =>
+      propertyTypes?.some((item) => {
+        const typeName = normalizePropertyTypeName(item?.projectTypeName);
+        if (normalizePropertyTypeName(heading) === "new launches") {
+          return typeName === "new launches" || typeName === "new launch";
+        }
+        return typeName === normalizePropertyTypeName(heading);
+      })
+  );
+
   // Default statistics for MPF meta data
   const [statistics, setStatistics] = useState([
     {
@@ -157,6 +169,11 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
           <h1 className="property-search-title plus-jakarta-sans-semi-bold mt-3 mt-md-0">
             Find The Best Property
           </h1>
+          <div className="visually-hidden">
+            {semanticPropertyHeadings.map((heading) => (
+              <h2 key={heading}>{heading}</h2>
+            ))}
+          </div>
           <div className="property-buttons-overlay d-flex flex-wrap justify-content-center gap-4 gap-lg-3">
 
             {propertyTypes && propertyTypes.map((item, index) => (

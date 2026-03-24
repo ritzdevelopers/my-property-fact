@@ -347,7 +347,7 @@ export default function ChatbotV2() {
               />
             </div>
             <div>
-              <h3>MyPropertyFact</h3>
+              <div>MyPropertyFact</div>
               <span className={styles.status}>Online</span>
             </div>
           </div>

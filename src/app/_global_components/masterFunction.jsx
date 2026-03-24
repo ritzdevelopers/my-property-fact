@@ -244,6 +244,8 @@ const TOP_PICKS_BUILDERS = [
   "ghd-infra",
 ];
 
+const TOP_PICKS_PROJECT_SLUG = "eldeco-camelot";
+
 const TOP_PICKS_PERIOD_MS = 4 * 24 * 60 * 60 * 1000;
 
 function normalizeTopPickProject(project, builderName, builderSlug) {
@@ -280,6 +282,21 @@ function sortByLatest(a, b) {
 /** Fetches the current Top Pick. Featured builder rotates every 4 days; we show that builder's latest project only. */
 export const fetchTopPicksProject = cache(async () => {
   if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  const allProjects = await fetchAllProjects();
+  const pinnedProject = Array.isArray(allProjects)
+    ? allProjects.find((project) => project.slugURL === TOP_PICKS_PROJECT_SLUG)
+    : null;
+
+  if (pinnedProject) {
+    const normalizedPinnedProject = normalizeTopPickProject(
+      pinnedProject,
+      pinnedProject.builderName ?? "Eldeco",
+      pinnedProject.builderSlug ?? pinnedProject.builderSlugURL ?? "eldeco",
+    );
+    delete normalizedPinnedProject._sortAt;
+    return normalizedPinnedProject;
+  }
+
   const results = await Promise.allSettled(
     TOP_PICKS_BUILDERS.map((slug) =>
       fetch(`${apiUrl}builder/get/${slug}`, { next: { revalidate: 60 } }),

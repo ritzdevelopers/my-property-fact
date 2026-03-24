@@ -26,13 +26,15 @@ export default function NewsAndViews({ webStoryList }) {
                         className="card-img-top img-fluid"
                       />
                       <div className="title-3d">
-                        <p className="text-center m-0 p-2">{item.categoryName}</p>
+                        <h3 className="text-center m-0 p-2 title-3d-heading">
+                          {item.categoryName}
+                        </h3>
                       </div>
                     </div>
                     <div className="flip-card-back">
-                      <h5 className="flip-card-back-title">
+                      <p className="flip-card-back-title m-0">
                         {item.categoryName}
-                      </h5>
+                      </p>
                       <p>{item.categoryDescription}</p>
                     </div>
                   </div>

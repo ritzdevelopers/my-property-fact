@@ -5,9 +5,8 @@ import "../../common/common.css";
 export default function SocialFeed({ data }) {
   // Returning the social feed section
   return (
-    <div className="blog-section-container mt-4 my-lg-5 py-4">
-      <div className="container">
-        <h2 className="text-center mb-3 plus-jakarta-sans-semi-bold">Investor Education Blog</h2>
+    <div className="blog-section-container mt-2 mt-lg-4 pt-2 pb-4">
+      <div className="container px-0">
         {data?.length < 0 ? (
           <div
             className="d-flex justify-content-center align-items-center"
@@ -16,8 +15,8 @@ export default function SocialFeed({ data }) {
             <LoadingSpinner show={true} />
           </div>
         ) : (
-          <div className="container">
-            <div className="row investor-blog-grid">
+          <>
+            <div className="row investor-blog-grid mx-0">
               {data?.map((blog, index) => {
                 // Always show first two cards
                 if (index < 2) {
@@ -46,7 +45,7 @@ export default function SocialFeed({ data }) {
                 return null;
               })}
             </div>
-          </div>
+          </>
         )}
       </div>
     </div>

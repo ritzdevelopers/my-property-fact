@@ -1,4 +1,5 @@
  "use client";
+import "./common.css";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -145,7 +146,7 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
       )}
       {showRecentPosts && (
         <div className="recent-posts-container sidebar-align-right mb-4">
-          <h3 className="fw-semibold mb-2 h6">Recent Posts</h3>
+          <h2 className="blog-sidebar-section-title">Recent Posts</h2>
           <div className="recent-posts-list">
             {recent.map((b, i) => (
               <Link
@@ -184,7 +185,7 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
       )}
       {showLatestProperty && (
         <div className="latest-property-container sidebar-align-right mb-4">
-          <h3 className="fw-semibold mb-2 h6">Latest Property</h3>
+          <h2 className="blog-sidebar-section-title">Latest Property</h2>
           <hr className="my-2" />
           <div className="latest-property-image">
             {latestProject ? (

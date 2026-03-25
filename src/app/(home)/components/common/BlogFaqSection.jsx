@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
+import "./common.css";
 
 const DEFAULT_SUBTITLE =
   "Find answers to common questions about property types, filters, and coverage on My Property Fact across India.";
@@ -16,13 +17,13 @@ export default function BlogFaqSection({
   return (
     <section className="blog-faq-section">
       <div className="container">
-        <h2 className="faq-title">Frequently Asked Question</h2>
+        <h2 className="faq-title">Frequently Asked Questions</h2>
         <p className="faq-subtitle">{subtitle}</p>
         <div className="faq-list">
           {faqItems.map((item, index) => (
             <div key={index} className="faq-item">
               <div className="faq-head">
-                <span className="faq-text">{item.q}</span>
+                <h3 className="faq-question">{item.q}</h3>
                 <button
                   className={`faq-plus-wrap ${openFaq === index ? "open" : ""}`}
                   type="button"

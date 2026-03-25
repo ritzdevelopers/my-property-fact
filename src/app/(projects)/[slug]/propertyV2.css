@@ -527,21 +527,21 @@
 }
 
 .amenities-grid {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: center;
-
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+  justify-items: center;
+  width: 100%;
 }
 
 .amenity-modern-card {
-  flex: 0 0 280px;
-  width: 280px;
+  width: 100%;
   max-width: 280px;
   min-height: 230px;
   height: 230px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-left: 0;
+  margin-right: 0;
   border-radius: 16px;
   background: #ffffff;
   border: 1px solid #e6ece7;
@@ -627,12 +627,13 @@
   }
 
   .amenities-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.1rem;
   }
 
   .amenity-modern-card {
-    flex: 0 0 calc((100% - 1.1rem) / 2);
-    max-width: calc((100% - 1.1rem) / 2);
+    width: 100%;
+    max-width: 100%;
     min-height: 165px;
   }
 
@@ -659,11 +660,12 @@
   }
 
   .amenities-grid {
+    grid-template-columns: 1fr;
     gap: 1rem;
   }
 
   .amenity-modern-card {
-    flex: 0 0 100%;
+    width: 100%;
     max-width: 100%;
   }
 
@@ -859,14 +861,20 @@
 
 .floorplan-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 533px), 533px));
-  justify-content: start;
   align-items: start;
   gap: 10px;
+  width: 100%;
+}
+
+/* Two equal columns so ~1140px containers (e.g. 1366px viewport) fill the row; cards cap at 533px inside each cell */
+.floorplan-grid:not(.floorplan-grid--single) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-items: center;
 }
 
 .floorplan-grid--single {
-  grid-template-columns: minmax(0, 533px);
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 533px;
 }
 
 .floorplan-card {
@@ -1017,9 +1025,10 @@
 
 .location-modern-section {
   position: relative;
-  padding: 4.5rem 0;
+  padding: 2.5rem 0 3.5rem;
   background:url("/static/green_building.png") center center / cover no-repeat;
-  height: 847px;
+  height: auto;
+  min-height: 0;
 }
 
 .location-modern-section-title {
@@ -1716,7 +1725,7 @@ textarea.form-control::placeholder {
   margin-bottom: 20px;
 }
 
-/* Gallery grid section */
+/* Gallery grid section — tighter bottom spacing so Location is reached with less scroll */
 .gallery-modern-section {
   background: #ffffff;
   position: relative;
@@ -1725,7 +1734,7 @@ textarea.form-control::placeholder {
 .gallery-modern-title {
   font-size: 2.15rem;
   font-weight: 600;
-  margin: 0 0 1.35rem;
+  margin: 0 0 1rem;
   color: #111111;
   font-family: 'plus-jakarta' !important;
   font-weight: 600;
@@ -1869,10 +1878,17 @@ a {
     max-width: 533px;
   }
 
-  .floorplan-grid {
+  .floorplan-grid:not(.floorplan-grid--single),
+  .floorplan-grid--single {
     grid-template-columns: 1fr;
     gap: 10px;
     justify-items: center;
+  }
+
+  .floorplan-grid--single {
+    max-width: 533px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .floorplan-grid:not(.floorplan-grid--single) .floorplan-card:nth-child(even),
@@ -2126,8 +2142,14 @@ a {
 
 /* Mobile View */
 @media (max-width: 768px) {
+  .gallery-modern-section {
+    padding-bottom: 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
   .gallery-modern-title {
     font-size: 1.95rem;
+    margin-bottom: 0.85rem;
   }
 
   .gallery-modern-grid {
@@ -2569,15 +2591,15 @@ a {
 
   .floorplan-grid:not(.floorplan-grid--single) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: calc(533px * 2 + 10px);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     gap: 10px;
-    justify-content: center;
-    justify-items: stretch;
+    justify-items: center;
   }
 
   .floorplan-grid--single {
-    grid-template-columns: minmax(0, 533px);
+    grid-template-columns: minmax(0, 1fr);
     max-width: 533px;
     margin: 0 auto;
     gap: 10px;
@@ -2587,7 +2609,6 @@ a {
   .floorplan-card {
     max-width: 533px;
     width: 100%;
-    justify-self: center;
     height: auto;
     min-height: 360px;
   }
@@ -2818,15 +2839,15 @@ a {
 
   .floorplan-grid:not(.floorplan-grid--single) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: calc(533px * 2 + 10px);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     gap: 10px;
-    justify-content: center;
-    justify-items: stretch;
+    justify-items: center;
   }
 
   .floorplan-grid--single {
-    grid-template-columns: minmax(0, 533px);
+    grid-template-columns: minmax(0, 1fr);
     max-width: 533px;
     margin: 0 auto;
     gap: 10px;
@@ -2837,7 +2858,6 @@ a {
   .floorplan-grid--single .floorplan-card {
     max-width: 533px;
     width: 100%;
-    justify-self: center;
     min-height: 360px;
     height: auto;
   }

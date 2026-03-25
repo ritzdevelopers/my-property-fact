@@ -1287,7 +1287,7 @@ const addNearbyImageIcon = (benefit) => {
         </div>
 
         {/* Gallery section */}
-        <div className="container py-5 mb-5 gallery-modern-section" id="gallery">
+        <div className="container pt-4 pb-2 mb-3 gallery-modern-section" id="gallery">
           <h2 className="gallery-modern-title">Gallery</h2>
           {!!galleryImages.length && (
             <div className="gallery-modern-grid">
@@ -1313,7 +1313,7 @@ const addNearbyImageIcon = (benefit) => {
         {/* Location section */}
         <ScrollFadeSection
           as="section"
-          className="location-modern-section mb-5"
+          className="location-modern-section mb-4"
           id="location"
         >
           <div className="container location-modern-container">

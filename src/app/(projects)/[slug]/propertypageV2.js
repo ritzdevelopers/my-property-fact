@@ -1266,7 +1266,7 @@ const addNearbyImageIcon = (benefit) => {
                     <Image
                       width={500}
                       height={300}
-                      className="img-fluid floorplan-image"
+                      className="img-fluid floorplan-image floorplan-image--blurred"
                       src={getFloorPlanImage(item)}
                       alt={item.altTag || item.planType || "Floor plan"}
                     />

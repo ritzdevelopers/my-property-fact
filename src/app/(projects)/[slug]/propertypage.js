@@ -574,6 +574,10 @@ const addNearbyImageIcon = (benefit) => {
 
   const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
   const slugURL = projectDetail.slugURL || "";
+  const builderSlug = String(
+    projectDetail.builder?.slugURL || projectDetail.builder?.slugUrl || "",
+  ).trim();
+  const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
   const projectImageSrc = (filename) =>
     filename && slugURL ? `${imageBase}properties/${slugURL}/${filename}` : "/static/no_image.png";
 
@@ -615,12 +619,19 @@ const addNearbyImageIcon = (benefit) => {
         <div className="main-header">
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex justify-content-center align-items-center">
-              <Link href="#">
+              <Link
+                href={builderPageHref || "/"}
+                aria-label={
+                  builderPageHref
+                    ? `View ${projectDetail.builder?.builderName || "builder"} profile`
+                    : "Home"
+                }
+              >
                 <Image
                   width={198}
                   height={51}
                   src={projectImageSrc(projectDetail.projectLogo)}
-                  alt="logo"
+                  alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
                   sizes="(max-width: 768px) 50vw, 198px"
                 />
@@ -1249,7 +1260,7 @@ const addNearbyImageIcon = (benefit) => {
             {/* Action Buttons */}
             <div className="text-center">
               <Link
-                href={`/builder/${projectDetail.builder?.slugURL || "#"}`}
+                href={builderPageHref || "#"}
                 className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
               >
                 LEARN MORE

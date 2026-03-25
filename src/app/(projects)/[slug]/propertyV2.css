@@ -215,7 +215,6 @@
 .hero-get-detail-card p {
   margin: 0;
   line-height: 1.2;
-  font-family: 'plus-jakarta' !important;
   font-weight: 600;
 }
 
@@ -253,13 +252,11 @@
 .overview-title {
   margin-bottom: 1.25rem;
   text-align: center;
-  font-family: 'plus-jakarta' !important;
   font-weight: 600;
   font-size: 2.3rem;
 }
 
 .overview-description {
-  font-family: 'plus-jakarta' !important;
   font-weight: 400;
   font-size: 16px;
   line-height: 30px;
@@ -928,7 +925,6 @@
 
 .floorplan-card-top-meta span {
   min-width: 3rem;
-  font-family: "plus-jakarta", system-ui, sans-serif;
   font-size: 0.9375rem;
   line-height: 1.35;
   color: #000000;
@@ -937,7 +933,6 @@
 }
 
 .floorplan-card-top-meta strong {
-  font-family: "plus-jakarta", system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.45;
   color: #737373;
@@ -993,7 +988,6 @@
 
 .floorplan-heading {
   text-align: left;
-  font-family: 'plus-jakarta' !important;
   font-size: 36px;
   font-weight: 600;
 }
@@ -1032,7 +1026,6 @@
 }
 
 .location-modern-section-title {
-  font-family: 'plus-jakarta' !important;
   font-size: 36px;
   font-weight: 300;
   line-height: 100%;
@@ -1139,7 +1132,6 @@
 }
 
 .location-modern-title {
-  font-family: 'plus-jakarta' !important;
   font-size: clamp(1.85rem, 3vw, 2.4rem);
   font-weight: 500;
   margin: 0 0 1.25rem;
@@ -1223,7 +1215,6 @@
   color: #ffffff;
   margin: 0 0 0.7rem;
   font-size: 1.25rem;
-  font-family: 'plus-jakarta' !important;
 }
 
 .location-nearby-marquee {
@@ -1275,14 +1266,12 @@
   margin: 0;
   color: #1a1a1a;
   font-size: 0.95rem;
-  font-family: 'plus-jakarta' !important;
   white-space: nowrap;
 }
 
 .location-nearby-card-content span {
   color: #5f5f5f;
   font-size: 0.8rem;
-  font-family: 'plus-jakarta' !important;
   line-height: 1.2;
 }
 
@@ -1335,6 +1324,18 @@
   max-width: 100%;
 }
 
+.about-modern-image-link {
+  position: absolute;
+  inset: 0;
+  display: block;
+  z-index: 1;
+}
+
+.about-modern-image-link:focus-visible {
+  outline: 2px solid #0d5834;
+  outline-offset: 4px;
+}
+
 .about-modern-image {
   object-fit: cover;
 }
@@ -1354,7 +1355,6 @@
 }
 
 .about-modern-title {
-  font-family: 'plus-jakarta' !important;
   margin: 0 0 1.2rem;
   font-size: clamp(1.85rem, 3.2vw, 3rem);
   font-weight: 600;
@@ -1736,10 +1736,7 @@ textarea.form-control::placeholder {
   font-weight: 600;
   margin: 0 0 1rem;
   color: #111111;
-  font-family: 'plus-jakarta' !important;
-  font-weight: 600;
   letter-spacing: 0;
-
 }
 
 .gallery-modern-grid {
@@ -2210,7 +2207,6 @@ a {
   font-size: 36px;
   font-weight: 600;
   color: #111111;
-  font-family: 'plus-jakarta' !important;
 }
 
 .faq-modern-subtitle {
@@ -2220,7 +2216,6 @@ a {
   margin: 0 auto 1.8rem;
   font-size: 1rem;
   line-height: 1.5;
-  font-family: 'plus-jakarta' !important;
 }
 
 .faq-modern-list {
@@ -2252,7 +2247,6 @@ a {
   font-size: 1rem;
   font-weight: 500;
   color: #181818;
-  font-family: 'plus-jakarta' !important;
   transition: background-color 0.25s ease;
 }
 
@@ -2294,7 +2288,6 @@ a {
   color: #636363;
   font-size: 1rem;
   line-height: 1.55;
-  font-family: 'plus-jakarta' !important;
   font-weight: 400;
   transform: translateY(-12px);
   opacity: 0;

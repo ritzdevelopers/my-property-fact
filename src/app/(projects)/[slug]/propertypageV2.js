@@ -769,6 +769,10 @@ const addNearbyImageIcon = (benefit) => {
       ? aboutBuilderImage
       : projectImageSrc(aboutBuilderImage)
     : "/static/no_image.png";
+  const builderSlug = String(
+    projectDetail?.builder?.slugURL || projectDetail?.builder?.slugUrl || "",
+  ).trim();
+  const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
   const getInTouchPoints = [
     "Book a Site Visit",
     "Ask For a Brochure",
@@ -903,12 +907,19 @@ const addNearbyImageIcon = (benefit) => {
         <div className="main-header">
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex justify-content-center align-items-center">
-              <Link href="#">
+              <Link
+                href={builderPageHref || "/"}
+                aria-label={
+                  builderPageHref
+                    ? `View ${projectDetail.builder?.builderName || "builder"} profile`
+                    : "Home"
+                }
+              >
                 <Image
                   width={198}
                   height={50.75}
                   src={projectImageSrc(projectDetail.projectLogo)}
-                  alt="logo"
+                  alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
                 />
               </Link>
@@ -1409,12 +1420,29 @@ const addNearbyImageIcon = (benefit) => {
       <ScrollFadeSection as="section" className="about-modern-section mb-5">
         <div className="container about-modern-container">
           <div className="about-modern-image-wrap">
-            <Image
-              src={aboutBuilderImageSrc}
-              alt={projectDetail.builder?.builderName || "Builder"}
-              fill
-              className="about-modern-image"
-            />
+            {builderPageHref ? (
+              <Link
+                href={builderPageHref}
+                className="about-modern-image-link"
+                aria-label={`View ${projectDetail.builder?.builderName || "builder"} profile`}
+              >
+                <Image
+                  src={aboutBuilderImageSrc}
+                  alt={projectDetail.builder?.builderName || "Builder"}
+                  fill
+                  className="about-modern-image"
+                  sizes="(max-width: 991px) 100vw, 50vw"
+                />
+              </Link>
+            ) : (
+              <Image
+                src={aboutBuilderImageSrc}
+                alt={projectDetail.builder?.builderName || "Builder"}
+                fill
+                className="about-modern-image"
+                sizes="(max-width: 991px) 100vw, 50vw"
+              />
+            )}
           </div>
 
           <div className="about-modern-content">
@@ -1430,7 +1458,7 @@ const addNearbyImageIcon = (benefit) => {
             ></div>
 
             <Link
-              href={`/builder/${projectDetail.builder?.slugURL || "#"}`}
+              href={builderPageHref || "#"}
               className="about-modern-link-btn"
               aria-label="Open builder details"
             >

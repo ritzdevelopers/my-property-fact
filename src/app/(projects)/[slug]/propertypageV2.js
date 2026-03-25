@@ -743,6 +743,9 @@ const addNearbyImageIcon = (benefit) => {
   const amenitiesList = projectDetail.amenities || [];
   const floorPlans = projectDetail.floorPlans || [];
   const galleryImages = projectDetail.galleryImages || [];
+  const amenityDescription = projectDetail.amenityDescription || projectDetail.amenityDesc || "";
+  const floorPlanDescription = projectDetail.floorPlanDescription || projectDetail.floorPlanDesc || "";
+  const locationDescription = projectDetail.locationDescription || projectDetail.locationDesc || "";
   const nearbyBenefitsMaster = Array.isArray(allNearbyBenefits)
     ? allNearbyBenefits
     : Array.isArray(allNearbyBenefits?.data)
@@ -753,6 +756,7 @@ const addNearbyImageIcon = (benefit) => {
   for (let i = 0; i < amenitiesList.length; i += AMENITIES_PER_SLIDE) {
     amenitiesChunks.push(amenitiesList.slice(i, i + AMENITIES_PER_SLIDE));
   }
+  const activeAmenitiesChunk = amenitiesChunks[amenitiesSlideIndex] || [];
   const showAmenityCards = isAmenitiesInView;
   const aboutBuilderImage =
     projectDetail?.builder?.builderImage ||
@@ -773,6 +777,9 @@ const addNearbyImageIcon = (benefit) => {
   ];
   const locationBenefitList =
     projectDetail.locationBenefits || projectDetail.projectLocationBenefitList || [];
+  const locationBenefitsToRender = locationBenefitList.length
+    ? locationBenefitList
+    : nearbyBenefitsMaster;
   const normalizeBenefitText = (value) =>
     String(value || "")
       .trim()
@@ -810,6 +817,22 @@ const addNearbyImageIcon = (benefit) => {
       matchedItem?.distance ?? matchedItem?.distanceKm ?? matchedItem?.distanceInKm;
     return formatDistanceLabel(matchedDistance);
   };
+  const uniqueLocationBenefits = locationBenefitsToRender.filter((benefit, index, list) => {
+    const benefitName = normalizeBenefitText(
+      benefit?.benefitName || benefit?.name || benefit?.title,
+    );
+    const distanceLabel = getNearbyDistanceLabel(benefit);
+    const uniqueKey = `${benefitName}__${distanceLabel}`;
+    return (
+      list.findIndex((item) => {
+        const itemName = normalizeBenefitText(
+          item?.benefitName || item?.name || item?.title,
+        );
+        const itemDistance = getNearbyDistanceLabel(item);
+        return `${itemName}__${itemDistance}` === uniqueKey;
+      }) === index
+    );
+  });
   const faqList = projectDetail.faqs || [];
   const getFloorPlanImage = (plan) => {
     const imageName =
@@ -825,10 +848,20 @@ const addNearbyImageIcon = (benefit) => {
   };
 
   const getFloorPlanArea = (plan) => {
-    const areaValue = plan?.areaSqFt || plan?.area || plan?.areaSqft || plan?.size;
-    if (!areaValue) return "On Request";
-    const areaText = String(areaValue).trim();
-    return /sq|ft|mtr|meter/i.test(areaText) ? areaText : `${areaText} Sq Ft`;
+    const sqFt = plan?.areaSqFt ?? plan?.areaSqft ?? plan?.area ?? plan?.size;
+    const sqMt = plan?.areaSqMt != null ? parseFloat(plan.areaSqMt) : null;
+    if (!sqFt && sqMt == null) return "On Request";
+
+    const parts = [];
+    if (sqFt) {
+      const sqFtText = String(sqFt).trim();
+      parts.push(/sq|ft|mtr|meter/i.test(sqFtText) ? sqFtText : `${sqFtText} sq ft`);
+    }
+    if (Number.isFinite(sqMt)) {
+      parts.push(`${sqMt.toFixed(2)} sq mt`);
+    }
+
+    return parts.length ? parts.join(" • ") : "On Request";
   };
 
   const goToNextAmenitiesSlide = () => {
@@ -850,7 +883,7 @@ const addNearbyImageIcon = (benefit) => {
 
   return (
     <>
-      {/* <Link
+      <Link
         href="/"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
         aria-label="Back to MyPropertyFact home page"
@@ -860,7 +893,7 @@ const addNearbyImageIcon = (benefit) => {
         <span className="back-to-home-floating__icon">
           <FontAwesomeIcon icon={faArrowLeft} />
         </span>
-      </Link> */}
+      </Link>
       {/* Header for property detail page */}
       <header
         className={`project-detail-header px-4 ${
@@ -961,7 +994,7 @@ const addNearbyImageIcon = (benefit) => {
                 </div>
 
                 <ul className="project-mb-list d-lg-none">
-                  {/* <li>
+                  <li>
                     <Link
                       href="/"
                       className="text-decoration-none"
@@ -969,7 +1002,7 @@ const addNearbyImageIcon = (benefit) => {
                     >
                       Back to Home
                     </Link>
-                  </li> */}
+                  </li>
                   <li>
                     <Link
                       href="#overview"
@@ -1101,7 +1134,7 @@ const addNearbyImageIcon = (benefit) => {
               {projectDetail.projectLocality}, {projectDetail.city},{" "}
               {projectDetail.state}
             </p>
-            <p className="hero-get-price">{generatePrice(projectDetail.projectPrice)}</p>
+            <p className="hero-get-price">Price: {generatePrice(projectDetail.projectPrice)}</p>
             <p className="hero-get-config">{projectDetail.projectConfiguration}</p>
             <p className="hero-get-rera">RERA: {projectDetail.reraNo || "Not found"}</p>
           </div>
@@ -1120,18 +1153,6 @@ const addNearbyImageIcon = (benefit) => {
         </div>
 
         <div id="overview" className="container overview-section py-5 mt-3 mb-3">
-          <div className="overview-lines-layer" aria-hidden="true">
-            {[8, 18, 28, 38, 50, 62, 72, 82, 92].map((position, index) => (
-              <span
-                key={`overview-line-${position}`}
-                className="overview-line"
-                style={{
-                  left: `${position}%`,
-                  animationDelay: `${index * 0.5}s`,
-                }}
-              ></span>
-            ))}
-          </div>
           <div className="overview-content-wrap text-center mx-auto">
             <h2 className="overview-title">Project Overview</h2>
             <div
@@ -1169,42 +1190,43 @@ const addNearbyImageIcon = (benefit) => {
                       className="amenities-toggle-btn amenities-toggle-btn--less ms-2"
                       onClick={goToPrevAmenitiesSlide}
                     >
-                      <span>View Less</span>
+                      <span>View Previous</span>
                     </button>
                   )}
                 </>
               )}
             </div>
+            {amenityDescription && (
+              <div
+                className="amenities-description text-center mb-4"
+                dangerouslySetInnerHTML={{ __html: amenityDescription }}
+              ></div>
+            )}
 
             <div className="amenities-slide-container">
-              <div
-                className="amenities-slide-track"
-                style={{ transform: `translateX(-${amenitiesSlideIndex * 100}%)` }}
-              >
-                {amenitiesChunks.map((chunk, chunkIndex) => (
-                  <div key={chunkIndex} className="amenities-slide">
-                    <div className="amenities-grid">
-                      {chunk.map((item, index) => (
-                        <div
-                          key={`${item.id || item.title}-${index}`}
-                          className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
-                          style={{ transitionDelay: `${index * 80}ms` }}
-                        >
-                          <div className="amenity-modern-icon-wrap">
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
-                              height={40}
-                              width={40}
-                              alt={item.altTag || item.title || "Amenity icon"}
-                              className="d-flex mx-auto"
-                            />
-                          </div>
-                          <p className="amenity-modern-title">{item.title}</p>
+              <div className="amenities-slide-track">
+                <div className="amenities-slide">
+                  <div className="amenities-grid">
+                    {activeAmenitiesChunk.map((item, index) => (
+                      <div
+                        key={`${item.id || item.title}-${index}`}
+                        className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
+                        style={{ transitionDelay: `${index * 80}ms` }}
+                      >
+                        <div className="amenity-modern-icon-wrap">
+                          <Image
+                            src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
+                            height={40}
+                            width={40}
+                            alt={item.altTag || item.title || "Amenity icon"}
+                            className="d-flex mx-auto"
+                          />
                         </div>
-                      ))}
-                    </div>
+                        <p className="amenity-modern-title">{item.title}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </div>
@@ -1212,14 +1234,12 @@ const addNearbyImageIcon = (benefit) => {
 
         {/* Floor plans section */}
         <div className="container mb-5 floorplan-section" id="floorplan">
-          <div className="">
-            <h2 className="text-center fw-bold mb-4 floorplan-heading">Floor Plans</h2>
-            {projectDetail.floorPlanDescription && (
+          <div className="floorplan-header">
+            <h2 className="fw-bold mb-0 floorplan-heading">Floor Plans</h2>
+            {floorPlanDescription && (
               <div
-                className="text-center mb-4 floorplan-description"
-                dangerouslySetInnerHTML={{
-                  __html: projectDetail.floorPlanDescription,
-                }}
+                className="mb-0 floorplan-description"
+                dangerouslySetInnerHTML={{ __html: floorPlanDescription }}
               ></div>
             )}
           </div>
@@ -1296,19 +1316,36 @@ const addNearbyImageIcon = (benefit) => {
           className="location-modern-section mb-5"
           id="location"
         >
-          
           <div className="container location-modern-container">
-            <div className="location-modern-map">
-              <Image
-                src={projectImageSrc(projectDetail.locationMap)}
-                alt="Project Location Map"
-                fill
-                className="location-modern-map-image"
-              />
+            <div className="location-modern-map-column">
+              <div className="location-modern-map">
+                <Image
+                  src={projectImageSrc(projectDetail.locationMap)}
+                  alt="Project Location Map"
+                  fill
+                  className="location-modern-map-image"
+                />
+              </div>
+              <button
+                type="button"
+                className="location-modern-map-btn"
+                onClick={() => setShowPopUp(true)}
+              >
+                <span>View Map</span>
+                <span className="location-modern-map-btn-icon">
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </span>
+              </button>
             </div>
 
             <div className="location-modern-panel">
-              <h2 className="location-modern-title">Location</h2>
+              <h2 className="location-modern-section-title">Location</h2>
+              {locationDescription && (
+                <div
+                  className="location-modern-description"
+                  dangerouslySetInnerHTML={{ __html: locationDescription }}
+                ></div>
+              )}
               <div className="location-modern-info-card">
                 <div className="location-modern-row">
                   <span>Address</span>
@@ -1327,26 +1364,15 @@ const addNearbyImageIcon = (benefit) => {
                   <strong>{projectDetail.country || "NA"}</strong>
                 </div>
               </div>
-
-              <button
-                type="button"
-                className="location-modern-map-btn"
-                onClick={() => setShowPopUp(true)}
-              >
-                <span>View Map</span>
-                <span className="location-modern-map-btn-icon">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-              </button>
             </div>
           </div>
 
-          {!!nearbyBenefitsMaster.length && (
+          {!!uniqueLocationBenefits.length && (
             <div className="container location-nearby-wrap">
-              <h3 className="location-nearby-title">Nearby Benefits</h3>
+              {/* <h3 className="location-nearby-title">Nearby Benefits</h3> */}
               <div className="location-nearby-marquee">
                 <div className="location-nearby-track">
-                  {[...nearbyBenefitsMaster, ...nearbyBenefitsMaster].map((benefit, index) => {
+                  {[...uniqueLocationBenefits, ...uniqueLocationBenefits].map((benefit, index) => {
                     const benefitName = benefit.benefitName || benefit.name || benefit.title || "Benefit";
                     const linkedDistance = getNearbyDistanceLabel(benefit);
                     return (
@@ -1566,7 +1592,9 @@ const addNearbyImageIcon = (benefit) => {
                       </span>
                     </button>
                     <div className={`faq-modern-answer ${isOpen ? "show" : ""}`}>
-                      <p>{item.answer}</p>
+                      <div className="faq-modern-answer-inner">
+                        <p>{item.answer}</p>
+                      </div>
                     </div>
                   </article>
                 );

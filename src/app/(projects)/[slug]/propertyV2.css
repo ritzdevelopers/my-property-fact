@@ -239,43 +239,14 @@
   position: relative;
   overflow: hidden;
   background-color: #ffffff;
-}
-
-.overview-lines-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-.overview-line {
-  position: absolute;
-  top: -120%;
-  width: 1px;
-  height: 240%;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #f5f5f5 24%,
-    #f5f5f5 76%,
-    transparent 100%
-  );
-  animation: overviewLineMove 8s linear infinite;
-}
-
-@keyframes overviewLineMove {
-  0% {
-    transform: translateY(-30%);
-  }
-  100% {
-    transform: translateY(30%);
-  }
+  margin-top: 3.5rem !important;
+  padding-top: 3rem !important;
 }
 
 .overview-content-wrap {
   position: relative;
   z-index: 2;
-  max-width: 1880px;
+  
   padding: 0 1rem;
 }
 
@@ -291,11 +262,11 @@
   font-family: 'plus-jakarta' !important;
   font-weight: 400;
   font-size: 16px;
-  line-height: 26px;
+  line-height: 30px;
   letter-spacing: 0;
   text-align: center;
   text-transform: capitalize;
-  color: #00000099;
+  color: rgba(0, 0, 0, 0.78);
 }
 
 .overview-description p {
@@ -386,13 +357,17 @@
   padding: 5px;
   z-index: 100;
   width: 100%;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(8, 23, 15, 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
   transition: background 0.2s linear;
 }
 
 /* Ensure desktop nav links in project header always stay white */
 .project-detail-header .navi .menu ul li a {
   color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 /* Keep nav items on one line: no wrap */
@@ -454,7 +429,8 @@
 #amenities.amenities-section {
   position: relative;
   background: url("/static/green_leaves.jpg") center center / cover no-repeat;
-  overflow: hidden;
+  overflow: visible;
+  margin-bottom: 8.5rem !important;
 }
 
 #amenities.amenities-section::before {
@@ -484,6 +460,33 @@
   font-weight: 500;
 }
 
+.amenities-description {
+
+  margin-left: 0;
+  margin-right: auto;
+  color: #ffffff;
+  text-align: left;
+}
+
+.amenities-description,
+.amenities-description p,
+.amenities-description span,
+.amenities-description li,
+.amenities-description strong,
+.amenities-description b,
+.amenities-description em,
+.amenities-description h3,
+.amenities-description h4 {
+  color: #ffffff !important;
+}
+
+.amenities-description p,
+.amenities-description li {
+  font-size: 1rem;
+  line-height: 1.75;
+  text-align: left;
+}
+
 .amenities-toggle-btn {
   display: inline-flex;
   align-items: center;
@@ -508,7 +511,7 @@
 }
 
 .amenities-slide-container {
-  overflow: hidden;
+  overflow: visible;
   width: 100%;
 }
 
@@ -523,22 +526,31 @@
 }
 
 .amenities-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
   gap: 1.4rem;
 }
 
 .amenity-modern-card {
-  min-height: 180px;
+  flex: 0 0 280px;
+  width: 280px;
+  max-width: 280px;
+  min-height: 230px;
+  height: 230px;
+  margin-left: auto;
+  margin-right: auto;
   border-radius: 16px;
   background: #ffffff;
+  border: 1px solid #e6ece7;
   padding: 1.2rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  box-shadow: 0 14px 24px rgba(8, 16, 8, 0.22);
+  box-shadow: 0 18px 42px rgba(5, 18, 9, 0.28);
   opacity: 0;
   transform: translateY(52px);
   transition: opacity 0.7s ease, transform 0.7s ease;
@@ -547,6 +559,14 @@
 .amenity-modern-card.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.amenities-grid .amenity-modern-card:nth-child(n + 5) {
+  transform: translateY(72px);
+}
+
+.amenities-grid .amenity-modern-card.is-visible:nth-child(n + 5) {
+  transform: translateY(72px);
 }
 
 .amenity-modern-icon-wrap {
@@ -601,16 +621,34 @@
 }
 
 @media (max-width: 991px) {
+  #amenities.amenities-section {
+    margin-bottom: 6rem !important;
+  }
+
   .amenities-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.1rem;
   }
 
   .amenity-modern-card {
+    flex: 0 0 calc((100% - 1.1rem) / 2);
+    max-width: calc((100% - 1.1rem) / 2);
     min-height: 165px;
+  }
+
+  .amenities-grid .amenity-modern-card:nth-child(n + 3) {
+    transform: translateY(28px);
+  }
+
+  .amenities-grid .amenity-modern-card.is-visible:nth-child(n + 3) {
+    transform: translateY(28px);
   }
 }
 
 @media (max-width: 576px) {
+  #amenities.amenities-section {
+    margin-bottom: 3rem !important;
+  }
+
   .amenities-head {
     margin-bottom: 1.2rem;
   }
@@ -620,8 +658,23 @@
   }
 
   .amenities-grid {
-    grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .amenity-modern-card {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .amenities-description,
+  .amenities-description p,
+  .amenities-description li {
+    text-align: left;
+  }
+
+  .amenities-grid .amenity-modern-card:nth-child(n + 1),
+  .amenities-grid .amenity-modern-card.is-visible:nth-child(n + 1) {
+    transform: translateY(0);
   }
 
   .amenities-toggle-btn {
@@ -777,55 +830,57 @@
 }
 
 .floorplan-section::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.03) 0,
-    rgba(0, 0, 0, 0.03) 1px,
-    transparent 1px,
-    transparent 25%
-  );
-  pointer-events: none;
+  display: none;
 }
 
 .floorplan-heading,
 .floorplan-description,
-.floorplan-grid {
+.floorplan-grid,
+.floorplan-header {
   position: relative;
   z-index: 1;
 }
 
+.floorplan-header {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+  gap: 1.25rem 2rem;
+  align-items: start;
+  
+  margin: 0 auto 1.8rem;
+}
+
 .floorplan-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(280px, 533px));
+  grid-template-columns: repeat(2, minmax(260px, 360px));
   justify-content: center;
   align-items: start;
-  gap: 1.35rem 2rem;
+  gap: 1.2rem 1.2rem;
 }
 
 .floorplan-grid--single {
-  grid-template-columns: minmax(280px, 533px);
+  grid-template-columns: minmax(260px, 360px);
 }
 
 .floorplan-card {
-  border: 1px solid #e7e7e7;
-  border-radius: 14px;
+  border: 1px solid #ececec;
+  border-radius: 12px;
   background: #fff;
-  padding: 1.25rem 1.4rem 1.6rem;
+  padding: 1rem 1rem 1.45rem;
   position: relative;
   width: 100%;
-  max-width: 533px;
-  height: 436px;
+  max-width: 360px;
+  min-height: 340px;
+  height: 340px;
   opacity: 0;
   transform: translateY(46px);
   transition: opacity 0.7s ease, transform 0.7s ease;
   overflow: hidden;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
 .floorplan-card:nth-child(even) {
-  margin-top: 56px;
+  margin-top: 52px;
 }
 
 .floorplan-card.is-visible {
@@ -834,25 +889,25 @@
 }
 
 .floorplan-card-top-meta {
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.35rem;
 }
 
 .floorplan-card-top-meta p {
-  margin: 0 0 0.3rem;
+  margin: 0 0 0.15rem;
   display: flex;
   align-items: baseline;
-  gap: 0.75rem;
+  gap: 0.5rem;
 }
 
 .floorplan-card-top-meta span {
   min-width: 44px;
-  font-size: 0.98rem;
+  font-size: 0.78rem;
   color: #111;
   font-weight: 600;
 }
 
 .floorplan-card-top-meta strong {
-  font-size: 1rem;
+  font-size: 0.78rem;
   color: #6f6f6f;
   font-weight: 400;
 }
@@ -861,13 +916,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 270px;
+  min-height: 220px;
 }
 
 .floorplan-image {
   width: 100%;
-  max-width: 360px;
-  max-height: 300px;
+  max-width: 250px;
+  max-height: 210px;
   object-fit: contain;
 }
 
@@ -881,18 +936,35 @@
 .floorplan-expand-btn {
   position: absolute;
   left: 50%;
-  bottom: 0.8rem;
+  bottom: 0.7rem;
   transform: translateX(-50%);
-  width: 42px;
-  height: 42px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  border: 1px solid #d7d7d7;
+  border: 1px solid #dcdcdc;
   background: #fff;
   color: #666;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   transition: transform 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+.floorplan-heading {
+  text-align: left;
+  font-family: 'plus-jakarta' !important;
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.floorplan-description {
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #5f5f5f;
+  max-width: 100%;
+  width: 871px;
+  margin: auto;
 }
 
 .floorplan-expand-btn svg {
@@ -909,21 +981,100 @@
   position: relative;
   padding: 4.5rem 0;
   background:url("/static/green_building.png") center center / cover no-repeat;
+  height: 847px;
+}
+
+.location-modern-section-title {
+  font-family: 'plus-jakarta' !important;
+  font-size: 36px;
+  font-weight: 300;
+  line-height: 100%;
+  letter-spacing: 0;
+  text-transform: capitalize;
+  margin: 0 0 1rem;
+  color: #ffffff;
+  position: relative;
+  z-index: 1;
+  text-align: left;
+}
+
+.location-modern-description {
+  width: 431px;
+  max-width: 100%;
+  height: 234px;
+  max-height: 234px;
+  margin: 0 0 1.5rem;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 1rem;
+  line-height: 1.65;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+  cursor: pointer;
+  text-align: left;
+}
+
+.location-modern-description::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42px;
+  background: linear-gradient(to bottom, rgba(9, 49, 28, 0), rgba(9, 49, 28, 0.95));
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.location-modern-description:hover {
+  max-height: 420px;
+  height: auto;
+}
+
+.location-modern-description:hover::after {
+  opacity: 0;
+}
+
+.location-modern-description,
+.location-modern-description p,
+.location-modern-description span,
+.location-modern-description li,
+.location-modern-description strong,
+.location-modern-description b,
+.location-modern-description em {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.location-modern-description p,
+.location-modern-description li {
+  margin-bottom: 0.75rem;
 }
 
 .location-modern-container {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(380px, 0.95fr);
-  gap: 1.25rem;
+  grid-template-columns: 801px 431px;
+  justify-content: center;
+  gap: 2.25rem;
   align-items: start;
+}
+
+.location-modern-map-column {
+  width: 801px;
+  max-width: 801px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .location-modern-map {
   position: relative;
-  min-height: 390px;
-  width: 100%;
-  max-width: 700px;
+  width: 801px;
+  height: 498px;
   overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 .location-modern-map-image {
@@ -933,10 +1084,11 @@
 .location-modern-panel {
   color: #ffffff;
   padding-top: 0.15rem;
-  width: 100%;
-  max-width: 380px;
-  justify-self: start;
-  margin-left: -12px;
+  width: 431px;
+  max-width: 431px;
+  justify-self: end;
+  margin-left: 0;
+  padding-left: 0.5rem;
 }
 
 .location-modern-title {
@@ -947,29 +1099,35 @@
 }
 
 .location-modern-info-card {
-  width: 368px;
-  min-height: 270px;
+  width: 431px;
+  min-height: 200px;
   max-width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.26);
   background: rgba(7, 28, 22, 0.34);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
-  padding: 1.2rem 1.15rem;
-  
+  padding: 1.35rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .location-modern-row {
-  display: grid;
-  grid-template-columns: 82px 1fr;
-  gap: 0.55rem;
+  display: flex;
+  justify-content: flex-start;
   align-items: center;
-  padding: 0.5rem 0;
-  
+  gap: 1.15rem;
+  width: min(100%, 255px);
+  padding: 0.6rem 0;
+  text-align: left;
 }
 
 .location-modern-row span {
   color: #C9A24D !important;
   font-size: 0.95rem;
+  min-width: 92px;
+  text-align: left;
 }
 
 .location-modern-row strong {
@@ -977,18 +1135,22 @@
   color: #ffffff;
   font-size: 0.95rem;
   overflow-wrap: anywhere;
+  text-align: left;
 }
 
 .location-modern-map-btn {
-  margin-top: 1.4rem;
+  margin-top: 4.25rem;
   border: 0;
   background: transparent;
   color: #ffffff;
-  display: inline-flex;
-  align-items: center;
+  display: flex;
+  align-items: center ;
   gap: 0.7rem;
   font-size: 1.1rem;
   padding: 0;
+  justify-content: center ;
+  align-self: center;
+  
 }
 
 .location-modern-map-btn-icon {
@@ -1006,7 +1168,8 @@
 }
 
 .location-nearby-wrap {
-  margin-top: 1.4rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 }
 
 .location-nearby-title {
@@ -1017,15 +1180,22 @@
 }
 
 .location-nearby-marquee {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
+  padding-bottom: 0.25rem;
 }
 
 .location-nearby-track {
   display: inline-flex;
   gap: 0.75rem;
   width: max-content;
-  animation: locationNearbyScroll 42s linear infinite;
+  animation: locationNearbyScroll 38s linear infinite;
+}
+
+.location-nearby-marquee {
+  overflow: hidden;
+  position: relative;
 }
 
 .location-nearby-marquee:hover .location-nearby-track {
@@ -1655,6 +1825,12 @@ a {
 }
 
 @media (max-width: 1100px) {
+  .floorplan-header {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    max-width: 533px;
+  }
+
   .floorplan-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
@@ -1666,14 +1842,28 @@ a {
 
   .floorplan-card {
     width: 100%;
-    max-width: 533px;
+    max-width: 360px;
     height: auto;
-    min-height: 390px;
+    min-height: 340px;
     margin: 0 auto;
   }
 }
 
 @media (max-width: 768px) {
+  .overview-section {
+    margin-top: 2rem !important;
+    padding-top: 2.25rem !important;
+  }
+
+  .overview-content-wrap {
+    max-width: 100%;
+  }
+
+  .overview-description {
+    font-size: 15px;
+    line-height: 27px;
+  }
+
   .walkthrough-container {
     width: 100%;
   }
@@ -1738,6 +1928,7 @@ a {
 
   .location-modern-section {
     padding: 3rem 0;
+
   }
 
   .location-modern-container {
@@ -1999,6 +2190,7 @@ a {
   font-weight: 500;
   color: #181818;
   font-family: 'plus-jakarta' !important;
+  transition: background-color 0.25s ease;
 }
 
 .faq-modern-icon-wrap {
@@ -2011,30 +2203,56 @@ a {
   justify-content: center;
   flex-shrink: 0;
   font-size: 0.9rem;
+  transition: transform 0.35s ease, border-color 0.25s ease, background-color 0.25s ease;
 }
 
 .faq-modern-answer {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
   opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.35s ease, opacity 0.35s ease;
+  transition: grid-template-rows 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.38s ease,
+    border-top-color 0.38s ease;
   border-top: 1px solid transparent;
 }
 
 .faq-modern-answer.show {
-  max-height: 320px;
+  grid-template-rows: 1fr;
   opacity: 1;
   border-top-color: #ececec;
 }
 
+.faq-modern-answer-inner {
+  overflow: hidden;
+}
+
 .faq-modern-answer p {
   margin: 0;
-  padding: 1rem 1.5rem 1.35rem;
+  padding: 0 1.5rem;
   color: #636363;
   font-size: 1rem;
   line-height: 1.55;
   font-family: 'plus-jakarta' !important;
   font-weight: 400;
+  transform: translateY(-12px);
+  opacity: 0;
+  transition: padding 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.38s ease;
+}
+
+.faq-modern-answer.show p {
+  padding: 1rem 1.5rem 1.35rem;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.faq-modern-question[aria-expanded="true"] {
+  background-color: #fbfbfb;
+}
+
+.faq-modern-question[aria-expanded="true"] .faq-modern-icon-wrap {
+  transform: rotate(180deg);
+  border-color: #0d5834;
+  background-color: rgba(13, 88, 52, 0.06);
 }
 
 .project-detail-contact-form .form-control {
@@ -2091,12 +2309,12 @@ a {
 
   .location-modern-panel {
     order: 1;
-    text-align: center;
+    text-align: left;
     max-width: 100%;
     margin: 0 auto;
   }
 
-  .location-modern-map {
+  .location-modern-map-column {
     order: 2;
     margin: 0 auto;
   }
@@ -2111,6 +2329,24 @@ a {
     width: min(100%, 360px);
     min-height: auto;
     margin: 0 auto;
+  }
+
+  .location-modern-section-title {
+    font-size: 32px;
+    text-align: center;
+  }
+
+  .location-modern-description {
+    width: 100%;
+    height: auto;
+    max-height: none;
+    margin: 0 auto 1.25rem;
+    text-align: center;
+    cursor: default;
+  }
+
+  .location-modern-description::after {
+    display: none;
   }
 
   /* Get in Touch responsive */

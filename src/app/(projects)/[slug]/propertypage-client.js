@@ -1,3 +1,3 @@
 "use client";
 
-export { default } from "./propertypage";
+export { default } from "./propertypageV2";

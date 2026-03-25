@@ -559,31 +559,28 @@ const addNearbyImageIcon = (benefit) => {
     const floorPlanSection = document.getElementById("floorplan");
     if (!floorPlanSection) return;
 
-    const timeoutIds = [];
-    let hasStarted = false;
+    const cardEls = floorPlanSection.querySelectorAll(".floorplan-card[data-floor-index]");
+    if (!cardEls.length) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting || hasStarted) return;
-
-        hasStarted = true;
-        for (let index = 0; index < totalCards; index += 1) {
-          const timeoutId = window.setTimeout(() => {
-            setVisibleFloorPlanCards((prev) => ({ ...prev, [index]: true }));
-          }, index * 90);
-          timeoutIds.push(timeoutId);
-        }
-
-        observer.disconnect();
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const raw = entry.target.getAttribute("data-floor-index");
+          const idx = raw != null ? parseInt(raw, 10) : NaN;
+          if (!Number.isNaN(idx)) {
+            setVisibleFloorPlanCards((prev) =>
+              prev[idx] ? prev : { ...prev, [idx]: true },
+            );
+          }
+          observer.unobserve(entry.target);
+        });
       },
-      { threshold: 0.08, rootMargin: "80px 0px 60px 0px" },
+      { threshold: 0.1, rootMargin: "0px 0px -6% 0px" },
     );
 
-    observer.observe(floorPlanSection);
-    return () => {
-      observer.disconnect();
-      timeoutIds.forEach((id) => window.clearTimeout(id));
-    };
+    cardEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, [projectDetail?.floorPlans?.length]);
 
   // Cleanup scroll lock when component unmounts or menu closes

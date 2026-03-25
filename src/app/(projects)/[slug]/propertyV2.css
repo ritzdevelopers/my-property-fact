@@ -970,7 +970,7 @@
 
 .floorplan-section {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 @media (min-width: 992px) {
@@ -1007,39 +1007,44 @@
   width: 100%;
 }
 
-/* Two equal columns so ~1140px containers (e.g. 1366px viewport) fill the row; cards cap at 533px inside each cell */
+/* Compact cards + fluid columns so more plans fit in one viewport */
 .floorplan-grid:not(.floorplan-grid--single) {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   justify-items: center;
+  gap: 12px;
 }
 
 .floorplan-grid--single {
   grid-template-columns: minmax(0, 1fr);
-  max-width: 533px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .floorplan-card {
   border: 1px solid #ececec;
   border-radius: 12px;
   background: #fff;
-  padding: 16px;
+  padding: 12px;
   box-sizing: border-box;
   position: relative;
   width: 100%;
-  max-width: 533px;
-  height: 436px;
+  max-width: 340px;
+  height: 286px;
   display: flex;
   flex-direction: column;
   opacity: 0;
-  transform: translateY(46px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transform: translate3d(0, 88px, 0) scale(0.94);
+  transform-origin: center bottom;
+  transition:
+    opacity 0.5s cubic-bezier(0.22, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.34, 1.15, 0.64, 1);
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
 }
 
-/* Staggered 2-column layout: right column sits lower (design reference) */
 .floorplan-grid:not(.floorplan-grid--single) .floorplan-card:nth-child(even) {
-  margin-top: 52px;
+  margin-top: 0;
 }
 
 .floorplan-grid--single .floorplan-card:nth-child(even) {
@@ -1048,11 +1053,23 @@
 
 .floorplan-card.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floorplan-card {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .floorplan-card.is-visible {
+    transform: none;
+  }
 }
 
 .floorplan-card-top-meta {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   flex-shrink: 0;
 }
 
@@ -1068,8 +1085,8 @@
 }
 
 .floorplan-card-top-meta span {
-  min-width: 3rem;
-  font-size: 0.9375rem;
+  min-width: 2.75rem;
+  font-size: 0.8125rem;
   line-height: 1.35;
   color: #000000;
   font-weight: 700;
@@ -1077,8 +1094,8 @@
 }
 
 .floorplan-card-top-meta strong {
-  font-size: 1rem;
-  line-height: 1.45;
+  font-size: 0.875rem;
+  line-height: 1.4;
   color: #737373;
   font-weight: 400;
 }
@@ -1109,10 +1126,10 @@
 .floorplan-expand-btn {
   position: absolute;
   left: 50%;
-  bottom: 16px;
+  bottom: 10px;
   transform: translateX(-50%);
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border-radius: 50%;
   border: 1px solid #e0e0e0;
@@ -1132,17 +1149,17 @@
 
 .floorplan-heading {
   text-align: left;
-  font-size: 36px;
+  font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 600;
 }
 
 .floorplan-description {
   text-align: left;
-  font-size: 16px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.55;
   color: #5f5f5f;
   max-width: 100%;
-  width: 871px;
+  width: min(871px, 100%);
   margin: auto;
 }
 
@@ -2039,7 +2056,7 @@ a {
   .floorplan-header {
     grid-template-columns: 1fr;
     gap: 0.75rem;
-    max-width: 533px;
+    max-width: 360px;
   }
 
   .floorplan-grid:not(.floorplan-grid--single),
@@ -2050,7 +2067,7 @@ a {
   }
 
   .floorplan-grid--single {
-    max-width: 533px;
+    max-width: 360px;
     margin-left: auto;
     margin-right: auto;
   }
@@ -2062,9 +2079,9 @@ a {
 
   .floorplan-card {
     width: 100%;
-    max-width: 533px;
+    max-width: 340px;
     height: auto;
-    min-height: 360px;
+    min-height: 270px;
     margin: 0 auto;
   }
 }
@@ -2270,16 +2287,16 @@ a {
   }
 
   .floorplan-card {
-    padding: 16px;
+    padding: 12px;
   }
 
   .floorplan-image-wrap {
     flex: 1 1 auto;
-    min-height: 180px;
+    min-height: 130px;
   }
 
   .floorplan-image {
-    max-height: 220px;
+    max-height: 170px;
   }
 }
 
@@ -2735,7 +2752,7 @@ a {
   scroll-margin-top: 100px;
 }
 
-/* Staggered two-column floor cards when two 533px columns fit (not covered by max-width: 1100 single-column rule) */
+/* Compact multi-column floor grid (1101px–1199px) */
 @media (max-width: 1199px) and (min-width: 1101px) {
   .floorplan-header {
     grid-template-columns: 1fr;
@@ -2750,31 +2767,31 @@ a {
   }
 
   .floorplan-grid:not(.floorplan-grid--single) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     width: 100%;
     max-width: none;
     margin: 0 auto;
-    gap: 10px;
+    gap: 12px;
     justify-items: center;
   }
 
   .floorplan-grid--single {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 533px;
+    max-width: 360px;
     margin: 0 auto;
     gap: 10px;
     justify-content: center;
   }
 
   .floorplan-card {
-    max-width: 533px;
+    max-width: 340px;
     width: 100%;
     height: auto;
-    min-height: 360px;
+    min-height: 270px;
   }
 
   .floorplan-grid:not(.floorplan-grid--single) .floorplan-card:nth-child(even) {
-    margin-top: 52px;
+    margin-top: 0;
   }
 
   .floorplan-grid--single .floorplan-card:nth-child(even) {
@@ -2868,7 +2885,7 @@ a {
 
   .floorplan-grid,
   .floorplan-grid--single {
-    grid-template-columns: minmax(0, 533px);
+    grid-template-columns: minmax(0, 340px);
     gap: 10px;
     justify-content: center;
     justify-items: stretch;
@@ -2877,10 +2894,10 @@ a {
   .floorplan-card,
   .floorplan-grid--single .floorplan-card {
     width: 100%;
-    max-width: 533px;
+    max-width: 340px;
     margin: 0 auto;
     height: auto;
-    min-height: 360px;
+    min-height: 250px;
   }
 
   .floorplan-grid:not(.floorplan-grid--single) .floorplan-card:nth-child(even),
@@ -3008,7 +3025,7 @@ a {
 
   .floorplan-grid--single {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 533px;
+    max-width: 360px;
     margin: 0 auto;
     gap: 10px;
     justify-content: center;
@@ -3016,14 +3033,14 @@ a {
 
   .floorplan-card,
   .floorplan-grid--single .floorplan-card {
-    max-width: 533px;
+    max-width: 340px;
     width: 100%;
-    min-height: 360px;
+    min-height: 250px;
     height: auto;
   }
 
   .floorplan-grid:not(.floorplan-grid--single) .floorplan-card:nth-child(even) {
-    margin-top: 52px;
+    margin-top: 0;
   }
 
   .floorplan-grid--single .floorplan-card:nth-child(even) {
@@ -3068,19 +3085,19 @@ a {
   }
 
   .floorplan-card {
-    min-height: 320px;
-    padding: 16px;
+    min-height: 240px;
+    padding: 12px;
     height: auto;
   }
 
   .floorplan-image-wrap {
     flex: 1 1 auto;
-    min-height: 160px;
+    min-height: 120px;
   }
 
   .floorplan-image {
     max-width: 100%;
-    max-height: 200px;
+    max-height: 160px;
   }
 
   .location-modern-section {
@@ -3116,7 +3133,7 @@ a {
   .floorplan-card,
   .floorplan-grid--single .floorplan-card {
     max-width: 100%;
-    min-height: 300px;
+    min-height: 220px;
   }
 
   .floorplan-card-top-meta p {

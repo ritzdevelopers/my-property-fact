@@ -731,7 +731,7 @@ const addNearbyImageIcon = (benefit) => {
     : Array.isArray(allNearbyBenefits?.data)
       ? allNearbyBenefits.data
       : [];
-  const AMENITIES_PREVIEW_MAX = 6;
+  const AMENITIES_PREVIEW_MAX = 8;
   const amenitiesPreviewList = amenitiesList.slice(0, AMENITIES_PREVIEW_MAX);
   const hasMoreAmenities = amenitiesList.length > AMENITIES_PREVIEW_MAX;
   const showAmenityCards = isAmenitiesInView;

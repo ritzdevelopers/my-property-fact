@@ -1,5 +1,7 @@
+import { redirect } from "next/navigation";
 import Property from "./propertypage-server";
 import {
+  canonicalizeFloorInCitySlug,
   fetchAllProjects,
   fetchCityData,
   fetchProjectDetailsBySlug,
@@ -14,6 +16,14 @@ export const dynamic = "force-dynamic";
 
 export default async function PropertyPage({ params }) {
   const { slug } = await params;
+  const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
+  if (
+    canonicalFloorCity &&
+    canonicalFloorCity !== slug &&
+    (await isFloorTypeUrl(canonicalFloorCity))
+  ) {
+    redirect(`/${canonicalFloorCity}`);
+  }
   const [cityList, projectDetail, featuredProjects] = await Promise.all([
     fetchCityData(),
     fetchProjectDetailsBySlug(slug),

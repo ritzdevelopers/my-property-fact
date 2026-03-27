@@ -102,6 +102,40 @@ export const fetchProjectDetailsBySlug = cache(async (slug) => {
   return projectBySlug.json();
 });
 
+/**
+ * Canonical BHK segment for URLs globally: "3bhk" → "3-bhk" (matches internal links).
+ */
+export function normalizeFloorSlugSegment(segment) {
+  if (segment == null || segment === "") return "";
+  const s = String(segment)
+    .trim()
+    .toLowerCase()
+    .replace(/%20/g, "-");
+  if (/^\d+bhk$/.test(s)) {
+    return s.replace(/^(\d+)(bhk)$/, "$1-$2");
+  }
+  return s;
+}
+
+// /**
+//  * Canonical `{floor}-in-{city}` slug: normalized floor segment + lowercase hyphenated city.
+//  * Returns null if the path does not contain `-in-`.
+//  */
+export function canonicalizeFloorInCitySlug(slug) {
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
+  const segments = slug.split("-in-");
+  if (segments.length < 2) return null;
+  const floorNorm = normalizeFloorSlugSegment(segments[0]);
+  const cityPart = segments.slice(1).join("-in-");
+  const cityNorm = cityPart
+    .trim()
+    .toLowerCase()
+    .replace(/%20/g, "-")
+    .replace(/\s+/g, "-");
+  if (!floorNorm || !cityNorm) return null;
+  return `${floorNorm}-in-${cityNorm}`;
+}
+
 //Fetch all floor plans
 export const isFloorTypeUrl = async (slug) => {
   const res = await fetch(`${apiUrl}floor-plans/get-all`, {
@@ -119,12 +153,13 @@ export const isFloorTypeUrl = async (slug) => {
             .toLowerCase()
             .replace(/\s+/g, "-");
           uniqueUrls.add(slugified);
+          uniqueUrls.add(normalizeFloorSlugSegment(slugified));
         }
       });
     }
   });
   const floorType = slug.split("-in-")[0];
-  const floorSlug = floorType.toLowerCase();
+  const floorSlug = normalizeFloorSlugSegment(floorType);
   // Fallback: known floor types that may not be in floor-plans API (e.g. offices-and-shop)
   const knownFloorSlugs = [
     "offices-and-shop",
@@ -135,7 +170,13 @@ export const isFloorTypeUrl = async (slug) => {
     "office",
     "shop",
   ];
-  return uniqueUrls.has(floorSlug) || knownFloorSlugs.includes(floorSlug);
+  const floorLower = floorType.toLowerCase();
+  return (
+    uniqueUrls.has(floorSlug) ||
+    uniqueUrls.has(floorLower) ||
+    knownFloorSlugs.includes(floorSlug) ||
+    knownFloorSlugs.includes(floorLower)
+  );
 };
 
 //Checking is ctiy slug

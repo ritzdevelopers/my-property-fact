@@ -4,6 +4,10 @@ import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Image from "next/image";
 export default function BuilderPage({ builderDetail, projectsList }) {
+  const builderName = builderDetail?.builderName?.trim() || "Builder";
+  const aboutBuilderLeftAlt = `${builderName} — about the builder section, left illustration on My Property Fact`;
+  const aboutBuilderRightAlt = `${builderName} — about the builder section, right illustration on My Property Fact`;
+
   return (
     <>
       <CommonHeaderBanner
@@ -32,7 +36,8 @@ export default function BuilderPage({ builderDetail, projectsList }) {
         <div>
           <Image
             src={"/static/about-us-bg-left.png"}
-            alt={"About the Builder left image"}
+            alt={aboutBuilderLeftAlt}
+            title={aboutBuilderLeftAlt}
             width={161}
             height={353}
           />
@@ -43,7 +48,8 @@ export default function BuilderPage({ builderDetail, projectsList }) {
         <div>
           <Image
             src={"/static/about-us-bg-right.png"}
-            alt={"About the Builder right image"}
+            alt={aboutBuilderRightAlt}
+            title={aboutBuilderRightAlt}
             width={161}
             height={353}
           />

@@ -1,12 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import "./common.css";
+
+function blogFeaturedImageAlt(blogTitle) {
+  return blogTitle?.trim()
+    ? `${blogTitle.trim()} — blog featured image on My Property Fact`
+    : "Blog featured image on My Property Fact";
+}
+
 export default function BlogListItem({ blog }) {
   const formatDate = (d) =>
     new Date(d).toLocaleString("en-US", { dateStyle: "medium" });
   const excerpt =
     (blog.blogMetaDescription || "").split(/\s+/).slice(0, 35).join(" ") +
     " ...";
+  const featuredAlt = blogFeaturedImageAlt(blog.blogTitle);
   return (
     <div className="card-blog border-0 shadow-sm mb-4">
       {blog.blogImage && (
@@ -15,7 +23,8 @@ export default function BlogListItem({ blog }) {
             width={1200}
             height={628}
             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`}
-            alt={blog.blogTitle}
+            alt={featuredAlt}
+            title={featuredAlt}
             className="img-fluid"
           />
         </Link>

@@ -12,7 +12,6 @@ export default function InsightNew() {
     {
       id: 1,
       src: "/static/Insight_MPF_1.png",
-      alt: "price-trends-img",
       heading: "Property Growth Tracker",
       sub_heading:
         "Monitor property value, rental yields, neighbourhood upgrades; visual graphs track appreciation, send alerts, suggest reinvestment or exit timing decisions smartly.",
@@ -23,7 +22,6 @@ export default function InsightNew() {
     {
       id: 2,
       src: "/static/Insight_MPF_2.png",
-      alt: "property-rates-heatmap-img",
       heading: "EMI Calculator",
       sub_heading:
         "Compute monthly EMI, total interest, lifetime cost instantly; adjust loan amount, tenure, rate to secure stress‑free financing decisions for buyers.",
@@ -34,7 +32,6 @@ export default function InsightNew() {
     {
       id: 3,
       src: "/static/Insight_MPF_3.png",
-      alt: "price-trends-img",
       heading: "Market Analysis",
       sub_heading:
         "We deliver price trends, policy updates, infrastructure news, enabling investors, developers, and lenders to recalibrate the market strategies regularly.",
@@ -46,7 +43,6 @@ export default function InsightNew() {
     {
       id: 4,
       src: "/static/Insight_MPF_4.png",
-      alt: "price-trends-img",
       heading: "LOCATE Score",
       sub_heading:
         "This converts economy, projects, connectivity, amenities, trends, supply data into one 1000‑point LOCATE rating guiding smart investments with clarity.",
@@ -82,7 +78,15 @@ export default function InsightNew() {
                     <h5 className="text-golden">{i.heading}</h5>
                     <p>{i.sub_heading}</p>
                     <div className="d-flex justify-content-center">
-                      <Image className="img-fluid" src={i.src} alt={i.alt} width={610} height={340} priority/>
+                      <Image
+                        className="img-fluid"
+                        src={i.src}
+                        alt={`${i.heading} — property tools illustration on My Property Fact`}
+                        title={`${i.heading} — property tools illustration on My Property Fact`}
+                        width={610}
+                        height={340}
+                        priority
+                      />
                     </div>
                   </div>
                   <div className={`bg-light p-3 d-flex justify-content-center`}>

@@ -13,7 +13,7 @@ const DEFAULT_FALLBACK_SLIDE = {
   desktop: "/mpf-banner.jpg",
   tablet: "/mpf-banner.jpg",
   mobile: "/mpf-banner.jpg",
-  alt: "Hero banner",
+  alt: "Hero promotional banner — My Property Fact home",
 };
 
 const HeroBannerSlider = ({ slides = [] }) => {
@@ -70,7 +70,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
             desktop,
             tablet,
             mobile,
-            alt = "Hero banner",
+            alt = "Hero promotional banner — My Property Fact home",
             priority: slidePriority,
             link,
             href,
@@ -94,6 +94,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 <Image
                   src={mobileSrc}
                   alt={alt}
+                  title={alt}
                   fill
                   className="hero-banner-image"
                   priority={mobilePriority}
@@ -106,6 +107,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 <Image
                   src={tabletSrc}
                   alt={alt}
+                  title={alt}
                   fill
                   className="hero-banner-image"
                   priority={tabletPriority}
@@ -118,6 +120,7 @@ const HeroBannerSlider = ({ slides = [] }) => {
                 <Image
                   src={desktopSrc}
                   alt={alt}
+                  title={alt}
                   fill
                   className="hero-banner-image"
                   priority={desktopPriority}

@@ -12,7 +12,8 @@
           <div className="hero-banner-frame hero-banner-frame-mobile d-md-none">
             <Image
               src="/static/banners/ghd_mobile_final.jpg"
-              alt="GHD Group - Velvet Vista"
+              alt="GHD Group Velvet Vista — hero home banner"
+              title="GHD Group Velvet Vista — hero home banner"
               fill
               className="hero-banner-image"
               priority
@@ -24,7 +25,8 @@
           <div className="hero-banner-frame hero-banner-frame-tablet d-none d-md-block d-lg-none">
             <Image
               src="/static/banners/ghd_tablet_final.jpg"
-              alt="GHD Group - Velvet Vista"
+              alt="GHD Group Velvet Vista — hero home banner"
+              title="GHD Group Velvet Vista — hero home banner"
               fill
               className="hero-banner-image"
               priority
@@ -36,7 +38,8 @@
           <div className="hero-banner-frame hero-banner-frame-desktop d-none d-lg-block">
             <Image
               src="/static/banners/ghd_desktop_final.jpg"
-              alt="GHD Group - Velvet Vista"
+              alt="GHD Group Velvet Vista — hero home banner"
+              title="GHD Group Velvet Vista — hero home banner"
               fill
               className="hero-banner-image"
               priority
@@ -56,7 +59,7 @@
       desktop: "/static/banners/ghd_desktop_final.jpg",
       tablet: "/static/banners/ghd_tablet_final.jpg",
       mobile: "/static/banners/ghd_mobile_final.jpg",
-      alt: "GHD Group - Velvet Vista",
+      alt: "GHD Group Velvet Vista — hero home banner",
       href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/ghd-velvet-vista`,
     },
     {
@@ -64,7 +67,7 @@
       desktop: "/static/banners/MPF-12 Mar-02.jpg",
       tablet: "/static/banners/tablet 1.jpg",
       mobile: "/static/banners/MPF-12 Mar-05.jpg",
-      alt: "Exotica - 132",
+      alt: "Exotica 132 — hero home banner",
       href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/splendor-onyx-blue`,
     },
     {
@@ -72,7 +75,7 @@
       desktop: "/static/banners/Irish_desktop.jpg",
       tablet: "/static/banners/Irish_tablet.jpg",
       mobile: "/static/banners/Irish_mobile.jpg",
-      alt: "Irish - Laying Foundation For Tomorrow",
+      alt: "Irish Platinum — Laying foundation for tomorrow, hero home banner",
       href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/irish-platinum`,
     },
     {
@@ -80,7 +83,7 @@
       desktop: "/static/banners/new_saya_dekstop.jpg",
       tablet: "/static/banners/saya_tablet.jpg",
       mobile: "/static/banners/new_saya_mobile.jpg",
-      alt: "Saya - Relationships Forever",
+      alt: "Saya Gold Avenue — Relationships Forever hero home banner",
       href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/saya-gold-avenue`,
     },
     {
@@ -88,7 +91,7 @@
       desktop: "/static/banners/new_eldeco_desktop.jpg",
       tablet: "/static/banners/eldeco_tablet.jpg",
       mobile: "/static/banners/eldeco_phone.jpg",
-      alt: "Eldeco",
+      alt: "Eldeco 7 Peaks Residences — hero home banner",
       href: `${process.env.NEXT_PUBLIC_UI_URL || ""}/eldeco-7-peaks-residences`,
     },
   ];
@@ -118,7 +121,7 @@
           desktop: null,
           tablet: null,
           mobile: null,
-          alt: b.imageAlt || "Hero banner",
+          alt: b.imageAlt || "Hero promotional banner — My Property Fact home",
           link: b.bannerLink || null,
         });
       }
@@ -141,7 +144,7 @@
           desktop,
           tablet,
           mobile,
-          alt: s.alt || "Hero banner",
+          alt: s.alt || "Hero promotional banner — My Property Fact home",
           link: s.link,
           href: s.link,
         });

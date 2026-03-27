@@ -1,13 +1,12 @@
 "use client";
 import styles from "./page.module.css";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { Pagination, Stack } from "@mui/material";
 import BlogListItem from "../components/common/BlogListItem";
 import BlogSidebar from "../components/common/BlogSidebar";
 import BlogFaqSection from "../components/common/BlogFaqSection";
-import SocialFeed from "../components/home/social-feed/socialfeed";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 import PopularCitiesSection from "../components/home/popular-cities/PopularCitiesSection";
 import { fetchBlogs } from "@/app/_global_components/masterFunction";
@@ -17,8 +16,9 @@ export default function Blog() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(3);
-  const [investorBlogs, setInvestorBlogs] = useState([]);
   const [totalPages, setTotalPages] = useState(0);
+  /** Only one sidebar variant in the DOM so "Recent Posts" / "Latest Property" <h2> are not duplicated (CSS d-none still leaves nodes for SEO tools). */
+  const [isLgUp, setIsLgUp] = useState(false);
   const faqItems = [
     {
       q: "What kind of property types are available on My Property Fact?",
@@ -48,14 +48,13 @@ export default function Blog() {
   useEffect(() => {
     getBlogsList();
   }, [page]);
-  useEffect(() => {
-    const loadInvestorBlogs = async () => {
-      try {
-        const latest = await fetchBlogs(0, 4);
-        setInvestorBlogs(latest.content || []);
-      } catch {}
-    };
-    loadInvestorBlogs();
+
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(min-width: 992px)");
+    const sync = () => setIsLgUp(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   // Handle page change from pagination
@@ -84,14 +83,19 @@ export default function Blog() {
         headerText={"Blog"}
         pageName={"Blog"}
       />
-      <div className="container d-block d-lg-none my-3">
-        <BlogSidebar showSearch={true} showRecentPosts={false} showLatestProperty={false} />
-      </div>
+      {!isLgUp && (
+        <div className="container my-3">
+          <BlogSidebar showSearch={true} showRecentPosts={false} showLatestProperty={false} />
+        </div>
+      )}
       {/* <CommonBreadCrum pageName={"Blog"} /> */}
-      <div className={`container my-3 my-lg-5 ${styles.blogSectionWrap}`}>
-        {/* <h2 className="blog-page-section-heading mb-3 mb-md-4">
-          Articles &amp; News
-        </h2> */}
+      <section
+        className={`container my-3 my-lg-5 ${styles.blogSectionWrap}`}
+        aria-labelledby="investor-education-blog-heading"
+      >
+        <h2 id="investor-education-blog-heading" className={`${styles.blogPageSectionHeading} mb-3 mb-md-4`}>
+          Investor Education Blog
+        </h2>
         <div className={`row gy-4 ${styles.blogContentRow}`}>
           <div className="col-lg-8 align-items-center">
             {loading ? (
@@ -106,33 +110,36 @@ export default function Blog() {
                 <BlogListItem key={index} blog={blog} />
               ))
             )}
-          </div>
-          <div className={`col-lg-4 d-none d-lg-block ${styles.blogSidebarCol}`}>
-            <div className={styles.blogRightSticky}>
-              <BlogSidebar />
+            <div className="d-flex justify-content-center align-items-center my-5">
+              <Stack spacing={2}>
+                <Pagination
+                  count={totalPages}
+                  page={page + 1}
+                  variant="outlined"
+                  shape="rounded"
+                  boundaryCount={1}
+                  siblingCount={1}
+                  className="blog-pagination"
+                  onChange={handlePageChange}
+                />
+              </Stack>
             </div>
           </div>
+          {isLgUp && (
+            <div className={`col-lg-4 ${styles.blogSidebarCol}`}>
+              <div className={styles.blogRightSticky}>
+                <BlogSidebar />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
-      <div className="d-flex justify-content-center align-items-center my-5 container">
-        <Stack spacing={2}>
-          <Pagination
-            count={totalPages}
-            page={page + 1}
-            variant="outlined"
-            shape="rounded"
-            boundaryCount={1}
-            siblingCount={1}
-            className="blog-pagination"
-            onChange={handlePageChange}
-          />
-        </Stack>
-      </div>
-      <div className="container d-block d-lg-none my-4 blog-mobile-sidebar-wrap">
-        <BlogSidebar showSearch={false} showRecentPosts={true} showLatestProperty={true} />
-      </div>
+      </section>
+      {!isLgUp && (
+        <div className="container my-4 blog-mobile-sidebar-wrap">
+          <BlogSidebar showSearch={false} showRecentPosts={true} showLatestProperty={true} />
+        </div>
+      )}
       <BlogFaqSection faqItems={faqItems} />
-      {investorBlogs.length > 0 && <SocialFeed data={investorBlogs} />}
       <SocialFeedsOfMPF />
       <PopularCitiesSection />
     </>

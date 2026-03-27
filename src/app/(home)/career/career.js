@@ -142,7 +142,10 @@ export default function Career({ jobsArr }) {
             Showing {jobsArr.length} positions
           </span>
           <div className="mt-3 row justify-content-center">
-            {jobsArr.map((item, index) => (
+            {jobsArr.map((item, index) => {
+              const roleLabel = item.postName?.trim() || "Open position";
+              const roleIconAlt = `${roleLabel} — job role icon on My Property Fact careers page`;
+              return (
               <div
                 key={`${item.id}-${index}`}
                 className="col-12 col-md-6 col-lg-4 col-xl-4"
@@ -161,7 +164,8 @@ export default function Career({ jobsArr }) {
                     >
                       <Image
                         src={`/vector_icon.png`}
-                        alt={item.postName}
+                        alt={roleIconAlt}
+                        title={roleIconAlt}
                         width={50}
                         height={50}
                         className="img-fluid mb-3 position-absolute"
@@ -181,7 +185,8 @@ export default function Career({ jobsArr }) {
                   </div>
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         </div>
       </section>
@@ -216,7 +221,8 @@ export default function Career({ jobsArr }) {
             <div className="col-12 col-md-12 col-lg-6 col-xl-6 my-3 order-1">
               <Image
                 src="/career.jpg"
-                alt="Career Opportunities"
+                alt="Career Opportunities — culture and outlook section on My Property Fact careers page"
+                title="Career Opportunities — culture and outlook section on My Property Fact careers page"
                 width={679}
                 height={495}
                 className="img-fluid rounded-3"
@@ -228,7 +234,8 @@ export default function Career({ jobsArr }) {
       <section className="d-none d-md-block container position-relative py-5">
         <Image
           src="/career_bottom_image.jpg"
-          alt="Career Opportunities"
+          alt="Career Opportunities — join our team banner on My Property Fact careers page"
+          title="Career Opportunities — join our team banner on My Property Fact careers page"
           width={679}
           height={495}
           className="img-fluid rounded-3"

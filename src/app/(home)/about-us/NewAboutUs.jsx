@@ -186,6 +186,12 @@ export default function NewAboutUs() {
 
   const isPrevDisabled = currentSlide === 0;
   const isNextDisabled = currentSlide >= totalSlides - 1;
+
+  const aboutUsIntroImageAlt =
+    "About Us — My Property Fact introduction section image on About Us page";
+  const whatWeOfferBackgroundAlt =
+    "What We Offer — background graphic on My Property Fact About Us page";
+
   return (
     <>
       <div className="container-fluid">
@@ -205,7 +211,8 @@ export default function NewAboutUs() {
           >
             <Image
               src="/static/about-us/about_us_section.jpg"
-              alt="About Us"
+              alt={aboutUsIntroImageAlt}
+              title={aboutUsIntroImageAlt}
               width={441}
               height={515}
               className="img-fluid"
@@ -365,7 +372,8 @@ export default function NewAboutUs() {
         >
           <Image
             src="/static/about-us/about-us-background.png"
-            alt="What We Offer"
+            alt={whatWeOfferBackgroundAlt}
+            title={whatWeOfferBackgroundAlt}
             width={561}
             height={373}
             className="img-fluid"

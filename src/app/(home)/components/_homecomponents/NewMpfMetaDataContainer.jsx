@@ -21,25 +21,25 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
   const [statistics, setStatistics] = useState([
     {
       image: "/static/footer/icon1.svg",
-      alt: "Cities",
+      alt: "Cities covered — statistic icon",
       number: cities.length > 0 ? cities.length : 0,
       label: "Cities",
     },
     {
       image: "/static/footer/icon2.svg",
-      alt: "Builders",
+      alt: "Verified builders — statistic icon",
       number: builders.length > 0 ? builders.length : 0,
       label: "Builders",
     },
     {
       image: "/static/footer/icon3.svg",
-      alt: "Projects",
+      alt: "Listed projects — statistic icon",
       number: projects.length > 0 ? projects.length : 0,
       label: "Projects",
     },
     {
       image: "/static/footer/icon4.svg",
-      alt: "Units",
+      alt: "Property units — statistic icon",
       number: "10,030",
       label: "Units",
     },
@@ -159,7 +159,8 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
           <div className="left-iilution-container">
             <Image
               src="/static/footer/leftillution.png"
-              alt="Left Illustration"
+              alt="Illustration for Find The Best Property — homes and city search on My Property Fact"
+              title="Illustration for Find The Best Property — homes and city search on My Property Fact"
               width={336}
               height={90}
             />
@@ -193,7 +194,8 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
           <div className="right-illustration-container">
             <Image
               src="/static/footer/rightillution.png"
-              alt="Right Illustration"
+              alt="Illustration for Find The Best Property — family and suburban homes on My Property Fact"
+              title="Illustration for Find The Best Property — family and suburban homes on My Property Fact"
               width={450}
               height={130}
             />
@@ -206,7 +208,13 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
         {statistics.map((stat, index) => (
           <div key={index} className="statistics-card">
             <div className="statistics-icon">
-              <Image src={stat.image} alt={stat.alt} width={58} height={58} />
+              <Image
+                src={stat.image}
+                alt={stat.alt}
+                title={stat.alt}
+                width={58}
+                height={58}
+              />
             </div>
             <p className="statistics-number">
               {formatNumber(animatedValues[index])}

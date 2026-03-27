@@ -127,6 +127,10 @@
   object-position: bottom;
 }
 
+.builder-profile-link:hover {
+  color: var(--corp-color, #198754) !important;
+}
+
 .slick-active .image-con {
   opacity: 1;
 }

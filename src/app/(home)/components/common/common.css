@@ -45,21 +45,35 @@
   box-sizing: border-box;
 }
 
-.status-badge-container{
+.status-badge-container {
   z-index: 3;
+  /* sit at top-right, extend 6px past the card edge for the ribbon tail */
+  top: 16px !important;
+  right: -6px !important;
+  margin: 0 !important;
 }
 
 .status-badge-pill {
-  padding: 0.3rem 0.6rem;
-  font-size: 0.7rem;
-  border-radius: 4px;
-  text-transform: capitalize;
-  font-weight: 500;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 6px 14px 6px 22px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   white-space: nowrap;
-  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
+  color: var(--badge-text-color, #fff);
+  border-radius: 0;
+  /* gloss gradient over the badge colour */
+  background:
+      linear-gradient(160deg, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.06) 45%, rgba(0,0,0,0.12) 100%),
+      var(--badge-color);
+  /* Left-facing ribbon notch (badge is on the right side of the card) */
+  clip-path: polygon(11px 0, 100% 0, 100% 100%, 11px 100%, 0 50%);
+  filter:
+      drop-shadow(0 3px 7px rgba(0, 0, 0, 0.38))
+      drop-shadow(0 1px 2px rgba(0, 0, 0, 0.22));
 }
 
 /* .top-banner-each-pages::before {
@@ -873,6 +887,25 @@
   color: #111111;
 }
 
+.blog-sidebar-section-title {
+  font-family: "plus-jakarta", system-ui, sans-serif !important;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #111111;
+  margin: 0 0 0.5rem;
+}
+
+.faq-question {
+  flex: 1;
+  margin: 0;
+  font-family: "plus-jakarta", system-ui, sans-serif !important;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #111111;
+}
+
 .faq-plus-wrap{
   width: 32px;
   height: 32px;
@@ -937,7 +970,8 @@
   .faq-item {
     padding: 18px;
   }
-  .faq-text {
+  .faq-text,
+  .faq-question {
     font-size: 14px;
     line-height: 22px;
   }

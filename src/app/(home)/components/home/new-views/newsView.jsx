@@ -9,7 +9,9 @@ export default function NewsAndViews({ webStoryList }) {
       <div className="row web-stories-container">
         {webStoryList
           .filter((item) => item.webStories.length > 0)
-          .map((item, index) => (
+          .map((item, index) => {
+            const storyCoverAlt = `${item.categoryName} — Realty Updates Web Stories cover image`;
+            return (
             <div key={index} className="col-12 col-md-6 col-lg-3">
               <Link
                 className="h-100 text-decoration-none text-dark shadow-sm"
@@ -20,7 +22,8 @@ export default function NewsAndViews({ webStoryList }) {
                     <div className="flip-card-front">
                       <Image
                         src={`${process.env.NEXT_PUBLIC_IMAGE_URL}web-story/${item.storyCategoryImage}`}
-                        alt={item.categoryName}
+                        alt={storyCoverAlt}
+                        title={storyCoverAlt}
                         width={384}
                         height={683}
                         className="card-img-top img-fluid"
@@ -41,7 +44,8 @@ export default function NewsAndViews({ webStoryList }) {
                 </div>
               </Link>
             </div>
-          ))
+            );
+          })
           .slice(0, 4)}
       </div>
     </div>

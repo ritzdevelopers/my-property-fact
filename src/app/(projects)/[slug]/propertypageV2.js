@@ -33,7 +33,7 @@ import { usePathname, useRouter } from "next/navigation";
 function ScrollFadeSection({
   as: Tag = "section",
   className = "",
-  threshold = 0.2,
+  threshold = 0.06,
   children,
   ...rest
 }) {
@@ -50,7 +50,7 @@ function ScrollFadeSection({
         setIsVisible(true);
         observer.disconnect();
       },
-      { threshold, rootMargin: "0px 0px -10% 0px" },
+      { threshold, rootMargin: "100px 0px 80px 0px" },
     );
 
     observer.observe(node);
@@ -166,7 +166,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
-  const [amenitiesSlideIndex, setAmenitiesSlideIndex] = useState(0);
+  const [showAllAmenitiesPanel, setShowAllAmenitiesPanel] = useState(false);
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
   const [isAmenitiesInView, setIsAmenitiesInView] = useState(false);
   const [visibleFloorPlanCards, setVisibleFloorPlanCards] = useState({});
@@ -265,63 +265,32 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     autoplaySpeed: 3000,
   };
 
-  const AmenityPrevArrow = (props) => {
+  const NearbyBenefitsPrevArrow = (props) => {
     const { className, onClick } = props;
     return (
       <button
         type="button"
-        className={`${className || ""} amenities-custom-arrow amenities-custom-arrow-prev`}
+        className={`${className || ""} nearby-benefits-arrow nearby-benefits-arrow-prev`}
         onClick={onClick}
-        aria-label="Previous amenities"
+        aria-label="Previous nearby benefits"
       >
-        <Image src="/icon/arrow-left-s-line.svg" alt="Previous" width={24} height={24} />
+        <Image src="/icon/arrow-left-s-line.svg" alt="" width={24} height={24} />
       </button>
     );
   };
 
-  const AmenityNextArrow = (props) => {
+  const NearbyBenefitsNextArrow = (props) => {
     const { className, onClick } = props;
     return (
       <button
         type="button"
-        className={`${className || ""} amenities-custom-arrow amenities-custom-arrow-next`}
+        className={`${className || ""} nearby-benefits-arrow nearby-benefits-arrow-next`}
         onClick={onClick}
-        aria-label="Next amenities"
+        aria-label="Next nearby benefits"
       >
-        <Image src="/icon/arrow-right-s-line.svg" alt="Next" width={24} height={24} />
+        <Image src="/icon/arrow-right-s-line.svg" alt="" width={24} height={24} />
       </button>
     );
-  };
-
-  const amenitiesSliderSettings = {
-    dots: false,
-    infinite: (projectDetail.amenities?.length ?? 0) > 4,
-    speed: 500,
-    slidesToShow: 4,
-    slidesToScroll: 1,
-    arrows: true,
-    prevArrow: <AmenityPrevArrow />,
-    nextArrow: <AmenityNextArrow />,
-    responsive: [
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 3,
-        },
-      },
-      {
-        breakpoint: 992,
-        settings: {
-          slidesToShow: 2,
-        },
-      },
-      {
-        breakpoint: 576,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
   };
 
   //Generating price in lakh & cr
@@ -552,12 +521,26 @@ const addNearbyImageIcon = (benefit) => {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.08, rootMargin: "80px 0px 60px 0px" },
     );
 
     observer.observe(amenitySection);
     return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!showAllAmenitiesPanel) return;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setShowAllAmenitiesPanel(false);
+    };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [showAllAmenitiesPanel]);
 
   useEffect(() => {
     const handleViewportChange = () => {
@@ -576,31 +559,28 @@ const addNearbyImageIcon = (benefit) => {
     const floorPlanSection = document.getElementById("floorplan");
     if (!floorPlanSection) return;
 
-    const timeoutIds = [];
-    let hasStarted = false;
+    const cardEls = floorPlanSection.querySelectorAll(".floorplan-card[data-floor-index]");
+    if (!cardEls.length) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry?.isIntersecting || hasStarted) return;
-
-        hasStarted = true;
-        for (let index = 0; index < totalCards; index += 1) {
-          const timeoutId = window.setTimeout(() => {
-            setVisibleFloorPlanCards((prev) => ({ ...prev, [index]: true }));
-          }, index * 1000);
-          timeoutIds.push(timeoutId);
-        }
-
-        observer.disconnect();
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const raw = entry.target.getAttribute("data-floor-index");
+          const idx = raw != null ? parseInt(raw, 10) : NaN;
+          if (!Number.isNaN(idx)) {
+            setVisibleFloorPlanCards((prev) =>
+              prev[idx] ? prev : { ...prev, [idx]: true },
+            );
+          }
+          observer.unobserve(entry.target);
+        });
       },
-      { threshold: 0.2 },
+      { threshold: 0.1, rootMargin: "0px 0px -6% 0px" },
     );
 
-    observer.observe(floorPlanSection);
-    return () => {
-      observer.disconnect();
-      timeoutIds.forEach((id) => window.clearTimeout(id));
-    };
+    cardEls.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, [projectDetail?.floorPlans?.length]);
 
   // Cleanup scroll lock when component unmounts or menu closes
@@ -743,17 +723,19 @@ const addNearbyImageIcon = (benefit) => {
   const amenitiesList = projectDetail.amenities || [];
   const floorPlans = projectDetail.floorPlans || [];
   const galleryImages = projectDetail.galleryImages || [];
+  const amenityDescription = projectDetail.amenityDescription || projectDetail.amenityDesc || "";
+  const floorPlanDescription = projectDetail.floorPlanDescription || projectDetail.floorPlanDesc || "";
+  const locationDescription = projectDetail.locationDescription || projectDetail.locationDesc || "";
   const nearbyBenefitsMaster = Array.isArray(allNearbyBenefits)
     ? allNearbyBenefits
     : Array.isArray(allNearbyBenefits?.data)
       ? allNearbyBenefits.data
       : [];
-  const AMENITIES_PER_SLIDE = 8;
-  const amenitiesChunks = [];
-  for (let i = 0; i < amenitiesList.length; i += AMENITIES_PER_SLIDE) {
-    amenitiesChunks.push(amenitiesList.slice(i, i + AMENITIES_PER_SLIDE));
-  }
+  const AMENITIES_PREVIEW_MAX = 8;
+  const amenitiesPreviewList = amenitiesList.slice(0, AMENITIES_PREVIEW_MAX);
+  const hasMoreAmenities = amenitiesList.length > AMENITIES_PREVIEW_MAX;
   const showAmenityCards = isAmenitiesInView;
+  const amenityIconBase = `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}amenity/`;
   const aboutBuilderImage =
     projectDetail?.builder?.builderImage ||
     projectDetail?.builder?.image ||
@@ -765,6 +747,10 @@ const addNearbyImageIcon = (benefit) => {
       ? aboutBuilderImage
       : projectImageSrc(aboutBuilderImage)
     : "/static/no_image.png";
+  const builderSlug = String(
+    projectDetail?.builder?.slugURL || projectDetail?.builder?.slugUrl || "",
+  ).trim();
+  const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
   const getInTouchPoints = [
     "Book a Site Visit",
     "Ask For a Brochure",
@@ -773,6 +759,9 @@ const addNearbyImageIcon = (benefit) => {
   ];
   const locationBenefitList =
     projectDetail.locationBenefits || projectDetail.projectLocationBenefitList || [];
+  const locationBenefitsToRender = locationBenefitList.length
+    ? locationBenefitList
+    : nearbyBenefitsMaster;
   const normalizeBenefitText = (value) =>
     String(value || "")
       .trim()
@@ -810,6 +799,56 @@ const addNearbyImageIcon = (benefit) => {
       matchedItem?.distance ?? matchedItem?.distanceKm ?? matchedItem?.distanceInKm;
     return formatDistanceLabel(matchedDistance);
   };
+  const uniqueLocationBenefits = locationBenefitsToRender.filter((benefit, index, list) => {
+    const benefitName = normalizeBenefitText(
+      benefit?.benefitName || benefit?.name || benefit?.title,
+    );
+    const distanceLabel = getNearbyDistanceLabel(benefit);
+    const uniqueKey = `${benefitName}__${distanceLabel}`;
+    return (
+      list.findIndex((item) => {
+        const itemName = normalizeBenefitText(
+          item?.benefitName || item?.name || item?.title,
+        );
+        const itemDistance = getNearbyDistanceLabel(item);
+        return `${itemName}__${itemDistance}` === uniqueKey;
+      }) === index
+    );
+  });
+  const nearbyBenefitsCount = uniqueLocationBenefits.length;
+  const nearbyBenefitsSliderSettings = {
+    dots: false,
+    infinite: false,
+    speed: 400,
+    slidesToShow: Math.min(4, nearbyBenefitsCount),
+    slidesToScroll: 1,
+    arrows: nearbyBenefitsCount > 1,
+    prevArrow: <NearbyBenefitsPrevArrow />,
+    nextArrow: <NearbyBenefitsNextArrow />,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: Math.min(3, nearbyBenefitsCount),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: Math.min(2, nearbyBenefitsCount),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
   const faqList = projectDetail.faqs || [];
   const getFloorPlanImage = (plan) => {
     const imageName =
@@ -825,18 +864,20 @@ const addNearbyImageIcon = (benefit) => {
   };
 
   const getFloorPlanArea = (plan) => {
-    const areaValue = plan?.areaSqFt || plan?.area || plan?.areaSqft || plan?.size;
-    if (!areaValue) return "On Request";
-    const areaText = String(areaValue).trim();
-    return /sq|ft|mtr|meter/i.test(areaText) ? areaText : `${areaText} Sq Ft`;
-  };
+    const sqFt = plan?.areaSqFt ?? plan?.areaSqft ?? plan?.area ?? plan?.size;
+    const sqMt = plan?.areaSqMt != null ? parseFloat(plan.areaSqMt) : null;
+    if (!sqFt && sqMt == null) return "On Request";
 
-  const goToNextAmenitiesSlide = () => {
-    setAmenitiesSlideIndex((prev) => Math.min(prev + 1, amenitiesChunks.length - 1));
-  };
+    const parts = [];
+    if (sqFt) {
+      const sqFtText = String(sqFt).trim();
+      parts.push(/sq|ft|mtr|meter/i.test(sqFtText) ? sqFtText : `${sqFtText} sq ft`);
+    }
+    if (Number.isFinite(sqMt)) {
+      parts.push(`${sqMt.toFixed(2)} sq mt`);
+    }
 
-  const goToPrevAmenitiesSlide = () => {
-    setAmenitiesSlideIndex((prev) => Math.max(prev - 1, 0));
+    return parts.length ? parts.join(" • ") : "On Request";
   };
 
   const openGalleryModal = (index) => {
@@ -850,7 +891,7 @@ const addNearbyImageIcon = (benefit) => {
 
   return (
     <>
-      {/* <Link
+      <Link
         href="/"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
         aria-label="Back to MyPropertyFact home page"
@@ -860,7 +901,7 @@ const addNearbyImageIcon = (benefit) => {
         <span className="back-to-home-floating__icon">
           <FontAwesomeIcon icon={faArrowLeft} />
         </span>
-      </Link> */}
+      </Link>
       {/* Header for property detail page */}
       <header
         className={`project-detail-header px-4 ${
@@ -870,12 +911,19 @@ const addNearbyImageIcon = (benefit) => {
         <div className="main-header">
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex justify-content-center align-items-center">
-              <Link href="#">
+              <Link
+                href={builderPageHref || "/"}
+                aria-label={
+                  builderPageHref
+                    ? `View ${projectDetail.builder?.builderName || "builder"} profile`
+                    : "Home"
+                }
+              >
                 <Image
                   width={198}
                   height={50.75}
                   src={projectImageSrc(projectDetail.projectLogo)}
-                  alt="logo"
+                  alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
                 />
               </Link>
@@ -943,7 +991,8 @@ const addNearbyImageIcon = (benefit) => {
                   <Link href="/">
                     <Image
                       src="/logo.webp"
-                      alt="My Property Fact"
+                      alt="My Property Fact logo — project page mobile menu"
+                      title="My Property Fact logo — project page mobile menu"
                       width={50}
                       height={55}
                       className="img-fluid"
@@ -961,7 +1010,7 @@ const addNearbyImageIcon = (benefit) => {
                 </div>
 
                 <ul className="project-mb-list d-lg-none">
-                  {/* <li>
+                  <li>
                     <Link
                       href="/"
                       className="text-decoration-none"
@@ -969,7 +1018,7 @@ const addNearbyImageIcon = (benefit) => {
                     >
                       Back to Home
                     </Link>
-                  </li> */}
+                  </li>
                   <li>
                     <Link
                       href="#overview"
@@ -1032,7 +1081,8 @@ const addNearbyImageIcon = (benefit) => {
               <Link href="/">
                 <Image
                   src="/logo.webp"
-                  alt="mpf-logo"
+                  alt="My Property Fact logo — project page header"
+                  title="My Property Fact logo — project page header"
                   width={70}
                   height={70}
                   className="img-fluid"
@@ -1101,7 +1151,7 @@ const addNearbyImageIcon = (benefit) => {
               {projectDetail.projectLocality}, {projectDetail.city},{" "}
               {projectDetail.state}
             </p>
-            <p className="hero-get-price">{generatePrice(projectDetail.projectPrice)}</p>
+            <p className="hero-get-price">Price: {generatePrice(projectDetail.projectPrice)}</p>
             <p className="hero-get-config">{projectDetail.projectConfiguration}</p>
             <p className="hero-get-rera">RERA: {projectDetail.reraNo || "Not found"}</p>
           </div>
@@ -1120,18 +1170,6 @@ const addNearbyImageIcon = (benefit) => {
         </div>
 
         <div id="overview" className="container overview-section py-5 mt-3 mb-3">
-          <div className="overview-lines-layer" aria-hidden="true">
-            {[8, 18, 28, 38, 50, 62, 72, 82, 92].map((position, index) => (
-              <span
-                key={`overview-line-${position}`}
-                className="overview-line"
-                style={{
-                  left: `${position}%`,
-                  animationDelay: `${index * 0.5}s`,
-                }}
-              ></span>
-            ))}
-          </div>
           <div className="overview-content-wrap text-center mx-auto">
             <h2 className="overview-title">Project Overview</h2>
             <div
@@ -1148,78 +1186,59 @@ const addNearbyImageIcon = (benefit) => {
           <div className="container amenities-content">
             <div className="amenities-head">
               <h2 className="amenities-title">Amenities</h2>
-              {amenitiesChunks.length > 1 && (
-                <>
-                  {amenitiesSlideIndex < amenitiesChunks.length - 1 && (
-                    <button
-                      type="button"
-                      className="amenities-toggle-btn"
-                      onClick={goToNextAmenitiesSlide}
-                    >
-                      <span>View More</span>
-                      <FontAwesomeIcon
-                        icon={faArrowRight}
-                        className="amenities-toggle-btn__icon"
-                      />
-                    </button>
-                  )}
-                  {amenitiesSlideIndex > 0 && (
-                    <button
-                      type="button"
-                      className="amenities-toggle-btn amenities-toggle-btn--less ms-2"
-                      onClick={goToPrevAmenitiesSlide}
-                    >
-                      <span>View Less</span>
-                    </button>
-                  )}
-                </>
-              )}
             </div>
-
-            <div className="amenities-slide-container">
+            {amenityDescription && (
               <div
-                className="amenities-slide-track"
-                style={{ transform: `translateX(-${amenitiesSlideIndex * 100}%)` }}
-              >
-                {amenitiesChunks.map((chunk, chunkIndex) => (
-                  <div key={chunkIndex} className="amenities-slide">
-                    <div className="amenities-grid">
-                      {chunk.map((item, index) => (
-                        <div
-                          key={`${item.id || item.title}-${index}`}
-                          className={`amenity-modern-card ${showAmenityCards ? "is-visible" : ""}`}
-                          style={{ transitionDelay: `${index * 80}ms` }}
-                        >
-                          <div className="amenity-modern-icon-wrap">
-                            <Image
-                              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
-                              height={40}
-                              width={40}
-                              alt={item.altTag || item.title || "Amenity icon"}
-                              className="d-flex mx-auto"
-                            />
-                          </div>
-                          <p className="amenity-modern-title">{item.title}</p>
-                        </div>
-                      ))}
+                className="amenities-description text-center mb-4"
+                dangerouslySetInnerHTML={{ __html: amenityDescription }}
+              ></div>
+            )}
+
+            <div className="amenities-preview-wrap">
+              <div className="amenities-grid amenities-grid--compact">
+                {amenitiesPreviewList.map((item, index) => (
+                  <div
+                    key={`${item.id || item.title}-preview-${index}`}
+                    className={`amenity-modern-card amenity-modern-card--compact ${showAmenityCards ? "is-visible" : ""}`}
+                    style={{ transitionDelay: `${index * 35}ms` }}
+                  >
+                    <div className="amenity-modern-icon-wrap">
+                      <Image
+                        src={`${amenityIconBase}${item.image}`}
+                        height={32}
+                        width={32}
+                        alt={item.altTag || item.title || "Amenity icon"}
+                        className="d-flex mx-auto amenity-modern-icon-img"
+                      />
                     </div>
+                    <p className="amenity-modern-title">{item.title}</p>
                   </div>
                 ))}
               </div>
+              {hasMoreAmenities && (
+                <div className="amenities-view-more-row">
+                  <button
+                    type="button"
+                    className="amenities-view-more-btn"
+                    onClick={() => setShowAllAmenitiesPanel(true)}
+                  >
+                    <span>View more</span>
+                    <FontAwesomeIcon icon={faPlus} className="amenities-view-more-btn__icon" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Floor plans section */}
         <div className="container mb-5 floorplan-section" id="floorplan">
-          <div className="">
-            <h2 className="text-center fw-bold mb-4 floorplan-heading">Floor Plans</h2>
-            {projectDetail.floorPlanDescription && (
+          <div className="floorplan-header">
+            <h2 className="fw-bold mb-0 floorplan-heading">Floor Plans</h2>
+            {floorPlanDescription && (
               <div
-                className="text-center mb-4 floorplan-description"
-                dangerouslySetInnerHTML={{
-                  __html: projectDetail.floorPlanDescription,
-                }}
+                className="mb-0 floorplan-description"
+                dangerouslySetInnerHTML={{ __html: floorPlanDescription }}
               ></div>
             )}
           </div>
@@ -1246,7 +1265,7 @@ const addNearbyImageIcon = (benefit) => {
                     <Image
                       width={500}
                       height={300}
-                      className="img-fluid floorplan-image"
+                      className="img-fluid floorplan-image floorplan-image--blurred"
                       src={getFloorPlanImage(item)}
                       alt={item.altTag || item.planType || "Floor plan"}
                     />
@@ -1267,7 +1286,7 @@ const addNearbyImageIcon = (benefit) => {
         </div>
 
         {/* Gallery section */}
-        <div className="container py-5 mb-5 gallery-modern-section" id="gallery">
+        <div className="container pt-4 pb-2 mb-3 gallery-modern-section" id="gallery">
           <h2 className="gallery-modern-title">Gallery</h2>
           {!!galleryImages.length && (
             <div className="gallery-modern-grid">
@@ -1293,22 +1312,39 @@ const addNearbyImageIcon = (benefit) => {
         {/* Location section */}
         <ScrollFadeSection
           as="section"
-          className="location-modern-section mb-5"
+          className="location-modern-section mb-4"
           id="location"
         >
-          
           <div className="container location-modern-container">
-            <div className="location-modern-map">
-              <Image
-                src={projectImageSrc(projectDetail.locationMap)}
-                alt="Project Location Map"
-                fill
-                className="location-modern-map-image"
-              />
+            <div className="location-modern-map-column">
+              <div className="location-modern-map">
+                <Image
+                  src={projectImageSrc(projectDetail.locationMap)}
+                  alt="Project Location Map"
+                  fill
+                  className="location-modern-map-image"
+                />
+              </div>
+              <button
+                type="button"
+                className="location-modern-map-btn"
+                onClick={() => setShowPopUp(true)}
+              >
+                <span>View Map</span>
+                <span className="location-modern-map-btn-icon">
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </span>
+              </button>
             </div>
 
             <div className="location-modern-panel">
-              <h2 className="location-modern-title">Location</h2>
+              <h2 className="location-modern-section-title">Location</h2>
+              {locationDescription && (
+                <div
+                  className="location-modern-description"
+                  dangerouslySetInnerHTML={{ __html: locationDescription }}
+                ></div>
+              )}
               <div className="location-modern-info-card">
                 <div className="location-modern-row">
                   <span>Address</span>
@@ -1327,52 +1363,43 @@ const addNearbyImageIcon = (benefit) => {
                   <strong>{projectDetail.country || "NA"}</strong>
                 </div>
               </div>
-
-              <button
-                type="button"
-                className="location-modern-map-btn"
-                onClick={() => setShowPopUp(true)}
-              >
-                <span>View Map</span>
-                <span className="location-modern-map-btn-icon">
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </span>
-              </button>
             </div>
           </div>
 
-          {!!nearbyBenefitsMaster.length && (
+          {!!uniqueLocationBenefits.length && (
             <div className="container location-nearby-wrap">
-              <h3 className="location-nearby-title">Nearby Benefits</h3>
-              <div className="location-nearby-marquee">
-                <div className="location-nearby-track">
-                  {[...nearbyBenefitsMaster, ...nearbyBenefitsMaster].map((benefit, index) => {
-                    const benefitName = benefit.benefitName || benefit.name || benefit.title || "Benefit";
+              <div
+                className={`location-nearby-slider-wrap${nearbyBenefitsCount > 1 ? " location-nearby-slider-wrap--with-arrows" : ""}`}
+              >
+                <Slider {...nearbyBenefitsSliderSettings}>
+                  {uniqueLocationBenefits.map((benefit) => {
+                    const benefitName =
+                      benefit.benefitName || benefit.name || benefit.title || "Benefit";
                     const linkedDistance = getNearbyDistanceLabel(benefit);
+                    const slideKey = `${benefit.id ?? ""}-${normalizeBenefitText(benefitName)}-${linkedDistance}`;
                     return (
-                    <article
-                      key={`${benefit.id || benefit.benefitName || "benefit"}-${index}`}
-                      className="location-nearby-card"
-                    >
-                      <div className="location-nearby-card-icon">
-                        <Image
-                          src={
-                            addNearbyImageIcon(benefit.benefitName) ||
-                            "/icon/fallback-icon.png"
-                          }
-                          alt={benefitName}
-                          width={22}
-                          height={22}
-                        />
+                      <div key={slideKey}>
+                        <article className="location-nearby-card">
+                          <div className="location-nearby-card-icon">
+                            <Image
+                              src={
+                                addNearbyImageIcon(benefit.benefitName) ||
+                                "/icon/fallback-icon.png"
+                              }
+                              alt={benefitName}
+                              width={22}
+                              height={22}
+                            />
+                          </div>
+                          <div className="location-nearby-card-content">
+                            <p>{benefitName}</p>
+                            {linkedDistance && <span>{linkedDistance}</span>}
+                          </div>
+                        </article>
                       </div>
-                      <div className="location-nearby-card-content">
-                        <p>{benefitName}</p>
-                        {linkedDistance && <span>{linkedDistance}</span>}
-                      </div>
-                    </article>
                     );
                   })}
-                </div>
+                </Slider>
               </div>
             </div>
           )}
@@ -1383,12 +1410,29 @@ const addNearbyImageIcon = (benefit) => {
       <ScrollFadeSection as="section" className="about-modern-section mb-5">
         <div className="container about-modern-container">
           <div className="about-modern-image-wrap">
-            <Image
-              src={aboutBuilderImageSrc}
-              alt={projectDetail.builder?.builderName || "Builder"}
-              fill
-              className="about-modern-image"
-            />
+            {builderPageHref ? (
+              <Link
+                href={builderPageHref}
+                className="about-modern-image-link"
+                aria-label={`View ${projectDetail.builder?.builderName || "builder"} profile`}
+              >
+                <Image
+                  src={aboutBuilderImageSrc}
+                  alt={projectDetail.builder?.builderName || "Builder"}
+                  fill
+                  className="about-modern-image"
+                  sizes="(max-width: 991px) 100vw, 50vw"
+                />
+              </Link>
+            ) : (
+              <Image
+                src={aboutBuilderImageSrc}
+                alt={projectDetail.builder?.builderName || "Builder"}
+                fill
+                className="about-modern-image"
+                sizes="(max-width: 991px) 100vw, 50vw"
+              />
+            )}
           </div>
 
           <div className="about-modern-content">
@@ -1404,7 +1448,7 @@ const addNearbyImageIcon = (benefit) => {
             ></div>
 
             <Link
-              href={`/builder/${projectDetail.builder?.slugURL || "#"}`}
+              href={builderPageHref || "#"}
               className="about-modern-link-btn"
               aria-label="Open builder details"
             >
@@ -1566,7 +1610,9 @@ const addNearbyImageIcon = (benefit) => {
                       </span>
                     </button>
                     <div className={`faq-modern-answer ${isOpen ? "show" : ""}`}>
-                      <p>{item.answer}</p>
+                      <div className="faq-modern-answer-inner">
+                        <p>{item.answer}</p>
+                      </div>
                     </div>
                   </article>
                 );
@@ -1578,6 +1624,58 @@ const addNearbyImageIcon = (benefit) => {
 
       {/* Popular Cities */}
       <PopularCitiesSection />
+
+      {showAllAmenitiesPanel && (
+        <>
+          <button
+            type="button"
+            className="amenities-all-backdrop"
+            aria-label="Close amenities list"
+            onClick={() => setShowAllAmenitiesPanel(false)}
+          />
+          <aside
+            className="amenities-all-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="amenities-all-panel-title"
+          >
+            <div className="amenities-all-panel-header">
+              <h3 id="amenities-all-panel-title" className="amenities-all-panel-title">
+                All amenities
+              </h3>
+              <button
+                type="button"
+                className="amenities-all-panel-close"
+                onClick={() => setShowAllAmenitiesPanel(false)}
+                aria-label="Close"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            </div>
+            <div className="amenities-all-panel-body">
+              <div className="amenities-all-grid">
+                {amenitiesList.map((item, index) => (
+                  <div
+                    key={`${item.id || item.title}-all-${index}`}
+                    className="amenity-modern-card amenity-modern-card--compact amenity-modern-card--panel"
+                  >
+                    <div className="amenity-modern-icon-wrap">
+                      <Image
+                        src={`${amenityIconBase}${item.image}`}
+                        height={28}
+                        width={28}
+                        alt={item.altTag || item.title || "Amenity icon"}
+                        className="d-flex mx-auto amenity-modern-icon-img"
+                      />
+                    </div>
+                    <p className="amenity-modern-title">{item.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
 
       <CommonPopUpform
         show={showPopUp}

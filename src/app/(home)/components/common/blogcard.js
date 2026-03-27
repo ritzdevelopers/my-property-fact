@@ -4,6 +4,10 @@ import Link from "next/link";
 import './common.css';
 export default function BlogCard({ blog }) {
 
+    const featuredImageAlt = blog.blogTitle
+      ? `${blog.blogTitle} — blog featured image on My Property Fact`
+      : "Blog featured image on My Property Fact";
+
     const truncateWords = (text, wordLimit) => {
         const words = text.trim().split(/\s+/);
         if (words.length <= wordLimit) return text;
@@ -21,7 +25,8 @@ export default function BlogCard({ blog }) {
                     width={1200}
                     height={628}
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`}
-                    alt={blog.blogTitle}
+                    alt={featuredImageAlt}
+                    title={featuredImageAlt}
                     className="img-fluid"
                     
                 />

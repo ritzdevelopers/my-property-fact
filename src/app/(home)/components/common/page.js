@@ -82,6 +82,13 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
     return colorMap[normalized] || defaultStyle;
   };
 
+  const addressSummary = formatProjectAddress(data.projectAddress);
+
+  const projectCardImageAlt =
+    data.projectName
+      ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
+      : "Real estate project thumbnail — My Property Fact";
+
   const renderStatusBadge = () => {
     if (!data.projectStatusName) {
       return null;
@@ -106,12 +113,12 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
     const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
 
     return (
-      <div className="position-absolute top-0 end-0 m-2 status-badge-container">
+      <div className="position-absolute top-0 end-0 status-badge-container">
         <span
           className="status-badge-pill plus-jakarta-sans-semi-bold"
           style={{
-            backgroundColor,
-            color: textColor,
+            "--badge-color": backgroundColor,
+            "--badge-text-color": textColor,
           }}
         >
           {data.projectStatusName}
@@ -131,7 +138,8 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
         <div className="w-100 project-image-container">
           <Image
             src={getImageSrc()}
-            alt={data.projectName || "Project image"}
+            alt={projectCardImageAlt}
+            title={projectCardImageAlt}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             priority={imagePriority}
             width={400}
@@ -153,7 +161,7 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
           <span className="flex-shrink-0">
             <FontAwesomeIcon icon={faLocationDot} style={{ color: "#35A332" }} />
           </span>
-          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{formatProjectAddress(data.projectAddress)}</p>
+          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{addressSummary}</p>
         </div>
       </Link>
     </>

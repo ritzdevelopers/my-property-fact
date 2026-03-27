@@ -6,6 +6,13 @@ import Link from "next/link";
 import { fetchBlogs } from "@/app/_global_components/masterFunction";
 import { getWeeklyProject } from "@/app/_global_components/masterFunction";
 import { FiSearch } from "react-icons/fi";
+
+function blogFeaturedImageAlt(blogTitle) {
+  return blogTitle?.trim()
+    ? `${blogTitle.trim()} — blog featured image on My Property Fact`
+    : "Blog featured image on My Property Fact";
+}
+
 export default function BlogSidebar({ onSearch, showSearch = true, showRecentPosts = true, showLatestProperty = true }) {
   const [query, setQuery] = useState("");
   const [latestProject, setLatestProject] = useState(null);
@@ -100,7 +107,9 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                   <div className="blog-search-loader">Searching...</div>
                 ) : searchResults.length > 0 ? (
                   <ul className="blog-results-list">
-                    {searchResults.map((b, i) => (
+                    {searchResults.map((b, i) => {
+                      const thumbAlt = blogFeaturedImageAlt(b.blogTitle);
+                      return (
                       <li key={i} className="blog-result-item">
                         <Link
                           href={`/blog/${b.slugUrl}`}
@@ -111,7 +120,8 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                             {b.blogImage && (
                               <Image
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${b.blogImage}`}
-                                alt={b.blogTitle}
+                                alt={thumbAlt}
+                                title={thumbAlt}
                                 width={44}
                                 height={44}
                                 className="object-cover"
@@ -132,7 +142,8 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                           </div>
                         </Link>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 ) : (
                   <div className="blog-no-results">
@@ -148,7 +159,9 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
         <div className="recent-posts-container sidebar-align-right mb-4">
           <h2 className="blog-sidebar-section-title">Recent Posts</h2>
           <div className="recent-posts-list">
-            {recent.map((b, i) => (
+            {recent.map((b, i) => {
+              const recentThumbAlt = blogFeaturedImageAlt(b.blogTitle);
+              return (
               <Link
                 key={i}
                 href={`/blog/${b.slugUrl}`}
@@ -159,10 +172,10 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                   {b.blogImage && (
                     <Image
                       src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${b.blogImage}`}
-                      alt={b.blogTitle}
+                      alt={recentThumbAlt}
+                      title={recentThumbAlt}
                       width={94}
                       height={27}
-                     
                     />
                   )}
                 </div>
@@ -179,7 +192,8 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                   </div>
                 </div>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </div>
       )}
@@ -196,7 +210,16 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
                       ? `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${latestProject.slugURL}/${latestProject.projectBannerImage}`
                       : "/static/no_image.png"
                   }
-                  alt={latestProject.projectName || "Latest Property"}
+                  alt={
+                    latestProject.projectName?.trim()
+                      ? `${latestProject.projectName.trim()} — featured property on My Property Fact blog sidebar`
+                      : "Featured property — My Property Fact blog sidebar"
+                  }
+                  title={
+                    latestProject.projectName?.trim()
+                      ? `${latestProject.projectName.trim()} — featured property on My Property Fact blog sidebar`
+                      : "Featured property — My Property Fact blog sidebar"
+                  }
                   fill
                   sizes="(max-width: 992px) 100vw, 100vw"
                   style={{ objectFit: "cover" }}
@@ -205,7 +228,8 @@ export default function BlogSidebar({ onSearch, showSearch = true, showRecentPos
             ) : (
               <Image
                 src="/static/generic-floorplan.jpg"
-                alt="Latest Property"
+                alt="Latest property placeholder — My Property Fact blog sidebar"
+                title="Latest property placeholder — My Property Fact blog sidebar"
                 fill
                 sizes="(max-width: 992px) 100vw, 100vw"
                 style={{ objectFit: "cover" }}

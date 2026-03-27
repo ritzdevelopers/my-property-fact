@@ -18,7 +18,8 @@ const HeaderComponent = dynamic(
         <Link href="/" aria-label="My Property Fact Home">
           <Image
             src="/logo.webp"
-            alt="My Property fact"
+            alt="My Property Fact — home"
+            title="My Property Fact — home"
             width={80}
             height={74}
             priority

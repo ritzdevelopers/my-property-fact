@@ -26,6 +26,11 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
     });
   }
 
+  const bannerImageAlt =
+    headerText && String(headerText).trim()
+      ? `${String(headerText).trim()} — My Property Fact page banner`
+      : "My Property Fact — real estate page banner";
+
   return (
     <div className="container-fluid p-0 position-relative">
       <div className="top-banner-each-pages">
@@ -33,7 +38,8 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
           src={`/static/realestate-bg.jpg`}
           // src={`/static/${image}`}
           fill
-          alt={headerText || ""}
+          alt={bannerImageAlt}
+          title={bannerImageAlt}
           className="banner-background-image"
           sizes="100vw"
           priority

@@ -12,6 +12,10 @@ export default function CityPage({ cityData }) {
     ? cityData.projectList
     : [];
 
+  const cityName = cityData?.cityName?.trim() || "City";
+  const aboutSectionLeftAlt = `${cityName} — city guide section, left illustration on My Property Fact`;
+  const aboutSectionRightAlt = `${cityName} — city guide section, right illustration on My Property Fact`;
+
   return (
     <>
       <div className="p-0">
@@ -37,7 +41,8 @@ export default function CityPage({ cityData }) {
           <div>
             <Image
               src={"/static/about-us-bg-left.png"}
-              alt={cityData?.cityName || ""}
+              alt={aboutSectionLeftAlt}
+              title={aboutSectionLeftAlt}
               width={161}
               height={353}
             />
@@ -48,7 +53,8 @@ export default function CityPage({ cityData }) {
           <div>
             <Image
               src={"/static/about-us-bg-right.png"}
-              alt={cityData?.cityName || ""}
+              alt={aboutSectionRightAlt}
+              title={aboutSectionRightAlt}
               width={161}
               height={353}
             />

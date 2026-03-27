@@ -31,7 +31,13 @@ export default function BlogFaqSection({
                   aria-expanded={openFaq === index}
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 >
-                  <Image src="/static/icon/plus.svg" alt="Toggle answer" width={18} height={18} />
+                  <Image
+                    src="/static/icon/plus.svg"
+                    alt="Toggle answer"
+                    title="Toggle answer"
+                    width={18}
+                    height={18}
+                  />
                 </button>
               </div>
               {openFaq === index && (

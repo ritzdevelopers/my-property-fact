@@ -35,12 +35,15 @@ export default function NewInsight() {
               Expert Insights & Resources
             </h2>
             <div className="d-flex flex-column flex-md-row gap-3">
-              {insights.map((insight) => (
+              {insights.map((insight) => {
+                const insightIconAlt = `${insight.heading} — Expert Insights & Resources section icon`;
+                return (
                 <div className="insight-card" key={insight.id}>
                   <div className="insight-icon-wrapper">
                     <Image
                       src={insight.iconSrc}
-                      alt={`${insight.heading} icon`}
+                      alt={insightIconAlt}
+                      title={insightIconAlt}
                       width={32}
                       height={32}
                       className="insight-icon"
@@ -64,14 +67,16 @@ export default function NewInsight() {
                     </Link>
                   </div>
                 </div>
-              ))}
+              );
+              })}
             </div>
           </div>
           <div className="insight-image-wrapper">
             <Link href={`${process.env.NEXT_PUBLIC_UI_URL}/saya-gold-avenue`} target="_blank" rel="noopener noreferrer">
             <Image
               src="/static/saya.png"
-              alt="Family"
+              alt="Saya Gold Avenue — residential project featured in Expert Insights & Resources"
+              title="Saya Gold Avenue — residential project featured in Expert Insights & Resources"
               width={604}
               height={308}
               className="insight-main-image"

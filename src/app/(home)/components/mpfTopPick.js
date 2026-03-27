@@ -56,6 +56,13 @@ export default function MpfTopPicks({ topProject }) {
         ? projectLogo
         : "/logo.webp";
 
+  const builderLogoAlt = builderName
+    ? `${builderName} — builder logo, My Property Fact Top Picks`
+    : "Builder logo — My Property Fact Top Picks";
+  const topPicksBannerAlt = projectName
+    ? `${projectName} — My Property Fact Top Picks featured project banner`
+    : "Top Picks featured project banner — My Property Fact";
+
   // Returning the MPF top picks section
   return (
     <>
@@ -79,7 +86,8 @@ export default function MpfTopPicks({ topProject }) {
                   <div className="project-logo-container">
                     <Image
                       src={logoSrc}
-                      alt={builderName || "Builder logo"}
+                      alt={builderLogoAlt}
+                      title={builderLogoAlt}
                       width={56}
                       height={56}
                       className="img-fluid"
@@ -112,7 +120,14 @@ export default function MpfTopPicks({ topProject }) {
                 <div className="mpf-top-picks-card__meta">
                   <div className="mpf-top-picks-card__meta-block1">
                     <span className="mpf-top-picks-card__meta-label1 d-flex gap-2 align-items-center">
-                      <Image src="/static/icon/arrow.png" alt="Starting From" width={16} height={16} />
+                      <Image
+                        src="/static/icon/arrow.png"
+                        alt="Starting price indicator"
+                        title="Starting price indicator"
+                        width={16}
+                        height={16}
+                        aria-hidden
+                      />
                       Starting From
                     </span>
                     <p className="mpf-top-picks-card__meta-value1">
@@ -121,7 +136,14 @@ export default function MpfTopPicks({ topProject }) {
                   </div>
                   <div className="mpf-top-picks-card__meta-block2">
                     <p className="mpf-top-picks-card__meta-value2 text-uppercase plus-jakarta-sans-semi-bold d-flex gap-2 align-items-center">
-                    <Image src="/static/icon/home.png" alt="Starting From" width={20} height={20} />
+                    <Image
+                      src="/static/icon/home.png"
+                      alt="Project configuration"
+                      title="Project configuration"
+                      width={20}
+                      height={20}
+                      aria-hidden
+                    />
                       {projectConfiguration}
                     </p>
                   </div>
@@ -139,7 +161,8 @@ export default function MpfTopPicks({ topProject }) {
               <div className="mpf-top-picks-card__media">
                 <Image
                   src={bannerImageSrc}
-                  alt={projectName || "Project banner"}
+                  alt={topPicksBannerAlt}
+                  title={topPicksBannerAlt}
                   fill
                   sizes="(max-width: 576px) 84vw, (max-width: 992px) 76vw, 34vw"
                   quality={60}

@@ -163,6 +163,9 @@ export default function BlogDetail({ blogDetail }) {
   };
 
   const blogTitle = blogDetail.blogTitle.replace(/\u00A0/g, " ");
+  const blogHeroImageAlt = blogTitle?.trim()
+    ? `${blogTitle.trim()} — blog featured image on My Property Fact`
+    : "Blog featured image on My Property Fact";
   return (
     <div className={detailStyles.blogDetailWrap}>
       <CommonHeaderBanner
@@ -179,10 +182,11 @@ export default function BlogDetail({ blogDetail }) {
               <div className={detailStyles.articleImageWrap}>
                 <Image
                   src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blogDetail.blogImage}`}
-                  alt={blogTitle || ""}
+                  alt={blogHeroImageAlt}
+                  title={blogHeroImageAlt}
                   className="img-fluid"
                   width={1200}
-                  height={648}  
+                  height={648}
                 />
               </div>
             )}

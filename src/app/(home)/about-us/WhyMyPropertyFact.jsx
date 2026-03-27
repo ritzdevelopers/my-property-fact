@@ -3,6 +3,11 @@ import Image from "next/image";
 import "./aboutus.css";
 import Link from "next/link";
 export default function WhyMyPropertyFact() {
+  const whyMpfShapedAlt =
+    "Why My Property Fact — shaped decorative illustration on About Us page";
+  const whyMpfFeatureAlt =
+    "Why My Property Fact — platform benefits illustration on About Us page";
+
   return (
     <>
       <div className="container-fluid position-relative why-mpf-section">
@@ -46,7 +51,8 @@ export default function WhyMyPropertyFact() {
               <div className="why-mpf-section-bottom-image-container">
                 <Image
                   src="/static/about-us/image_shaped.png"
-                  alt="why-mpf-section-bottom-image"
+                  alt={whyMpfShapedAlt}
+                  title={whyMpfShapedAlt}
                   width={588}
                   height={532}
                 />
@@ -63,7 +69,8 @@ export default function WhyMyPropertyFact() {
                 <div className="image-bottom-container">
                   <Image
                     src="/static/about-us/why_mpf.png"
-                    alt="why-mpf-section-bottom-image"
+                    alt={whyMpfFeatureAlt}
+                    title={whyMpfFeatureAlt}
                     width={544}
                     height={363}
                   />

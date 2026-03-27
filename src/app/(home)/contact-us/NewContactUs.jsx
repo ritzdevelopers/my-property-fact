@@ -219,7 +219,8 @@ export default function NewContactUs() {
                   <div>
                     <Image
                       src="/static/contact-us/location_pin.png"
-                      alt="Location_icon"
+                      alt="Location icon — My Property Fact contact page"
+                      title="Location icon — My Property Fact contact page"
                       width={27}
                       height={36}
                     />
@@ -237,7 +238,8 @@ export default function NewContactUs() {
                   <div>
                     <Image
                       src="/static/contact-us/phone.png"
-                      alt="Phone_icon"
+                      alt="Phone icon — My Property Fact contact page"
+                      title="Phone icon — My Property Fact contact page"
                       width={31}
                       height={31}
                     />
@@ -253,7 +255,8 @@ export default function NewContactUs() {
                   <div>
                     <Image
                       src="/static/contact-us/email.png"
-                      alt="Email_icon"
+                      alt="Email icon — My Property Fact contact page"
+                      title="Email icon — My Property Fact contact page"
                       width={34}
                       height={27}
                     />
@@ -382,7 +385,8 @@ export default function NewContactUs() {
         <div className="looking-for-dream-home-section-image1">
           <Image
             src="/static/contact-us/looking_for_Dream_home_bg.png"
-            alt="Dream Home"
+            alt="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
+            title="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
             width={414}
             height={603}
           />
@@ -403,7 +407,8 @@ export default function NewContactUs() {
         <div className="looking-for-dream-home-section-image2">
           <Image
             src="/static/contact-us/looking_for_dream_home.png"
-            alt="Dream Home"
+            alt="Dream home — illustration for Looking for a dream home on My Property Fact contact page"
+            title="Dream home — illustration for Looking for a dream home on My Property Fact contact page"
             width={480}
             height={500}
           />

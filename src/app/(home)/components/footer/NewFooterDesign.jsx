@@ -206,7 +206,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               <div className="new-design-footer-top-left-logo">
                 <Image
                   src="/logo.webp"
-                  alt="MPF Logo"
+                  alt="My Property Fact logo — site footer"
+                  title="My Property Fact logo — site footer"
                   width={113}
                   height={103}
                   sizes="113px"

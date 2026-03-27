@@ -313,6 +313,7 @@ export default function NoidaProjectsSection() {
 
 // City Card Component
 function CityCard({ city }) {
+  const cityDestinationAlt = `${city.name} — Popular Real Estate Destinations, projects for sale on My Property Fact`;
   return (
     <Link 
       href={city.href}
@@ -325,10 +326,12 @@ function CityCard({ city }) {
           <span className="city-external-icon" aria-hidden="true">
             <Image
               src="/icon/navigate.svg"
-              alt=""
+              alt="Open city destination"
+              title="Open city destination"
               width={18}
               height={18}
               className="navigate-icon"
+              aria-hidden
             />
           </span>
         </div>
@@ -346,10 +349,12 @@ function CityCard({ city }) {
           {city.totalProperties === 1 ? "Property for Sale" : "Properties for Sale"}
           <Image
             src="/icon/arrow.svg"
-            alt=""
+            alt="View city listings"
+            title="View city listings"
             width={16}
             height={16}
             className="count-arrow-icon"
+            aria-hidden
           />
         </span>
       </div>
@@ -359,7 +364,8 @@ function CityCard({ city }) {
         <div className="project-image-wrapper">
           <Image
             src={city.imageSrc}
-            alt={city.name}
+            alt={cityDestinationAlt}
+            title={cityDestinationAlt}
             fill
             className="project-slider-image"
             unoptimized

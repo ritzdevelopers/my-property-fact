@@ -289,9 +289,11 @@ export default function ChatbotV2() {
   return (
     <>
       <button
+        type="button"
         className={styles.launcher}
         onClick={toggleChat}
         aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
+        title={isOpen ? "Close chat" : "Open My Property Fact chat"}
       >
         {!isOpen ? (
           <svg
@@ -339,7 +341,8 @@ export default function ChatbotV2() {
             <div className={styles.avatar}>
               <Image
                 src="/logo.webp"
-                alt="MPF Logo"
+                alt="My Property Fact — chat bot logo"
+                title="My Property Fact — chat bot logo"
                 width={40}
                 height={37}
                 sizes="40px"
@@ -562,12 +565,15 @@ function ProjectSlider({
         ref={sliderRef}
         onScroll={checkScroll}
       >
-        {cards.map((card, index) => (
+        {cards.map((card, index) => {
+          const cardPreviewAlt = card.name ? `${card.name} — project preview` : "Project preview";
+          return (
           <div key={`${card.id || card.name}-${index}`} className={styles.projectCard}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={card.image}
-              alt={card.name}
+              alt={cardPreviewAlt}
+              title={cardPreviewAlt}
               loading="lazy"
               className="img-fluid"
               onError={(event) => {
@@ -602,7 +608,8 @@ function ProjectSlider({
               </button>
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
 
       <button

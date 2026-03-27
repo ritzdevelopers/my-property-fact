@@ -26,6 +26,7 @@ import {
   faArrowDown,
   faArrowLeft,
   faBed,
+  faBuilding,
   faChartArea,
   faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
@@ -155,6 +156,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
         <Image
           src="/icon/arrow-left-s-line.svg"
           alt="Previous"
+          title="Previous"
           width={32}
           height={32}
         />
@@ -174,6 +176,7 @@ export default function Property({ projectDetail, similarProjects = [] }) {
         <Image
           src="/icon/arrow-right-s-line.svg"
           alt="Next"
+          title="Next"
           width={32}
           height={32}
         />
@@ -575,7 +578,11 @@ const addNearbyImageIcon = (benefit) => {
   const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
   const slugURL = projectDetail.slugURL || "";
   const builderSlug = String(
-    projectDetail.builder?.slugURL || projectDetail.builder?.slugUrl || "",
+    projectDetail.builder?.slugURL ||
+      projectDetail.builder?.slugUrl ||
+      projectDetail.builder?.slug ||
+      projectDetail.builder?.builderSlug ||
+      "",
   ).trim();
   const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
   const projectImageSrc = (filename) =>
@@ -632,6 +639,7 @@ const addNearbyImageIcon = (benefit) => {
                   height={51}
                   src={projectImageSrc(projectDetail.projectLogo)}
                   alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
+                  title={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
                   sizes="(max-width: 768px) 50vw, 198px"
                 />
@@ -700,7 +708,8 @@ const addNearbyImageIcon = (benefit) => {
                   <Link href="/">
                     <Image
                       src="/logo.webp"
-                      alt="My Property Fact"
+                      alt="My Property Fact logo — project page mobile menu"
+                      title="My Property Fact logo — project page mobile menu"
                       width={50}
                       height={55}
                       className="img-fluid"
@@ -789,7 +798,8 @@ const addNearbyImageIcon = (benefit) => {
               <Link href="/">
                 <Image
                   src="/logo.webp"
-                  alt="mpf-logo"
+                  alt="My Property Fact logo — project page header"
+                  title="My Property Fact logo — project page header"
                   width={70}
                   height={70}
                   className="img-fluid"
@@ -809,6 +819,7 @@ const addNearbyImageIcon = (benefit) => {
                 <Image
                   src={projectImageSrc(item.desktopImage)}
                   alt={item.altTag || "Property Banner"}
+                  title={item.altTag || "Property Banner"}
                   fill
                   priority={index === 0}
                   sizes="100vw"
@@ -936,6 +947,32 @@ const addNearbyImageIcon = (benefit) => {
                     <span>{projectDetail.projectLocality}, {projectDetail.city}, {projectDetail.state}</span>
                   </p>
 
+                  {projectDetail.builder?.builderName && (
+                    <p className="fs-5 mb-3 text-muted d-flex align-items-center">
+                      {builderPageHref ? (
+                        <Link
+                          href={builderPageHref}
+                          className="text-decoration-none text-muted d-inline-flex align-items-center builder-profile-link"
+                          aria-label={`View ${projectDetail.builder.builderName} profile`}
+                        >
+                          <FontAwesomeIcon
+                            icon={faBuilding}
+                            className="text-success me-2 fs-5"
+                          />
+                          <span>{projectDetail.builder.builderName}</span>
+                        </Link>
+                      ) : (
+                        <>
+                          <FontAwesomeIcon
+                            icon={faBuilding}
+                            className="text-success me-2 fs-5"
+                          />
+                          <span>{projectDetail.builder.builderName}</span>
+                        </>
+                      )}
+                    </p>
+                  )}
+
                   <p className="fs-5 text-dark mb-2">
                     <strong>
                       Price: {generatePrice(projectDetail.projectPrice)}
@@ -1002,6 +1039,7 @@ const addNearbyImageIcon = (benefit) => {
                     height={60}
                     width={60}
                     alt={item.altTag || item.title || "Amenity"}
+                    title={item.altTag || item.title || "Amenity"}
                     className="mb-3 d-flex mx-auto"
                     sizes="60px"
                   />
@@ -1062,6 +1100,7 @@ const addNearbyImageIcon = (benefit) => {
                       className="img-fluid rounded-3"
                       src="/static/generic-floorplan.jpg"
                       alt="floor plan"
+                      title="floor plan"
                     />
                   </div>
                   <div className="border-bottom property-type-detail">
@@ -1112,6 +1151,7 @@ const addNearbyImageIcon = (benefit) => {
                       <Image
                         src={projectImageSrc(item.imageName)}
                         alt={item.altTag || "Gallery Image"}
+                        title={item.altTag || "Gallery Image"}
                         fill
                         sizes="(max-width: 768px) 100vw, 50vw"
                         className="img-fluid rounded-5 object-fit-cover px-2 "
@@ -1148,6 +1188,7 @@ const addNearbyImageIcon = (benefit) => {
                         <Image
                           src={addNearbyImageIcon(item.benefitName) || `/icon/fallback-icon.png`}
                           alt={item.benefitName || ""}
+                          title={item.benefitName || ""}
                           width={40}
                           height={40}
                         />
@@ -1155,6 +1196,7 @@ const addNearbyImageIcon = (benefit) => {
                         <Image
                           src={`/icon/fallback-icon.png`}
                           alt="fallback-icon"
+                          title="fallback-icon"
                           width={40}
                           height={40}
                         />
@@ -1209,6 +1251,7 @@ const addNearbyImageIcon = (benefit) => {
                 <Image
                   src={projectImageSrc(projectDetail.locationMap)}
                   alt="Project Location Map"
+                  title="Project Location Map"
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-fit-cover"

@@ -20,9 +20,11 @@ function NextArrow(props) {
     >
       <Image
         src="/icon/arrow-right-s-line.svg"
-        alt="Next"
+        alt="Next slide"
+        title="Next slide"
         width={32}
         height={32}
+        aria-hidden
       />
     </button>
   );
@@ -40,9 +42,11 @@ function PrevArrow(props) {
     >
       <Image
         src="/icon/arrow-left-s-line.svg"
-        alt="Previous"
+        alt="Previous slide"
+        title="Previous slide"
         width={32}
         height={32}
+        aria-hidden
       />
     </button>
   );

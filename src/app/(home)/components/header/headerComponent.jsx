@@ -437,7 +437,8 @@ const HeaderComponent = () => {
             >
               <Image
                 src="/logo.webp"
-                alt="My Property fact"
+                alt="My Property Fact logo — main site header"
+                title="My Property Fact logo — main site header"
                 height={74}
                 width={80}
                 priority
@@ -516,7 +517,7 @@ const HeaderComponent = () => {
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
                             <span className="dropdown-footer-phone">
-                              <img src="/static/icon/Vector (1).svg" alt="Phone" className="dropdown-footer-phone-icon" />
+                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                               8920024793
                             </span>
                           </div>
@@ -601,7 +602,7 @@ const HeaderComponent = () => {
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
                             <span className="dropdown-footer-phone">
-                              <img src="/static/icon/Vector (1).svg" alt="Phone" className="dropdown-footer-phone-icon" />
+                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                               8920024793
                             </span>
                           </div>
@@ -814,6 +815,7 @@ const HeaderComponent = () => {
                                                   <Image
                                                     src={getProjectImageSrc(project)}
                                                     alt={project.projectName || project.name || "Project"}
+                                                    title={project.projectName || project.name || "Project"}
                                                     width={200}
                                                     height={140}
                                                     unoptimized
@@ -880,7 +882,7 @@ const HeaderComponent = () => {
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
                             <span className="dropdown-footer-phone">
-                              <img src="/static/icon/Vector (1).svg" alt="Phone" className="dropdown-footer-phone-icon" />
+                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                               8920024793
                             </span>
                           </div>
@@ -954,7 +956,8 @@ const HeaderComponent = () => {
             >
               <Image
                 src="/logo.webp"
-                alt="My Property Fact"
+                alt="My Property Fact logo — site header mobile menu"
+                title="My Property Fact logo — site header mobile menu"
                 height={50}
                 width={55}
                 quality={60}
@@ -1101,6 +1104,7 @@ const HeaderComponent = () => {
                                   <Image
                                     src={getProjectImageSrc(project)}
                                     alt={project.projectName || project.name || "Project"}
+                                    title={project.projectName || project.name || "Project"}
                                     width={100}
                                     height={80}
                                     unoptimized

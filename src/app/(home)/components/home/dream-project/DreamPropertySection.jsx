@@ -22,49 +22,49 @@ const DreamPropertySection = () => {
       name: "Agra",
       link: "/city/agra",
       image: "/dream-cities/agra_new.png",
-      alt: "Agra city",
+      alt: "Agra — find properties and projects on My Property Fact",
     },
     {
       name: "Bangalore",
       link: "/city/bangalore",
       image: "/dream-cities/bangalore_new.png",
-      alt: "Bangalore city",
+      alt: "Bangalore — find properties and projects on My Property Fact",
     },
     {
       name: "Noida",
       link: "/city/noida",
       image: "/dream-cities/noida_new.png",
-      alt: "Noida city",
+      alt: "Noida — find properties and projects on My Property Fact",
     },
     {
       name: "Delhi",
       link: "/city/delhi",
       image: "/dream-cities/delhi_new.png",
-      alt: "Delhi city",
+      alt: "Delhi — find properties and projects on My Property Fact",
     },
     {
       name: "Ghaziabad",
       link: "/city/ghaziabad",
       image: "/dream-cities/ghaziabad_new.png",
-      alt: "Ghaziabad city",
+      alt: "Ghaziabad — find properties and projects on My Property Fact",
     },
     {
       name: "Jaipur",
       link: "/city/jaipur",
       image: "/dream-cities/jaipur_new.png",
-      alt: "Jaipur city",
+      alt: "Jaipur — find properties and projects on My Property Fact",
     },
     {
       name: "Mumbai",
       link: "/city/mumbai",
       image: "/dream-cities/mumbai_new.png",
-      alt: "Mumbai city",
+      alt: "Mumbai — find properties and projects on My Property Fact",
     },
     {
       name: "Gurugram",
       link: "/city/gurugram",
       image: "/dream-cities/gurugram_new.png",
-      alt: "Gurugram city",
+      alt: "Gurugram — find properties and projects on My Property Fact",
     },
   ];
 
@@ -74,7 +74,8 @@ const DreamPropertySection = () => {
       <div className="dream-property-section-bg" aria-hidden>
         <Image
           src="/dream-cities/dream_City_bg.png"
-          alt=""
+          alt="Background artwork for Find Your Dream Property in your city"
+          title="Background artwork for Find Your Dream Property in your city"
           fill
           sizes="100vw"
           quality={75}
@@ -113,6 +114,7 @@ const DreamPropertySection = () => {
                 <Image
                   src={city.image}
                   alt={city.alt}
+                  title={city.alt}
                   height={90}
                   width={105}
                   loading="lazy"

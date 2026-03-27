@@ -187,6 +187,7 @@ Curious how this one number can change the entire value of land? Understand FAR 
                           muted
                           playsInline
                           preload="metadata"
+                          aria-label={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
                         >
                           <source src={post.video} type="video/mp4" />
                           Your browser does not support the video tag.
@@ -261,6 +262,7 @@ Curious how this one number can change the entire value of land? Understand FAR 
                 autoPlay
                 loop
                 playsInline
+                aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
               >
                 <source src={selectedVideo.video} type="video/mp4" />
                 Your browser does not support the video tag.

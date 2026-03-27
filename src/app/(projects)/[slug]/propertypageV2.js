@@ -991,7 +991,8 @@ const addNearbyImageIcon = (benefit) => {
                   <Link href="/">
                     <Image
                       src="/logo.webp"
-                      alt="My Property Fact"
+                      alt="My Property Fact logo — project page mobile menu"
+                      title="My Property Fact logo — project page mobile menu"
                       width={50}
                       height={55}
                       className="img-fluid"
@@ -1080,7 +1081,8 @@ const addNearbyImageIcon = (benefit) => {
               <Link href="/">
                 <Image
                   src="/logo.webp"
-                  alt="mpf-logo"
+                  alt="My Property Fact logo — project page header"
+                  title="My Property Fact logo — project page header"
                   width={70}
                   height={70}
                   className="img-fluid"

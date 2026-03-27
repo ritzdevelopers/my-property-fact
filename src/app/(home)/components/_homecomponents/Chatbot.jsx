@@ -208,7 +208,8 @@ export default function Chatbot() {
             <div className={styles.avatar}>
               <Image
                 src="/logo.webp"
-                alt="MPF Logo"
+                alt="My Property Fact — chat bot logo"
+                title="My Property Fact — chat bot logo"
                 width={40}
                 height={37}
                 sizes="40px"
@@ -402,12 +403,15 @@ function ProjectSlider({
         ref={sliderRef}
         onScroll={checkScroll}
       >
-        {cards.map((card, i) => (
+        {cards.map((card, i) => {
+          const cardPreviewAlt = card.name ? `${card.name} — project preview` : "Project preview";
+          return (
           <div key={i} className={styles.projectCard}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={card.image}
-              alt={card.name}
+              alt={cardPreviewAlt}
+              title={cardPreviewAlt}
               loading="lazy"
               className="img-fluid"
               onError={(e) => {
@@ -437,7 +441,8 @@ function ProjectSlider({
               </button>
             </div>
           </div>
-        ))}
+        );
+        })}
       </div>
       <button
         className={`${styles.scrollArrow} ${showArrow ? styles.visible : ""}`}

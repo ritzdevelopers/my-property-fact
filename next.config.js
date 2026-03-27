@@ -86,6 +86,29 @@ const nextConfig = {
       },
     ];
   },
+
+   /**
+   * HSTS: tells browsers (and crawlers) to use HTTPS only. Only applied in production
+   * so local dev is not pinned to HTTPS on localhost.
+   * If you use Cloudflare, also enable HSTS / “Always Use HTTPS” there so edge and origin align.
+   */
+
+  async headers() {
+    if (process.env.NODE_ENV !== "production") {
+      return [];
+    }
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
+          },
+        ],
+      },
+    ];
+  },
   // Ensure MUI and other packages are transpiled so vendor chunks are generated correctly
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {

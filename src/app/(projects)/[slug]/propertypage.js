@@ -1306,7 +1306,7 @@ const addNearbyImageIcon = (benefit) => {
                 href={builderPageHref || "#"}
                 className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
               >
-                LEARN MORE
+               Check More Projects
               </Link>
             </div>
           </div>

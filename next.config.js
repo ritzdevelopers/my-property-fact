@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 
-  
+
   async redirects() {
     return [
       // Blog legacy slugs
@@ -76,9 +76,9 @@ const nextConfig = {
         destination: "/landing-pages/sikka-kimaya",
         permanent: true,
       },
-     
-      
- 
+
+
+
       {
         source: "/__media__/js/netsoltrademark.php",
         destination: "/",
@@ -87,11 +87,6 @@ const nextConfig = {
     ];
   },
 
-   /**
-   * HSTS: tells browsers (and crawlers) to use HTTPS only. Only applied in production
-   * so local dev is not pinned to HTTPS on localhost.
-   * If you use Cloudflare, also enable HSTS / “Always Use HTTPS” there so edge and origin align.
-   */
 
   async headers() {
     if (process.env.NODE_ENV !== "production") {

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import Property from "./propertypage-server";
 import {
   canonicalizeFloorInCitySlug,
@@ -10,7 +10,6 @@ import {
 } from "@/app/_global_components/masterFunction";
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
-import NotFound from "@/app/not-found";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 export const dynamic = "force-dynamic";
 
@@ -55,6 +54,6 @@ export default async function PropertyPage({ params }) {
       </>
     );
   } else {
-    return <NotFound />;
+    notFound();
   }
 }

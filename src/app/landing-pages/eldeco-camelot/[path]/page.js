@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, notFound } from "next/navigation";
 import Image from "next/image";
 import ContactForm from "./_components/ContactForm";
 import ContactModal from "./_components/ContactModal";
@@ -247,7 +247,8 @@ export default function EldecoCamelotPage() {
   }, []);
 
   if (isNotFound) {
-    return <NotFoundPage />;
+    notFound();
+    return null;
   }
 
   return (

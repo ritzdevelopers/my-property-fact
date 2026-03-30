@@ -39,7 +39,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row, Modal } from "react-bootstrap";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, notFound } from "next/navigation";
 
 export default function Property({ projectDetail, similarProjects = [] }) {
   const [isAnswerVisible, setIsAnswerVisible] = useState([false, false]);
@@ -566,13 +566,44 @@ const addNearbyImageIcon = (benefit) => {
     }, 250);
   };
 
+  /** MPF logo: open home in a new tab so project-page CSS / Bootstrap state never leaks into home. */
+  const handleMpfLogoOpenHomeNewTab = () => {
+    const menu = document.getElementById("property-mbdiv");
+    const menuButtons = document.querySelectorAll(".project-menuBtn");
+    const header = document.querySelector(".project-detail-header");
+
+    if (menu) {
+      menu.classList.remove("active");
+      menu.style.display = "none";
+    }
+    menuButtons?.forEach((btn) => btn.classList.remove("closeMenuBtn"));
+    header?.classList.remove("notfixed");
+    setMenuOpen(false);
+
+    document.body.classList.remove("menu-open");
+    document.body.classList.remove("overflow-hidden");
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+
+    if (typeof window === "undefined") return;
+    const homeUrl = `${window.location.origin}/`;
+    const a = document.createElement("a");
+    a.href = homeUrl;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
   //Generating banner src
   // const imageSrc = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail.banners[0].desktopImage}`;
   // const imageSrc = `/properties/${projectDetail.slugURL}/${projectDetail.projectThumbnail}`;
 
   //Checking If project detail is not available then show not found page
   if (!projectDetail) {
-    return <NotFound />;
+    notFound();
+    return null;
   }
 
   const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
@@ -705,7 +736,14 @@ const addNearbyImageIcon = (benefit) => {
               <div className="mbMenu" onClick={(e) => e.stopPropagation()}>
                 {/* Mobile menu header with logo + close */}
                 <div className="project-mbMenu-header d-flex align-items-center justify-content-between mb-4">
-                  <Link href="/">
+                  <Link
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleMpfLogoOpenHomeNewTab();
+                    }}
+                    aria-label="My Property Fact home (opens in a new tab)"
+                  >
                     <Image
                       src="/logo.webp"
                       alt="My Property Fact logo — project page mobile menu"
@@ -795,7 +833,14 @@ const addNearbyImageIcon = (benefit) => {
             </div>
             {/* Logo container */}
             <div className="logo d-none d-lg-block px-4">
-              <Link href="/">
+              <Link
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleMpfLogoOpenHomeNewTab();
+                }}
+                aria-label="My Property Fact home (opens in a new tab)"
+              >
                 <Image
                   src="/logo.webp"
                   alt="My Property Fact logo — project page header"

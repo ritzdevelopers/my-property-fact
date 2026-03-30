@@ -6,7 +6,10 @@ import NewAboutUs from "./NewAboutUs";
 export const metadata = {
   title: "About Us | MyPropertyFact – Real Estate Price Trends & Insights",
   description: "Discover the story behind MyPropertyFact – your trusted source for accurate real estate price trends, market insights, and property data across major Indian cities.",
-}
+  alternates: {
+    canonical: "/about-us",
+  },
+};
 
 export default function AboutUsPage() {
   //Defining what we offer array

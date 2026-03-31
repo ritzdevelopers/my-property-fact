@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "./NoidaProjectsSection.css";
+import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 // Static city data (10 cards)
 const CITY_CARDS = [
@@ -63,33 +64,16 @@ const CITY_CARDS = [
 
 export default function NoidaProjectsSection() {
   const [cityCards, setCityCards] = useState(CITY_CARDS);
-  const [loading, setLoading] = useState(true);
+  const { cityList, projectList } = useSiteData();
 
   useEffect(() => {
-    const fetchCityDataAndProjects = async () => {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        if (!apiUrl) {
-          setLoading(false);
+        if (!cityList || cityList.length === 0 || !projectList || projectList.length === 0) {
           return;
         }
-
-        // Fetch cities and projects in parallel
-        const [citiesResponse, projectsResponse] = await Promise.all([
-          fetch(`${apiUrl}city/all`),
-          fetch(`${apiUrl}projects`),
-        ]);
-
-        if (!citiesResponse.ok || !projectsResponse.ok) {
-          setLoading(false);
-          return;
-        }
-
-        const cities = await citiesResponse.json();
-        const projects = await projectsResponse.json();
         
-        const cityArray = Array.isArray(cities) ? cities : [];
-        const projectsArray = Array.isArray(projects) ? projects : [];
+        const cityArray = Array.isArray(cityList) ? cityList : [];
+        const projectsArray = Array.isArray(projectList) ? projectList : [];
 
         // Create maps for project counts and price ranges by city
         const cityProjectCountMap = new Map();
@@ -252,15 +236,10 @@ export default function NoidaProjectsSection() {
 
         setCityCards(updatedCards);
       } catch (error) {
-        console.error("Error fetching city and project data:", error);
+        console.error("Error calculating city and project data:", error);
         // Keep static data on error
-      } finally {
-        setLoading(false);
       }
-    };
-
-    fetchCityDataAndProjects();
-  }, []);
+  }, [cityList, projectList]);
 
   return (
     <section className="container noida-projects-section">

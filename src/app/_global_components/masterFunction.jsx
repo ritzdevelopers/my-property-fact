@@ -29,18 +29,7 @@ export const fetchAllProjects = cache(async () => {
 });
 
 //Fetch all projects with cached
-export const getAllProjects = cache(async () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  }
-  const res = await fetch(`${apiUrl}projects`, {
-    next: { revalidate: 60 }, // ISR: refresh every 60s
-  });
-  if (!res.ok) throw new Error("Failed to fetch projects");
-  const data = await res.json();
-  return data;
-});
+export const getAllProjects = fetchAllProjects;
 
 //Fetching all cities
 export const fetchCityData = cache(async () => {

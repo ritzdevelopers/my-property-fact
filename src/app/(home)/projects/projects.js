@@ -348,6 +348,21 @@ export default function Projects() {
       return true;
     });
   }, [allProjectsList, quickProjectFilter, filters]);
+
+  const newLaunchTypeCounts = useMemo(() => {
+    if (normalizeText(quickProjectFilter) !== "new launched") return null;
+    let residential = 0;
+    let commercial = 0;
+    let other = 0;
+    for (const item of displayProjects) {
+      const t = normalizeText(item?.propertyTypeName);
+      if (t.includes("commercial")) commercial += 1;
+      else if (t.includes("residential")) residential += 1;
+      else other += 1;
+    }
+    return { residential, commercial, other };
+  }, [displayProjects, quickProjectFilter]);
+
   const hasActiveFilters = useMemo(
     () => Object.values(filters).some(Boolean),
     [filters]
@@ -366,7 +381,7 @@ export default function Projects() {
         firstPage={"projects"}
       />
       <div className="container py-4">
-        {/* Page Header - minimal, project count shown in pills block for All/Commercial only */}
+        {/* Page Header - minimal; project count in pills row for all category tabs */}
         {/* <div className="page-header-section mb-4">
           {!hasUrlParams && (hasQuickFilter || activeFiltersCount > 0) && (
             <div className="d-flex justify-content-end mb-2">
@@ -409,6 +424,40 @@ export default function Projects() {
                 </button>
               </div>
 
+              {isActive === "New Launched" && newLaunchTypeCounts && (
+                <div
+                  className="projects-mobile-newlaunch-stats"
+                  aria-label="New launch projects by type"
+                >
+                  <div className="projects-newlaunch-split">
+                    <div className="projects-newlaunch-stat projects-newlaunch-stat--residential">
+                      <span className="projects-newlaunch-stat-label">Residential</span>
+                      <span className="projects-newlaunch-stat-value">
+                        {newLaunchTypeCounts.residential}
+                      </span>
+                    </div>
+                    <div className="projects-newlaunch-stat projects-newlaunch-stat--commercial">
+                      <span className="projects-newlaunch-stat-label">Commercial</span>
+                      <span className="projects-newlaunch-stat-value">
+                        {newLaunchTypeCounts.commercial}
+                      </span>
+                    </div>
+                  </div>
+                  {newLaunchTypeCounts.other > 0 && (
+                    <div className="projects-newlaunch-stat projects-newlaunch-stat--other projects-newlaunch-stat--full">
+                      <span className="projects-newlaunch-stat-label">Other</span>
+                      <span className="projects-newlaunch-stat-value">
+                        {newLaunchTypeCounts.other}
+                      </span>
+                    </div>
+                  )}
+                  <p className="projects-newlaunch-total-foot text-muted mb-0">
+                    {displayProjects.length}{" "}
+                    {displayProjects.length === 1 ? "project" : "projects"} total
+                  </p>
+                </div>
+              )}
+
               <button
                 className="projects-mobile-filter-btn"
                 onClick={toggleMobileFilter}
@@ -433,9 +482,41 @@ export default function Projects() {
               {/* Pills + Filters - direct child of wrapper so sticky works on large screens */}
               {!hasUrlParams ? (
                 <div className="projects-filter-inline-card projects-sticky-filters projects-desktop-filters projects-filters-below mb-4">
-                  {/* Pills row: project count (All/Commercial only) + tabs + Show Filters + Clear */}
+                  {/* Pills row: project count + tabs + Show Filters + Clear */}
                   <div className="quick-filters-row filter-pills-in-card">
-                    {(isActive === "All" || isActive === "Commercial") && (
+                    {isActive === "New Launched" && newLaunchTypeCounts ? (
+                      <div
+                        className="projects-newlaunch-count-wrap"
+                        aria-label="New launch project counts by property type"
+                      >
+                        <p className="projects-newlaunch-head text-muted mb-2">
+                          Showing <strong>{displayProjects.length}</strong> new launch{" "}
+                          {displayProjects.length === 1 ? "project" : "projects"}
+                        </p>
+                        <div className="projects-newlaunch-split">
+                          <div className="projects-newlaunch-stat projects-newlaunch-stat--residential">
+                            <span className="projects-newlaunch-stat-label">Residential</span>
+                            <span className="projects-newlaunch-stat-value">
+                              {newLaunchTypeCounts.residential}
+                            </span>
+                          </div>
+                          <div className="projects-newlaunch-stat projects-newlaunch-stat--commercial">
+                            <span className="projects-newlaunch-stat-label">Commercial</span>
+                            <span className="projects-newlaunch-stat-value">
+                              {newLaunchTypeCounts.commercial}
+                            </span>
+                          </div>
+                        </div>
+                        {newLaunchTypeCounts.other > 0 && (
+                          <div className="projects-newlaunch-stat projects-newlaunch-stat--other projects-newlaunch-stat--full mt-2">
+                            <span className="projects-newlaunch-stat-label">Other</span>
+                            <span className="projects-newlaunch-stat-value">
+                              {newLaunchTypeCounts.other}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
                       <span className="projects-count-in-pills text-muted">
                         Showing <strong>{displayProjects.length}</strong>{" "}
                         {displayProjects.length === 1 ? "project" : "projects"}

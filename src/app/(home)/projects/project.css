@@ -796,3 +796,94 @@ body.projects-filter-modal-open [class*="launcher"] {
     font-size: 1.375rem;
   }
 }
+
+/* New Launch tab: Residential vs Commercial breakdown */
+.projects-newlaunch-count-wrap {
+  flex: 0 1 auto;
+  min-width: min(100%, 280px);
+  max-width: 360px;
+}
+
+.projects-newlaunch-head {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.35;
+}
+
+.projects-newlaunch-head strong {
+  color: #1a1a1a;
+}
+
+.projects-newlaunch-split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+}
+
+.projects-newlaunch-stat {
+  flex: 1 1 calc(50% - 0.35rem);
+  min-width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  font-size: 0.875rem;
+}
+
+.projects-newlaunch-stat--full {
+  flex: 1 1 100%;
+}
+
+.projects-newlaunch-stat-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.projects-newlaunch-stat-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #111827;
+}
+
+.projects-newlaunch-stat--residential {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+.projects-newlaunch-stat--residential .projects-newlaunch-stat-value {
+  color: #047857;
+}
+
+.projects-newlaunch-stat--commercial {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #3b82f6;
+}
+
+.projects-newlaunch-stat--commercial .projects-newlaunch-stat-value {
+  color: #1d4ed8;
+}
+
+.projects-newlaunch-stat--other {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.projects-mobile-newlaunch-stats {
+  width: 100%;
+  padding-top: 6px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.projects-mobile-newlaunch-stats .projects-newlaunch-split {
+  margin-bottom: 6px;
+}
+
+.projects-newlaunch-total-foot {
+  font-size: 11px;
+  text-align: center;
+  padding-top: 4px;
+}

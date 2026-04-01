@@ -1,4 +1,8 @@
   import { fetchProjectDetailsBySlug } from "@/app/_global_components/masterFunction";
+  import { APARTMENTS_CITY_KEYWORDS } from "./apartments-city-keywords";
+  import { NEW_PROJECTS_CITY_KEYWORDS } from "./new-projects-city-keywords";
+  import { COMMERCIAL_PROPERTY_CITY_KEYWORDS } from "./commercial-property-city-keywords";
+  import { FLATS_CITY_KEYWORDS } from "./flats-city-keywords";
 
   const NEW_PROJECTS_CITY_METADATA = {
     delhi: {
@@ -152,6 +156,17 @@
         "Coastal New Projects in Thiruvananthapuram | Villas & Commercial Spaces",
       description:
         "Coastal new projects in Thiruvananthapuram featuring villas, apartments, gated communities, and commercial spaces. Modern amenities with scenic surroundings.",
+    },
+    karnal: {
+      title:
+        "Emerging New Projects in Karnal | Residential & Commercial Growth",
+      description:
+        "Discover new projects in Karnal with residential apartments, villas, and commercial developments. Growing neighborhoods with affordable housing and investment opportunities.",
+    },
+    vrindavan: {
+      title: "New Projects in Vrindavan | Spiritual City Living",
+      description:
+        "Explore new projects in Vrindavan with modern apartments, villas, and gated communities near key pilgrimage and residential hubs.",
     },
   };
 
@@ -381,6 +396,11 @@
       description:
         "Jaipur commercial property gems - offices, shops & fast-growing zones packed with profit power. High ROI potential in royal city expansion - invest smart today!",
     },
+    karnal: {
+      title: "Commercial Property in Karnal: Growth Zone Opportunities in 2026",
+      description:
+        "Explore commercial property in Karnal - offices, retail, and industrial-linked spaces in a fast-expanding NCR corridor. Strong connectivity and rising demand for business assets.",
+    },
     lucknow: {
       title: "Commercial Property in Lucknow: Investor Favorites for 2026",
       description:
@@ -509,6 +529,11 @@
       description:
         "Find flats in Jaipur with 2, 3 & 4 BHK apartments in prime locations. Explore modern housing projects with premium facilities.",
     },
+    karnal: {
+      title: "Flats in Karnal | 2, 3 & 4 BHK Apartments for Sale",
+      description:
+        "Discover flats in Karnal with modern 2, 3 & 4 BHK apartments. Compare residential projects with amenities and connectivity in Haryana's growing hubs.",
+    },
     kochi: {
       title: "Flats in Kochi | 2, 3 & 4 BHK Waterfront Apartments",
       description:
@@ -607,9 +632,28 @@ export async function generateMetadata({ params }) {
   if (!response || response?.slugURL !== slug) {
     const cityMeta = getStaticCityMetadata(slug);
     if (cityMeta) {
+      const apartmentsCitySlug = slug.startsWith("apartments-in-")
+        ? slug.replace("apartments-in-", "")
+        : null;
+      const newProjectsCitySlug = slug.startsWith("new-projects-in-")
+        ? slug.replace("new-projects-in-", "")
+        : null;
+      const commercialCitySlug = slug.startsWith("commercial-property-in-")
+        ? slug.replace("commercial-property-in-", "")
+        : null;
+      const flatsCitySlug = slug.startsWith("flats-in-")
+        ? slug.replace("flats-in-", "")
+        : null;
+      const staticKeywords =
+        (apartmentsCitySlug && APARTMENTS_CITY_KEYWORDS[apartmentsCitySlug]) ||
+        (newProjectsCitySlug && NEW_PROJECTS_CITY_KEYWORDS[newProjectsCitySlug]) ||
+        (commercialCitySlug &&
+          COMMERCIAL_PROPERTY_CITY_KEYWORDS[commercialCitySlug]) ||
+        (flatsCitySlug && FLATS_CITY_KEYWORDS[flatsCitySlug]);
       return {
         title: cityMeta.title,
         description: cityMeta.description,
+        ...(staticKeywords?.length ? { keywords: staticKeywords } : {}),
         alternates: {
           canonical: `/${slug}`,
         },

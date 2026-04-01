@@ -125,6 +125,93 @@ export function canonicalizeFloorInCitySlug(slug) {
   return `${floorNorm}-in-${cityNorm}`;
 }
 
+/** Longest first — matched as suffix on the segment before `-in-` (e.g. `3-bhk-new-projects-in-delhi`). */
+export const LISTING_URL_CATEGORY_SEGMENTS = [
+  "new-projects",
+  "offices-and-shop",
+  "apartments",
+  "flats",
+  "commercial",
+];
+
+/** True when slug segment is a numeric BHK only (e.g. `3-bhk`), not plot/office/villa. */
+export function isBhkFloorSlugSegment(slug) {
+  const s = normalizeFloorSlugSegment(slug || "");
+  return /^\d+-bhk$/.test(s);
+}
+
+/**
+ * Parses `{floor}-{category}-in-{city}` listing URLs for **BHK only**.
+ * Non-BHK floors use `{floor}-in-{city}` (no category segment).
+ */
+export function parseCompoundFloorListingSlug(slug) {
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
+  const segments = slug.split("-in-");
+  if (segments.length < 2) return null;
+  const citySlug = segments
+    .slice(1)
+    .join("-in-")
+    .trim()
+    .toLowerCase()
+    .replace(/%20/g, "-")
+    .replace(/\s+/g, "-");
+  const prefix = segments[0];
+  if (!prefix || !citySlug) return null;
+
+  for (const cat of LISTING_URL_CATEGORY_SEGMENTS) {
+    const suffix = `-${cat}`;
+    if (prefix.endsWith(suffix)) {
+      const floorPart = prefix.slice(0, -suffix.length);
+      if (!floorPart) continue;
+      const floorSlug = normalizeFloorSlugSegment(floorPart);
+      if (!isBhkFloorSlugSegment(floorSlug)) return null;
+      return {
+        floorSlug,
+        categorySlug: cat,
+        citySlug,
+      };
+    }
+  }
+  return null;
+}
+
+export function floorSlugToListingLabel(floorSlug) {
+  if (!floorSlug) return "";
+  const s = String(floorSlug).toLowerCase();
+  const bhk = s.match(/^(\d+)-bhk$/);
+  if (bhk) return `${bhk[1]} BHK`;
+  return s
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function categorySlugToListingLabel(categorySlug) {
+  if (!categorySlug) return "";
+  if (categorySlug === "new-projects") return "New Projects";
+  if (categorySlug === "offices-and-shop") return "Offices and Shop";
+  return categorySlug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function citySlugToListingLabel(citySlug) {
+  if (!citySlug) return "";
+  return citySlug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function buildCompoundListingTitle(parsed) {
+  if (!parsed) return "";
+  const floor = floorSlugToListingLabel(parsed.floorSlug);
+  const city = citySlugToListingLabel(parsed.citySlug);
+  const cat = categorySlugToListingLabel(parsed.categorySlug);
+  return `${floor} ${cat} In ${city}`;
+}
+
 //Fetch all floor plans
 export const isFloorTypeUrl = async (slug) => {
   const res = await fetch(`${apiUrl}floor-plans/get-all`, {

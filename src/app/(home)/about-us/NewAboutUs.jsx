@@ -247,11 +247,11 @@ export default function NewAboutUs() {
                   initial={{ opacity: 0, height: 0, y: -20 }}
                   animate={{ opacity: 1, height: "auto", y: 0 }}
                   exit={{ opacity: 0, height: 0, y: -20 }}
-                  transition={{ 
-                    duration: 0.4, 
+                  transition={{
+                    duration: 0.4,
                     ease: "easeInOut",
                     opacity: { duration: 0.3 },
-                    height: { duration: 0.4 }
+                    height: { duration: 0.4 },
                   }}
                 >
                   Welcome to My Property Fact, your go-to platform for discovering
@@ -261,6 +261,7 @@ export default function NewAboutUs() {
             </AnimatePresence>
             <motion.div variants={bounceIn}>
               <motion.button
+                type="button"
                 className="new-about-us-container-content-button"
                 initial="hidden"
                 whileInView="visible"
@@ -283,17 +284,17 @@ export default function NewAboutUs() {
                   </motion.span>
                 </AnimatePresence>
                 <motion.span
-                  animate={{ 
+                  animate={{
                     rotate: isReadMore ? 180 : 0,
-                    y: isReadMore ? 0 : [0, 4, 0]
+                    y: isReadMore ? 0 : [0, 4, 0],
                   }}
-                  transition={{ 
+                  transition={{
                     rotate: { duration: 0.3 },
-                    y: { 
-                      duration: 1.5, 
-                      repeat: Infinity, 
-                      ease: "easeInOut" 
-                    }
+                    y: {
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    },
                   }}
                   style={{ display: "inline-flex", alignItems: "center" }}
                 >

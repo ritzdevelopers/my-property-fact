@@ -18,6 +18,9 @@ import {
   faTimes,
   faSlidersH,
   faHome,
+  faSearch,
+  faMicrophone,
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
 const EMPTY_PROJECT_FILTERS = {
@@ -32,6 +35,19 @@ const EMPTY_PROJECT_FILTERS = {
   facing: "",
 };
 
+const PROJECT_BHK_FILTER_OPTIONS = [
+  "1 BHK",
+  "2 BHK",
+  "3 BHK",
+  "4 BHK",
+  "5 BHK",
+  "6 BHK",
+  "7 BHK",
+  "8 BHK",
+  "1 RK Studio",
+  
+];
+
 function normalizeText(value) {
   return String(value || "")
     .toLowerCase()
@@ -40,13 +56,13 @@ function normalizeText(value) {
 }
 
 export default function Projects() {
+  const PROJECTS_PER_PAGE = 12;
   const [pageName] = useState("Projects");
   const {
     cityList: cities,
     projectTypes: propertyTypes,
     projectStatuses,
     projectList: allProjectsList,
-    bhkTypes,
     loading: siteDataLoading,
     queryFilters,
     clearQueryFilters,
@@ -54,8 +70,6 @@ export default function Projects() {
   const [quickProjectFilter, setQuickProjectFilter] = useState("All");
   const [filters, setFilters] = useState(EMPTY_PROJECT_FILTERS);
   const isActive = quickProjectFilter || "All";
-  // Used to decide when to show "You've viewed all projects"
-  const pageSize = 150;
   const [fadeKey, setFadeKey] = useState(0);
   const hasUrlParams = false;
 
@@ -65,7 +79,36 @@ export default function Projects() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [draftFilters, setDraftFilters] = useState(filters);
   const [listLoading, setListLoading] = useState(false);
+  const [desktopTabTransitionLoading, setDesktopTabTransitionLoading] =
+    useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  /** New Launch tab only: "all" | "residential" | "commercial" */
+  const [newLaunchTypeSegment, setNewLaunchTypeSegment] = useState("all");
+  const [newLaunchSwitchLoading, setNewLaunchSwitchLoading] = useState(false);
+  const [projectSearchTerm, setProjectSearchTerm] = useState("");
+  const [appliedProjectSearchTerm, setAppliedProjectSearchTerm] = useState("");
+  const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
+  const [searchSuggestionsLoading, setSearchSuggestionsLoading] = useState(false);
+  const [searchSuggestionsQuery, setSearchSuggestionsQuery] = useState("");
+  const [searchPlaceholderIndex, setSearchPlaceholderIndex] = useState(0);
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const [isVoiceSupported, setIsVoiceSupported] = useState(false);
+  const [showVoiceOverlay, setShowVoiceOverlay] = useState(false);
+  const [voiceLiveText, setVoiceLiveText] = useState("");
   const searchLoadingTimeoutRef = useRef(null);
+  const searchWrapperRef = useRef(null);
+  const projectsResultsRef = useRef(null);
+  const suggestionsTimeoutRef = useRef(null);
+  const speechRecognitionRef = useRef(null);
+  const voiceShouldApplyOnEndRef = useRef(true);
+  const voiceFinalTextRef = useRef("");
+  const rotatingSearchPlaceholders = [
+    "Eldeco Camelot",
+    "Saya Gold Avenue",
+    "Godrej Majesty",
+    "M3M The Line",
+    "AIPL Joy Central",
+  ];
 
   // Toggle mobile filter modal (like properties page)
   const toggleMobileFilter = () => {
@@ -97,12 +140,37 @@ export default function Projects() {
     const onDocClick = (e) => {
       const inside = e.target.closest && e.target.closest(".custom-sort-dropdown");
       if (!inside) setOpenDropdown(null);
+      if (searchWrapperRef.current && !searchWrapperRef.current.contains(e.target)) {
+        setShowSearchSuggestions(false);
+      }
     };
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
   const budgetOptions = PROJECT_BUDGET_OPTIONS;
+
+  const scrollDesktopToProjectsGrid = () => {
+    if (typeof window === "undefined" || window.innerWidth < 992) return;
+    requestAnimationFrame(() => {
+      projectsResultsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  };
+
+  const startDesktopFilterTransition = () => {
+    if (typeof window === "undefined" || window.innerWidth < 992) return;
+    setDesktopTabTransitionLoading(true);
+    scrollDesktopToProjectsGrid();
+    if (searchLoadingTimeoutRef.current) {
+      clearTimeout(searchLoadingTimeoutRef.current);
+    }
+    searchLoadingTimeoutRef.current = setTimeout(() => {
+      setDesktopTabTransitionLoading(false);
+    }, 550);
+  };
 
   const renderFilterDropdown = ({
     id,
@@ -179,7 +247,6 @@ export default function Projects() {
     );
   };
 
-  const hasMore = false;
   const loading = siteDataLoading;
   const initialLoad = siteDataLoading;
 
@@ -231,8 +298,77 @@ export default function Projects() {
       if (searchLoadingTimeoutRef.current) {
         clearTimeout(searchLoadingTimeoutRef.current);
       }
+      if (suggestionsTimeoutRef.current) {
+        clearTimeout(suggestionsTimeoutRef.current);
+      }
+      if (speechRecognitionRef.current) {
+        try {
+          speechRecognitionRef.current.stop();
+        } catch (error) {
+          // no-op
+        }
+      }
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const Recognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      setIsVoiceSupported(false);
+      return;
+    }
+
+    const recognition = new Recognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+
+    recognition.onresult = (event) => {
+      let interimText = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const text = event.results[i][0]?.transcript?.trim() || "";
+        if (!text) continue;
+        if (event.results[i].isFinal) {
+          const nextFinal = `${voiceFinalTextRef.current} ${text}`.trim();
+          voiceFinalTextRef.current = nextFinal;
+        } else {
+          interimText = `${interimText} ${text}`.trim();
+        }
+      }
+      const mergedText = `${voiceFinalTextRef.current} ${interimText}`.trim();
+      setVoiceLiveText(mergedText);
+    };
+
+    recognition.onstart = () => setIsVoiceListening(true);
+    recognition.onend = () => {
+      setIsVoiceListening(false);
+      setShowVoiceOverlay(false);
+      const spoken = (voiceFinalTextRef.current || voiceLiveText).trim();
+      if (voiceShouldApplyOnEndRef.current && spoken) {
+        setProjectSearchTerm(spoken);
+        setAppliedProjectSearchTerm(spoken);
+        setShowSearchSuggestions(false);
+        setCurrentPage(1);
+        setFadeKey((prev) => prev + 1);
+      }
+      voiceFinalTextRef.current = "";
+      setVoiceLiveText("");
+      voiceShouldApplyOnEndRef.current = true;
+    };
+    recognition.onerror = () => {
+      setIsVoiceListening(false);
+      setShowVoiceOverlay(false);
+      voiceFinalTextRef.current = "";
+      setVoiceLiveText("");
+      voiceShouldApplyOnEndRef.current = true;
+    };
+
+    speechRecognitionRef.current = recognition;
+    setIsVoiceSupported(true);
+  }, [allProjectsList, voiceLiveText]);
 
   // Clear all filters
   const clearFilters = () => {
@@ -245,12 +381,20 @@ export default function Projects() {
     }
     setOpenDropdown(null);
     setFadeKey((prev) => prev + 1);
+    setCurrentPage(1);
+    setNewLaunchTypeSegment("all");
+    setProjectSearchTerm("");
+    setAppliedProjectSearchTerm("");
+    setShowSearchSuggestions(false);
+    setDesktopTabTransitionLoading(false);
   };
 
   const applySelectedFilters = (closeMobile = false) => {
     setListLoading(true);
     setFilters(draftFilters);
+    setCurrentPage(1);
     setFadeKey((prev) => prev + 1);
+    scrollDesktopToProjectsGrid();
     if (searchLoadingTimeoutRef.current) {
       clearTimeout(searchLoadingTimeoutRef.current);
     }
@@ -261,7 +405,69 @@ export default function Projects() {
     if (closeMobile) {
       closeMobileFilter();
     }
-    window.scrollTo({ top: 260, behavior: "smooth" });
+    if (typeof window !== "undefined" && window.innerWidth < 992) {
+      window.scrollTo({ top: 260, behavior: "smooth" });
+    }
+  };
+
+  const applySearchFilter = () => {
+    setCurrentPage(1);
+    setFadeKey((prev) => prev + 1);
+    setShowSearchSuggestions(false);
+  };
+
+  useEffect(() => {
+    if (suggestionsTimeoutRef.current) {
+      clearTimeout(suggestionsTimeoutRef.current);
+    }
+    const nextQuery = projectSearchTerm.trim();
+    if (!nextQuery) {
+      setSearchSuggestionsLoading(false);
+      setSearchSuggestionsQuery("");
+      return;
+    }
+    setSearchSuggestionsLoading(true);
+    suggestionsTimeoutRef.current = setTimeout(() => {
+      setSearchSuggestionsQuery(nextQuery);
+      setSearchSuggestionsLoading(false);
+    }, 350);
+  }, [projectSearchTerm]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSearchPlaceholderIndex(
+        (prev) => (prev + 1) % rotatingSearchPlaceholders.length
+      );
+    }, 2500);
+    return () => clearInterval(intervalId);
+  }, [rotatingSearchPlaceholders.length]);
+
+  const handleVoiceSearch = () => {
+    if (!speechRecognitionRef.current || !isVoiceSupported) return;
+    voiceShouldApplyOnEndRef.current = true;
+    voiceFinalTextRef.current = "";
+    setVoiceLiveText("");
+    setShowVoiceOverlay(true);
+    try {
+      speechRecognitionRef.current.start();
+    } catch (error) {
+      // If already started, let current session continue.
+    }
+  };
+
+  const handleCloseVoiceOverlay = () => {
+    voiceShouldApplyOnEndRef.current = false;
+    setShowVoiceOverlay(false);
+    setIsVoiceListening(false);
+    setVoiceLiveText("");
+    voiceFinalTextRef.current = "";
+    if (speechRecognitionRef.current) {
+      try {
+        speechRecognitionRef.current.stop();
+      } catch (error) {
+        // no-op
+      }
+    }
   };
 
   // Handle filter draft change
@@ -276,11 +482,33 @@ export default function Projects() {
     setQuickProjectFilter(tabName);
     setFilters(EMPTY_PROJECT_FILTERS);
     setDraftFilters(EMPTY_PROJECT_FILTERS);
+    setNewLaunchTypeSegment("all");
     setFadeKey((prev) => prev + 1);
-    window.scrollTo({ top: 260, behavior: "smooth" });
+    setCurrentPage(1);
+    startDesktopFilterTransition();
+    if (typeof window !== "undefined" && window.innerWidth < 992) {
+      window.scrollTo({ top: 260, behavior: "smooth" });
+    }
   };
 
-  const displayProjects = useMemo(() => {
+  const selectNewLaunchSegment = (segment) => {
+    const nextSegment =
+      newLaunchTypeSegment === segment ? "all" : segment;
+    if (nextSegment === newLaunchTypeSegment) return;
+    setNewLaunchSwitchLoading(true);
+    setCurrentPage(1);
+    scrollDesktopToProjectsGrid();
+    if (searchLoadingTimeoutRef.current) {
+      clearTimeout(searchLoadingTimeoutRef.current);
+    }
+    searchLoadingTimeoutRef.current = setTimeout(() => {
+      setNewLaunchTypeSegment(nextSegment);
+      setFadeKey((prev) => prev + 1);
+      setNewLaunchSwitchLoading(false);
+    }, 400);
+  };
+
+  const projectsAfterQuickAndFilters = useMemo(() => {
     const sourceProjects = Array.isArray(allProjectsList) ? allProjectsList : [];
     const quickFilterNorm = normalizeText(quickProjectFilter);
 
@@ -291,6 +519,8 @@ export default function Projects() {
       const itemStatus = normalizeText(item?.projectStatusName);
       const itemBuilder = normalizeText(item?.builderName);
       const itemConfig = normalizeText(item?.projectConfiguration);
+      const itemName = normalizeText(item?.projectName);
+      const searchText = normalizeText(appliedProjectSearchTerm);
 
       if (quickFilterNorm && quickFilterNorm !== "all") {
         if (quickFilterNorm === "new launched" || quickFilterNorm === "new launch") {
@@ -345,23 +575,57 @@ export default function Projects() {
         return false;
       }
 
+      if (searchText && !itemName.includes(searchText)) {
+        return false;
+      }
+
       return true;
     });
-  }, [allProjectsList, quickProjectFilter, filters]);
+  }, [allProjectsList, quickProjectFilter, filters, appliedProjectSearchTerm]);
+
+  const searchSuggestions = useMemo(() => {
+    const query = normalizeText(searchSuggestionsQuery);
+    if (!query) return [];
+    const pool = Array.isArray(allProjectsList) ? allProjectsList : [];
+    const seen = new Set();
+    const results = [];
+    for (const item of pool) {
+      const name = String(item?.projectName || "").trim();
+      if (!name) continue;
+      const key = normalizeText(name);
+      if (!key.includes(query) || seen.has(key)) continue;
+      seen.add(key);
+      results.push(name);
+      if (results.length >= 8) break;
+    }
+    return results;
+  }, [searchSuggestionsQuery, allProjectsList]);
+
+  const displayProjects = useMemo(() => {
+    if (normalizeText(quickProjectFilter) !== "new launched") {
+      return projectsAfterQuickAndFilters;
+    }
+    return projectsAfterQuickAndFilters.filter((item) => {
+      const t = normalizeText(item?.propertyTypeName);
+      if (newLaunchTypeSegment === "residential") return t.includes("residential");
+      if (newLaunchTypeSegment === "commercial") return t.includes("commercial");
+      return true;
+    });
+  }, [projectsAfterQuickAndFilters, quickProjectFilter, newLaunchTypeSegment]);
 
   const newLaunchTypeCounts = useMemo(() => {
     if (normalizeText(quickProjectFilter) !== "new launched") return null;
     let residential = 0;
     let commercial = 0;
     let other = 0;
-    for (const item of displayProjects) {
+    for (const item of projectsAfterQuickAndFilters) {
       const t = normalizeText(item?.propertyTypeName);
       if (t.includes("commercial")) commercial += 1;
       else if (t.includes("residential")) residential += 1;
       else other += 1;
     }
     return { residential, commercial, other };
-  }, [displayProjects, quickProjectFilter]);
+  }, [projectsAfterQuickAndFilters, quickProjectFilter]);
 
   const hasActiveFilters = useMemo(
     () => Object.values(filters).some(Boolean),
@@ -372,6 +636,26 @@ export default function Projects() {
     [filters]
   );
   const hasQuickFilter = isActive !== "" && isActive !== "All";
+  const sectionHeading = useMemo(() => {
+    const normalized = normalizeText(isActive);
+    if (normalized === "commercial") return "Browse commercial projects";
+    if (normalized === "residential") return "Browse residential projects";
+    if (normalized === "new launched" || normalized === "new launch") {
+      return "Browse new launch projects";
+    }
+    return "Browse all projects";
+  }, [isActive]);
+  const totalPages = Math.max(1, Math.ceil(displayProjects.length / PROJECTS_PER_PAGE));
+  const paginatedProjects = useMemo(() => {
+    const start = (currentPage - 1) * PROJECTS_PER_PAGE;
+    return displayProjects.slice(start, start + PROJECTS_PER_PAGE);
+  }, [displayProjects, currentPage, PROJECTS_PER_PAGE]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [currentPage, totalPages]);
 
   return (
     <div className="projects-page-wrapper">
@@ -381,6 +665,29 @@ export default function Projects() {
         firstPage={"projects"}
       />
       <div className="container py-4">
+        {showVoiceOverlay && (
+          <div className="projects-voice-overlay" role="dialog" aria-modal="true">
+            <button
+              type="button"
+              className="projects-voice-overlay-close"
+              onClick={handleCloseVoiceOverlay}
+              aria-label="Close voice input"
+            >
+              <FontAwesomeIcon icon={faTimesCircle} />
+            </button>
+            <div className="projects-voice-overlay-content">
+              <div className={`projects-voice-overlay-mic ${isVoiceListening ? "listening" : ""}`}>
+                <FontAwesomeIcon icon={faMicrophone} />
+              </div>
+              <p className="projects-voice-overlay-title">
+                {isVoiceListening ? "Listening..." : "Processing..."}
+              </p>
+              <p className="projects-voice-overlay-text">
+                {voiceLiveText || "Speak project name clearly"}
+              </p>
+            </div>
+          </div>
+        )}
         {/* Page Header - minimal; project count in pills row for all category tabs */}
         {/* <div className="page-header-section mb-4">
           {!hasUrlParams && (hasQuickFilter || activeFiltersCount > 0) && (
@@ -424,31 +731,86 @@ export default function Projects() {
                 </button>
               </div>
 
+              <div className="projects-mobile-top-search" ref={searchWrapperRef}>
+                <FontAwesomeIcon icon={faSearch} className="projects-top-search-icon" />
+                <input
+                  type="text"
+                  value={projectSearchTerm}
+                  onChange={(e) => {
+                    setProjectSearchTerm(e.target.value);
+                    setAppliedProjectSearchTerm("");
+                    setShowSearchSuggestions(Boolean(e.target.value.trim()));
+                  }}
+                  onFocus={() =>
+                    setShowSearchSuggestions(Boolean(projectSearchTerm.trim()))
+                  }
+                  className="projects-top-search-input"
+                  placeholder={`Search "${rotatingSearchPlaceholders[searchPlaceholderIndex]}"`}
+                />
+                {isVoiceSupported && (
+                  <button
+                    type="button"
+                    className={`projects-voice-btn ${isVoiceListening ? "is-listening" : ""}`}
+                    onClick={handleVoiceSearch}
+                    aria-label="Start voice search"
+                  >
+                    <FontAwesomeIcon icon={faMicrophone} />
+                  </button>
+                )}
+                {showSearchSuggestions && (
+                  <div className="projects-search-suggestions-dropdown">
+                    {searchSuggestionsLoading ? (
+                      <div className="projects-search-suggestion-loading" aria-live="polite">
+                        <span className="projects-inline-loader" />
+                      </div>
+                    ) : searchSuggestions.length > 0 ? (
+                      searchSuggestions.map((suggestion) => (
+                        <button
+                          key={`mobile-${suggestion}`}
+                          type="button"
+                          className="projects-search-suggestion-item"
+                          onClick={() => {
+                            setProjectSearchTerm(suggestion);
+                            setAppliedProjectSearchTerm(suggestion);
+                            applySearchFilter();
+                          }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="projects-search-suggestion-empty">No matching projects found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {isActive === "New Launched" && newLaunchTypeCounts && (
                 <div
                   className="projects-mobile-newlaunch-stats"
                   aria-label="New launch projects by type"
                 >
-                  <div className="projects-newlaunch-split">
-                    <div className="projects-newlaunch-stat projects-newlaunch-stat--residential">
-                      <span className="projects-newlaunch-stat-label">Residential</span>
-                      <span className="projects-newlaunch-stat-value">
-                        {newLaunchTypeCounts.residential}
-                      </span>
-                    </div>
-                    <div className="projects-newlaunch-stat projects-newlaunch-stat--commercial">
-                      <span className="projects-newlaunch-stat-label">Commercial</span>
-                      <span className="projects-newlaunch-stat-value">
-                        {newLaunchTypeCounts.commercial}
-                      </span>
-                    </div>
+                  <div className="projects-newlaunch-mini-buttons projects-newlaunch-mini-buttons--mobile">
+                    <button
+                      type="button"
+                      className={`projects-newlaunch-mini-btn projects-newlaunch-mini-btn--residential ${newLaunchTypeSegment === "residential" ? "is-active" : ""}`}
+                      onClick={() => selectNewLaunchSegment("residential")}
+                      aria-pressed={newLaunchTypeSegment === "residential"}
+                    >
+                      Residential <span>{newLaunchTypeCounts.residential}</span>
+                    </button>
+                    <button
+                      type="button"
+                      className={`projects-newlaunch-mini-btn projects-newlaunch-mini-btn--commercial ${newLaunchTypeSegment === "commercial" ? "is-active" : ""}`}
+                      onClick={() => selectNewLaunchSegment("commercial")}
+                      aria-pressed={newLaunchTypeSegment === "commercial"}
+                    >
+                      Commercial <span>{newLaunchTypeCounts.commercial}</span>
+                    </button>
                   </div>
                   {newLaunchTypeCounts.other > 0 && (
-                    <div className="projects-newlaunch-stat projects-newlaunch-stat--other projects-newlaunch-stat--full">
-                      <span className="projects-newlaunch-stat-label">Other</span>
-                      <span className="projects-newlaunch-stat-value">
-                        {newLaunchTypeCounts.other}
-                      </span>
+                    <div className="projects-newlaunch-mini-other">
+                      Other <strong>{newLaunchTypeCounts.other}</strong>
                     </div>
                   )}
                   <p className="projects-newlaunch-total-foot text-muted mb-0">
@@ -482,92 +844,129 @@ export default function Projects() {
               {/* Pills + Filters - direct child of wrapper so sticky works on large screens */}
               {!hasUrlParams ? (
                 <div className="projects-filter-inline-card projects-sticky-filters projects-desktop-filters projects-filters-below mb-4">
-                  {/* Pills row: project count + tabs + Show Filters + Clear */}
-                  <div className="quick-filters-row filter-pills-in-card">
-                    {isActive === "New Launched" && newLaunchTypeCounts ? (
-                      <div
-                        className="projects-newlaunch-count-wrap"
-                        aria-label="New launch project counts by property type"
-                      >
-                        <p className="projects-newlaunch-head text-muted mb-2">
-                          Showing <strong>{displayProjects.length}</strong> new launch{" "}
-                          {displayProjects.length === 1 ? "project" : "projects"}
-                        </p>
-                        <div className="projects-newlaunch-split">
-                          <div className="projects-newlaunch-stat projects-newlaunch-stat--residential">
-                            <span className="projects-newlaunch-stat-label">Residential</span>
-                            <span className="projects-newlaunch-stat-value">
-                              {newLaunchTypeCounts.residential}
-                            </span>
-                          </div>
-                          <div className="projects-newlaunch-stat projects-newlaunch-stat--commercial">
-                            <span className="projects-newlaunch-stat-label">Commercial</span>
-                            <span className="projects-newlaunch-stat-value">
-                              {newLaunchTypeCounts.commercial}
-                            </span>
-                          </div>
+                  {/* Unified top filter bar */}
+                  <div className="projects-unified-filterbar">
+                    <div
+                      className={`projects-unified-filterbar-top ${isActive === "New Launched" ? "projects-unified-filterbar-top--newlaunch" : ""}`}
+                    >
+                      <span className="projects-count-in-pills text-muted">
+                        Showing <strong>{displayProjects.length}</strong>{" "}
+                        {isActive === "New Launched"
+                          ? `new launch ${displayProjects.length === 1 ? "project" : "projects"}`
+                          : displayProjects.length === 1
+                            ? "project"
+                            : "projects"}
+                      </span>
+                      {isActive === "New Launched" && newLaunchTypeCounts && (
+                        <div className="projects-newlaunch-mini-buttons">
+                          <button
+                            type="button"
+                            className={`projects-newlaunch-mini-btn projects-newlaunch-mini-btn--residential ${newLaunchTypeSegment === "residential" ? "is-active" : ""}`}
+                            onClick={() => selectNewLaunchSegment("residential")}
+                          >
+                            Residential <span>{newLaunchTypeCounts.residential}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={`projects-newlaunch-mini-btn projects-newlaunch-mini-btn--commercial ${newLaunchTypeSegment === "commercial" ? "is-active" : ""}`}
+                            onClick={() => selectNewLaunchSegment("commercial")}
+                          >
+                            Commercial <span>{newLaunchTypeCounts.commercial}</span>
+                          </button>
                         </div>
-                        {newLaunchTypeCounts.other > 0 && (
-                          <div className="projects-newlaunch-stat projects-newlaunch-stat--other projects-newlaunch-stat--full mt-2">
-                            <span className="projects-newlaunch-stat-label">Other</span>
-                            <span className="projects-newlaunch-stat-value">
-                              {newLaunchTypeCounts.other}
-                            </span>
+                      )}
+                      <div className="filter-pills-container">
+                        <button
+                          className={`filter-pill-btn ${isActive === "All" ? "active" : ""}`}
+                          onClick={() => filterSectionTab("All")}
+                        >
+                          All Projects
+                        </button>
+                        <button
+                          className={`filter-pill-btn ${isActive === "Commercial" ? "active" : ""}`}
+                          onClick={() => filterSectionTab("Commercial")}
+                        >
+                          Commercial
+                        </button>
+                        <button
+                          className={`filter-pill-btn ${isActive === "Residential" ? "active" : ""}`}
+                          onClick={() => filterSectionTab("Residential")}
+                        >
+                          Residential
+                        </button>
+                        <button
+                          className={`filter-pill-btn ${isActive === "New Launched" ? "active" : ""}`}
+                          onClick={() => filterSectionTab("New Launched")}
+                        >
+                          New Launch
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="projects-unified-filterbar-bottom">
+                      <button
+                        className={`btn btn-outline-primary btn-sm projects-inline-filter-toggle ${showFilters ? "active" : ""}`}
+                        onClick={() => setShowFilters(!showFilters)}
+                      >
+                        <FontAwesomeIcon icon={faSlidersH} className="me-2" />
+                        {showFilters ? "Hide Filters" : "Show Filters"}
+                      </button>
+
+                      <div className="projects-top-search projects-top-search-centered" ref={searchWrapperRef}>
+                        <FontAwesomeIcon icon={faSearch} className="projects-top-search-icon" />
+                        <input
+                          type="text"
+                          value={projectSearchTerm}
+                          onChange={(e) => {
+                            setProjectSearchTerm(e.target.value);
+                            setAppliedProjectSearchTerm("");
+                            setShowSearchSuggestions(Boolean(e.target.value.trim()));
+                          }}
+                          onFocus={() =>
+                            setShowSearchSuggestions(Boolean(projectSearchTerm.trim()))
+                          }
+                          className="projects-top-search-input"
+                          placeholder={`Search "${rotatingSearchPlaceholders[searchPlaceholderIndex]}"`}
+                        />
+                        {isVoiceSupported && (
+                          <button
+                            type="button"
+                            className={`projects-voice-btn ${isVoiceListening ? "is-listening" : ""}`}
+                            onClick={handleVoiceSearch}
+                            aria-label="Start voice search"
+                          >
+                            <FontAwesomeIcon icon={faMicrophone} />
+                          </button>
+                        )}
+                        {showSearchSuggestions && (
+                          <div className="projects-search-suggestions-dropdown">
+                            {searchSuggestionsLoading ? (
+                              <div className="projects-search-suggestion-loading" aria-live="polite">
+                                <span className="projects-inline-loader" />
+                              </div>
+                            ) : searchSuggestions.length > 0 ? (
+                              searchSuggestions.map((suggestion) => (
+                                <button
+                                  key={suggestion}
+                                  type="button"
+                                  className="projects-search-suggestion-item"
+                                  onClick={() => {
+                                    setProjectSearchTerm(suggestion);
+                                    setAppliedProjectSearchTerm(suggestion);
+                                    applySearchFilter();
+                                  }}
+                                >
+                                  {suggestion}
+                                </button>
+                              ))
+                            ) : (
+                              <div className="projects-search-suggestion-empty">No matching projects found</div>
+                            )}
                           </div>
                         )}
                       </div>
-                    ) : (
-                      <span className="projects-count-in-pills text-muted">
-                        Showing <strong>{displayProjects.length}</strong>{" "}
-                        {displayProjects.length === 1 ? "project" : "projects"}
-                      </span>
-                    )}
-                    <div className="filter-pills-container">
-                      <button
-                        className={`filter-pill-btn ${isActive === "All" ? "active" : ""}`}
-                        onClick={() => filterSectionTab("All")}
-                      >
-                        All Projects
-                      </button>
-                      <button
-                        className={`filter-pill-btn ${isActive === "Commercial" ? "active" : ""}`}
-                        onClick={() => filterSectionTab("Commercial")}
-                      >
-                        Commercial
-                      </button>
-                      <button
-                        className={`filter-pill-btn ${isActive === "Residential" ? "active" : ""}`}
-                        onClick={() => filterSectionTab("Residential")}
-                      >
-                        Residential
-                      </button>
-                      <button
-                        className={`filter-pill-btn ${isActive === "New Launched" ? "active" : ""}`}
-                        onClick={() => filterSectionTab("New Launched")}
-                      >
-                        New Launch
-                      </button>
                     </div>
-                    <button
-                      className="btn btn-outline-primary btn-sm ms-auto align-self-center"
-                      onClick={() => setShowFilters(!showFilters)}
-                    >
-                      <FontAwesomeIcon icon={faSlidersH} className="me-2" />
-                      {showFilters ? "Hide" : "Show"} Filters
-                    </button>
-                    <button
-                      className="btn btn-outline-secondary btn-sm align-self-center"
-                      onClick={clearFilters}
-                    >
-                      <FontAwesomeIcon icon={faTimes} className="me-2" />
-                      Clear
-                    </button>
-                    <button
-                      className="btn btn-success btn-sm align-self-center"
-                      onClick={() => applySelectedFilters(false)}
-                    >
-                      Search
-                    </button>
+
                   </div>
                   {showFilters && (
                   <div className="filter-card-body">
@@ -637,10 +1036,29 @@ export default function Projects() {
                         filterKey: "bhkType",
                         placeholder: "All BHK Types",
                         value: draftFilters.bhkType,
-                        options: bhkTypes,
-                        scroll: true,
+                        options: PROJECT_BHK_FILTER_OPTIONS,
                       })}
                     </Form.Group>
+                    <div className="projects-filter-actions-inside">
+                      <button
+                        type="button"
+                        className="btn btn-outline-secondary btn-sm"
+                        onClick={clearFilters}
+                      >
+                        <FontAwesomeIcon icon={faTimes} className="me-2" />
+                        Clear
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-success btn-sm"
+                        onClick={() => {
+                          applySelectedFilters(false);
+                          applySearchFilter();
+                        }}
+                      >
+                        Search
+                      </button>
+                    </div>
 
                     {/* <Form.Group className="filter-group">
                   <Form.Label className="filter-label">Possession</Form.Label>
@@ -704,19 +1122,32 @@ export default function Projects() {
               ) : null}
 
             {/* Projects Grid */}
-            <div key={fadeKey} className="col-12 projects-content-wrapper">
+            <div
+              ref={projectsResultsRef}
+              key={fadeKey}
+              className="col-12 projects-content-wrapper"
+            >
             <h2 className="projects-page-section-heading mb-3 mb-md-4">
-              Browse all projects
+              {sectionHeading}
             </h2>
-            {(loading || listLoading) ? (
+            {(loading ||
+              listLoading ||
+              newLaunchSwitchLoading ||
+              desktopTabTransitionLoading) ? (
               <div className="projects-loading-state">
                 <LoadingSpinner show={true} height="auto" />
-                <p className="text-muted mt-3">Loading projects...</p>
+                <p className="text-muted mt-3">
+                  {(newLaunchSwitchLoading || desktopTabTransitionLoading) &&
+                  !loading &&
+                  !listLoading
+                    ? "Updating list..."
+                    : "Loading projects..."}
+                </p>
               </div>
             ) : (displayProjects.length >= 1) ? (
               <>
                 <div className="projects-grid-layout">
-                  {displayProjects.map((item, index) => (
+                  {paginatedProjects.map((item, index) => (
                     <div
                       key={item.id + "_" + index}
                       className="project-card-wrapper"
@@ -728,18 +1159,29 @@ export default function Projects() {
                     </div>
                   ))}
                 </div>
-                {!hasMore &&
-                  !initialLoad &&
-                  allProjectsList.length >= pageSize &&
-                  isActive === "All" && (
-                    <div className="load-complete">
-                      <div className="divider-line"></div>
-                      <p className="text-muted mb-0">
-                        You&apos;ve viewed all projects
-                      </p>
-                      <div className="divider-line"></div>
-                    </div>
-                  )}
+                {displayProjects.length > PROJECTS_PER_PAGE && (
+                  <div className="projects-pagination-wrap">
+                    <button
+                      className="projects-page-btn"
+                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </button>
+                    <span className="projects-page-indicator">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      className="projects-page-btn"
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
               </>
             ) : !loading ? (
               <div className="no-projects-state">
@@ -838,8 +1280,7 @@ export default function Projects() {
                       filterKey: "bhkType",
                       placeholder: "All BHK Types",
                       value: draftFilters.bhkType,
-                      options: bhkTypes,
-                      scroll: true,
+                      options: PROJECT_BHK_FILTER_OPTIONS,
                     })}
                   </Form.Group>
                 </Form>

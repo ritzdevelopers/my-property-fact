@@ -130,7 +130,6 @@ export const LISTING_URL_CATEGORY_SEGMENTS = [
   "new-projects",
   "offices-and-shop",
   "apartments",
-  "flats",
   "commercial",
 ];
 

@@ -362,9 +362,11 @@ export default function MasterBHKProjectList() {
               .trim()
               .replace(/\s+/g, "-")
               .toLowerCase();
-            const href = isBhkFloorSlugSegment(floorType.slugType)
-              ? `${floorType.slugType}-${urlCategorySegment}-in-${citySlug}`
-              : `${floorType.slugType}-in-${citySlug}`;
+            const href =
+              isBhkFloorSlugSegment(floorType.slugType) &&
+              urlCategorySegment !== "flats"
+                ? `${floorType.slugType}-${urlCategorySegment}-in-${citySlug}`
+                : `${floorType.slugType}-in-${citySlug}`;
             return (
               <Link
                 key={`${floorType.slugType}|${urlCategorySegment}|${floorType.city}`}

@@ -48,6 +48,17 @@
   aspect-ratio: 1920 / 600;
 }
 
+.hero-art-direction {
+  aspect-ratio: 458 / 810;
+  display: block;
+}
+/* One wide ratio from tablet up — avoid 1:1 here (was making the hero as tall as viewport width, e.g. ~900px at 900px wide). */
+@media (min-width: 768px) {
+  .hero-art-direction {
+    aspect-ratio: 1920 / 600;
+  }
+}
+
 .hero-banner-image {
   object-fit: cover;
   object-position: center;

@@ -1,7 +1,5 @@
-import "./page.module.css";
-
 'use client';
-
+import "./page.module.css";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';

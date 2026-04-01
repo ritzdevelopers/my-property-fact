@@ -102,9 +102,12 @@ export default function WhyMyPropertyFact() {
                   Help You Make Your Next Move With Confidence.
                 </p>
               </div>
-              <div className="new-about-us-container-content-button mx-auto">
-                <p className="text-white m-0">Read More</p>
-              </div>
+              <Link
+                href="/contact-us"
+                className="new-about-us-container-content-button mx-auto text-decoration-none d-inline-flex align-items-center justify-content-center"
+              >
+                <span className="text-white m-0">Get Expert Advice</span>
+              </Link>
             </div>
           </div>
         </div>

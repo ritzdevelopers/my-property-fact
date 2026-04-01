@@ -3,6 +3,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import {
+  ProjectListingPaginationControls,
+  useProjectListingPagination,
+} from "@/app/_global_components/projectListingPagination";
+import { isBhkFloorSlugSegment } from "@/app/_global_components/masterFunction";
 import Link from "next/link";
 import { useSiteData } from "../contexts/SiteDataContext";
 
@@ -183,18 +188,44 @@ export default function MasterBHKProjectList() {
       .filter((ft) => !excludeSlugTypes.includes(ft.slugType.toLowerCase()) && !isBareNumber(ft.slugType))
       .sort((a, b) => a.label.localeCompare(b.label));
   };
+
+  /** Filter key + URL segment for BHK pill links (`{floor}-{segment}-in-{city}`). */
+  const resolveListingCategory = () => {
+    if (pathName.includes("/offices-and-shop-in-")) {
+      return { cat: "commercial", urlCategorySegment: "offices-and-shop" };
+    }
+    if (pathName.includes("/commercial-property-in-")) {
+      return { cat: "commercial", urlCategorySegment: "commercial" };
+    }
+    if (pathName.includes("/flats-in-")) {
+      return { cat: "flats", urlCategorySegment: "flats" };
+    }
+    if (pathName.includes("/new-projects-in-")) {
+      return { cat: "new-projects", urlCategorySegment: "new-projects" };
+    }
+    if (pathName.includes("/apartments-in-")) {
+      return { cat: "apartments", urlCategorySegment: "apartments" };
+    }
+    if (
+      pathName.includes("commercial") ||
+      pathName.includes("offices-and-shop") ||
+      pathName.includes("offices") ||
+      pathName.includes("shop")
+    ) {
+      return { cat: "commercial", urlCategorySegment: "commercial" };
+    }
+    if (pathName.includes("flats")) {
+      return { cat: "flats", urlCategorySegment: "flats" };
+    }
+    if (pathName.includes("new-projects")) {
+      return { cat: "new-projects", urlCategorySegment: "new-projects" };
+    }
+    return { cat: "apartments", urlCategorySegment: "apartments" };
+  };
+
   const getListOfProjectFromBkType = () => {
     const bkType = searchParams.get("type");
-    let cat = "";
-    if(pathName.includes("commercial") || pathName.includes("offices-and-shop") || pathName.includes("offices") || pathName.includes("shop")) {
-      cat = "commercial";
-    }else if(pathName.includes("flats")) {
-      cat = "flats";
-    }else if(pathName.includes("new-projects")){
-      cat = "new-projects";
-    }else {
-      cat = "apartments";
-    }
+    const { cat } = resolveListingCategory();
     if (projects.length > 0) {
       let filteredData = projects;
       const cityKey = cityName.trim().toLowerCase();
@@ -283,6 +314,10 @@ export default function MasterBHKProjectList() {
     setFilteredProjectsByBrType(filteredData);
   }, [projects, cityName, pathName, searchParams]);
 
+  const { urlCategorySegment } = resolveListingCategory();
+  const { pageItems, currentPage, totalPages, totalItems } =
+    useProjectListingPagination(filteredProjectsByBrType);
+
   return (
     <>
       <div className="container my-5">
@@ -294,9 +329,9 @@ export default function MasterBHKProjectList() {
             <div className="d-flex justify-content-center align-items-center w-100">
               <LoadingSpinner show={siteDataLoading} />
             </div>
-          ) : filteredProjectsByBrType.length > 0 ? (
-            filteredProjectsByBrType.map((project, index) => (
-              <div key={index} className="col-12 col-sm-6 col-md-4">
+          ) : pageItems.length > 0 ? (
+            pageItems.map((project, index) => (
+              <div key={project.id ?? index} className="col-12 col-sm-6 col-md-4">
                 <PropertyContainer data={project} />
               </div>
             ))
@@ -309,6 +344,13 @@ export default function MasterBHKProjectList() {
             )
           )}
         </div>
+        {!siteDataLoading && filteredProjectsByBrType.length > 0 && (
+          <ProjectListingPaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+          />
+        )}
       </div>
       {floorTypeList.length > 0 && (
         <div
@@ -316,14 +358,20 @@ export default function MasterBHKProjectList() {
         gap-3 flex-wrap"
         >
           {floorTypeList.map((floorType) => {
+            const citySlug = floorType.city
+              .trim()
+              .replace(/\s+/g, "-")
+              .toLowerCase();
+            const href =
+              isBhkFloorSlugSegment(floorType.slugType) &&
+              urlCategorySegment !== "flats"
+                ? `${floorType.slugType}-${urlCategorySegment}-in-${citySlug}`
+                : `${floorType.slugType}-in-${citySlug}`;
             return (
               <Link
-                key={`${floorType.slugType}|${floorType.city}`}
+                key={`${floorType.slugType}|${urlCategorySegment}|${floorType.city}`}
                 className="text-dark text-decoration-none bg-secondary rounded-3 px-3 py-2 fs-6 border border-secondary bg-white"
-                href={`${floorType.slugType}-in-${floorType.city
-                  .trim()
-                  .replace(/\s+/g, "-")
-                  .toLowerCase()}`}
+                href={href}
               >
                 {floorType.label} in {floorType.city}
               </Link>

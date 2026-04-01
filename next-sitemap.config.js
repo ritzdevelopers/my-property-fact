@@ -1,5 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
-const SITE_URL = (process.env.NEXT_PUBLIC_UI_URL || process.env.NEXT_PUBLIC_ROOT_URL || "https://www.mypropertyfact.in").replace(/\/+$/, "");
+// Must match app/layout.js metadataBase (NEXT_PUBLIC_UI_URL) so sitemap loc = page canonical host.
+const SITE_URL = (process.env.NEXT_PUBLIC_UI_URL || process.env.NEXT_PUBLIC_ROOT_URL || "https://mypropertyfact.in").replace(/\/+$/, "");
 
 function toPathSlug(value) {
   return String(value || "").trim().replace(/^\/+|\/+$/g, "");

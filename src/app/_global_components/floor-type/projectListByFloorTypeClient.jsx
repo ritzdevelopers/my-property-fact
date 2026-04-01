@@ -1,6 +1,10 @@
 "use client";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import {
+  ProjectListingPaginationControls,
+  useProjectListingPagination,
+} from "@/app/_global_components/projectListingPagination";
 import { useEffect, useState } from "react";
 import { useSiteData } from "../contexts/SiteDataContext";
 
@@ -77,11 +81,36 @@ const cityMatches = (item, cityKey) => {
   );
 };
 
-export default function ProjectListByFloorTypeClient({ title }) {
+function applyListingCategoryFilter(items, categorySlug) {
+  if (!categorySlug || !items?.length) return items;
+  switch (categorySlug) {
+    case "new-projects":
+      return items.filter((item) => item.projectStatusName === "New Launched");
+    case "apartments":
+    case "flats":
+      return items.filter(
+        (item) => item.propertyTypeName?.toLowerCase() === "residential",
+      );
+    case "commercial":
+    case "offices-and-shop":
+      return items.filter(
+        (item) => item.propertyTypeName?.toLowerCase() === "commercial",
+      );
+    default:
+      return items;
+  }
+}
+
+export default function ProjectListByFloorTypeClient({
+  title,
+  floorType: floorTypeProp,
+  cityName: cityNameProp,
+  categorySlug = null,
+}) {
   const { projectList = [], loading: siteDataLoading } = useSiteData();
   const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState([]);
-  const [floorType, setFloorType] = useState("");
-  const [cityName, setCityName] = useState("");
+  const [floorType, setFloorType] = useState(floorTypeProp || "");
+  const [cityName, setCityName] = useState(cityNameProp || "");
   const getListOfProjectFromBkType = (projects, floorType, city) => {
     if (!projects.length) return [];
     const cityNorm = normalizeType(city);
@@ -96,17 +125,31 @@ export default function ProjectListByFloorTypeClient({ title }) {
   };
 
   useEffect(() => {
+    if (floorTypeProp != null && floorTypeProp !== "" && cityNameProp != null) {
+      setFloorType(floorTypeProp);
+      setCityName(cityNameProp);
+      return;
+    }
     const parts = (title || "").split(/\s+In\s+/);
     const parsedFloorType = parts[0]?.trim() || "";
     const city = (parts[1] || "").replace(/%20/g, " ").trim();
     setFloorType(parsedFloorType);
     setCityName(city);
-  }, [title]);
+  }, [title, floorTypeProp, cityNameProp]);
 
   useEffect(() => {
-    const filteredData = getListOfProjectFromBkType(projectList, floorType, cityName);
+    let filteredData = getListOfProjectFromBkType(
+      projectList,
+      floorType,
+      cityName,
+    );
+    filteredData = applyListingCategoryFilter(filteredData, categorySlug);
     setFilteredProjectsByBrType(filteredData);
-  }, [projectList, floorType, cityName]);
+  }, [projectList, floorType, cityName, categorySlug]);
+
+  const { pageItems, currentPage, totalPages, totalItems } =
+    useProjectListingPagination(filteredProjectsByBrType);
+
   return (
     <>
       <div className="container my-5">
@@ -118,9 +161,9 @@ export default function ProjectListByFloorTypeClient({ title }) {
             <div className="d-flex justify-content-center align-items-center w-100">
               <LoadingSpinner show={siteDataLoading} />
             </div>
-          ) : filteredProjectsByBrType.length > 0 ? (
-            filteredProjectsByBrType.map((project, index) => (
-              <div key={index} className="col-12 col-sm-6 col-md-4">
+          ) : pageItems.length > 0 ? (
+            pageItems.map((project, index) => (
+              <div key={project.id ?? index} className="col-12 col-sm-6 col-md-4">
                 <PropertyContainer data={project} />
               </div>
             ))
@@ -133,6 +176,13 @@ export default function ProjectListByFloorTypeClient({ title }) {
             )
           )}
         </div>
+        {!siteDataLoading && filteredProjectsByBrType.length > 0 && (
+          <ProjectListingPaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+          />
+        )}
       </div>
     </>
   );

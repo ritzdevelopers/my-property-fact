@@ -664,6 +664,9 @@ const addNearbyImageIcon = (benefit) => {
                     ? `View ${projectDetail.builder?.builderName || "builder"} profile`
                     : "Home"
                 }
+                {...(builderPageHref
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
               >
                 <Image
                   width={198}
@@ -999,6 +1002,8 @@ const addNearbyImageIcon = (benefit) => {
                           href={builderPageHref}
                           className="text-decoration-none text-muted d-inline-flex align-items-center builder-profile-link"
                           aria-label={`View ${projectDetail.builder.builderName} profile`}
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           <FontAwesomeIcon
                             icon={faBuilding}
@@ -1350,6 +1355,9 @@ const addNearbyImageIcon = (benefit) => {
               <Link
                 href={builderPageHref || "#"}
                 className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
+                {...(builderPageHref
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
               >
                Check More Projects
               </Link>

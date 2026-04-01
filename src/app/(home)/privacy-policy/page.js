@@ -70,7 +70,7 @@ const privacySections = [
     id: "10",
     title: "Contact and Grievance",
     content:
-      "For privacy requests, contact: privacy@mypropertyfact.in. For grievance support, contact: grievance@mypropertyfact.in.",
+      "For privacy requests and grievance support, contact us at: social@mypropertyfact.com",
   },
 ];
 
@@ -151,12 +151,12 @@ export default function PrivacyPolicyPage() {
                   grievance support. Our team will respond as per applicable timelines.
                 </p>
                 <div className={styles.contactActions}>
-                  <a href="mailto:privacy@mypropertyfact.in" className={styles.primaryAction}>
-                    privacy@mypropertyfact.in
+                  <a href="mailto:social@mypropertyfact.com" className={styles.primaryAction}>
+                    social@mypropertyfact.com
                   </a>
-                  <a href="mailto:grievance@mypropertyfact.in" className={styles.secondaryAction}>
+                  {/* <a href="mailto:grievance@mypropertyfact.in" className={styles.secondaryAction}>
                     grievance@mypropertyfact.in
-                  </a>
+                  </a> */}
                 </div>
               </div>
             </div>

@@ -2,6 +2,14 @@ import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import locateScoreData from "./LocateScore.json";
 import NewLocateScore from "./NewLocateScore";
 
+export const metadata = {
+  title:
+    "LOCATE Score Tool: Analyze Real Estate Locations, Trends & Demand",
+  alternates: {
+    canonical: "https://mypropertyfact.in/locate-score",
+  },
+};
+
 // Extract cities from JSON data
 const getCitiesFromJSON = () => {
   return locateScoreData.map((item, index) => ({

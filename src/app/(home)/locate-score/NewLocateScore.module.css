@@ -91,6 +91,7 @@
 }
 
 .label {
+  margin: 0;
   font-size: 0.9rem;
   font-weight: 600;
   font-family: var(--heaing-font), sans-serif;

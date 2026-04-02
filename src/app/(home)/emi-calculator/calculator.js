@@ -400,12 +400,11 @@ export default function Calculator() {
 
     return (
         <>
-            <CommonHeaderBanner image={"contact-banner.jpg"} headerText={"Emi-calculator"} useH1={false} />
+            <CommonHeaderBanner image={"contact-banner.jpg"} headerText={"Emi-calculator"} useH1={true} />
             <CommonBreadCrum pageName={"Emi-calculator"} />
             <div className='container'>
                 <div className='row'>
                     <div className='col-md-8'>
-                        <h1 className='mb-3'>Emi-calculator</h1>
                         <h2 className='mb-5'>Loan and EMI Calculator</h2>
                         <p className='mb-5'>Buying a home is emotional; financing it is mathematical.
                             Our Loan &amp; EMI Calculator lets you preview the maths before signing

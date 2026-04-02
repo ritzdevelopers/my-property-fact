@@ -1,4 +1,4 @@
-import Image, { getImageProps } from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
@@ -31,12 +31,18 @@ export default function HeroSection({ projectTypeList, cityList }) {
       <div className="position-relative hero-section-wrapper">
         <div className="mpf-hero-banner position-relative">
           <div className="position-relative">
-            <div className="hero-banner-slider hero-lcp-fallback" aria-busy="true">
+            <div className="hero-banner-slider hero-lcp-fallback">
               <Link href="/ghd-velvet-vista" className="position-relative home-banner hero-banner-responsive-images d-block hero-art-direction">
                 <picture>
                   <source media="(min-width: 992px)" srcSet={desktop} />
                   <source media="(min-width: 768px)" srcSet={tablet} />
-                  <img {...rest} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                  <img
+                    {...rest}
+                    loading="eager"
+                    fetchPriority="high"
+                    decoding="sync"
+                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                  />
                 </picture>
               </Link>
             </div>

@@ -1,0 +1,137 @@
+/* Matches projects listing accent (rgb(0, 164, 0)) */
+.wrap {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.meta {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.meta strong {
+  color: #111827;
+  font-weight: 700;
+}
+
+.bar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.65rem;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.navBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navBtn:hover:not(:disabled) {
+  border-color: rgb(0, 164, 0);
+  color: rgb(0, 164, 0);
+  background: rgba(0, 164, 0, 0.04);
+}
+
+.navBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 164, 0, 0.25);
+}
+
+.navBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  color: #9ca3af;
+}
+
+.navBtnLabel {
+  display: inline;
+}
+
+@media (max-width: 480px) {
+  .navBtnLabel {
+    display: none;
+  }
+
+  .navBtn {
+    min-width: 40px;
+    padding: 0 10px;
+  }
+}
+
+.pages {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 0 0.25rem;
+}
+
+.pageBtn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pageBtn:hover:not(:disabled):not(.active) {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.pageBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 164, 0, 0.2);
+}
+
+.pageBtn.active {
+  background: rgb(0, 164, 0);
+  color: #fff;
+  border-color: rgb(0, 164, 0);
+  box-shadow: 0 2px 8px rgba(0, 164, 0, 0.35);
+}
+
+.ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 40px;
+  color: #9ca3af;
+  font-size: 0.9rem;
+  font-weight: 600;
+  user-select: none;
+}

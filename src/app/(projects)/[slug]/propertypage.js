@@ -13,11 +13,12 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import "swiper/css/effect-fade";
 
-// import './styles.css'; 
+// import './styles.css';
 
 // import required modules
-import { Navigation } from "swiper/modules";
+import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -39,9 +40,13 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row, Modal } from "react-bootstrap";
-import { usePathname, useRouter, notFound } from "next/navigation";
+import { usePathname, notFound } from "next/navigation";
 
-export default function Property({ projectDetail, similarProjects = [] }) {
+export default function Property({
+  projectDetail,
+  similarProjects = [],
+  nearbyBenefitsList,
+}) {
   const [isAnswerVisible, setIsAnswerVisible] = useState([false, false]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
@@ -51,7 +56,9 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   const [amenityButtonStatus, setAmenityButtonStatus] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backToHomeExpanded, setBackToHomeExpanded] = useState(false);
-  const [allNearbyBenefits, setAllNearbyBenefits] = useState([]);
+  const [allNearbyBenefits, setAllNearbyBenefits] = useState(() =>
+    Array.isArray(nearbyBenefitsList) ? nearbyBenefitsList : [],
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -62,7 +69,6 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     pageName: "",
   });
   const pathname = usePathname();
-  const router = useRouter();
   const [validated, setValidated] = useState(false);
   const [validated1, setValidated1] = useState(false);
   //Defining loading state
@@ -130,17 +136,8 @@ export default function Property({ projectDetail, similarProjects = [] }) {
     setIsAnswerVisible(updatedVisibility);
   };
 
-  //Setting for banner slider
-  const settings = {
-    dots: false,
-    infinite: (projectDetail.desktopImages?.length ?? 0) > 1,
-    speed: 300,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    fade: (projectDetail.desktopImages?.length ?? 0) > 1,
-    autoplay: (projectDetail.desktopImages?.length ?? 0) > 1,
-    autoplaySpeed: 3000,
-  };
+  const bannerImages = projectDetail.desktopImages ?? [];
+  const bannerMultiple = bannerImages.length > 1;
 
   // Gallery arrows: same style as Similar Projects (featured) – white circle + SVG icons
   const GalleryPrevArrow = (props) => {
@@ -394,21 +391,23 @@ const addNearbyImageIcon = (benefit) => {
     };
   }, []);
 
-  // Fetching all nearby benefits
+  // Nearby benefits: loaded on server for this route; client fetch only if not passed
   useEffect(() => {
+    if (Array.isArray(nearbyBenefitsList)) return;
+
     const fetchBenefits = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/get-all`
+          `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/get-all`,
         );
         setAllNearbyBenefits(res.data);
       } catch (err) {
         console.error("Failed to fetch nearby benefits", err);
       }
     };
-  
+
     fetchBenefits();
-  }, []);
+  }, [nearbyBenefitsList]);
 
   useEffect(() => {
     setAllAmenities((projectDetail?.amenities || []).slice(0, 18));
@@ -535,9 +534,7 @@ const addNearbyImageIcon = (benefit) => {
     }
   };
 
-  const handleBackToHomeClick = (e) => {
-    if (e?.preventDefault) e.preventDefault();
-
+  const handleBackToHomeClick = () => {
     const menu = document.getElementById("property-mbdiv");
     const menuButtons = document.querySelectorAll(".project-menuBtn");
     const header = document.querySelector(".project-detail-header");
@@ -550,20 +547,10 @@ const addNearbyImageIcon = (benefit) => {
     header?.classList.remove("notfixed");
     setMenuOpen(false);
 
-    // Ensure page is fully unlocked before route change.
     document.body.classList.remove("menu-open");
     document.body.classList.remove("overflow-hidden");
     document.body.style.overflow = "";
     document.body.style.position = "";
-
-    router.push("/");
-
-    // Fallback for cases where client navigation is blocked by runtime state.
-    window.setTimeout(() => {
-      if (window.location.pathname !== "/") {
-        window.location.assign("/");
-      }
-    }, 250);
   };
 
   /** MPF logo: open home in a new tab so project-page CSS / Bootstrap state never leaks into home. */
@@ -639,8 +626,10 @@ const addNearbyImageIcon = (benefit) => {
     <>
       <Link
         href="/"
+        target="_blank"
+        rel="noopener noreferrer"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
-        aria-label="Back to MyPropertyFact home page"
+        aria-label="Back to MyPropertyFact home page (opens in a new tab)"
         onClick={handleBackToHomeClick}
       >
         <span className="back-to-home-floating__text">Back To Home</span>
@@ -771,6 +760,8 @@ const addNearbyImageIcon = (benefit) => {
                   <li>
                     <Link
                       href="/"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-decoration-none"
                       onClick={handleBackToHomeClick}
                     >
@@ -861,21 +852,38 @@ const addNearbyImageIcon = (benefit) => {
       <div id="home" className="container-fluid p-0">
         {/* Banner container for property detail page  */}
         <div className="slick-slider-container">
-          <Slider {...settings}>
-            {projectDetail.desktopImages && projectDetail.desktopImages.map((item, index) => (
-              <div className="image-con" key={`${item.id}-${index}`}>
-                <Image
-                  src={projectImageSrc(item.desktopImage)}
-                  alt={item.altTag || "Property Banner"}
-                  title={item.altTag || "Property Banner"}
-                  fill
-                  priority={index === 0}
-                  sizes="100vw"
-                  className="slick-banner-img"
-                />
-              </div>
+          <Swiper
+            modules={[Autoplay, EffectFade]}
+            className="property-banner-swiper"
+            slidesPerView={1}
+            speed={300}
+            loop={bannerMultiple}
+            allowTouchMove={bannerMultiple}
+            effect={bannerMultiple ? "fade" : "slide"}
+            fadeEffect={{ crossFade: true }}
+            autoplay={
+              bannerMultiple
+                ? { delay: 3000, disableOnInteraction: false }
+                : false
+            }
+          >
+            {bannerImages.map((item, index) => (
+              <SwiperSlide key={`${item.id}-${index}`}>
+                <div className="image-con">
+                  <Image
+                    src={projectImageSrc(item.desktopImage)}
+                    alt={item.altTag || "Property Banner"}
+                    title={item.altTag || "Property Banner"}
+                    fill
+                    priority={index === 0}
+                    fetchPriority={index === 0 ? "high" : "low"}
+                    sizes="100vw"
+                    className="slick-banner-img"
+                  />
+                </div>
+              </SwiperSlide>
             ))}
-          </Slider>
+          </Swiper>
 
           {/* Defining form on banner container - desktop only; mobile uses popup via floating Enquire button */}
           <div className="banner-form d-none d-lg-block">
@@ -1252,9 +1260,9 @@ const addNearbyImageIcon = (benefit) => {
                         />
                       )}
                       <div>
-                        <p className="mb-1 fw-semibold text-dark">
+                        <h3 className="mb-1 h6 fw-semibold text-dark">
                           {item.benefitName}
-                        </p>
+                        </h3>
                         <small className="text-muted">{item.distance}</small>
                       </div>
                     </div>
@@ -1266,20 +1274,20 @@ const addNearbyImageIcon = (benefit) => {
               <div className="mt-4 p-4">
                 <div className="row">
                   <div className="col-sm-6 mb-3">
-                    <p className="mb-1 text-success fw-semibold">Address</p>
-                    <p className="mb-0">{projectDetail.projectLocality || ""}</p>
+                    <h4 className="mb-1 text-success fw-semibold">Address</h4>
+                    <h5 className="mb-0">{projectDetail.projectLocality || ""}</h5>
                   </div>
                   <div className="col-sm-6 mb-3">
-                    <p className="mb-1 text-success fw-semibold">State</p>
-                    <p className="mb-0">{projectDetail.state || ""}</p>
+                    <h4 className="mb-1 text-success fw-semibold">State</h4>
+                    <h5 className="mb-0">{projectDetail.state || ""}</h5>
                   </div>
                   <div className="col-sm-6 mb-3">
-                    <p className="mb-1 text-success fw-semibold">City</p>
-                    <p className="mb-0">{projectDetail.city || ""}</p>
+                    <h4 className="mb-1 text-success fw-semibold">City</h4>
+                    <h5 className="mb-0">{projectDetail.city || ""}</h5>
                   </div>
                   <div className="col-sm-6 mb-3">
-                    <p className="mb-1 text-success fw-semibold">Country</p>
-                    <p className="mb-0">{projectDetail.country || ""}</p>
+                    <h4 className="mb-1 text-success fw-semibold">Country</h4>
+                    <h5 className="mb-0">{projectDetail.country || ""}</h5>
                   </div>
                 </div>
 
@@ -1497,9 +1505,9 @@ const addNearbyImageIcon = (benefit) => {
                 className="faq-question d-flex justify-content-between align-items-center p-3 rounded-3"
                 onClick={() => toggleAnswer(item.id)}
               >
-                <p className="m-0 fw-semibold">
+                <h3 className="m-0 fw-semibold h6">
                   Q{index + 1}: {item.question}
-                </p>
+                </h3>
                 <span className="faq-icon">
                   {isAnswerVisible[item.id] ? "−" : "+"}
                 </span>

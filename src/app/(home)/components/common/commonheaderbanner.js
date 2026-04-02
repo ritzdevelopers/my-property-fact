@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import './common.css';
 
-export default function CommonHeaderBanner({ image, headerText, firstPage, pageName }) {
+export default function CommonHeaderBanner({ image, headerText, firstPage, pageName, useH1 = true }) {
   // Build breadcrumb path
   const breadcrumbItems = [
     { label: "Home", href: "/" }
@@ -53,7 +53,7 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
         
         {/* Content Container */}
         <div className="banner-content">
-          {headerText === 'Blog-Detail' ? (
+          {headerText === 'Blog-Detail' || !useH1 ? (
             <p className="projects-heading fw-bold">{headerText}</p>
           ) : (
             <h1 className="projects-heading fw-bold">{headerText}</h1>

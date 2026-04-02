@@ -123,7 +123,7 @@ const DreamPropertySection = () => {
               </div>
               <div className="city-content">
                 <h3 className="city-name">{city.name}</h3>
-                <Link href={city.link} className="explore-details-button">
+                <Link href={city.link} prefetch={false} className="explore-details-button">
                   Explore Details
                 </Link>
               </div>

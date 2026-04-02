@@ -1,4 +1,6 @@
+import { Suspense } from "react";
 import { fetchAllProjectsByProjectType } from "@/app/_global_components/masterFunction";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 
@@ -109,7 +111,18 @@ export default async function ProjectType({ params }) {
         firstPage={"projects"}
         pageName={projectTypeDetail.projectTypeName}
       />
-      <PropertyPage projectTypeDetails={projectTypeDetail} />
+      <Suspense
+        fallback={
+          <div
+            className="d-flex justify-content-center align-items-center my-5"
+            style={{ minHeight: "320px" }}
+          >
+            <LoadingSpinner show={true} />
+          </div>
+        }
+      >
+        <PropertyPage projectTypeDetails={projectTypeDetail} />
+      </Suspense>
     </>
   );
 }

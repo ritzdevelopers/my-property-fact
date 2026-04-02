@@ -60,6 +60,7 @@ export default function InsightNew() {
   return (
     <>
       <div className="container">
+        <h2 className="text-center my-5">Investor Education Blog</h2>
         <div className="row">
           {data.map((i) => (
             <div key={i.id} className={`col-sm-12 col-md-6 col-xl-3 mb-3`}>

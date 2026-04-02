@@ -4,6 +4,7 @@ import {
   canonicalizeFloorInCitySlug,
   fetchAllProjects,
   fetchCityData,
+  fetchNearbyBenefitsAll,
   fetchProjectDetailsBySlug,
   isCityTypeUrl,
   isFloorTypeUrl,
@@ -72,9 +73,14 @@ export default async function PropertyPage({ params }) {
   } else if (isFloorTypeSlug) {
     return <ProjectListByFloorType slug={slug} cityList={cityList} />;
   } else if (isProjectSlug) {
+    const nearbyBenefitsList = await fetchNearbyBenefitsAll();
     return (
       <>
-        <Property projectDetail={projectDetail} similarProjects={similarProject} />
+        <Property
+          projectDetail={projectDetail}
+          similarProjects={similarProject}
+          nearbyBenefitsList={nearbyBenefitsList}
+        />
         <NewFooterDesign cityList={cityList} compactTop={true} />
       </>
     );

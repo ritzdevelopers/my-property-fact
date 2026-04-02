@@ -294,8 +294,9 @@ export default function NoidaProjectsSection() {
 function CityCard({ city }) {
   const cityDestinationAlt = `${city.name} — Popular Real Estate Destinations, projects for sale on My Property Fact`;
   return (
-    <Link 
+    <Link
       href={city.href}
+      prefetch={false}
       className="city-card city-card-link"
     >
       {/* City Header */}

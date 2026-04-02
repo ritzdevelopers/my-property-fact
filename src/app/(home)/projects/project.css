@@ -558,41 +558,6 @@
   }
 }
 
-.projects-pagination-wrap {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-  margin-top: 2rem;
-}
-
-.projects-page-btn {
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #111827;
-  border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.projects-page-btn:hover:not(:disabled) {
-  border-color: rgb(0, 164, 0);
-  color: rgb(0, 164, 0);
-}
-
-.projects-page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.projects-page-indicator {
-  font-size: 0.9rem;
-  color: #4b5563;
-  font-weight: 500;
-}
-
 /* Projects Content Wrapper */
 .projects-page-section-heading {
   font-size: 1.5rem;

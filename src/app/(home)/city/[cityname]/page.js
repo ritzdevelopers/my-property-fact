@@ -1,16 +1,21 @@
 import CityPage from "./citypage";
 import axios from "axios";
-export const dynamic = 'force-dynamic';
-// Fetch SEO data by city slug
-async function fetchData(slug) {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}city/get/${slug}`);
+import { cache } from "react";
+
+export const dynamic = "force-dynamic";
+
+/** One upstream request per slug per render (shared by metadata + page). */
+const fetchCityDataBySlug = cache(async (slug) => {
+  const response = await axios.get(
+    `${process.env.NEXT_PUBLIC_API_URL}city/get/${slug}`,
+  );
   return response.data;
-}
+});
 
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
   const { cityname } = await params;
-  const cityData = await fetchData(cityname);  
+  const cityData = await fetchCityDataBySlug(cityname);
   return {
     title: cityData.metaTitle,
     description: cityData.metaDescription,
@@ -23,9 +28,7 @@ export async function generateMetadata({ params }) {
 // Main page component
 export default async function AllCityProjects({ params }) {
   const { cityname } = await params;
-  const [cityData] = await Promise.all([
-    fetchData(cityname)
-  ]);
+  const cityData = await fetchCityDataBySlug(cityname);
 
   return (
     <CityPage cityData={cityData} />

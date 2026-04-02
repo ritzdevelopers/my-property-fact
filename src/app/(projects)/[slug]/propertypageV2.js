@@ -28,7 +28,7 @@ import PopularCitiesSection from "../../(home)/components/home/popular-cities/Po
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row } from "react-bootstrap";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, notFound } from "next/navigation";
 
 function ScrollFadeSection({
   as: Tag = "section",
@@ -161,7 +161,11 @@ function ParallaxImageStrip({ imageSrc, startWidth = 383, startHeight = 247, chi
   );
 }
 
-export default function Property({ projectDetail, similarProjects = [] }) {
+export default function Property({
+  projectDetail,
+  similarProjects = [],
+  nearbyBenefitsList,
+}) {
   const [isAnswerVisible, setIsAnswerVisible] = useState({});
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
@@ -174,7 +178,9 @@ export default function Property({ projectDetail, similarProjects = [] }) {
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [backToHomeExpanded, setBackToHomeExpanded] = useState(false);
-  const [allNearbyBenefits, setAllNearbyBenefits] = useState([]);
+  const [allNearbyBenefits, setAllNearbyBenefits] = useState(() =>
+    Array.isArray(nearbyBenefitsList) ? nearbyBenefitsList : [],
+  );
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -461,22 +467,23 @@ const addNearbyImageIcon = (benefit) => {
     };
   }, []);
 
-  // Fetching all nearby benefits
+  // Nearby benefits: prefer server-provided list; client fetch only if missing
   useEffect(() => {
+    if (Array.isArray(nearbyBenefitsList)) return;
+
     const fetchBenefits = async () => {
       try {
         const res = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/get-all`
-          
+          `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/get-all`,
         );
         setAllNearbyBenefits(res.data);
       } catch (err) {
         console.error("Failed to fetch nearby benefits", err);
       }
     };
-  
+
     fetchBenefits();
-  }, []);
+  }, [nearbyBenefitsList]);
   
 
   useEffect(() => {
@@ -637,13 +644,13 @@ const addNearbyImageIcon = (benefit) => {
 
     setMenuOpen(isMenuOpen);
 
-    // Toggle display
+
     menu.style.display = isMenuOpen ? "block" : "none";
 
-    // Toggle header class
+
     header?.classList.toggle("notfixed", isMenuOpen);
 
-    // Toggle body scroll lock - ensure it's properly removed when menu closes
+    
     if (isMenuOpen) {
       document.body.classList.add("menu-open");
     } else {
@@ -654,9 +661,9 @@ const addNearbyImageIcon = (benefit) => {
       document.body.style.position = "";
     }
 
-    // Handle scrolling when clicking a menu link
+
     if (targetId) {
-      // Use setTimeout to ensure menu is closed and scroll lock is removed before scrolling
+    
       setTimeout(() => {
         const targetElement = document.getElementById(targetId);
         if (targetElement) {
@@ -691,7 +698,7 @@ const addNearbyImageIcon = (benefit) => {
     header?.classList.remove("notfixed");
     setMenuOpen(false);
 
-    // Ensure page is fully unlocked before route change.
+
     document.body.classList.remove("menu-open");
     document.body.classList.remove("overflow-hidden");
     document.body.style.overflow = "";
@@ -699,7 +706,7 @@ const addNearbyImageIcon = (benefit) => {
 
     router.push("/");
 
-    // Fallback for cases where client navigation is blocked by runtime state.
+    
     window.setTimeout(() => {
       if (window.location.pathname !== "/") {
         window.location.assign("/");
@@ -707,13 +714,42 @@ const addNearbyImageIcon = (benefit) => {
     }, 250);
   };
 
-  //Generating banner src
-  // const imageSrc = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectDetail.slugURL}/${projectDetail.banners[0].desktopImage}`;
-  // const imageSrc = `/properties/${projectDetail.slugURL}/${projectDetail.projectThumbnail}`;
 
-  //Checking If project detail is not available then show not found page
+  const handleMpfLogoOpenHomeNewTab = () => {
+    const menu = document.getElementById("property-mbdiv");
+    const menuButtons = document.querySelectorAll(".project-menuBtn");
+    const header = document.querySelector(".project-detail-header");
+
+    if (menu) {
+      menu.classList.remove("active");
+      menu.style.display = "none";
+    }
+    menuButtons?.forEach((btn) => btn.classList.remove("closeMenuBtn"));
+    header?.classList.remove("notfixed");
+    setMenuOpen(false);
+
+    document.body.classList.remove("menu-open");
+    document.body.classList.remove("overflow-hidden");
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+
+    if (typeof window === "undefined") return;
+    const homeUrl = `${window.location.origin}/`;
+    const a = document.createElement("a");
+    a.href = homeUrl;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  };
+
+
+
+  
   if (!projectDetail) {
-    return <NotFound />;
+    notFound();
+    return null;
   }
 
   const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
@@ -918,6 +954,9 @@ const addNearbyImageIcon = (benefit) => {
                     ? `View ${projectDetail.builder?.builderName || "builder"} profile`
                     : "Home"
                 }
+                {...(builderPageHref
+                  ? { target: "_blank", rel: "noopener noreferrer" }
+                  : {})}
               >
                 <Image
                   width={198}
@@ -988,7 +1027,14 @@ const addNearbyImageIcon = (benefit) => {
               <div className="mbMenu" onClick={(e) => e.stopPropagation()}>
                 {/* Mobile menu header with logo + close */}
                 <div className="project-mbMenu-header d-flex align-items-center justify-content-between mb-4">
-                  <Link href="/">
+                  <Link
+                    href="/"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleMpfLogoOpenHomeNewTab();
+                    }}
+                    aria-label="My Property Fact home (opens in a new tab)"
+                  >
                     <Image
                       src="/logo.webp"
                       alt="My Property Fact logo — project page mobile menu"
@@ -1078,7 +1124,14 @@ const addNearbyImageIcon = (benefit) => {
             </div>
             {/* Logo container */}
             <div className="logo d-none d-lg-block px-4">
-              <Link href="/">
+              <Link
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleMpfLogoOpenHomeNewTab();
+                }}
+                aria-label="My Property Fact home (opens in a new tab)"
+              >
                 <Image
                   src="/logo.webp"
                   alt="My Property Fact logo — project page header"
@@ -1347,20 +1400,20 @@ const addNearbyImageIcon = (benefit) => {
               )}
               <div className="location-modern-info-card">
                 <div className="location-modern-row">
-                  <span>Address</span>
-                  <strong>{projectDetail.projectLocality || "NA"}</strong>
+                  <h4 className="mb-0">Address</h4>
+                  <h5 className="mb-0">{projectDetail.projectLocality || "NA"}</h5>
                 </div>
                 <div className="location-modern-row">
-                  <span>State</span>
-                  <strong>{projectDetail.state || "NA"}</strong>
+                  <h4 className="mb-0">State</h4>
+                  <h5 className="mb-0">{projectDetail.state || "NA"}</h5>
                 </div>
                 <div className="location-modern-row">
-                  <span>City</span>
-                  <strong>{projectDetail.city || "NA"}</strong>
+                  <h4 className="mb-0">City</h4>
+                  <h5 className="mb-0">{projectDetail.city || "NA"}</h5>
                 </div>
                 <div className="location-modern-row">
-                  <span>Country</span>
-                  <strong>{projectDetail.country || "NA"}</strong>
+                  <h4 className="mb-0">Country</h4>
+                  <h5 className="mb-0">{projectDetail.country || "NA"}</h5>
                 </div>
               </div>
             </div>
@@ -1392,7 +1445,7 @@ const addNearbyImageIcon = (benefit) => {
                             />
                           </div>
                           <div className="location-nearby-card-content">
-                            <p>{benefitName}</p>
+                            <h3 className="h6 mb-0">{benefitName}</h3>
                             {linkedDistance && <span>{linkedDistance}</span>}
                           </div>
                         </article>
@@ -1415,6 +1468,8 @@ const addNearbyImageIcon = (benefit) => {
                 href={builderPageHref}
                 className="about-modern-image-link"
                 aria-label={`View ${projectDetail.builder?.builderName || "builder"} profile`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 <Image
                   src={aboutBuilderImageSrc}
@@ -1438,7 +1493,7 @@ const addNearbyImageIcon = (benefit) => {
           <div className="about-modern-content">
             <p className="about-modern-label">About</p>
             <h2 className="about-modern-title">
-              The Builder {projectDetail.builder?.builderName || ""}
+              About The Builder {projectDetail.builder?.builderName || ""}
             </h2>
             <div
               className="about-modern-description"
@@ -1451,6 +1506,9 @@ const addNearbyImageIcon = (benefit) => {
               href={builderPageHref || "#"}
               className="about-modern-link-btn"
               aria-label="Open builder details"
+              {...(builderPageHref
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
             >
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>
@@ -1587,7 +1645,7 @@ const addNearbyImageIcon = (benefit) => {
       {!!faqList.length && (
         <section className="faq-modern-section mb-5">
           <div className="container">
-            <h2 className="faq-modern-title">Frequently Asked Question</h2>
+            <h2 className="faq-modern-title">FAQs</h2>
             <p className="faq-modern-subtitle">
               Find answers to common questions about this project.
             </p>
@@ -1596,19 +1654,26 @@ const addNearbyImageIcon = (benefit) => {
               {faqList.map((item, index) => {
                 const faqKey = item.id ?? index;
                 const isOpen = !!isAnswerVisible[faqKey];
+                const normalizedQuestion = String(item.question || "").trim();
+                const hasQuestionPrefix = /^q\d+\s*:/i.test(normalizedQuestion);
+                const faqQuestionText = hasQuestionPrefix
+                  ? normalizedQuestion
+                  : `Q${index + 1}: ${normalizedQuestion}`;
                 return (
                   <article key={`${faqKey}-${index}`} className="faq-modern-item">
-                    <button
-                      type="button"
-                      className="faq-modern-question"
-                      onClick={() => toggleAnswer(faqKey)}
-                      aria-expanded={isOpen}
-                    >
-                      <span>{item.question}</span>
-                      <span className="faq-modern-icon-wrap">
-                        <FontAwesomeIcon icon={isOpen ? faMinus : faPlus} />
-                      </span>
-                    </button>
+                    <h3 className="mb-0">
+                      <button
+                        type="button"
+                        className="faq-modern-question"
+                        onClick={() => toggleAnswer(faqKey)}
+                        aria-expanded={isOpen}
+                      >
+                        <span>{faqQuestionText}</span>
+                        <span className="faq-modern-icon-wrap">
+                          <FontAwesomeIcon icon={isOpen ? faMinus : faPlus} />
+                        </span>
+                      </button>
+                    </h3>
                     <div className={`faq-modern-answer ${isOpen ? "show" : ""}`}>
                       <div className="faq-modern-answer-inner">
                         <p>{item.answer}</p>

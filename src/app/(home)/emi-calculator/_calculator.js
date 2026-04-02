@@ -48,7 +48,7 @@ export default function CalculatorForm({
 
             <div className="d-grid gap-2">
                 <button className="btn btn-background text-white" onClick={calculateEMI}>
-                    <h5 className='m-0 p-0'>Calculate EMI</h5>
+                    <span className='m-0 p-0 fw-bold'>Calculate EMI</span>
                 </button>
             </div>
         </>

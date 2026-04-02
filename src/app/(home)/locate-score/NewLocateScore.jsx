@@ -311,15 +311,15 @@ export default function NewLocateScore() {
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.formGrid}>
                 <div className={styles.fieldGroup}>
-                  <label htmlFor="locate-city" className={styles.label}>
+                  <h4 id="locate-city-heading" className={styles.label}>
                     City
-                  </label>
+                  </h4>
                   <select
                     id="locate-city"
                     className={styles.select}
                     onChange={(e) => handleCityChange(e.target.value)}
                     value={city || ""}
-                    aria-label="Select city"
+                    aria-labelledby="locate-city-heading"
                   >
                     <option value="">Select a City</option>
                     {allCities &&
@@ -334,16 +334,16 @@ export default function NewLocateScore() {
                   </select>
                 </div>
                 <div className={styles.fieldGroup}>
-                  <label htmlFor="locate-locality" className={styles.label}>
+                  <h4 id="locate-locality-heading" className={styles.label}>
                     Locality
-                  </label>
+                  </h4>
                   <select
                     name="locate-locality"
                     id="locate-locality"
                     className={styles.select}
                     onChange={(e) => setLocality(e.target.value)}
                     value={locality}
-                    aria-label="Select locality"
+                    aria-labelledby="locate-locality-heading"
                     disabled={!city}
                   >
                     <option value="">Select a Locality</option>

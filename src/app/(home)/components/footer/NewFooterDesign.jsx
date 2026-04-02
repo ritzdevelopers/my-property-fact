@@ -159,6 +159,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               >
                 <Link
                   href={`${generateSlugFn(prefix)}${city.slugURL}`}
+                  prefetch={false}
                   className="footer-link"
                 >
                   {prefix}{city.cityName}

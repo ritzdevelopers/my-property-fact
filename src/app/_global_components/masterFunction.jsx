@@ -271,9 +271,9 @@ export const isCityTypeUrl = async (slug) => {
 };
 
 // fetching blogs list from api
-export const fetchBlogs = cache(async (page, size, search = "") => {
+export const fetchBlogs = cache(async (page, size, search = "", fromSegment = "blog") => {
   const res = await fetch(
-    `${apiUrl}blog/get?page=${page}&size=${size}&from=${"blog"}&search=${search}`,
+    `${apiUrl}blog/get?page=${page}&size=${size}&from=${fromSegment}&search=${search}`,
     {
       next: { revalidate: 60 },
     },
@@ -286,6 +286,33 @@ export const fetchBlogs = cache(async (page, size, search = "") => {
     : blogsData?.data || blogsData?.blogs || [];
   const total = blogsData?.total || blogsData?.totalCount || blogsArray.length;
   return blogsData;
+});
+
+/** Single blog by slug — server-side fetch (use in RSC / generateMetadata). */
+export const fetchBlogBySlug = cache(async (slug) => {
+  if (!slug || !apiUrl) return null;
+  try {
+    const res = await fetch(
+      `${apiUrl}blog/get/${encodeURIComponent(String(slug).trim())}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+});
+
+/** Full blog list for admin-style endpoints — cached; call only from server / server actions. */
+export const fetchBlogGetAll = cache(async () => {
+  if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  const res = await fetch(`${apiUrl}blog/get-all`, {
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) throw new Error("Failed to fetch blogs");
+  return res.json();
 });
 
 //Get projects in parts

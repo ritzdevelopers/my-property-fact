@@ -3,42 +3,36 @@ import "./page.module.css";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import CommonBreadCrum from "../components/common/breadcrum";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useRouter } from "next/navigation";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { Pagination, Stack } from "@mui/material";
 import BlogCard from "../components/common/blogcard";
-export default function MarketAnalysis() {
-  // defining state for list of blogs
-  const [blogsList, setBlogsList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(9);
-  const [totalPages, setTotalPages] = useState(0);
-  //fetching all blogs list
-  const getBlogsList = async () => {
-    // fetching blogs list from api
-    try {
-      const response = await axios.get(
-        `${
-          process.env.NEXT_PUBLIC_API_URL
-        }blog/get?page=${page}&size=${size}&from=${'market'}`
-      );
-      setBlogsList(response.data.content);
-      setTotalPages(response.data.totalPages);
-      setLoading(false);
-    } catch (error) {
-      // Error handled silently - user will see empty results
-    }
-  };
-  useEffect(() => {
-    getBlogsList();
-  }, [page]);
 
-  // Handle page change from pagination
+export default function MarketAnalysis({
+  localities,
+  initialBlogs = [],
+  initialTotalPages = 0,
+  initialPage = 0,
+}) {
+  const router = useRouter();
+  const [blogsList, setBlogsList] = useState(initialBlogs);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(initialPage);
+  const [totalPages, setTotalPages] = useState(initialTotalPages);
+
+  useEffect(() => {
+    setBlogsList(initialBlogs);
+    setPage(initialPage);
+    setTotalPages(initialTotalPages);
+    setLoading(false);
+  }, [initialBlogs, initialTotalPages, initialPage]);
+
   const handlePageChange = (event, value) => {
     event.preventDefault();
-    setPage(value - 1); // update page state, which triggers useEffect
     setLoading(true);
+    router.push(
+      value <= 1 ? "/market-analysis" : `/market-analysis?page=${value}`,
+    );
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

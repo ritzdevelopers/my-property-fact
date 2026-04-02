@@ -40,7 +40,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row, Modal } from "react-bootstrap";
-import { usePathname, useRouter, notFound } from "next/navigation";
+import { usePathname, notFound } from "next/navigation";
 
 export default function Property({
   projectDetail,
@@ -69,7 +69,6 @@ export default function Property({
     pageName: "",
   });
   const pathname = usePathname();
-  const router = useRouter();
   const [validated, setValidated] = useState(false);
   const [validated1, setValidated1] = useState(false);
   //Defining loading state
@@ -535,9 +534,7 @@ const addNearbyImageIcon = (benefit) => {
     }
   };
 
-  const handleBackToHomeClick = (e) => {
-    if (e?.preventDefault) e.preventDefault();
-
+  const handleBackToHomeClick = () => {
     const menu = document.getElementById("property-mbdiv");
     const menuButtons = document.querySelectorAll(".project-menuBtn");
     const header = document.querySelector(".project-detail-header");
@@ -550,20 +547,10 @@ const addNearbyImageIcon = (benefit) => {
     header?.classList.remove("notfixed");
     setMenuOpen(false);
 
-    // Ensure page is fully unlocked before route change.
     document.body.classList.remove("menu-open");
     document.body.classList.remove("overflow-hidden");
     document.body.style.overflow = "";
     document.body.style.position = "";
-
-    router.push("/");
-
-    // Fallback for cases where client navigation is blocked by runtime state.
-    window.setTimeout(() => {
-      if (window.location.pathname !== "/") {
-        window.location.assign("/");
-      }
-    }, 250);
   };
 
   /** MPF logo: open home in a new tab so project-page CSS / Bootstrap state never leaks into home. */
@@ -639,8 +626,10 @@ const addNearbyImageIcon = (benefit) => {
     <>
       <Link
         href="/"
+        target="_blank"
+        rel="noopener noreferrer"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
-        aria-label="Back to MyPropertyFact home page"
+        aria-label="Back to MyPropertyFact home page (opens in a new tab)"
         onClick={handleBackToHomeClick}
       >
         <span className="back-to-home-floating__text">Back To Home</span>
@@ -771,6 +760,8 @@ const addNearbyImageIcon = (benefit) => {
                   <li>
                     <Link
                       href="/"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="text-decoration-none"
                       onClick={handleBackToHomeClick}
                     >

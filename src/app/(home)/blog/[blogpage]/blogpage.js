@@ -1,5 +1,4 @@
 "use client";
-import axios from "axios";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { useState } from "react";
 import Image from "next/image";
@@ -12,8 +11,12 @@ import BlogFaqSection from "../../components/common/BlogFaqSection";
 import "../../components/common/common.css";
 import styles from "../page.module.css";
 import detailStyles from "./blogpage.module.css";
+import { submitBlogEnquiryAction } from "../actions";
 
-export default function BlogDetail({ blogDetail }) {
+export default function BlogDetail({
+  blogDetail,
+  sidebarRecentPosts = [],
+}) {
   const [showLoading, setShowLoading] = useState(false);
   const [buttonName, setButtonName] = useState("Submit Enquiry");
   const initialFormData = {
@@ -111,21 +114,17 @@ export default function BlogDetail({ blogDetail }) {
       formData.enquiryFrom = blogDetail.blogTitle.replace(/\u00A0/g, " ")
       formData.projectLink = process.env.NEXT_PUBLIC_UI_URL + pathname;
       formData.pageName = "Blog Page";
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_API_URL + "enquiry/post",
-        formData
-      );
-      // Check if response is successful
-      if (response.data.isSuccess === 1) {
+      const response = await submitBlogEnquiryAction(formData);
+      if (response.ok) {
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state
         setErrors({ phone: "" });
-        toast.success(response.data.message);
+        toast.success(response.message);
       } else {
-        toast.error(response.data.message);
+        toast.error(response.message);
       }
     } catch (error) {
-      toast.error(error.data.message);
+      toast.error(error?.message || "Something went wrong");
       console.error("Error submitting form:", error);
     } finally {
       setShowLoading(false);
@@ -280,6 +279,7 @@ export default function BlogDetail({ blogDetail }) {
                 showSearch={false}
                 showRecentPosts={true}
                 showLatestProperty={false}
+                initialRecentPosts={sidebarRecentPosts}
               />
             </div>
 

@@ -1,24 +1,13 @@
-import axios from "axios";
 import { notFound } from "next/navigation";
 import BlogDetail from "./blogpage";
+import {
+  fetchBlogBySlug,
+  fetchBlogs,
+} from "@/app/_global_components/masterFunction";
 
-export const dynamic = 'force-dynamic';
-
-//fetch blog detail using slug
-const fetchBlogDetail = async (url) => {
-    //fetching blog detail from api using slug
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}blog/get/${url}`);    
-    return response.data;
-}
-
-export async function generateMetadata({params}) {
-    const { blogpage} = await params;
-    let res = null;
-    try {
-      res = await fetchBlogDetail(blogpage);
-    } catch {
-      res = null;
-    }
+export async function generateMetadata({ params }) {
+    const { blogpage } = await params;
+    const res = await fetchBlogBySlug(blogpage);
 
     if (!res) {
       return {
@@ -41,17 +30,20 @@ export async function generateMetadata({params}) {
 }
 
 export default async function BlogPage({ params }) {
-    const { blogpage } = await params;
-    let blogDetail = null;
-    try {
-      blogDetail = await fetchBlogDetail(blogpage);
-    } catch {
-      blogDetail = null;
-    }
+  const { blogpage } = await params;
+  const blogDetail = await fetchBlogBySlug(blogpage);
 
-    if (!blogDetail) {
-      notFound();
-    }
+  if (!blogDetail) {
+    notFound();
+  }
 
-    return <BlogDetail blogDetail={blogDetail} />
+  const recentRes = await fetchBlogs(0, 3, "");
+  const sidebarRecentPosts = recentRes?.content ?? [];
+
+  return (
+    <BlogDetail
+      blogDetail={blogDetail}
+      sidebarRecentPosts={sidebarRecentPosts}
+    />
+  );
 }

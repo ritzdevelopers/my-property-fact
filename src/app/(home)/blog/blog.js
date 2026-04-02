@@ -1,24 +1,31 @@
 "use client";
+
 import styles from "./page.module.css";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import { useLayoutEffect, useEffect, useState } from "react";
 import { Pagination, Stack } from "@mui/material";
 import BlogListItem from "../components/common/BlogListItem";
 import BlogSidebar from "../components/common/BlogSidebar";
 import BlogFaqSection from "../components/common/BlogFaqSection";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 import PopularCitiesSection from "../components/home/popular-cities/PopularCitiesSection";
-import { fetchBlogs } from "@/app/_global_components/masterFunction";
-export default function Blog() {
-  // defining state for list of blogs
-  const [blogsList, setBlogsList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(3);
-  const [totalPages, setTotalPages] = useState(0);
-  /** Only one sidebar variant in the DOM so "Recent Posts" / "Latest Property" <h2> are not duplicated (CSS d-none still leaves nodes for SEO tools). */
+import { useRouter } from "next/navigation";
+
+export default function Blog({
+  initialBlogs = [],
+  initialPageIndex = 0,
+  totalPages = 1,
+  sidebarRecentPosts = [],
+  sidebarLatestProject = null,
+}) {
+  const router = useRouter();
+  const [blogsList, setBlogsList] = useState(initialBlogs);
+  /** Match MUI Pagination (1-based) */
+  const [page, setPage] = useState(initialPageIndex + 1);
+  const [pageCount, setPageCount] = useState(totalPages);
+
   const [isLgUp, setIsLgUp] = useState(false);
+
   const faqItems = [
     {
       q: "What kind of property types are available on My Property Fact?",
@@ -37,17 +44,12 @@ export default function Blog() {
       a: "Yes, My Property Fact includes properties in Tier 1, Tier 2, and Tier 3 cities in India. Whether you are looking for the best properties in Delhi, budget-friendly options in Noida and Pune, or investment opportunities in Indore and Bhopal, we have a vast array of properties for you.",
     },
   ];
-  //fetching all blogs list
-  const getBlogsList = async () => {
-    const blogsList = await fetchBlogs(page, size, "");
-    setBlogsList(blogsList.content);
-    setTotalPages(blogsList.totalPages);
-    setLoading(false);
-  };
 
   useEffect(() => {
-    getBlogsList();
-  }, [page]);
+    setBlogsList(initialBlogs);
+    setPage(initialPageIndex + 1);
+    setPageCount(totalPages);
+  }, [initialBlogs, initialPageIndex, totalPages]);
 
   useLayoutEffect(() => {
     const mq = window.matchMedia("(min-width: 992px)");
@@ -57,23 +59,12 @@ export default function Blog() {
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  // Handle page change from pagination
   const handlePageChange = (event, value) => {
     event.preventDefault();
-    setPage(value - 1); // update page state, which triggers useEffect
-    setLoading(true);
+    setPage(value);
+    const next = Math.max(1, value);
+    router.push(next <= 1 ? "/blog" : `/blog?page=${next}`);
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // Handling search for the blogs
-  const handleSearch = async (e) => {
-    setIsSearch(true);
-    const searchQuery = e.target.value;
-    const blogs = await fetchBlogs(page, size, "search");
-    const filteredBlogs = blogs.content.filter((blog) =>
-      blog.blogTitle.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-    setLoading(false);
   };
 
   return (
@@ -85,36 +76,38 @@ export default function Blog() {
       />
       {!isLgUp && (
         <div className="container my-3">
-          <BlogSidebar showSearch={true} showRecentPosts={false} showLatestProperty={false} />
+          <BlogSidebar
+            showSearch={true}
+            showRecentPosts={false}
+            showLatestProperty={false}
+            initialRecentPosts={sidebarRecentPosts}
+            initialLatestProject={sidebarLatestProject}
+          />
         </div>
       )}
-      {/* <CommonBreadCrum pageName={"Blog"} /> */}
       <section
         className={`container my-3 my-lg-5 ${styles.blogSectionWrap}`}
         aria-labelledby="investor-education-blog-heading"
       >
-        <h2 id="investor-education-blog-heading" className={`${styles.blogPageSectionHeading} mb-3 mb-md-4`}>
+        <h2
+          id="investor-education-blog-heading"
+          className={`${styles.blogPageSectionHeading} mb-3 mb-md-4`}
+        >
           Investor Education Blog
         </h2>
         <div className={`row gy-4 ${styles.blogContentRow}`}>
           <div className="col-lg-8 align-items-center">
-            {loading ? (
-              <div
-                className="d-flex justify-content-center align-items-center"
-                style={{ height: "250px" }}
-              >
-                <LoadingSpinner show={loading} />
-              </div>
-            ) : (
-              (blogsList || []).map((blog, index) => (
-                <BlogListItem key={index} blog={blog} />
-              ))
-            )}
+            {(blogsList || []).map((blog, index) => (
+              <BlogListItem
+                key={blog?.slugUrl ?? blog?.id ?? index}
+                blog={blog}
+              />
+            ))}
             <div className="d-flex justify-content-center align-items-center my-5">
               <Stack spacing={2}>
                 <Pagination
-                  count={totalPages}
-                  page={page + 1}
+                  count={pageCount}
+                  page={page}
                   variant="outlined"
                   shape="rounded"
                   boundaryCount={1}
@@ -128,7 +121,10 @@ export default function Blog() {
           {isLgUp && (
             <div className={`col-lg-4 ${styles.blogSidebarCol}`}>
               <div className={styles.blogRightSticky}>
-                <BlogSidebar />
+                <BlogSidebar
+                  initialRecentPosts={sidebarRecentPosts}
+                  initialLatestProject={sidebarLatestProject}
+                />
               </div>
             </div>
           )}
@@ -136,7 +132,13 @@ export default function Blog() {
       </section>
       {!isLgUp && (
         <div className="container my-4 blog-mobile-sidebar-wrap">
-          <BlogSidebar showSearch={false} showRecentPosts={true} showLatestProperty={true} />
+          <BlogSidebar
+            showSearch={false}
+            showRecentPosts={true}
+            showLatestProperty={true}
+            initialRecentPosts={sidebarRecentPosts}
+            initialLatestProject={sidebarLatestProject}
+          />
         </div>
       )}
       <BlogFaqSection faqItems={faqItems} />

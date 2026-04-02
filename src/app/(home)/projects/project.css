@@ -377,17 +377,17 @@
 }
 
 .filter-pill-btn:hover {
-  border-color: rgb(0, 164, 0);
-  background: rgba(0, 164, 0, 0.05);
-  color: rgb(0, 164, 0);
+  border-color: #0d5834;
+  background: rgba(13, 88, 52, 0.06);
+  color: #0d5834;
   transform: translateY(-1px);
 }
 
 .filter-pill-btn.active {
-  background: rgb(0, 164, 0);
-  border-color: rgb(0, 164, 0);
+  background: #0d5834;
+  border-color: #0d5834;
   color: white;
-  box-shadow: 0 2px 8px rgba(0, 164, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(13, 88, 52, 0.35);
 }
 
 .filter-pill-filters {
@@ -825,9 +825,9 @@ body.projects-filter-modal-open [class*="launcher"] {
 }
 
 .projects-mobile-tab-btn.active {
-  background: rgb(0, 164, 0);
+  background: #0d5834;
   color: #fff;
-  border-color: rgb(0, 164, 0);
+  border-color: #0d5834;
 }
 
 .projects-mobile-filter-btn {

@@ -107,6 +107,10 @@ const nextConfig = {
   // Ensure MUI and other packages are transpiled so vendor chunks are generated correctly
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
+    // Extra widths so fixed logos can avoid 256w when ~160w suffices (2× 80px), and
+    // hero/feature images can use 1400w instead of jumping 1200 → 1920.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1400, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 80, 96, 128, 160, 192, 256, 384],
     remotePatterns: [
       {
         protocol: "http",

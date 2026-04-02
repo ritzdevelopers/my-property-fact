@@ -400,12 +400,13 @@ export default function Calculator() {
 
     return (
         <>
-            <CommonHeaderBanner image={"contact-banner.jpg"} headerText={"Emi-calculator"} />
+            <CommonHeaderBanner image={"contact-banner.jpg"} headerText={"Emi-calculator"} useH1={false} />
             <CommonBreadCrum pageName={"Emi-calculator"} />
             <div className='container'>
                 <div className='row'>
                     <div className='col-md-8'>
-                        <h1 className='mb-5'>Loan and EMI Calculator</h1>
+                        <h1 className='mb-3'>Emi-calculator</h1>
+                        <h2 className='mb-5'>Loan and EMI Calculator</h2>
                         <p className='mb-5'>Buying a home is emotional; financing it is mathematical.
                             Our Loan &amp; EMI Calculator lets you preview the maths before signing
                             on the dotted line. Enter your loan amount, interest rate, and tenure to see:</p>
@@ -417,15 +418,15 @@ export default function Calculator() {
                                         <p>{item.description}</p>
                                         {emi && item.id !== 4 && (
                                             <div className="alert-success mt-4 text-center">
-                                                {item.id === 1 && <h2>₹{Number(emi).toLocaleString('en-IN')}</h2>}
-                                                {item.id === 2 && <h2>₹{Number(intrestPayable).toLocaleString('en-IN')}</h2>}
-                                                {item.id === 3 && <h2>₹{Number(totalAmountPaid.toFixed(2)).toLocaleString('en-IN')}</h2>}
+                                                {item.id === 1 && <p className='mb-0 fs-4 fw-bold'>₹{Number(emi).toLocaleString('en-IN')}</p>}
+                                                {item.id === 2 && <p className='mb-0 fs-4 fw-bold'>₹{Number(intrestPayable).toLocaleString('en-IN')}</p>}
+                                                {item.id === 3 && <p className='mb-0 fs-4 fw-bold'>₹{Number(totalAmountPaid.toFixed(2)).toLocaleString('en-IN')}</p>}
                                             </div>
                                         )}
                                         {emi && item.id === 4 &&
                                             <div className='d-flex justify-content-center align-items-center'>
                                                 <div className='text-center'>
-                                                    <h5 className='p-0 m-0 text-danger'>{loanTenure}</h5>
+                                                    <p className='p-0 m-0 text-danger fw-bold'>{loanTenure}</p>
                                                     <p className='mb-0'>Month(s)</p>
                                                 </div>
                                                 <PieChart
@@ -455,8 +456,8 @@ export default function Calculator() {
                                 <Table aria-label="simple table">
                                     <TableHead>
                                         <TableRow>
-                                            <TableCell sx={{ borderRight: '1px solid rgba(224, 224, 224, 1)' }}><h4>Guideline</h4></TableCell>
-                                            <TableCell ><h4>Why It Matters</h4></TableCell>
+                                            <TableCell sx={{ borderRight: '1px solid rgba(224, 224, 224, 1)' }}><p className='mb-0 fw-bold'>Guideline</p></TableCell>
+                                            <TableCell ><p className='mb-0 fw-bold'>Why It Matters</p></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -490,10 +491,9 @@ export default function Calculator() {
                                 <Accordion className={styles.customAccordion} activeKey={activeKey} onSelect={handleToggle}>
                                     {intepreatingYourResult.map((item, index) => (
                                         <Accordion.Item eventKey={index.toString()} key={index}>
-                                            <Accordion.Header>
+                                            <Accordion.Header as="div">
                                                 <div>
-                                                    <h4 className='text-golden'>{item.title}</h4>
-                                                    <p className='fst-italic'>{item.desc}</p>
+                                                    <h3 className='text-golden h5 mb-0'>{`${item.title}${item.desc ? ` ${item.desc}` : ""}`}</h3>
                                                 </div>
                                             </Accordion.Header>
                                             {item.childData.map((item, index) => (
@@ -518,7 +518,7 @@ export default function Calculator() {
                             </ol>
                         </div>
                         <div className='mb-5 d-flex'>
-                            <h5 className='h6 mb-0'>Disclaimer:</h5>
+                            <p className='h6 mb-0 fw-bold'>Disclaimer:</p>
                             <p className='ms-2 fst-italic'>Figures are estimates for planning only. Actual loan offers depend on lender policies, your credit profile, and prevailing market rates.
                                 Always review final sanction letters carefully before commitment.</p>
                         </div>
@@ -526,7 +526,7 @@ export default function Calculator() {
                     </div>
                     <div className='col-md-4'>
                         <div className="container py-5 custom-shadow my-3 rounded-4 p-3 p-md-5" style={{ maxWidth: '600px', position: 'sticky', top: '100px' }}>
-                            <h3 className='text-center mb-4 text-golden text-uppercase'>Calculate here</h3>
+                            <p className='text-center mb-4 text-golden text-uppercase fw-bold'>Calculate here</p>
                             <CalculatorForm
                                 emi={emi}
                                 interestRate={interestRate}
@@ -544,10 +544,12 @@ export default function Calculator() {
                 </div>
                 <Container className="my-5">
                     <h2 className="mb-4 text-center">Home Loan FAQs</h2>
-                    <Accordion activeKey={activeKey} onSelect={handleToggle}>
+                    <Accordion className={styles.customAccordion} activeKey={activeKey} onSelect={handleToggle}>
                         {homeLoanFAQs.map((item, index) => (
                             <Accordion.Item eventKey={index.toString()} key={item.id}>
-                                <Accordion.Header>{item.question}</Accordion.Header>
+                                <Accordion.Header as="div">
+                                    <h3 className='h5 mb-0'>{item.question}</h3>
+                                </Accordion.Header>
                                 <Accordion.Body>{item.answer}</Accordion.Body>
                             </Accordion.Item>
                         ))}
@@ -571,7 +573,7 @@ export default function Calculator() {
                     </div>
                     <div className='col-md-6 order-1 order-md-2'>
                         <div className="container custom-shadow p-3 p-md-5" style={{ maxWidth: '600px', position: 'sticky', top: '100px' }}>
-                            <h3 className='text-center mb-4 text-golden text-uppercase'>Calculate here</h3>
+                            <p className='text-center mb-4 text-golden text-uppercase fw-bold'>Calculate here</p>
                             <CalculatorForm
                                 emi={emi}
                                 interestRate={interestRate}

@@ -64,7 +64,7 @@ export default function DreamProject() {
               <div className="city-flip-container">
                 <div className="city-flip-inner">
                   <div className="city-flip-front">
-                    <Link href={city.link}>
+                    <Link href={city.link} prefetch={false}>
                       <Image
                         src={city.image}
                         alt={city.alt}
@@ -76,7 +76,7 @@ export default function DreamProject() {
                     </Link>
                   </div>
                   <div className="city-flip-back">
-                    <Link href={city.link}>
+                    <Link href={city.link} prefetch={false}>
                       <Image
                         src={city.image} // Add backImage to your city object
                         alt={`${city.name} — flip card back, find properties on My Property Fact`}

@@ -442,7 +442,8 @@ const HeaderComponent = () => {
                 height={74}
                 width={80}
                 priority
-                quality={60}
+                fetchPriority="high"
+                quality={45}
                 sizes="80px"
               />
             </Link>
@@ -502,6 +503,7 @@ const HeaderComponent = () => {
                               <li key={city.id}>
                                 <Link
                                   href={`/city/${city.slugURL}`}
+                                  prefetch={false}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/city/" + city.slugURL
                                       ? "header-link-active"
                                       : ""
@@ -960,7 +962,7 @@ const HeaderComponent = () => {
                 title="My Property Fact logo — site header mobile menu"
                 height={50}
                 width={55}
-                quality={60}
+                quality={45}
                 sizes="55px"
               />
             </Link>
@@ -1204,6 +1206,7 @@ const HeaderComponent = () => {
                         <li key={city.id}>
                           <Link
                             href={`/city/${city.slugURL}`}
+                            prefetch={false}
                             onClick={openMenu}
                             className="text-decoration-none"
                           >

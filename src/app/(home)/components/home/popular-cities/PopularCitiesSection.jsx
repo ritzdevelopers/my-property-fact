@@ -96,7 +96,7 @@ export default function PopularCitiesSection() {
                 const popularCityAlt = `${city.name} — Popular Cities on My Property Fact, explore properties`;
                 return (
                 <SwiperSlide key={city.name}>
-                  <Link href={city.link} className="popular-city-card">
+                  <Link href={city.link} prefetch={false} className="popular-city-card">
                     <div className="popular-city-image">
                       <Image
                         src={city.image}

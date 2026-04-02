@@ -131,7 +131,7 @@
   color: var(--corp-color, #198754) !important;
 }
 
-.slick-active .image-con {
+.property-banner-swiper .image-con {
   opacity: 1;
 }
 
@@ -150,21 +150,27 @@
   min-height: 100vh;
   overflow: hidden;
 }
-.slick-slider-container .slick-list {
-  height: 100% !important;
-  overflow: hidden;
-}
-.slick-slider-container .slick-track {
-  height: 100% !important;
-}
-.slick-slider-container .slick-slide {
-  height: 100vh;
-}
-.slick-slider-container .slick-slide > div {
+/* Property hero: Swiper (banner); gallery still uses Slick elsewhere */
+.slick-slider-container .property-banner-swiper {
+  width: 100%;
   height: 100%;
 }
-.slick-slider-container .slick-slide .slick-banner-img,
-.slick-slider-container .slick-slide img {
+.slick-slider-container .property-banner-swiper .swiper-wrapper {
+  height: 100% !important;
+  padding: 0 !important;
+  justify-content: stretch !important;
+  box-sizing: border-box;
+}
+.slick-slider-container .property-banner-swiper .swiper-slide {
+  height: 100vh;
+  min-height: 100vh;
+}
+.slick-slider-container .property-banner-swiper .swiper-slide .image-con {
+  height: 100%;
+  min-height: 100%;
+}
+.slick-slider-container .property-banner-swiper .slick-banner-img,
+.slick-slider-container .property-banner-swiper .swiper-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -192,6 +198,11 @@
   pointer-events: none;
 }
 
+.slick-slider-container .property-banner-swiper .swiper-button-next,
+.slick-slider-container .property-banner-swiper .swiper-button-prev,
+.slick-slider-container .property-banner-swiper .swiper-pagination {
+  display: none !important;
+}
 .slick-slider-container .slick-arrow {
   display: none !important;
 }
@@ -791,13 +802,9 @@ a {
     height: 50vh;
     min-height: 50vh;
   }
-  .slick-slider-container .slick-list,
-  .slick-slider-container .slick-track {
-    min-height: 50vh;
-    height: 100% !important;
-  }
-  .slick-slider-container .slick-slide {
+  .slick-slider-container .property-banner-swiper .swiper-slide {
     height: 50vh;
+    min-height: 50vh;
   }
 }
 
@@ -939,8 +946,9 @@ a {
     height: 50vh;
     min-height: 50vh;
   }
-  .slick-slider-container .slick-slide {
+  .slick-slider-container .property-banner-swiper .swiper-slide {
     height: 50vh;
+    min-height: 50vh;
   }
 }
 

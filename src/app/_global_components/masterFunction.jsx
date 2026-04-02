@@ -489,6 +489,22 @@ export const fetchAllProjectsByProjectType = cache(async (projectType) => {
   return projectsData;
 });
 
+/** Master list of nearby benefit icons (location benefits). Cached for project pages. */
+export const fetchNearbyBenefitsAll = cache(async () => {
+  if (!apiUrl) return [];
+  try {
+    const res = await fetch(`${apiUrl}nearby-benefit/get-all`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching nearby-benefit/get-all:", error);
+    return [];
+  }
+});
+
 // fetching builder details by slug
 export const fetchBuilderDetails = cache(async (slug) => {
   const response = await fetch(`${apiUrl}builder/get/${slug}`, {

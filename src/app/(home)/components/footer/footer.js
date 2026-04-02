@@ -89,6 +89,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                         <Link
                           className="footer-text text-decoration-none"
                           href={`/city/${item.slugURL}`}
+                          prefetch={false}
                         >
                           {item.cityName}
                         </Link>

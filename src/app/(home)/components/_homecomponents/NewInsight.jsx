@@ -80,9 +80,9 @@ export default function NewInsight() {
               width={604}
               height={308}
               className="insight-main-image"
-              quality={75}
-              sizes="(max-width: 1200px) 100vw, 604px"
-              />
+              quality={65}
+              sizes="(max-width: 1199px) 100vw, min(1380px, 92vw)"
+            />
               </Link>
             {/* <div className="insight-logo-wrapper">
               <Image

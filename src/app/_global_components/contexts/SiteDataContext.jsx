@@ -10,8 +10,7 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
-
-const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
 
 const DEFAULT_PROJECT_FILTERS = {
   propertyType: "",
@@ -61,50 +60,32 @@ function createByIdMap(list) {
 let siteDataCache = null;
 let siteDataPromise = null;
 
-async function fetchSiteData() {
-  const [citiesRes, buildersRes, typesRes, statusesRes, projectsRes] =
-    await Promise.all([
-      fetch(`${apiBase}city/all`),
-      fetch(`${apiBase}builder/get-all`),
-      fetch(`${apiBase}project-types/get-all`),
-      fetch(`${apiBase}project-status`),
-      fetch(`${apiBase}projects`),
-    ]);
-
-  const [cities, buildersData, typesData, statusesData, projectsData] =
-    await Promise.all([
-      citiesRes.json(),
-      buildersRes.json(),
-      typesRes.json(),
-      statusesRes.json(),
-      projectsRes.json(),
-    ]);
-
-  return {
-    cityList: cities || [],
-    builderList: buildersData?.builders || [],
-    projectTypes: typesData || [],
-    projectStatuses: statusesData || [],
-    projectList: projectsData || [],
-  };
-}
-
 const SiteDataContext = createContext({});
 
-export function SiteDataProvider({ children }) {
+export function SiteDataProvider({ children, initialData = null }) {
   const searchParams = useSearchParams();
 
-  const [cityList, setCityList] = useState([]);
-  const [builderList, setBuilderList] = useState([]);
-  const [projectTypes, setProjectTypes] = useState([]);
-  const [projectStatuses, setProjectStatuses] = useState([]);
-  const [projectList, setProjectList] = useState([]);
+  const [cityList, setCityList] = useState(() =>
+    initialData ? initialData.cityList || [] : []
+  );
+  const [builderList, setBuilderList] = useState(() =>
+    initialData ? initialData.builderList || [] : []
+  );
+  const [projectTypes, setProjectTypes] = useState(() =>
+    initialData ? initialData.projectTypes || [] : []
+  );
+  const [projectStatuses, setProjectStatuses] = useState(() =>
+    initialData ? initialData.projectStatuses || [] : []
+  );
+  const [projectList, setProjectList] = useState(() =>
+    initialData ? initialData.projectList || [] : []
+  );
 
   const [quickProjectFilter, setQuickProjectFilter] = useState("All");
   const [projectFilters, setProjectFiltersState] = useState(DEFAULT_PROJECT_FILTERS);
   const [queryFilters, setQueryFiltersState] = useState(DEFAULT_QUERY_FILTERS);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !initialData);
   const [error, setError] = useState(null);
 
   const citiesById = useMemo(() => createByIdMap(cityList), [cityList]);
@@ -117,6 +98,20 @@ export function SiteDataProvider({ children }) {
 
     async function loadData() {
       try {
+        if (initialData) {
+          const data = {
+            cityList: initialData.cityList || [],
+            builderList: initialData.builderList || [],
+            projectTypes: initialData.projectTypes || [],
+            projectStatuses: initialData.projectStatuses || [],
+            projectList: initialData.projectList || [],
+          };
+          siteDataCache = data;
+          siteDataPromise = null;
+          if (!cancelled) setLoading(false);
+          return;
+        }
+
         if (siteDataCache) {
           setCityList(siteDataCache.cityList);
           setBuilderList(siteDataCache.builderList);
@@ -128,7 +123,7 @@ export function SiteDataProvider({ children }) {
         }
 
         if (!siteDataPromise) {
-          siteDataPromise = fetchSiteData().then((data) => {
+          siteDataPromise = fetchSiteDataFromApi().then((data) => {
             siteDataCache = data;
             return data;
           });
@@ -155,7 +150,7 @@ export function SiteDataProvider({ children }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [initialData]);
 
   useEffect(() => {
     if (!searchParams) return;

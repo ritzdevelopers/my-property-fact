@@ -2,7 +2,7 @@
 
 import PropertyContainer from "../components/common/page";
 import "./project.css";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
@@ -11,6 +11,7 @@ import {
   matchesBudgetRangeForProject,
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
+import { ProjectListingPaginationControls } from "@/app/_global_components/projectListingPagination";
 import { Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -53,6 +54,61 @@ function normalizeText(value) {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, " ");
+}
+
+/** Match typed / spoken text to a project in the full list (exact name first, then substring). */
+function findProjectBySearchSelection(raw, list) {
+  const pool = Array.isArray(list) ? list : [];
+  const q = normalizeText(raw);
+  if (!q) return null;
+
+  for (const item of pool) {
+    const name = String(item?.projectName || "").trim();
+    if (!name) continue;
+    if (normalizeText(name) === q) return item;
+  }
+
+  let fallback = null;
+  for (const item of pool) {
+    const name = String(item?.projectName || "").trim();
+    if (!name) continue;
+    const n = normalizeText(name);
+    if (n.includes(q)) {
+      if (n.startsWith(q)) return item;
+      fallback = item;
+    }
+  }
+  if (fallback) return fallback;
+
+  for (const item of pool) {
+    const name = String(item?.projectName || "").trim();
+    if (!name) continue;
+    const n = normalizeText(name);
+    if (q.includes(n) && n.length >= 3) return item;
+  }
+  return null;
+}
+
+/** Quick tab + New Launch segment so the chosen project is visible in the grid. */
+function deriveQuickFilterAndSegmentFromProject(item) {
+  if (!item) return { quickTab: "All", segment: "all" };
+  const itemType = normalizeText(item?.propertyTypeName || "");
+  const itemStatus = normalizeText(item?.projectStatusName || "");
+  const isNewLaunch = itemStatus.includes("new launch");
+
+  if (isNewLaunch) {
+    let segment = "all";
+    if (itemType.includes("residential")) segment = "residential";
+    else if (itemType.includes("commercial")) segment = "commercial";
+    return { quickTab: "New Launched", segment };
+  }
+  if (itemType.includes("commercial")) {
+    return { quickTab: "Commercial", segment: "all" };
+  }
+  if (itemType.includes("residential")) {
+    return { quickTab: "Residential", segment: "all" };
+  }
+  return { quickTab: "All", segment: "all" };
 }
 
 export default function Projects() {
@@ -160,7 +216,7 @@ export default function Projects() {
     });
   };
 
-  const startDesktopFilterTransition = () => {
+  const startDesktopFilterTransition = useCallback(() => {
     if (typeof window === "undefined" || window.innerWidth < 992) return;
     setDesktopTabTransitionLoading(true);
     scrollDesktopToProjectsGrid();
@@ -170,7 +226,7 @@ export default function Projects() {
     searchLoadingTimeoutRef.current = setTimeout(() => {
       setDesktopTabTransitionLoading(false);
     }, 550);
-  };
+  }, []);
 
   const renderFilterDropdown = ({
     id,
@@ -311,65 +367,6 @@ export default function Projects() {
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const Recognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) {
-      setIsVoiceSupported(false);
-      return;
-    }
-
-    const recognition = new Recognition();
-    recognition.lang = "en-IN";
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-    recognition.continuous = false;
-
-    recognition.onresult = (event) => {
-      let interimText = "";
-      for (let i = event.resultIndex; i < event.results.length; i += 1) {
-        const text = event.results[i][0]?.transcript?.trim() || "";
-        if (!text) continue;
-        if (event.results[i].isFinal) {
-          const nextFinal = `${voiceFinalTextRef.current} ${text}`.trim();
-          voiceFinalTextRef.current = nextFinal;
-        } else {
-          interimText = `${interimText} ${text}`.trim();
-        }
-      }
-      const mergedText = `${voiceFinalTextRef.current} ${interimText}`.trim();
-      setVoiceLiveText(mergedText);
-    };
-
-    recognition.onstart = () => setIsVoiceListening(true);
-    recognition.onend = () => {
-      setIsVoiceListening(false);
-      setShowVoiceOverlay(false);
-      const spoken = (voiceFinalTextRef.current || voiceLiveText).trim();
-      if (voiceShouldApplyOnEndRef.current && spoken) {
-        setProjectSearchTerm(spoken);
-        setAppliedProjectSearchTerm(spoken);
-        setShowSearchSuggestions(false);
-        setCurrentPage(1);
-        setFadeKey((prev) => prev + 1);
-      }
-      voiceFinalTextRef.current = "";
-      setVoiceLiveText("");
-      voiceShouldApplyOnEndRef.current = true;
-    };
-    recognition.onerror = () => {
-      setIsVoiceListening(false);
-      setShowVoiceOverlay(false);
-      voiceFinalTextRef.current = "";
-      setVoiceLiveText("");
-      voiceShouldApplyOnEndRef.current = true;
-    };
-
-    speechRecognitionRef.current = recognition;
-    setIsVoiceSupported(true);
-  }, [allProjectsList, voiceLiveText]);
-
   // Clear all filters
   const clearFilters = () => {
     setQuickProjectFilter("All");
@@ -508,6 +505,89 @@ export default function Projects() {
     }, 400);
   };
 
+  /** Pick a project from the list, sync quick tab (and New Launch segment), then apply name search. */
+  const applySearchFromProjectName = useCallback(
+    (raw) => {
+      const trimmed = String(raw || "").trim();
+      if (!trimmed) return;
+      const pool = Array.isArray(allProjectsList) ? allProjectsList : [];
+      const item = findProjectBySearchSelection(trimmed, pool);
+      if (item) {
+        const { quickTab, segment } = deriveQuickFilterAndSegmentFromProject(item);
+        setQuickProjectFilter(quickTab);
+        setFilters(EMPTY_PROJECT_FILTERS);
+        setDraftFilters(EMPTY_PROJECT_FILTERS);
+        setNewLaunchTypeSegment(segment);
+        startDesktopFilterTransition();
+        if (typeof window !== "undefined" && window.innerWidth < 992) {
+          window.scrollTo({ top: 260, behavior: "smooth" });
+        }
+      }
+      const displayName = item ? String(item.projectName || "").trim() : trimmed;
+      setProjectSearchTerm(displayName);
+      setAppliedProjectSearchTerm(displayName);
+      setCurrentPage(1);
+      setFadeKey((prev) => prev + 1);
+      setShowSearchSuggestions(false);
+    },
+    [allProjectsList, startDesktopFilterTransition]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const Recognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      setIsVoiceSupported(false);
+      return;
+    }
+
+    const recognition = new Recognition();
+    recognition.lang = "en-IN";
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;
+
+    recognition.onresult = (event) => {
+      let interimText = "";
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const text = event.results[i][0]?.transcript?.trim() || "";
+        if (!text) continue;
+        if (event.results[i].isFinal) {
+          const nextFinal = `${voiceFinalTextRef.current} ${text}`.trim();
+          voiceFinalTextRef.current = nextFinal;
+        } else {
+          interimText = `${interimText} ${text}`.trim();
+        }
+      }
+      const mergedText = `${voiceFinalTextRef.current} ${interimText}`.trim();
+      setVoiceLiveText(mergedText);
+    };
+
+    recognition.onstart = () => setIsVoiceListening(true);
+    recognition.onend = () => {
+      setIsVoiceListening(false);
+      setShowVoiceOverlay(false);
+      const spoken = (voiceFinalTextRef.current || voiceLiveText).trim();
+      if (voiceShouldApplyOnEndRef.current && spoken) {
+        applySearchFromProjectName(spoken);
+      }
+      voiceFinalTextRef.current = "";
+      setVoiceLiveText("");
+      voiceShouldApplyOnEndRef.current = true;
+    };
+    recognition.onerror = () => {
+      setIsVoiceListening(false);
+      setShowVoiceOverlay(false);
+      voiceFinalTextRef.current = "";
+      setVoiceLiveText("");
+      voiceShouldApplyOnEndRef.current = true;
+    };
+
+    speechRecognitionRef.current = recognition;
+    setIsVoiceSupported(true);
+  }, [applySearchFromProjectName, voiceLiveText]);
+
   const projectsAfterQuickAndFilters = useMemo(() => {
     const sourceProjects = Array.isArray(allProjectsList) ? allProjectsList : [];
     const quickFilterNorm = normalizeText(quickProjectFilter);
@@ -641,10 +721,13 @@ export default function Projects() {
     if (normalized === "commercial") return "Browse commercial projects";
     if (normalized === "residential") return "Browse residential projects";
     if (normalized === "new launched" || normalized === "new launch") {
-      return "Browse new launch projects";
+      const base = "Browse new launch projects";
+      if (newLaunchTypeSegment === "residential") return `${base} (Residential)`;
+      if (newLaunchTypeSegment === "commercial") return `${base} (Commercial)`;
+      return base;
     }
     return "Browse all projects";
-  }, [isActive]);
+  }, [isActive, newLaunchTypeSegment]);
   const totalPages = Math.max(1, Math.ceil(displayProjects.length / PROJECTS_PER_PAGE));
   const paginatedProjects = useMemo(() => {
     const start = (currentPage - 1) * PROJECTS_PER_PAGE;
@@ -744,6 +827,12 @@ export default function Projects() {
                   onFocus={() =>
                     setShowSearchSuggestions(Boolean(projectSearchTerm.trim()))
                   }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applySearchFromProjectName(projectSearchTerm);
+                    }
+                  }}
                   className="projects-top-search-input"
                   placeholder={`Search "${rotatingSearchPlaceholders[searchPlaceholderIndex]}"`}
                 />
@@ -769,11 +858,7 @@ export default function Projects() {
                           key={`mobile-${suggestion}`}
                           type="button"
                           className="projects-search-suggestion-item"
-                          onClick={() => {
-                            setProjectSearchTerm(suggestion);
-                            setAppliedProjectSearchTerm(suggestion);
-                            applySearchFilter();
-                          }}
+                          onClick={() => applySearchFromProjectName(suggestion)}
                         >
                           {suggestion}
                         </button>
@@ -925,6 +1010,12 @@ export default function Projects() {
                           onFocus={() =>
                             setShowSearchSuggestions(Boolean(projectSearchTerm.trim()))
                           }
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              applySearchFromProjectName(projectSearchTerm);
+                            }
+                          }}
                           className="projects-top-search-input"
                           placeholder={`Search "${rotatingSearchPlaceholders[searchPlaceholderIndex]}"`}
                         />
@@ -950,11 +1041,7 @@ export default function Projects() {
                                   key={suggestion}
                                   type="button"
                                   className="projects-search-suggestion-item"
-                                  onClick={() => {
-                                    setProjectSearchTerm(suggestion);
-                                    setAppliedProjectSearchTerm(suggestion);
-                                    applySearchFilter();
-                                  }}
+                                  onClick={() => applySearchFromProjectName(suggestion)}
                                 >
                                   {suggestion}
                                 </button>
@@ -1053,7 +1140,9 @@ export default function Projects() {
                         className="btn btn-success btn-sm"
                         onClick={() => {
                           applySelectedFilters(false);
-                          applySearchFilter();
+                          const q = projectSearchTerm.trim();
+                          if (q) applySearchFromProjectName(q);
+                          else applySearchFilter();
                         }}
                       >
                         Search
@@ -1160,27 +1249,16 @@ export default function Projects() {
                   ))}
                 </div>
                 {displayProjects.length > PROJECTS_PER_PAGE && (
-                  <div className="projects-pagination-wrap">
-                    <button
-                      className="projects-page-btn"
-                      onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                    >
-                      Previous
-                    </button>
-                    <span className="projects-page-indicator">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      className="projects-page-btn"
-                      onClick={() =>
-                        setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                      }
-                      disabled={currentPage === totalPages}
-                    >
-                      Next
-                    </button>
-                  </div>
+                  <ProjectListingPaginationControls
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    totalItems={displayProjects.length}
+                    pageSize={PROJECTS_PER_PAGE}
+                    onPageChange={(p) => {
+                      setCurrentPage(p);
+                      scrollDesktopToProjectsGrid();
+                    }}
+                  />
                 )}
               </>
             ) : !loading ? (

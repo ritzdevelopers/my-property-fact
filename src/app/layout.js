@@ -1,13 +1,23 @@
 import "./critical.css";
 import "./globals.css";
 import localFont from "next/font/local";
-import { Suspense } from "react";
+import { Suspense, cache } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import Providers from "./_global_components/providers/Providers";
 import { SiteDataProvider } from "./_global_components/contexts/SiteDataContext";
+import { fetchSiteDataFromApi } from "./_global_components/siteData/fetchSiteDataApi";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 config.autoAddCss = false;
+
+const getSiteDataForRootLayout = cache(async () => {
+  try {
+    return await fetchSiteDataFromApi();
+  } catch (err) {
+    console.error("Server site data fetch failed:", err);
+    return null;
+  }
+});
 
 // app/layout.js
 export const metadata = {
@@ -33,30 +43,13 @@ const gothamLight = localFont({
   preload: true,
 });
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const initialSiteData = await getSiteDataForRootLayout();
+
   return (
     <html lang="en-IN">
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" />
-        {/* Preload LCP hero image variant by viewport */}
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_mobile_final.jpg"
-          media="(max-width: 767px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_tablet_final.jpg"
-          media="(min-width: 768px) and (max-width: 1023px)"
-        />
-        <link
-          rel="preload"
-          as="image"
-          href="/static/banners/ghd_desktop_final.jpg"
-          media="(min-width: 1024px)"
-        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -114,7 +107,7 @@ export default function RootLayout({ children }) {
 
         <Providers>
           <Suspense fallback={null}>
-            <SiteDataProvider>
+            <SiteDataProvider initialData={initialSiteData}>
               {children}
             </SiteDataProvider>
           </Suspense>

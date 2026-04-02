@@ -23,7 +23,8 @@ const HeaderComponent = dynamic(
             width={80}
             height={74}
             priority
-            quality={60}
+            fetchPriority="high"
+            quality={45}
             sizes="80px"
           />
         </Link>

@@ -16,6 +16,7 @@ export default function SocialFeed({ data }) {
           </div>
         ) : (
           <>
+            <h2 className="text-center mb-4">Investor Education Blog</h2>
             <div className="row investor-blog-grid mx-0">
               {data?.map((blog, index) => {
                 // Always show first two cards

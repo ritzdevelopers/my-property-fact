@@ -18,6 +18,8 @@ export default function WebStroyCategory({ list }) {
     const [buttonName, setButtonName] = useState("Add Category");
     const [categoryName, setCategoryName] = useState("");
     const [categoryDescription, setCategoryDescription] = useState("");
+    const [metaDescription, setMetaDescription] = useState("");
+    const [metaKeywords, setMetaKeywords] = useState("");
     const [title, setTitle] = useState("");
     const [validated, setValidate] = useState(false);
     const [categoryId, setCategoryId] = useState(0);
@@ -30,6 +32,8 @@ export default function WebStroyCategory({ list }) {
         setTitle("Add web story category");
         setCategoryName("");
         setCategoryDescription("");
+        setMetaDescription("");
+        setMetaKeywords("");
         setCategoryId(0);
     }
 
@@ -40,6 +44,8 @@ export default function WebStroyCategory({ list }) {
         setTitle("Update web story category");
         setCategoryName(data.categoryName);
         setCategoryDescription(data.categoryDescription);
+        setMetaDescription(data.metaDescription ?? "");
+        setMetaKeywords(data.metaKeywords ?? "");
         setCategoryId(data.id);
     }
 
@@ -62,6 +68,8 @@ export default function WebStroyCategory({ list }) {
                 var data = {
                     "categoryName": categoryName,
                     "categoryDescription": categoryDescription,
+                    "metaDescription": metaDescription,
+                    "metaKeywords": metaKeywords,
                     "id": categoryId
                 }
                 const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}web-story-category/add-update`,
@@ -73,7 +81,7 @@ export default function WebStroyCategory({ list }) {
                     router.refresh();
                 }
             } catch (error) {
-                toast.error(error.message());
+                toast.error(error?.message ?? "Request failed");
             } finally {
                 setButtonName("Add Category");
                 setShowLoading(false);
@@ -86,6 +94,8 @@ export default function WebStroyCategory({ list }) {
         { field: "index", headerName: "S.no", width: 100 },
         { field: "categoryName", headerName: "Category Name", flex: 1 },
         { field: "categoryDescription", headerName: "Category Description", flex: 1 },
+        { field: "metaDescription", headerName: "Meta description", flex: 1 },
+        { field: "metaKeywords", headerName: "Meta keywords", flex: 1 },
         { field: "noOfStories", headerName: "No of Stories", flex: 1 },
         { field: "storyUrl", headerName: "Story URL", flex: 1 },
         {
@@ -150,6 +160,25 @@ export default function WebStroyCategory({ list }) {
                                 value={categoryDescription}
                                 onChange={(e) => setCategoryDescription(e.target.value)}
                                 required
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="metaDescription">
+                            <Form.Label>Meta description</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={2}
+                                placeholder="SEO meta description (optional)"
+                                value={metaDescription}
+                                onChange={(e) => setMetaDescription(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3" controlId="metaKeywords">
+                            <Form.Label>Meta keywords</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="comma separated keywords (optional)"
+                                value={metaKeywords}
+                                onChange={(e) => setMetaKeywords(e.target.value)}
                             />
                         </Form.Group>
                         <Button className="btn btn-success" type="submit" disabled={showLoading}>

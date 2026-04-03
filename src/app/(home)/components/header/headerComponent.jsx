@@ -343,24 +343,24 @@ const HeaderComponent = () => {
     return () => clearTimeout(timeoutId);
   }, [projectSearchInput, searchProjects]);
 
-  // Handle project click navigation
+  /** Open project detail in a new tab (header search bar). */
+  const openProjectInNewTab = (project) => {
+    if (!project?.slugURL || typeof window === "undefined") return;
+    window.open(`/${project.slugURL}`, "_blank", "noopener,noreferrer");
+    setProjectSearchInput("");
+    setProjectSearchQuery("");
+    setProjectSearchResults([]);
+  };
+
   const handleProjectClick = (project) => {
-    if (project.slugURL) {
-      router.push(`/${project.slugURL}`);
-      setProjectSearchInput("");
-      setProjectSearchQuery("");
-      setProjectSearchResults([]);
-    }
+    openProjectInNewTab(project);
   };
 
   // Handle Explore button click
   const handleExploreClick = () => {
     const searchValue = projectSearchInput.trim();
     if (projectSearchResults.length > 0 && projectSearchResults[0]?.slugURL) {
-      router.push(`/${projectSearchResults[0].slugURL}`);
-      setProjectSearchInput("");
-      setProjectSearchQuery("");
-      setProjectSearchResults([]);
+      openProjectInNewTab(projectSearchResults[0]);
     } else if (searchValue.length >= 2) {
       // Navigate to projects page with search query
       router.push(`/projects?search=${encodeURIComponent(searchValue)}`);
@@ -811,7 +811,7 @@ const HeaderComponent = () => {
                                                     handleProjectClick(project);
                                                   }
                                                 }}
-                                                aria-label={`View ${project.projectName || project.name}`}
+                                                aria-label={`View ${project.projectName || project.name || "project"} (opens in new tab)`}
                                               >
                                                 <div className="project-search-card-image">
                                                   <Image
@@ -1101,6 +1101,7 @@ const HeaderComponent = () => {
                                   }
 
                                 }}
+                                aria-label={`View ${project.projectName || project.name || "project"} (opens in new tab)`}
                               >
                                 <div className="mobile-project-search-card-image">
                                   <Image

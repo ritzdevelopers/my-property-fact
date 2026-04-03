@@ -10,6 +10,15 @@ import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 
+const apiWithAuth = () => ({
+  withCredentials: true,
+  headers: {
+    ...(typeof window !== "undefined" && Cookies.get("token")
+      ? { Authorization: `Bearer ${Cookies.get("token")}` }
+      : {}),
+  },
+});
+
 export default function ManageUsers({ users: initialUsers }) {
   const router = useRouter();
   const [users, setUsers] = useState(initialUsers || []);
@@ -33,20 +42,9 @@ export default function ManageUsers({ users: initialUsers }) {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const token = Cookies.get("token");
-        if (!token) {
-          console.warn("No authentication token found for fetching roles");
-          setRolesLoading(false);
-          return;
-        }
-
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}admin/roles`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          apiWithAuth(),
         );
 
         if (response.data && response.data.success && response.data.roles) {
@@ -134,8 +132,13 @@ export default function ManageUsers({ users: initialUsers }) {
     setShowLoading(true);
 
     try {
-      // Update user details
-      const updateResponse = await axios.put(
+      const auth = apiWithAuth();
+      const jsonAuth = {
+        ...auth,
+        headers: { ...auth.headers, "Content-Type": "application/json" },
+      };
+
+      await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}`,
         {
           fullName: formData.fullName,
@@ -144,21 +147,13 @@ export default function ManageUsers({ users: initialUsers }) {
           verified: formData.verified,
           enabled: formData.enabled,
         },
-        {
-          withCredentials: true,
-        },
+        jsonAuth,
       );
 
-      // Update user roles
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/roles`,
         formData.roleIds,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        },
+        jsonAuth,
       );
 
       toast.success("User updated successfully");
@@ -177,9 +172,7 @@ export default function ManageUsers({ users: initialUsers }) {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/activate`,
         {},
-        {
-          withCredentials: true,
-        },
+        apiWithAuth(),
       );
 
       toast.success("User activated successfully");
@@ -195,9 +188,7 @@ export default function ManageUsers({ users: initialUsers }) {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/deactivate`,
         {},
-        {
-          withCredentials: true,
-        },
+        apiWithAuth(),
       );
       if (response.status === 200) {
         toast.success("User deactivated successfully");

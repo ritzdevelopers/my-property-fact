@@ -38,31 +38,59 @@ export default function ManageUsers({ users: initialUsers }) {
     roleIds: [],
   });
 
-  // Fetch roles on client side with authentication
+  // Fetch roles and users on the client with the same auth as other admin calls.
+  // The server render often cannot forward the HttpOnly session cookie to the API the
+  // way the browser can withCredentials — so /admin/roles may work while SSR users stay empty.
   useEffect(() => {
-    const fetchRoles = async () => {
+    let cancelled = false;
+
+    const load = async () => {
+      setRolesLoading(true);
+
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}admin/roles`,
           apiWithAuth(),
         );
 
-        if (response.data && response.data.success && response.data.roles) {
+        if (
+          !cancelled &&
+          response.data &&
+          response.data.success &&
+          response.data.roles
+        ) {
           setRoles(response.data.roles);
         }
       } catch (error) {
         console.error("Error fetching roles:", error);
-        // Don't show error toast here as it might be expected if user doesn't have permission
-        // Just set empty roles array
-        setRoles([]);
+        if (!cancelled) setRoles([]);
       } finally {
-        setRolesLoading(false);
+        if (!cancelled) setRolesLoading(false);
+      }
+
+      try {
+        const usersRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}users`,
+          apiWithAuth(),
+        );
+
+        if (
+          !cancelled &&
+          usersRes.status === 200 &&
+          Array.isArray(usersRes.data)
+        ) {
+          setUsers(usersRes.data);
+        }
+      } catch (error) {
+        console.error("Error fetching users:", error);
       }
     };
 
-    fetchRoles();
-    setUsers(initialUsers || []);
-  }, [initialUsers]);
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const openEditModal = (user) => {
     setEditingUser(user);

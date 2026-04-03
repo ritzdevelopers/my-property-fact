@@ -1,0 +1,147 @@
+.overlayModal :global(.modal-content) {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+}
+
+.body {
+  padding: 2.5rem 2rem;
+  text-align: center;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+/* Rotating ring loader */
+.spinnerWrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+}
+
+.spinnerRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid #e8f5e9;
+  border-top-color: #16a34a;
+  border-right-color: #22c55e;
+  animation: blogExportSpin 0.85s linear infinite;
+}
+
+.spinnerRingInner {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-bottom-color: #86efac;
+  animation: blogExportSpin 1.2s linear infinite reverse;
+}
+
+@keyframes blogExportSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #14532d;
+  line-height: 1.45;
+  max-width: 280px;
+}
+
+.counter {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #15803d;
+  letter-spacing: 0.02em;
+}
+
+.counterLabel {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.subtle {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+/* Success */
+.successWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: blogExportSuccessEnter 0.45s ease-out both;
+}
+
+@keyframes blogExportSuccessEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.tickSvg {
+  width: 80px;
+  height: 80px;
+}
+
+.tickCircle {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 2.5;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  transform-origin: 50% 50%;
+  animation: blogExportCircleDraw 0.55s ease-out forwards;
+}
+
+.tickPath {
+  fill: none;
+  stroke: #16a34a;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: blogExportTickDraw 0.4s 0.45s ease-out forwards;
+}
+
+@keyframes blogExportCircleDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes blogExportTickDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.successTitle {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #14532d;
+}

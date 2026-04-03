@@ -1,6 +1,8 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 import { useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import dynamic from "next/dynamic";
@@ -18,6 +20,63 @@ const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
   loading: () => <p>Loading editor...</p>,
 });
+
+function parseBlogDate(value) {
+  if (value == null) return null;
+  if (typeof value === "string") {
+    const d = new Date(value);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (Array.isArray(value) && value.length >= 3) {
+    const [y, m, d, h = 0, min = 0, s = 0] = value;
+    return new Date(y, m - 1, d, h, min, s);
+  }
+  return null;
+}
+
+function formatPublishedDateTime(value) {
+  const d = parseBlogDate(value);
+  if (!d) return "—";
+  return d.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+function extractImgSrcsFromHtml(html) {
+  if (!html || typeof html !== "string") return "";
+  const urls = [];
+  const re = /<img[^>]+src=["']([^"']+)["']/gi;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    urls.push(m[1]);
+  }
+  return [...new Set(urls)].join("; ");
+}
+
+async function fetchImageAsBase64(url) {
+  const res = await fetch(url, { mode: "cors" });
+  if (!res.ok) throw new Error(`Image fetch ${res.status}`);
+  const blob = await res.blob();
+  const ext = blob.type.includes("png")
+    ? "png"
+    : blob.type.includes("gif")
+      ? "gif"
+      : "jpeg";
+  const base64 = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const dataUrl = reader.result;
+      const b64 =
+        typeof dataUrl === "string" ? dataUrl.split(",")[1] : null;
+      resolve(b64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+  if (!base64) throw new Error("Could not read image");
+  return { base64, extension: ext };
+}
 
 export default function ManageBlogs({ list, categoryList, cityList }) {
   const [showModal, setShowModal] = useState(false);
@@ -199,6 +258,132 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     setUrlPopUp(true);
   };
 
+  const exportBlogsToExcel = async () => {
+    const blogs = Array.isArray(list) ? [...list] : [];
+    if (!blogs.length) {
+      toast.warning("No blogs to export.");
+      return;
+    }
+
+    const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+    const headers = [
+      "S.no",
+      "ID",
+      "Title",
+      "Keywords",
+      "Meta description",
+      "Description (HTML)",
+      "Slug URL",
+      "Category",
+      "City",
+      "Status",
+      "Category ID",
+      "City ID",
+      "Published at",
+      "Featured image filename",
+      "Featured image URL",
+      "Inline content image URLs",
+      "Thumbnail",
+    ];
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Blogs");
+    worksheet.addRow(headers);
+
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    headerRow.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF228B22" },
+    };
+    headerRow.alignment = { vertical: "middle", horizontal: "center" };
+
+    worksheet.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: headers.length },
+    };
+
+    const thumbColIndex = headers.length - 1;
+
+    for (let rowIndex = 0; rowIndex < blogs.length; rowIndex++) {
+      const b = blogs[rowIndex];
+      const featuredFile = b.blogImage || "";
+      const featuredUrl = featuredFile
+        ? `${imageBase}blog/${featuredFile}`
+        : "";
+      const published = parseBlogDate(b.createdAt);
+      const publishedStr = published
+        ? published.toLocaleString(undefined, {
+            dateStyle: "medium",
+            timeStyle: "medium",
+          })
+        : "";
+
+      const rowValues = [
+        b.index ?? rowIndex + 1,
+        b.id,
+        b.blogTitle ?? "",
+        b.blogKeywords ?? "",
+        b.blogMetaDescription ?? "",
+        b.blogDescription ?? "",
+        b.slugUrl ?? "",
+        b.blogCategory ?? "",
+        b.cityName ?? "",
+        b.status === 1 ? "Published" : "Draft",
+        b.categoryId ?? "",
+        b.cityId ?? "",
+        publishedStr,
+        featuredFile,
+        featuredUrl,
+        extractImgSrcsFromHtml(b.blogDescription || ""),
+        "",
+      ];
+
+      worksheet.addRow(rowValues);
+
+      if (featuredUrl) {
+        try {
+          const { base64, extension } = await fetchImageAsBase64(featuredUrl);
+          const imageId = workbook.addImage({ base64, extension });
+          worksheet.addImage(imageId, {
+            tl: { col: thumbColIndex, row: rowIndex + 1 },
+            ext: { width: 220, height: 120 },
+          });
+          worksheet.getRow(rowIndex + 2).height = 95;
+        } catch {
+          /* CORS or missing file — URL remains in sheet */
+        }
+      }
+    }
+
+    worksheet.columns.forEach((col, idx) => {
+      if (idx === 5) {
+        col.width = 50;
+        return;
+      }
+      if (idx === thumbColIndex) {
+        col.width = 32;
+        return;
+      }
+      let maxLength = 12;
+      col.eachCell({ includeEmpty: true }, (cell) => {
+        const len = cell.value != null ? String(cell.value).length : 0;
+        if (len > maxLength) maxLength = len;
+      });
+      col.width = Math.min(maxLength + 2, 45);
+    });
+
+    const timestamp = new Date()
+      .toISOString()
+      .replace(/[-:]/g, "")
+      .replace("T", "_")
+      .split(".")[0];
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `blogs_export_${timestamp}.xlsx`);
+    toast.success("Excel file downloaded.");
+  };
+
   //Defining table columns
   const columns = [
     { field: "index", headerName: "S.no", width: 50 },
@@ -229,6 +414,12 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     },
     { field: "blogDescription", headerName: "Description", width: 200 },
     { field: "slugUrl", headerName: "Url", width: 200 },
+    {
+      field: "createdAt",
+      headerName: "Published",
+      width: 190,
+      renderCell: (params) => formatPublishedDateTime(params.row.createdAt),
+    },
     { field: "blogCategory", headerName: "Category", width: 200 },
     {
       field: "action",
@@ -258,6 +449,8 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         buttonName={"+ Add Blog"}
         functionName={openAddModel}
         heading={"Manage Blogs"}
+        exportExcel={"Export to Excel"}
+        exportFunction={exportBlogsToExcel}
       />
       <div className="table-container">
         <DataTable columns={columns} list={list} />

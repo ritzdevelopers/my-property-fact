@@ -36,6 +36,8 @@ export default function ManageUsers({ users: initialUsers }) {
     enabled: true,
     verified: false,
     roleIds: [],
+    newPassword: "",
+    confirmPassword: "",
   });
 
   // Fetch roles and users on the client with the same auth as other admin calls.
@@ -104,6 +106,8 @@ export default function ManageUsers({ users: initialUsers }) {
       enabled: user.enabled !== undefined ? user.enabled : true,
       verified: user.verified !== undefined ? user.verified : false,
       roleIds: userRoleIds,
+      newPassword: "",
+      confirmPassword: "",
     });
     setShowModal(true);
   };
@@ -120,6 +124,8 @@ export default function ManageUsers({ users: initialUsers }) {
       enabled: true,
       verified: false,
       roleIds: [],
+      newPassword: "",
+      confirmPassword: "",
     });
   };
 
@@ -157,6 +163,22 @@ export default function ManageUsers({ users: initialUsers }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const wantPasswordChange =
+      (formData.newPassword || "").trim().length > 0 ||
+      (formData.confirmPassword || "").trim().length > 0;
+
+    if (wantPasswordChange) {
+      if (formData.newPassword !== formData.confirmPassword) {
+        toast.error("New password and confirmation do not match.");
+        return;
+      }
+      if (formData.newPassword.length < 8) {
+        toast.error("Password must be at least 8 characters.");
+        return;
+      }
+    }
+
     setShowLoading(true);
 
     try {
@@ -184,12 +206,31 @@ export default function ManageUsers({ users: initialUsers }) {
         jsonAuth,
       );
 
-      toast.success("User updated successfully");
+      if (wantPasswordChange) {
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/password`,
+          { newPassword: formData.newPassword },
+          jsonAuth,
+        );
+      }
+
+      toast.success(
+        wantPasswordChange
+          ? "User updated and password changed."
+          : "User updated successfully",
+      );
       router.refresh();
       handleClose();
     } catch (error) {
       console.error("Error updating user:", error);
-      toast.error(error.response?.data?.message || "Failed to update user");
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        (Array.isArray(error.response?.data?.errors)
+          ? error.response.data.errors.map((x) => x.defaultMessage || x).join(", ")
+          : null) ||
+        "Failed to update user";
+      toast.error(msg);
     } finally {
       setShowLoading(false);
     }
@@ -451,6 +492,38 @@ export default function ManageUsers({ users: initialUsers }) {
                     checked={formData.verified}
                     onChange={handleChange}
                   />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Set new password (optional)</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="newPassword"
+                    autoComplete="new-password"
+                    placeholder="Leave blank to keep current password"
+                    value={formData.newPassword}
+                    onChange={handleChange}
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Confirm new password</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    autoComplete="new-password"
+                    placeholder="Repeat new password if changing"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                  />
+                  <Form.Text className="text-muted">
+                    Minimum 8 characters. Only filled when you want to reset this
+                    user&apos;s login password.
+                  </Form.Text>
                 </Form.Group>
               </Col>
             </Row>

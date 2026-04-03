@@ -3,7 +3,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
@@ -15,6 +15,7 @@ import ImageUrlPopup from "../common-model/imageiurl-popup";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
+import exportOverlayStyles from "./manageBlogsExportOverlay.module.css";
 // 🔥 This prevents SSR errors
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -78,6 +79,14 @@ async function fetchImageAsBase64(url) {
   return { base64, extension: ext };
 }
 
+const EXCEL_EXPORT_UI_INITIAL = {
+  open: false,
+  phase: "idle",
+  step: "images",
+  imageDone: 0,
+  imageTotal: 0,
+};
+
 export default function ManageBlogs({ list, categoryList, cityList }) {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState(null);
@@ -91,6 +100,17 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [urlPopUp, setUrlPopUp] = useState(false);
   const router = useRouter();
   const [isShowCityDropDown, setIsShowCityDropDown] = useState(false);
+  const [excelExportUi, setExcelExportUi] = useState(EXCEL_EXPORT_UI_INITIAL);
+  const excelExportInProgressRef = useRef(false);
+
+  useEffect(() => {
+    if (excelExportUi.phase !== "success" || !excelExportUi.open) return;
+    const t = setTimeout(() => {
+      setExcelExportUi(EXCEL_EXPORT_UI_INITIAL);
+    }, 2800);
+    return () => clearTimeout(t);
+  }, [excelExportUi.phase, excelExportUi.open]);
+
   //Definign input fields for blog form
 
   const inputFields = {
@@ -264,8 +284,22 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       toast.warning("No blogs to export.");
       return;
     }
+    if (excelExportInProgressRef.current) return;
+    excelExportInProgressRef.current = true;
 
     const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+    const imageTotal = blogs.filter(
+      (b) => !!(b.blogImage && String(b.blogImage).trim())
+    ).length;
+
+    setExcelExportUi({
+      open: true,
+      phase: "loading",
+      step: "images",
+      imageDone: 0,
+      imageTotal,
+    });
+
     const headers = [
       "S.no",
       "ID",
@@ -305,83 +339,98 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     };
 
     const thumbColIndex = headers.length - 1;
+    let featuredImagesProcessed = 0;
 
-    for (let rowIndex = 0; rowIndex < blogs.length; rowIndex++) {
-      const b = blogs[rowIndex];
-      const featuredFile = b.blogImage || "";
-      const featuredUrl = featuredFile
-        ? `${imageBase}blog/${featuredFile}`
-        : "";
-      const published = parseBlogDate(b.createdAt);
-      const publishedStr = published
-        ? published.toLocaleString(undefined, {
-            dateStyle: "medium",
-            timeStyle: "medium",
-          })
-        : "";
+    try {
+      for (let rowIndex = 0; rowIndex < blogs.length; rowIndex++) {
+        const b = blogs[rowIndex];
+        const featuredFile = b.blogImage || "";
+        const featuredUrl = featuredFile
+          ? `${imageBase}blog/${featuredFile}`
+          : "";
+        const published = parseBlogDate(b.createdAt);
+        const publishedStr = published
+          ? published.toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "medium",
+            })
+          : "";
 
-      const rowValues = [
-        b.index ?? rowIndex + 1,
-        b.id,
-        b.blogTitle ?? "",
-        b.blogKeywords ?? "",
-        b.blogMetaDescription ?? "",
-        b.blogDescription ?? "",
-        b.slugUrl ?? "",
-        b.blogCategory ?? "",
-        b.cityName ?? "",
-        b.status === 1 ? "Published" : "Draft",
-        b.categoryId ?? "",
-        b.cityId ?? "",
-        publishedStr,
-        featuredFile,
-        featuredUrl,
-        extractImgSrcsFromHtml(b.blogDescription || ""),
-        "",
-      ];
+        const rowValues = [
+          b.index ?? rowIndex + 1,
+          b.id,
+          b.blogTitle ?? "",
+          b.blogKeywords ?? "",
+          b.blogMetaDescription ?? "",
+          b.blogDescription ?? "",
+          b.slugUrl ?? "",
+          b.blogCategory ?? "",
+          b.cityName ?? "",
+          b.status === 1 ? "Published" : "Draft",
+          b.categoryId ?? "",
+          b.cityId ?? "",
+          publishedStr,
+          featuredFile,
+          featuredUrl,
+          extractImgSrcsFromHtml(b.blogDescription || ""),
+          "",
+        ];
 
-      worksheet.addRow(rowValues);
+        worksheet.addRow(rowValues);
 
-      if (featuredUrl) {
-        try {
-          const { base64, extension } = await fetchImageAsBase64(featuredUrl);
-          const imageId = workbook.addImage({ base64, extension });
-          worksheet.addImage(imageId, {
-            tl: { col: thumbColIndex, row: rowIndex + 1 },
-            ext: { width: 220, height: 120 },
-          });
-          worksheet.getRow(rowIndex + 2).height = 95;
-        } catch {
-          /* CORS or missing file — URL remains in sheet */
+        if (featuredUrl) {
+          try {
+            const { base64, extension } = await fetchImageAsBase64(featuredUrl);
+            const imageId = workbook.addImage({ base64, extension });
+            worksheet.addImage(imageId, {
+              tl: { col: thumbColIndex, row: rowIndex + 1 },
+              ext: { width: 220, height: 120 },
+            });
+            worksheet.getRow(rowIndex + 2).height = 95;
+          } catch {
+            /* CORS or missing file — URL remains in sheet */
+          }
+          featuredImagesProcessed += 1;
+          setExcelExportUi((prev) => ({
+            ...prev,
+            imageDone: featuredImagesProcessed,
+          }));
         }
       }
-    }
 
-    worksheet.columns.forEach((col, idx) => {
-      if (idx === 5) {
-        col.width = 50;
-        return;
-      }
-      if (idx === thumbColIndex) {
-        col.width = 32;
-        return;
-      }
-      let maxLength = 12;
-      col.eachCell({ includeEmpty: true }, (cell) => {
-        const len = cell.value != null ? String(cell.value).length : 0;
-        if (len > maxLength) maxLength = len;
+      worksheet.columns.forEach((col, idx) => {
+        if (idx === 5) {
+          col.width = 50;
+          return;
+        }
+        if (idx === thumbColIndex) {
+          col.width = 32;
+          return;
+        }
+        let maxLength = 12;
+        col.eachCell({ includeEmpty: true }, (cell) => {
+          const len = cell.value != null ? String(cell.value).length : 0;
+          if (len > maxLength) maxLength = len;
+        });
+        col.width = Math.min(maxLength + 2, 45);
       });
-      col.width = Math.min(maxLength + 2, 45);
-    });
 
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[-:]/g, "")
-      .replace("T", "_")
-      .split(".")[0];
-    const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `blogs_export_${timestamp}.xlsx`);
-    toast.success("Excel file downloaded.");
+      setExcelExportUi((prev) => ({ ...prev, step: "finalize" }));
+
+      const timestamp = new Date()
+        .toISOString()
+        .replace(/[-:]/g, "")
+        .replace("T", "_")
+        .split(".")[0];
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), `blogs_export_${timestamp}.xlsx`);
+      setExcelExportUi((prev) => ({ ...prev, phase: "success" }));
+    } catch {
+      toast.error("Export failed. Please try again.");
+      setExcelExportUi(EXCEL_EXPORT_UI_INITIAL);
+    } finally {
+      excelExportInProgressRef.current = false;
+    }
   };
 
   //Defining table columns
@@ -445,12 +494,89 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   ];
   return (
     <>
+      <Modal
+        show={excelExportUi.open}
+        centered
+        backdrop="static"
+        keyboard={false}
+        contentClassName={exportOverlayStyles.overlayModal}
+      >
+        <Modal.Body
+          className={exportOverlayStyles.body}
+          role={excelExportUi.phase === "loading" ? "status" : undefined}
+          aria-live={excelExportUi.phase === "loading" ? "polite" : undefined}
+        >
+          {excelExportUi.phase === "loading" && (
+            <>
+              <div className={exportOverlayStyles.spinnerWrap} aria-hidden>
+                <div className={exportOverlayStyles.spinnerRing} />
+                <div className={exportOverlayStyles.spinnerRingInner} />
+              </div>
+              {excelExportUi.step === "finalize" ? (
+                <>
+                  <p className={exportOverlayStyles.loadingTitle}>
+                    Finalizing spreadsheet…
+                  </p>
+                  <p className={exportOverlayStyles.subtle}>
+                    Almost ready — packing your Excel file.
+                  </p>
+                </>
+              ) : excelExportUi.imageTotal > 0 ? (
+                <>
+                  <p className={exportOverlayStyles.loadingTitle}>
+                    Image compression is going on please wait
+                  </p>
+                  <p className={exportOverlayStyles.counterLabel}>Progress</p>
+                  <p className={exportOverlayStyles.counter}>
+                    {excelExportUi.imageDone} / {excelExportUi.imageTotal}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className={exportOverlayStyles.loadingTitle}>
+                    Preparing your Excel file…
+                  </p>
+                  <p className={exportOverlayStyles.subtle}>
+                    No featured images to embed — building the sheet.
+                  </p>
+                </>
+              )}
+            </>
+          )}
+          {excelExportUi.phase === "success" && (
+            <div className={exportOverlayStyles.successWrap}>
+              <svg
+                className={exportOverlayStyles.tickSvg}
+                viewBox="0 0 52 52"
+                aria-hidden
+              >
+                <circle
+                  className={exportOverlayStyles.tickCircle}
+                  cx="26"
+                  cy="26"
+                  r="24"
+                />
+                <path
+                  className={exportOverlayStyles.tickPath}
+                  d="M14 28l9 9 17-20"
+                />
+              </svg>
+              <p className={exportOverlayStyles.successTitle}>
+                Sheet is downloaded
+              </p>
+            </div>
+          )}
+        </Modal.Body>
+      </Modal>
       <DashboardHeader
         buttonName={"+ Add Blog"}
         functionName={openAddModel}
         heading={"Manage Blogs"}
         exportExcel={"Export to Excel"}
         exportFunction={exportBlogsToExcel}
+        exportDisabled={
+          excelExportUi.open && excelExportUi.phase === "loading"
+        }
       />
       <div className="table-container">
         <DataTable columns={columns} list={list} />

@@ -111,6 +111,22 @@ function deriveQuickFilterAndSegmentFromProject(item) {
   return { quickTab: "All", segment: "all" };
 }
 
+/** Map API project type label (home search / query sync) to the same quick tabs as the listing. */
+function deriveQuickTabFromProjectTypeName(typeNameRaw) {
+  const n = normalizeText(typeNameRaw || "");
+  if (!n) return { quickTab: "All", segment: "all" };
+  if (n.includes("new launch")) {
+    return { quickTab: "New Launched", segment: "all" };
+  }
+  if (n.includes("commercial")) {
+    return { quickTab: "Commercial", segment: "all" };
+  }
+  if (n.includes("residential")) {
+    return { quickTab: "Residential", segment: "all" };
+  }
+  return { quickTab: "All", segment: "all" };
+}
+
 export default function Projects() {
   const PROJECTS_PER_PAGE = 12;
   const [pageName] = useState("Projects");
@@ -337,7 +353,11 @@ export default function Projects() {
       budget: normalizeBudgetSelection(queryFilters?.budget, "web") || "",
     };
 
-    setQuickProjectFilter("All");
+    const { quickTab, segment } = selectedType?.projectTypeName
+      ? deriveQuickTabFromProjectTypeName(selectedType.projectTypeName)
+      : { quickTab: "All", segment: "all" };
+    setQuickProjectFilter(quickTab);
+    setNewLaunchTypeSegment(segment);
     setFilters(syncedFilters);
     setDraftFilters(syncedFilters);
     setFadeKey((prev) => prev + 1);

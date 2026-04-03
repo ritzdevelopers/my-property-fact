@@ -6,6 +6,7 @@ export default function DashboardHeader({
   functionName,
   exportExcel,
   exportFunction,
+  exportDisabled = false,
 }) {
   return (
     <>
@@ -15,6 +16,7 @@ export default function DashboardHeader({
           {exportExcel && (
             <Button
               className="mx-3 btn btn-warning text-capitalize"
+              disabled={exportDisabled}
               onClick={() => exportFunction()}
             >
               {exportExcel}

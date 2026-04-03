@@ -118,10 +118,10 @@
 }
 
 .pageBtn.active {
-  background: rgb(0, 164, 0);
+  background: #0d5834;
   color: #fff;
-  border-color: rgb(0, 164, 0);
-  box-shadow: 0 2px 8px rgba(0, 164, 0, 0.35);
+  border-color: #0d5834;
+  box-shadow: 0 2px 8px rgba(13, 88, 52, 0.35);
 }
 
 .ellipsis {

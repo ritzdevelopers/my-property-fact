@@ -48,7 +48,18 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
 
     try {
       setLoading(true);
-      setQuickProjectFilter("All");
+      const selectedTypeMeta = propertType
+        ? effectiveProjectTypes.find((o) => String(o.id) === String(propertType))
+        : null;
+      const typeNorm = String(selectedTypeMeta?.projectTypeName || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, " ");
+      let quickTab = "All";
+      if (typeNorm.includes("new launch")) quickTab = "New Launched";
+      else if (typeNorm.includes("commercial")) quickTab = "Commercial";
+      else if (typeNorm.includes("residential")) quickTab = "Residential";
+      setQuickProjectFilter(quickTab);
       resetProjectFilters();
       setQueryFilters(paramsObj);
       sessionStorage.setItem("mpf-querry", JSON.stringify(paramsObj));

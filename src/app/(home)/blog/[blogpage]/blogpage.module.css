@@ -107,7 +107,7 @@
   font-family: "plus-jakarta", sans-serif !important;
 }
 
-/* Content card – no horizontal scroll; tables wrap inside the card width */
+/* Content card – clips content so CMS tables don't overflow on mobile */
 .contentCard {
   background: #ffffff;
   border-radius: 14px;
@@ -115,9 +115,32 @@
   margin-bottom: 0;
   box-shadow: 0 8px 24px rgba(20, 24, 31, 0.08);
   border: 1px solid #edf0f2;
-  overflow-x: visible;
+  overflow-x: hidden;
   overflow-y: visible;
   max-width: 100%;
+  /* contain width so children (tables) know their boundary */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* JS-injected wrapper around every <table> for horizontal scrolling */
+.tableResponsiveWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  width: 100%;
+  margin: 1.5em 0;
+  border-radius: 10px;
+  border: 1px solid #d6e8d9;
+  box-shadow: 0 2px 12px rgba(13, 88, 52, 0.08);
+  /* scroll indicator shadows on left/right edges */
+  background:
+    linear-gradient(to right, #fff 30%, rgba(255,255,255,0)),
+    linear-gradient(to right, rgba(255,255,255,0), #fff 70%) 100% 0,
+    radial-gradient(farthest-side at 0 50%, rgba(13,88,52,0.15), transparent),
+    radial-gradient(farthest-side at 100% 50%, rgba(13,88,52,0.15), transparent) 100% 0;
+  background-repeat: no-repeat;
+  background-size: 50px 100%, 50px 100%, 16px 100%, 16px 100%;
+  background-attachment: local, local, scroll, scroll;
 }
 
 .contentCard h2:first-child {
@@ -214,77 +237,128 @@
   line-height: 1.6;
 }
 
-/*
- * Tables — match admin WYSIWYG: full width, grid borders, centered cells, bold headers.
+/* ============================================================
+ * TABLES — Premium responsive design
+ * Key fix: width:max-content lets table be its natural size;
+ * the .tableResponsiveWrap scroll container handles overflow.
+ * ============================================================
  */
 .articleContent table {
+  /* Let the table be as wide as its content — scroll wrapper handles the rest */
   display: table;
-  width: 100% !important;
-  max-width: 100% !important;
-  border-collapse: collapse;
-  border: 1px solid #e0e6e2;
-  margin: 1.25em 0;
-  overflow: visible;
+  width: max-content;
+  min-width: 100%;          /* at least fill the wrapper on wide screens */
+  max-width: none;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
+  margin: 0;
   table-layout: auto;
   box-sizing: border-box;
+  font-size: 0.9rem;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;          /* clip rounded corners on table itself */
+}
+
+/* When table is NOT yet wrapped by JS (SSR / no-JS fallback) */
+.articleContent > table,
+.contentCard > table {
+  display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  min-width: 0;
+  margin: 1.5em 0;
+  border: 1px solid #d6e8d9;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(13, 88, 52, 0.08);
 }
 
 .articleContent table colgroup col {
   width: auto;
 }
 
+/* ── Header row ── */
+.articleContent table thead tr:first-child th:first-child { border-top-left-radius: 9px; }
+.articleContent table thead tr:first-child th:last-child  { border-top-right-radius: 9px; }
+
 .articleContent table th {
-  border: 1px solid #e0e6e2;
-  padding: 0.85rem 0.75rem !important;
+  padding: 0.9rem 1.1rem !important;
   vertical-align: middle !important;
   text-align: center !important;
   font-weight: 700 !important;
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-  text-justify: auto !important;
-  hyphens: manual;
+  font-size: 0.875rem !important;
+  color: #fff !important;           /* white text on green header */
+  background: #0D5834 !important;   /* solid brand green header */
+  border: none !important;
+  border-right: 1px solid rgba(255,255,255,0.2) !important;
   white-space: nowrap;
-  word-wrap: normal;
-  overflow-wrap: normal;
   word-break: normal;
+  letter-spacing: 0.02em;
+  min-width: 110px;                  /* guaranteed readable column width */
+}
+
+.articleContent table th:last-child {
+  border-right: none !important;
 }
 
 .articleContent table th p,
 .articleContent table th span {
   text-align: center !important;
-  word-spacing: normal;
-  letter-spacing: normal;
-  white-space: inherit;
+  color: inherit !important;
   font-weight: inherit !important;
-  word-break: normal;
-  overflow-wrap: normal;
+  white-space: nowrap;
+  margin: 0;
 }
 
-/* Body cells — centered like editor; wrap long lines; row height grows with content */
+/* ── Body rows ── */
+.articleContent table tbody tr {
+  transition: background 0.15s ease;
+}
+
+/* Zebra striping */
+.articleContent table tbody tr:nth-child(even) td {
+  background: #f4faf6 !important;
+}
+.articleContent table tbody tr:nth-child(odd) td {
+  background: #ffffff !important;
+}
+
+/* Hover highlight */
+.articleContent table tbody tr:hover td {
+  background: rgba(13, 88, 52, 0.07) !important;
+}
+
+/* ── Body cells ── */
 .articleContent table td {
-  border: 1px solid #e0e6e2;
-  padding: 0.85rem 0.75rem !important;
+  padding: 0.85rem 1.1rem !important;
   vertical-align: middle !important;
   text-align: center !important;
-  word-spacing: normal !important;
-  letter-spacing: normal !important;
-  text-justify: auto !important;
-  hyphens: auto;
-  min-width: 0;
-  white-space: normal !important;
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  border: none !important;
+  border-bottom: 1px solid #e8f0ea !important;
+  border-right: 1px solid #e8f0ea !important;
+  font-size: 0.875rem !important;
+  color: #2c3e35 !important;
+  white-space: nowrap;               /* single line — scroll wrapper handles overflow */
+  min-width: 110px;
+  letter-spacing: 0.01em;
+}
+
+.articleContent table td:last-child {
+  border-right: none !important;
+}
+
+/* Last row — no bottom border */
+.articleContent table tbody tr:last-child td {
+  border-bottom: none !important;
 }
 
 .articleContent table td p,
 .articleContent table td span {
   text-align: center !important;
-  word-spacing: normal;
-  letter-spacing: normal;
-  white-space: normal !important;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  color: inherit !important;
+  white-space: inherit;
+  margin: 0;
 }
 
 .articleContent table img {
@@ -305,11 +379,42 @@
   text-align: justify;
 }
 
-/* Narrow viewports: allow header labels to wrap so the table stays in view */
-@media (max-width: 575px) {
+/* On mobile, tables scroll — so we KEEP white-space: nowrap for clean single-line cells.
+ * We only reduce padding/font-size to keep rows compact and easy to scan. */
+@media (max-width: 768px) {
+  .articleContent table {
+    font-size: 0.825rem;
+  }
+
   .articleContent table th {
-    white-space: normal;
-    vertical-align: middle !important;
+    padding: 0.75rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    min-width: 100px;
+  }
+
+  .articleContent table td {
+    padding: 0.7rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    min-width: 100px;
+  }
+
+  .tableResponsiveWrap {
+    margin: 1.1rem 0;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .articleContent table th,
+  .articleContent table td {
+    padding: 0.65rem 0.75rem !important;
+    font-size: 0.775rem !important;
+    min-width: 90px;
+  }
+
+  .tableResponsiveWrap {
+    margin: 0.9rem 0;
+    border-radius: 6px;
   }
 }
 
@@ -670,21 +775,7 @@
   }
 }
 
-@media (max-width: 767px) {
-  .articleContent table td,
-  .articleContent table th {
-    padding: 0.65rem 0.85rem !important;
-    font-size: 0.875rem;
-  }
-}
 
-@media (max-width: 575px) {
-  .articleContent table td,
-  .articleContent table th {
-    padding: 0.55rem 0.65rem !important;
-    font-size: 0.8125rem;
-  }
-}
 
 /* Lists – reduce indent on very small screens */
 @media (max-width: 575px) {

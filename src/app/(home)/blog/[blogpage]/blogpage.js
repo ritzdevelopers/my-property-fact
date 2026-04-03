@@ -1,6 +1,6 @@
 "use client";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { Button, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -31,6 +31,24 @@ export default function BlogDetail({
   const [formData, setFormData] = useState(initialFormData);
   const [validated, setValidated] = useState(false);
   const pathname = usePathname();
+  const contentCardRef = useRef(null);
+
+  // Wrap every CMS-rendered <table> in a scrollable container after mount/update
+  useEffect(() => {
+    const card = contentCardRef.current;
+    if (!card) return;
+
+    const tables = card.querySelectorAll("table");
+    tables.forEach((table) => {
+      // Skip already-wrapped tables
+      if (table.parentElement?.classList?.contains(detailStyles.tableResponsiveWrap)) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = detailStyles.tableResponsiveWrap;
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+  }, [blogDetail.blogDescription]);
 
   //Validation errors state
   const [errors, setErrors] = useState({
@@ -196,6 +214,7 @@ export default function BlogDetail({
 
             <div className={detailStyles.articleContent}>
               <div
+                ref={contentCardRef}
                 className={detailStyles.contentCard}
                 dangerouslySetInnerHTML={{
                   __html: blogDetail.blogDescription || "",

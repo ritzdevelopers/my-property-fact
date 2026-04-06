@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useAdminRole } from "../_contexts/AdminRoleContext";
+import { ADMIN_PERMISSIONS } from "../adminPermissions";
 
 const StatCard = ({ title, value, description, icon, color, gradient }) => {
     return (
@@ -48,6 +50,7 @@ export default function Dashboard({
     noOfWebStories,
     noOfProjectTypes
 }) {
+    const { isSuperAdmin, hasPermission, displayName, roleLabel, loading: roleLoading } = useAdminRole();
     const [currentTime, setCurrentTime] = useState(null);
     const [mounted, setMounted] = useState(false);
     
@@ -90,16 +93,29 @@ export default function Dashboard({
         });
     };
 
-    const totalStats = noOfProjects + noOfUsers + noOfBlogs + noOfEnquiries + noOfCities + 
+    const totalStats = noOfProjects + noOfUsers + noOfBlogs + noOfEnquiries + noOfCities +
                        noOfBuilders + noOfAmenities + noOfWebStoryCategories + noOfWebStories + noOfProjectTypes;
 
     return (
-        <div className="admin-page-container">
+        <div className="admin-dashboard-home">
             <div className="admin-page-header">
                 <div className="d-flex justify-content-between align-items-start flex-wrap mb-3">
                     <div>
                         <h1 className="mb-2" style={{ fontSize: '2rem', fontWeight: 700, color: '#2c3e50' }}>
-                            {getGreeting()}! 👋
+                            {getGreeting()}
+                            {!roleLoading && displayName ? (
+                                <>, {displayName}</>
+                            ) : null}
+                            {!roleLoading && roleLabel ? (
+                                <span
+                                    className="text-muted"
+                                    style={{ fontSize: "1.35rem", fontWeight: 600 }}
+                                >
+                                    {" "}
+                                    ({roleLabel})
+                                </span>
+                            ) : null}
+                            ! 👋
                         </h1>
                         <p className="mb-2" style={{ fontSize: '1.1rem', color: '#6c757d', margin: 0 }}>
                             Here&apos;s what&apos;s happening with your platform today
@@ -139,6 +155,7 @@ export default function Dashboard({
                     color="#68ac78"
                     gradient="linear-gradient(135deg, rgba(104, 172, 120, 0.1) 0%, rgba(104, 172, 120, 0.2) 100%)"
                 />
+                {isSuperAdmin ? (
                 <StatCard
                     title="Total Users"
                     value={noOfUsers}
@@ -147,6 +164,7 @@ export default function Dashboard({
                     color="#4a90e2"
                     gradient="linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(74, 144, 226, 0.2) 100%)"
                 />
+                ) : null}
                 <StatCard
                     title="Total Blogs"
                     value={noOfBlogs}
@@ -155,6 +173,7 @@ export default function Dashboard({
                     color="#f39c12"
                     gradient="linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.2) 100%)"
                 />
+                {isSuperAdmin ? (
                 <StatCard
                     title="Total Enquiries"
                     value={noOfEnquiries}
@@ -163,6 +182,7 @@ export default function Dashboard({
                     color="#e74c3c"
                     gradient="linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.2) 100%)"
                 />
+                ) : null}
                 <StatCard
                     title="Total Cities"
                     value={noOfCities}
@@ -215,6 +235,7 @@ export default function Dashboard({
 
             {/* Quick Actions */}
             <div className="row g-4">
+                {isSuperAdmin ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -256,7 +277,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
-                
+                ) : null}
+
+                {isSuperAdmin ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -298,7 +321,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {isSuperAdmin ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -340,7 +365,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -382,7 +409,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -424,7 +453,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -466,7 +497,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -508,7 +541,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -550,7 +585,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -592,7 +629,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -634,7 +673,9 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
 
+                {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -676,6 +717,7 @@ export default function Dashboard({
                         </Link>
                     </div>
                 </div>
+                ) : null}
             </div>
         </div>
     );

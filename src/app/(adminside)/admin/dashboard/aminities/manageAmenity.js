@@ -19,6 +19,7 @@ import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 export default function ManageAminity({ list }) {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
@@ -61,12 +62,16 @@ export default function ManageAminity({ list }) {
       try {
         setButtonName("");
         setShowLoading(true);
+        const token =
+          typeof window !== "undefined" ? Cookies.get("token") : undefined;
         const response = await axios.post(
           process.env.NEXT_PUBLIC_API_URL + "amenity/post-multiple-amenities",
           formDataToSend,
           {
+            withCredentials: true,
             headers: {
               "Content-Type": "multipart/form-data",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
           }
         );

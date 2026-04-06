@@ -1,0 +1,320 @@
+/* Shared admin design tokens + Bootstrap badge overrides (import after Bootstrap in layout if needed).
+   Loaded from admin-layout.css for dashboard shell. */
+
+.admin-layout-wrapper {
+  --admin-primary: #4a9960;
+  --admin-primary-hover: #3d8250;
+  --admin-primary-soft: rgba(74, 153, 96, 0.14);
+  --admin-primary-border: rgba(74, 153, 96, 0.28);
+  --admin-ink: #1b2e24;
+  --admin-ink-muted: #4d6358;
+  --admin-surface-elevated: rgba(255, 255, 255, 0.94);
+  --admin-radius-lg: 16px;
+  --admin-radius-md: 12px;
+  --admin-radius-sm: 8px;
+  --admin-shadow-soft: 0 1px 3px rgba(27, 46, 36, 0.06),
+    0 12px 40px rgba(27, 46, 36, 0.07);
+}
+
+/* Role chips: on-brand instead of default Bootstrap primary (blue) */
+.admin-layout-wrapper .admin-chip-role {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.55rem;
+  margin: 0 0.28rem 0.28rem 0;
+  border-radius: 6px;
+  background: var(--admin-primary-soft);
+  color: var(--admin-primary-hover);
+  border: 1px solid var(--admin-primary-border);
+  line-height: 1.2;
+}
+
+.admin-layout-wrapper .admin-chip-role-muted {
+  background: rgba(77, 99, 88, 0.12);
+  color: var(--admin-ink-muted);
+  border-color: rgba(77, 99, 88, 0.18);
+  text-transform: none;
+  font-weight: 500;
+}
+
+.admin-layout-wrapper .admin-chip-warn {
+  background: rgba(198, 142, 42, 0.16);
+  color: #7a5200;
+  border: 1px solid rgba(198, 142, 42, 0.35);
+}
+
+.admin-layout-wrapper .admin-chip-ok {
+  background: rgba(74, 153, 96, 0.18);
+  color: #2d6a3e;
+  border: 1px solid var(--admin-primary-border);
+}
+
+/* Data grid shell — avoid overflow:hidden so cells/actions are not clipped */
+.admin-mui-datagrid-paper {
+  width: 100%;
+  max-width: 100%;
+  border-radius: var(--admin-radius-md) !important;
+  overflow-x: auto;
+  overflow-y: visible;
+  box-shadow: var(--admin-shadow-soft) !important;
+  border: 1px solid rgba(27, 46, 36, 0.08) !important;
+  background: var(--admin-surface-elevated) !important;
+}
+
+.admin-datagrid-scroll-host {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--admin-radius-md);
+  padding-bottom: 4px;
+  padding-right: 2px;
+}
+
+.admin-datagrid-scroll-host .MuiDataGrid-root {
+  min-width: 720px;
+}
+
+.admin-perm-view-link {
+  color: var(--admin-primary, #4a9960) !important;
+  text-decoration: none !important;
+}
+
+.admin-perm-view-link:hover {
+  color: var(--admin-primary-hover, #3d8250) !important;
+  text-decoration: underline !important;
+}
+
+/* —— Admin modals (portaled to body; not nested under .admin-layout-wrapper) —— */
+.admin-modal-dialog {
+  max-width: min(640px, calc(100vw - 2rem));
+}
+
+.admin-modal-dialog.admin-modal-dialog-wide {
+  max-width: min(900px, calc(100vw - 2rem));
+}
+
+.admin-modal-surface {
+  border: none !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  box-shadow: 0 24px 56px rgba(27, 46, 36, 0.16), 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+}
+
+.admin-modal-surface .modal-header {
+  background: linear-gradient(135deg, #4a9960 0%, #35754a 100%);
+  color: #fff;
+  padding: 1.15rem 1.4rem;
+  border-bottom: none;
+  align-items: center;
+}
+
+.admin-modal-surface .modal-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.02em;
+}
+
+/* Use Bootstrap btn-close-white via closeVariant="white" — do not filter or the X disappears */
+.admin-modal-surface .modal-header .btn-close {
+  opacity: 0.92;
+  filter: none;
+}
+
+.admin-modal-surface .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+.admin-modal-surface .modal-body {
+  padding: 1.4rem 1.5rem;
+  background: linear-gradient(180deg, #fbfdfc 0%, #f6faf7 100%);
+  max-height: min(72vh, 720px);
+  overflow-y: auto;
+}
+
+.admin-modal-surface .modal-footer {
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid rgba(27, 46, 36, 0.08);
+  background: #fbfdfc;
+  gap: 0.5rem;
+}
+
+.admin-modal-surface .form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--admin-ink, #1b2e24);
+  margin-bottom: 0.35rem;
+}
+
+.admin-modal-surface .form-control,
+.admin-modal-surface .form-select {
+  border-radius: 10px;
+  border: 1px solid rgba(27, 46, 36, 0.12);
+  padding: 0.55rem 0.85rem;
+  font-size: 0.9375rem;
+}
+
+.admin-modal-surface .form-control:focus,
+.admin-modal-surface .form-select:focus {
+  border-color: rgba(74, 153, 96, 0.55);
+  box-shadow: 0 0 0 0.2rem rgba(74, 153, 96, 0.18);
+}
+
+.admin-modal-surface .form-control:disabled,
+.admin-modal-surface .form-control[readonly] {
+  background: rgba(27, 46, 36, 0.05);
+  color: var(--admin-ink-muted, #4d6358);
+}
+
+.admin-modal-surface .form-text {
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+}
+
+.admin-modal-surface .admin-modal-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--admin-primary, #4a9960);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(74, 153, 96, 0.2);
+}
+
+.admin-modal-surface .admin-modal-check-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid rgba(27, 46, 36, 0.1);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  background: #fff;
+}
+
+.admin-modal-surface .admin-modal-check-scroll-lg {
+  max-height: 240px;
+}
+
+.admin-modal-surface .form-check {
+  margin-bottom: 0.45rem;
+}
+
+.admin-modal-surface .form-check:last-child {
+  margin-bottom: 0;
+}
+
+.admin-modal-surface .btn-admin-primary {
+  background: linear-gradient(180deg, #4a9960, #3d8250) !important;
+  border: none !important;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(74, 153, 96, 0.35);
+}
+
+.admin-modal-surface .btn-admin-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #3d8250, #35754a) !important;
+  box-shadow: 0 4px 12px rgba(74, 153, 96, 0.4);
+}
+
+.admin-modal-surface .btn-admin-secondary {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 0.5rem 1.15rem;
+  border: 1px solid rgba(27, 46, 36, 0.15);
+  background: #fff;
+  color: var(--admin-ink-muted, #4d6358);
+}
+
+.admin-modal-surface .btn-admin-secondary:hover {
+  background: rgba(27, 46, 36, 0.04);
+  color: var(--admin-ink, #1b2e24);
+}
+
+/* Permissions list in modal */
+.admin-modal-perm-list li:last-child {
+  border-bottom: none !important;
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* —— Manage Users: compact table (no MUI DataGrid) —— */
+.manage-users-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.manage-users-search {
+  max-width: 320px;
+  min-width: 200px;
+  flex: 1 1 220px;
+}
+
+.manage-users-search .form-control {
+  border-radius: 10px;
+  border: 1px solid rgba(27, 46, 36, 0.12);
+  font-size: 0.9rem;
+}
+
+.manage-users-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--admin-radius-md, 12px);
+  border: 1px solid rgba(27, 46, 36, 0.1);
+  background: var(--admin-surface-elevated, #fff);
+  box-shadow: var(
+    --admin-shadow-soft,
+    0 1px 3px rgba(27, 46, 36, 0.06)
+  );
+}
+
+.manage-users-compact-table {
+  width: 100%;
+  margin-bottom: 0;
+  font-size: 0.8125rem;
+  vertical-align: middle;
+}
+
+.manage-users-compact-table thead th {
+  background: linear-gradient(180deg, #4a9960 0%, #3d8250 100%);
+  color: #fff;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  padding: 0.5rem 0.6rem;
+  border: none;
+}
+
+.manage-users-compact-table tbody td {
+  padding: 0.4rem 0.55rem;
+  border-color: rgba(27, 46, 36, 0.08);
+  line-height: 1.35;
+}
+
+.manage-users-compact-table tbody tr:nth-child(even) {
+  background: rgba(74, 153, 96, 0.05);
+}
+
+.manage-users-compact-table tbody tr:hover {
+  background: rgba(74, 153, 96, 0.11);
+}
+
+.manage-users-compact-table .manage-users-actions-grid {
+  padding: 4px 2px 4px 0 !important;
+  min-width: 200px;
+}
+
+.manage-users-count {
+  font-size: 0.875rem;
+  color: var(--admin-ink-muted, #4d6358);
+  font-weight: 500;
+}

@@ -1,6 +1,7 @@
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
-:root{
-    --theme-volor: #68ac78;
+:root {
+    --theme-color: #4a9960;
+    --theme-volor: #4a9960;
 }
 /* p {
     font-family: 'Lexend', sans-serif;
@@ -53,7 +54,7 @@
 }
 
 #sidebar {
-    background: var(--theme-volor);
+    background: transparent;
     color: #fff;
     transition: all 0.3s;
     height: 100%;
@@ -113,8 +114,10 @@
 #sidebar ul li a {
     padding: 12px 16px;
     font-size: 0.95em;
-    display: block;
-    color: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    color: rgba(255, 255, 255, 0.92);
     text-decoration: none;
     transition: all 0.2s ease;
     border-radius: 8px;
@@ -130,11 +133,22 @@
 /* Active state for regular navigation links (exclude dropdown toggles) */
 #sidebar ul li.active>a:not(.dropdown-toggle) {
     color: #fff;
-    background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.2);
     font-weight: 600;
-    border-left: 4px solid #fff;
+    border-left: 4px solid rgba(255, 255, 255, 0.95);
     padding-left: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+.admin-nav-ico {
+    width: 1.1rem !important;
+    flex-shrink: 0;
+    opacity: 0.92;
+    font-size: 0.9rem;
+}
+
+#sidebar ul li a.logout-link .admin-nav-ico {
+    opacity: 1;
 }
 
 /* Active state for nested dropdown items */
@@ -173,6 +187,12 @@ a.dropdown-toggle[aria-expanded="true"] {
 
 a[data-toggle="collapse"] {
     position: relative;
+}
+
+a.dropdown-toggle .admin-nav-label {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
 }
 
 .dropdown-toggle::after {
@@ -256,7 +276,9 @@ a[data-toggle="collapse"] {
     #sidebar ul li a {
         padding: 12px 20px;
         font-size: 1em;
-        display: block !important;
+        display: flex !important;
+        align-items: center;
+        gap: 0.7rem;
         visibility: visible !important;
         color: #fff !important;
         opacity: 1 !important;

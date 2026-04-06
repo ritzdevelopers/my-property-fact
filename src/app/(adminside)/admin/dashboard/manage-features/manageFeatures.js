@@ -18,6 +18,7 @@ import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 export default function ManageFeatures({ list }) {
   const [showModal, setShowModal] = useState(false);
@@ -47,12 +48,16 @@ export default function ManageFeatures({ list }) {
     try {
       setButtonName("");
       setShowLoading(true);
+      const token =
+        typeof window !== "undefined" ? Cookies.get("token") : undefined;
       const response = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "feature/post-multiple-features",
         formDataToSend,
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       );

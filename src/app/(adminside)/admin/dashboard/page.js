@@ -1,7 +1,20 @@
 import axios from "axios";
 import Dashboard from "./dashboard";
 import { fetchAllProjects } from "@/app/_global_components/masterFunction";
+import { cookies } from "next/headers";
+
 export const dynamic = 'force-dynamic';
+
+async function cookieHeaderString() {
+  try {
+    const jar = await cookies();
+    const all = jar.getAll();
+    if (!all.length) return undefined;
+    return all.map((c) => `${c.name}=${c.value}`).join("; ");
+  } catch {
+    return undefined;
+  }
+}
 
 //Getting all projects count
 const countAllProjects = async () => {
@@ -14,16 +27,28 @@ const countAllProjects = async () => {
   }
 };
 
-//Getting all users count
-const countAllUsers = async () => {
+/** User + enquiry counts from backend (Super Admins only; others get zeros). */
+const fetchDashboardStats = async () => {
   try {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}users`
+    const cookie = await cookieHeaderString();
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}admin/dashboard-stats`,
+      {
+        headers: cookie ? { Cookie: cookie } : {},
+        cache: "no-store",
+      },
     );
-    return Array.isArray(response.data) ? response.data.length : 0;
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    return 0;
+    if (!res.ok) {
+      return { userCount: 0, enquiryCount: 0 };
+    }
+    const data = await res.json();
+    return {
+      userCount: typeof data.userCount === "number" ? data.userCount : 0,
+      enquiryCount:
+        typeof data.enquiryCount === "number" ? data.enquiryCount : 0,
+    };
+  } catch {
+    return { userCount: 0, enquiryCount: 0 };
   }
 };
 
@@ -43,8 +68,10 @@ const countAllBlogs = async () => {
 //Getting all enquiries count
 const countAllEnquiries = async () => {
   try {
+    const cookie = await cookieHeaderString();
     const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}enquiry/get-all`
+      `${process.env.NEXT_PUBLIC_API_URL}enquiry/get-all`,
+      { headers: cookie ? { Cookie: cookie } : {} },
     );
     return Array.isArray(response.data) ? response.data.length : 0;
   } catch (error) {
@@ -133,28 +160,28 @@ const countAllProjectTypes = async () => {
 
 export default async function DashboardPage() {
   const [
-    noOfProjects, 
-    noOfUsers, 
-    noOfBlogs, 
-    noOfEnquiries, 
+    noOfProjects,
+    dashboardStats,
+    noOfBlogs,
     noOfCities,
     noOfBuilders,
     noOfAmenities,
     noOfWebStoryCategories,
     noOfWebStories,
-    noOfProjectTypes
+    noOfProjectTypes,
   ] = await Promise.all([
     countAllProjects(),
-    countAllUsers(),
+    fetchDashboardStats(),
     countAllBlogs(),
-    countAllEnquiries(),
     countAllCities(),
     countAllBuilders(),
     countAllAmenities(),
     countAllWebStoryCategories(),
     countAllWebStories(),
-    countAllProjectTypes()
+    countAllProjectTypes(),
   ]);
+  const noOfUsers = dashboardStats.userCount;
+  const noOfEnquiries = dashboardStats.enquiryCount;
   
   return <Dashboard 
     noOfProjects={noOfProjects}

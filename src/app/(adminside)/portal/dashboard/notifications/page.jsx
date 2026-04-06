@@ -101,41 +101,36 @@ export default function NotificationsPage() {
         return;
       }
 
-      const leadsResponse = await axios.get(`${API_BASE_URL}enquiry/get-all`, {
-        withCredentials: true,
-      });
+      const leadsResponse = await axios.get(
+        `${API_BASE_URL}enquiry/get-user-leads`,
+        {
+          withCredentials: true,
+        },
+      );
 
-      if (Array.isArray(leadsResponse.data)) {
-        const filteredLeads = leadsResponse.data.filter((lead) => {
-          if (!lead.propertyId) return false;
-          const leadPropertyId = lead.propertyId.toString();
-          return propertyIds.some(
-            (userPropId) => userPropId.toString() === leadPropertyId,
-          );
-        });
+      const leadsList = Array.isArray(leadsResponse.data)
+        ? leadsResponse.data
+        : [];
 
-        const leadNotifications = filteredLeads.map((lead, index) => ({
-          id: lead.id || index + 1,
-          type: "email",
-          title: lead.name || "Unknown",
-          message:
-            lead.message || `Inquiry for ${lead.propertyName || "property"}`,
-          timestamp:
-            lead.createdAt || lead.created_at || new Date().toISOString(),
-          isRead: lead.status && lead.status.toLowerCase() !== "new",
-          priority: getLeadPriority(lead.status),
-          category: "leads",
-          actionUrl: `/portal/dashboard/leads`,
-          leadData: lead,
-        }));
+      const leadNotifications = leadsList.map((lead, index) => ({
+        id: lead.id || index + 1,
+        type: "email",
+        title: lead.name || "Unknown",
+        message:
+          lead.message || `Inquiry for ${lead.propertyName || "property"}`,
+        timestamp:
+          lead.createdAt || lead.created_at || new Date().toISOString(),
+        isRead: lead.status && lead.status.toLowerCase() !== "new",
+        priority: getLeadPriority(lead.status),
+        category: "leads",
+        actionUrl: `/portal/dashboard/leads`,
+        leadData: lead,
+      }));
 
-        leadNotifications.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
-        );
-        setNotifications(leadNotifications);
-      } else {
-        setNotifications([]);
-      }
+      leadNotifications.sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp),
+      );
+      setNotifications(leadNotifications);
     } catch (err) {
       console.error("Error fetching leads:", err);
       setError(

@@ -1,6 +1,8 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import { getPublicApiBase } from "@/lib/publicApiBase";
 import axios from "axios";
+import Cookies from "js-cookie";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useEffect, useRef, useState } from "react";
@@ -155,12 +157,17 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       data.append("cityId", formData.cityId);
 
       try {
+        const apiBase = getPublicApiBase();
+        const token =
+          typeof window !== "undefined" ? Cookies.get("token") : undefined;
         const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}blog/add-update`,
+          `${apiBase}blog/add-update`,
           data,
           {
+            withCredentials: true,
             headers: {
               "Content-Type": "multipart/form-data",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
           }
         );
@@ -738,7 +745,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       <CommonModal
         confirmBox={confirmBox}
         setConfirmBox={setConfirmBox}
-        api={`${process.env.NEXT_PUBLIC_API_URL}blog/${blogId}`}
+        api={`${getPublicApiBase()}blog/${blogId}`}
       />
       <ImageUrlPopup confirmBox={urlPopUp} setConfirmBox={setUrlPopUp} />
     </>

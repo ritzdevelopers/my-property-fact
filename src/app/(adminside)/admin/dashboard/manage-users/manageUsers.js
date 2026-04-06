@@ -1,14 +1,19 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Button, Col, Form, Modal, Row, Badge } from "react-bootstrap";
+import { useState, useEffect, useMemo } from "react";
+import { Button, Col, Form, InputGroup, Modal, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
-import DataTable from "../common-model/data-table";
+import {
+  faPencil,
+  faCheck,
+  faTimes,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
+import { useAdminRole } from "../../_contexts/AdminRoleContext";
 
 const apiWithAuth = () => ({
   withCredentials: true,
@@ -21,12 +26,17 @@ const apiWithAuth = () => ({
 
 export default function ManageUsers({ users: initialUsers }) {
   const router = useRouter();
+  const { isSuperAdmin } = useAdminRole();
   const [users, setUsers] = useState(initialUsers || []);
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
+  const [permissionDefinitions, setPermissionDefinitions] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  /** { row, keys } — Super Admin permission detail modal */
+  const [permView, setPermView] = useState(null);
+  const [userSearch, setUserSearch] = useState("");
   const [formData, setFormData] = useState({
     id: null,
     fullName: "",
@@ -38,6 +48,8 @@ export default function ManageUsers({ users: initialUsers }) {
     roleIds: [],
     newPassword: "",
     confirmPassword: "",
+    dashboardUsername: "",
+    adminPermissions: [],
   });
 
   // Fetch roles and users on the client with the same auth as other admin calls.
@@ -66,8 +78,18 @@ export default function ManageUsers({ users: initialUsers }) {
       } catch (error) {
         console.error("Error fetching roles:", error);
         if (!cancelled) setRoles([]);
-      } finally {
-        if (!cancelled) setRolesLoading(false);
+      }
+
+      try {
+        const permRes = await axios.get(
+          `${process.env.NEXT_PUBLIC_API_URL}auth/admin-permission-definitions`,
+          apiWithAuth(),
+        );
+        if (!cancelled && Array.isArray(permRes.data)) {
+          setPermissionDefinitions(permRes.data);
+        }
+      } catch {
+        if (!cancelled) setPermissionDefinitions([]);
       }
 
       try {
@@ -85,6 +107,8 @@ export default function ManageUsers({ users: initialUsers }) {
         }
       } catch (error) {
         console.error("Error fetching users:", error);
+      } finally {
+        if (!cancelled) setRolesLoading(false);
       }
     };
 
@@ -108,6 +132,10 @@ export default function ManageUsers({ users: initialUsers }) {
       roleIds: userRoleIds,
       newPassword: "",
       confirmPassword: "",
+      dashboardUsername: user.dashboardUsername || "",
+      adminPermissions: Array.isArray(user.adminPermissions)
+        ? [...user.adminPermissions]
+        : [],
     });
     setShowModal(true);
   };
@@ -126,6 +154,8 @@ export default function ManageUsers({ users: initialUsers }) {
       roleIds: [],
       newPassword: "",
       confirmPassword: "",
+      dashboardUsername: "",
+      adminPermissions: [],
     });
   };
 
@@ -147,10 +177,14 @@ export default function ManageUsers({ users: initialUsers }) {
   const handleRoleChange = (roleId) => {
     setFormData((prev) => {
       const roleIds = prev.roleIds || [];
+      const togglingOffAdmin =
+        roleIds.includes(roleId) &&
+        roles.find((r) => r.id === roleId && String(r.roleName).toUpperCase() === "ADMIN");
       if (roleIds.includes(roleId)) {
         return {
           ...prev,
           roleIds: roleIds.filter((id) => id !== roleId),
+          adminPermissions: togglingOffAdmin ? [] : prev.adminPermissions,
         };
       } else {
         return {
@@ -159,6 +193,27 @@ export default function ManageUsers({ users: initialUsers }) {
         };
       }
     });
+  };
+
+  const handleAdminPermissionToggle = (key) => {
+    setFormData((prev) => {
+      const cur = prev.adminPermissions || [];
+      const k = String(key).toUpperCase();
+      if (cur.map((x) => String(x).toUpperCase()).includes(k)) {
+        return {
+          ...prev,
+          adminPermissions: cur.filter((x) => String(x).toUpperCase() !== k),
+        };
+      }
+      return { ...prev, adminPermissions: [...cur, k] };
+    });
+  };
+
+  const editorHasAdminRole = () => {
+    const names = (roles || [])
+      .filter((r) => formData.roleIds.includes(r.id))
+      .map((r) => String(r.roleName || "").toUpperCase());
+    return names.includes("ADMIN");
   };
 
   const handleSubmit = async (e) => {
@@ -189,20 +244,26 @@ export default function ManageUsers({ users: initialUsers }) {
       };
 
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}`,
-        {
-          fullName: formData.fullName,
-          phone: formData.phone,
-          location: formData.location,
-          verified: formData.verified,
-          enabled: formData.enabled,
-        },
+        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/roles`,
+        formData.roleIds,
         jsonAuth,
       );
 
+      const userPayload = {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        location: formData.location,
+        verified: formData.verified,
+        enabled: formData.enabled,
+        dashboardUsername: formData.dashboardUsername,
+      };
+      if (editorHasAdminRole()) {
+        userPayload.adminPermissions = formData.adminPermissions || [];
+      }
+
       await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/roles`,
-        formData.roleIds,
+        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}`,
+        userPayload,
         jsonAuth,
       );
 
@@ -269,158 +330,324 @@ export default function ManageUsers({ users: initialUsers }) {
     }
   };
 
+  const reloadUsersList = async () => {
+    try {
+      const usersRes = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}users`,
+        apiWithAuth(),
+      );
+      if (usersRes.status === 200 && Array.isArray(usersRes.data)) {
+        setUsers(usersRes.data);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    router.refresh();
+  };
+
+  const handleApproveAdminStaff = async (userId) => {
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/approve-admin-staff`,
+        {},
+        apiWithAuth(),
+      );
+      toast.success("Admin access approved. The user can sign in to the dashboard.");
+      await reloadUsersList();
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Approval failed");
+    }
+  };
+
+  const handleRejectAdminStaff = async (userId) => {
+    if (
+      !window.confirm(
+        "Reject this admin access request? The Admin role and dashboard username will be removed.",
+      )
+    ) {
+      return;
+    }
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/reject-admin-staff`,
+        {},
+        apiWithAuth(),
+      );
+      toast.success("Admin request rejected.");
+      await reloadUsersList();
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Reject failed");
+    }
+  };
+
   const getRoleNames = (userRoles) => {
     if (!userRoles || userRoles.length === 0) return "No roles";
     return userRoles.map((role) => role.roleName).join(", ");
   };
 
-  const columns = [
-    {
-      field: "id",
-      headerName: "ID",
-      width: 80,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>{params.value}</div>
-      ),
-    },
-    {
-      field: "fullName",
-      headerName: "Full Name",
-      width: 200,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>{params.value || "N/A"}</div>
-      ),
-    },
-    {
-      field: "email",
-      headerName: "Email",
-      width: 250,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>{params.value || "N/A"}</div>
-      ),
-    },
-    {
-      field: "phone",
-      headerName: "Phone",
-      width: 150,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>{params.value || "N/A"}</div>
-      ),
-    },
-    {
-      field: "roles",
-      headerName: "Roles",
-      width: 300,
-      renderCell: (params) => {
-        const roleNames = getRoleNames(params.value);
-        return (
-          <div style={{ paddingLeft: "10px" }}>
-            {roleNames.split(", ").map((role, idx) => (
-              <Badge key={idx} bg="primary" className="me-1">
-                {role}
-              </Badge>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      field: "enabled",
-      headerName: "Status",
-      width: 120,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>
-          <Badge bg={params.value ? "success" : "danger"}>
-            {params.value ? "Active" : "Inactive"}
-          </Badge>
-        </div>
-      ),
-    },
-    {
-      field: "verified",
-      headerName: "Verified",
-      width: 100,
-      renderCell: (params) => (
-        <div style={{ paddingLeft: "10px" }}>
-          <Badge bg={params.value ? "success" : "secondary"}>
-            {params.value ? "Yes" : "No"}
-          </Badge>
-        </div>
-      ),
-    },
-    {
-      field: "actions",
-      headerName: "Actions",
-      width: 250,
-      sortable: false,
-      renderCell: (params) => {
-        const user = params.row;
-        return (
-          <div style={{ paddingLeft: "10px", display: "flex", gap: "8px" }}>
-            <Button
-              variant="outline-primary"
-              size="sm"
-              onClick={() => openEditModal(user)}
-            >
-              <FontAwesomeIcon icon={faPencil} className="me-1" />
-              Edit
-            </Button>
-            {user.enabled ? (
-              <Button
-                variant="outline-danger"
-                size="sm"
-                onClick={() => handleDeactivate(user.id)}
-              >
-                <FontAwesomeIcon icon={faTimes} className="me-1" />
-                Deactivate
-              </Button>
-            ) : (
-              <Button
-                variant="outline-success"
-                size="sm"
-                onClick={() => handleActivate(user.id)}
-              >
-                <FontAwesomeIcon icon={faCheck} className="me-1" />
-                Activate
-              </Button>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
-
-  const tableData = users.map((user, index) => ({
-    id: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    phone: user.phone,
-    location: user.location,
-    roles: user.roles || [],
-    enabled: user.enabled !== undefined ? user.enabled : true,
-    verified: user.verified || false,
-    createdAt: user.createdAt,
-  }));
+  const filteredUsers = useMemo(() => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return users;
+    return users.filter((user) => {
+      const blob = [
+        user.fullName,
+        user.email,
+        user.phone,
+        user.dashboardUsername,
+        user.location,
+        String(user.id ?? ""),
+        ...(user.roles || []).map((r) => String(r?.roleName ?? "")),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return blob.includes(q);
+    });
+  }, [users, userSearch]);
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid px-0">
       <DashboardHeader heading="Manage Users" />
 
-      <div>
-        <DataTable list={tableData} columns={columns} />
+      <div className="mt-2">
+        <div className="manage-users-toolbar">
+          <InputGroup className="manage-users-search">
+            <InputGroup.Text
+              className="bg-white border-end-0"
+              style={{ borderColor: "rgba(27, 46, 36, 0.12)" }}
+            >
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="text-muted" />
+            </InputGroup.Text>
+            <Form.Control
+              type="search"
+              placeholder="Search name, email, phone, username, roles…"
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              aria-label="Search users"
+              style={{ borderLeft: "none" }}
+            />
+          </InputGroup>
+          <span className="manage-users-count">
+            Showing {filteredUsers.length} of {users.length} users
+          </span>
+        </div>
+
+        <div className="manage-users-table-scroll">
+          <table className="table table-sm manage-users-compact-table mb-0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Dash. user</th>
+                <th>Phone</th>
+                <th>Roles</th>
+                {isSuperAdmin ? (
+                  <>
+                    <th>Admin</th>
+                    <th>Perms</th>
+                  </>
+                ) : null}
+                <th>Status</th>
+                <th>Ver.</th>
+                <th style={{ minWidth: 200 }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={isSuperAdmin ? 11 : 9}
+                    className="text-center text-muted py-4"
+                  >
+                    No users match your search.
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => {
+                  const roleNamesUpper = (user.roles || []).map((r) =>
+                    String(r?.roleName || "").toUpperCase(),
+                  );
+                  const pendingAdmin =
+                    isSuperAdmin &&
+                    roleNamesUpper.includes("ADMIN") &&
+                    user.adminStaffApproved === false;
+                  const roleLabel = getRoleNames(user.roles);
+                  const roleParts = roleLabel.split(", ");
+                  const enabled =
+                    user.enabled !== undefined ? user.enabled : true;
+
+                  return (
+                    <tr key={user.id}>
+                      <td>{user.id}</td>
+                      <td className="fw-medium">{user.fullName || "—"}</td>
+                      <td style={{ wordBreak: "break-all", maxWidth: 220 }}>
+                        {user.email || "—"}
+                      </td>
+                      <td>{user.dashboardUsername || "—"}</td>
+                      <td>{user.phone || "—"}</td>
+                      <td>
+                        {roleParts.length === 1 && roleParts[0] === "No roles" ? (
+                          <span className="admin-chip-role-muted">No roles</span>
+                        ) : (
+                          roleParts.map((role, idx) => (
+                            <span key={idx} className="admin-chip-role">
+                              {role}
+                            </span>
+                          ))
+                        )}
+                      </td>
+                      {isSuperAdmin ? (
+                        <>
+                          <td>
+                            {!roleNamesUpper.includes("ADMIN") ? (
+                              <span className="text-muted small">—</span>
+                            ) : user.adminStaffApproved === false ? (
+                              <span className="admin-chip-warn">Pending</span>
+                            ) : (
+                              <span className="admin-chip-ok">OK</span>
+                            )}
+                          </td>
+                          <td>
+                            {(() => {
+                              const keys = user.adminPermissions || [];
+                              const isStaffAdmin =
+                                roleNamesUpper.includes("ADMIN") &&
+                                !roleNamesUpper.includes("SUPERADMIN");
+                              if (!isStaffAdmin) {
+                                return (
+                                  <span className="text-muted small">—</span>
+                                );
+                              }
+                              if (!keys.length) {
+                                return (
+                                  <span className="text-muted small">None</span>
+                                );
+                              }
+                              return (
+                                <Button
+                                  variant="link"
+                                  className="p-0 small admin-perm-view-link"
+                                  onClick={() =>
+                                    setPermView({
+                                      row: user,
+                                      keys: [...keys],
+                                    })
+                                  }
+                                >
+                                  View ({keys.length})
+                                </Button>
+                              );
+                            })()}
+                          </td>
+                        </>
+                      ) : null}
+                      <td>
+                        {enabled ? (
+                          <span className="admin-chip-ok">Active</span>
+                        ) : (
+                          <span className="admin-chip-role-muted">Off</span>
+                        )}
+                      </td>
+                      <td>
+                        {user.verified ? (
+                          <span className="admin-chip-ok">Yes</span>
+                        ) : (
+                          <span className="admin-chip-role-muted">No</span>
+                        )}
+                      </td>
+                      <td>
+                        <div
+                          className="manage-users-actions-grid"
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "6px",
+                          }}
+                        >
+                          {pendingAdmin ? (
+                            <>
+                              <Button
+                                variant="success"
+                                size="sm"
+                                onClick={() =>
+                                  handleApproveAdminStaff(user.id)
+                                }
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="outline-danger"
+                                size="sm"
+                                onClick={() => handleRejectAdminStaff(user.id)}
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          ) : null}
+                          <Button
+                            variant="outline-primary"
+                            size="sm"
+                            onClick={() => openEditModal(user)}
+                          >
+                            <FontAwesomeIcon icon={faPencil} className="me-1" />
+                            Edit
+                          </Button>
+                          {enabled ? (
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleDeactivate(user.id)}
+                            >
+                              <FontAwesomeIcon
+                                icon={faTimes}
+                                className="me-1"
+                              />
+                              Deactivate
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline-success"
+                              size="sm"
+                              onClick={() => handleActivate(user.id)}
+                            >
+                              <FontAwesomeIcon
+                                icon={faCheck}
+                                className="me-1"
+                              />
+                              Activate
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Edit User Modal */}
-      <Modal show={showModal} onHide={handleClose} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Edit User</Modal.Title>
+      <Modal
+        show={showModal}
+        onHide={handleClose}
+        centered
+        scrollable
+        dialogClassName="admin-modal-dialog admin-modal-dialog-wide"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white">
+          <Modal.Title>Edit user</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit}>
           <Modal.Body>
-            <Row>
+            <div className="admin-modal-section-title">Profile</div>
+            <Row className="g-3">
               <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Full Name</Form.Label>
+                <Form.Group className="mb-1">
+                  <Form.Label>Full name</Form.Label>
                   <Form.Control
                     type="text"
                     name="fullName"
@@ -431,7 +658,7 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
               <Col md={6}>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-1">
                   <Form.Label>Email</Form.Label>
                   <Form.Control
                     type="email"
@@ -447,9 +674,9 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
             </Row>
-            <Row>
+            <Row className="g-3 mt-0">
               <Col md={6}>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-1">
                   <Form.Label>Phone</Form.Label>
                   <Form.Control
                     type="text"
@@ -460,7 +687,7 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
               <Col md={6}>
-                <Form.Group className="mb-3">
+                <Form.Group className="mb-1">
                   <Form.Label>Location</Form.Label>
                   <Form.Control
                     type="text"
@@ -471,13 +698,32 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
             </Row>
+            <Row className="mt-2">
+              <Col md={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Dashboard username</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="dashboardUsername"
+                    value={formData.dashboardUsername}
+                    onChange={handleChange}
+                    placeholder="Required for Admin login at /admin"
+                  />
+                  <Form.Text className="text-muted">
+                    Used with email and password on the admin sign-in page.
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <div className="admin-modal-section-title">Account status</div>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
                   <Form.Check
                     type="checkbox"
                     name="enabled"
-                    label="Active"
+                    label="Active (can sign in)"
                     checked={formData.enabled}
                     onChange={handleChange}
                   />
@@ -488,17 +734,19 @@ export default function ManageUsers({ users: initialUsers }) {
                   <Form.Check
                     type="checkbox"
                     name="verified"
-                    label="Verified"
+                    label="Email verified"
                     checked={formData.verified}
                     onChange={handleChange}
                   />
                 </Form.Group>
               </Col>
             </Row>
+
+            <div className="admin-modal-section-title">Password</div>
             <Row>
               <Col md={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Set new password (optional)</Form.Label>
+                  <Form.Label>New password (optional)</Form.Label>
                   <Form.Control
                     type="password"
                     name="newPassword"
@@ -516,30 +764,23 @@ export default function ManageUsers({ users: initialUsers }) {
                     type="password"
                     name="confirmPassword"
                     autoComplete="new-password"
-                    placeholder="Repeat new password if changing"
+                    placeholder="Repeat if changing password"
                     value={formData.confirmPassword}
                     onChange={handleChange}
                   />
                   <Form.Text className="text-muted">
-                    Minimum 8 characters. Only filled when you want to reset this
-                    user&apos;s login password.
+                    Min. 8 characters. Only applies when you reset this
+                    user&apos;s password.
                   </Form.Text>
                 </Form.Group>
               </Col>
             </Row>
+
+            <div className="admin-modal-section-title">Roles</div>
             <Row>
               <Col md={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Roles</Form.Label>
-                  <div
-                    style={{
-                      maxHeight: "200px",
-                      overflowY: "auto",
-                      border: "1px solid #dee2e6",
-                      padding: "10px",
-                      borderRadius: "4px",
-                    }}
-                  >
+                  <div className="admin-modal-check-scroll">
                     {rolesLoading ? (
                       <div className="text-center py-3">
                         <small className="text-muted">Loading roles...</small>
@@ -567,16 +808,124 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
             </Row>
+            {isSuperAdmin && editorHasAdminRole() && permissionDefinitions.length > 0 && (
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-2">
+                    <div className="admin-modal-section-title">
+                      Admin permissions
+                    </div>
+                    <div className="admin-modal-check-scroll admin-modal-check-scroll-lg">
+                      {permissionDefinitions.map((def) => {
+                        const key = def.key;
+                        const checked = (formData.adminPermissions || [])
+                          .map((x) => String(x).toUpperCase())
+                          .includes(String(key).toUpperCase());
+                        return (
+                          <Form.Check
+                            key={key}
+                            type="checkbox"
+                            id={`perm-${key}`}
+                            label={
+                              <span>
+                                <strong>{def.label}</strong>
+                                {def.description ? (
+                                  <span className="text-muted small d-block">
+                                    {def.description}
+                                  </span>
+                                ) : null}
+                              </span>
+                            }
+                            checked={checked}
+                            onChange={() => handleAdminPermissionToggle(key)}
+                          />
+                        );
+                      })}
+                    </div>
+                    <Form.Text className="text-muted">
+                      Only applies to users with the Admin role. Super Admin always has full access.
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+              </Row>
+            )}
           </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={handleClose}>
+          <Modal.Footer className="d-flex flex-wrap justify-content-end">
+            <Button
+              type="button"
+              variant="secondary"
+              className="btn-admin-secondary"
+              onClick={handleClose}
+            >
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={showLoading}>
-              {showLoading ? "Updating..." : "Update User"}
+            <Button
+              type="submit"
+              className="btn-admin-primary text-white"
+              disabled={showLoading}
+            >
+              {showLoading ? "Saving…" : "Save changes"}
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      <Modal
+        show={!!permView}
+        onHide={() => setPermView(null)}
+        centered
+        scrollable
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white">
+          <Modal.Title>Permissions</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {permView ? (
+            <>
+              <p className="mb-1 fw-semibold" style={{ fontSize: "1.05rem" }}>
+                {permView.row.fullName || "—"}
+              </p>
+              <p className="text-muted small mb-3" style={{ wordBreak: "break-all" }}>
+                {permView.row.email}
+              </p>
+              <ul className="list-unstyled mb-0 admin-modal-perm-list">
+                {permView.keys.map((key) => {
+                  const def = permissionDefinitions.find(
+                    (d) =>
+                      String(d.key).toUpperCase() === String(key).toUpperCase(),
+                  );
+                  return (
+                    <li
+                      key={key}
+                      className="mb-3 pb-3 border-bottom"
+                      style={{ borderColor: "rgba(27, 46, 36, 0.1)" }}
+                    >
+                      <div className="fw-semibold">
+                        {def?.label || key}
+                      </div>
+                      {def?.description ? (
+                        <div className="text-muted small mt-1">
+                          {def.description}
+                        </div>
+                      ) : null}
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn-admin-secondary"
+            variant="secondary"
+            onClick={() => setPermView(null)}
+          >
+            Close
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );

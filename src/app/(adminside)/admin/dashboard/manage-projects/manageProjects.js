@@ -14,8 +14,97 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import Cookies from "js-cookie";
 // Dynamically import JoditEditor with SSR disabled
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
+
+const apiWithAuth = () => ({
+  withCredentials: true,
+  headers: {
+    ...(typeof window !== "undefined" && Cookies.get("token")
+      ? { Authorization: `Bearer ${Cookies.get("token")}` }
+      : {}),
+  },
+});
+
+function formatProjectDateTime(value) {
+  if (value == null || value === "") return "—";
+  if (typeof value === "string") {
+    const d = new Date(value);
+    if (!Number.isNaN(d.getTime())) {
+      return d.toLocaleString(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+    }
+    return value.replace("T", " ").slice(0, 19);
+  }
+  if (Array.isArray(value) && value.length >= 3) {
+    const [y, mo, d, h = 0, mi = 0, s = 0] = value;
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${y}-${pad(mo)}-${pad(d)} ${pad(h)}:${pad(mi)}:${pad(s)}`;
+  }
+  return String(value);
+}
+
+/** Column order aligned with backend {@code ProjectExportDto} / admin bulk schema. */
+const PROJECT_EXPORT_COLUMN_ORDER = [
+  "id",
+  "projectName",
+  "slugURL",
+  "builderId",
+  "builderName",
+  "cityId",
+  "cityName",
+  "stateName",
+  "countryName",
+  "countryId",
+  "stateId",
+  "propertyTypeId",
+  "propertyTypeName",
+  "projectStatusId",
+  "projectStatusName",
+  "status",
+  "showFeaturedProperties",
+  "projectLocality",
+  "projectConfiguration",
+  "projectPrice",
+  "ivrNo",
+  "reraNo",
+  "reraQr",
+  "reraWebsite",
+  "locationMap",
+  "projectLogo",
+  "projectThumbnail",
+  "projectThumbnailAltTag",
+  "projectLogoAltTag",
+  "locationMapAltTag",
+  "metaTitle",
+  "metaKeyword",
+  "metaDescription",
+  "amenityDesc",
+  "floorPlanDesc",
+  "locationDesc",
+  "createdAt",
+  "updatedAt",
+  "projectBannerImage",
+];
+
+function headerLabelFromKey(key) {
+  return key
+    .replace(/([A-Z])/g, " $1")
+    .replace(/^./, (c) => c.toUpperCase())
+    .trim();
+}
+
+function formatExportCell(key, val) {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "boolean") return val ? "Yes" : "No";
+  if (key === "createdAt" || key === "updatedAt") {
+    return formatProjectDateTime(val);
+  }
+  return String(val);
+}
 
 export default function ManageProjects({
   builderList,
@@ -503,6 +592,28 @@ export default function ManageProjects({
       flex: 1,
     },
     {
+      field: "createdAt",
+      headerName: "Created",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <span style={{ fontSize: "0.875rem" }}>
+          {formatProjectDateTime(params.value)}
+        </span>
+      ),
+    },
+    {
+      field: "updatedAt",
+      headerName: "Updated",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (params) => (
+        <span style={{ fontSize: "0.875rem" }}>
+          {formatProjectDateTime(params.value)}
+        </span>
+      ),
+    },
+    {
       field: "action",
       headerName: "Action",
       width: 100,
@@ -532,138 +643,91 @@ export default function ManageProjects({
   };
 
   const exportAllProjectToExcel = async () => {
-    let projects = [...projectDetailList]; // clone to avoid mutation
-
-    if (!projects || projects.length === 0) {
+    let projects;
+    try {
+      const res = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}projects/admin-export`,
+        apiWithAuth(),
+      );
+      projects = Array.isArray(res.data) ? res.data : [];
+    } catch (e) {
+      console.error(e);
+      toast.error(
+        e.response?.data?.message ??
+          "Could not export projects. Sign in and ensure you can manage projects.",
+      );
       return;
     }
 
-    // 🔹 Remove keys ending with "_id"
-    let headers = Object.keys(projects[0]).filter(
-      (key) => !key.toLowerCase().endsWith("id") || key.toLowerCase() === "id",
-    );
+    if (!projects.length) {
+      toast.info("No projects to export.");
+      return;
+    }
 
-    // 🔹 Ensure "id" is first and "project_name" is second
-    headers = headers.sort((a, b) => {
-      if (a === "id") return -1;
-      if (b === "id") return 1;
-      if (a === "projectName") return headers.includes("id") ? -1 : 1;
-      if (b === "projectName") return headers.includes("id") ? 1 : -1;
-      return 0;
-    });
-
-    // 🔹 Sort projects by id
     projects.sort((a, b) => (a.id || 0) - (b.id || 0));
+
+    const headers = PROJECT_EXPORT_COLUMN_ORDER;
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Projects");
 
-    // 🔹 Format headers (capitalize + replace underscores with spaces)
-    const formattedHeaders = headers.map((h) =>
-      h.replace(/_/g, " ").toUpperCase(),
-    );
+    worksheet.addRow(headers.map(headerLabelFromKey));
 
-    // 🔹 Add headers row
-    worksheet.addRow(formattedHeaders);
-
-    // 🔹 Style headers
     const headerRow = worksheet.getRow(1);
     headerRow.font = { bold: true, color: { argb: "FFFFFFFF" } };
     headerRow.fill = {
       type: "pattern",
       pattern: "solid",
-      fgColor: { argb: "FF228B22" }, // green
+      fgColor: { argb: "FF228B22" },
     };
     headerRow.alignment = { vertical: "middle", horizontal: "center" };
 
-    // 🔹 Add filter on headers
     worksheet.autoFilter = {
       from: { row: 1, column: 1 },
       to: { row: 1, column: headers.length },
     };
 
-    // 🔹 Iterate over projects and add rows
-    for (let rowIndex = 0; rowIndex < projects.length; rowIndex++) {
-      const project = projects[rowIndex];
-      const rowValues = [];
+    const wideTextKeys = new Set([
+      "amenityDesc",
+      "floorPlanDesc",
+      "locationDesc",
+      "metaKeyword",
+      "metaDescription",
+      "locationMap",
+    ]);
 
-      headers.forEach((key) => {
-        if (
-          key === "project_image" ||
-          key === "project_logo" ||
-          key === "project_thumbnail"
-        ) {
-          rowValues.push(""); // placeholder for image
-        } else if (key === "projectPrice") {
-          const price = parseFloat(project[key]);
-          if (!isNaN(price)) {
-            if (price >= 1) {
-              rowValues.push(`${parseFloat(price.toFixed(2))} Cr`);
-            } else {
-              rowValues.push(`${parseFloat((price * 100).toFixed(2))} Lac`);
-            }
-          } else {
-            rowValues.push(project[key] || "");
-          }
-        } else {
-          rowValues.push(project[key] || "");
-        }
-      });
-
-      const row = worksheet.addRow(rowValues);
-
-      // 🔹 Insert images
-      headers.forEach((key, colIndex) => {
-        if (
-          key === "project_image" ||
-          key === "project_logo" ||
-          key === "project_thumbnail"
-        ) {
-          const imagePath = project[key]; // Can be public path or base64
-          if (imagePath) {
-            try {
-              const imageId = workbook.addImage({
-                filename: imagePath,
-                extension: imagePath.split(".").pop(),
-              });
-
-              worksheet.addImage(imageId, {
-                tl: { col: colIndex, row: rowIndex + 1 }, // 0-based
-                ext: { width: 80, height: 80 },
-              });
-
-              worksheet.getColumn(colIndex + 1).width = 20;
-              row.height = 80;
-            } catch (e) {
-              // Image loading error - skip this image
-            }
-          }
-        }
-      });
+    for (const project of projects) {
+      const rowValues = headers.map((key) =>
+        formatExportCell(key, project[key]),
+      );
+      worksheet.addRow(rowValues);
     }
 
-    // 🔹 Auto size all columns with max width cap (≈30 chars ~ 200px)
-    worksheet.columns.forEach((col) => {
-      let maxLength = 15; // min width
+    worksheet.columns.forEach((col, idx) => {
+      const key = headers[idx];
+      if (wideTextKeys.has(key)) {
+        col.width = 50;
+        return;
+      }
+      let maxLength = 12;
       col.eachCell({ includeEmpty: true }, (cell) => {
-        const len = cell.value ? cell.value.toString().length : 0;
+        const len = cell.value != null ? String(cell.value).length : 0;
         if (len > maxLength) maxLength = len;
       });
-      col.width = Math.min(maxLength + 2, 30); // cap at 30
+      col.width = Math.min(maxLength + 2, 45);
     });
 
-    // 🔹 Unique file name with date-time
     const now = new Date();
     const timestamp = now
       .toISOString()
       .replace(/[-:]/g, "")
       .replace("T", "_")
       .split(".")[0];
-    const fileName = `projects_list_${timestamp}.xlsx`;
+    const fileName = `projects_export_${timestamp}.xlsx`;
 
-    // 🔹 Export as Excel
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), fileName);
+    toast.success("Export downloaded.");
   };
   const openUploadModal = () => {
     setShowUploadModal(true);

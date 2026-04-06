@@ -3,12 +3,36 @@ import Link from "next/link";
 import "./sidenav.css";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { useAdminRole } from "../_contexts/AdminRoleContext";
+import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGaugeHigh,
+  faClipboardCheck,
+  faUsers,
+  faUserClock,
+  faGlobe,
+  faSliders,
+  faBuilding,
+  faFolderOpen,
+  faChartLine,
+  faLayerGroup,
+  faStar,
+  faMapLocationDot,
+  faEnvelopeOpenText,
+  faPenToSquare,
+  faBookOpen,
+  faRightFromBracket,
+  faHouse,
+  faImages,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
+  const { isSuperAdmin, hasPermission } = useAdminRole();
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
@@ -138,9 +162,11 @@ export default function SideNav({ onLinkClick }) {
       <ul className="list-unstyled components">
         <li className={isActive("/admin/dashboard") ? "active" : ""}>
           <Link href="/admin/dashboard" onClick={handleLinkClick}>
-            Dashboard
+            <FontAwesomeIcon icon={faGaugeHigh} className="admin-nav-ico" />
+            <span>Dashboard</span>
           </Link>
         </li>
+        {isSuperAdmin && (
         <li
           className={
             isActive("/admin/dashboard/property-approvals") ? "active" : ""
@@ -150,16 +176,37 @@ export default function SideNav({ onLinkClick }) {
             href="/admin/dashboard/property-approvals"
             onClick={handleLinkClick}
           >
-            Property Approvals
+            <FontAwesomeIcon icon={faClipboardCheck} className="admin-nav-ico" />
+            <span>Property Approvals</span>
           </Link>
         </li>
+        )}
+        {isSuperAdmin && (
         <li
           className={isActive("/admin/dashboard/manage-users") ? "active" : ""}
         >
           <Link href="/admin/dashboard/manage-users" onClick={handleLinkClick}>
-            Manage Users
+            <FontAwesomeIcon icon={faUsers} className="admin-nav-ico" />
+            <span>Manage Users</span>
           </Link>
         </li>
+        )}
+        {isSuperAdmin && (
+        <li
+          className={
+            isActive("/admin/dashboard/pending-admin-approvals") ? "active" : ""
+          }
+        >
+          <Link
+            href="/admin/dashboard/pending-admin-approvals"
+            onClick={handleLinkClick}
+          >
+            <FontAwesomeIcon icon={faUserClock} className="admin-nav-ico" />
+            <span>Pending admin access</span>
+          </Link>
+        </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEBSITE) && (
         <li
           className={
             activeDropdown === "dropdown6" ||
@@ -175,7 +222,8 @@ export default function SideNav({ onLinkClick }) {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            Manage Website
+            <FontAwesomeIcon icon={faGlobe} className="admin-nav-ico" />
+            <span className="admin-nav-label">Manage Website</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -199,7 +247,8 @@ export default function SideNav({ onLinkClick }) {
                 aria-expanded="false"
                 className="dropdown-toggle"
               >
-                Home Page
+                <FontAwesomeIcon icon={faHouse} className="admin-nav-ico" />
+                <span className="admin-nav-label">Home Page</span>
               </Link>
               <ul
                 className={`collapse list-unstyled ms-4 ${
@@ -219,13 +268,16 @@ export default function SideNav({ onLinkClick }) {
                     href="/admin/dashboard/manage-home-banners"
                     onClick={handleLinkClick}
                   >
-                    Banners
+                    <FontAwesomeIcon icon={faImages} className="admin-nav-ico" />
+                    <span>Banners</span>
                   </Link>
                 </li>
               </ul>
             </li>
           </ul>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS) && (
         <li
           className={
             activeDropdown === "dropdown3" ||
@@ -252,7 +304,8 @@ export default function SideNav({ onLinkClick }) {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            Manage Options
+            <FontAwesomeIcon icon={faSliders} className="admin-nav-ico" />
+            <span className="admin-nav-label">Manage Options</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -382,6 +435,9 @@ export default function SideNav({ onLinkClick }) {
             </li>
           </ul>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) && (
+        <>
         <li
           className={
             activeDropdown === "dropdown1" ||
@@ -406,7 +462,8 @@ export default function SideNav({ onLinkClick }) {
             onClick={(e) => toggleDropdown(e, "dropdown1")}
             className="dropdown-toggle"
           >
-            Management
+            <FontAwesomeIcon icon={faBuilding} className="admin-nav-ico" />
+            <span className="admin-nav-label">Management</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -536,9 +593,13 @@ export default function SideNav({ onLinkClick }) {
             href="/admin/dashboard/manage-projects"
             onClick={handleLinkClick}
           >
-            Manage Projects
+            <FontAwesomeIcon icon={faFolderOpen} className="admin-nav-ico" />
+            <span>Manage Projects</span>
           </Link>
         </li>
+        </>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_INSIGHTS) && (
         <li
           className={
             activeDropdown === "dropdown2" ||
@@ -559,7 +620,8 @@ export default function SideNav({ onLinkClick }) {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            Insight Management
+            <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
+            <span className="admin-nav-label">Insight Management</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -626,11 +688,16 @@ export default function SideNav({ onLinkClick }) {
             </li>
           </ul>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES) && (
         <li className={isActive("/admin/dashboard/aminities") ? "active" : ""}>
           <Link href="/admin/dashboard/aminities" onClick={handleLinkClick}>
-            Amenities
+            <FontAwesomeIcon icon={faLayerGroup} className="admin-nav-ico" />
+            <span>Amenities</span>
           </Link>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_FEATURES) && (
         <li
           className={
             isActive("/admin/dashboard/manage-features") ? "active" : ""
@@ -640,9 +707,12 @@ export default function SideNav({ onLinkClick }) {
             href="/admin/dashboard/manage-features"
             onClick={handleLinkClick}
           >
-            Manage Features
+            <FontAwesomeIcon icon={faStar} className="admin-nav-ico" />
+            <span>Manage Features</span>
           </Link>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_NEARBY_BENEFITS) && (
         <li
           className={
             isActive("/admin/dashboard/manage-location-benefits")
@@ -654,14 +724,20 @@ export default function SideNav({ onLinkClick }) {
             href="/admin/dashboard/manage-location-benefits"
             onClick={handleLinkClick}
           >
-            Manage Nearby Benefits
+            <FontAwesomeIcon icon={faMapLocationDot} className="admin-nav-ico" />
+            <span>Manage Nearby Benefits</span>
           </Link>
         </li>
+        )}
+        {isSuperAdmin && (
         <li className={isActive("/admin/dashboard/enquiries") ? "active" : ""}>
           <Link href="/admin/dashboard/enquiries" onClick={handleLinkClick}>
-            Manage Enquiries
+            <FontAwesomeIcon icon={faEnvelopeOpenText} className="admin-nav-ico" />
+            <span>Manage Enquiries</span>
           </Link>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS) && (
         <li
           className={
             activeDropdown === "dropdown4" ||
@@ -680,7 +756,8 @@ export default function SideNav({ onLinkClick }) {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            Blog management
+            <FontAwesomeIcon icon={faPenToSquare} className="admin-nav-ico" />
+            <span className="admin-nav-label">Blog management</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -719,6 +796,8 @@ export default function SideNav({ onLinkClick }) {
             </li>
           </ul>
         </li>
+        )}
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) && (
         <li
           className={
             activeDropdown === "dropdown5" ||
@@ -737,7 +816,8 @@ export default function SideNav({ onLinkClick }) {
             aria-expanded="false"
             className="dropdown-toggle"
           >
-            Web story management
+            <FontAwesomeIcon icon={faBookOpen} className="admin-nav-ico" />
+            <span className="admin-nav-label">Web story management</span>
           </Link>
           <ul
             className={`collapse list-unstyled ms-4 ${
@@ -771,9 +851,11 @@ export default function SideNav({ onLinkClick }) {
             </li>
           </ul>
         </li>
+        )}
         <li>
           <Link href="#" onClick={() => handleLogout()} className="logout-link">
-            Log out
+            <FontAwesomeIcon icon={faRightFromBracket} className="admin-nav-ico" />
+            <span>Log out</span>
           </Link>
         </li>
       </ul>

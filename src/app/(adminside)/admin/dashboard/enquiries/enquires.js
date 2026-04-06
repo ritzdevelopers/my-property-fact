@@ -1,50 +1,91 @@
 "use client";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { exportTOExcel } from "../common-model/exporttoexcel";
 import { toast } from "react-toastify";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CommonModal from "../common-model/common-model";
-import { FormControl } from "react-bootstrap";
-import { useRouter } from "next/navigation";
+import { FormControl, Spinner } from "react-bootstrap";
 import Link from "next/link";
-export default function Enquiries({ list }) {
+import { useAdminRole } from "../../_contexts/AdminRoleContext";
+
+const apiBase = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/?$/, "/");
+
+export default function Enquiries() {
+  const { isSuperAdmin, loading: roleLoading } = useAdminRole();
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [confirmBox, setConfirmBox] = useState(false);
   const [id, setId] = useState(0);
-  const router = useRouter();
-  //Handle opening confirmation box
-  const openConfirmationDialog = (id) => {
-    setConfirmBox(true);
-    setId(id);
+
+  const loadList = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${apiBase}enquiry/get-all`, {
+        credentials: "include",
+      });
+      if (res.status === 403) {
+        toast.error("Only Super Admins can manage enquiries.");
+        setList([]);
+        return;
+      }
+      if (!res.ok) {
+        toast.error("Failed to load enquiries.");
+        setList([]);
+        return;
+      }
+      const data = await res.json();
+      setList(Array.isArray(data) ? data : []);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to load enquiries.");
+      setList([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  //Handle Export file to excel
+  useEffect(() => {
+    if (roleLoading) return;
+    if (!isSuperAdmin) {
+      setList([]);
+      setLoading(false);
+      return;
+    }
+    loadList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load when role context ready
+  }, [roleLoading, isSuperAdmin]);
+
+  const openConfirmationDialog = (rowId) => {
+    setConfirmBox(true);
+    setId(rowId);
+  };
+
   const exportToExcel = async () => {
     exportTOExcel(list, "Enquiries");
     toast.success("Enquiries exported successfully...");
   };
 
-  //Handle status change with API call
   const handleStatusChange = async (e, enquiryId) => {
     const newStatus = e.target.value;
-
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}enquiry/update-status/${enquiryId}`,
+        `${apiBase}enquiry/update-status/${enquiryId}`,
         {
           method: "PUT",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ status: newStatus }),
-        }
+        },
       );
 
       if (response.ok) {
         toast.success(`Status updated to ${newStatus} successfully`);
-        router.refresh();
+        await loadList();
+      } else if (response.status === 403) {
+        toast.error("Only Super Admins can update enquiries.");
       } else {
         toast.error("Failed to update status");
       }
@@ -54,38 +95,42 @@ export default function Enquiries({ list }) {
     }
   };
 
-  //Get background color for status
   const getStatusColor = (status) => {
     const colors = {
-      Shared: "#e3f2fd", // Light blue
-      Test: "#fff3e0", // Light orange
-      New: "#e8f5e8", // Light green
-      Pending: "#fff8e1", // Light yellow
-      Rejected: "#ffebee", // Light red
-      Duplicate: "#f5f5f5", // Light gray
-      Irrelevant: "#f3e5f5", // Light purple
+      Shared: "#e3f2fd",
+      Test: "#fff3e0",
+      New: "#e8f5e8",
+      Pending: "#fff8e1",
+      Rejected: "#ffebee",
+      Duplicate: "#f5f5f5",
+      Irrelevant: "#f3e5f5",
     };
     return colors[status] || "#f8f9fa";
   };
 
-  //Get text color for status
   const getStatusTextColor = (status) => {
     const colors = {
-      Shared: "#1565c0", // Darker blue for better contrast
-      Test: "#ef6c00", // Darker orange for better contrast
-      New: "#2e7d32", // Darker green for better contrast
-      Pending: "#f57f17", // Darker yellow for better contrast
-      Rejected: "#c62828", // Darker red for better contrast
-      Duplicate: "#616161", // Medium gray for better contrast
-      Irrelevant: "#7b1fa2", // Darker purple for better contrast
+      Shared: "#1565c0",
+      Test: "#ef6c00",
+      New: "#2e7d32",
+      Pending: "#f57f17",
+      Rejected: "#c62828",
+      Duplicate: "#616161",
+      Irrelevant: "#7b1fa2",
     };
     return colors[status] || "#424242";
   };
 
-  //Status options array
-  const statusOptions = ["New", "Shared", "Test", "Pending", "Rejected", "Duplicate", "Irrelevant"];
+  const statusOptions = [
+    "New",
+    "Shared",
+    "Test",
+    "Pending",
+    "Rejected",
+    "Duplicate",
+    "Irrelevant",
+  ];
 
-  //Defining table columns
   const columns = [
     {
       field: "index",
@@ -210,7 +255,7 @@ export default function Enquiries({ list }) {
               backgroundColor: getStatusColor(params.row.status || "New"),
               color: getStatusTextColor(params.row.status || "New"),
               border: `2px solid ${getStatusTextColor(
-                params.row.status || "New"
+                params.row.status || "New",
               )}30`,
               borderRadius: "12px",
               padding: "5px 10px",
@@ -253,6 +298,15 @@ export default function Enquiries({ list }) {
       ),
     },
   ];
+
+  if (roleLoading || loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center py-5">
+        <Spinner animation="border" role="status" variant="success" />
+      </div>
+    );
+  }
+
   return (
     <>
       <DashboardHeader
@@ -260,13 +314,19 @@ export default function Enquiries({ list }) {
         functionName={exportToExcel}
         heading={"Manage Enquiries"}
       />
+      {!isSuperAdmin ? (
+        <div className="alert alert-warning mt-3">
+          Only Super Admins can view and manage enquiries.
+        </div>
+      ) : null}
       <div>
         <DataTable columns={columns} list={list} />
       </div>
       <CommonModal
-        api={`${process.env.NEXT_PUBLIC_API_URL}enquiry/delete/${id}`}
+        api={`${apiBase}enquiry/delete/${id}`}
         setConfirmBox={setConfirmBox}
         confirmBox={confirmBox}
+        fetchAllHeadersList={loadList}
       />
     </>
   );

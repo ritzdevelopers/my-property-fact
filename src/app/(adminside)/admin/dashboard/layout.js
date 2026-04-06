@@ -1,14 +1,14 @@
 "use client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
 import SideNav from "../_sidenav/page";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
+import "./admin-theme.css";
 import "./admin-layout.css";
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const router = useRouter();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -19,6 +19,7 @@ export default function AdminLayout({ children }) {
   };
 
   return (
+    <AdminRoleProvider>
     <div className="admin-layout-wrapper">
       {/* Mobile Header */}
       <div className="admin-mobile-header">
@@ -46,11 +47,16 @@ export default function AdminLayout({ children }) {
           <SideNav onLinkClick={closeSidebar} />
         </div>
 
-        {/* Main Content */}
+        {/* Main Content — inner surface wraps all dashboard pages */}
         <div className="admin-main-content">
-          {children}
+          <div className="admin-main-inner">
+            <div className="admin-page-container admin-page-surface">
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    </AdminRoleProvider>
   );
 }

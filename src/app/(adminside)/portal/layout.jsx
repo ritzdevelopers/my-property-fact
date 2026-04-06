@@ -4,7 +4,6 @@ import './portal-global.css';
 import './_components/PortalCommonStyles.css';
 import '@coreui/coreui/dist/css/coreui.min.css';
 import { UserProvider } from './_contexts/UserContext';
-import SessionMonitor from '../admin/_components/SessionMonitor';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -108,7 +107,6 @@ export const metadata = {
 export default function PortalLayout({ children }) {
   return (
     <UserProvider>
-      <SessionMonitor />
       <div className="portal-body">
         <div id="portal-root">
           {children}

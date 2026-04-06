@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { canAccessAdminPath } from "./app/(adminside)/admin/adminPermissions";
+import { getPublicApiBase } from "./lib/publicApiBase";
 
 const protectedRoutes = [
   "/admin",
@@ -8,17 +10,36 @@ const protectedRoutes = [
   "/portal/dashboard",
 ];
 
+function buildCookieHeader(req) {
+  try {
+    const all = req.cookies.getAll();
+    if (!all?.length) return req.headers.get("cookie") || "";
+    return all.map((c) => `${c.name}=${c.value}`).join("; ");
+  } catch {
+    return req.headers.get("cookie") || "";
+  }
+}
+
 // checking session validity and extracting roles
 async function checkSession(req) {
   try {
-    // const cookieHeader = req.headers.get("cookie");
-    const cookieHeader = req.cookies.toString();
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}auth/session`, {
+    const apiBase = getPublicApiBase();
+    if (!apiBase) {
+      return { valid: false };
+    }
+    const cookieHeader = buildCookieHeader(req);
+    const res = await fetch(`${apiBase}auth/session`, {
       headers: {
         Cookie: cookieHeader || "",
       },
     });
-    const data = await res.json();
+    const text = await res.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      return { valid: false };
+    }
     if (!res.ok) return { valid: false };
     // Session expiry: backend sends expiresAt in response body (ISO string)
     if (data.expiresAt) {
@@ -30,6 +51,7 @@ async function checkSession(req) {
     return {
       valid: true,
       roles: data.roles || [],
+      permissions: data.permissions || [],
       email: data.email,
     };
   } catch (err) {
@@ -54,8 +76,19 @@ function hasRole(roles, requiredRole) {
   });
 }
 
+/** Super Admin or Admin may use /admin dashboard (not portal User). */
+function hasAdminDashboardAccess(roles) {
+  return hasRole(roles, "SUPERADMIN") || hasRole(roles, "ADMIN");
+}
+
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
+
+  // Public registration (no session required)
+  if (path === "/admin/register" || path === "/admin/register/") {
+    return NextResponse.next();
+  }
+
   // Special case: login page
   if (path === "/admin") {
     // Check if accessDenied query parameter is already present
@@ -63,8 +96,7 @@ export async function middleware(req) {
 
     const session = await checkSession(req);
     if (session.valid) {
-      // Check if user has SUPERADMIN role
-      if (hasRole(session.roles, "SUPERADMIN")) {
+      if (hasAdminDashboardAccess(session.roles)) {
         return NextResponse.redirect(new URL("/admin/dashboard", req.url));
       }
       // Logged in but wrong role
@@ -116,10 +148,22 @@ export async function middleware(req) {
 
     // ---- ROLE BASED ACCESS ----
     if (isAdminRoute) {
-      if (!hasRole(session.roles, "SUPERADMIN")) {
-        return NextResponse.redirect(
-          new URL("/portal", req.url),
+      if (!hasAdminDashboardAccess(session.roles)) {
+        return NextResponse.redirect(new URL("/portal", req.url));
+      }
+      if (
+        path.startsWith("/admin/dashboard") &&
+        path !== "/admin/dashboard" &&
+        path !== "/admin/dashboard/"
+      ) {
+        const gate = canAccessAdminPath(
+          session.roles,
+          session.permissions,
+          path,
         );
+        if (!gate.ok && gate.redirect) {
+          return NextResponse.redirect(new URL(gate.redirect, req.url));
+        }
       }
     }
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -16,7 +17,14 @@ export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHe
 
     setIsDeleting(true);
     try {
-      const response = await axios.delete(api, { withCredentials: true });
+      const token =
+        typeof window !== "undefined" ? Cookies.get("token") : undefined;
+      const response = await axios.delete(api, {
+        withCredentials: true,
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       
       // Handle successful response (204 No Content or 200 OK with message)
       if (response.status === 204 || response.status === 200) {

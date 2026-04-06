@@ -9,29 +9,31 @@ export default function DashboardHeader({
   exportDisabled = false,
 }) {
   return (
-    <>
-      <div className="d-flex justify-content-between mt-2">
-        <h1>{heading}</h1>
-        <div>
-          {exportExcel && (
-            <Button
-              className="mx-3 btn btn-warning text-capitalize"
-              disabled={exportDisabled}
-              onClick={() => exportFunction()}
-            >
-              {exportExcel}
-            </Button>
-          )}
-          {buttonName && (
-            <Button
-              className="mx-3 btn btn-success text-capitalize"
-              onClick={() => functionName()}
-            >
-              {buttonName}
-            </Button>
-          )}
-        </div>
+    <div className="admin-dashboard-toolbar">
+      <div className="admin-dashboard-toolbar-title-wrap">
+        <h1 className="admin-dashboard-toolbar-title">{heading}</h1>
       </div>
-    </>
+      <div className="admin-dashboard-toolbar-actions">
+        {exportExcel && (
+          <Button
+            variant="warning"
+            className="text-capitalize admin-toolbar-btn"
+            disabled={exportDisabled}
+            onClick={() => exportFunction()}
+          >
+            {exportExcel}
+          </Button>
+        )}
+        {buttonName && (
+          <Button
+            variant="success"
+            className="text-capitalize admin-toolbar-btn"
+            onClick={() => functionName()}
+          >
+            {buttonName}
+          </Button>
+        )}
+      </div>
+    </div>
   );
 }

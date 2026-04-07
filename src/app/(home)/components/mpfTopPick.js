@@ -21,7 +21,16 @@ export default function MpfTopPicks({ topProject }) {
     projectLogo,
     projectBannerImage,
     slugURL,
+    projectStatusName,
   } = topProject;
+
+  const statusDisplay =
+    projectStatusName && String(projectStatusName).trim()
+      ? String(projectStatusName).trim()
+      : null;
+  const statusHoverLabel = statusDisplay
+    ? `Project status: ${statusDisplay}`
+    : "Project status: not specified in listing — see project page for details";
 
   // Generating price in lakh & cr
   const generatePrice = (price) => {
@@ -168,12 +177,15 @@ export default function MpfTopPicks({ topProject }) {
                   quality={60}
                   className="mpf-top-picks-card__media-img"
                 />
-                <div className="mpf-top-picks-card__tag">
+                <div
+                  className="mpf-top-picks-card__tag"
+                  title={statusHoverLabel}
+                >
                   <span className="mpf-top-picks-card__tag-eyebrow">
-                    Premium Living Spaces
+                    Project status
                   </span>
                   <span className="mpf-top-picks-card__tag-title">
-                    Ready to Move In
+                    {statusDisplay ?? "See project page"}
                   </span>
                 </div>
               </div>

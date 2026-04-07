@@ -282,30 +282,58 @@
   vertical-align: middle;
 }
 
-.manage-users-compact-table thead th {
-  background: linear-gradient(180deg, #4a9960 0%, #3d8250 100%);
-  color: #fff;
+/* Beat Bootstrap `.table > :not(caption) > * > *` (higher specificity than `.manage-users-compact-table thead th`). */
+.admin-layout-wrapper
+  .manage-users-table-scroll
+  table.manage-users-compact-table
+  > thead
+  > tr
+  > th {
+  background: #f3f4f6 !important;
+  background-color: #f3f4f6 !important;
+  color: #6b7280 !important;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-size: 0.7rem;
+  letter-spacing: 0.07em;
+  font-size: 0.6875rem;
   white-space: nowrap;
   padding: 0.5rem 0.6rem;
   border: none;
+  border-bottom: 1px solid #e5e7eb !important;
+  box-shadow: none !important;
+  --bs-table-bg-type: transparent;
+  --bs-table-bg-state: transparent;
 }
 
-.manage-users-compact-table tbody td {
+.admin-layout-wrapper
+  .manage-users-table-scroll
+  table.manage-users-compact-table
+  > tbody
+  > tr
+  > td {
   padding: 0.4rem 0.55rem;
   border-color: rgba(27, 46, 36, 0.08);
   line-height: 1.35;
+  background-color: #fff !important;
+  box-shadow: none !important;
 }
 
-.manage-users-compact-table tbody tr:nth-child(even) {
-  background: rgba(74, 153, 96, 0.05);
+.admin-layout-wrapper
+  .manage-users-table-scroll
+  table.manage-users-compact-table
+  > tbody
+  > tr:nth-child(even)
+  > td {
+  background-color: #f9fafb !important;
 }
 
-.manage-users-compact-table tbody tr:hover {
-  background: rgba(74, 153, 96, 0.11);
+.admin-layout-wrapper
+  .manage-users-table-scroll
+  table.manage-users-compact-table
+  > tbody
+  > tr:hover
+  > td {
+  background-color: #f3f4f6 !important;
 }
 
 .manage-users-compact-table .manage-users-actions-grid {
@@ -317,4 +345,11 @@
   font-size: 0.875rem;
   color: var(--admin-ink-muted, #4d6358);
   font-weight: 500;
+}
+
+/* SVG action icons in DataGrid / tables (pointer-events off so parent button gets clicks) */
+img.admin-table-action-icon {
+  object-fit: contain;
+  pointer-events: none;
+  flex-shrink: 0;
 }

@@ -2,7 +2,11 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import { faEye, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { useState } from "react";
 import GenerateForm from "../common-model/generateForm";
 import CommonModal from "../common-model/common-model";
@@ -92,19 +96,23 @@ export default function ManageCountry({ list }) {
         {
             field: "action", headerName: "Action", width: 100,
             renderCell: (params) => (
-                <div className="d-flex align-items-center justify-content-center mt-3">
-                    <FontAwesomeIcon
-                        className="text-warning"
+                <div className="d-flex align-items-center justify-content-center mt-3 gap-3">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-danger mx-4"
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmation(params.row.id)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
                 </div>
             )
         },
@@ -169,11 +177,9 @@ export default function ManageCountry({ list }) {
                                     <td>{state.stateDescription}</td>
                                     <td>
                                         <div className="d-flex mt-3 justify-content-center">
-                                            <FontAwesomeIcon
-                                                className="text-danger"
-                                                style={{ cursor: "pointer" }}
-                                                icon={faTrash}
-                                            />
+                                            <span className="d-inline-flex" role="presentation">
+                                                <AdminTableDeleteIcon />
+                                            </span>
                                         </div>
                                     </td>
                                 </tr>

@@ -1,8 +1,10 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Form, FormControl, Modal } from "react-bootstrap";
@@ -379,13 +381,15 @@ export default function ManageBanners({ list, config = {} }) {
             headerName: "Action",
             width: 90,
             renderCell: (params) => (
-                <div className="d-flex gap-2 mt-3">
-                    <FontAwesomeIcon
-                        className="text-danger"
+                <div className="d-flex gap-2 mt-3 align-items-center">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationBox(params.row.id)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
                 </div>
             ),
         },
@@ -487,19 +491,23 @@ export default function ManageBanners({ list, config = {} }) {
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div className="d-flex gap-3 mt-3">
-                    <FontAwesomeIcon
-                        className="text-warning"
+                <div className="d-flex gap-3 mt-3 align-items-center">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditModel(params.row)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-danger"
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationBox(params.row.id)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
                 </div>
             ),
         },

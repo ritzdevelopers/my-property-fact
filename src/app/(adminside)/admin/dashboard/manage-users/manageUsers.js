@@ -5,12 +5,8 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPencil,
-  faCheck,
-  faTimes,
-  faMagnifyingGlass,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faTimes, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -444,7 +440,7 @@ export default function ManageUsers({ users: initialUsers }) {
 
   return (
     <div className="container-fluid px-0">
-      <DashboardHeader heading="Manage Users" />
+      <DashboardHeader heading="Manage Users" pageStyle="executivePlain" />
 
       <div className="mt-2">
         <div className="manage-users-toolbar">
@@ -627,7 +623,9 @@ export default function ManageUsers({ users: initialUsers }) {
                             size="sm"
                             onClick={() => openEditModal(user)}
                           >
-                            <FontAwesomeIcon icon={faPencil} className="me-1" />
+                            <span className="d-inline-flex align-items-center me-1">
+                              <AdminTableEditIcon width={14} height={14} />
+                            </span>
                             Edit
                           </Button>
                           {enabled ? (

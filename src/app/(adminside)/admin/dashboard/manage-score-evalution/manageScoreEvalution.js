@@ -5,8 +5,6 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import DataTable from "../common-model/data-table";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function ManageScoreEvalution({ localityList, list }) {
   const [localityId, setLocalityId] = useState(0);
@@ -187,27 +185,6 @@ export default function ManageScoreEvalution({ localityList, list }) {
       headerName: "Existing Supply Score",
       flex: 1,
     },
-    // {
-    //   field: "action",
-    //   headerName: "Action",
-    //   width: 100,
-    //   renderCell: (params) => (
-    //     <div>
-    //       {/* <FontAwesomeIcon
-    //         className="mx-3 text-danger"
-    //         style={{ cursor: "pointer" }}
-    //         icon={faTrash}
-    //         // onClick={() => openConfirmationBox(params.row.id)}
-    //       />
-    //       <FontAwesomeIcon
-    //         className="text-warning"
-    //         style={{ cursor: "pointer" }}
-    //         icon={faPencil}
-    //         // onClick={() => openEditModel(params.row)}
-    //       /> */}
-    //     </div>
-    //   ),
-    // },
   ];
   return (
     <>

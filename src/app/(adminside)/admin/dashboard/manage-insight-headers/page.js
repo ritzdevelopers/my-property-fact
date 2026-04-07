@@ -1,13 +1,16 @@
 "use client";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import CommonModal from "../common-model/common-model";
 import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
+import { adminExecutiveDataGridSx } from "../common-model/data-table";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 
 export default function CityHeaders() {
@@ -137,19 +140,23 @@ export default function CityHeaders() {
       headerName: "Action",
       width: 200,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="mx-3 text-danger"
+        <div className="d-flex align-items-center gap-2">
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faTrash}
             onClick={() => openConfirmationBox(params.row.id)}
-          />
-          <FontAwesomeIcon
-            className="text-warning"
+            role="presentation"
+          >
+            <AdminTableDeleteIcon />
+          </span>
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faPencil}
             onClick={() => openEditModel(params.row)}
-          />
+            role="presentation"
+          >
+            <AdminTableEditIcon />
+          </span>
         </div>
       ),
     },
@@ -164,22 +171,21 @@ export default function CityHeaders() {
           {pageObject.headingbuttonName}
         </Button>
       </div>
-      <div className="table-container mt-5">
-        <Paper sx={{ height: 550, width: "100%" }}>
+      <div className="admin-datagrid-scroll-host admin-datagrid-scroll-host--executive table-container mt-5">
+        <Paper
+          className="admin-mui-datagrid-paper"
+          elevation={0}
+          sx={{ height: 550, width: "100%", borderRadius: "16px" }}
+        >
           <DataGrid
             rows={allHeadersList}
             columns={columns}
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[10, 15, 20, 50]}
             checkboxSelection
-            sx={{
-              border: 0,
-              "& .MuiDataGrid-columnHeader": {
-                fontWeight: "bold", // Make headings bold
-                fontSize: "16px", // Optional: Adjust size
-                backgroundColor: "#68ac78", // Optional: Light background
-              },
-            }}
+            disableColumnMenu
+            disableRowSelectionOnClick
+            sx={adminExecutiveDataGridSx}
           />
         </Paper>
       </div>

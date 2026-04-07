@@ -3,7 +3,8 @@ import { Button } from "react-bootstrap";
 import DataTable from "../common-model/data-table";
 import { Box, IconButton, Typography } from "@mui/material";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDownload, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useState } from "react";
 import CommonModal from "../common-model/common-model";
 import { exportTOExcel } from "../common-model/exporttoexcel";
@@ -62,9 +63,13 @@ export default function ManageCareerApplications({ list = [] }) {
         { field: "createAt", headerName: "Applied On", flex: 1 },
         {
             field: "action", headerName: "Action", flex: 1, renderCell: (params) => (
-                <div>
-                    <FontAwesomeIcon color="red" className="cursor-pointer" icon={faTrash} onClick={() => deleteApplication(params.row.id)} />
-                </div>
+                <IconButton
+                    size="small"
+                    aria-label="Delete application"
+                    onClick={() => deleteApplication(params.row.id)}
+                >
+                    <AdminTableDeleteIcon />
+                </IconButton>
             )
         },
     ];

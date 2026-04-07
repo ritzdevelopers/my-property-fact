@@ -1,8 +1,10 @@
 "use client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -103,19 +105,23 @@ export default function WebStroyCategory({ list }) {
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div className="gap-3">
-                    <FontAwesomeIcon
-                        className="text-danger mx-2"
+                <div className="d-flex align-items-center gap-2">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationBox(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning pointer mx-2"
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },

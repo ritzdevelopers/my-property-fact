@@ -1,8 +1,7 @@
 "use client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import { useState } from "react";
 import GenerateForm from "../common-model/generateForm";
 
@@ -61,18 +60,14 @@ export default function ManageProjectStatus({ projectStatusList = [] }) {
       width: 100,
       renderCell: (params) => (
         <div className="gap-3">
-          {/* <FontAwesomeIcon
-            className="text-danger mx-2"
+          <span
+            className="d-inline-flex mx-2"
             style={{ cursor: "pointer" }}
-            icon={faTrash}
-            onClick={() => openConfirmationBox(params.row.id)}
-          /> */}
-          <FontAwesomeIcon
-            className="text-warning pointer mx-2"
-            style={{ cursor: "pointer" }}
-            icon={faPencil}
             onClick={() => openEditModel(params.row)}
-          />
+            role="presentation"
+          >
+            <AdminTableEditIcon />
+          </span>
         </div>
       ),
     },

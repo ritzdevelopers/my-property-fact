@@ -1,8 +1,10 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
@@ -618,19 +620,23 @@ export default function ManageProjects({
       headerName: "Action",
       width: 100,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="mx-3 text-danger"
+        <div className="d-flex align-items-center gap-2">
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faTrash}
             onClick={() => openConfirmationBox(params.row.id)}
-          />
-          <FontAwesomeIcon
-            className="text-warning"
+            role="presentation"
+          >
+            <AdminTableDeleteIcon />
+          </span>
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faPencil}
             onClick={() => openEditModel(params.row)}
-          />
+            role="presentation"
+          >
+            <AdminTableEditIcon />
+          </span>
         </div>
       ),
     },

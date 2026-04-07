@@ -1209,7 +1209,7 @@ const HeaderComponent = () => {
                             href={`/city/${city.slugURL}`}
                             prefetch={false}
                             onClick={openMenu}
-                            className="text-decoration-none"
+                            className={`text-decoration-none${pathname === `/city/${city.slugURL}` ? " header-link-active" : ""}`}
                           >
                             {city.cityName}
                           </Link>
@@ -1241,7 +1241,7 @@ const HeaderComponent = () => {
                       {(isMounted ? builderList : [])?.map((builder) => (
                         <li key={builder.id}>
                           <Link
-                            className="text-decoration-none builder-link"
+                            className={`text-decoration-none builder-link${pathname === `/builder/${builder.slugUrl}` ? " header-link-active" : ""}`}
                             href={`/builder/${builder.slugUrl}`}
                             onClick={openMenu}
                           >

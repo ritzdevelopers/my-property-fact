@@ -1,9 +1,9 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Paper } from "@mui/material";
+import { AdminTableDeleteIcon, AdminTableEditIcon } from "./admin-table-icons";
 import { DataGrid } from "@mui/x-data-grid";
+import { adminExecutiveDataGridSx } from "./data-table";
 import axios from "axios";
 // import { Paper } from "@mui/material";
 // import { DataGrid } from "@mui/x-data-grid";
@@ -126,19 +126,13 @@ export default function ImageUrlPopup({ confirmBox, setConfirmBox }) {
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div>
-                    <FontAwesomeIcon
-                        className="mx-3 text-danger cursor-pointer"
-                        style={{ cursor: "pointer" }}
-                        icon={faTrash}
-                    // onClick={() => openConfirmationBox(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning"
-                        style={{ cursor: "pointer" }}
-                        icon={faPencil}
-                    // onClick={() => openEditModel(params.row)}
-                    />
+                <div className="d-flex align-items-center gap-2">
+                    <span className="d-inline-flex mx-3" role="presentation">
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span className="d-inline-flex" role="presentation">
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },
@@ -154,22 +148,21 @@ export default function ImageUrlPopup({ confirmBox, setConfirmBox }) {
                 </Button>
             </Modal.Header>
             <div>
-                <div className="table-container">
-                    <Paper sx={{ height: 550, width: "100%" }}>
+                <div className="admin-datagrid-scroll-host admin-datagrid-scroll-host--executive table-container">
+                    <Paper
+                        className="admin-mui-datagrid-paper"
+                        elevation={0}
+                        sx={{ height: 550, width: "100%", borderRadius: "16px" }}
+                    >
                         <DataGrid
                             rows={blogContentImageList}
                             columns={columns}
                             initialState={{ pagination: { paginationModel } }}
                             pageSizeOptions={[10, 15, 20, 50]}
                             checkboxSelection
-                            sx={{
-                                border: 0,
-                                "& .MuiDataGrid-columnHeader": {
-                                    fontWeight: "bold", // Make headings bold
-                                    fontSize: "16px", // Optional: Adjust size
-                                    backgroundColor: "#68ac78", // Optional: Light background
-                                },
-                            }}
+                            disableColumnMenu
+                            disableRowSelectionOnClick
+                            sx={adminExecutiveDataGridSx}
                         />
                     </Paper>
                 </div>

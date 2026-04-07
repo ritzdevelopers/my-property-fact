@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -421,6 +421,47 @@ export default function Dashboard({
   const welcomeName =
     !roleLoading && displayName ? displayName.split(" ")[0] : null;
 
+  const greetingTarget = useMemo(() => {
+    if (roleLoading) return null;
+    return `Hi ${welcomeName || "there"}, Welcome to MPF Admin Dashboard`;
+  }, [roleLoading, welcomeName]);
+
+  const [typedGreeting, setTypedGreeting] = useState("");
+  const [greetingTypingDone, setGreetingTypingDone] = useState(false);
+  const greetingIntervalRef = useRef(null);
+
+  useEffect(() => {
+    if (greetingIntervalRef.current) {
+      clearInterval(greetingIntervalRef.current);
+      greetingIntervalRef.current = null;
+    }
+    if (!greetingTarget) {
+      setTypedGreeting("");
+      setGreetingTypingDone(false);
+      return;
+    }
+    setTypedGreeting("");
+    setGreetingTypingDone(false);
+    let i = 0;
+    greetingIntervalRef.current = setInterval(() => {
+      i += 1;
+      setTypedGreeting(greetingTarget.slice(0, i));
+      if (i >= greetingTarget.length) {
+        if (greetingIntervalRef.current) {
+          clearInterval(greetingIntervalRef.current);
+          greetingIntervalRef.current = null;
+        }
+        setGreetingTypingDone(true);
+      }
+    }, 42);
+    return () => {
+      if (greetingIntervalRef.current) {
+        clearInterval(greetingIntervalRef.current);
+        greetingIntervalRef.current = null;
+      }
+    };
+  }, [greetingTarget]);
+
   const activityLinkGates = {
     canApprovals,
     canManageBlogs,
@@ -432,7 +473,18 @@ export default function Dashboard({
       <header>
         {/* <p className="admin-dash-home__kicker">Executive overview</p> */}
         <div className="admin-dash-home__hero-row">
-          <h1 className="admin-dash-home__title">My Property Fact Dashboard</h1>
+          <h1
+            className="admin-dash-home__title admin-dash-home__title--greeting"
+            aria-label={greetingTarget || "Admin dashboard"}
+          >
+            {typedGreeting}
+            {greetingTarget && !greetingTypingDone ? (
+              <span
+                className="admin-dash-home__typing-cursor"
+                aria-hidden
+              />
+            ) : null}
+          </h1>
           {/* <div className="admin-dash-home__trend">
             <FontAwesomeIcon icon={faArrowTrendUp} />
             <span>12.5% vs last quarter</span>
@@ -627,12 +679,15 @@ export default function Dashboard({
                 strokeLinejoin="round"
               />
             </svg>
-            <div className="admin-dash-chart__overlay">
-              <p className="admin-dash-chart__overlay-title">Coming Soon</p>
-              <p className="admin-dash-chart__overlay-sub">
-                Daily analytics and live traffic will appear here once constructed.
-              </p>
-            </div>
+            {!roleLoading && isSuperAdmin ? (
+              <div className="admin-dash-chart__overlay">
+                <p className="admin-dash-chart__overlay-title">Coming Soon</p>
+                <p className="admin-dash-chart__overlay-sub">
+                  Daily analytics and live traffic will appear here once
+                  constructed.
+                </p>
+              </div>
+            ) : null}
           </div>
           {/* <div className="admin-dash-chart__foot">
             <div>

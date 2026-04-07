@@ -3,8 +3,10 @@ import { useState } from "react";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
 import GenerateForm from "../common-model/generateForm";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import CommonModal from "../common-model/common-model";
 
 export default function ManageLocality({ cityList, localityList, typeList }) {
@@ -91,19 +93,23 @@ export default function ManageLocality({ cityList, localityList, typeList }) {
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div>
-                    <FontAwesomeIcon
-                        className="mx-3 text-danger"
+                <div className="d-flex align-items-center gap-2">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationDialog(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning"
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },

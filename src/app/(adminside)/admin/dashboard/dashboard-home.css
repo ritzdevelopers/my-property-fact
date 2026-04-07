@@ -34,6 +34,27 @@
   text-transform: capitalize;
 }
 
+.admin-dash-home__title--greeting {
+  text-transform: none;
+  min-height: 1.15em;
+}
+
+.admin-dash-home__typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 2px;
+  background: #111827;
+  vertical-align: -0.06em;
+  animation: admin-dash-typing-cursor 0.95s step-end infinite;
+}
+
+@keyframes admin-dash-typing-cursor {
+  50% {
+    opacity: 0;
+  }
+}
+
 .admin-dash-home__trend {
   display: inline-flex;
   align-items: center;

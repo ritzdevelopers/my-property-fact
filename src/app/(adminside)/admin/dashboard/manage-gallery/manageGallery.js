@@ -1,6 +1,10 @@
 "use client";
-import { faEye, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import axios from "axios";
 import Image from "next/image";
 import { useState } from "react";
@@ -168,11 +172,13 @@ export default function ManageGallery({ list, projectsList, newList }) {
             icon={faEye}
             onClick={() => openImageList(params.row)}
           />
-          <FontAwesomeIcon
-            className="text-warning cursor-pointer"
-            icon={faPencil}
+          <span
+            className="d-inline-flex cursor-pointer"
             onClick={() => openEditModel(params.row)}
-          />
+            role="presentation"
+          >
+            <AdminTableEditIcon />
+          </span>
         </div>
       ),
     },
@@ -386,11 +392,14 @@ export default function ManageGallery({ list, projectsList, newList }) {
                 
               />
               <div>
-                <FontAwesomeIcon
-                  className="text-danger"
-                  icon={faTrash}
+                <span
+                  className="d-inline-flex"
+                  style={{ cursor: "pointer" }}
                   onClick={() => deleteGalleryImage(item.id)}
-                />
+                  role="presentation"
+                >
+                  <AdminTableDeleteIcon />
+                </span>
               </div>
             </div>
           ))}

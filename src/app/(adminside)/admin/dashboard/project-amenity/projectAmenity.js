@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Multiselect from "multiselect-react-dropdown";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import { useRouter } from "next/navigation";
@@ -125,13 +124,15 @@ export default function ProjectsAmenity({ projectList, amenityList }) {
       headerName: "Action",
       width: 100,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="text-warning"
+        <div className="d-inline-flex">
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faPencil}
             onClick={() => openEditPopUp(params.row)}
-          />
+            role="presentation"
+          >
+            <AdminTableEditIcon />
+          </span>
         </div>
       ),
     },

@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap";
 
 /**
- * @param {"default" | "executive"} pageStyle — executive adds kicker + primary green CTA styling
+ * @param {"default" | "executive" | "executivePlain"} pageStyle — executive adds kicker; executivePlain = same toolbar/chrome as executive without the kicker (e.g. Manage Users).
  */
 export default function DashboardHeader({
   heading,
@@ -12,14 +12,16 @@ export default function DashboardHeader({
   exportDisabled = false,
   pageStyle = "default",
 }) {
-  const isExecutive = pageStyle === "executive";
+  const isExecutiveChrome =
+    pageStyle === "executive" || pageStyle === "executivePlain";
+  const showExecutiveKicker = pageStyle === "executive";
 
   return (
     <div
-      className={`admin-dashboard-toolbar${isExecutive ? " admin-dashboard-toolbar--executive" : ""}`}
+      className={`admin-dashboard-toolbar${isExecutiveChrome ? " admin-dashboard-toolbar--executive" : ""}`}
     >
       <div className="admin-dashboard-toolbar-title-wrap">
-        {isExecutive ? (
+        {showExecutiveKicker ? (
           <p className="admin-dashboard-toolbar-kicker">Executive overview</p>
         ) : null}
         <h1 className="admin-dashboard-toolbar-title">{heading}</h1>
@@ -28,7 +30,7 @@ export default function DashboardHeader({
         {exportExcel && (
           <Button
             variant="warning"
-            className={`text-capitalize admin-toolbar-btn${isExecutive ? " admin-toolbar-btn--secondary-outline" : ""}`}
+            className={`text-capitalize admin-toolbar-btn${isExecutiveChrome ? " admin-toolbar-btn--secondary-outline" : ""}`}
             disabled={exportDisabled}
             onClick={() => exportFunction()}
           >

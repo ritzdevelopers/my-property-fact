@@ -65,70 +65,16 @@ const executiveGridSx = {
   },
 };
 
-const defaultGridSx = {
-  border: "none",
-  borderRadius: "12px",
-  fontFamily: "'Poppins', system-ui, sans-serif",
-  "& .MuiDataGrid-columnHeaders": {
-    borderBottom: "2px solid rgba(255,255,255,0.2)",
-  },
-  "& .MuiDataGrid-columnHeader": {
-    fontWeight: 700,
-    fontSize: "0.8125rem",
-    letterSpacing: "0.04em",
-    textTransform: "uppercase",
-    color: "#fff",
-    background: "linear-gradient(180deg, #4a9960 0%, #3d8250 100%)",
-    outline: "none !important",
-  },
-  "& .MuiDataGrid-columnHeaderTitle": {
-    whiteSpace: "normal",
-    lineHeight: 1.2,
-    overflow: "visible",
-  },
-  "& .MuiDataGrid-columnHeader:focus, & .MuiDataGrid-columnHeader:focus-within": {
-    outline: "none !important",
-  },
-  "& .MuiDataGrid-columnSeparator": {
-    color: "rgba(255,255,255,0.25)",
-  },
-  "& .MuiDataGrid-iconSeparator": {
-    color: "rgba(255,255,255,0.5)",
-  },
-  "& .MuiDataGrid-row": {
-    backgroundColor: "#fff",
-    fontSize: "0.875rem",
-  },
-  "& .MuiDataGrid-row:nth-of-type(even)": {
-    backgroundColor: "rgba(74, 153, 96, 0.04)",
-  },
-  "& .MuiDataGrid-row:hover": {
-    backgroundColor: "rgba(74, 153, 96, 0.1) !important",
-  },
-  "& .MuiDataGrid-cell": {
-    borderColor: "rgba(27, 46, 36, 0.07)",
-    color: "#1b2e24",
-  },
-  "& .MuiDataGrid-footerContainer": {
-    borderTop: "1px solid rgba(27, 46, 36, 0.1)",
-    backgroundColor: "rgba(248, 251, 249, 0.95)",
-    fontWeight: 500,
-    fontSize: "0.8125rem",
-  },
-  "& .centered-cell": {
-    marginLeft: "10px",
-  },
-};
+/** Shared MUI DataGrid styling (light header row) — use for standalone DataGrids outside DataTable. */
+export const adminExecutiveDataGridSx = executiveGridSx;
 
-/** Optional rowHeight, columnHeaderHeight, dataGridSx for page-specific grids. */
+/** Optional rowHeight, columnHeaderHeight, dataGridSx. Uses neutral (executive) grid chrome only. */
 export default function DataTable({
   list,
   columns,
   rowHeight,
   columnHeaderHeight,
   dataGridSx,
-  /** @type {"executive" | "legacy"} executive = light header, checkboxes on by default */
-  variant = "executive",
   checkboxSelection = true,
 }) {
   const [mounted, setMounted] = useState(false);
@@ -140,12 +86,11 @@ export default function DataTable({
   const paginationModel = { page: 0, pageSize: 10 };
 
   const mergedSx = useMemo(() => {
-    const base = variant !== "legacy" ? executiveGridSx : defaultGridSx;
     if (typeof dataGridSx === "object" && dataGridSx !== null) {
-      return { ...base, ...dataGridSx };
+      return { ...executiveGridSx, ...dataGridSx };
     }
-    return base;
-  }, [variant, dataGridSx]);
+    return executiveGridSx;
+  }, [dataGridSx]);
 
   if (!mounted) {
     return (
@@ -157,8 +102,8 @@ export default function DataTable({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: variant !== "legacy" ? "16px" : undefined,
-          border: variant !== "legacy" ? "1px solid #eef0f4" : undefined,
+          borderRadius: "16px",
+          border: "1px solid #eef0f4",
         }}
       >
         Loading…
@@ -166,18 +111,15 @@ export default function DataTable({
     );
   }
 
-  const isExecutive = variant !== "legacy";
-  const gridRowHeight = rowHeight ?? (isExecutive ? 56 : undefined);
-  const headerH = columnHeaderHeight ?? (isExecutive ? 48 : undefined);
+  const gridRowHeight = rowHeight ?? 56;
+  const headerH = columnHeaderHeight ?? 48;
 
   return (
-    <div
-      className={`admin-datagrid-scroll-host${isExecutive ? " admin-datagrid-scroll-host--executive" : ""}`}
-    >
+    <div className="admin-datagrid-scroll-host admin-datagrid-scroll-host--executive">
       <Paper
         className="admin-mui-datagrid-paper"
         elevation={0}
-        sx={{ width: "100%", borderRadius: isExecutive ? "16px" : undefined }}
+        sx={{ width: "100%", borderRadius: "16px" }}
       >
         <DataGrid
           rows={list ?? []}
@@ -188,7 +130,7 @@ export default function DataTable({
           columnHeaderHeight={headerH}
           disableRowSelectionOnClick
           checkboxSelection={checkboxSelection}
-          disableColumnMenu={isExecutive}
+          disableColumnMenu
           sx={mergedSx}
         />
       </Paper>

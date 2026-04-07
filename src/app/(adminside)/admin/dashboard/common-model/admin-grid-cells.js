@@ -1,8 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableDeleteIcon, AdminTableEditIcon } from "./admin-table-icons";
 
 /** Circular table thumbnail — preserves image display per design. */
 export function AdminGridImageThumb({ src, alt, onPreviewClick }) {
@@ -39,7 +38,7 @@ export function AdminGridImageThumb({ src, alt, onPreviewClick }) {
   return inner;
 }
 
-/** Blue edit + red delete icon buttons to match reference UI. */
+/** Edit / delete using brand SVGs from `/public/images/admin/`. */
 export function AdminGridActions({ onEdit, onDelete }) {
   return (
     <div className="admin-grid-actions">
@@ -52,7 +51,7 @@ export function AdminGridActions({ onEdit, onDelete }) {
         }}
         aria-label="Edit"
       >
-        <FontAwesomeIcon icon={faPencil} />
+        <AdminTableEditIcon width={18} height={18} />
       </button>
       <button
         type="button"
@@ -63,7 +62,7 @@ export function AdminGridActions({ onEdit, onDelete }) {
         }}
         aria-label="Delete"
       >
-        <FontAwesomeIcon icon={faTrash} />
+        <AdminTableDeleteIcon width={14} height={18} />
       </button>
     </div>
   );

@@ -16,11 +16,8 @@ import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLock,
-  faMagnifyingGlass,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faLock, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
@@ -620,7 +617,7 @@ export default function Enquiries() {
                             title="Delete"
                             onClick={() => openConfirmationDialog(row.id)}
                           >
-                            <FontAwesomeIcon icon={faTrash} />
+                            <AdminTableDeleteIcon />
                           </Button>
                         </td>
                       </tr>

@@ -1,30 +1,26 @@
 import { getImageProps } from "next/image";
 import Link from "next/link";
 import SearchFilter from "./searchFIlter";
+import {
+  ghdHeroBannerSrc,
+  getGhdHeroImagePropsCommon,
+} from "./ghdHeroBannerConfig";
 import "../home/home.css";
 
 export default function HeroSection({ projectTypeList, cityList }) {
-  const common = {
-    alt: "GHD Group Velvet Vista — hero home banner",
-    title: "GHD Group Velvet Vista — hero home banner",
-    fill: true,
-    priority: true,
-    fetchPriority: "high",
-    className: "hero-banner-image",
-    sizes: "100vw",
-  };
+  const common = getGhdHeroImagePropsCommon();
 
   const {
     props: { srcSet: desktop },
-  } = getImageProps({ ...common, src: "/static/banners/ghd_desktop_final.jpg" });
+  } = getImageProps({ ...common, src: ghdHeroBannerSrc.desktop });
 
   const {
     props: { srcSet: tablet },
-  } = getImageProps({ ...common, src: "/static/banners/ghd_tablet_final.jpg" });
+  } = getImageProps({ ...common, src: ghdHeroBannerSrc.tablet });
 
   const {
     props: { srcSet: mobile, ...rest },
-  } = getImageProps({ ...common, src: "/static/banners/ghd_mobile_final.jpg" });
+  } = getImageProps({ ...common, src: ghdHeroBannerSrc.mobile });
 
   return (
     <>
@@ -41,7 +37,11 @@ export default function HeroSection({ projectTypeList, cityList }) {
                     loading="eager"
                     fetchPriority="high"
                     decoding="sync"
-                    style={{ objectFit: "cover", width: "100%", height: "100%" }}
+                    style={{
+                      objectFit: "cover",
+                      width: "100%",
+                      height: "100%",
+                    }}
                   />
                 </picture>
               </Link>

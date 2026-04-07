@@ -100,7 +100,7 @@ export default function PendingAdminApprovalsClient() {
       ) : (
         <div className="table-responsive">
           <table className="table table-bordered align-middle bg-white">
-            <thead className="table-success">
+            <thead className="table-light">
               <tr>
                 <th>Name</th>
                 <th>Email</th>

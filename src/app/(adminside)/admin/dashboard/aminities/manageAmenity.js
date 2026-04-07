@@ -10,13 +10,15 @@ import {
   Container,
 } from "react-bootstrap";
 import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
+import {
+  AdminGridActions,
+  AdminGridImageThumb,
+} from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
@@ -161,57 +163,60 @@ export default function ManageAminity({ list }) {
       amenityImage: null,
     });
     setShowModal(true);
+    setValidated(false);
+    setImages([]);
     setPreviousImage(
       `${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.amenityImageUrl}`
     );
   };
 
-  //Defining table columns
+  //Defining table columns (executive layout: checkbox + title + image + alt + role + actions)
   const columns = [
     {
-      field: "index",
-      headerName: "S.no",
-      width: 100,
-      cellClassName: "centered-cell",
+      field: "title",
+      headerName: "Title",
+      flex: 1,
+      minWidth: 180,
     },
-    { field: "title", headerName: "Title", flex: 1 },
     {
       field: "image",
       headerName: "Amenity Image",
-      flex: 1,
+      width: 130,
+      sortable: false,
       renderCell: (params) => (
-        <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${params.row.amenityImageUrl}`}
+        <AdminGridImageThumb
+          src={
+            params.row.amenityImageUrl
+              ? `${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${params.row.amenityImageUrl}`
+              : null
+          }
           alt={params.row.altTag || ""}
-          width={50}
-          height={50}
         />
       ),
     },
     {
-        field: "altTag",
-        headerName: "Alt tag",
-        flex: 1
+      field: "altTag",
+      headerName: "Alt tag",
+      flex: 1,
+      minWidth: 140,
+    },
+    {
+      field: "role",
+      headerName: "Role",
+      width: 140,
+      sortable: false,
+      renderCell: () => "—",
     },
     {
       field: "action",
       headerName: "Action",
-      width: 100,
+      width: 110,
+      sortable: false,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="mx-3 text-danger"
-            style={{ cursor: "pointer" }}
-            icon={faTrash}
-            onClick={() => openConfirmationBox(params.row.id)}
-          />
-          {/* <FontAwesomeIcon
-            className="text-warning"
-            style={{ cursor: "pointer" }}
-            icon={faPencil}
-            onClick={() => openEditModel(params.row)}
-          /> */}
-        </div>
+        <AdminGridActions
+          onEdit={() => openEditModel(params.row)}
+          onDelete={() => openConfirmationBox(params.row.id)}
+        />
       ),
     },
   ];
@@ -219,9 +224,10 @@ export default function ManageAminity({ list }) {
   return (
     <>
       <DashboardHeader
-        buttonName={"+ Add new amenity"}
+        buttonName={"+ Add New Amenities"}
         functionName={openAddModel}
         heading={"Manage Amenities"}
+        pageStyle="executive"
       />
       <div>
         <DataTable columns={columns} list={list} />
@@ -232,140 +238,132 @@ export default function ManageAminity({ list }) {
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Container className="mt-4">
-            {/* Image Previews */}
-            <Row className="mb-3">
-              {images.map((img, index) => (
-                <Col
-                  key={index}
-                  xs={6}
-                  md={3}
-                  className="mb-3 position-relative"
+          {title === "Edit Amenity" ? (
+            <Form noValidate validated={validated} onSubmit={handleSubmit}>
+              <Row className="mb-3">
+                <Form.Group
+                  as={Col}
+                  className="mb-3"
+                  md="12"
+                  controlId="validationCustom01"
                 >
-                  <img
-                    src={img.preview}
-                    alt={`preview-${index}`}
-                    className="img-fluid rounded shadow"
+                  <Form.Control
+                    required
+                    type="text"
+                    placeholder="Title"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleChange}
                   />
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    className="position-absolute top-0 end-0 m-1"
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    ✕
-                  </Button>
-                </Col>
-              ))}
-            </Row>
-            <Form onSubmit={handleSubmit}>
-              {/* Hidden File Input */}
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-              />
-
-              {/* Custom Upload Box */}
-              <div
-                onClick={handleBoxClick}
-                style={{
-                  border: "2px dashed #337936ff",
-                  borderRadius: "10px",
-                  padding: "30px",
-                  textAlign: "center",
-                  cursor: "pointer",
-                  color: "#066c25ff",
-                  fontWeight: "500",
-                  marginBottom: "20px",
-                }}
-              >
-                + Add Multiple Images
-              </div>
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+                <Form.Group
+                  as={Col}
+                  className="mb-3"
+                  md="12"
+                  controlId="validationCustom02"
+                >
+                  <Form.Control
+                    required
+                    type="text"
+                    placeholder="Alt Tag"
+                    name="altTag"
+                    value={formData.altTag}
+                    onChange={handleChange}
+                  />
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+                {previousImage ? (
+                  <div className="mb-3">
+                    <Image
+                      src={previousImage}
+                      alt="Current amenity"
+                      width={100}
+                      height={100}
+                      unoptimized
+                    />
+                  </div>
+                ) : null}
+                <Form.Group
+                  as={Col}
+                  className="mb-3"
+                  md="12"
+                  controlId="validationCustomUsername"
+                >
+                  <InputGroup hasValidation>
+                    <Form.Control
+                      type="file"
+                      name="amenityImage"
+                      onChange={handleFileChange}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please choose an image.
+                    </Form.Control.Feedback>
+                  </InputGroup>
+                </Form.Group>
+              </Row>
               <Button variant="success" type="submit" disabled={showLoading}>
                 {buttonName} <LoadingSpinner show={showLoading} />
               </Button>
             </Form>
-          </Container>
+          ) : (
+            <Container className="mt-4">
+              <Row className="mb-3">
+                {images.map((img, index) => (
+                  <Col
+                    key={index}
+                    xs={6}
+                    md={3}
+                    className="mb-3 position-relative"
+                  >
+                    <img
+                      src={img.preview}
+                      alt={`preview-${index}`}
+                      className="img-fluid rounded shadow"
+                    />
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="position-absolute top-0 end-0 m-1"
+                      onClick={() => handleRemoveImage(index)}
+                    >
+                      ✕
+                    </Button>
+                  </Col>
+                ))}
+              </Row>
+              <Form onSubmit={handleSubmit}>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleImageChange}
+                />
+                <div
+                  onClick={handleBoxClick}
+                  style={{
+                    border: "2px dashed #337936ff",
+                    borderRadius: "10px",
+                    padding: "30px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    color: "#066c25ff",
+                    fontWeight: "500",
+                    marginBottom: "20px",
+                  }}
+                >
+                  + Add Multiple Images
+                </div>
+                <Button variant="success" type="submit" disabled={showLoading}>
+                  {buttonName} <LoadingSpinner show={showLoading} />
+                </Button>
+              </Form>
+            </Container>
+          )}
         </Modal.Body>
       </Modal>
-      {/* <Modal show={showModal} onHide={() => setShowModal(false)} centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>{title}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                        <Row className="mb-3">
-                            <Form.Group
-                                as={Col}
-                                className="mb-3"
-                                md="12"
-                                controlId="validationCustom01"
-                            >
-                                <Form.Control
-                                    required
-                                    type="text"
-                                    placeholder="Title"
-                                    name="title"
-                                    value={formData.title}
-                                    onChange={handleChange}
-                                />
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                            </Form.Group>
-                            <Form.Group
-                                as={Col}
-                                className="mb-3"
-                                md="12"
-                                controlId="validationCustom02"
-                            >
-                                <Form.Control
-                                    required
-                                    type="text"
-                                    placeholder="Alt Tag"
-                                    name="altTag"
-                                    value={formData.altTag}
-                                    onChange={handleChange}
-                                />
-                                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-                            </Form.Group>
-                            {previousImage && (
-                                <div>
-                                    <Image
-                                        src={previousImage}
-                                        alt="previous image"
-                                        width={100}
-                                        height={100}
-                                    />
-                                    <br />
-                                </div>
-                            )}
-                            <Form.Group
-                                as={Col}
-                                className="mb-3"
-                                md="12"
-                                controlId="validationCustomUsername"
-                            >
-                                <InputGroup hasValidation>
-                                    <Form.Control
-                                        type="file"
-                                        placeholder="Username"
-                                        aria-describedby="inputGroupPrepend"
-                                        name="amenityImage"
-                                        onChange={handleFileChange}
-                                    />
-                                    <Form.Control.Feedback type="invalid">
-                                        Please choose a Image.
-                                    </Form.Control.Feedback>
-                                </InputGroup>
-                            </Form.Group>
-                        </Row>
-                        <Button className="btn btn-success" type="submit" disabled={showLoading}>{buttonName} <LoadingSpinner show={showLoading} /></Button>
-                    </Form>
-                </Modal.Body>
-            </Modal> */}
       <CommonModal
         confirmBox={confirmBox}
         setConfirmBox={setConfirmBox}

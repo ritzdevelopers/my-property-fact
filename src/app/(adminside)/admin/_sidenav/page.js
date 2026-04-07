@@ -2,10 +2,9 @@
 import Link from "next/link";
 import "./sidenav.css";
 import { useState, useEffect, useRef } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import axios from "axios";
@@ -29,6 +28,8 @@ import {
   faRightFromBracket,
   faHouse,
   faImages,
+  faGear,
+  faCircleQuestion,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
@@ -36,7 +37,6 @@ export default function SideNav({ onLinkClick }) {
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
-  const router = useRouter();
   // Check if a path matches the current pathname
   const isActive = (path) => {
     if (path === "/admin/dashboard") {
@@ -157,7 +157,10 @@ export default function SideNav({ onLinkClick }) {
     // Sidebar
     <nav id="sidebar">
       <div className="sidebar-header">
-        <Image src={"/logo.webp"} alt="mpf-logo" width={100} height={100} />
+        <div className="sidebar-brand-inner">
+          <Image src={"/logo.webp"} alt="My Property Fact" width={52} height={52} />
+          <p className="sidebar-brand-title">My Property Fact</p>
+        </div>
       </div>
       <ul className="list-unstyled components">
         <li className={isActive("/admin/dashboard") ? "active" : ""}>
@@ -856,13 +859,41 @@ export default function SideNav({ onLinkClick }) {
           </ul>
         </li>
         )}
-        <li>
-          <Link href="#" onClick={() => handleLogout()} className="logout-link">
-            <FontAwesomeIcon icon={faRightFromBracket} className="admin-nav-ico" />
-            <span>Log out</span>
-          </Link>
-        </li>
       </ul>
+
+      {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
+        <div className="sidebar-cta-wrap">
+          <Link
+            href="/admin/dashboard/projects/add-new-property"
+            className="sidebar-new-listing-btn"
+            onClick={handleLinkClick}
+          >
+            New listing
+          </Link>
+        </div>
+      ) : null}
+
+      <div className="sidebar-footer">
+        <Link href="/admin/dashboard/manage-projects" onClick={handleLinkClick}>
+          <FontAwesomeIcon icon={faGear} className="admin-nav-ico" />
+          <span>Settings</span>
+        </Link>
+        <Link href="#" onClick={(e) => e.preventDefault()} title="Support">
+          <FontAwesomeIcon icon={faCircleQuestion} className="admin-nav-ico" />
+          <span>Support</span>
+        </Link>
+        <a
+          href="#"
+          className="logout-link"
+          onClick={(e) => {
+            e.preventDefault();
+            handleLogout();
+          }}
+        >
+          <FontAwesomeIcon icon={faRightFromBracket} className="admin-nav-ico" />
+          <span>Log out</span>
+        </a>
+      </div>
     </nav>
   );
 }

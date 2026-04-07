@@ -12,6 +12,12 @@ export const metadata = {
   description: "my-property-fact",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 export default function AdminLayout({ children }) {
   return <div className={poppins.className}>{children}</div>;
 }

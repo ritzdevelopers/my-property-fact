@@ -1,732 +1,815 @@
 "use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Cookies from "js-cookie";
+import { getPublicApiBase } from "@/lib/publicApiBase";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faArrowTrendUp,
+  faBookOpen,
+  faBuilding,
+  faEnvelope,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
+import "./dashboard-home.css";
 
-const StatCard = ({ title, value, description, icon, color, gradient }) => {
-    return (
-        <div className="col-md-6 col-lg-4 col-xl-3">
-            <div className="admin-content-card">
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                    <div>
-                        <h6 className="text-muted mb-1" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                            {title}
-                        </h6>
-                        <h2 className="mb-0" style={{ color: color, fontWeight: 700 }}>
-                            {value}
-                        </h2>
-                    </div>
-                    <div style={{
-                        width: '56px',
-                        height: '56px',
-                        borderRadius: '12px',
-                        background: gradient,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.5rem'
-                    }}>
-                        {icon}
-                    </div>
-                </div>
-                <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
-                    {description}
-                </p>
-            </div>
-        </div>
-    );
+const DASH_MINI_ICONS = {
+  cities: "/images/admin/Vector (4).svg",
+  builders: "/images/admin/Icon (1).svg",
+  amenities: "/images/admin/Icon.svg",
+  webStories: "/images/admin/Icon (2).svg",
 };
 
-export default function Dashboard({ 
-    noOfProjects, 
-    noOfUsers, 
-    noOfBlogs, 
-    noOfEnquiries, 
+function adminFetchHeaders() {
+  const token =
+    typeof window !== "undefined" ? Cookies.get("token") : undefined;
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+const TASK_TYPE_LABELS = {
+  BLOG: "Blog",
+  BLOG_CATEGORY: "Blog category",
+  WEB_STORY: "Web story",
+  WEB_STORY_CATEGORY: "Web story category",
+  PROPERTY_APPROVED: "Property approved",
+  PROPERTY_REJECTED: "Property rejected",
+};
+
+function formatRelativeFromIso(iso) {
+  if (!iso) return "";
+  try {
+    const d = new Date(iso);
+    const diffMs = Date.now() - d.getTime();
+    const h = Math.floor(diffMs / 3600000);
+    if (h < 1) return "Just now";
+    if (h < 24) return `${h}h ago`;
+    const days = Math.floor(h / 24);
+    if (days < 14) return `${days}d ago`;
+    return d.toLocaleDateString();
+  } catch {
+    return "";
+  }
+}
+
+function formatActivityMeta(activity) {
+  const typeKey = String(activity.taskType || "").toUpperCase();
+  const typeLabel = TASK_TYPE_LABELS[typeKey] || typeKey.replace(/_/g, " ") || "Task";
+  const when = formatRelativeFromIso(activity.occurredAt);
+  return when ? `${typeLabel} · ${when}` : typeLabel;
+}
+
+function activityThumbVariant(taskType, rowIndex) {
+  const t = String(taskType || "").toUpperCase();
+  if (t.startsWith("PROPERTY")) return 0;
+  if (t.includes("BLOG")) return 1;
+  if (t.includes("WEB_STORY")) return 2;
+  return rowIndex % 3;
+}
+
+function canOpenActivityHref(href, gates) {
+  if (!href || typeof href !== "string") return false;
+  if (href.includes("/property-approvals")) return gates.canApprovals;
+  if (href.includes("/manage-blogs") || href.includes("/manage-categories")) {
+    return gates.canManageBlogs;
+  }
+  if (href.includes("/web-story")) return gates.canManageWebStories;
+  return true;
+}
+
+const THUMB_FALLBACK = ["a", "b", "c"];
+
+function ActivityThumb({ variantIndex }) {
+  const fallbackClass = `admin-dash-pending-item__thumb--${THUMB_FALLBACK[variantIndex % THUMB_FALLBACK.length]}`;
+  return (
+    <div
+      className={`admin-dash-pending-item__thumb ${fallbackClass}`}
+      aria-hidden
+    />
+  );
+}
+
+function MetricCard({
+  tone,
+  label,
+  value,
+  sub,
+  subMuted,
+  icon,
+  style,
+  className,
+  valueStyle,
+  subStyle,
+  labelStyle,
+  iconWrapStyle,
+}) {
+  return (
+    <article
+      className={`admin-dash-metric admin-dash-metric--${tone}${className ? ` ${className}` : ""}`}
+      style={style}
+    >
+      <div className="admin-dash-metric__top">
+        <div>
+          <p className="admin-dash-metric__label" style={labelStyle}>
+            {label}
+          </p>
+          <p className="admin-dash-metric__value" style={valueStyle}>
+            {typeof value === "number" ? value.toLocaleString() : value}
+          </p>
+        </div>
+        <div
+          className="admin-dash-metric__icon"
+          style={iconWrapStyle}
+          aria-hidden
+        >
+          <FontAwesomeIcon icon={icon} />
+        </div>
+      </div>
+      {sub ? (
+        <p
+          className={`admin-dash-metric__sub${subMuted ? " admin-dash-metric__sub--muted" : ""}`}
+          style={subStyle}
+        >
+          {sub}
+        </p>
+      ) : null}
+    </article>
+  );
+}
+
+function MiniStat({ icon, iconSrc, value, label, meta }) {
+  return (
+    <div className="admin-dash-mini">
+      <div
+        className={`admin-dash-mini__icon${iconSrc ? " admin-dash-mini__icon--img" : ""}`}
+        aria-hidden
+      >
+        {iconSrc ? (
+          <img src={iconSrc} alt="" width={22} height={22} />
+        ) : (
+          <FontAwesomeIcon icon={icon} />
+        )}
+      </div>
+      <div className="admin-dash-mini__meta">
+        <p className="admin-dash-mini__value">
+          {typeof value === "number" ? value.toLocaleString() : value}
+        </p>
+        {meta ? (
+          <p
+            style={{
+              margin: "0.2rem 0 0",
+              fontSize: "0.65rem",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              color: "#6b7280",
+              textTransform: "uppercase",
+            }}
+          >
+            {meta}
+          </p>
+        ) : null}
+        <p className="admin-dash-mini__label">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+export default function Dashboard({
+  noOfProjects,
+  noOfUsers,
+  noOfBlogs,
+  noOfBlogCategories,
+  noOfEnquiries,
+  noOfCities,
+  noOfBuilders,
+  noOfAmenities,
+  noOfWebStoryCategories,
+  noOfWebStories,
+  noOfProjectTypes,
+}) {
+  const {
+    isSuperAdmin,
+    isAdmin,
+    hasPermission,
+    displayName,
+    roleLabel,
+    loading: roleLoading,
+  } = useAdminRole();
+
+  const canApprovals =
+    isSuperAdmin ||
+    hasPermission(ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS);
+  const canEnquiries =
+    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+  const canManageOptions =
+    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS);
+  const canManageBlogs =
+    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS);
+  const canManageAmenities =
+    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES);
+  const canManageWebStories =
+    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES);
+
+  const [recentTasks, setRecentTasks] = useState([]);
+  const [recentLoading, setRecentLoading] = useState(false);
+
+  useEffect(() => {
+    if (roleLoading) return;
+    if (!isSuperAdmin && !isAdmin) {
+      setRecentTasks([]);
+      setRecentLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setRecentLoading(true);
+      try {
+        const apiBase = getPublicApiBase();
+        if (!apiBase) {
+          if (!cancelled) setRecentTasks([]);
+          return;
+        }
+        const res = await fetch(`${apiBase}admin/dashboard/my-activity`, {
+          credentials: "include",
+          headers: adminFetchHeaders(),
+        });
+        if (cancelled) return;
+        if (!res.ok) {
+          if (!cancelled) setRecentTasks([]);
+          return;
+        }
+        const result = await res.json();
+        if (cancelled) return;
+        if (result.success && Array.isArray(result.activities)) {
+          setRecentTasks(result.activities.slice(0, 5));
+        } else {
+          setRecentTasks([]);
+        }
+      } catch {
+        if (!cancelled) setRecentTasks([]);
+      } finally {
+        if (!cancelled) setRecentLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [roleLoading, isSuperAdmin, isAdmin]);
+
+  /** Top colored row: only metrics the role is allowed to see (matches design: users / blogs / enquiries). */
+  const topMetrics = useMemo(() => {
+    const list = [];
+    if (isSuperAdmin) {
+      list.push({
+        key: "active-users",
+        tone: "mint",
+        label: "ACTIVE USERS",
+        value: noOfUsers,
+        sub: null,
+        icon: faUsers,
+      });
+    }
+    if (canManageBlogs) {
+      list.push({
+        key: "total-blogs",
+        tone: "cyan",
+        label: "TOTAL BLOGS",
+        value: noOfBlogs,
+        sub: `${noOfBlogCategories.toLocaleString()} blog categories`,
+        subMuted: true,
+        icon: faBookOpen,
+        iconWrapStyle: {
+          background: "#01613E",
+          color: "#fff",
+        },
+      });
+    }
+    if (canEnquiries) {
+      list.push({
+        key: "enquiries",
+        tone: "slate",
+        label: "ENQUIRIES",
+        value: noOfEnquiries,
+        sub: null,
+        icon: faEnvelope,
+      });
+    }
+    return list;
+  }, [
+    isSuperAdmin,
+    noOfUsers,
+    noOfBlogs,
+    noOfBlogCategories,
+    noOfEnquiries,
+    canManageBlogs,
+    canEnquiries,
+  ]);
+
+  /** Bottom grey row: cities, builders, amenities, stories — each only if that area is assigned. */
+  const miniStats = useMemo(() => {
+    const row = [];
+    if (canManageOptions) {
+      row.push({
+        key: "mini-cities",
+        label: "CITIES",
+        value: noOfCities,
+        iconSrc: DASH_MINI_ICONS.cities,
+      });
+      row.push({
+        key: "mini-builders",
+        label: "BUILDERS",
+        value: noOfBuilders,
+        iconSrc: DASH_MINI_ICONS.builders,
+      });
+    }
+    if (canManageAmenities) {
+      row.push({
+        key: "mini-amenities",
+        label: "AMENITIES",
+        value: noOfAmenities,
+        iconSrc: DASH_MINI_ICONS.amenities,
+      });
+    }
+    if (canManageWebStories) {
+      row.push({
+        key: "mini-stories",
+        label: "STORIES",
+        value: noOfWebStories,
+        meta: `${noOfWebStoryCategories.toLocaleString()} web story categories`,
+        iconSrc: DASH_MINI_ICONS.webStories,
+      });
+    }
+    return row;
+  }, [
+    canManageOptions,
+    canManageAmenities,
+    canManageWebStories,
     noOfCities,
     noOfBuilders,
     noOfAmenities,
-    noOfWebStoryCategories,
     noOfWebStories,
-    noOfProjectTypes
-}) {
-    const { isSuperAdmin, hasPermission, displayName, roleLabel, loading: roleLoading } = useAdminRole();
-    const [currentTime, setCurrentTime] = useState(null);
-    const [mounted, setMounted] = useState(false);
-    
-    useEffect(() => {
-        // Set mounted flag and initial time on client side only
-        setMounted(true);
-        setCurrentTime(new Date());
-        
-        const timer = setInterval(() => {
-            setCurrentTime(new Date());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
+    noOfWebStoryCategories,
+  ]);
 
-    const getGreeting = () => {
-        if (!currentTime) return "Hello";
-        const hour = currentTime.getHours();
-        if (hour < 12) return "Good Morning";
-        if (hour < 17) return "Good Afternoon";
-        return "Good Evening";
-    };
+  const topGridColumns =
+    topMetrics.length === 0
+      ? undefined
+      : `repeat(${Math.min(topMetrics.length, 3)}, minmax(0, 1fr))`;
+  const miniGridColumns =
+    miniStats.length === 0
+      ? undefined
+      : `repeat(${Math.min(miniStats.length, 4)}, minmax(0, 1fr))`;
 
-    const formatDate = (date) => {
-        if (!date) return "";
-        return date.toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        });
-    };
+  const quickLinks = [];
+  if (canApprovals) {
+    quickLinks.push({
+      href: "/admin/dashboard/property-approvals",
+      label: "Property approvals",
+    });
+  }
+  if (isSuperAdmin) {
+    quickLinks.push({
+      href: "/admin/dashboard/manage-users",
+      label: "Manage users",
+    });
+  }
+  if (canEnquiries) {
+    quickLinks.push({
+      href: "/admin/dashboard/enquiries",
+      label: "Enquiries",
+    });
+  }
+  if (hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS)) {
+    quickLinks.push({
+      href: "/admin/dashboard/manage-blogs",
+      label: "Blogs",
+    });
+  }
+  if (hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS)) {
+    quickLinks.push({
+      href: "/admin/dashboard/manage-cities",
+      label: "Cities",
+    });
+  }
+  if (hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS)) {
+    quickLinks.push({
+      href: "/admin/dashboard/manage-projects",
+      label: "Projects",
+    });
+    quickLinks.push({
+      href: "/admin/dashboard/manage-banners",
+      label: "Banners",
+    });
+  }
+  if (hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES)) {
+    quickLinks.push({
+      href: "/admin/dashboard/aminities",
+      label: "Amenities",
+    });
+  }
+  if (hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES)) {
+    quickLinks.push({
+      href: "/admin/dashboard/web-story",
+      label: "Web stories",
+    });
+  }
 
-    const formatTime = (date) => {
-        if (!date) return "";
-        return date.toLocaleTimeString('en-US', { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true 
-        });
-    };
+  const welcomeName =
+    !roleLoading && displayName ? displayName.split(" ")[0] : null;
 
-    const totalStats = noOfProjects + noOfUsers + noOfBlogs + noOfEnquiries + noOfCities +
-                       noOfBuilders + noOfAmenities + noOfWebStoryCategories + noOfWebStories + noOfProjectTypes;
+  const activityLinkGates = {
+    canApprovals,
+    canManageBlogs,
+    canManageWebStories,
+  };
 
-    return (
-        <div className="admin-dashboard-home">
-            <div className="admin-page-header">
-                <div className="d-flex justify-content-between align-items-start flex-wrap mb-3">
-                    <div>
-                        <h1 className="mb-2" style={{ fontSize: '2rem', fontWeight: 700, color: '#2c3e50' }}>
-                            {getGreeting()}
-                            {!roleLoading && displayName ? (
-                                <>, {displayName}</>
-                            ) : null}
-                            {!roleLoading && roleLabel ? (
-                                <span
-                                    className="text-muted"
-                                    style={{ fontSize: "1.35rem", fontWeight: 600 }}
-                                >
-                                    {" "}
-                                    ({roleLabel})
-                                </span>
-                            ) : null}
-                            ! 👋
-                        </h1>
-                        <p className="mb-2" style={{ fontSize: '1.1rem', color: '#6c757d', margin: 0 }}>
-                            Here&apos;s what&apos;s happening with your platform today
-                        </p>
-                        <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
-                            {mounted && currentTime ? (
-                                `${formatDate(currentTime)} • ${formatTime(currentTime)}`
-                            ) : (
-                                <span style={{ opacity: 0 }}>Loading...</span>
-                            )}
-                        </p>
-                    </div>
-                    <div style={{
-                        background: 'linear-gradient(135deg, rgba(104, 172, 120, 0.1) 0%, rgba(104, 172, 120, 0.2) 100%)',
-                        padding: '1rem 1.5rem',
-                        borderRadius: '12px',
-                        border: '1px solid rgba(104, 172, 120, 0.2)',
-                        minWidth: '200px'
-                    }}>
-                        <div style={{ fontSize: '0.875rem', color: '#6c757d', marginBottom: '0.5rem' }}>
-                            Total Records
-                        </div>
-                        <div style={{ fontSize: '2rem', fontWeight: 700, color: '#68ac78' }}>
-                            {totalStats.toLocaleString()}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Stats Cards */}
-            <div className="row g-4 mb-4">
-                <StatCard
-                    title="Total Projects"
-                    value={noOfProjects}
-                    description="Active property listings"
-                    icon="🏢"
-                    color="#68ac78"
-                    gradient="linear-gradient(135deg, rgba(104, 172, 120, 0.1) 0%, rgba(104, 172, 120, 0.2) 100%)"
-                />
-                {isSuperAdmin ? (
-                <StatCard
-                    title="Total Users"
-                    value={noOfUsers}
-                    description="Registered users"
-                    icon="👥"
-                    color="#4a90e2"
-                    gradient="linear-gradient(135deg, rgba(74, 144, 226, 0.1) 0%, rgba(74, 144, 226, 0.2) 100%)"
-                />
-                ) : null}
-                <StatCard
-                    title="Total Blogs"
-                    value={noOfBlogs}
-                    description="Published blog posts"
-                    icon="📝"
-                    color="#f39c12"
-                    gradient="linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.2) 100%)"
-                />
-                {(isSuperAdmin ||
-                  hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) ? (
-                <StatCard
-                    title="Total Enquiries"
-                    value={noOfEnquiries}
-                    description={
-                      isSuperAdmin
-                        ? "Customer inquiries"
-                        : "Shown after you unlock enquiries with your 4-digit code"
-                    }
-                    icon="📧"
-                    color="#e74c3c"
-                    gradient="linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.2) 100%)"
-                />
-                ) : null}
-                <StatCard
-                    title="Total Cities"
-                    value={noOfCities}
-                    description="Available cities"
-                    icon="🌆"
-                    color="#9b59b6"
-                    gradient="linear-gradient(135deg, rgba(155, 89, 182, 0.1) 0%, rgba(155, 89, 182, 0.2) 100%)"
-                />
-                <StatCard
-                    title="Total Builders"
-                    value={noOfBuilders}
-                    description="Registered builders"
-                    icon="🏗️"
-                    color="#16a085"
-                    gradient="linear-gradient(135deg, rgba(22, 160, 133, 0.1) 0%, rgba(22, 160, 133, 0.2) 100%)"
-                />
-                <StatCard
-                    title="Total Amenities"
-                    value={noOfAmenities}
-                    description="Property amenities"
-                    icon="✨"
-                    color="#e67e22"
-                    gradient="linear-gradient(135deg, rgba(230, 126, 34, 0.1) 0%, rgba(230, 126, 34, 0.2) 100%)"
-                />
-                <StatCard
-                    title="Web Story Categories"
-                    value={noOfWebStoryCategories}
-                    description="Story categories"
-                    icon="📚"
-                    color="#3498db"
-                    gradient="linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(52, 152, 219, 0.2) 100%)"
-                />
-                <StatCard
-                    title="Total Web Stories"
-                    value={noOfWebStories}
-                    description="Published web stories"
-                    icon="📖"
-                    color="#1abc9c"
-                    gradient="linear-gradient(135deg, rgba(26, 188, 156, 0.1) 0%, rgba(26, 188, 156, 0.2) 100%)"
-                />
-                <StatCard
-                    title="Project Types"
-                    value={noOfProjectTypes}
-                    description="Property types"
-                    icon="🏘️"
-                    color="#8e44ad"
-                    gradient="linear-gradient(135deg, rgba(142, 68, 173, 0.1) 0%, rgba(142, 68, 173, 0.2) 100%)"
-                />
-            </div>
-
-            {/* Quick Actions */}
-            <div className="row g-4">
-                {(isSuperAdmin ||
-                  hasPermission(ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS)) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #68ac78 0%, #5a9a68 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>✓</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Property Approvals
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Review and approve pending property listings submitted by users.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/property-approvals" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #68ac78 0%, #5a9a68 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Go to Property Approvals →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {isSuperAdmin ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>👥</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Users
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                View and manage all registered users and their permissions.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/manage-users" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #4a90e2 0%, #357abd 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Users →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {(isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>📧</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Enquiries
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                {isSuperAdmin
-                                  ? "View and respond to customer inquiries and messages."
-                                  : "Open the enquiries page and enter your 4-digit code (set by Super Admin) to view leads."}
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/enquiries" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            View Enquiries →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #f39c12 0%, #d68910 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>📝</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Blogs
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Create, edit, and manage blog posts and categories.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/manage-blogs" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #f39c12 0%, #d68910 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Blogs →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>🌆</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Cities
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Add and manage cities, states, and locations.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/manage-cities" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Cities →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #68ac78 0%, #5a9a68 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>🏗️</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Projects
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Add, edit, and manage all property projects and listings.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/manage-projects" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #68ac78 0%, #5a9a68 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Projects →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>🖼️</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Banners
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Add and manage project banners and hero images.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/manage-banners" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #c0392b 0%, #a93226 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Banners →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_OPTIONS) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #16a085 0%, #138d75 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>🏗️</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Builders
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Add and manage builder information and details.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/builder" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #16a085 0%, #138d75 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Builders →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>✨</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Amenities
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Add and manage property amenities and features.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/aminities" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #e67e22 0%, #d35400 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Amenities →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>📚</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Web Story Categories
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Manage web story categories and organization.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/web-story-category" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Categories →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-
-                {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) ? (
-                <div className="col-md-6 col-lg-4">
-                    <div className="admin-content-card">
-                        <div className="mb-3">
-                            <div style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '10px',
-                                background: 'linear-gradient(135deg, #1abc9c 0%, #16a085 100%)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '1rem'
-                            }}>
-                                <span style={{ fontSize: '1.5rem' }}>📖</span>
-                            </div>
-                            <h5 className="mb-2" style={{ fontWeight: 600, color: '#2c3e50' }}>
-                                Manage Web Stories
-                            </h5>
-                            <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                Create and manage web stories for your platform.
-                            </p>
-                        </div>
-                        <Link 
-                            href="/admin/dashboard/web-story" 
-                            className="btn admin-action-btn"
-                            style={{
-                                background: 'linear-gradient(135deg, #1abc9c 0%, #16a085 100%)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '8px',
-                                padding: '0.625rem 1.25rem',
-                                fontWeight: 500,
-                                transition: 'all 0.3s ease',
-                                textDecoration: 'none',
-                                display: 'inline-block'
-                            }}
-                        >
-                            Manage Web Stories →
-                        </Link>
-                    </div>
-                </div>
-                ) : null}
-            </div>
+  return (
+    <div className="admin-dash-home">
+      <header>
+        {/* <p className="admin-dash-home__kicker">Executive overview</p> */}
+        <div className="admin-dash-home__hero-row">
+          <h1 className="admin-dash-home__title">My Property Fact Dashboard</h1>
+          {/* <div className="admin-dash-home__trend">
+            <FontAwesomeIcon icon={faArrowTrendUp} />
+            <span>12.5% vs last quarter</span>
+          </div> */}
         </div>
-    );
+        {!roleLoading && (welcomeName || roleLabel) ? (
+          <p
+            style={{
+              margin: "-0.5rem 0 1.25rem",
+              fontSize: "0.9rem",
+              color: "#6b7280",
+              fontWeight: 600,
+            }}
+          >
+            {welcomeName ? <>Signed in as {welcomeName}</> : null}
+            {welcomeName && roleLabel ? " · " : null}
+            {roleLabel ? <span>{roleLabel}</span> : null}
+          </p>
+        ) : null}
+      </header>
+
+      <section aria-label="Key metrics">
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "1rem",
+            marginBottom: "1.5rem",
+            alignItems: "stretch",
+          }}
+        >
+          <div
+            style={{
+              flex: "1 1 280px",
+              minWidth: "260px",
+              maxWidth: "100%",
+              display: "flex",
+              alignItems: "stretch",
+            }}
+          >
+            <MetricCard
+              tone="white"
+              label="TOTAL PROJECTS"
+              value={noOfProjects}
+              sub="Total across the platform"
+              subMuted
+              icon={faBuilding}
+              style={{ width: "100%", minHeight: "100%" }}
+              labelStyle={{
+                color: "#a16207",
+                fontWeight: 700,
+                letterSpacing: "0.06em",
+                fontSize: "0.72rem",
+              }}
+              valueStyle={{
+                color: "#007d51",
+                fontSize: "clamp(2rem, 4vw, 2.65rem)",
+              }}
+              subStyle={{ color: "#a16207", fontWeight: 600 }}
+            />
+          </div>
+          <div
+            style={{
+              flex: "3 1 400px",
+              minWidth: "min(100%, 280px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+            }}
+          >
+            {topMetrics.length > 0 ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: topGridColumns,
+                  gap: "1rem",
+                }}
+              >
+                {topMetrics.map((m) => (
+                  <MetricCard
+                    key={m.key}
+                    tone={m.tone}
+                    label={m.label}
+                    value={m.value}
+                    sub={m.sub}
+                    subMuted={m.subMuted}
+                    icon={m.icon}
+                    iconWrapStyle={m.iconWrapStyle}
+                  />
+                ))}
+              </div>
+            ) : null}
+            {miniStats.length > 0 ? (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: miniGridColumns,
+                  gap: "0.85rem",
+                }}
+              >
+                {miniStats.map((m) => (
+                  <MiniStat
+                    key={m.key}
+                    label={m.label}
+                    value={m.value}
+                    meta={m.meta}
+                    icon={m.icon}
+                    iconSrc={m.iconSrc}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <div className="admin-dash-home__split">
+        <section className="admin-dash-chart" aria-label="Daily user tracking">
+          <div className="admin-dash-chart__head">
+            <h2 className="admin-dash-chart__title">Daily user tracking</h2>
+            <span className="admin-dash-chart__live">
+              <span className="admin-dash-chart__live-dot" />
+              LIVE DATA
+            </span>
+            {/* <div className="admin-dash-chart__filters">
+              {["1W", "1M", "1Y"].map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  className={`admin-dash-chart__filter${chartRange === k ? " is-active" : ""}`}
+                  onClick={() => setChartRange(k)}
+                >
+                  {k}
+                </button>
+              ))}
+            </div> */}
+          </div>
+          <div className="admin-dash-chart__plot-wrap">
+            <svg
+              className="admin-dash-chart__svg"
+              viewBox="0 0 400 200"
+              preserveAspectRatio="none"
+              aria-hidden
+            >
+              <defs>
+                <linearGradient
+                  id="adminDashChartFill"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
+                  <stop offset="0%" stopColor="#007d51" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="#007d51" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <line
+                x1="36"
+                y1="10"
+                x2="36"
+                y2="175"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              <line
+                x1="36"
+                y1="175"
+                x2="390"
+                y2="175"
+                stroke="#e5e7eb"
+                strokeWidth="1"
+              />
+              {/* <text x="0" y="24" fontSize="9" fill="#9ca3af">
+                $5.2M
+              </text>
+              <text x="0" y="95" fontSize="9" fill="#9ca3af">
+                $4.0M
+              </text>
+              <text x="0" y="168" fontSize="9" fill="#9ca3af">
+                $1.2M
+              </text> */}
+              <path
+                d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32 L392,175 L40,175 Z"
+                fill="url(#adminDashChartFill)"
+              />
+              <path
+                d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
+                fill="none"
+                stroke="#007d51"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="admin-dash-chart__overlay">
+              <p className="admin-dash-chart__overlay-title">Coming Soon</p>
+              <p className="admin-dash-chart__overlay-sub">
+                Daily analytics and live traffic will appear here once constructed.
+              </p>
+            </div>
+          </div>
+          {/* <div className="admin-dash-chart__foot">
+            <div>
+              <p className="admin-dash-chart-stat__label">Avg. valuation</p>
+              <p className="admin-dash-chart-stat__value">$3.1M</p>
+            </div>
+            <div>
+              <p className="admin-dash-chart-stat__label">Listing velocity</p>
+              <p className="admin-dash-chart-stat__value">12 days</p>
+            </div>
+            <div>
+              <p className="admin-dash-chart-stat__label">Conversion</p>
+              <p className="admin-dash-chart-stat__value">8.4%</p>
+            </div>
+          </div> */}
+        </section>
+
+        <aside className="admin-dash-pending" aria-label="Your recent tasks">
+          <h2 className="admin-dash-pending__title">Your recent tasks</h2>
+          {!roleLoading && displayName ? (
+            <p
+              style={{
+                margin: "-0.35rem 0 0.85rem",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                color: "#6b7280",
+              }}
+            >
+              Recent actions — {displayName}
+            </p>
+          ) : null}
+          <div className="admin-dash-pending__list">
+            {recentLoading ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.8125rem",
+                  color: "#6b7280",
+                  fontWeight: 600,
+                }}
+              >
+                Loading your activity…
+              </p>
+            ) : null}
+            {!recentLoading && recentTasks.length > 0
+              ? recentTasks.map((activity, index) => {
+                  const variant = activityThumbVariant(
+                    activity.taskType,
+                    index,
+                  );
+                  const href =
+                    typeof activity.href === "string" &&
+                    activity.href.startsWith("/")
+                      ? activity.href
+                      : null;
+                  const inner = (
+                    <div className="admin-dash-pending-item">
+                      <ActivityThumb variantIndex={variant} />
+                      <div className="admin-dash-pending-item__body">
+                        <p className="admin-dash-pending-item__name">
+                          {activity.title || "Action"}
+                        </p>
+                        <p className="admin-dash-pending-item__meta">
+                          {formatActivityMeta(activity)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                  const key = `${activity.taskType || "x"}-${activity.occurredAt || index}-${index}`;
+                  if (href && canOpenActivityHref(href, activityLinkGates)) {
+                    return (
+                      <Link
+                        key={key}
+                        href={href}
+                        style={{
+                          textDecoration: "none",
+                          color: "inherit",
+                          display: "block",
+                        }}
+                      >
+                        {inner}
+                      </Link>
+                    );
+                  }
+                  return <div key={key}>{inner}</div>;
+                })
+              : null}
+            {!recentLoading && recentTasks.length === 0 ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.8125rem",
+                  color: "#6b7280",
+                  fontWeight: 600,
+                }}
+              >
+                No tasks logged yet. Saving blogs, web stories, their categories,
+                or approving listings will show up here for your account.
+              </p>
+            ) : null}
+          </div>
+          <div className="admin-dash-pending__footer">
+            {canApprovals ? (
+              <Link
+                href="/admin/dashboard/property-approvals"
+                className="admin-dash-pending__link"
+              >
+                Open property approvals →
+              </Link>
+            ) : (
+              <span className="admin-dash-pending__link" style={{ opacity: 0.55 }}>
+                Property queue requires approvals access
+              </span>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      {quickLinks.length > 0 ? (
+        <section className="admin-dash-home__quick" aria-label="Quick links">
+          <h2 className="admin-dash-home__quick-title">Workspace shortcuts</h2>
+          <div className="admin-dash-home__quick-grid">
+            {quickLinks.map((q) => (
+              <Link
+                key={q.href + q.label}
+                href={q.href}
+                className="admin-dash-quick-link"
+              >
+                {q.label}
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* Secondary stats (compact) — real counts for power users */}
+      <section
+        style={{
+          marginTop: "1.25rem",
+          padding: "1rem 1.1rem",
+          background: "#f9fafb",
+          borderRadius: "14px",
+          border: "1px solid #eef0f4",
+        }}
+        aria-label="Extended counts"
+      >
+        <p
+          style={{
+            margin: "0 0 0.65rem",
+            fontSize: "0.72rem",
+            fontWeight: 800,
+            letterSpacing: "0.1em",
+            color: "#9ca3af",
+            textTransform: "uppercase",
+          }}
+        >
+          Data catalog
+        </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "0.8125rem",
+            color: "#6b7280",
+            lineHeight: 1.65,
+            fontWeight: 600,
+          }}
+        >
+          Story categories: {noOfWebStoryCategories.toLocaleString()} · Project
+          types: {noOfProjectTypes.toLocaleString()}
+          {isSuperAdmin ? (
+            <>
+              {" "}
+              · Users: {noOfUsers.toLocaleString()}
+            </>
+          ) : null}
+        </p>
+      </section>
+    </div>
+  );
 }

@@ -408,6 +408,12 @@ function normalizeTopPickProject(project, builderName, builderSlug) {
       project.bannerImage,
     slugURL: project.slugURL,
     propertyTypeName: project.propertyTypeName,
+    projectStatusName:
+      project.projectStatusName?.trim() ||
+      (typeof project.projectStatus === "string"
+        ? project.projectStatus.trim()
+        : "") ||
+      null,
     _sortAt: sortAt ?? 0,
   };
 }

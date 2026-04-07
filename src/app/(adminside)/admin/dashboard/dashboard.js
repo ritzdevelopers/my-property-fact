@@ -173,11 +173,16 @@ export default function Dashboard({
                     color="#f39c12"
                     gradient="linear-gradient(135deg, rgba(243, 156, 18, 0.1) 0%, rgba(243, 156, 18, 0.2) 100%)"
                 />
-                {isSuperAdmin ? (
+                {(isSuperAdmin ||
+                  hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) ? (
                 <StatCard
                     title="Total Enquiries"
                     value={noOfEnquiries}
-                    description="Customer inquiries"
+                    description={
+                      isSuperAdmin
+                        ? "Customer inquiries"
+                        : "Shown after you unlock enquiries with your 4-digit code"
+                    }
                     icon="📧"
                     color="#e74c3c"
                     gradient="linear-gradient(135deg, rgba(231, 76, 60, 0.1) 0%, rgba(231, 76, 60, 0.2) 100%)"
@@ -235,7 +240,8 @@ export default function Dashboard({
 
             {/* Quick Actions */}
             <div className="row g-4">
-                {isSuperAdmin ? (
+                {(isSuperAdmin ||
+                  hasPermission(ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS)) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -323,7 +329,7 @@ export default function Dashboard({
                 </div>
                 ) : null}
 
-                {isSuperAdmin ? (
+                {(isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) ? (
                 <div className="col-md-6 col-lg-4">
                     <div className="admin-content-card">
                         <div className="mb-3">
@@ -343,7 +349,9 @@ export default function Dashboard({
                                 Manage Enquiries
                             </h5>
                             <p className="text-muted mb-3" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
-                                View and respond to customer inquiries and messages.
+                                {isSuperAdmin
+                                  ? "View and respond to customer inquiries and messages."
+                                  : "Open the enquiries page and enter your 4-digit code (set by Super Admin) to view leads."}
                             </p>
                         </div>
                         <Link 

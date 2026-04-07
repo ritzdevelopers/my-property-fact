@@ -67,6 +67,7 @@ function AdminPageContent() {
       setValidated(true);
       return;
     }
+    let successRedirectScheduled = false;
     try {
       setShowLoading(true);
       setButtonName("");
@@ -79,7 +80,21 @@ function AdminPageContent() {
         const sessionRes = await fetch(`${apiBase}auth/session`, {
           credentials: "include",
         });
-        const sessionData = sessionRes.ok ? await sessionRes.json() : {};
+        let sessionData = {};
+        try {
+          sessionData = sessionRes.ok ? await sessionRes.json() : {};
+        } catch {
+          toast.error(
+            "Could not read session after login. Check your connection and try again.",
+          );
+          return;
+        }
+        if (!sessionRes.ok) {
+          toast.error(
+            "Login succeeded but session check failed (often a cookie or API URL issue in production). Try refreshing, or verify NEXT_PUBLIC_API_URL and cookie domain on the API.",
+          );
+          return;
+        }
         const roles = sessionData.roles || [];
         if (!rolesIncludeStaffDashboard(roles)) {
           await axios.post(
@@ -92,7 +107,14 @@ function AdminPageContent() {
           );
           return;
         }
-        router.replace("/admin/dashboard");
+        successRedirectScheduled = true;
+        toast.success("You are Logged in !");
+        // Full navigation so middleware and server see HttpOnly cookies reliably
+        // (client router.replace alone can leave production stuck on /admin until refresh).
+        const target = "/admin/dashboard";
+        setTimeout(() => {
+          window.location.assign(target);
+        }, 450);
         return;
       }
     } catch (error) {
@@ -104,8 +126,10 @@ function AdminPageContent() {
       setShowLoading(false);
       setButtonName("Sign in");
     } finally {
-      setShowLoading(false);
-      setButtonName("Sign in");
+      if (!successRedirectScheduled) {
+        setShowLoading(false);
+        setButtonName("Sign in");
+      }
     }
   };
 

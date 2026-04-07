@@ -10,6 +10,8 @@ export const ADMIN_PERMISSIONS = {
   MANAGE_AMENITIES: "MANAGE_AMENITIES",
   MANAGE_FEATURES: "MANAGE_FEATURES",
   MANAGE_NEARBY_BENEFITS: "MANAGE_NEARBY_BENEFITS",
+  MANAGE_PROPERTY_APPROVALS: "MANAGE_PROPERTY_APPROVALS",
+  MANAGE_ENQUIRIES: "MANAGE_ENQUIRIES",
 };
 
 export function canAccessAdminPath(roles, permissions, pathname) {
@@ -30,7 +32,6 @@ export function canAccessAdminPath(roles, permissions, pathname) {
 
   if (
     pathname.startsWith("/admin/dashboard/manage-users") ||
-    pathname.startsWith("/admin/dashboard/property-approvals") ||
     pathname.startsWith("/admin/dashboard/pending-admin-approvals")
   ) {
     return { ok: false, redirect: "/admin/dashboard" };
@@ -40,7 +41,9 @@ export function canAccessAdminPath(roles, permissions, pathname) {
     pathname === "/admin/dashboard/enquiries" ||
     pathname.startsWith("/admin/dashboard/enquiries/")
   ) {
-    return { ok: false, redirect: "/admin/dashboard" };
+    return has(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)
+      ? { ok: true }
+      : { ok: false, redirect: "/admin/dashboard" };
   }
 
   const rules = [
@@ -100,6 +103,10 @@ export function canAccessAdminPath(roles, permissions, pathname) {
     ],
     ["/admin/dashboard/manage-blogs", ADMIN_PERMISSIONS.MANAGE_BLOGS],
     ["/admin/dashboard/manage-categories", ADMIN_PERMISSIONS.MANAGE_BLOGS],
+    [
+      "/admin/dashboard/property-approvals",
+      ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS,
+    ],
     ["/admin/dashboard/web-story-category", ADMIN_PERMISSIONS.MANAGE_WEB_STORIES],
     ["/admin/dashboard/web-story", ADMIN_PERMISSIONS.MANAGE_WEB_STORIES],
   ];

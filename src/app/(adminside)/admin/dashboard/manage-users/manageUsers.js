@@ -14,6 +14,7 @@ import {
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
+import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 
 const apiWithAuth = () => ({
   withCredentials: true,
@@ -50,6 +51,7 @@ export default function ManageUsers({ users: initialUsers }) {
     confirmPassword: "",
     dashboardUsername: "",
     adminPermissions: [],
+    enquiryAccessPin: "",
   });
 
   // Fetch roles and users on the client with the same auth as other admin calls.
@@ -136,6 +138,7 @@ export default function ManageUsers({ users: initialUsers }) {
       adminPermissions: Array.isArray(user.adminPermissions)
         ? [...user.adminPermissions]
         : [],
+      enquiryAccessPin: "",
     });
     setShowModal(true);
   };
@@ -156,6 +159,7 @@ export default function ManageUsers({ users: initialUsers }) {
       confirmPassword: "",
       dashboardUsername: "",
       adminPermissions: [],
+      enquiryAccessPin: "",
     });
   };
 
@@ -167,10 +171,13 @@ export default function ManageUsers({ users: initialUsers }) {
         [name]: checked,
       }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => {
+        if (name === "enquiryAccessPin") {
+          const digits = String(value).replace(/\D/g, "").slice(0, 4);
+          return { ...prev, [name]: digits };
+        }
+        return { ...prev, [name]: value };
+      });
     }
   };
 
@@ -200,9 +207,12 @@ export default function ManageUsers({ users: initialUsers }) {
       const cur = prev.adminPermissions || [];
       const k = String(key).toUpperCase();
       if (cur.map((x) => String(x).toUpperCase()).includes(k)) {
+        const nextPerms = cur.filter((x) => String(x).toUpperCase() !== k);
         return {
           ...prev,
-          adminPermissions: cur.filter((x) => String(x).toUpperCase() !== k),
+          adminPermissions: nextPerms,
+          enquiryAccessPin:
+            k === ADMIN_PERMISSIONS.MANAGE_ENQUIRIES ? "" : prev.enquiryAccessPin,
         };
       }
       return { ...prev, adminPermissions: [...cur, k] };
@@ -234,6 +244,25 @@ export default function ManageUsers({ users: initialUsers }) {
       }
     }
 
+    const permsUpper = (formData.adminPermissions || []).map((x) =>
+      String(x || "").toUpperCase(),
+    );
+    const hasEnquiryPerm = permsUpper.includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+    const pinTrim = (formData.enquiryAccessPin || "").trim();
+    if (isSuperAdmin && editorHasAdminRole() && hasEnquiryPerm) {
+      if (!editingUser?.enquiryAccessPinSet) {
+        if (!/^\d{4}$/.test(pinTrim)) {
+          toast.error(
+            "Set a 4-digit enquiries access code when enabling Manage enquiries.",
+          );
+          return;
+        }
+      } else if (pinTrim.length > 0 && !/^\d{4}$/.test(pinTrim)) {
+        toast.error("Enquiries code must be exactly 4 digits.");
+        return;
+      }
+    }
+
     setShowLoading(true);
 
     try {
@@ -259,6 +288,14 @@ export default function ManageUsers({ users: initialUsers }) {
       };
       if (editorHasAdminRole()) {
         userPayload.adminPermissions = formData.adminPermissions || [];
+      }
+      if (
+        isSuperAdmin &&
+        editorHasAdminRole() &&
+        hasEnquiryPerm &&
+        /^\d{4}$/.test(pinTrim)
+      ) {
+        userPayload.enquiryAccessPin = pinTrim;
       }
 
       await axios.put(
@@ -844,6 +881,39 @@ export default function ManageUsers({ users: initialUsers }) {
                     </div>
                     <Form.Text className="text-muted">
                       Only applies to users with the Admin role. Super Admin always has full access.
+                    </Form.Text>
+                  </Form.Group>
+                </Col>
+              </Row>
+            )}
+            {isSuperAdmin &&
+              editorHasAdminRole() &&
+              (formData.adminPermissions || [])
+                .map((x) => String(x || "").toUpperCase())
+                .includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES) && (
+              <Row>
+                <Col md={12}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Enquiries 4-digit access code</Form.Label>
+                    <Form.Control
+                      type="password"
+                      name="enquiryAccessPin"
+                      autoComplete="one-time-code"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      maxLength={4}
+                      placeholder={
+                        editingUser?.enquiryAccessPinSet
+                          ? "•••• (leave blank to keep)"
+                          : "Required (4 digits)"
+                      }
+                      value={formData.enquiryAccessPin}
+                      onChange={handleChange}
+                    />
+                    <Form.Text className="text-muted">
+                      {editingUser?.enquiryAccessPinSet
+                        ? "Leave blank to keep the current code, or enter a new 4-digit code to replace it."
+                        : "The admin will enter this code on the Enquiries page to view leads. Share it securely."}
                     </Form.Text>
                   </Form.Group>
                 </Col>

@@ -166,20 +166,24 @@ export default function SideNav({ onLinkClick }) {
             <span>Dashboard</span>
           </Link>
         </li>
-        {isSuperAdmin && (
-        <li
-          className={
-            isActive("/admin/dashboard/property-approvals") ? "active" : ""
-          }
-        >
-          <Link
-            href="/admin/dashboard/property-approvals"
-            onClick={handleLinkClick}
+        {(isSuperAdmin ||
+          hasPermission(ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS)) && (
+          <li
+            className={
+              isActive("/admin/dashboard/property-approvals") ? "active" : ""
+            }
           >
-            <FontAwesomeIcon icon={faClipboardCheck} className="admin-nav-ico" />
-            <span>Property Approvals</span>
-          </Link>
-        </li>
+            <Link
+              href="/admin/dashboard/property-approvals"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon
+                icon={faClipboardCheck}
+                className="admin-nav-ico"
+              />
+              <span>Property Approvals</span>
+            </Link>
+          </li>
         )}
         {isSuperAdmin && (
         <li
@@ -729,7 +733,7 @@ export default function SideNav({ onLinkClick }) {
           </Link>
         </li>
         )}
-        {isSuperAdmin && (
+        {(isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) && (
         <li className={isActive("/admin/dashboard/enquiries") ? "active" : ""}>
           <Link href="/admin/dashboard/enquiries" onClick={handleLinkClick}>
             <FontAwesomeIcon icon={faEnvelopeOpenText} className="admin-nav-ico" />

@@ -1,8 +1,18 @@
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
+
+function adminMutationHeaders() {
+  const token =
+    typeof window !== "undefined" ? Cookies.get("token") : undefined;
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
 
 export default function GenerateForm({ inputFields, showModal, setShowModal, validated, setValidated,
     setShowLoading, setButtonName, buttonName, showLoading, formData, title, setFormData, api
@@ -26,9 +36,8 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
                     `${process.env.NEXT_PUBLIC_API_URL}${api}`,
                     payload,
                     {
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
+                        withCredentials: true,
+                        headers: adminMutationHeaders(),
                     }
                 );
                 if (response.data.isSuccess === 1) {
@@ -39,7 +48,14 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
                     toast.error(response.data.message);
                 }
             } catch (error) {
-                toast.error(error.response.data.error);
+                const d = error.response?.data;
+                const msg =
+                    (typeof d === "string" ? d : null) ||
+                    d?.message ||
+                    d?.error ||
+                    error.message ||
+                    "Request failed";
+                toast.error(msg);
             } finally {
                 setButtonName(buttonName);
                 setShowLoading(false);

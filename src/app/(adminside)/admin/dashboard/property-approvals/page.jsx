@@ -12,10 +12,28 @@ import {
 } from "react-bootstrap";
 import NextImage from "next/image";
 import axios from "axios";
+import Cookies from "js-cookie";
+import { getPublicApiBase } from "@/lib/publicApiBase";
 import "./property-approvals.css";
 
-//variable for API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+function adminFetchHeaders() {
+  const token =
+    typeof window !== "undefined" ? Cookies.get("token") : undefined;
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}
+
+function adminAxiosConfig() {
+  const token =
+    typeof window !== "undefined" ? Cookies.get("token") : undefined;
+  return {
+    withCredentials: true,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
+}
 
 export default function PropertyApprovalsPage() {
   const router = useRouter();
@@ -31,16 +49,20 @@ export default function PropertyApprovalsPage() {
     try {
       setLoading(true);
       setError(null);
+      const apiBase = getPublicApiBase();
       const response = await fetch(
-        `${API_BASE_URL}admin/property-listings/pending`,
+        `${apiBase}admin/property-listings/pending`,
         {
           credentials: "include",
+          headers: adminFetchHeaders(),
         },
       );
 
       if (!response.ok) {
         if (response.status === 403) {
-          throw new Error("Access Denied: Super admin role required");
+          throw new Error(
+            "Access denied: Property approvals permission required.",
+          );
         }
         const errorResult = await response.json();
         throw new Error(
@@ -73,9 +95,9 @@ export default function PropertyApprovalsPage() {
 
     try {
       const response = await axios.post(
-        `${API_BASE_URL}admin/property-listings/${propertyId}/approve`,
+        `${getPublicApiBase()}admin/property-listings/${propertyId}/approve`,
         {},
-        { withCredentials: true },
+        adminAxiosConfig(),
       );
 
       if (response.status === 200) {
@@ -105,11 +127,9 @@ export default function PropertyApprovalsPage() {
     try {
       setProcessing(selectedProperty.id);
       const response = await axios.post(
-        `${API_BASE_URL}admin/property-listings/${selectedProperty.id}/reject`,
+        `${getPublicApiBase()}admin/property-listings/${selectedProperty.id}/reject`,
         { reason: rejectReason },
-        {
-          withCredentials: true,
-        },
+        adminAxiosConfig(),
       );
 
       if (response.status === 200) {
@@ -142,6 +162,7 @@ export default function PropertyApprovalsPage() {
   };
 
   const getImageUrl = (imageUrl) => {
+    const apiBase = getPublicApiBase();
     if (!imageUrl) return null;
     if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
       return imageUrl;
@@ -151,7 +172,7 @@ export default function PropertyApprovalsPage() {
     if (
       cleanImageUrl.match(/^[A-Za-z]:[\/\\]/) ||
       (cleanImageUrl.startsWith("/") &&
-        !cleanImageUrl.startsWith(`${API_BASE_URL}get/`))
+        !cleanImageUrl.startsWith(`${apiBase}get/`))
     ) {
       const propertyListingsIndex = cleanImageUrl
         .toLowerCase()
@@ -177,9 +198,9 @@ export default function PropertyApprovalsPage() {
     if (pathParts.length >= 3 && pathParts[0] === "property-listings") {
       const listingId = pathParts[1];
       const filename = pathParts.slice(2).join("/");
-      return `${API_BASE_URL}get/images/property-listings/${listingId}/${filename}`;
+      return `${apiBase}get/images/property-listings/${listingId}/${filename}`;
     }
-    return `${API_BASE_URL}get/images/${cleanImageUrl}`;
+    return `${apiBase}get/images/${cleanImageUrl}`;
   };
 
   const formatPrice = (price) => {

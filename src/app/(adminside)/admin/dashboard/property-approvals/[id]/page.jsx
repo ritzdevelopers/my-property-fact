@@ -33,9 +33,20 @@ import {
 import Cookies from "js-cookie";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getPublicApiBase } from "@/lib/publicApiBase";
 import "../property-approvals.css";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+function adminAxiosConfig(extra = {}) {
+  const token =
+    typeof window !== "undefined" ? Cookies.get("token") : undefined;
+  return {
+    withCredentials: true,
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(extra.headers || {}),
+    },
+  };
+}
 
 export default function AdminPropertyDetailPage() {
   const params = useParams();
@@ -57,10 +68,8 @@ export default function AdminPropertyDetailPage() {
       setError(null);
 
       const response = await axios.get(
-        `${API_BASE_URL}admin/property-listings/${propertyId}`,
-        {
-          withCredentials: true,
-        },
+        `${getPublicApiBase()}admin/property-listings/${propertyId}`,
+        adminAxiosConfig(),
       );
 
       if (response.status === 200) {
@@ -90,7 +99,10 @@ export default function AdminPropertyDetailPage() {
 
   const fetchAllAmenities = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}amenity/get-all`);
+      const response = await axios.get(
+        `${getPublicApiBase()}amenity/get-all`,
+        adminAxiosConfig(),
+      );
       if (Array.isArray(response.data)) {
         setAllAmenities(response.data);
       }
@@ -101,7 +113,10 @@ export default function AdminPropertyDetailPage() {
 
   const fetchAllFeatures = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}feature/get-all`);
+      const response = await axios.get(
+        `${getPublicApiBase()}feature/get-all`,
+        adminAxiosConfig(),
+      );
       if (Array.isArray(response.data)) {
         setAllFeatures(response.data);
       }
@@ -112,7 +127,10 @@ export default function AdminPropertyDetailPage() {
 
   const fetchAllNearbyBenefits = async () => {
     try {
-      const response = await axios.get(`${API_BASE_URL}nearby-benefit/get-all`);
+      const response = await axios.get(
+        `${getPublicApiBase()}nearby-benefit/get-all`,
+        adminAxiosConfig(),
+      );
       if (Array.isArray(response.data)) {
         setAllNearbyBenefits(response.data);
       }
@@ -131,11 +149,9 @@ export default function AdminPropertyDetailPage() {
     try {
       setProcessing(true);
       const response = await axios.post(
-        `${API_BASE_URL}admin/property-listings/${propertyId}/approve`,
+        `${getPublicApiBase()}admin/property-listings/${propertyId}/approve`,
         {},
-        {
-          withCredentials: true,
-        },
+        adminAxiosConfig(),
       );
 
       if (response.status === 200) {
@@ -161,11 +177,9 @@ export default function AdminPropertyDetailPage() {
     try {
       setProcessing(true);
       const response = await axios.post(
-        `${API_BASE_URL}admin/property-listings/${propertyId}/reject`,
+        `${getPublicApiBase()}admin/property-listings/${propertyId}/reject`,
         { reason: rejectReason },
-        {
-          withCredentials: true,
-        },
+        adminAxiosConfig(),
       );
 
       if (response.status === 200) {
@@ -211,7 +225,7 @@ export default function AdminPropertyDetailPage() {
     if (pathParts.length >= 3 && pathParts[0] === "property-listings") {
       const listingId = pathParts[1];
       const filename = pathParts.slice(2).join("/");
-      return `${API_BASE_URL}get/images/property-listings/${listingId}/${filename}`;
+      return `${getPublicApiBase()}get/images/property-listings/${listingId}/${filename}`;
     }
     return null;
   };
@@ -240,7 +254,7 @@ export default function AdminPropertyDetailPage() {
 
     const pathParts = cleanImageUrl.split("/");
     const filename = pathParts[pathParts.length - 1];
-    return `${API_BASE_URL}fetch-image/amenity/${filename}`;
+    return `${getPublicApiBase()}fetch-image/amenity/${filename}`;
   };
 
   const getFeatureImageUrl = (featureImageUrl) => {
@@ -267,7 +281,7 @@ export default function AdminPropertyDetailPage() {
 
     const pathParts = cleanImageUrl.split("/");
     const filename = pathParts[pathParts.length - 1];
-    return `${API_BASE_URL}fetch-image/feature/${filename}`;
+    return `${getPublicApiBase()}fetch-image/feature/${filename}`;
   };
 
   const getNearbyBenefitImageUrl = (benefitImageUrl) => {
@@ -296,7 +310,7 @@ export default function AdminPropertyDetailPage() {
 
     const pathParts = cleanImageUrl.split("/");
     const filename = pathParts[pathParts.length - 1];
-    return `${API_BASE_URL}fetch-image/nearby-benefit/${filename}`;
+    return `${getPublicApiBase()}fetch-image/nearby-benefit/${filename}`;
   };
 
   const getPropertyAmenities = () => {

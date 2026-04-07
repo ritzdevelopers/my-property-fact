@@ -129,81 +129,137 @@ export default function AdminRegisterPage() {
     }
   };
 
-  if (metaLoading) {
-    return (
-      <div className="mpf-admin-login">
-        <div className="mpf-admin-login__inner mpf-admin-login__inner--register">
-          <div className="mpf-admin-login__card text-center py-5">
-            <LoadingSpinner show />
-            <p className="text-muted small mt-3 mb-0">Loading registration…</p>
+  return (
+    <div className="mpf-admin-login mpf-admin-login--register">
+      <div className="mpf-admin-login__inner mpf-admin-login__inner--register">
+        <div className="mpf-admin-login__panel mpf-admin-login__panel--left">
+          <Image
+            fill
+            priority
+            alt="Modern property background"
+            src="/images/admin/admin-login-bg.png"
+            className="mpf-admin-login__bg-image"
+          />
+          <div className="mpf-admin-login__left-overlay">
+            <div className="mpf-admin-login__left-top">
+              <div className="mpf-admin-login__left-brand-center">
+                <div className="mpf-admin-login__left-logo-wrap">
+                  <Image
+                    height={56}
+                    width={56}
+                    alt="My Property Fact"
+                    src="/logo.webp"
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <p className="mpf-admin-login__left-brand-text">My Property Fact</p>
+              </div>
+            </div>
+            <div className="mpf-admin-login__left-bottom">
+              <h2 className="mpf-admin-login__left-title">
+                Where Precision Meets Property Management
+              </h2>
+              <div className="mpf-admin-login__left-subbox">
+                <p className="mpf-admin-login__left-subbox-text">
+                  Access The Master Dashboard For{" "}
+                  <span className="mpf-admin-login__left-gold">
+                    MyPropertyFact Administrative
+                  </span>{" "}
+                  Controls And Global Asset Monitoring.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  }
 
-  return (
-    <div className="mpf-admin-login">
-      <div className="mpf-admin-login__inner mpf-admin-login__inner--register">
-        <div className="mpf-admin-login__card">
-          <div className="mpf-admin-login__brand">
-            <div className="mpf-admin-login__logo-wrap">
-              <Image
-                height={56}
-                width={56}
-                alt="My Property Fact"
-                src="/logo.webp"
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-            <h1 className="mpf-admin-login__title">Create account</h1>
-            <p className="mpf-admin-login__subtitle">
-              Full name, email, password — <strong>User</strong> is included by
-              default. <strong>Admin</strong> must be approved by a Super Admin before
-              dashboard sign-in.
-            </p>
-          </div>
+        <div className="mpf-admin-login__panel mpf-admin-login__panel--right">
+          <div className="mpf-admin-login__right-shell">
+            {/* <div className="mpf-admin-login__top-pill-wrap">
+              <span className="mpf-admin-login__signin-pill">Register</span>
+            </div> */}
 
-          <form
-            noValidate
-            className={validated ? "was-validated" : ""}
-            onSubmit={handleSubmit}
-          >
+            <div className="mpf-admin-login__card">
+              <div className="mpf-admin-login__brand mpf-admin-login__brand--register">
+                <h1 className="mpf-admin-login__title mpf-admin-login__title--register">
+                  Create account 
+                </h1>
+                {/* <p className="mpf-admin-login__register-desc">
+                  Full name, email, password - <strong>User</strong> is included
+                  by default. <strong>Admin</strong> must be approved by a Super
+                  Admin before dashboard sign-in.
+                </p> */}
+              </div>
+
+              {metaLoading ? (
+                <div className="mpf-admin-login__register-loading-card">
+                  <LoadingSpinner show />
+                  <p className="mpf-admin-login__register-loading-text">
+                    Loading registration...
+                  </p>
+                </div>
+              ) : (
+                <form
+                  noValidate
+                  className={validated ? "was-validated" : ""}
+                  onSubmit={handleSubmit}
+                >
             <div className="mpf-admin-login__field">
               <label className="mpf-admin-login__label" htmlFor="reg-fullname">
                 Full name
               </label>
-              <input
-                id="reg-fullname"
-                className="form-control mpf-admin-login__input"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-                autoComplete="name"
-              />
-              <div className="invalid-feedback">Enter your full name.</div>
+              <div className="mpf-admin-login__input-shell">
+                <img
+                  src="/images/admin/user-line.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="mpf-admin-login__input-icon"
+                  aria-hidden
+                />
+                <input
+                  id="reg-fullname"
+                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                  autoComplete="name"
+                  placeholder="Enter Full Name"
+                />
+                <div className="invalid-feedback">Enter your full name.</div>
+              </div>
             </div>
 
             <div className="mpf-admin-login__field">
               <label className="mpf-admin-login__label" htmlFor="reg-email">
                 Email
               </label>
-              <input
-                id="reg-email"
-                type="email"
-                className="form-control mpf-admin-login__input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-              />
-              <div className="invalid-feedback">Enter a valid email.</div>
+              <div className="mpf-admin-login__input-shell">
+                <img
+                  src="/images/admin/mail-send-line.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="mpf-admin-login__input-icon"
+                  aria-hidden
+                />
+                <input
+                  id="reg-email"
+                  type="email"
+                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  autoComplete="email"
+                  placeholder="Enter Email"
+                />
+                <div className="invalid-feedback">Enter a valid email.</div>
+              </div>
             </div>
 
             <div className="mpf-admin-login__field">
               <span className="mpf-admin-login__label">Roles</span>
-              <div className="mpf-admin-login__role-list border rounded p-3 bg-light">
-                <label className="mpf-admin-login__checkbox mb-0">
+              <div className="mpf-admin-login__role-panel">
+                <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
                   <input
                     type="checkbox"
                     checked
@@ -212,13 +268,13 @@ export default function AdminRegisterPage() {
                   />
                   <span>
                     <strong>User</strong>
-                    <span className="text-muted small d-block">
+                    <span className="mpf-admin-login__role-hint">
                       Portal access (default)
                     </span>
                   </span>
                 </label>
                 {adminRoleId != null && (
-                  <label className="mpf-admin-login__checkbox mb-0">
+                  <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
                     <input
                       type="checkbox"
                       checked={includeAdmin}
@@ -226,8 +282,9 @@ export default function AdminRegisterPage() {
                     />
                     <span>
                       <strong>Admin</strong>
-                      <span className="text-muted small d-block">
-                        Dashboard staff — requires a Super Admin to approve before you can sign in
+                      <span className="mpf-admin-login__role-hint">
+                        Dashboard staff — requires a Super Admin to approve before
+                        you can sign in
                       </span>
                     </span>
                   </label>
@@ -235,7 +292,12 @@ export default function AdminRegisterPage() {
               </div>
             </div>
 
-            {includeAdmin && (
+            <div
+              className={`mpf-admin-login__admin-username-wrap ${
+                includeAdmin ? "is-visible" : ""
+              }`}
+              aria-hidden={!includeAdmin}
+            >
               <div className="mpf-admin-login__field">
                 <label
                   className="mpf-admin-login__label"
@@ -243,38 +305,58 @@ export default function AdminRegisterPage() {
                 >
                   Dashboard username
                 </label>
-                <input
-                  id="reg-dashboard-user"
-                  className="form-control mpf-admin-login__input"
-                  value={dashboardUsername}
-                  onChange={(e) => setDashboardUsername(e.target.value)}
-                  required={includeAdmin}
-                  autoComplete="username"
-                  placeholder="Unique name for /admin sign in"
-                />
+                <div className="mpf-admin-login__input-shell">
+                  <img
+                    src="/images/admin/user-line.svg"
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="mpf-admin-login__input-icon"
+                    aria-hidden
+                  />
+                  <input
+                    id="reg-dashboard-user"
+                    className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                    value={dashboardUsername}
+                    onChange={(e) => setDashboardUsername(e.target.value)}
+                    required={includeAdmin}
+                    disabled={!includeAdmin}
+                    autoComplete="username"
+                    placeholder="Enter Dashboard Username"
+                  />
+                  <div className="invalid-feedback">
+                    Required when Admin is selected.
+                  </div>
+                </div>
                 <p className="mpf-admin-login__hint">
                   Used after approval together with email and password on /admin.
                 </p>
-                <div className="invalid-feedback">
-                  Required when Admin is selected.
-                </div>
               </div>
-            )}
+            </div>
 
             <div className="mpf-admin-login__field">
               <label className="mpf-admin-login__label" htmlFor="reg-password">
                 Password
               </label>
               <div className="mpf-admin-login__password-input-row">
+                <img
+                  src="/images/admin/lock-line.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                  aria-hidden
+                />
                 <input
                   id="reg-password"
                   type={showPassword ? "text" : "password"}
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-toggle"
+                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={8}
                   autoComplete="new-password"
+                  placeholder="••••••••"
                 />
                 <button
                   type="button"
@@ -300,15 +382,24 @@ export default function AdminRegisterPage() {
                 Confirm password
               </label>
               <div className="mpf-admin-login__password-input-row">
+                <img
+                  src="/images/admin/lock-line.svg"
+                  alt=""
+                  width={18}
+                  height={18}
+                  className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                  aria-hidden
+                />
                 <input
                   id="reg-password2"
                   type={showConfirmPassword ? "text" : "password"}
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-toggle"
+                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   minLength={8}
                   autoComplete="new-password"
+                  placeholder="••••••••"
                 />
                 <button
                   type="button"
@@ -334,10 +425,18 @@ export default function AdminRegisterPage() {
                   Registration PIN
                 </label>
                 <div className="mpf-admin-login__password-input-row">
+                  <img
+                    src="/images/admin/lock-line.svg"
+                    alt=""
+                    width={18}
+                    height={18}
+                    className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                    aria-hidden
+                  />
                   <input
                     id="reg-pin"
                     type={showRegistrationPin ? "text" : "password"}
-                    className="form-control mpf-admin-login__input mpf-admin-login__input--with-toggle"
+                    className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
                     value={registrationPin}
                     onChange={(e) => setRegistrationPin(e.target.value)}
                     required={requiresPin}
@@ -361,23 +460,29 @@ export default function AdminRegisterPage() {
               </div>
             )}
 
-            <div className="mpf-admin-login__submit-wrap">
-              <button
-                type="submit"
-                className="mpf-admin-login__submit"
-                disabled={submitting}
-              >
-                {submitting ? "Creating account…" : "Create account"}
-                <LoadingSpinner show={submitting} />
-              </button>
-            </div>
+                  <div className="mpf-admin-login__submit-wrap mpf-admin-login__submit-wrap--register">
+                    <button
+                      type="submit"
+                      className="mpf-admin-login__submit mpf-admin-login__submit--register"
+                      disabled={submitting}
+                    >
+                      {submitting ? "Creating account..." : "Create account"}
+                      <LoadingSpinner show={submitting} />
+                    </button>
+                  </div>
 
-            <div className="mpf-admin-login__footer">
-              <Link className="mpf-admin-login__link" href="/admin">
-                ← Back to sign in
-              </Link>
+                  <div className="mpf-admin-login__footer mpf-admin-login__footer--register">
+                    <Link
+                      className="mpf-admin-login__link mpf-admin-login__link--register-back"
+                      href="/admin"
+                    >
+                      ← Back to sign in
+                    </Link>
+                  </div>
+                </form>
+              )}
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

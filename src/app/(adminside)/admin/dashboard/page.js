@@ -65,6 +65,19 @@ const countAllBlogs = async () => {
   }
 };
 
+//Getting all blog categories count
+const countAllBlogCategories = async () => {
+  try {
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}blog-category/get-all`,
+    );
+    return Array.isArray(response.data) ? response.data.length : 0;
+  } catch (error) {
+    console.error("Error fetching blog categories:", error);
+    return 0;
+  }
+};
+
 //Getting all enquiries count
 const countAllEnquiries = async () => {
   try {
@@ -163,6 +176,7 @@ export default async function DashboardPage() {
     noOfProjects,
     dashboardStats,
     noOfBlogs,
+    noOfBlogCategories,
     noOfCities,
     noOfBuilders,
     noOfAmenities,
@@ -173,6 +187,7 @@ export default async function DashboardPage() {
     countAllProjects(),
     fetchDashboardStats(),
     countAllBlogs(),
+    countAllBlogCategories(),
     countAllCities(),
     countAllBuilders(),
     countAllAmenities(),
@@ -187,6 +202,7 @@ export default async function DashboardPage() {
     noOfProjects={noOfProjects}
     noOfUsers={noOfUsers}
     noOfBlogs={noOfBlogs}
+    noOfBlogCategories={noOfBlogCategories}
     noOfEnquiries={noOfEnquiries}
     noOfCities={noOfCities}
     noOfBuilders={noOfBuilders}

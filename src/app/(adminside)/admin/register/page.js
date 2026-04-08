@@ -145,14 +145,14 @@ export default function AdminRegisterPage() {
               <div className="mpf-admin-login__left-brand-center">
                 <div className="mpf-admin-login__left-logo-wrap">
                   <Image
-                    height={56}
-                    width={56}
+                    height={84}
+                    width={101}
                     alt="My Property Fact"
-                    src="/logo.webp"
+                    src="/images/admin/login-register.svg"
                     style={{ objectFit: "contain" }}
                   />
                 </div>
-                <p className="mpf-admin-login__left-brand-text">My Property Fact</p>
+
               </div>
             </div>
             <div className="mpf-admin-login__left-bottom">
@@ -181,7 +181,7 @@ export default function AdminRegisterPage() {
             <div className="mpf-admin-login__card">
               <div className="mpf-admin-login__brand mpf-admin-login__brand--register">
                 <h1 className="mpf-admin-login__title mpf-admin-login__title--register">
-                  Create account 
+                  Create account
                 </h1>
                 {/* <p className="mpf-admin-login__register-desc">
                   Full name, email, password - <strong>User</strong> is included
@@ -203,262 +203,261 @@ export default function AdminRegisterPage() {
                   className={validated ? "was-validated" : ""}
                   onSubmit={handleSubmit}
                 >
-            <div className="mpf-admin-login__field">
-              <label className="mpf-admin-login__label" htmlFor="reg-fullname">
-                Full name
-              </label>
-              <div className="mpf-admin-login__input-shell">
-                <img
-                  src="/images/admin/user-line.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="mpf-admin-login__input-icon"
-                  aria-hidden
-                />
-                <input
-                  id="reg-fullname"
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                  autoComplete="name"
-                  placeholder="Enter Full Name"
-                />
-                <div className="invalid-feedback">Enter your full name.</div>
-              </div>
-            </div>
-
-            <div className="mpf-admin-login__field">
-              <label className="mpf-admin-login__label" htmlFor="reg-email">
-                Email
-              </label>
-              <div className="mpf-admin-login__input-shell">
-                <img
-                  src="/images/admin/mail-send-line.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="mpf-admin-login__input-icon"
-                  aria-hidden
-                />
-                <input
-                  id="reg-email"
-                  type="email"
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                  placeholder="Enter Email"
-                />
-                <div className="invalid-feedback">Enter a valid email.</div>
-              </div>
-            </div>
-
-            <div className="mpf-admin-login__field">
-              <span className="mpf-admin-login__label">Roles</span>
-              <div className="mpf-admin-login__role-panel">
-                <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
-                  <input
-                    type="checkbox"
-                    checked
-                    disabled
-                    readOnly
-                  />
-                  <span>
-                    <strong>User</strong>
-                    <span className="mpf-admin-login__role-hint">
-                      Portal access (default)
-                    </span>
-                  </span>
-                </label>
-                {adminRoleId != null && (
-                  <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
-                    <input
-                      type="checkbox"
-                      checked={includeAdmin}
-                      onChange={(e) => setIncludeAdmin(e.target.checked)}
-                    />
-                    <span>
-                      <strong>Admin</strong>
-                      <span className="mpf-admin-login__role-hint">
-                        Dashboard staff — requires a Super Admin to approve before
-                        you can sign in
-                      </span>
-                    </span>
-                  </label>
-                )}
-              </div>
-            </div>
-
-            <div
-              className={`mpf-admin-login__admin-username-wrap ${
-                includeAdmin ? "is-visible" : ""
-              }`}
-              aria-hidden={!includeAdmin}
-            >
-              <div className="mpf-admin-login__field">
-                <label
-                  className="mpf-admin-login__label"
-                  htmlFor="reg-dashboard-user"
-                >
-                  Dashboard username
-                </label>
-                <div className="mpf-admin-login__input-shell">
-                  <img
-                    src="/images/admin/user-line.svg"
-                    alt=""
-                    width={18}
-                    height={18}
-                    className="mpf-admin-login__input-icon"
-                    aria-hidden
-                  />
-                  <input
-                    id="reg-dashboard-user"
-                    className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
-                    value={dashboardUsername}
-                    onChange={(e) => setDashboardUsername(e.target.value)}
-                    required={includeAdmin}
-                    disabled={!includeAdmin}
-                    autoComplete="username"
-                    placeholder="Enter Dashboard Username"
-                  />
-                  <div className="invalid-feedback">
-                    Required when Admin is selected.
+                  <div className="mpf-admin-login__field">
+                    <label className="mpf-admin-login__label" htmlFor="reg-fullname">
+                      Full name
+                    </label>
+                    <div className="mpf-admin-login__input-shell">
+                      <img
+                        src="/images/admin/user-line.svg"
+                        alt=""
+                        width={18}
+                        height={18}
+                        className="mpf-admin-login__input-icon"
+                        aria-hidden
+                      />
+                      <input
+                        id="reg-fullname"
+                        className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                        autoComplete="name"
+                        placeholder="Enter Full Name"
+                      />
+                      <div className="invalid-feedback">Enter your full name.</div>
+                    </div>
                   </div>
-                </div>
-                <p className="mpf-admin-login__hint">
-                  Used after approval together with email and password on /admin.
-                </p>
-              </div>
-            </div>
 
-            <div className="mpf-admin-login__field">
-              <label className="mpf-admin-login__label" htmlFor="reg-password">
-                Password
-              </label>
-              <div className="mpf-admin-login__password-input-row">
-                <img
-                  src="/images/admin/lock-line.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
-                  aria-hidden
-                />
-                <input
-                  id="reg-password"
-                  type={showPassword ? "text" : "password"}
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  className="mpf-admin-login__password-toggle"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                </button>
-                <div className="invalid-feedback">
-                  At least 8 characters required.
-                </div>
-              </div>
-            </div>
+                  <div className="mpf-admin-login__field">
+                    <label className="mpf-admin-login__label" htmlFor="reg-email">
+                      Email
+                    </label>
+                    <div className="mpf-admin-login__input-shell">
+                      <img
+                        src="/images/admin/mail-send-line.svg"
+                        alt=""
+                        width={18}
+                        height={18}
+                        className="mpf-admin-login__input-icon"
+                        aria-hidden
+                      />
+                      <input
+                        id="reg-email"
+                        type="email"
+                        className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                        autoComplete="email"
+                        placeholder="Enter Email"
+                      />
+                      <div className="invalid-feedback">Enter a valid email.</div>
+                    </div>
+                  </div>
 
-            <div className="mpf-admin-login__field">
-              <label
-                className="mpf-admin-login__label"
-                htmlFor="reg-password2"
-              >
-                Confirm password
-              </label>
-              <div className="mpf-admin-login__password-input-row">
-                <img
-                  src="/images/admin/lock-line.svg"
-                  alt=""
-                  width={18}
-                  height={18}
-                  className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
-                  aria-hidden
-                />
-                <input
-                  id="reg-password2"
-                  type={showConfirmPassword ? "text" : "password"}
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  className="mpf-admin-login__password-toggle"
-                  onClick={() => setShowConfirmPassword((v) => !v)}
-                  aria-label={
-                    showConfirmPassword ? "Hide password" : "Show password"
-                  }
-                  aria-pressed={showConfirmPassword}
-                  title={showConfirmPassword ? "Hide password" : "Show password"}
-                >
-                  <FontAwesomeIcon
-                    icon={showConfirmPassword ? faEyeSlash : faEye}
-                  />
-                </button>
-                <div className="invalid-feedback">Please confirm the password.</div>
-              </div>
-            </div>
+                  <div className="mpf-admin-login__field">
+                    <span className="mpf-admin-login__label">Roles</span>
+                    <div className="mpf-admin-login__role-panel">
+                      <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
+                        <input
+                          type="checkbox"
+                          checked
+                          disabled
+                          readOnly
+                        />
+                        <span>
+                          <strong>User</strong>
+                          <span className="mpf-admin-login__role-hint">
+                            Portal access (default)
+                          </span>
+                        </span>
+                      </label>
+                      {adminRoleId != null && (
+                        <label className="mpf-admin-login__checkbox mpf-admin-login__checkbox--register">
+                          <input
+                            type="checkbox"
+                            checked={includeAdmin}
+                            onChange={(e) => setIncludeAdmin(e.target.checked)}
+                          />
+                          <span>
+                            <strong>Admin</strong>
+                            <span className="mpf-admin-login__role-hint">
+                              Dashboard staff — requires a Super Admin to approve before
+                              you can sign in
+                            </span>
+                          </span>
+                        </label>
+                      )}
+                    </div>
+                  </div>
 
-            {requiresPin && (
-              <div className="mpf-admin-login__field">
-                <label className="mpf-admin-login__label" htmlFor="reg-pin">
-                  Registration PIN
-                </label>
-                <div className="mpf-admin-login__password-input-row">
-                  <img
-                    src="/images/admin/lock-line.svg"
-                    alt=""
-                    width={18}
-                    height={18}
-                    className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
-                    aria-hidden
-                  />
-                  <input
-                    id="reg-pin"
-                    type={showRegistrationPin ? "text" : "password"}
-                    className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
-                    value={registrationPin}
-                    onChange={(e) => setRegistrationPin(e.target.value)}
-                    required={requiresPin}
-                    autoComplete="one-time-code"
-                    placeholder="Provided by your organization"
-                  />
-                  <button
-                    type="button"
-                    className="mpf-admin-login__password-toggle"
-                    onClick={() => setShowRegistrationPin((v) => !v)}
-                    aria-label={showRegistrationPin ? "Hide PIN" : "Show PIN"}
-                    aria-pressed={showRegistrationPin}
-                    title={showRegistrationPin ? "Hide PIN" : "Show PIN"}
+                  <div
+                    className={`mpf-admin-login__admin-username-wrap ${includeAdmin ? "is-visible" : ""
+                      }`}
+                    aria-hidden={!includeAdmin}
                   >
-                    <FontAwesomeIcon
-                      icon={showRegistrationPin ? faEyeSlash : faEye}
-                    />
-                  </button>
-                  <div className="invalid-feedback">PIN is required.</div>
-                </div>
-              </div>
-            )}
+                    <div className="mpf-admin-login__field">
+                      <label
+                        className="mpf-admin-login__label"
+                        htmlFor="reg-dashboard-user"
+                      >
+                        Dashboard username
+                      </label>
+                      <div className="mpf-admin-login__input-shell">
+                        <img
+                          src="/images/admin/user-line.svg"
+                          alt=""
+                          width={18}
+                          height={18}
+                          className="mpf-admin-login__input-icon"
+                          aria-hidden
+                        />
+                        <input
+                          id="reg-dashboard-user"
+                          className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                          value={dashboardUsername}
+                          onChange={(e) => setDashboardUsername(e.target.value)}
+                          required={includeAdmin}
+                          disabled={!includeAdmin}
+                          autoComplete="username"
+                          placeholder="Enter Dashboard Username"
+                        />
+                        <div className="invalid-feedback">
+                          Required when Admin is selected.
+                        </div>
+                      </div>
+                      <p className="mpf-admin-login__hint">
+                        Used after approval together with email and password on /admin.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mpf-admin-login__field">
+                    <label className="mpf-admin-login__label" htmlFor="reg-password">
+                      Password
+                    </label>
+                    <div className="mpf-admin-login__password-input-row">
+                      <img
+                        src="/images/admin/lock-line.svg"
+                        alt=""
+                        width={18}
+                        height={18}
+                        className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                        aria-hidden
+                      />
+                      <input
+                        id="reg-password"
+                        type={showPassword ? "text" : "password"}
+                        className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="mpf-admin-login__password-toggle"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                        title={showPassword ? "Hide password" : "Show password"}
+                      >
+                        <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                      </button>
+                      <div className="invalid-feedback">
+                        At least 8 characters required.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mpf-admin-login__field">
+                    <label
+                      className="mpf-admin-login__label"
+                      htmlFor="reg-password2"
+                    >
+                      Confirm password
+                    </label>
+                    <div className="mpf-admin-login__password-input-row">
+                      <img
+                        src="/images/admin/lock-line.svg"
+                        alt=""
+                        width={18}
+                        height={18}
+                        className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                        aria-hidden
+                      />
+                      <input
+                        id="reg-password2"
+                        type={showConfirmPassword ? "text" : "password"}
+                        className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        className="mpf-admin-login__password-toggle"
+                        onClick={() => setShowConfirmPassword((v) => !v)}
+                        aria-label={
+                          showConfirmPassword ? "Hide password" : "Show password"
+                        }
+                        aria-pressed={showConfirmPassword}
+                        title={showConfirmPassword ? "Hide password" : "Show password"}
+                      >
+                        <FontAwesomeIcon
+                          icon={showConfirmPassword ? faEyeSlash : faEye}
+                        />
+                      </button>
+                      <div className="invalid-feedback">Please confirm the password.</div>
+                    </div>
+                  </div>
+
+                  {requiresPin && (
+                    <div className="mpf-admin-login__field">
+                      <label className="mpf-admin-login__label" htmlFor="reg-pin">
+                        Registration PIN
+                      </label>
+                      <div className="mpf-admin-login__password-input-row">
+                        <img
+                          src="/images/admin/lock-line.svg"
+                          alt=""
+                          width={18}
+                          height={18}
+                          className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                          aria-hidden
+                        />
+                        <input
+                          id="reg-pin"
+                          type={showRegistrationPin ? "text" : "password"}
+                          className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
+                          value={registrationPin}
+                          onChange={(e) => setRegistrationPin(e.target.value)}
+                          required={requiresPin}
+                          autoComplete="one-time-code"
+                          placeholder="Provided by your organization"
+                        />
+                        <button
+                          type="button"
+                          className="mpf-admin-login__password-toggle"
+                          onClick={() => setShowRegistrationPin((v) => !v)}
+                          aria-label={showRegistrationPin ? "Hide PIN" : "Show PIN"}
+                          aria-pressed={showRegistrationPin}
+                          title={showRegistrationPin ? "Hide PIN" : "Show PIN"}
+                        >
+                          <FontAwesomeIcon
+                            icon={showRegistrationPin ? faEyeSlash : faEye}
+                          />
+                        </button>
+                        <div className="invalid-feedback">PIN is required.</div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="mpf-admin-login__submit-wrap mpf-admin-login__submit-wrap--register">
                     <button

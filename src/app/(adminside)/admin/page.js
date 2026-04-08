@@ -161,14 +161,14 @@ function AdminPageContent() {
               <div className="mpf-admin-login__left-brand-center">
                 <div className="mpf-admin-login__left-logo-wrap">
                   <Image
-                    height={67.4}
+                    height={84}
                     width={101}
                     alt="My Property Fact"
-                    src="/images/admin/mpf 1.png"
+                    src="/images/admin/login-register.svg"
                     style={{ objectFit: "contain" }}
                   />
                 </div>
-                <p className="mpf-admin-login__left-brand-text">My Property Fact</p>
+
               </div>
             </div>
             <div className="mpf-admin-login__left-bottom">

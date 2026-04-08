@@ -518,14 +518,7 @@ export default function Dashboard({
           </div> */}
         </div>
         {!roleLoading && (welcomeName || roleLabel) ? (
-          <p
-            style={{
-              margin: "-0.5rem 0 1.25rem",
-              fontSize: "0.9rem",
-              color: "#6b7280",
-              fontWeight: 600,
-            }}
-          >
+          <p className="admin-dash-home__signed-in-meta">
             {welcomeName ? <>Signed in as {welcomeName}</> : null}
             {welcomeName && roleLabel ? " · " : null}
             {roleLabel ? <span>{roleLabel}</span> : null}

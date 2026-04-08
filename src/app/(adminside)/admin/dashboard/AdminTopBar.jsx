@@ -1,8 +1,9 @@
 "use client";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBell, faSearch, faTh } from "@fortawesome/free-solid-svg-icons";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
+import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
@@ -53,7 +54,7 @@ function highlight(text, query) {
   return (
     <>
       {text.slice(0, idx)}
-      <mark style={{ background: "rgba(0,125,81,0.18)", color: "#005a3a", borderRadius: 3, padding: "0 2px" }}>
+      <mark className="admin-search-highlight-mark">
         {text.slice(idx, idx + query.length)}
       </mark>
       {text.slice(idx + query.length)}
@@ -63,6 +64,7 @@ function highlight(text, query) {
 
 export default function AdminTopBar() {
   const { displayName, roleLabel, loading } = useAdminRole();
+  const { theme, toggleTheme } = useAdminTheme();
   const name = !loading && displayName ? displayName : loading ? "…" : "Administrator";
   const role = !loading && roleLabel ? roleLabel : "Staff";
   const router = useRouter();
@@ -173,10 +175,34 @@ export default function AdminTopBar() {
       </div>
 
       <div className="admin-app-topbar__actions">
-        <button type="button" className="admin-app-topbar__icon-btn" aria-label="Notifications" title="Notifications">
-          <img src="/images/admin/notification.svg" alt="Notifications" style={{ width: "22px", height: "auto" }} />
+        <button
+          type="button"
+          className="admin-app-topbar__icon-btn admin-theme-toggle-btn"
+          onClick={toggleTheme}
+          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+          title={theme === "dark" ? "Light mode" : "Dark mode"}
+        >
+          <img
+            src={
+              theme === "dark"
+                ? "/images/admin/sun-line.svg"
+                : "/images/admin/moon-line.svg"
+            }
+            alt=""
+            width={22}
+            height={22}
+            className="admin-theme-toggle-svg"
+          />
         </button>
-        <div style={{ width: 1, height: 32, background: "#00000033" }} />
+        <button
+          type="button"
+          className="admin-app-topbar__icon-btn admin-topbar-notify-btn"
+          aria-label="Notifications"
+          title="Notifications"
+        >
+          <img className="admin-topbar-aux-icon" src="/images/admin/notification.svg" alt="Notifications" style={{ width: "22px", height: "auto" }} />
+        </button>
+        <div className="admin-app-topbar__divider" aria-hidden />
         <div className="admin-app-topbar__user">
           <div className="admin-app-topbar__user-text">
             <span className="admin-app-topbar__user-name">{name}</span>

@@ -231,6 +231,7 @@ export default function ManageAminity({ list }) {
               : null
           }
           alt={params.row.altTag || ""}
+          fit="contain"
         />
       ),
     },

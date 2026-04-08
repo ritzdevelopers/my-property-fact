@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faTimes, faMagnifyingGlass, faFilter, faPencil, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faTimes, faMagnifyingGlass, faFilter, faCircleCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -32,6 +32,8 @@ export default function ManageUsers({ users: initialUsers }) {
   const [editingUser, setEditingUser] = useState(null);
   /** { row, keys } — Super Admin permission detail modal */
   const [permView, setPermView] = useState(null);
+  /** One-time PIN display after save (plaintext not stored server-side) */
+  const [enquiryPinReveal, setEnquiryPinReveal] = useState(null);
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [formData, setFormData] = useState({
@@ -308,6 +310,15 @@ export default function ManageUsers({ users: initialUsers }) {
         );
       }
 
+      const revealPinAfterSave =
+        isSuperAdmin &&
+        editorHasAdminRole() &&
+        hasEnquiryPerm &&
+        /^\d{4}$/.test(pinTrim);
+      const revealLabel =
+        formData.fullName || editingUser?.email || "User";
+      const revealPin = pinTrim;
+
       toast.success(
         wantPasswordChange
           ? "User updated and password changed."
@@ -315,6 +326,9 @@ export default function ManageUsers({ users: initialUsers }) {
       );
       await reloadUsersList();
       handleClose();
+      if (revealPinAfterSave) {
+        setEnquiryPinReveal({ fullName: revealLabel, pin: revealPin });
+      }
     } catch (error) {
       console.error("Error updating user:", error);
       const msg =
@@ -508,6 +522,7 @@ export default function ManageUsers({ users: initialUsers }) {
                   <>
                     <th>Admin</th>
                     <th>Perms</th>
+                    <th>Enq. code</th>
                   </>
                 ) : null}
                 <th>Status</th>
@@ -519,7 +534,7 @@ export default function ManageUsers({ users: initialUsers }) {
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={isSuperAdmin ? 11 : 9}
+                    colSpan={isSuperAdmin ? 12 : 9}
                     className="text-center text-muted py-4"
                   >
                     No users match your search.
@@ -599,6 +614,34 @@ export default function ManageUsers({ users: initialUsers }) {
                                 >
                                   View ({keys.length})
                                 </Button>
+                              );
+                            })()}
+                          </td>
+                          <td>
+                            {(() => {
+                              const isStaffAdmin =
+                                roleNamesUpper.includes("ADMIN") &&
+                                !roleNamesUpper.includes("SUPERADMIN");
+                              const hasEnq = (user.adminPermissions || [])
+                                .map((x) => String(x || "").toUpperCase())
+                                .includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+                              if (!isStaffAdmin || !hasEnq) {
+                                return (
+                                  <span className="text-muted small">—</span>
+                                );
+                              }
+                              if (user.enquiryAccessPinSet) {
+                                return (
+                                  <span
+                                    className="admin-chip-ok"
+                                    title="Stored securely; the code cannot be shown again. Edit user to set a new code."
+                                  >
+                                    Set
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span className="admin-chip-warn">Not set</span>
                               );
                             })()}
                           </td>
@@ -931,8 +974,8 @@ export default function ManageUsers({ users: initialUsers }) {
                     />
                     <Form.Text className="text-muted">
                       {editingUser?.enquiryAccessPinSet
-                        ? "Leave blank to keep the current code, or enter a new 4-digit code to replace it."
-                        : "The admin will enter this code on the Enquiries page to view leads. Share it securely."}
+                        ? "Leave blank to keep the current code, or enter a new 4-digit code to replace it. After save, the new code is shown once for you to copy."
+                        : "The admin will enter this code on the Enquiries page to view leads. After save, the code is shown once for you to copy; it is not stored in readable form."}
                     </Form.Text>
                   </Form.Group>
                 </Col>
@@ -1013,6 +1056,74 @@ export default function ManageUsers({ users: initialUsers }) {
             onClick={() => setPermView(null)}
           >
             Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={!!enquiryPinReveal}
+        onHide={() => setEnquiryPinReveal(null)}
+        centered
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white">
+          <Modal.Title>Enquiries code saved</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {enquiryPinReveal ? (
+            <>
+              <p className="mb-2">
+                Share this 4-digit code with{" "}
+                <strong>{enquiryPinReveal.fullName}</strong> for the Enquiries
+                page. It cannot be retrieved later from the dashboard.
+              </p>
+              <div
+                className="d-flex align-items-center gap-2 flex-wrap mb-3"
+                style={{ fontFamily: "ui-monospace, monospace", letterSpacing: "0.2em" }}
+              >
+                <span
+                  className="fs-3 fw-bold user-select-all px-3 py-2 rounded"
+                  style={{
+                    background: "rgba(0, 80, 50, 0.1)",
+                    border: "1px solid rgba(0, 80, 50, 0.2)",
+                  }}
+                >
+                  {enquiryPinReveal.pin}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline-secondary"
+                  size="sm"
+                  className="btn-admin-secondary"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        enquiryPinReveal.pin,
+                      );
+                      toast.success("Code copied to clipboard");
+                    } catch {
+                      toast.error("Could not copy — select and copy manually");
+                    }
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCopy} className="me-1" />
+                  Copy
+                </Button>
+              </div>
+              <p className="text-muted small mb-0">
+                If you lose this code, edit the user and set a new 4-digit
+                code.
+              </p>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn-admin-primary text-white"
+            onClick={() => setEnquiryPinReveal(null)}
+          >
+            Done
           </Button>
         </Modal.Footer>
       </Modal>

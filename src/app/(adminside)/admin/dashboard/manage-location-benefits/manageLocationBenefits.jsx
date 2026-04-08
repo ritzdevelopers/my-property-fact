@@ -9,8 +9,8 @@ import {
   Container,
 } from "react-bootstrap";
 import axios from "axios";
-import Image from "next/image";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
+import { AdminGridImageThumb } from "../common-model/admin-grid-cells";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -126,18 +126,16 @@ export default function ManageLocationBenefits({ allBenefits }) {
       field: "benefitIcon", 
       headerName: "Benefit Icon", 
       flex: 1,
-      renderCell: (params) => (
+      renderCell: (params) =>
         params.row.benefitIcon ? (
-          <Image 
+          <AdminGridImageThumb
             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}nearby-benefit/${params.row.benefitIcon}`}
-            width={50}
-            height={50}
             alt={params.row.altTag || params.row.benefitName || ""}
+            fit="contain"
           />
         ) : (
           <span>N/A</span>
-        )
-      )
+        ),
     },
     {
       field: "altTag",

@@ -39,6 +39,13 @@
   min-height: 1.15em;
 }
 
+.admin-dash-home__signed-in-meta {
+  margin: -0.5rem 0 1.25rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
 .admin-dash-home__typing-cursor {
   display: inline-block;
   width: 2px;

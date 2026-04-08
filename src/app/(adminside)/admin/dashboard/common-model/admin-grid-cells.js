@@ -3,13 +3,18 @@
 import Image from "next/image";
 import { AdminTableDeleteIcon, AdminTableEditIcon } from "./admin-table-icons";
 
-/** Circular table thumbnail — preserves image display per design. */
-export function AdminGridImageThumb({ src, alt, onPreviewClick }) {
+/** Circular table thumbnail — preserves image display per design.
+ *  @param {"cover" | "contain"} fit — `contain` for dark-on-light icons (amenities, benefits). */
+export function AdminGridImageThumb({ src, alt, onPreviewClick, fit = "cover" }) {
   if (!src) {
     return <div className="admin-grid-thumb admin-grid-thumb--empty" aria-hidden />;
   }
+  const thumbClass =
+    fit === "contain"
+      ? "admin-grid-thumb admin-grid-thumb--contain"
+      : "admin-grid-thumb";
   const inner = (
-    <div className="admin-grid-thumb">
+    <div className={thumbClass}>
       <Image
         src={src}
         alt={alt || ""}

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
+import { AdminThemeProvider } from "../_contexts/AdminThemeContext";
 import SideNav from "../_sidenav/page";
 import AdminTopBar from "./AdminTopBar";
 import NavigationLoader from "./NavigationLoader";
@@ -22,6 +23,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <AdminRoleProvider>
+    <AdminThemeProvider>
     <div className="admin-layout-wrapper">
       {/* Mobile Header */}
       <div className="admin-mobile-header">
@@ -61,6 +63,7 @@ export default function AdminLayout({ children }) {
         </div>
       </div>
     </div>
+    </AdminThemeProvider>
     </AdminRoleProvider>
   );
 }

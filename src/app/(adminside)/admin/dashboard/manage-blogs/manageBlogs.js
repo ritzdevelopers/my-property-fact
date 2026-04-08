@@ -451,17 +451,27 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   };
 
   // Table aligned with executive amenities design — featured image kept in grid
+  const truncCell = (val, max = 70) => {
+    const s = val == null ? "—" : String(val).trim() || "—";
+    return (
+      <span title={s} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", maxWidth: "100%" }}>
+        {s.length > max ? `${s.slice(0, max)}…` : s}
+      </span>
+    );
+  };
+
   const columns = [
     {
       field: "blogTitle",
       headerName: "Title",
       flex: 1,
-      minWidth: 200,
+      minWidth: 180,
+      renderCell: (p) => truncCell(p.value, 60),
     },
     {
       field: "blogImage",
       headerName: "Blog Image",
-      width: 130,
+      width: 110,
       sortable: false,
       renderCell: (params) => (
         <AdminGridImageThumb
@@ -479,43 +489,55 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       field: "altPreview",
       headerName: "Alt tag",
       flex: 1,
-      minWidth: 160,
+      minWidth: 140,
       sortable: false,
       renderCell: (params) =>
-        truncateCell(
-          params.row.blogMetaDescription || params.row.blogKeywords,
-          72,
-        ),
+        truncCell(params.row.blogMetaDescription || params.row.blogKeywords, 60),
     },
     {
       field: "blogCategory",
       headerName: "Category",
-      minWidth: 140,
+      minWidth: 130,
       flex: 0.6,
+      renderCell: (p) => truncCell(p.value, 20),
     },
     {
       field: "createdAt",
       headerName: "Published",
-      width: 168,
+      width: 160,
       renderCell: (params) => formatPublishedDateTime(params.row.createdAt),
     },
     {
       field: "role",
       headerName: "Role",
-      width: 120,
+      width: 80,
       sortable: false,
       renderCell: () => "—",
     },
     {
       field: "action",
       headerName: "Action",
-      width: 110,
+      width: 100,
       sortable: false,
       renderCell: (params) => (
-        <AdminGridActions
-          onEdit={() => openEditModel(params.row)}
-          onDelete={() => openConfirmationBox(params.row.id)}
-        />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <button
+            type="button"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
+            title="Delete"
+            onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
+          >
+            <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+          </button>
+          <button
+            type="button"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
+            title="Edit"
+            onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
+          >
+            <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+          </button>
+        </div>
       ),
     },
   ];

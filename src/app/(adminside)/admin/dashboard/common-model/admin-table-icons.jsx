@@ -1,7 +1,7 @@
 "use client";
 
 /** Public URLs — encode space in filename for reliable requests */
-export const ADMIN_TABLE_EDIT_ICON_SRC = "/images/admin/Vector%20(5).svg";
+export const ADMIN_TABLE_EDIT_ICON_SRC = "/images/admin/edit.svg";
 export const ADMIN_TABLE_DELETE_ICON_SRC = "/images/admin/delete.svg";
 
 const imgCommon = {

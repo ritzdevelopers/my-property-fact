@@ -16,29 +16,34 @@
     0 12px 40px rgba(27, 46, 36, 0.07);
 }
 
-/* Role chips: on-brand instead of default Bootstrap primary (blue) */
-.admin-layout-wrapper .admin-chip-role {
+/* Role chips & Status badges mapping identical structural bounds */
+.admin-layout-wrapper .admin-chip-role,
+.admin-layout-wrapper .admin-chip-role-muted,
+.admin-layout-wrapper .admin-chip-warn,
+.admin-layout-wrapper .admin-chip-ok {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   font-weight: 600;
   font-size: 0.7rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  padding: 0.3rem 0.55rem;
-  margin: 0 0.28rem 0.28rem 0;
+  padding: 0.3rem 0.65rem;
   border-radius: 6px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.admin-layout-wrapper .admin-chip-role {
   background: var(--admin-primary-soft);
   color: var(--admin-primary-hover);
   border: 1px solid var(--admin-primary-border);
-  line-height: 1.2;
 }
 
 .admin-layout-wrapper .admin-chip-role-muted {
   background: rgba(77, 99, 88, 0.12);
   color: var(--admin-ink-muted);
-  border-color: rgba(77, 99, 88, 0.18);
-  text-transform: none;
-  font-weight: 500;
+  border: 1px solid rgba(77, 99, 88, 0.18);
 }
 
 .admin-layout-wrapper .admin-chip-warn {
@@ -48,9 +53,9 @@
 }
 
 .admin-layout-wrapper .admin-chip-ok {
-  background: rgba(74, 153, 96, 0.18);
-  color: #2d6a3e;
-  border: 1px solid var(--admin-primary-border);
+  background: rgba(34, 197, 94, 0.15); /* Sleek modern success green */
+  color: #15803d;
+  border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 /* Data grid shell — avoid overflow:hidden so cells/actions are not clipped */
@@ -98,30 +103,29 @@
 }
 
 .admin-modal-surface {
-  border: none !important;
+  border: 1px solid #f3f4f6 !important;
   border-radius: 16px !important;
   overflow: hidden;
-  box-shadow: 0 24px 56px rgba(27, 46, 36, 0.16), 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
 }
 
 .admin-modal-surface .modal-header {
-  background: linear-gradient(135deg, #4a9960 0%, #35754a 100%);
-  color: #fff;
-  padding: 1.15rem 1.4rem;
-  border-bottom: none;
+  background: #ffffff;
+  color: #111827;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
   align-items: center;
 }
 
 .admin-modal-surface .modal-title {
   font-weight: 700;
-  font-size: 1.2rem;
-  letter-spacing: -0.02em;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
 }
 
-/* Use Bootstrap btn-close-white via closeVariant="white" — do not filter or the X disappears */
 .admin-modal-surface .modal-header .btn-close {
-  opacity: 0.92;
-  filter: none;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
 }
 
 .admin-modal-surface .modal-header .btn-close:hover {
@@ -129,60 +133,65 @@
 }
 
 .admin-modal-surface .modal-body {
-  padding: 1.4rem 1.5rem;
-  background: linear-gradient(180deg, #fbfdfc 0%, #f6faf7 100%);
-  max-height: min(72vh, 720px);
+  padding: 1.5rem;
+  background: #ffffff;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .admin-modal-surface .modal-footer {
-  padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid rgba(27, 46, 36, 0.08);
-  background: #fbfdfc;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #f3f4f6;
+  background: #f9fafb;
   gap: 0.5rem;
 }
 
 .admin-modal-surface .form-label {
   font-weight: 600;
-  font-size: 0.875rem;
-  color: var(--admin-ink, #1b2e24);
-  margin-bottom: 0.35rem;
+  font-size: 0.8rem;
+  color: #374151;
+  margin-bottom: 0.4rem;
 }
 
 .admin-modal-surface .form-control,
 .admin-modal-surface .form-select {
-  border-radius: 10px;
-  border: 1px solid rgba(27, 46, 36, 0.12);
-  padding: 0.55rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0.6rem 0.85rem;
   font-size: 0.9375rem;
+  background: #f9fafb;
+  transition: all 0.2s ease;
 }
 
 .admin-modal-surface .form-control:focus,
 .admin-modal-surface .form-select:focus {
-  border-color: rgba(74, 153, 96, 0.55);
-  box-shadow: 0 0 0 0.2rem rgba(74, 153, 96, 0.18);
+  border-color: #007d51;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(0, 125, 81, 0.1);
 }
 
 .admin-modal-surface .form-control:disabled,
 .admin-modal-surface .form-control[readonly] {
-  background: rgba(27, 46, 36, 0.05);
-  color: var(--admin-ink-muted, #4d6358);
+  background: #f3f4f6;
+  color: #9ca3af;
+  border-color: #e5e7eb;
 }
 
 .admin-modal-surface .form-text {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   margin-top: 0.35rem;
+  color: #6b7280;
 }
 
 .admin-modal-surface .admin-modal-section-title {
-  font-size: 0.75rem;
+  font-size: 0.65rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--admin-primary, #4a9960);
-  margin-bottom: 0.75rem;
-  padding-bottom: 0.35rem;
-  border-bottom: 1px solid rgba(74, 153, 96, 0.2);
+  letter-spacing: 0.08em;
+  color: #9ca3af;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .admin-modal-surface .admin-modal-check-scroll {
@@ -207,31 +216,34 @@
 }
 
 .admin-modal-surface .btn-admin-primary {
-  background: linear-gradient(180deg, #4a9960, #3d8250) !important;
+  background: #005032 !important;
+  color: #fff !important;
   border: none !important;
   font-weight: 600;
-  padding: 0.5rem 1.25rem;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(74, 153, 96, 0.35);
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px -4px #0050321A, 0px 10px 15px -3px #0050321A;
 }
 
 .admin-modal-surface .btn-admin-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #3d8250, #35754a) !important;
-  box-shadow: 0 4px 12px rgba(74, 153, 96, 0.4);
+  background: #00452a !important;
+  box-shadow: 0px 6px 10px -4px #0050321A, 0px 12px 20px -3px #0050321A;
 }
 
 .admin-modal-surface .btn-admin-secondary {
-  border-radius: 10px;
+  border-radius: 8px;
   font-weight: 600;
-  padding: 0.5rem 1.15rem;
-  border: 1px solid rgba(27, 46, 36, 0.15);
-  background: #fff;
-  color: var(--admin-ink-muted, #4d6358);
+  padding: 0.6rem 1.25rem;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #374151;
+  transition: all 0.2s ease;
 }
 
 .admin-modal-surface .btn-admin-secondary:hover {
-  background: rgba(27, 46, 36, 0.04);
-  color: var(--admin-ink, #1b2e24);
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #111827;
 }
 
 /* Permissions list in modal */

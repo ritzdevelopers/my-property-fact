@@ -28,23 +28,29 @@ export default function DashboardHeader({
       </div>
       <div className="admin-dashboard-toolbar-actions">
         {exportExcel && (
-          <Button
-            variant="warning"
-            className={`text-capitalize admin-toolbar-btn${isExecutiveChrome ? " admin-toolbar-btn--secondary-outline" : ""}`}
+          <button
+            type="button"
+            className="admin-header-btn admin-header-btn--export"
             disabled={exportDisabled}
             onClick={() => exportFunction()}
           >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6,flexShrink:0}} aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
             {exportExcel}
-          </Button>
+          </button>
         )}
         {buttonName && (
-          <Button
-            variant="success"
-            className="text-capitalize admin-toolbar-btn"
+          <button
+            type="button"
+            className="admin-header-btn admin-header-btn--primary"
             onClick={() => functionName()}
           >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6,flexShrink:0}} aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
             {buttonName}
-          </Button>
+          </button>
         )}
       </div>
     </div>

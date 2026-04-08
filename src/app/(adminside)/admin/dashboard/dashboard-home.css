@@ -107,20 +107,23 @@
 }
 
 .admin-dash-metric {
-  border-radius: 16px;
-  padding: 1.25rem 1.35rem;
-  min-height: 118px;
+  border-radius: 12px;
+  padding: 24px;
+  height: 95px;
+  width: 261px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   border: 1px solid transparent;
-  box-shadow: 0 2px 12px rgba(17, 24, 39, 0.06);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .admin-dash-metric:hover {
   box-shadow: 0 8px 28px rgba(17, 24, 39, 0.1);
   transform: translateY(-2px);
+  z-index: 10;
+  position: relative;
 }
 
 .admin-dash-metric--white {
@@ -129,40 +132,43 @@
 }
 
 .admin-dash-metric--mint {
-  background: linear-gradient(160deg, #ecfdf5 0%, #d1fae5 100%);
-  border-color: rgba(6, 95, 70, 0.12);
+  background: #D2FF88;
+  border-color: rgba(6, 95, 70, 0.08);
 }
 
 .admin-dash-metric--cyan {
-  background: linear-gradient(160deg, #ecfeff 0%, #cffafe 100%);
-  border-color: rgba(8, 145, 178, 0.15);
+  background: #88FFFF;
+  border-color: rgba(8, 145, 178, 0.1);
 }
 
 .admin-dash-metric--slate {
-  background: linear-gradient(160deg, #f0f9ff 0%, #e0f2fe 100%);
-  border-color: rgba(59, 130, 246, 0.15);
+  background: #88AEFF;
+  border-color: rgba(59, 130, 246, 0.1);
 }
 
 .admin-dash-metric__top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+  width: 100%;
 }
 
 .admin-dash-metric__label {
   margin: 0;
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   color: #6b7280;
+  text-transform: uppercase;
 }
 
 .admin-dash-metric__value {
-  margin: 0.35rem 0 0;
-  font-size: clamp(1.65rem, 3vw, 2rem);
+  margin: 0;
+  font-size: 1.5rem;
   font-weight: 900;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   color: #111827;
 }
 
@@ -178,77 +184,113 @@
   font-weight: 500;
 }
 
+/* Allow metric cards to lazily render their subtexts exclusively on hover */
+.admin-dash-metric--hover-sub {
+  position: relative;
+}
+.admin-dash-metric--hover-sub .admin-dash-metric__sub {
+  position: absolute;
+  bottom: 8px;
+  left: 24px;
+  right: 24px;
+  opacity: 0;
+  margin: 0;
+  transform: translateY(4px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.admin-dash-metric--hover-sub:hover .admin-dash-metric__sub {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .admin-dash-metric__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
 }
 
 .admin-dash-metric--white .admin-dash-metric__icon {
-  background: rgba(0, 125, 81, 0.1);
+  background: transparent;
   color: #007d51;
 }
 
 .admin-dash-metric--mint .admin-dash-metric__icon {
-  background: rgba(6, 95, 70, 0.12);
-  color: #065f46;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .admin-dash-metric--cyan .admin-dash-metric__icon {
-  background: rgba(8, 145, 178, 0.14);
-  color: #0e7490;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .admin-dash-metric--slate .admin-dash-metric__icon {
-  background: rgba(59, 130, 246, 0.14);
-  color: #2563eb;
+  background: transparent;
+  color: rgba(0, 0, 0, 0.3);
 }
 
 .admin-dash-home__mini {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.85rem;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 4px;
 }
 
-@media (max-width: 991px) {
-  .admin-dash-home__mini {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+/* Hide OS Scrollbars completely */
+.admin-horizontal-scroll {
+  scrollbar-width: none;
+}
+.admin-horizontal-scroll::-webkit-scrollbar {
+  display: none;
 }
 
-@media (max-width: 480px) {
-  .admin-dash-home__mini {
-    grid-template-columns: 1fr;
-  }
-}
+
 
 .admin-dash-mini {
-  background: #fff;
-  border-radius: 14px;
-  padding: 1rem 1.1rem;
-  border: 1px solid #eef0f4;
-  box-shadow: 0 1px 8px rgba(17, 24, 39, 0.05);
+  background: #F1F5EF;
+  border-radius: 12px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
+  justify-content: center;
+  text-align: center;
+}
+
+.admin-dash-mini--mini-cities,
+.admin-dash-mini--mini-builders {
+  width: 122.5px;
+  height: 104px;
+  padding: 20px;
+  flex: 0 0 122.5px;
+}
+
+.admin-dash-mini--mini-amenities,
+.admin-dash-mini--mini-stories,
+.admin-dash-mini--mini-story-categories {
+  width: 261px;
+  height: 97px;
+  padding: 16px;
+  flex: 0 0 261px;
 }
 
 .admin-dash-mini__icon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
-  background: #f3f4f6;
-  color: #4b5563;
+  background: transparent;
+  color: #007d51;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 1.15rem;
 }
 
 .admin-dash-mini__icon--img img {
@@ -260,6 +302,9 @@
 
 .admin-dash-mini__meta {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .admin-dash-mini__value {
@@ -268,15 +313,15 @@
   font-weight: 900;
   letter-spacing: -0.02em;
   color: #111827;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .admin-dash-mini__label {
-  margin: 0.15rem 0 0;
+  margin: 2px 0 0;
   font-size: 0.68rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
   color: #9ca3af;
+  text-transform: uppercase;
 }
 
 .admin-dash-home__split {
@@ -409,9 +454,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   border-radius: 12px;
   text-align: center;
   padding: 1rem;

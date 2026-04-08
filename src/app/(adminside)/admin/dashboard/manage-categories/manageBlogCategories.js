@@ -60,36 +60,42 @@ export default function ManageBlogCategory({ list }) {
     }
 
     //Defining table columns
+    const truncCell = (val, max = 70) => {
+        const s = val == null ? "—" : String(val).trim() || "—";
+        return (
+            <span title={s} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", maxWidth: "100%" }}>
+                {s.length > max ? `${s.slice(0, max)}…` : s}
+            </span>
+        );
+    };
+
     const columns = [
-        { field: "index", headerName: "S.no", width: 100, cellClassName: "centered-cell" },
-        {
-            field: "categoryName",
-            headerName: "Category Name",
-            width: 450,
-        },
-        { field: "categoryDescription", headerName: "Category Description", width: 570 },
+        { field: "index", headerName: "S.no", width: 80, cellClassName: "centered-cell" },
+        { field: "categoryName", headerName: "Category Name", width: 200 },
+        { field: "categoryDescription", headerName: "Category Description", flex: 1, minWidth: 200, renderCell: (p) => truncCell(p.value) },
         {
             field: "action",
             headerName: "Action",
-            width: 250,
+            width: 100,
+            sortable: false,
             renderCell: (params) => (
-                <div className="d-flex align-items-center gap-2">
-                    <span
-                        className="d-inline-flex"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => openConfirmationBox(params.row.id)}
-                        role="presentation"
+                <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                    <button
+                        type="button"
+                        style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
+                        title="Delete"
+                        onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
                     >
-                        <AdminTableDeleteIcon />
-                    </span>
-                    <span
-                        className="d-inline-flex"
-                        style={{ cursor: "pointer" }}
-                        onClick={() => openEditModel(params.row)}
-                        role="presentation"
+                        <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+                    </button>
+                    <button
+                        type="button"
+                        style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
+                        title="Edit"
+                        onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
                     >
-                        <AdminTableEditIcon />
-                    </span>
+                        <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+                    </button>
                 </div>
             ),
         },

@@ -108,8 +108,11 @@ function AdminPageContent() {
           );
           return;
         }
+        const isSuperAdmin = roles.some((r) =>
+          String(r || "").toUpperCase().replace(/^ROLE_/, "") === "SUPERADMIN"
+        );
         successRedirectScheduled = true;
-        toast.success("You are Logged in !");
+        toast.success(isSuperAdmin ? "Welcome Back, Super Admin!" : "Welcome Back, Admin!");
         // Full navigation so middleware and server see HttpOnly cookies reliably
         // (client router.replace alone can leave production stuck on /admin until refresh).
         const target = "/admin/dashboard";
@@ -192,7 +195,7 @@ function AdminPageContent() {
             </div> */}
             <div className="mpf-admin-login__card">
               <div className="mpf-admin-login__brand">
-                <h1 className="mpf-admin-login__title">Welcome Back Admin!</h1>
+                <h1 className="mpf-admin-login__title">Welcome Back, Admin</h1>
                 <p className="mpf-admin-login__subtitle">
                   Sign In To Access Your Admin Dashboard
                 </p>

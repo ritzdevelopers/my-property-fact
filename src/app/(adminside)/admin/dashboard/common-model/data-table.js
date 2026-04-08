@@ -1,6 +1,6 @@
 "use client";
 import { Paper } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
 
 const executiveGridSx = {
@@ -8,6 +8,20 @@ const executiveGridSx = {
   borderRadius: "16px",
   fontFamily: "'Lato', 'Poppins', system-ui, sans-serif",
   boxShadow: "0 2px 12px rgba(17, 24, 39, 0.06)",
+  "& .MuiDataGrid-toolbarContainer": {
+    padding: "0.6rem 1rem",
+    borderBottom: "1px solid #eef0f4",
+    gap: "0.5rem",
+    background: "#fafafa",
+    borderRadius: "16px 16px 0 0",
+  },
+  "& .MuiDataGrid-toolbarContainer button": {
+    fontSize: "0.78rem",
+    fontWeight: 600,
+    color: "#4a9960",
+    textTransform: "none",
+    letterSpacing: "0.01em",
+  },
   "& .MuiDataGrid-columnHeaders": {
     backgroundColor: "#f3f4f6",
     borderBottom: "1px solid #e5e7eb",
@@ -46,6 +60,12 @@ const executiveGridSx = {
   "& .MuiDataGrid-cell": {
     borderColor: "#eef0f4",
     color: "#111827",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    lineHeight: 1.4,
+    display: "flex",
+    alignItems: "center",
   },
   "& .MuiDataGrid-footerContainer": {
     borderTop: "1px solid #eef0f4",
@@ -63,6 +83,9 @@ const executiveGridSx = {
   "& .centered-cell": {
     marginLeft: "0",
   },
+  "& .MuiDataGrid-virtualScroller": {
+    overflowX: "auto",
+  },
 };
 
 /** Shared MUI DataGrid styling (light header row) — use for standalone DataGrids outside DataTable. */
@@ -76,6 +99,7 @@ export default function DataTable({
   columnHeaderHeight,
   dataGridSx,
   checkboxSelection = true,
+  showToolbar = true,
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -94,20 +118,12 @@ export default function DataTable({
 
   if (!mounted) {
     return (
-      <Paper
-        className="admin-mui-datagrid-paper admin-mui-datagrid-paper--loading"
-        sx={{
-          height: 400,
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: "16px",
-          border: "1px solid #eef0f4",
-        }}
-      >
-        Loading…
-      </Paper>
+      <div className="admin-datagrid-loader">
+        <div className="admin-datagrid-loader__spinner">
+          <span className="admin-datagrid-loader__ring" />
+        </div>
+        <p className="admin-datagrid-loader__label">Loading data…</p>
+      </div>
     );
   }
 
@@ -130,7 +146,19 @@ export default function DataTable({
           columnHeaderHeight={headerH}
           disableRowSelectionOnClick
           checkboxSelection={checkboxSelection}
-          disableColumnMenu
+          slots={showToolbar ? { toolbar: GridToolbar } : undefined}
+          slotProps={
+            showToolbar
+              ? {
+                  toolbar: {
+                    showQuickFilter: true,
+                    quickFilterProps: { debounceMs: 300 },
+                    csvOptions: { disableToolbarButton: false },
+                    printOptions: { disableToolbarButton: true },
+                  },
+                }
+              : undefined
+          }
           sx={mergedSx}
         />
       </Paper>

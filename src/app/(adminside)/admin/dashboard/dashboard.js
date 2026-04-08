@@ -15,6 +15,7 @@ import {
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import "./dashboard-home.css";
+import { useRouter } from "next/navigation";
 
 const DASH_MINI_ICONS = {
   cities: "/images/admin/Vector (4).svg",
@@ -106,11 +107,21 @@ function MetricCard({
   subStyle,
   labelStyle,
   iconWrapStyle,
+  href,
 }) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    if (href) {
+      router.push(href);
+    }
+  };
+
   return (
     <article
       className={`admin-dash-metric admin-dash-metric--${tone}${className ? ` ${className}` : ""}`}
-      style={style}
+      style={{ ...style, cursor: href ? "pointer" : "default" }}
+      onClick={handleClick}
     >
       <div className="admin-dash-metric__top">
         <div>
@@ -141,9 +152,9 @@ function MetricCard({
   );
 }
 
-function MiniStat({ icon, iconSrc, value, label, meta }) {
+function MiniStat({ icon, iconSrc, value, label, meta, cardKey }) {
   return (
-    <div className="admin-dash-mini">
+    <div className={`admin-dash-mini admin-dash-mini--${cardKey || "default"}`}>
       <div
         className={`admin-dash-mini__icon${iconSrc ? " admin-dash-mini__icon--img" : ""}`}
         aria-hidden
@@ -271,6 +282,7 @@ export default function Dashboard({
         value: noOfUsers,
         sub: null,
         icon: faUsers,
+        href: "/admin/dashboard/manage-users",
       });
     }
     if (canManageBlogs) {
@@ -282,10 +294,11 @@ export default function Dashboard({
         sub: `${noOfBlogCategories.toLocaleString()} blog categories`,
         subMuted: true,
         icon: faBookOpen,
+        className: "admin-dash-metric--hover-sub",
         iconWrapStyle: {
-          background: "#01613E",
-          color: "#fff",
+          color: "rgba(0,0,0,0.25)",
         },
+        href: "/admin/dashboard/manage-blogs",
       });
     }
     if (canEnquiries) {
@@ -296,6 +309,7 @@ export default function Dashboard({
         value: noOfEnquiries,
         sub: null,
         icon: faEnvelope,
+        href: "/admin/dashboard/enquiries",
       });
     }
     return list;
@@ -339,7 +353,12 @@ export default function Dashboard({
         key: "mini-stories",
         label: "STORIES",
         value: noOfWebStories,
-        meta: `${noOfWebStoryCategories.toLocaleString()} web story categories`,
+        iconSrc: DASH_MINI_ICONS.webStories,
+      });
+      row.push({
+        key: "mini-story-categories",
+        label: "STORY CATEGORIES",
+        value: noOfWebStoryCategories,
         iconSrc: DASH_MINI_ICONS.webStories,
       });
     }
@@ -423,8 +442,8 @@ export default function Dashboard({
 
   const greetingTarget = useMemo(() => {
     if (roleLoading) return null;
-    return `Hi ${welcomeName || "there"}, Welcome to MPF Admin Dashboard`;
-  }, [roleLoading, welcomeName]);
+    return isSuperAdmin ? `Welcome Back, Super Admin` : `Welcome Back, Admin`;
+  }, [roleLoading, isSuperAdmin, welcomeName]);
 
   const [typedGreeting, setTypedGreeting] = useState("");
   const [greetingTypingDone, setGreetingTypingDone] = useState(false);
@@ -510,46 +529,85 @@ export default function Dashboard({
         <div
           style={{
             display: "flex",
-            flexWrap: "wrap",
-            gap: "1rem",
-            marginBottom: "1.5rem",
+            flexWrap: "nowrap",
+            gap: "1.25rem",
             alignItems: "stretch",
+            overflowX: "auto",
+            paddingBottom: "8px",
           }}
         >
           <div
             style={{
-              flex: "1 1 280px",
-              minWidth: "260px",
-              maxWidth: "100%",
+              width: "261px",
+              height: "207px",
               display: "flex",
-              alignItems: "stretch",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              borderRadius: "12px",
+              padding: "32px",
+              background: "#fff",
+              flex: "0 0 261px",
+              maxWidth: "100%",
+              boxShadow: "0 2px 14px rgba(17, 24, 39, 0.04)",
+              border: "1px solid #f3f4f6",
             }}
           >
-            <MetricCard
-              tone="white"
-              label="TOTAL PROJECTS"
-              value={noOfProjects}
-              sub="Total across the platform"
-              subMuted
-              icon={faBuilding}
-              style={{ width: "100%", minHeight: "100%" }}
-              labelStyle={{
-                color: "#a16207",
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                fontSize: "0.72rem",
+            <div
+              style={{
+                width: "44px",
+                height: "44px",
+                borderRadius: "10px",
+                background: "#f3f4f6", /* As per the image: grey box for house icon */
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#111827",
+                fontSize: "1.15rem",
               }}
-              valueStyle={{
-                color: "#007d51",
-                fontSize: "clamp(2rem, 4vw, 2.65rem)",
-              }}
-              subStyle={{ color: "#a16207", fontWeight: 600 }}
-            />
+            >
+              <FontAwesomeIcon icon={faBuilding} />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+              <p
+                style={{
+                  margin: 0,
+                  color: "#6b7280",
+                  fontWeight: 700,
+                  letterSpacing: "0.05em",
+                  fontSize: "0.75rem",
+                }}
+              >
+                TOTAL PROJECTS
+              </p>
+              <p
+                style={{
+                  margin: 0,
+                  color: "#01613E",
+                  fontSize: "3rem",
+                  fontWeight: 800,
+                  lineHeight: 1.05,
+                  letterSpacing: "-0.03em",
+                }}
+              >
+                {typeof noOfProjects === "number" ? noOfProjects.toLocaleString() : noOfProjects}
+              </p>
+              {/* <p
+                style={{
+                  margin: "0.25rem 0 0",
+                  color: "#a16207",
+                  fontWeight: 600,
+                  fontSize: "0.78rem"
+                }}
+              >
+                +42 added this month
+              </p> */}
+            </div>
           </div>
           <div
             style={{
-              flex: "3 1 400px",
-              minWidth: "min(100%, 280px)",
+              flex: "1",
+              minWidth: "0",
               display: "flex",
               flexDirection: "column",
               gap: "1rem",
@@ -557,10 +615,13 @@ export default function Dashboard({
           >
             {topMetrics.length > 0 ? (
               <div
+                className="admin-horizontal-scroll"
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: topGridColumns,
+                  display: "flex",
+                  flexWrap: "nowrap",
                   gap: "1rem",
+                  overflowX: "auto",
+                  paddingBottom: "8px",
                 }}
               >
                 {topMetrics.map((m) => (
@@ -573,21 +634,18 @@ export default function Dashboard({
                     subMuted={m.subMuted}
                     icon={m.icon}
                     iconWrapStyle={m.iconWrapStyle}
+                    className={m.className}
+                    href={m.href}
                   />
                 ))}
               </div>
             ) : null}
             {miniStats.length > 0 ? (
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: miniGridColumns,
-                  gap: "0.85rem",
-                }}
-              >
+              <div className="admin-dash-home__mini admin-horizontal-scroll">
                 {miniStats.map((m) => (
                   <MiniStat
                     key={m.key}
+                    cardKey={m.key}
                     label={m.label}
                     value={m.value}
                     meta={m.meta}
@@ -734,46 +792,46 @@ export default function Dashboard({
             ) : null}
             {!recentLoading && recentTasks.length > 0
               ? recentTasks.map((activity, index) => {
-                  const variant = activityThumbVariant(
-                    activity.taskType,
-                    index,
-                  );
-                  const href =
-                    typeof activity.href === "string" &&
+                const variant = activityThumbVariant(
+                  activity.taskType,
+                  index,
+                );
+                const href =
+                  typeof activity.href === "string" &&
                     activity.href.startsWith("/")
-                      ? activity.href
-                      : null;
-                  const inner = (
-                    <div className="admin-dash-pending-item">
-                      <ActivityThumb variantIndex={variant} />
-                      <div className="admin-dash-pending-item__body">
-                        <p className="admin-dash-pending-item__name">
-                          {activity.title || "Action"}
-                        </p>
-                        <p className="admin-dash-pending-item__meta">
-                          {formatActivityMeta(activity)}
-                        </p>
-                      </div>
+                    ? activity.href
+                    : null;
+                const inner = (
+                  <div className="admin-dash-pending-item">
+                    <ActivityThumb variantIndex={variant} />
+                    <div className="admin-dash-pending-item__body">
+                      <p className="admin-dash-pending-item__name">
+                        {activity.title || "Action"}
+                      </p>
+                      <p className="admin-dash-pending-item__meta">
+                        {formatActivityMeta(activity)}
+                      </p>
                     </div>
+                  </div>
+                );
+                const key = `${activity.taskType || "x"}-${activity.occurredAt || index}-${index}`;
+                if (href && canOpenActivityHref(href, activityLinkGates)) {
+                  return (
+                    <Link
+                      key={key}
+                      href={href}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                        display: "block",
+                      }}
+                    >
+                      {inner}
+                    </Link>
                   );
-                  const key = `${activity.taskType || "x"}-${activity.occurredAt || index}-${index}`;
-                  if (href && canOpenActivityHref(href, activityLinkGates)) {
-                    return (
-                      <Link
-                        key={key}
-                        href={href}
-                        style={{
-                          textDecoration: "none",
-                          color: "inherit",
-                          display: "block",
-                        }}
-                      >
-                        {inner}
-                      </Link>
-                    );
-                  }
-                  return <div key={key}>{inner}</div>;
-                })
+                }
+                return <div key={key}>{inner}</div>;
+              })
               : null}
             {!recentLoading && recentTasks.length === 0 ? (
               <p

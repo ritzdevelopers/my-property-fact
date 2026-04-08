@@ -14,6 +14,7 @@ import NextImage from "next/image";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import DashboardHeader from "../common-model/dashboardHeader";
 import "./property-approvals.css";
 
 function adminFetchHeaders() {
@@ -67,7 +68,7 @@ export default function PropertyApprovalsPage() {
         const errorResult = await response.json();
         throw new Error(
           errorResult.message ||
-            `Failed to fetch properties: ${response.status}`,
+          `Failed to fetch properties: ${response.status}`,
         );
       }
 
@@ -108,8 +109,8 @@ export default function PropertyApprovalsPage() {
       console.error("Error approving property:", err);
       alert(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to approve property. Please try again.",
+        err.message ||
+        "Failed to approve property. Please try again.",
       );
     } finally {
       setProcessing(null);
@@ -143,8 +144,8 @@ export default function PropertyApprovalsPage() {
       console.error("Error rejecting property:", err);
       alert(
         err.response?.data?.message ||
-          err.message ||
-          "Failed to reject property. Please try again.",
+        err.message ||
+        "Failed to reject property. Please try again.",
       );
     } finally {
       setProcessing(null);
@@ -239,139 +240,119 @@ export default function PropertyApprovalsPage() {
   }
 
   return (
-    <div className="container-fluid py-4 property-approvals-page">
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <h2 className="mb-0">Property Approvals</h2>
-        <Button variant="outline-primary" onClick={fetchPendingProperties}>
-          Refresh
-        </Button>
-      </div>
+    <div className="admin-page-surface property-approvals-page">
+      <DashboardHeader
+        heading="Property Approvals"
+        pageStyle="executivePlain"
+      />
 
-      {properties.length === 0 ? (
-        <Alert variant="info">
-          <Alert.Heading>No Pending Properties</Alert.Heading>
-          <p>There are no properties waiting for approval at the moment.</p>
-        </Alert>
-      ) : (
-        <div className="row">
-          {properties.map((property) => (
-            <div
-              key={property.id}
-              className="col-12 col-sm-6 col-md-6 col-lg-4 mb-4"
-            >
-              <Card style={{ width: "100%" }}>
-                {property.imageUrls && property.imageUrls.length > 0 && (
-                  <div
-                    style={{
-                      height: "200px",
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
+      <div className="container-fluid px-0">
+
+        {properties.length === 0 ? (
+          <Alert variant="info">
+            <Alert.Heading>No Pending Properties</Alert.Heading>
+            <p>There are no properties waiting for approval at the moment.</p>
+          </Alert>
+        ) : (
+          <div className="row g-4">
+            {properties.map((property) => (
+              <div
+                key={property.id}
+                className="col-12 col-md-6 col-xl-4"
+              >
+                <article className="approval-card">
+                  <div className="approval-card__image-container">
                     <NextImage
                       src={
                         getImageUrl(property.imageUrls[0]) || "/placeholder.jpg"
                       }
                       alt={property.title || "Property"}
                       fill
-                      style={{ objectFit: "cover" }}
+                      className="approval-card__image"
                       unoptimized
                     />
-                  </div>
-                )}
-                <Card.Body>
-                  <Card.Title>
-                    {property.title || "Untitled Property"}
-                  </Card.Title>
-                  <Card.Text className="text-muted small">
-                    {property.city || "N/A"} • {property.locality || "N/A"}
-                  </Card.Text>
-                  <div className="mb-2">
-                    <strong>{formatPrice(property.totalPrice)}</strong>
-                    {property.pricePerSqft && (
-                      <span className="text-muted ms-2">
-                        ({formatPrice(property.pricePerSqft)}/sqft)
+                    {property.listingType && (
+                      <span className="approval-card__badge-type">
+                        {property.listingType}
                       </span>
                     )}
                   </div>
-                  <div className="mb-2">
-                    <Badge bg="secondary" className="me-1">
-                      {property.bedrooms || "N/A"} BHK
-                    </Badge>
-                    {property.listingType && (
-                      <Badge bg="info" className="me-1">
-                        {property.listingType}
-                      </Badge>
-                    )}
-                    {property.transaction && (
-                      <Badge bg="warning" className="me-1">
-                        {property.transaction}
-                      </Badge>
-                    )}
-                  </div>
-                  {property.description && (
-                    <Card.Text
-                      className="small text-muted"
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        display: "-webkit-box",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {property.description}
-                    </Card.Text>
-                  )}
-                  <div className="d-flex gap-2 mt-3 flex-wrap">
-                    <Button
-                      variant="success"
-                      size="sm"
-                      onClick={() => handleApprove(property.id)}
-                      disabled={processing === property.id}
-                      className="flex-fill flex-sm-grow-0"
-                    >
-                      {processing === property.id ? (
-                        <>
-                          <Spinner
-                            animation="border"
-                            size="sm"
-                            className="me-2"
-                          />
-                          Processing...
-                        </>
-                      ) : (
-                        "Approve"
+
+                  <div className="approval-card__content">
+                    <div className="approval-card__meta">
+                      <span className="approval-card__location">
+                        {property.city || "N/A"} • {property.locality || "N/A"}
+                      </span>
+                    </div>
+
+                    <h3 className="approval-card__title">
+                      {property.title || "Untitled Property"}
+                    </h3>
+
+                    <div className="approval-card__price-row">
+                      <span className="approval-card__price">{formatPrice(property.totalPrice)}</span>
+                      {property.pricePerSqft && (
+                        <span className="approval-card__price-sqft">
+                          ({formatPrice(property.pricePerSqft)}/sqft)
+                        </span>
                       )}
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => openRejectModal(property)}
-                      disabled={processing === property.id}
-                      className="flex-fill flex-sm-grow-0"
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() =>
-                        router.push(
-                          `/admin/dashboard/property-approvals/${property.id}`,
-                        )
-                      }
-                      className="flex-fill flex-sm-grow-0"
-                    >
-                      View Details
-                    </Button>
+                    </div>
+
+                    <div className="approval-card__specs">
+                      <span className="admin-chip-role-muted">
+                        {property.bedrooms || "N/A"} BHK
+                      </span>
+                      {property.transaction && (
+                        <span className="admin-chip-warn">
+                          {property.transaction}
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="approval-card__description">
+                      {property.description || "No description provided."}
+                    </p>
+
+                    <div className="approval-card__actions">
+                      <button
+                        type="button"
+                        className="approval-btn approval-btn--approve"
+                        onClick={() => handleApprove(property.id)}
+                        disabled={processing === property.id}
+                      >
+                        {processing === property.id ? (
+                          <Spinner animation="border" size="sm" />
+                        ) : (
+                          "Approve"
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        className="approval-btn approval-btn--reject"
+                        onClick={() => openRejectModal(property)}
+                        disabled={processing === property.id}
+                      >
+                        Reject
+                      </button>
+                      <button
+                        type="button"
+                        className="approval-btn approval-btn--details"
+                        onClick={() =>
+                          router.push(
+                            `/admin/dashboard/property-approvals/${property.id}`,
+                          )
+                        }
+                      >
+                        Details
+                      </button>
+                    </div>
                   </div>
-                </Card.Body>
-              </Card>
-            </div>
-          ))}
-        </div>
-      )}
+                </article>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Reject Modal */}
       <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)}>

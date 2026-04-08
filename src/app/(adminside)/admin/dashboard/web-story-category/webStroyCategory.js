@@ -92,14 +92,23 @@ export default function WebStroyCategory({ list }) {
     }
 
     //Defining columns of category table
+    const truncCell = (val, max = 60) => {
+        const s = val == null ? "—" : String(val).trim() || "—";
+        return (
+            <span title={s} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", maxWidth: "100%" }}>
+                {s.length > max ? `${s.slice(0, max)}…` : s}
+            </span>
+        );
+    };
+
     const columns = [
-        { field: "index", headerName: "S.no", width: 100 },
-        { field: "categoryName", headerName: "Category Name", flex: 1 },
-        { field: "categoryDescription", headerName: "Category Description", flex: 1 },
-        { field: "metaDescription", headerName: "Meta description", flex: 1 },
-        { field: "metaKeywords", headerName: "Meta keywords", flex: 1 },
-        { field: "noOfStories", headerName: "No of Stories", flex: 1 },
-        { field: "storyUrl", headerName: "Story URL", flex: 1 },
+        { field: "index", headerName: "S.no", width: 80 },
+        { field: "categoryName", headerName: "Category Name", width: 160, renderCell: (p) => truncCell(p.value, 20) },
+        { field: "categoryDescription", headerName: "Category Description", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "metaDescription", headerName: "Meta description", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "metaKeywords", headerName: "Meta keywords", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "noOfStories", headerName: "No of Stories", width: 110 },
+        { field: "storyUrl", headerName: "Story URL", flex: 1, minWidth: 140, renderCell: (p) => truncCell(p.value) },
         {
             field: "action",
             headerName: "Action",

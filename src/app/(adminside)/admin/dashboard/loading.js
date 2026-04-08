@@ -1,10 +1,21 @@
-import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-
 export default function DashboardLoading() {
-    return (
-        <div className="d-flex justify-content-center align-items-center"
-            style={{ minHeight: "550px" }}>
-            <LoadingSpinner show={true} />
-        </div>
-    )
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "520px",
+        gap: "1rem",
+      }}
+    >
+      <div className="dot-pulse-loader" aria-label="Loading…" role="status">
+        <span className="dot-pulse-loader__dot" />
+        <span className="dot-pulse-loader__dot" />
+        <span className="dot-pulse-loader__dot" />
+      </div>
+      <p className="dot-pulse-loader__label">Loading…</p>
+    </div>
+  );
 }

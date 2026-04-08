@@ -50,34 +50,36 @@ export default function ManageAminity({ list }) {
       setValidated(true);
       return;
     }
-    if (form.checkValidity() === true) {
-      const formDataToSend = new FormData();
-      formDataToSend.append("title", formData.title);
-      formDataToSend.append("altTag", formData.altTag);
-      formDataToSend.append("amenityImage", formData.amenityImage);
-      images.forEach((img) => {
-        formDataToSend.append("amenitiesFiles", img.file);
-      });
+    if (form.checkValidity() !== true) return;
+
+    const token =
+      typeof window !== "undefined" ? Cookies.get("token") : undefined;
+    const authHeaders = {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    };
+
+    try {
+      setButtonName("");
+      setShowLoading(true);
+
+      /** Edit: backend expects POST /amenity/post + AmenityDto + optional amenityImage (not post-multiple-amenities). */
       if (formData.id > 0) {
-        formDataToSend.append("id", formData.id);
-      }
-      try {
-        setButtonName("");
-        setShowLoading(true);
-        const token =
-          typeof window !== "undefined" ? Cookies.get("token") : undefined;
+        const fd = new FormData();
+        fd.append("id", String(formData.id));
+        fd.append("title", formData.title);
+        fd.append("altTag", formData.altTag);
+        if (formData.amenityImage) {
+          fd.append("amenityImage", formData.amenityImage);
+        }
         const response = await axios.post(
-          process.env.NEXT_PUBLIC_API_URL + "amenity/post-multiple-amenities",
-          formDataToSend,
+          process.env.NEXT_PUBLIC_API_URL + "amenity/post",
+          fd,
           {
             withCredentials: true,
-            headers: {
-              "Content-Type": "multipart/form-data",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-          }
+            headers: authHeaders,
+          },
         );
-        if (response.data.isSuccess == 1) {
+        if (response.data.isSuccess === 1) {
           setFormData({
             title: "",
             altTag: "",
@@ -86,15 +88,53 @@ export default function ManageAminity({ list }) {
           setShowModal(false);
           toast.success(response.data.message);
           router.refresh();
-        }else{
-          toast.error(response.data.message);
+        } else {
+          toast.error(response.data.message || "Update failed");
         }
-      } catch (error) {
-        toast.error(error?.data?.message);
-      } finally {
-        setShowLoading(false);
-        setButtonName("Add Amenities");
+        return;
       }
+
+      /** Bulk add: only post-multiple-amenities with amenitiesFiles (title/alt come from filenames on server). */
+      if (images.length === 0) {
+        toast.error("Add at least one image for bulk upload.");
+        return;
+      }
+      const fd = new FormData();
+      images.forEach((img) => {
+        fd.append("amenitiesFiles", img.file);
+      });
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "amenity/post-multiple-amenities",
+        fd,
+        {
+          withCredentials: true,
+          headers: authHeaders,
+        },
+      );
+      if (response.data.isSuccess === 1) {
+        setFormData({
+          title: "",
+          altTag: "",
+          amenityImage: null,
+        });
+        setImages([]);
+        setShowModal(false);
+        toast.success(response.data.message);
+        router.refresh();
+      } else {
+        toast.error(response.data.message || "Save failed");
+      }
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Request failed";
+      toast.error(msg);
+    } finally {
+      setShowLoading(false);
+      setButtonName(
+        title === "Edit Amenity" ? "Update Amenity" : "Add Amenities",
+      );
     }
   };
   // Handle image file selection

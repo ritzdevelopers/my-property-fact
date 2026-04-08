@@ -665,8 +665,9 @@ export default function Dashboard({
         </div>
       </section>
 
-      <div className="admin-dash-home__split">
-        <section className="admin-dash-chart" aria-label="Daily user tracking">
+      <div className={`admin-dash-home__split${!isSuperAdmin ? " admin-dash-home__split--no-chart" : ""}`}>
+        {isSuperAdmin && (
+          <section className="admin-dash-chart" aria-label="Daily user tracking">
           <div className="admin-dash-chart__head">
             <h2 className="admin-dash-chart__title">Daily user tracking</h2>
             <span className="admin-dash-chart__live">
@@ -768,6 +769,7 @@ export default function Dashboard({
             </div>
           </div> */}
         </section>
+        )}
 
         <aside className="admin-dash-pending" aria-label="Your recent tasks">
           <h2 className="admin-dash-pending__title">Your recent tasks</h2>

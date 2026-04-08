@@ -315,12 +315,15 @@ export default function ManageProjects({
 
     try {
       setShowLoading(true);
+      const token =
+        typeof window !== "undefined" ? Cookies.get("token") : undefined;
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}projects/add-new`,
         data,
         {
+          withCredentials: true,
           headers: {
-            "Content-Type": "multipart/form-data",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         },
       );
@@ -642,10 +645,8 @@ export default function ManageProjects({
     },
   ];
 
-  const handleClose = async () => {
-    // setShowModal(false);
-    await submitFormData(); // No need for handleSubmit since there's no event
-    router.refresh();
+  const handleClose = () => {
+    setShowModal(false);
   };
 
   const exportAllProjectToExcel = async () => {
@@ -764,12 +765,16 @@ export default function ManageProjects({
       if (uploadZipFile) {
         formData.append("imagesZip", uploadZipFile);
       }
+      const token =
+        typeof window !== "undefined" ? Cookies.get("token") : undefined;
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}excel-upload/projects`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
         },
       );
       if (response.data?.isSuccess === 1) {

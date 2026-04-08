@@ -101,6 +101,7 @@ function MetricCard({
   sub,
   subMuted,
   icon,
+  iconSrc,
   style,
   className,
   valueStyle,
@@ -137,7 +138,11 @@ function MetricCard({
           style={iconWrapStyle}
           aria-hidden
         >
-          <FontAwesomeIcon icon={icon} />
+          {iconSrc ? (
+            <img src={iconSrc} alt="" width={24} height={24} style={{ opacity: 0.8 }} />
+          ) : (
+            <FontAwesomeIcon icon={icon} />
+          )}
         </div>
       </div>
       {sub ? (
@@ -281,7 +286,7 @@ export default function Dashboard({
         label: "ACTIVE USERS",
         value: noOfUsers,
         sub: null,
-        icon: faUsers,
+        iconSrc: "/images/admin/user_icon.svg",
         href: "/admin/dashboard/manage-users",
       });
     }
@@ -293,7 +298,7 @@ export default function Dashboard({
         value: noOfBlogs,
         sub: `${noOfBlogCategories.toLocaleString()} blog categories`,
         subMuted: true,
-        icon: faBookOpen,
+        iconSrc: "/images/admin/blog_icon.svg",
         className: "admin-dash-metric--hover-sub",
         iconWrapStyle: {
           color: "rgba(0,0,0,0.25)",
@@ -308,7 +313,7 @@ export default function Dashboard({
         label: "ENQUIRIES",
         value: noOfEnquiries,
         sub: null,
-        icon: faEnvelope,
+        iconSrc: "/images/admin/enquiries.svg",
         href: "/admin/dashboard/enquiries",
       });
     }
@@ -565,7 +570,7 @@ export default function Dashboard({
                 fontSize: "1.15rem",
               }}
             >
-              <FontAwesomeIcon icon={faBuilding} />
+              <img src="/images/admin/projects.svg" alt="" width={22} height={22} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
@@ -583,7 +588,7 @@ export default function Dashboard({
               <p
                 style={{
                   margin: 0,
-                  color: "#01613E",
+                  color: "#005032",
                   fontSize: "3rem",
                   fontWeight: 800,
                   lineHeight: 1.05,
@@ -633,6 +638,7 @@ export default function Dashboard({
                     sub={m.sub}
                     subMuted={m.subMuted}
                     icon={m.icon}
+                    iconSrc={m.iconSrc}
                     iconWrapStyle={m.iconWrapStyle}
                     className={m.className}
                     href={m.href}
@@ -695,8 +701,8 @@ export default function Dashboard({
                   x2="0"
                   y2="1"
                 >
-                  <stop offset="0%" stopColor="#007d51" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#007d51" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#005032" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="#005032" stopOpacity="0" />
                 </linearGradient>
               </defs>
               <line
@@ -731,7 +737,7 @@ export default function Dashboard({
               <path
                 d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
                 fill="none"
-                stroke="#007d51"
+                stroke="#005032"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"

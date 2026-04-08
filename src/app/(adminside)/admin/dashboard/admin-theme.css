@@ -2,10 +2,10 @@
    Loaded from admin-layout.css for dashboard shell. */
 
 .admin-layout-wrapper {
-  --admin-primary: #4a9960;
-  --admin-primary-hover: #3d8250;
-  --admin-primary-soft: rgba(74, 153, 96, 0.14);
-  --admin-primary-border: rgba(74, 153, 96, 0.28);
+  --admin-primary: #005032;
+  --admin-primary-hover: #004229;
+  --admin-primary-soft: rgba(0, 80, 50, 0.12);
+  --admin-primary-border: rgba(0, 80, 50, 0.22);
   --admin-ink: #1b2e24;
   --admin-ink-muted: #4d6358;
   --admin-surface-elevated: rgba(255, 255, 255, 0.94);

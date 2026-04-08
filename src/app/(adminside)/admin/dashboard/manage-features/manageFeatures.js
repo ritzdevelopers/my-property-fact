@@ -9,8 +9,8 @@ import {
   Container,
 } from "react-bootstrap";
 import axios from "axios";
-import Image from "next/image";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
+import { AdminGridImageThumb } from "../common-model/admin-grid-cells";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -126,18 +126,16 @@ export default function ManageFeatures({ list }) {
       field: "image",
       headerName: "Feature Icon",
       flex: 1,
-      renderCell: (params) => (
+      renderCell: (params) =>
         params.row.iconImageUrl ? (
-          <Image
+          <AdminGridImageThumb
             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}feature/${params.row.iconImageUrl}`}
             alt={params.row.altTag || params.row.title || ""}
-            width={50}
-            height={50}
+            fit="contain"
           />
         ) : (
           <span>N/A</span>
-        )
-      ),
+        ),
     },
     {
       field: "altTag",

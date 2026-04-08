@@ -4,6 +4,7 @@ import "./sidenav.css";
 import { useState, useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
+import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import { toast } from "react-toastify";
 import Image from "next/image";
@@ -34,6 +35,7 @@ import {
 
 export default function SideNav({ onLinkClick }) {
   const { isSuperAdmin, hasPermission } = useAdminRole();
+  const { theme } = useAdminTheme();
   const pathname = usePathname();
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeSubDropdown, setActiveSubDropdown] = useState(null);
@@ -157,8 +159,22 @@ export default function SideNav({ onLinkClick }) {
     // Sidebar
     <nav id="sidebar">
       <div className="sidebar-header">
-        <div className="sidebar-brand-inner">
-          <Image src={"/images/admin/logo.svg"} alt="My Property Fact" width={101} height={84} />
+        <div
+          className={`sidebar-brand-inner admin-sidebar-logo-wrap${
+            theme === "dark" ? " admin-sidebar-logo-wrap--dark-asset" : ""
+          }`}
+        >
+          <Image
+            src={
+              theme === "dark"
+                ? "/images/admin/login-register.svg"
+                : "/images/admin/logo.svg"
+            }
+            alt="My Property Fact"
+            width={101}
+            height={84}
+            style={{ objectFit: "contain" }}
+          />
           {/* <p className="sidebar-brand-title">My Property Fact</p> */}
         </div>
       </div>

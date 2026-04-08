@@ -857,6 +857,17 @@
   border-radius: 50%;
 }
 
+/* Icon-style assets (amenities, nearby benefits): letterboxed inside white circle */
+.admin-grid-thumb--contain {
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.admin-grid-thumb--contain .admin-grid-thumb__img {
+  object-fit: contain;
+  border-radius: 0;
+}
+
 .admin-grid-thumb-button {
   border: none;
   background: transparent;

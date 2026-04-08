@@ -5,13 +5,13 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal, Table } from "react-bootstrap";
 import { toast } from "react-toastify";
 import CommonModal from "../common-model/common-model";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
+import { AdminGridImageThumb } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 export default function LocationBenefit({ list, projectList }) {
   const router = useRouter();
@@ -193,14 +193,13 @@ export default function LocationBenefit({ list, projectList }) {
             const iconFile = fetchLocationBenefitImages(item);
             if (!iconFile) return null;
             return (
-              <Image
-                className="mx-2"
-                key={index}
-                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}nearby-benefit/${iconFile}`}
-                alt={item}
-                width={50}
-                height={50}
-              />
+              <span key={index} className="d-inline-flex align-items-center me-1">
+                <AdminGridImageThumb
+                  src={`${process.env.NEXT_PUBLIC_IMAGE_URL}nearby-benefit/${iconFile}`}
+                  alt={item}
+                  fit="contain"
+                />
+              </span>
             );
           })}
         </>

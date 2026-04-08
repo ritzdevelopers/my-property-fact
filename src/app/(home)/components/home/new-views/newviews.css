@@ -52,12 +52,22 @@
   -ms-transform: translateY(0) translateZ(60px) scale(.94);
   width: 100%;
   z-index: 2;
-  padding: 12px 8px !important;
+  padding: 8px 6px !important;
   box-sizing: border-box;
   overflow: visible;
   word-wrap: break-word;
   white-space: normal;
-  max-height: 25%;
+  max-height: 28%;
+}
+
+/* Override default h3 — slug-style titles stay readable without dominating the card */
+.title-3d .title-3d-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .title-3d p {
@@ -109,6 +119,10 @@
   .flip-card-inner {
     height: 380px;
   }
+
+  .title-3d .title-3d-heading {
+    font-size: 0.75rem;
+  }
 }
 
 /* Tablet specific fix (768px) */
@@ -129,7 +143,7 @@
     transform: translateY(0) translateZ(60px) scale(.94);
     -webkit-transform: translateY(0) translateZ(60px) scale(.94);
     -ms-transform: translateY(0) translateZ(60px) scale(.94);
-    padding: 12px 8px !important;
+    padding: 8px 6px !important;
     overflow: visible;
     word-wrap: break-word;
     white-space: normal;
@@ -157,8 +171,7 @@
   }
   
   .title-3d {
-    font-size: 14px;
-    padding: 12px 8px !important;
+    padding: 7px 5px !important;
     top: auto;
     bottom: 0;
     position: absolute;
@@ -168,6 +181,10 @@
     overflow: visible;
     word-wrap: break-word;
     white-space: normal;
+  }
+
+  .title-3d .title-3d-heading {
+    font-size: 0.6875rem;
   }
   
   .title-3d p {
@@ -194,9 +211,13 @@
   }
   
   .title-3d {
-    font-size: 13px;
-    padding: 8px;
-    top: 75%;
+    padding: 6px 5px !important;
+    top: auto;
+    bottom: 0;
+  }
+
+  .title-3d .title-3d-heading {
+    font-size: 0.6875rem;
   }
 }
 
@@ -210,8 +231,13 @@
   }
   
   .title-3d {
-    font-size: 12px;
-    padding: 6px;
-    top: 70%;
+    padding: 5px 4px !important;
+    top: auto;
+    bottom: 0;
+  }
+
+  .title-3d .title-3d-heading {
+    font-size: 0.6875rem;
+    line-height: 1.25;
   }
 }

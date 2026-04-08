@@ -11,7 +11,10 @@ export default function WebStories({ webStoryList }) {
         WebkitLineClamp: 2,
         WebkitBoxOrient: "vertical",
         overflow: "hidden",
-        minHeight: "3rem",
+        minHeight: "2.35rem",
+        fontSize: "clamp(0.8125rem, 2.5vw, 0.9375rem)",
+        lineHeight: 1.35,
+        fontWeight: 600,
     };
 
     const descriptionClampStyle = {

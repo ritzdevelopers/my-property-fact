@@ -9,13 +9,15 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import CommonModal from "../common-model/common-model";
 import Image from "next/image";
 import ImageUrlPopup from "../common-model/imageiurl-popup";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
+import {
+  AdminGridActions,
+  AdminGridImageThumb,
+} from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 import exportOverlayStyles from "./manageBlogsExportOverlay.module.css";
 // 🔥 This prevents SSR errors
@@ -44,6 +46,13 @@ function formatPublishedDateTime(value) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function truncateCell(value, max = 80) {
+  if (value == null || value === "") return "—";
+  const s = String(value).trim();
+  if (!s) return "—";
+  return s.length <= max ? s : `${s.slice(0, max)}…`;
 }
 
 function extractImgSrcsFromHtml(html) {
@@ -104,6 +113,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [isShowCityDropDown, setIsShowCityDropDown] = useState(false);
   const [excelExportUi, setExcelExportUi] = useState(EXCEL_EXPORT_UI_INITIAL);
   const excelExportInProgressRef = useRef(false);
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (excelExportUi.phase !== "success" || !excelExportUi.open) return;
@@ -440,61 +450,93 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     }
   };
 
-  //Defining table columns
+  // Table aligned with executive amenities design — featured image kept in grid
+  const truncCell = (val, max = 70) => {
+    const s = val == null ? "—" : String(val).trim() || "—";
+    return (
+      <span title={s} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", maxWidth: "100%" }}>
+        {s.length > max ? `${s.slice(0, max)}…` : s}
+      </span>
+    );
+  };
+
   const columns = [
-    { field: "index", headerName: "S.no", width: 50 },
+    {
+      field: "blogTitle",
+      headerName: "Title",
+      flex: 1,
+      minWidth: 180,
+      renderCell: (p) => truncCell(p.value, 60),
+    },
     {
       field: "blogImage",
       headerName: "Blog Image",
-      width: 120,
+      width: 110,
+      sortable: false,
       renderCell: (params) => (
-        <Image
-          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${params.row.blogImage}`}
-          alt="Project"
-          width={100}
-          height={50}
-          style={{ borderRadius: "5px" }}
+        <AdminGridImageThumb
+          src={
+            params.row.blogImage
+              ? `${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${params.row.blogImage}`
+              : null
+          }
+          alt={params.row.blogTitle || "Blog"}
+          onPreviewClick={(src, alt) => setImagePreview({ src, alt })}
         />
       ),
     },
     {
-      field: "blogKeywords",
-      headerName: "Keywords",
-      width: 200,
+      field: "altPreview",
+      headerName: "Alt tag",
+      flex: 1,
+      minWidth: 140,
+      sortable: false,
+      renderCell: (params) =>
+        truncCell(params.row.blogMetaDescription || params.row.blogKeywords, 60),
     },
-    { field: "blogTitle", headerName: "Title", width: 200 },
     {
-      field: "blogMetaDescription",
-      headerName: "Meta Description",
-      width: 200,
+      field: "blogCategory",
+      headerName: "Category",
+      minWidth: 130,
+      flex: 0.6,
+      renderCell: (p) => truncCell(p.value, 20),
     },
-    { field: "blogDescription", headerName: "Description", width: 200 },
-    { field: "slugUrl", headerName: "Url", width: 200 },
     {
       field: "createdAt",
       headerName: "Published",
-      width: 190,
+      width: 160,
       renderCell: (params) => formatPublishedDateTime(params.row.createdAt),
     },
-    { field: "blogCategory", headerName: "Category", width: 200 },
+    {
+      field: "role",
+      headerName: "Role",
+      width: 80,
+      sortable: false,
+      renderCell: () => "—",
+    },
     {
       field: "action",
       headerName: "Action",
-      width: 200,
+      width: 100,
+      sortable: false,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="mx-3 text-danger cursor-pointer"
-            style={{ cursor: "pointer" }}
-            icon={faTrash}
-            onClick={() => openConfirmationBox(params.row.id)}
-          />
-          <FontAwesomeIcon
-            className="text-warning"
-            style={{ cursor: "pointer" }}
-            icon={faPencil}
-            onClick={() => openEditModel(params.row)}
-          />
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          <button
+            type="button"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
+            title="Delete"
+            onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
+          >
+            <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+          </button>
+          <button
+            type="button"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
+            title="Edit"
+            onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
+          >
+            <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+          </button>
         </div>
       ),
     },
@@ -575,10 +617,39 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           )}
         </Modal.Body>
       </Modal>
+      <Modal
+        show={!!imagePreview}
+        onHide={() => setImagePreview(null)}
+        centered
+        contentClassName="admin-image-lightbox-modal"
+        dialogClassName="admin-image-lightbox-dialog"
+      >
+        <Modal.Body className="admin-image-lightbox-body border-0 position-relative">
+          <button
+            type="button"
+            className="btn-close admin-image-lightbox-close"
+            aria-label="Close"
+            onClick={() => setImagePreview(null)}
+          />
+          {imagePreview ? (
+            <div className="admin-image-lightbox-inner">
+              <Image
+                src={imagePreview.src}
+                alt={imagePreview.alt}
+                width={1200}
+                height={900}
+                className="admin-image-lightbox-img"
+                unoptimized
+              />
+            </div>
+          ) : null}
+        </Modal.Body>
+      </Modal>
       <DashboardHeader
-        buttonName={"+ Add Blog"}
+        buttonName={"+ Add New Blog"}
         functionName={openAddModel}
         heading={"Manage Blogs"}
+        pageStyle="executive"
         exportExcel={"Export to Excel"}
         exportFunction={exportBlogsToExcel}
         exportDisabled={

@@ -1,8 +1,10 @@
 "use client";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -90,32 +92,45 @@ export default function WebStroyCategory({ list }) {
     }
 
     //Defining columns of category table
+    const truncCell = (val, max = 60) => {
+        const s = val == null ? "—" : String(val).trim() || "—";
+        return (
+            <span title={s} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "block", maxWidth: "100%" }}>
+                {s.length > max ? `${s.slice(0, max)}…` : s}
+            </span>
+        );
+    };
+
     const columns = [
-        { field: "index", headerName: "S.no", width: 100 },
-        { field: "categoryName", headerName: "Category Name", flex: 1 },
-        { field: "categoryDescription", headerName: "Category Description", flex: 1 },
-        { field: "metaDescription", headerName: "Meta description", flex: 1 },
-        { field: "metaKeywords", headerName: "Meta keywords", flex: 1 },
-        { field: "noOfStories", headerName: "No of Stories", flex: 1 },
-        { field: "storyUrl", headerName: "Story URL", flex: 1 },
+        { field: "index", headerName: "S.no", width: 80 },
+        { field: "categoryName", headerName: "Category Name", width: 160, renderCell: (p) => truncCell(p.value, 20) },
+        { field: "categoryDescription", headerName: "Category Description", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "metaDescription", headerName: "Meta description", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "metaKeywords", headerName: "Meta keywords", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
+        { field: "noOfStories", headerName: "No of Stories", width: 110 },
+        { field: "storyUrl", headerName: "Story URL", flex: 1, minWidth: 140, renderCell: (p) => truncCell(p.value) },
         {
             field: "action",
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div className="gap-3">
-                    <FontAwesomeIcon
-                        className="text-danger mx-2"
+                <div className="d-flex align-items-center gap-2">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationBox(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning pointer mx-2"
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },

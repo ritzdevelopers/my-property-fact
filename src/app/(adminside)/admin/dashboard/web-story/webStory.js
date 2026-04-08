@@ -8,9 +8,11 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
+import {
+  AdminGridActions,
+  AdminGridImageThumb,
+} from "../common-model/admin-grid-cells";
 
 export default function WebStory({ categoryList, list }) {
 
@@ -30,6 +32,7 @@ export default function WebStory({ categoryList, list }) {
     });
     const [imageFile, setImageFile] = useState(null);
     const [prevImage, setPrevImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -124,31 +127,66 @@ export default function WebStory({ categoryList, list }) {
 
     };
 
-    //Defining columns of category table
+    const truncateDesc = (text, max = 90) => {
+        if (!text || typeof text !== "string") return "—";
+        const t = text.trim();
+        return t.length <= max ? t : `${t.slice(0, max)}…`;
+    };
+
     const columns = [
-        { field: "index", headerName: "S.no", width: 100 },
-        { field: "categoryName", headerName: "Category Name", flex: 1 },
-        { field: "storyTitle", headerName: "Story TItle", flex: 1 },
-        { field: "storyDescription", headerName: "Story Description", flex: 1 },
+        {
+            field: "categoryName",
+            headerName: "Category",
+            flex: 0.8,
+            minWidth: 120,
+        },
+        {
+            field: "storyTitle",
+            headerName: "Story title",
+            flex: 1,
+            minWidth: 160,
+        },
+        {
+            field: "storyImage",
+            headerName: "Story image",
+            width: 130,
+            sortable: false,
+            renderCell: (params) => (
+                <AdminGridImageThumb
+                    src={
+                        params.row.storyImage
+                            ? `${process.env.NEXT_PUBLIC_IMAGE_URL}web-story/${params.row.storyImage}`
+                            : null
+                    }
+                    alt={params.row.storyTitle || "Web story"}
+                    onPreviewClick={(src, alt) => setImagePreview({ src, alt })}
+                />
+            ),
+        },
+        {
+            field: "storyDescription",
+            headerName: "Description",
+            flex: 1,
+            minWidth: 180,
+            renderCell: (params) => truncateDesc(params.row.storyDescription),
+        },
+        {
+            field: "role",
+            headerName: "Role",
+            width: 120,
+            sortable: false,
+            renderCell: () => "—",
+        },
         {
             field: "action",
             headerName: "Action",
-            width: 100,
+            width: 110,
+            sortable: false,
             renderCell: (params) => (
-                <div className="gap-3">
-                    <FontAwesomeIcon
-                        className="text-danger mx-2"
-                        style={{ cursor: "pointer" }}
-                        icon={faTrash}
-                        onClick={() => openConfirmationBox(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning pointer mx-2"
-                        style={{ cursor: "pointer" }}
-                        icon={faPencil}
-                        onClick={() => openEditPopUp(params.row)}
-                    />
-                </div>
+                <AdminGridActions
+                    onEdit={() => openEditPopUp(params.row)}
+                    onDelete={() => openConfirmationBox(params.row.id)}
+                />
             ),
         },
     ];
@@ -156,13 +194,43 @@ export default function WebStory({ categoryList, list }) {
     return (
         <>
             <DashboardHeader
-                buttonName={"+ Add story"}
+                buttonName={"+ Add New Story"}
                 functionName={openAddModel}
                 heading={"Manage web story"}
+                pageStyle="executive"
             />
             <div>
                 <DataTable columns={columns} list={list} />
             </div>
+
+            <Modal
+                show={!!imagePreview}
+                onHide={() => setImagePreview(null)}
+                centered
+                contentClassName="admin-image-lightbox-modal"
+                dialogClassName="admin-image-lightbox-dialog"
+            >
+                <Modal.Body className="admin-image-lightbox-body border-0 position-relative">
+                    <button
+                        type="button"
+                        className="btn-close admin-image-lightbox-close"
+                        aria-label="Close"
+                        onClick={() => setImagePreview(null)}
+                    />
+                    {imagePreview ? (
+                        <div className="admin-image-lightbox-inner">
+                            <Image
+                                src={imagePreview.src}
+                                alt={imagePreview.alt}
+                                width={1200}
+                                height={900}
+                                className="admin-image-lightbox-img"
+                                unoptimized
+                            />
+                        </div>
+                    ) : null}
+                </Modal.Body>
+            </Modal>
 
             {/* Model for adding walkthrough */}
             <Modal show={show} onHide={() => setShow(false)} centered>

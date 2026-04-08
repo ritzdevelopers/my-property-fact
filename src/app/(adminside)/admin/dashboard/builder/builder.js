@@ -1,7 +1,9 @@
 "use client";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import GenerateForm from "../common-model/generateForm";
@@ -92,19 +94,23 @@ export default function Builder({ list }) {
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div>
-                    <FontAwesomeIcon
-                        className="mx-3 text-danger"
+                <div className="d-flex align-items-center gap-2">
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faTrash}
                         onClick={() => openConfirmationBox(params.row.id)}
-                    />
-                    <FontAwesomeIcon
-                        className="text-warning"
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },

@@ -8,7 +8,7 @@ import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
 const apiBase = getPublicApiBase();
@@ -31,9 +31,10 @@ function AdminPageContent() {
     dashboardUsername: "",
   });
   const [showLoading, setShowLoading] = useState(false);
-  const [buttonName, setButtonName] = useState("Sign in");
+  const [buttonName, setButtonName] = useState("Sign In");
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [staySignedIn, setStaySignedIn] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -107,8 +108,11 @@ function AdminPageContent() {
           );
           return;
         }
+        const isSuperAdmin = roles.some((r) =>
+          String(r || "").toUpperCase().replace(/^ROLE_/, "") === "SUPERADMIN"
+        );
         successRedirectScheduled = true;
-        toast.success("You are Logged in !");
+        toast.success(isSuperAdmin ? "Welcome Back, Super Admin!" : "Welcome Back, Admin!");
         // Full navigation so middleware and server see HttpOnly cookies reliably
         // (client router.replace alone can leave production stuck on /admin until refresh).
         const target = "/admin/dashboard";
@@ -124,11 +128,11 @@ function AdminPageContent() {
         "Invalid email, password, or dashboard username.";
       toast.error(msg);
       setShowLoading(false);
-      setButtonName("Sign in");
+      setButtonName("Sign In");
     } finally {
       if (!successRedirectScheduled) {
         setShowLoading(false);
-        setButtonName("Sign in");
+        setButtonName("Sign In");
       }
     }
   };
@@ -144,139 +148,225 @@ function AdminPageContent() {
   return (
     <div className="mpf-admin-login">
       <div className="mpf-admin-login__inner">
-        <div className="mpf-admin-login__card">
-          <div className="mpf-admin-login__brand">
-            <div className="mpf-admin-login__logo-wrap">
-              <Image
-                height={56}
-                width={56}
-                alt="My Property Fact"
-                src="/logo.webp"
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-            <h1 className="mpf-admin-login__title">MPF Admin Dashboard</h1>
-            <p className="mpf-admin-login__subtitle">Sign in to the dashboard</p>
-            {!apiBase ? (
-              <p className="alert alert-danger small mb-0 mt-2" role="alert">
-                <strong>Configuration error:</strong>{" "}
-                <code>NEXT_PUBLIC_API_URL</code> is missing. Admin login and
-                route protection cannot reach the API. Set it in your production
-                environment and rebuild.
-              </p>
-            ) : null}
-            {/* <p className="mpf-admin-login__hint text-center mb-0" style={{ fontSize: "0.8rem" }}>
-              Portal-only accounts use{" "}
-              <Link href="/portal" className="mpf-admin-login__link">
-                /portal
-              </Link>
-              . This page is for <strong>Admin</strong> or <strong>Super Admin</strong>.
-            </p> */}
-          </div>
-
-          <form
-            noValidate
-            className={validated ? "was-validated" : ""}
-            onSubmit={handleSubmit}
-            suppressHydrationWarning
-          >
-            <div className="mpf-admin-login__field">
-              <label className="mpf-admin-login__label" htmlFor="admin-email">
-                Email
-              </label>
-              <input
-                type="email"
-                className="form-control mpf-admin-login__input"
-                id="admin-email"
-                name="email"
-                aria-describedby="emailHelp"
-                placeholder="Enter Your Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                suppressHydrationWarning
-                autoComplete="email"
-              />
-              <div className="invalid-feedback">Enter a valid email address.</div>
-            </div>
-
-            <div className="mpf-admin-login__field">
-              <label
-                className="mpf-admin-login__label"
-                htmlFor="admin-dashboard-username"
-              >
-                Dashboard username
-              </label>
-              <input
-                type="text"
-                className="form-control mpf-admin-login__input"
-                id="admin-dashboard-username"
-                name="dashboardUsername"
-                placeholder="Enter Your Username"
-                value={formData.dashboardUsername}
-                onChange={handleChange}
-                suppressHydrationWarning
-                autoComplete="username"
-              />
-              <p className="mpf-admin-login__hint">
-                <strong>Super Admin:</strong> Optional until a Username is Assigned.{" "}
-                <strong>Admin:</strong> Ask the Username Set by Super Admin.
-              </p>
-            </div>
-
-            <div className="mpf-admin-login__field">
-              <label className="mpf-admin-login__label" htmlFor="admin-password">
-                Password
-              </label>
-              <div className="mpf-admin-login__password-input-row">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  className="form-control mpf-admin-login__input mpf-admin-login__input--with-toggle"
-                  id="admin-password"
-                  placeholder="••••••••"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  required
-                  suppressHydrationWarning
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  className="mpf-admin-login__password-toggle"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  tabIndex={0}
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-                </button>
-                <div className="invalid-feedback">Password is required.</div>
+        <div className="mpf-admin-login__panel mpf-admin-login__panel--left">
+          <Image
+            fill
+            priority
+            alt="Modern property background"
+            src="/images/admin/admin-login-bg.png"
+            className="mpf-admin-login__bg-image"
+          />
+          <div className="mpf-admin-login__left-overlay">
+            <div className="mpf-admin-login__left-top">
+              <div className="mpf-admin-login__left-brand-center">
+                <div className="mpf-admin-login__left-logo-wrap">
+                  <Image
+                    height={67.4}
+                    width={101}
+                    alt="My Property Fact"
+                    src="/images/admin/mpf 1.png"
+                    style={{ objectFit: "contain" }}
+                  />
+                </div>
+                <p className="mpf-admin-login__left-brand-text">My Property Fact</p>
               </div>
             </div>
+            <div className="mpf-admin-login__left-bottom">
+              <h2 className="mpf-admin-login__left-title">
+                Where Precision Meets Property Management
+              </h2>
+              <div className="mpf-admin-login__left-subbox">
+                <p className="mpf-admin-login__left-subbox-text">
+                  Access The Master Dashboard For{" "}
+                  <span className="mpf-admin-login__left-gold">
+                    MyPropertyFact Administrative
+                  </span>{" "}
+                  Controls And Global Asset Monitoring.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <div className="mpf-admin-login__submit-wrap">
-              <button
-                type="submit"
-                className="mpf-admin-login__submit"
-                disabled={showLoading || !apiBase}
+        <div className="mpf-admin-login__panel mpf-admin-login__panel--right">
+          <div className="mpf-admin-login__right-shell">
+            {/* <div className="mpf-admin-login__top-pill-wrap">
+              <span className="mpf-admin-login__signin-pill">Sign In</span>
+            </div> */}
+            <div className="mpf-admin-login__card">
+              <div className="mpf-admin-login__brand">
+                <h1 className="mpf-admin-login__title">Welcome Back, Admin</h1>
+                <p className="mpf-admin-login__subtitle">
+                  Sign In To Access Your Admin Dashboard
+                </p>
+                {!apiBase ? (
+                  <p className="alert alert-danger small mb-0 mt-2" role="alert">
+                    <strong>Configuration error:</strong>{" "}
+                    <code>NEXT_PUBLIC_API_URL</code> is missing. Admin login and
+                    route protection cannot reach the API. Set it in your
+                    production environment and rebuild.
+                  </p>
+                ) : null}
+              </div>
+
+              <form
+                noValidate
+                className={validated ? "was-validated" : ""}
+                onSubmit={handleSubmit}
                 suppressHydrationWarning
               >
-                {buttonName}
-                <LoadingSpinner show={showLoading} />
-              </button>
-            </div>
+                <p id="admin-dashboard-username-help" className="mpf-admin-login__sr-only">
+                  Super Admin: dashboard username is optional until one is assigned.
+                  Admin: use the username set by your Super Admin.
+                </p>
+                <div className="mpf-admin-login__field">
+                  <div className="mpf-admin-login__label-row">
+                    <label
+                      className="mpf-admin-login__label mpf-admin-login__label--inline"
+                      htmlFor="admin-dashboard-username"
+                    >
+                      Dashboard Username
+                    </label>
+                    <span className="mpf-admin-login__role-tag">ADMIN/SUPER ADMIN</span>
+                  </div>
+                  <div className="mpf-admin-login__input-shell">
+                    <img
+                      src="/images/admin/user-line.svg"
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="mpf-admin-login__input-icon"
+                      aria-hidden
+                    />
+                    <input
+                      type="text"
+                      className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                      id="admin-dashboard-username"
+                      name="dashboardUsername"
+                      placeholder="Enter Dashboard Username`"
+                      value={formData.dashboardUsername}
+                      onChange={handleChange}
+                      aria-describedby="admin-dashboard-username-help"
+                      suppressHydrationWarning
+                      autoComplete="username"
+                    />
+                  </div>
+                </div>
 
-            <div className="mpf-admin-login__footer">
-              <Link className="mpf-admin-login__link" href="#">
-                Forgot password?
-              </Link>
-              <Link className="mpf-admin-login__link" href="/admin/register">
-                Register
-              </Link>
+                <div className="mpf-admin-login__field">
+                  <label className="mpf-admin-login__label" htmlFor="admin-email">
+                    Email
+                  </label>
+                  <div className="mpf-admin-login__input-shell">
+                    <img
+                      src="/images/admin/mail-send-line.svg"
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="mpf-admin-login__input-icon"
+                      aria-hidden
+                    />
+                    <input
+                      type="email"
+                      className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
+                      id="admin-email"
+                      name="email"
+                      aria-describedby="emailHelp"
+                      placeholder="Enter Email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      suppressHydrationWarning
+                      autoComplete="email"
+                    />
+                    <div className="invalid-feedback">Enter a valid email address.</div>
+                  </div>
+                </div>
+
+                <div className="mpf-admin-login__field">
+                  <div className="mpf-admin-login__label-row">
+                    <label
+                      className="mpf-admin-login__label mpf-admin-login__label--inline"
+                      htmlFor="admin-password"
+                    >
+                      Password
+                    </label>
+                    <Link
+                      className="mpf-admin-login__link mpf-admin-login__link--forgot"
+                      href="#"
+                    >
+                      Forgot Password?
+                    </Link>
+                  </div>
+                  <div className="mpf-admin-login__password-input-row">
+                    <img
+                      src="/images/admin/lock-line.svg"
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="mpf-admin-login__input-icon mpf-admin-login__input-icon--password"
+                      aria-hidden
+                    />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons mpf-admin-login__input--with-toggle"
+                      id="admin-password"
+                      placeholder="••••••••"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      suppressHydrationWarning
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      className="mpf-admin-login__password-toggle"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
+                      tabIndex={0}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                    </button>
+                    <div className="invalid-feedback">Password is required.</div>
+                  </div>
+                </div>
+
+                {/* <label className="mpf-admin-login__remember">
+                  <input
+                    type="checkbox"
+                    checked={staySignedIn}
+                    onChange={(e) => setStaySignedIn(e.target.checked)}
+                  />
+                  <span>Stay signed in for 30 days</span>
+                </label> */}
+
+                <div className="mpf-admin-login__submit-wrap">
+                  <button
+                    type="submit"
+                    className="mpf-admin-login__submit"
+                    disabled={showLoading || !apiBase}
+                    suppressHydrationWarning
+                  >
+                    {buttonName}
+                    {!showLoading ? (
+                      <FontAwesomeIcon icon={faArrowRight} aria-hidden />
+                    ) : null}
+                    <LoadingSpinner show={showLoading} />
+                  </button>
+                </div>
+
+                <p className="mpf-admin-login__footer-register">
+                  Don&apos;t have an admin account?{" "}
+                  <Link className="mpf-admin-login__footer-register-link" href="/admin/register">
+                    Register Here
+                  </Link>
+                </p>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
@@ -287,18 +377,20 @@ export default function AdminPage() {
   return (
     <Suspense
       fallback={
-        <div className="mpf-admin-login__fallback">
-          <div className="mpf-admin-login__fallback-card">
-            <div className="mpf-admin-login__logo-wrap mx-auto mb-3">
-              <Image
-                height={56}
-                width={56}
-                alt=""
-                src="/logo.webp"
-                style={{ objectFit: "contain" }}
-              />
+        <div className="mpf-admin-login">
+          <div className="mpf-admin-login__fallback">
+            <div className="mpf-admin-login__fallback-card">
+              <div className="mpf-admin-login__logo-wrap mx-auto mb-3">
+                <Image
+                  height={67.4}
+                  width={101}
+                  alt=""
+                  src="/images/admin/mpf 1.png"
+                  style={{ objectFit: "contain" }}
+                />
+              </div>
+              <LoadingSpinner show={true} />
             </div>
-            <LoadingSpinner show={true} />
           </div>
         </div>
       }

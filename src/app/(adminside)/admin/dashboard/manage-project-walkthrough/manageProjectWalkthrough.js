@@ -4,8 +4,7 @@ import dynamic from "next/dynamic";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DashboardHeader from "../common-model/dashboardHeader";
@@ -109,13 +108,15 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
             headerName: "Action",
             width: 100,
             renderCell: (params) => (
-                <div className="gap-3">
-                    <FontAwesomeIcon
-                        className="text-warning pointer mx-2"
+                <div className="d-inline-flex align-items-center">
+                    <span
+                        className="d-inline-flex mx-2"
                         style={{ cursor: "pointer" }}
-                        icon={faPencil}
                         onClick={() => openEditPopUp(params.row)}
-                    />
+                        role="presentation"
+                    >
+                        <AdminTableEditIcon />
+                    </span>
                 </div>
             ),
         },

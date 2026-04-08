@@ -9,9 +9,8 @@ import {
   Container,
 } from "react-bootstrap";
 import axios from "axios";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Image from "next/image";
+import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -171,13 +170,15 @@ export default function ManageFeatures({ list }) {
       headerName: "Action",
       width: 100,
       renderCell: (params) => (
-        <div>
-          <FontAwesomeIcon
-            className="mx-3 text-danger"
+        <div className="d-inline-flex align-items-center">
+          <span
+            className="d-inline-flex"
             style={{ cursor: "pointer" }}
-            icon={faTrash}
             onClick={() => openConfirmationBox(params.row.id)}
-          />
+            role="presentation"
+          >
+            <AdminTableDeleteIcon />
+          </span>
         </div>
       ),
     },

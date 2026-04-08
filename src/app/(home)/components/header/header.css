@@ -313,6 +313,27 @@
   width: 100%;
 }
 
+/* Top nav (City, Builder, Projects…): active = short thick green bar, centered */
+.menu ul li.hasChild > a.header-link-active {
+  border-bottom: none !important;
+  padding: 5px 5px 12px 5px !important;
+}
+
+.menu ul li.hasChild > a.header-link-active::after {
+  width: 36px;
+  height: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  transition: width 0.35s ease, left 0.35s ease, transform 0.35s ease;
+}
+
+.menu ul li.hasChild > a.header-link-active:hover::after {
+  width: 100%;
+  left: 0;
+  transform: none;
+}
+
 .header-link-active {
   color: #b6b6b6 !important;
   border-bottom: 2px solid #b6b6b6 !important;
@@ -613,6 +634,38 @@
 
 .city-dropdown-right li a::before {
   display: none;
+}
+
+/* Active city/builder in mega menu — short thick green bar, centered under label */
+.menu ul li.hasChild .city-dropdown .city-dropdown-right li a.header-link-active,
+.menu ul li.hasChild .builder-dropdown .city-dropdown-right li a.header-link-active {
+  border-bottom: none !important;
+  color: #ffffff !important;
+  padding: 0 0 12px 0 !important;
+  box-sizing: border-box;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.menu ul li.hasChild .city-dropdown .city-dropdown-right li a.header-link-active::after,
+.menu ul li.hasChild .builder-dropdown .city-dropdown-right li a.header-link-active::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: clamp(28px, 42%, 52px);
+  height: 4px;
+  background: #0d5834;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.fixed-header .dropdown.dropdown-lg .city-dropdown .city-dropdown-right li a.header-link-active,
+.fixed-header .dropdown.dropdown-lg .builder-dropdown .city-dropdown-right li a.header-link-active {
+  border-bottom: none !important;
+  color: #ffffff !important;
 }
 
 /* Footer bar - same 2-column layout as city-dropdown-content (220px + 28px gap + rest) */
@@ -2264,6 +2317,27 @@
 
 .bigMenuList .dropdown li a.builder-link {
   text-transform: capitalize !important;
+}
+
+.bigMenuList .dropdown li a.header-link-active {
+  border-bottom: none !important;
+  color: #0d5834 !important;
+  padding: 0 0 12px 30px !important;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.bigMenuList .dropdown li a.header-link-active::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  bottom: 0;
+  width: 40px;
+  height: 4px;
+  background: #0d5834;
+  border-radius: 2px;
+  pointer-events: none;
 }
 
 @media (max-width: 426px) {

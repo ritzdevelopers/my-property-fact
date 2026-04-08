@@ -16,11 +16,8 @@ import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLock,
-  faMagnifyingGlass,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faLock, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
@@ -63,7 +60,70 @@ function truncate(text, max) {
   return `${s.slice(0, max)}…`;
 }
 
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 10;
+
+function StatusDropdown({ currentStatus, options, onSelect, getStatusColor, getStatusTextColor }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="status-custom-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className="status-custom-trigger"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          backgroundColor: getStatusColor(currentStatus),
+          color: getStatusTextColor(currentStatus),
+          borderColor: `${getStatusTextColor(currentStatus)}44`
+        }}
+      >
+        <span>{currentStatus}</span>
+        <svg 
+          width="10" 
+          height="6" 
+          viewBox="0 0 10 6" 
+          fill="none" 
+          className={`status-custom-arrow ${isOpen ? 'is-open' : ''}`}
+        >
+          <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="status-custom-menu">
+          {options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              className={`status-custom-item ${opt === currentStatus ? 'is-active' : ''}`}
+              onClick={() => {
+                onSelect(opt);
+                setIsOpen(false);
+              }}
+            >
+              <span 
+                className="status-custom-dot" 
+                style={{ backgroundColor: getStatusTextColor(opt) }} 
+              />
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Enquiries() {
   const { isSuperAdmin, hasPermission, loading: roleLoading } = useAdminRole();
@@ -315,8 +375,7 @@ export default function Enquiries() {
     toast.success("Enquiries exported successfully...");
   };
 
-  const handleStatusChange = async (e, enquiryId) => {
-    const newStatus = e.target.value;
+  const handleStatusChange = async (newStatus, enquiryId) => {
     if (!apiBase) return;
     try {
       const response = await fetch(
@@ -410,13 +469,12 @@ export default function Enquiries() {
   }
 
   return (
-    <>
+    <div className="admin-page-surface enquiries-page">
       <DashboardHeader
-        heading={"Manage Enquiries"}
-        buttonName={
-          showTable && !loading ? "Export to excel" : undefined
-        }
-        functionName={exportToExcel}
+        heading="Manage Enquiries"
+        pageStyle="executivePlain"
+        exportExcel={showTable && !loading ? "Export to Excel" : undefined}
+        exportFunction={exportToExcel}
       />
       {!canUseEnquiries ? (
         <div className="alert alert-warning mt-3">
@@ -522,26 +580,23 @@ export default function Enquiries() {
           </div>
 
           <div className="manage-users-table-scroll">
-            <table className="table table-sm manage-users-compact-table mb-0">
+            <table className="table manage-users-compact-table mb-0">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style={{ width: 50 }}>#</th>
                   <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
+                  <th>Contact Info</th>
                   <th>Message</th>
-                  <th>Source</th>
-                  <th>Page</th>
-                  <th>Link</th>
+                  <th>Source & Page</th>
                   <th>When</th>
-                  <th>Status</th>
-                  <th style={{ width: 72 }}> </th>
+                  <th style={{ width: 140 }}>Status</th>
+                  <th style={{ width: 60 }} className="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {pageSlice.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="text-center text-muted py-4">
+                    <td colSpan={8} className="text-center text-muted py-5">
                       No enquiries match your search.
                     </td>
                   </tr>
@@ -554,74 +609,53 @@ export default function Enquiries() {
                     return (
                       <tr key={row.id}>
                         <td>{rowNum}</td>
-                        <td className="fw-medium">{row.name || "—"}</td>
-                        <td style={{ wordBreak: "break-all", maxWidth: 140 }}>
-                          {row.email || "—"}
-                        </td>
-                        <td>{row.phone || "—"}</td>
-                        <td
-                          style={{ maxWidth: 200 }}
-                          title={row.message || ""}
-                        >
-                          {truncate(row.message, 80)}
-                        </td>
-                        <td style={{ maxWidth: 140 }} title={src}>
-                          {truncate(src, 40)}
-                        </td>
-                        <td style={{ maxWidth: 100 }} title={row.pageName || ""}>
-                          {truncate(row.pageName, 24)}
-                        </td>
-                        <td style={{ maxWidth: 90 }}>
-                          {row.projectLink ? (
-                            <Link
-                              href={row.projectLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="small"
-                            >
-                              Open
-                            </Link>
-                          ) : (
-                            "—"
-                          )}
-                        </td>
-                        <td className="text-nowrap small">{when}</td>
                         <td>
-                          <FormControl
-                            as="select"
-                            size="sm"
-                            value={st}
-                            onChange={(e) =>
-                              handleStatusChange(e, row.id)
-                            }
-                            style={{
-                              backgroundColor: getStatusColor(st),
-                              color: getStatusTextColor(st),
-                              border: `1px solid ${getStatusTextColor(st)}40`,
-                              borderRadius: "8px",
-                              fontWeight: 600,
-                              fontSize: "0.75rem",
-                              minWidth: "108px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            {statusOptions.map((status) => (
-                              <option key={status} value={status}>
-                                {status}
-                              </option>
-                            ))}
-                          </FormControl>
+                          <div className="fw-700 text-dark">{row.name || "—"}</div>
                         </td>
-                        <td className="text-end p-1">
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            className="py-0 px-2"
-                            title="Delete"
-                            onClick={() => openConfirmationDialog(row.id)}
+                        <td>
+                          <div className="small text-dark mb-1">{row.email || "—"}</div>
+                          <div className="small text-muted">{row.phone || "—"}</div>
+                        </td>
+                        <td>
+                          <div
+                            className="text-dark small"
+                            style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}
+                            title={row.message || ""}
                           >
-                            <FontAwesomeIcon icon={faTrash} />
-                          </Button>
+                            {truncate(row.message, 120)}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="small fw-600 text-primary mb-1">{truncate(src, 30)}</div>
+                          <div className="small text-muted" title={row.pageName}>
+                            {row.projectLink ? (
+                              <Link href={row.projectLink} target="_blank" className="text-decoration-none">
+                                {truncate(row.pageName || "View Page", 25)}
+                              </Link>
+                            ) : truncate(row.pageName, 25)}
+                          </div>
+                        </td>
+                        <td>
+                          <div className="text-nowrap small text-dark fw-500">{when}</div>
+                        </td>
+                        <td>
+                          <StatusDropdown
+                            currentStatus={st}
+                            options={statusOptions}
+                            onSelect={(newStatus) => handleStatusChange(newStatus, row.id)}
+                            getStatusColor={getStatusColor}
+                            getStatusTextColor={getStatusTextColor}
+                          />
+                        </td>
+                        <td className="text-center">
+                          <button
+                            type="button"
+                            className="admin-grid-action admin-grid-action--delete"
+                            onClick={() => openConfirmationDialog(row.id)}
+                            style={{ padding: '6px 10px' }}
+                          >
+                            <img src="/images/admin/delete.svg" alt="" width={12} height={14} style={{ filter: "brightness(10)" }} />
+                          </button>
                         </td>
                       </tr>
                     );
@@ -665,6 +699,6 @@ export default function Enquiries() {
         confirmBox={confirmBox}
         fetchAllHeadersList={loadList}
       />
-    </>
+    </div>
   );
 }

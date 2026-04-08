@@ -5,12 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPencil,
-  faCheck,
-  faTimes,
-  faMagnifyingGlass,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faTimes, faMagnifyingGlass, faFilter, faPencil, faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -38,6 +33,7 @@ export default function ManageUsers({ users: initialUsers }) {
   /** { row, keys } — Super Admin permission detail modal */
   const [permView, setPermView] = useState(null);
   const [userSearch, setUserSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [formData, setFormData] = useState({
     id: null,
     fullName: "",
@@ -317,7 +313,7 @@ export default function ManageUsers({ users: initialUsers }) {
           ? "User updated and password changed."
           : "User updated successfully",
       );
-      router.refresh();
+      await reloadUsersList();
       handleClose();
     } catch (error) {
       console.error("Error updating user:", error);
@@ -343,7 +339,7 @@ export default function ManageUsers({ users: initialUsers }) {
       );
 
       toast.success("User activated successfully");
-      router.refresh();
+      await reloadUsersList();
     } catch (error) {
       console.error("Error activating user:", error);
       toast.error("Failed to activate user");
@@ -359,7 +355,7 @@ export default function ManageUsers({ users: initialUsers }) {
       );
       if (response.status === 200) {
         toast.success("User deactivated successfully");
-        router.refresh();
+        await reloadUsersList();
       }
     } catch (error) {
       console.error("Error deactivating user:", error);
@@ -422,10 +418,22 @@ export default function ManageUsers({ users: initialUsers }) {
     return userRoles.map((role) => role.roleName).join(", ");
   };
 
+  const allRoleNames = useMemo(() => {
+    const set = new Set();
+    users.forEach((u) => (u.roles || []).forEach((r) => r?.roleName && set.add(r.roleName)));
+    return Array.from(set).sort();
+  }, [users]);
+
   const filteredUsers = useMemo(() => {
     const q = userSearch.trim().toLowerCase();
-    if (!q) return users;
     return users.filter((user) => {
+      if (roleFilter) {
+        const hasRole = (user.roles || []).some(
+          (r) => String(r?.roleName ?? "").toUpperCase() === roleFilter.toUpperCase()
+        );
+        if (!hasRole) return false;
+      }
+      if (!q) return true;
       const blob = [
         user.fullName,
         user.email,
@@ -440,11 +448,11 @@ export default function ManageUsers({ users: initialUsers }) {
         .toLowerCase();
       return blob.includes(q);
     });
-  }, [users, userSearch]);
+  }, [users, userSearch, roleFilter]);
 
   return (
     <div className="container-fluid px-0">
-      <DashboardHeader heading="Manage Users" />
+      <DashboardHeader heading="Manage Users" pageStyle="executivePlain" />
 
       <div className="mt-2">
         <div className="manage-users-toolbar">
@@ -457,20 +465,37 @@ export default function ManageUsers({ users: initialUsers }) {
             </InputGroup.Text>
             <Form.Control
               type="search"
-              placeholder="Search name, email, phone, username, roles…"
+              placeholder="Search name, email, phone, username…"
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
               aria-label="Search users"
               style={{ borderLeft: "none" }}
             />
           </InputGroup>
+          <InputGroup style={{ maxWidth: 200, flex: "0 0 auto" }}>
+            <InputGroup.Text className="bg-white border-end-0" style={{ borderColor: "rgba(27,46,36,0.12)" }}>
+              <FontAwesomeIcon icon={faFilter} className="text-muted" style={{ fontSize: "0.78rem" }} />
+            </InputGroup.Text>
+            <Form.Select
+              size="sm"
+              value={roleFilter}
+              onChange={(e) => setRoleFilter(e.target.value)}
+              aria-label="Filter by role"
+              style={{ borderLeft: "none", fontSize: "0.85rem", borderColor: "rgba(27,46,36,0.12)" }}
+            >
+              <option value="">All roles</option>
+              {allRoleNames.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </Form.Select>
+          </InputGroup>
           <span className="manage-users-count">
             Showing {filteredUsers.length} of {users.length} users
           </span>
         </div>
 
-        <div className="manage-users-table-scroll">
-          <table className="table table-sm manage-users-compact-table mb-0">
+        <div className="manage-users-table-scroll" style={{ borderRadius: "12px", border: "1px solid #f3f4f6" }}>
+          <table className="table table-sm manage-users-compact-table mb-0" style={{ whiteSpace: "nowrap", verticalAlign: "middle" }}>
             <thead>
               <tr>
                 <th>ID</th>
@@ -518,7 +543,7 @@ export default function ManageUsers({ users: initialUsers }) {
                     <tr key={user.id}>
                       <td>{user.id}</td>
                       <td className="fw-medium">{user.fullName || "—"}</td>
-                      <td style={{ wordBreak: "break-all", maxWidth: 220 }}>
+                      <td style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }} title={user.email}>
                         {user.email || "—"}
                       </td>
                       <td>{user.dashboardUsername || "—"}</td>
@@ -594,66 +619,60 @@ export default function ManageUsers({ users: initialUsers }) {
                         )}
                       </td>
                       <td>
-                        <div
-                          className="manage-users-actions-grid"
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: "6px",
-                          }}
-                        >
+                        <div className="manage-users-actions-grid" style={{ display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
                           {pendingAdmin ? (
                             <>
-                              <Button
-                                variant="success"
-                                size="sm"
-                                onClick={() =>
-                                  handleApproveAdminStaff(user.id)
-                                }
+                              <button
+                                className="mu-action-btn mu-action-btn--approve"
+                                title="Approve admin access"
+                                onClick={() => handleApproveAdminStaff(user.id)}
                               >
-                                Approve
-                              </Button>
-                              <Button
-                                variant="outline-danger"
-                                size="sm"
+                                <FontAwesomeIcon icon={faCircleCheck} />
+                              </button>
+                              <button
+                                className="mu-action-btn mu-action-btn--reject"
+                                title="Reject admin access"
                                 onClick={() => handleRejectAdminStaff(user.id)}
                               >
-                                Reject
-                              </Button>
+                                <FontAwesomeIcon icon={faTimes} />
+                              </button>
                             </>
                           ) : null}
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
+                          <button
+                            className="mu-action-btn mu-action-btn--edit"
+                            title="Edit user"
                             onClick={() => openEditModal(user)}
                           >
-                            <FontAwesomeIcon icon={faPencil} className="me-1" />
-                            Edit
-                          </Button>
+                            <img
+                              src="/images/admin/edit.svg"
+                              alt="Edit"
+                              width={16}
+                              height={16}
+                              style={{ pointerEvents: "none" }}
+                            />
+                          </button>
                           {enabled ? (
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
+                            <button
+                              className="mu-action-btn mu-action-btn--deactivate"
+                              title="Deactivate"
                               onClick={() => handleDeactivate(user.id)}
                             >
-                              <FontAwesomeIcon
-                                icon={faTimes}
-                                className="me-1"
+                              <img
+                                src="/images/admin/delete.svg"
+                                alt="Deactivate"
+                                width={14}
+                                height={14}
+                                style={{ pointerEvents: "none" }}
                               />
-                              Deactivate
-                            </Button>
+                            </button>
                           ) : (
-                            <Button
-                              variant="outline-success"
-                              size="sm"
+                            <button
+                              className="mu-action-btn mu-action-btn--activate"
+                              title="Activate"
                               onClick={() => handleActivate(user.id)}
                             >
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className="me-1"
-                              />
-                              Activate
-                            </Button>
+                              <FontAwesomeIcon icon={faCheck} />
+                            </button>
                           )}
                         </div>
                       </td>
@@ -675,10 +694,10 @@ export default function ManageUsers({ users: initialUsers }) {
         dialogClassName="admin-modal-dialog admin-modal-dialog-wide"
         contentClassName="admin-modal-surface"
       >
-        <Modal.Header closeButton closeVariant="white">
+        <Modal.Header closeButton>
           <Modal.Title>Edit user</Modal.Title>
         </Modal.Header>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: "1 1 auto", minHeight: 0 }}>
           <Modal.Body>
             <div className="admin-modal-section-title">Profile</div>
             <Row className="g-3">
@@ -742,7 +761,7 @@ export default function ManageUsers({ users: initialUsers }) {
                   <Form.Control
                     type="text"
                     name="dashboardUsername"
-                    value={formData.dashboardUsername}
+                    value={formData.dashboardUsername || ""}
                     onChange={handleChange}
                     placeholder="Required for Admin login at /admin"
                   />
@@ -761,7 +780,7 @@ export default function ManageUsers({ users: initialUsers }) {
                     type="checkbox"
                     name="enabled"
                     label="Active (can sign in)"
-                    checked={formData.enabled}
+                    checked={!!formData.enabled}
                     onChange={handleChange}
                   />
                 </Form.Group>
@@ -772,7 +791,7 @@ export default function ManageUsers({ users: initialUsers }) {
                     type="checkbox"
                     name="verified"
                     label="Email verified"
-                    checked={formData.verified}
+                    checked={!!formData.verified}
                     onChange={handleChange}
                   />
                 </Form.Group>

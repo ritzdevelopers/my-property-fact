@@ -1,8 +1,10 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal, Table } from "react-bootstrap";
@@ -282,7 +284,9 @@ export default function LocationBenefit({ list, projectList }) {
                         className="me-2"
                         onClick={() => handleEditFromViewAll(item)}
                       >
-                        <FontAwesomeIcon icon={faPencil} className="me-1" />
+                        <span className="d-inline-flex align-items-center me-1">
+                          <AdminTableEditIcon width={16} height={16} />
+                        </span>
                         Edit
                       </Button>
                       <Button
@@ -290,7 +294,9 @@ export default function LocationBenefit({ list, projectList }) {
                         size="sm"
                         onClick={() => handleDeleteBenefit(item)}
                       >
-                        <FontAwesomeIcon icon={faTrash} className="me-1" />
+                        <span className="d-inline-flex align-items-center me-1">
+                          <AdminTableDeleteIcon width={12} height={16} />
+                        </span>
                         Delete
                       </Button>
                     </td>

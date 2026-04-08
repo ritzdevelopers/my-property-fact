@@ -1,8 +1,9 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faEye, faPencil, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
 import { Accordion, Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -241,12 +242,14 @@ export default function ManageFaqs({ list, projectsList }) {
                                     >
                                         Edit
                                     </Button>
-                                    <FontAwesomeIcon
-                                        className="text-danger mx-2"
+                                    <span
+                                        className="d-inline-flex mx-2 align-items-center"
                                         style={{ cursor: "pointer" }}
-                                        icon={faTrash}
                                         onClick={() => openConfirmationBox(item.id)}
-                                    />
+                                        role="presentation"
+                                    >
+                                        <AdminTableDeleteIcon />
+                                    </span>
                                 </div>
                                 <Accordion.Body>{`Ans - ${item.answer}`}</Accordion.Body>
                             </Accordion.Item>

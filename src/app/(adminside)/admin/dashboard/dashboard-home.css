@@ -332,6 +332,10 @@
   margin-bottom: 1.75rem;
 }
 
+.admin-dash-home__split--no-chart {
+  grid-template-columns: 1fr;
+}
+
 @media (max-width: 991px) {
   .admin-dash-home__split {
     grid-template-columns: 1fr;

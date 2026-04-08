@@ -126,12 +126,12 @@ export default function ManageFloorPlans({ list, projectsList }) {
       flex: 1,
       renderCell: (params) => (
         <div>
-          <Button
-            className="btn btn-success"
+          <button
+            className="admin-header-btn admin-header-btn--primary"
             onClick={() => openEditModel(params.row)}
           >
             Show Floor Plans
-          </Button>
+          </button>
         </div>
       ),
     },
@@ -223,13 +223,13 @@ export default function ManageFloorPlans({ list, projectsList }) {
                 Area is required !
               </Form.Control.Feedback>
             </Form.Group>
-            <Button
-              className="mt-3 btn btn-success"
+            <button
+              className="mt-3 admin-header-btn admin-header-btn--primary"
               type="submit"
               disabled={showLoading}
             >
               {buttonName} <LoadingSpinner show={showLoading} />
-            </Button>
+            </button>
           </Form>
         </Modal.Body>
       </Modal>
@@ -254,7 +254,8 @@ export default function ManageFloorPlans({ list, projectsList }) {
             .map((plan, index) => (
               <div
                 key={plan.id || index}
-                className="btn btn-success mb-3 mx-2 w-25"
+                className="admin-header-btn admin-header-btn--primary mb-3 mx-2"
+                style={{ width: "calc(33% - 1rem)", minWidth: "120px" }}
               >
                 <div className="d-flex align-items-center justify-content-between">
                   <div onClick={() => openUpdateFloorPlan(plan)}>

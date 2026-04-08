@@ -801,9 +801,15 @@ export default function ManageProjects({
         exportExcel={"Export to excel"}
         exportFunction={exportAllProjectToExcel}
       />
-      <Button className="btn btn-success mb-3" onClick={openUploadModal}>
+      <button 
+        className="admin-header-btn admin-header-btn--primary mb-3" 
+        onClick={openUploadModal}
+      >
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{marginRight:6,flexShrink:0}} aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
         Upload Projects
-      </Button>
+      </button>
       <div className="table-container">
         <DataTable list={projectDetailList} columns={columns} />
       </div>
@@ -904,13 +910,13 @@ export default function ManageProjects({
             </Row>
             {/* <Row> */}
 
-            <Button
-              className="mt-3 btn btn-success"
+            <button
+              className="mt-3 admin-header-btn admin-header-btn--primary"
               type="submit"
               disabled={showLoading}
             >
               {buttonName} <LoadingSpinner show={showLoading} />
-            </Button>
+            </button>
             <Button
               className="mt-3 ms-3 btn btn-secondary"
               onClick={() => setShowModal(false)}
@@ -965,8 +971,8 @@ export default function ManageProjects({
               >
                 Cancel
               </Button>
-              <Button
-                variant="success"
+              <button
+                className="admin-header-btn admin-header-btn--primary"
                 type="submit"
                 disabled={uploadLoading || !uploadExcelFile || !uploadZipFile}
               >
@@ -977,7 +983,7 @@ export default function ManageProjects({
                 ) : (
                   "Upload"
                 )}
-              </Button>
+              </button>
             </div>
           </Form>
         </Modal.Body>

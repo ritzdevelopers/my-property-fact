@@ -29,7 +29,7 @@ export default function NewsAndViews({ webStoryList }) {
                         className="card-img-top img-fluid"
                       />
                       <div className="title-3d">
-                        <h3 className="text-center m-0 p-2 title-3d-heading">
+                        <h3 className="text-center m-0 px-1 py-1 title-3d-heading">
                           {item.categoryName}
                         </h3>
                       </div>

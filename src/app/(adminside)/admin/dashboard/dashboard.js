@@ -230,6 +230,9 @@ export default function Dashboard({
   const canManageWebStories =
     isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES);
 
+  /** Daily user tracking card (placeholder): visible to Super Admin and Admin staff. */
+  const showDailyUserTrackingChart = isSuperAdmin || isAdmin;
+
   const [recentTasks, setRecentTasks] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
 
@@ -665,8 +668,9 @@ export default function Dashboard({
         </div>
       </section>
 
-      <div className="admin-dash-home__split">
-        <section className="admin-dash-chart" aria-label="Daily user tracking">
+      <div className={`admin-dash-home__split${!showDailyUserTrackingChart ? " admin-dash-home__split--no-chart" : ""}`}>
+        {showDailyUserTrackingChart && (
+          <section className="admin-dash-chart" aria-label="Daily user tracking">
           <div className="admin-dash-chart__head">
             <h2 className="admin-dash-chart__title">Daily user tracking</h2>
             <span className="admin-dash-chart__live">
@@ -743,7 +747,7 @@ export default function Dashboard({
                 strokeLinejoin="round"
               />
             </svg>
-            {!roleLoading && isSuperAdmin ? (
+            {!roleLoading && showDailyUserTrackingChart ? (
               <div className="admin-dash-chart__overlay">
                 <p className="admin-dash-chart__overlay-title">Coming Soon</p>
                 <p className="admin-dash-chart__overlay-sub">
@@ -768,6 +772,7 @@ export default function Dashboard({
             </div>
           </div> */}
         </section>
+        )}
 
         <aside className="admin-dash-pending" aria-label="Your recent tasks">
           <h2 className="admin-dash-pending__title">Your recent tasks</h2>

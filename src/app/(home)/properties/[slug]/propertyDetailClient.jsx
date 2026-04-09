@@ -1548,6 +1548,10 @@ export default function PropertyDetailClient({
                     loop={relatedProperties.length >= 4}
                   >
                     {relatedProperties.map((related) => {
+                      const relatedPhotoTotal =
+                        typeof related.totalImageCount === "number"
+                          ? related.totalImageCount
+                          : related.imageUrls?.length ?? 0;
                       const relatedImageUrl =
                         related.imageUrls && related.imageUrls.length > 0
                           ? getImageUrl(related.imageUrls[0])
@@ -1580,10 +1584,9 @@ export default function PropertyDetailClient({
                                   No Image
                                 </div>
                               )}
-                              {related.imageUrls &&
-                                related.imageUrls.length > 0 && (
+                              {relatedPhotoTotal > 0 && (
                                   <div className="image-count-badge">
-                                    {related.imageUrls.length}+ Photos
+                                    {relatedPhotoTotal}+ Photos
                                   </div>
                                 )}
                             </div>

@@ -1,18 +1,23 @@
 import WebStroy from "./webStroy";
+import { notFound } from "next/navigation";
+
+async function fetchStoryCategory(storySlug) {
+    const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get/${storySlug}`,
+        { cache: "no-store" }
+    );
+    if (!response.ok) return null;
+    return response.json();
+}
 
 // Generating Meta Title, Meta Description and Meta Keywords dynamically for the <head> tag
 export async function generateMetadata({ params }) {
     const { "web-story": storySlug } = await params;
+    const canonicalPath = `/stories/${storySlug}`;
 
     let storyData = null;
     try {
-        // NOTE: Please ensure this is the exact URL your backend uses to get a single story / category detail
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}web-story/get/${storySlug}`, {
-            cache: "no-store" // Bypass Next.js cache so DB updates show instantly
-        });
-        if (response.ok) {
-            storyData = await response.json();
-        }
+        storyData = await fetchStoryCategory(storySlug);
     } catch (error) {
         console.error("Error fetching web story metadata:", error);
     }
@@ -21,6 +26,14 @@ export async function generateMetadata({ params }) {
         return {
             title: Object.hasOwn(params, "web-story") ? storySlug.replaceAll("-", " ").toUpperCase() : "Web Story | My Property Fact",
             description: "View our latest web stories.",
+            alternates: {
+                canonical: canonicalPath,
+                languages: {
+                    "en-IN": canonicalPath,
+                    en: canonicalPath,
+                    "x-default": canonicalPath,
+                },
+            },
         };
     }
 
@@ -29,17 +42,28 @@ export async function generateMetadata({ params }) {
         description: storyData?.metaDescription || storyData?.categoryDescription || "Explore our latest web stories.",
         keywords: storyData?.metaKeywords || "real estate, property, stories",
         alternates: {
-            canonical: `/stories/${storySlug}`,
+            canonical: canonicalPath,
+            languages: {
+                "en-IN": canonicalPath,
+                en: canonicalPath,
+                "x-default": canonicalPath,
+            },
         },
     };
 }
 
 export default async function WebStoryPage({ params }) {
     const { "web-story": storySlug } = await params;
+    const storyData = await fetchStoryCategory(storySlug);
+    const hasSlides =
+        Array.isArray(storyData?.webStories) && storyData.webStories.length > 0;
+    if (!storyData || !hasSlides) {
+        notFound();
+    }
 
     return (
-        <main className="w-full h-screen overflow-hidden">
-            <WebStroy storySlug={storySlug} />
+        <main className="w-full h-screen overflow-hidden" lang="en-IN">
+            <WebStroy storySlug={storySlug} storyData={storyData} />
         </main>
     );
 }

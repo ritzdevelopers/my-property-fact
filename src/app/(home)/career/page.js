@@ -10,5 +10,9 @@ export const metadata = {
 };
 
 export default function CareerPage() {
-  return <Career jobsArr={data} />;
+  return (
+    <>
+      <Career jobsArr={data} />
+    </>
+  );
 }

@@ -13,6 +13,17 @@ import styles from "../page.module.css";
 import detailStyles from "./blogpage.module.css";
 import { submitBlogEnquiryAction } from "../actions";
 
+/**
+ * Rich-text bodies often repeat the article title as <h1>. We already render one
+ * <h1> above the body; demoting embedded h1 → h2 fixes duplicate-H1 SEO issues.
+ */
+function demoteBodyH1ToH2(html) {
+  if (html == null || typeof html !== "string" || html === "") return html;
+  return html
+    .replace(/<h1\b([^>]*)>/gi, "<h2$1>")
+    .replace(/<\/h1>/gi, "</h2>");
+}
+
 export default function BlogDetail({
   blogDetail,
   sidebarRecentPosts = [],
@@ -33,6 +44,9 @@ export default function BlogDetail({
   const pathname = usePathname();
   const contentCardRef = useRef(null);
 
+  const blogTitle = blogDetail.blogTitle.replace(/\u00A0/g, " ");
+  const safeBodyHtml = demoteBodyH1ToH2(blogDetail.blogDescription || "");
+
   // Wrap every CMS-rendered <table> in a scrollable container after mount/update
   useEffect(() => {
     const card = contentCardRef.current;
@@ -48,7 +62,7 @@ export default function BlogDetail({
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
     });
-  }, [blogDetail.blogDescription]);
+  }, [safeBodyHtml]);
 
   //Validation errors state
   const [errors, setErrors] = useState({
@@ -179,7 +193,6 @@ export default function BlogDetail({
     }
   };
 
-  const blogTitle = blogDetail.blogTitle.replace(/\u00A0/g, " ");
   const blogHeroImageAlt = blogTitle?.trim()
     ? `${blogTitle.trim()} — blog featured image on My Property Fact`
     : "Blog featured image on My Property Fact";
@@ -217,7 +230,7 @@ export default function BlogDetail({
                 ref={contentCardRef}
                 className={detailStyles.contentCard}
                 dangerouslySetInnerHTML={{
-                  __html: blogDetail.blogDescription || "",
+                  __html: safeBodyHtml,
                 }}
               />
             </div>

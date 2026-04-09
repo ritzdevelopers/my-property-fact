@@ -5,14 +5,18 @@ import { Autoplay, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/effect-fade';
 
-const slides = [
-    { id: 1, title: 'Welcome', img: '/images/story1.jpg', caption: 'Start your journey' },
-    { id: 2, title: 'Explore', img: '/images/story2.jpg', caption: 'Discover amazing places' },
-    { id: 3, title: 'Enjoy', img: '/images/story3.jpg', caption: 'Experience the best' },
-];
+function getStoryImageUrl(image) {
+    const raw = String(image || "").trim();
+    if (!raw) return "";
+    if (/^https?:\/\//i.test(raw)) return raw;
+    const base = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+    return `${base}web-story/${raw}`;
+}
 
-export default function WebStroy() {
+export default function WebStroy({ storyData }) {
+    const slides = Array.isArray(storyData?.webStories) ? storyData.webStories : [];
     return (
+        <section lang="en-IN" aria-label="Web story slides">
         <Swiper
             modules={[Autoplay, EffectFade]}
             effect="fade"
@@ -20,17 +24,22 @@ export default function WebStroy() {
             loop={true}
             className="h-screen"
         >
-            {slides.map(slide => (
+            {slides.map((slide, index) => (
                 <SwiperSlide key={slide.id}>
                     <div
                         className="h-screen bg-cover bg-center flex flex-col justify-end text-white p-6"
-                        style={{ backgroundImage: `url(${slide.img})` }}
+                        style={{ backgroundImage: `url(${getStoryImageUrl(slide.storyImage)})` }}
                     >
-                        <h1 className="text-4xl font-bold">{slide.title}</h1>
-                        <p className="text-lg">{slide.caption}</p>
+                        {index === 0 ? (
+                            <h1 className="text-4xl font-bold">{slide.storyTitle}</h1>
+                        ) : (
+                            <h2 className="text-4xl font-bold">{slide.storyTitle}</h2>
+                        )}
+                        <p className="text-lg">{slide.storyDescription}</p>
                     </div>
                 </SwiperSlide>
             ))}
         </Swiper>
+        </section>
     );
 }

@@ -13,7 +13,51 @@ import {
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
+
 export const dynamic = "force-dynamic";
+
+const SIMILAR_PROJECTS_MAX = 12;
+
+/** Only fields used by `PropertyContainer` / Similar Projects carousel — avoids serializing full `/projects` rows. */
+function slimProjectCardForPayload(p) {
+  if (!p || typeof p !== "object") return p;
+  return {
+    id: p.id,
+    slugURL: p.slugURL,
+    projectName: p.projectName,
+    propertyTypeName: p.propertyTypeName,
+    projectPrice: p.projectPrice,
+    projectAddress: p.projectAddress,
+    projectBannerImage: p.projectBannerImage,
+    projectThumbnailImage: p.projectThumbnailImage,
+    projectStatusName: p.projectStatusName,
+  };
+}
+
+/**
+ * Master nearby-benefit rows that can match location benefit names (same fuzzy rules as `propertypage.js` addNearbyImageIcon).
+ */
+function selectNearbyCatalogForProject(project, allNearby) {
+  if (!Array.isArray(allNearby) || !allNearby.length) return [];
+  const raw = project?.locationBenefits;
+  if (!Array.isArray(raw) || !raw.length) return [];
+  const names = raw
+    .map((item) =>
+      typeof item?.benefitName === "string" ? item.benefitName.trim() : "",
+    )
+    .filter(Boolean);
+  if (!names.length) return [];
+  return allNearby.filter((b) => {
+    const bn = String(b.benefitName || "")
+      .toLowerCase()
+      .trim();
+    if (!bn) return false;
+    return names.some((n) => {
+      const lower = n.toLowerCase();
+      return bn === lower || bn.includes(lower) || lower.includes(bn);
+    });
+  });
+}
 
 export default async function PropertyPage({ params }) {
   const { slug } = await params;
@@ -52,14 +96,16 @@ export default async function PropertyPage({ params }) {
   const isCitySlug =
     !maybeCompoundListing && (await isCityTypeUrl(slug));
 
-  const projectCity = projectDetail.city || projectDetail.cityName;
-  const similarProject = featuredProjects.filter(
-    (item) =>
-      item.cityName === projectDetail.city &&
-      item.propertyTypeName === projectDetail.propertyTypeName &&
-      item.id !== projectDetail.id,
-  );
-  
+  const similarProjectsSlim = featuredProjects
+    .filter(
+      (item) =>
+        item.cityName === projectDetail.city &&
+        item.propertyTypeName === projectDetail.propertyTypeName &&
+        item.id !== projectDetail.id,
+    )
+    .slice(0, SIMILAR_PROJECTS_MAX)
+    .map(slimProjectCardForPayload);
+
   if (isCitySlug) {
     return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
   } else if (isCompoundFloorListing) {
@@ -73,15 +119,23 @@ export default async function PropertyPage({ params }) {
   } else if (isFloorTypeSlug) {
     return <ProjectListByFloorType slug={slug} cityList={cityList} />;
   } else if (isProjectSlug) {
-    const nearbyBenefitsList = await fetchNearbyBenefitsAll();
+    const hasLocationBenefits =
+      Array.isArray(projectDetail.locationBenefits) &&
+      projectDetail.locationBenefits.length > 0;
+    const nearbyBenefitsList = hasLocationBenefits
+      ? selectNearbyCatalogForProject(
+          projectDetail,
+          await fetchNearbyBenefitsAll(),
+        )
+      : [];
     return (
       <>
         <Property
           projectDetail={projectDetail}
-          similarProjects={similarProject}
+          similarProjects={similarProjectsSlim}
           nearbyBenefitsList={nearbyBenefitsList}
         />
-        <NewFooterDesign cityList={cityList} compactTop={true} />
+        <NewFooterDesign compactTop={true} />
       </>
     );
   } else {

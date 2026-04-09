@@ -45,6 +45,9 @@ export default function LocationBenefit({ list, projectList }) {
   const [selectedProjectName, setSelectedProjectName] = useState("");
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const editItemRef = useRef(null);
+  const [excelFile, setExcelFile] = useState(null);
+  const [replaceBenefitsFromExcel, setReplaceBenefitsFromExcel] = useState(false);
+  const [excelUploading, setExcelUploading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -169,6 +172,41 @@ export default function LocationBenefit({ list, projectList }) {
     fetchAllBenefits();
   }, []);
 
+  const handleExcelUpload = async (e) => {
+    e.preventDefault();
+    if (!excelFile) {
+      toast.error("Choose an Excel file (.xlsx or .xls)");
+      return;
+    }
+    setExcelUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", excelFile);
+      const q = replaceBenefitsFromExcel ? "?replaceExisting=true" : "";
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}nearby-benefit/upload-projects-location-benefits-excel${q}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+          withCredentials: true,
+        },
+      );
+      if (response.data?.isSuccess === 1) {
+        toast.success("Data is uploaded");
+        setExcelFile(null);
+        router.refresh();
+      } else {
+        toast.error(response.data?.message || "Upload failed");
+      }
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || error?.message || "Upload failed",
+      );
+    } finally {
+      setExcelUploading(false);
+    }
+  };
+
   // Match location text (e.g. "sms school") to benefit icon by checking if text contains the benefit name (e.g. "School")
   const fetchLocationBenefitImages = (name) => {
     if (!name || typeof name !== "string") return null;
@@ -237,6 +275,43 @@ export default function LocationBenefit({ list, projectList }) {
         functionName={openAddModel}
         heading={"Manage Location Benefits"}
       />
+      <div className="card mb-4 border-0 shadow-sm">
+        <div className="card-body">
+          <h6 className="card-title mb-2">Bulk import from Excel</h6>
+          <p className="text-muted small mb-3">
+            Columns: <strong>Project</strong> (must match project name in the system), then{" "}
+            <strong>School</strong>, <strong>Malls/ IT Park</strong>, <strong>Hospitals</strong>,{" "}
+            <strong>Roads/ Highway</strong>, <strong>Famous for/ Metro</strong>,{" "}
+            <strong>Airport/Famous places</strong>. Each cell:{" "}
+            <code className="small">Place-Name_7-Km</code> (hyphens in the name, distance before{" "}
+            <code>-Km</code>). By default only projects with no location benefits are updated; check
+            the box below to replace existing benefits for listed projects.
+          </p>
+          <Form onSubmit={handleExcelUpload} className="d-flex flex-wrap align-items-end gap-3">
+            <Form.Group>
+              <Form.Label className="small text-muted mb-1">Excel file</Form.Label>
+              <Form.Control
+                type="file"
+                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+                onChange={(ev) => setExcelFile(ev.target.files?.[0] ?? null)}
+                disabled={excelUploading}
+              />
+            </Form.Group>
+            <Form.Check
+              type="checkbox"
+              id="replace-benefits-excel"
+              label="Replace existing location benefits"
+              checked={replaceBenefitsFromExcel}
+              onChange={(ev) => setReplaceBenefitsFromExcel(ev.target.checked)}
+              disabled={excelUploading}
+              className="mb-2"
+            />
+            <Button type="submit" variant="success" disabled={excelUploading}>
+              {excelUploading ? "Uploading…" : "Upload & map to projects"}
+            </Button>
+          </Form>
+        </div>
+      </div>
       <div className="table-container">
         <DataTable
           columns={columns}

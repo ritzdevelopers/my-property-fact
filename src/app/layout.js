@@ -81,6 +81,19 @@ export default async function RootLayout({ children }) {
             ]),
           }}
         />
+        {/* Open Graph Tags */}
+        <meta property="og:title" content="My Property Fact | Real Estate Insights, Property News & Investment Tips" />
+        <meta property="og:site_name" content="MyPropertyFact" />
+        <meta property="og:url" content="https://mypropertyfact.in/" />
+        <meta property="og:description" content="Explore the latest real estate news, property trends, investment tips, and expert insights on MyPropertyFact. Your trusted guide for smart property decisions in India." />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://mypropertyfact.in/logo.webp" />
+        <meta property="og:image:alt" content="MyPropertyFact - Real Estate Insights Platform" />
+        <meta property=" og:locale" content="en_IN" />
+
+        
+
+
       </head>
       <body
         className={`${gothamBold.variable} ${gothamLight.variable}`} suppressHydrationWarning={true}>

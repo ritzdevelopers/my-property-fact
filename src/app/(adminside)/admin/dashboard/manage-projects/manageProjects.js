@@ -758,7 +758,8 @@ export default function ManageProjects({
       toast.error("Please select a zip file");
       return;
     }
-    if(uploadExcelFile && uploadZipFile) setUploadLoading(true);
+    if (uploadExcelFile && uploadZipFile) setUploadLoading(true);
+    const toastId = toast.loading("Uploading data…");
     try {
       const formData = new FormData();
       formData.append("file", uploadExcelFile);
@@ -778,20 +779,35 @@ export default function ManageProjects({
         },
       );
       if (response.data?.isSuccess === 1) {
-        toast.success(
-          response.data.message ?? "Projects uploaded successfully",
-        );
+        const successText =
+          response.data?.message?.trim() || "Data is uploaded";
+        toast.update(toastId, {
+          render: successText,
+          type: "success",
+          isLoading: false,
+          autoClose: 4000,
+        });
         closeUploadModal();
         router.refresh();
       } else {
-        toast.error(response.data?.message ?? "Upload failed");
+        toast.update(toastId, {
+          render: response.data?.message ?? "Upload failed",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
       }
     } catch (error) {
       console.log(error);
-      
+
       const message =
         error.response?.data?.message ?? error.message ?? "Upload failed";
-      toast.error(message);
+      toast.update(toastId, {
+        render: message,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     } finally {
       setUploadLoading(false);
     }

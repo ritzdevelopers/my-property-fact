@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
 import { AdminThemeProvider } from "../_contexts/AdminThemeContext";
 import SideNav from "../_sidenav/page";
@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import "./admin-theme.css";
 import "./admin-layout.css";
+
+const MOBILE_SIDEBAR_MAX = 992;
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,6 +22,31 @@ export default function AdminLayout({ children }) {
   const closeSidebar = () => {
     setSidebarOpen(false);
   };
+
+  useEffect(() => {
+    const isMobileLayout = () => window.innerWidth <= MOBILE_SIDEBAR_MAX;
+    const applyBodyScroll = () => {
+      if (isMobileLayout() && sidebarOpen) {
+        document.body.style.overflow = "hidden";
+      } else {
+        document.body.style.overflow = "";
+      }
+    };
+    applyBodyScroll();
+    const onResize = () => {
+      if (!isMobileLayout()) {
+        setSidebarOpen(false);
+        document.body.style.overflow = "";
+      } else {
+        applyBodyScroll();
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
 
   return (
     <AdminRoleProvider>

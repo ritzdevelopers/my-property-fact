@@ -22,6 +22,7 @@
   justify-content: space-between;
   gap: 1rem 1.5rem;
   margin-bottom: 1.75rem;
+  min-width: 0;
 }
 
 .admin-dash-home__title {
@@ -115,15 +116,25 @@
 
 .admin-dash-metric {
   border-radius: 12px;
-  padding: 24px;
-  height: 95px;
-  width: 261px;
-  max-width: 100%;
+  padding: 20px;
+  min-height: 95px;
+  width: 100%;
+  max-width: 261px;
+  min-width: 0;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   border: 1px solid transparent;
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+  box-sizing: border-box;
+}
+
+@media (max-width: 767px) {
+  .admin-dash-metric {
+    max-width: none;
+    width: 100%;
+  }
 }
 
 .admin-dash-metric:hover {
@@ -251,6 +262,14 @@
   padding-bottom: 4px;
 }
 
+@media (max-width: 767px) {
+  .admin-dash-home__mini {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 0.65rem;
+  }
+}
+
 /* Hide OS Scrollbars completely */
 .admin-horizontal-scroll {
   scrollbar-width: none;
@@ -286,6 +305,23 @@
   height: 97px;
   padding: 16px;
   flex: 0 0 261px;
+  max-width: min(261px, 92vw);
+}
+
+@media (max-width: 767px) {
+  .admin-dash-mini--mini-cities,
+  .admin-dash-mini--mini-builders {
+    flex: 0 0 auto;
+    width: min(122.5px, 42vw);
+    max-width: 100%;
+  }
+
+  .admin-dash-mini--mini-amenities,
+  .admin-dash-mini--mini-stories,
+  .admin-dash-mini--mini-story-categories {
+    flex: 0 0 auto;
+    width: min(261px, 88vw);
+  }
 }
 
 .admin-dash-mini__icon {
@@ -475,10 +511,12 @@
 
 .admin-dash-chart__overlay-title {
   margin: 0;
-  font-size: 4rem;
+  font-size: clamp(2rem, 12vw, 4rem);
   font-weight: 900;
   color: #111827;
   letter-spacing: -0.02em;
+  line-height: 1.05;
+  word-break: break-word;
 }
 
 .admin-dash-chart__overlay-sub {
@@ -634,6 +672,43 @@
   gap: 0.5rem;
 }
 
+@media (max-width: 576px) {
+  .admin-dash-home__quick-grid {
+    gap: 0.45rem;
+  }
+
+  .admin-dash-quick-link {
+    flex: 1 1 calc(50% - 0.25rem);
+    justify-content: center;
+    min-height: 42px;
+    box-sizing: border-box;
+  }
+}
+
+/* Horizontal row of MetricCard components */
+.admin-dash-home__metrics-scroll-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 767px) {
+  .admin-dash-home__metrics-scroll-row {
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+
+  .admin-dash-home__metrics-scroll-row .admin-dash-metric {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: none;
+  }
+}
+
 .admin-dash-quick-link {
   display: inline-flex;
   align-items: center;
@@ -652,4 +727,118 @@
   background: rgba(0, 125, 81, 0.14);
   color: #064e3b;
   transform: translateY(-1px);
+}
+
+/* Top row: large projects card + scrollable metrics — stack on narrow screens */
+.admin-dash-home__top-metrics-row {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 1.25rem;
+  align-items: stretch;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-dash-home__projects-card {
+  width: 261px;
+  flex: 0 0 261px;
+  max-width: 100%;
+  min-height: 180px;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding: clamp(20px, 4vw, 32px);
+  background: #fff;
+  box-shadow: 0 2px 14px rgba(17, 24, 39, 0.04);
+  border: 1px solid #f3f4f6;
+  box-sizing: border-box;
+}
+
+.admin-dash-home__projects-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111827;
+  font-size: 1.15rem;
+}
+
+.admin-dash-home__projects-card-label {
+  margin: 0;
+  color: #6b7280;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  font-size: clamp(0.65rem, 2.5vw, 0.75rem);
+}
+
+.admin-dash-home__projects-card-value {
+  margin: 0;
+  color: #005032;
+  font-size: clamp(2rem, 10vw, 3rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.admin-dash-home__top-metrics-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 767px) {
+  .admin-dash-home__top-metrics-row {
+    flex-direction: column;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 1rem;
+  }
+
+  .admin-dash-home__projects-card {
+    width: 100%;
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .admin-dash-home__signed-in-meta {
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+}
+
+/* Data catalog strip at bottom of dashboard */
+.admin-dash-home__catalog {
+  margin-top: 1.25rem;
+  padding: 1rem clamp(0.85rem, 3vw, 1.1rem);
+  background: #f9fafb;
+  border-radius: 14px;
+  border: 1px solid #eef0f4;
+  min-width: 0;
+}
+
+.admin-dash-home__catalog-kicker {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #9ca3af;
+  text-transform: uppercase;
+}
+
+.admin-dash-home__catalog-body {
+  margin: 0;
+  font-size: clamp(0.78rem, 2.8vw, 0.8125rem);
+  color: #6b7280;
+  line-height: 1.65;
+  font-weight: 600;
+  word-break: break-word;
 }

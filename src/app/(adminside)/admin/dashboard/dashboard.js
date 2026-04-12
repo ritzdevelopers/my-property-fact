@@ -527,104 +527,24 @@ export default function Dashboard({
       </header>
 
       <section aria-label="Key metrics">
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "nowrap",
-            gap: "1.25rem",
-            alignItems: "stretch",
-            overflowX: "auto",
-            paddingBottom: "8px",
-          }}
-        >
-          <div
-            style={{
-              width: "261px",
-              height: "207px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              borderRadius: "12px",
-              padding: "32px",
-              background: "#fff",
-              flex: "0 0 261px",
-              maxWidth: "100%",
-              boxShadow: "0 2px 14px rgba(17, 24, 39, 0.04)",
-              border: "1px solid #f3f4f6",
-            }}
-          >
-            <div
-              style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "10px",
-                background: "#f3f4f6", /* As per the image: grey box for house icon */
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#111827",
-                fontSize: "1.15rem",
-              }}
-            >
+        <div className="admin-dash-home__top-metrics-row">
+          <div className="admin-dash-home__projects-card">
+            <div className="admin-dash-home__projects-card-icon">
               <img src="/images/admin/projects.svg" alt="" width={22} height={22} />
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
-              <p
-                style={{
-                  margin: 0,
-                  color: "#6b7280",
-                  fontWeight: 700,
-                  letterSpacing: "0.05em",
-                  fontSize: "0.75rem",
-                }}
-              >
+              <p className="admin-dash-home__projects-card-label">
                 TOTAL PROJECTS
               </p>
-              <p
-                style={{
-                  margin: 0,
-                  color: "#005032",
-                  fontSize: "3rem",
-                  fontWeight: 800,
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.03em",
-                }}
-              >
+              <p className="admin-dash-home__projects-card-value">
                 {typeof noOfProjects === "number" ? noOfProjects.toLocaleString() : noOfProjects}
               </p>
-              {/* <p
-                style={{
-                  margin: "0.25rem 0 0",
-                  color: "#a16207",
-                  fontWeight: 600,
-                  fontSize: "0.78rem"
-                }}
-              >
-                +42 added this month
-              </p> */}
             </div>
           </div>
-          <div
-            style={{
-              flex: "1",
-              minWidth: "0",
-              display: "flex",
-              flexDirection: "column",
-              gap: "1rem",
-            }}
-          >
+          <div className="admin-dash-home__top-metrics-right">
             {topMetrics.length > 0 ? (
-              <div
-                className="admin-horizontal-scroll"
-                style={{
-                  display: "flex",
-                  flexWrap: "nowrap",
-                  gap: "1rem",
-                  overflowX: "auto",
-                  paddingBottom: "8px",
-                }}
-              >
+              <div className="admin-horizontal-scroll admin-dash-home__metrics-scroll-row">
                 {topMetrics.map((m) => (
                   <MetricCard
                     key={m.key}
@@ -886,37 +806,11 @@ export default function Dashboard({
       ) : null}
 
       {/* Secondary stats (compact) — real counts for power users */}
-      <section
-        style={{
-          marginTop: "1.25rem",
-          padding: "1rem 1.1rem",
-          background: "#f9fafb",
-          borderRadius: "14px",
-          border: "1px solid #eef0f4",
-        }}
-        aria-label="Extended counts"
-      >
-        <p
-          style={{
-            margin: "0 0 0.65rem",
-            fontSize: "0.72rem",
-            fontWeight: 800,
-            letterSpacing: "0.1em",
-            color: "#9ca3af",
-            textTransform: "uppercase",
-          }}
-        >
+      <section className="admin-dash-home__catalog" aria-label="Extended counts">
+        <p className="admin-dash-home__catalog-kicker">
           Data catalog
         </p>
-        <p
-          style={{
-            margin: 0,
-            fontSize: "0.8125rem",
-            color: "#6b7280",
-            lineHeight: 1.65,
-            fontWeight: 600,
-          }}
-        >
+        <p className="admin-dash-home__catalog-body">
           Story categories: {noOfWebStoryCategories.toLocaleString()} · Project
           types: {noOfProjectTypes.toLocaleString()}
           {isSuperAdmin ? (

@@ -398,25 +398,36 @@
 }
 
 .admin-dash-chart__head {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 0.5rem 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.65rem 1rem;
   margin-bottom: 0.75rem;
 }
 
-@media (max-width: 620px) {
-  .admin-dash-chart__head {
-    grid-template-columns: 1fr;
-    justify-items: stretch;
-  }
+.admin-dash-chart__title-block {
+  flex: 1 1 220px;
+  min-width: 0;
+}
 
+.admin-dash-chart__subtitle {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #6b7280;
+  font-weight: 600;
+  max-width: 36rem;
+}
+
+@media (max-width: 620px) {
   .admin-dash-chart__live {
-    justify-self: center;
+    margin-left: auto;
   }
 
   .admin-dash-chart__filters {
-    justify-self: center;
+    width: 100%;
+    justify-content: center;
   }
 }
 
@@ -425,7 +436,6 @@
   font-size: 1.05rem;
   font-weight: 800;
   color: #111827;
-  justify-self: start;
 }
 
 .admin-dash-chart__live {
@@ -439,7 +449,7 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   border-radius: 6px;
-  justify-self: center;
+  flex-shrink: 0;
 }
 
 .admin-dash-chart__live-dot {
@@ -453,7 +463,6 @@
 .admin-dash-chart__filters {
   display: flex;
   gap: 0.35rem;
-  justify-self: end;
   flex-wrap: wrap;
 }
 
@@ -485,6 +494,212 @@
   flex: 1;
   min-height: 200px;
   margin-top: 0.25rem;
+}
+
+.admin-dash-chart__plot-wrap--traffic {
+  min-height: 0;
+}
+
+.admin-dash-chart__traffic-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.admin-dash-chart__traffic-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 0.75rem;
+}
+
+.admin-dash-chart__wow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.38rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  max-width: 100%;
+}
+
+.admin-dash-chart__wow-icon {
+  flex-shrink: 0;
+}
+
+.admin-dash-chart__wow-text {
+  line-height: 1.25;
+}
+
+.admin-dash-chart__wow--up {
+  color: #065f46;
+  border-color: rgba(0, 125, 81, 0.35);
+  background: rgba(0, 125, 81, 0.1);
+}
+
+.admin-dash-chart__wow--down {
+  color: #9f1239;
+  border-color: rgba(190, 24, 93, 0.35);
+  background: rgba(253, 242, 248, 0.95);
+}
+
+.admin-dash-chart__wow--neutral {
+  color: #4b5563;
+}
+
+.admin-dash-chart__traffic-details-link {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #005032;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 80, 50, 0.35);
+  padding-bottom: 1px;
+}
+
+.admin-dash-chart__traffic-details-link:hover {
+  color: #003d26;
+  border-bottom-color: rgba(0, 61, 38, 0.55);
+}
+
+/* MUI X traffic chart + KPI strip (dashboard-style) */
+.admin-dash-chart__kpi-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 620px) {
+  .admin-dash-chart__kpi-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-dash-chart__kpi-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid #eef0f4;
+  background: linear-gradient(165deg, #fafbfc 0%, #fff 100%);
+  box-shadow: 0 1px 4px rgba(17, 24, 39, 0.04);
+  min-width: 0;
+}
+
+.admin-dash-chart__kpi-card-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(13, 148, 136, 0.12);
+  color: #0f766e;
+  font-size: 0.95rem;
+}
+
+.admin-dash-chart__kpi-card-body {
+  min-width: 0;
+}
+
+.admin-dash-chart__kpi-card-label {
+  margin: 0;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.admin-dash-chart__kpi-card-value {
+  margin: 0.15rem 0 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.admin-dash-chart__kpi-card-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.admin-dash-chart__mui-chart-host {
+  width: 100%;
+  min-height: 280px;
+  border-radius: 14px;
+  border: 1px solid #eef0f4;
+  background: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+}
+
+.admin-dash-chart__mui-chart-host .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel {
+  transform: translateY(2px);
+}
+
+.admin-dash-chart__traffic-empty-chart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  color: #9ca3af;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.admin-dash-chart__traffic-empty-chart p {
+  margin: 0;
+}
+
+.admin-dash-chart__traffic-loading,
+.admin-dash-chart__traffic-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border-radius: 12px;
+  border: 1px dashed #e5e7eb;
+  background: #fafafa;
+  padding: 1rem;
+  text-align: center;
+}
+
+.admin-dash-chart__traffic-loading-text {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.admin-dash-chart__traffic-error-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #991b1b;
+}
+
+.admin-dash-chart__traffic-error-msg {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6b7280;
+  max-width: 280px;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .admin-dash-chart__svg {

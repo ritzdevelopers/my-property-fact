@@ -1,6 +1,14 @@
 import WebStroy from "./webStroy";
 import { notFound } from "next/navigation";
 
+function publicSiteOrigin() {
+  const raw = process.env.NEXT_PUBLIC_UI_URL;
+  if (raw && String(raw).trim()) {
+    return String(raw).trim().replace(/\/+$/, "");
+  }
+  return "https://mypropertyfact.in";
+}
+
 async function fetchStoryCategory(storySlug) {
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get/${storySlug}`,
@@ -14,6 +22,8 @@ async function fetchStoryCategory(storySlug) {
 export async function generateMetadata({ params }) {
     const { "web-story": storySlug } = await params;
     const canonicalPath = `/stories/${storySlug}`;
+    const base = publicSiteOrigin();
+    const canonicalUrl = `${base}${canonicalPath}`;
 
     let storyData = null;
     try {
@@ -27,11 +37,11 @@ export async function generateMetadata({ params }) {
             title: Object.hasOwn(params, "web-story") ? storySlug.replaceAll("-", " ").toUpperCase() : "Web Story | My Property Fact",
             description: "View our latest web stories.",
             alternates: {
-                canonical: canonicalPath,
+                canonical: canonicalUrl,
                 languages: {
-                    "en-IN": canonicalPath,
-                    en: canonicalPath,
-                    "x-default": canonicalPath,
+                    "en-IN": canonicalUrl,
+                    en: canonicalUrl,
+                    "x-default": canonicalUrl,
                 },
             },
         };
@@ -42,11 +52,11 @@ export async function generateMetadata({ params }) {
         description: storyData?.metaDescription || storyData?.categoryDescription || "Explore our latest web stories.",
         keywords: storyData?.metaKeywords || "real estate, property, stories",
         alternates: {
-            canonical: canonicalPath,
+            canonical: canonicalUrl,
             languages: {
-                "en-IN": canonicalPath,
-                en: canonicalPath,
-                "x-default": canonicalPath,
+                "en-IN": canonicalUrl,
+                en: canonicalUrl,
+                "x-default": canonicalUrl,
             },
         },
     };

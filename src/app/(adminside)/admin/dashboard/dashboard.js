@@ -16,6 +16,7 @@ import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import "./dashboard-home.css";
 import { useRouter } from "next/navigation";
+import SiteTrafficTrendChart from "./SiteTrafficTrendChart";
 
 const DASH_MINI_ICONS = {
   cities: "/images/admin/Vector (4).svg",
@@ -230,11 +231,16 @@ export default function Dashboard({
   const canManageWebStories =
     isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES);
 
-  /** Daily user tracking card (placeholder): visible to Super Admin and Admin staff. */
+  /** Chart card shell: visible to Super Admin (live data) and Admin (coming soon placeholder). */
   const showDailyUserTrackingChart = isSuperAdmin || isAdmin;
+  const showLiveTrafficAnalytics = isSuperAdmin;
 
   const [recentTasks, setRecentTasks] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
+
+  const [trafficTrend, setTrafficTrend] = useState(null);
+  const [trafficTrendErr, setTrafficTrendErr] = useState("");
+  const [trafficTrendLoading, setTrafficTrendLoading] = useState(false);
 
   useEffect(() => {
     if (roleLoading) return;
@@ -278,6 +284,59 @@ export default function Dashboard({
       cancelled = true;
     };
   }, [roleLoading, isSuperAdmin, isAdmin]);
+
+  useEffect(() => {
+    if (roleLoading) return;
+    if (!showLiveTrafficAnalytics) {
+      setTrafficTrend(null);
+      setTrafficTrendErr("");
+      setTrafficTrendLoading(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      setTrafficTrendLoading(true);
+      setTrafficTrendErr("");
+      try {
+        const apiBase = getPublicApiBase();
+        if (!apiBase) {
+          if (!cancelled) {
+            setTrafficTrend(null);
+            setTrafficTrendErr("API URL not configured");
+          }
+          return;
+        }
+        const res = await fetch(
+          `${apiBase}admin/dashboard/site-traffic-trends?days=14`,
+          {
+            credentials: "include",
+            headers: { ...adminFetchHeaders(), Accept: "application/json" },
+          },
+        );
+        if (cancelled) return;
+        if (!res.ok) {
+          const t = await res.text();
+          setTrafficTrend(null);
+          setTrafficTrendErr(
+            t && t.length < 200 ? t : `Request failed (${res.status})`,
+          );
+          return;
+        }
+        const data = await res.json();
+        if (!cancelled) setTrafficTrend(data);
+      } catch (e) {
+        if (!cancelled) {
+          setTrafficTrend(null);
+          setTrafficTrendErr(e.message || "Network error");
+        }
+      } finally {
+        if (!cancelled) setTrafficTrendLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [roleLoading, showLiveTrafficAnalytics]);
 
   /** Top colored row: only metrics the role is allowed to see (matches design: users / blogs / enquiries). */
   const topMetrics = useMemo(() => {
@@ -583,107 +642,108 @@ export default function Dashboard({
 
       <div className={`admin-dash-home__split${!showDailyUserTrackingChart ? " admin-dash-home__split--no-chart" : ""}`}>
         {showDailyUserTrackingChart && (
-          <section className="admin-dash-chart" aria-label="Daily user tracking">
+          <section
+            className="admin-dash-chart"
+            aria-label={showLiveTrafficAnalytics ? "Website traffic" : "Daily user tracking"}
+          >
           <div className="admin-dash-chart__head">
-            <h2 className="admin-dash-chart__title">Daily user tracking</h2>
-            <span className="admin-dash-chart__live">
-              <span className="admin-dash-chart__live-dot" />
-              LIVE DATA
-            </span>
-            {/* <div className="admin-dash-chart__filters">
-              {["1W", "1M", "1Y"].map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  className={`admin-dash-chart__filter${chartRange === k ? " is-active" : ""}`}
-                  onClick={() => setChartRange(k)}
-                >
-                  {k}
-                </button>
-              ))}
-            </div> */}
-          </div>
-          <div className="admin-dash-chart__plot-wrap">
-            <svg
-              className="admin-dash-chart__svg"
-              viewBox="0 0 400 200"
-              preserveAspectRatio="none"
-              aria-hidden
-            >
-              <defs>
-                <linearGradient
-                  id="adminDashChartFill"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#005032" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#005032" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <line
-                x1="36"
-                y1="10"
-                x2="36"
-                y2="175"
-                stroke="#e5e7eb"
-                strokeWidth="1"
-              />
-              <line
-                x1="36"
-                y1="175"
-                x2="390"
-                y2="175"
-                stroke="#e5e7eb"
-                strokeWidth="1"
-              />
-              {/* <text x="0" y="24" fontSize="9" fill="#9ca3af">
-                $5.2M
-              </text>
-              <text x="0" y="95" fontSize="9" fill="#9ca3af">
-                $4.0M
-              </text>
-              <text x="0" y="168" fontSize="9" fill="#9ca3af">
-                $1.2M
-              </text> */}
-              <path
-                d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32 L392,175 L40,175 Z"
-                fill="url(#adminDashChartFill)"
-              />
-              <path
-                d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
-                fill="none"
-                stroke="#005032"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            {!roleLoading && showDailyUserTrackingChart ? (
-              <div className="admin-dash-chart__overlay">
-                <p className="admin-dash-chart__overlay-title">Coming Soon</p>
-                <p className="admin-dash-chart__overlay-sub">
-                  Daily analytics and live traffic will appear here once
-                  constructed.
+            <div className="admin-dash-chart__title-block">
+              <h2 className="admin-dash-chart__title">
+                {showLiveTrafficAnalytics ? "Website traffic" : "Daily user tracking"}
+              </h2>
+              {showLiveTrafficAnalytics ? (
+                <p className="admin-dash-chart__subtitle">
+                  Public page views per day (beacon). Week-over-week compares the last 7
+                  calendar days to the 7 days before.
                 </p>
-              </div>
+              ) : (
+                <p className="admin-dash-chart__subtitle">
+                  Live traffic analytics are available to super admins only.
+                </p>
+              )}
+            </div>
+            {showLiveTrafficAnalytics ? (
+              <span className="admin-dash-chart__live">
+                <span className="admin-dash-chart__live-dot" />
+                LIVE DATA
+              </span>
             ) : null}
           </div>
-          {/* <div className="admin-dash-chart__foot">
-            <div>
-              <p className="admin-dash-chart-stat__label">Avg. valuation</p>
-              <p className="admin-dash-chart-stat__value">$3.1M</p>
-            </div>
-            <div>
-              <p className="admin-dash-chart-stat__label">Listing velocity</p>
-              <p className="admin-dash-chart-stat__value">12 days</p>
-            </div>
-            <div>
-              <p className="admin-dash-chart-stat__label">Conversion</p>
-              <p className="admin-dash-chart-stat__value">8.4%</p>
-            </div>
-          </div> */}
+          <div
+            className={
+              showLiveTrafficAnalytics
+                ? "admin-dash-chart__plot-wrap admin-dash-chart__plot-wrap--traffic"
+                : "admin-dash-chart__plot-wrap"
+            }
+          >
+            {!roleLoading && showDailyUserTrackingChart ? (
+              showLiveTrafficAnalytics ? (
+                <SiteTrafficTrendChart
+                  payload={trafficTrend}
+                  loading={trafficTrendLoading}
+                  error={trafficTrendErr}
+                  showSuperDetailsLink
+                />
+              ) : (
+                <>
+                  <svg
+                    className="admin-dash-chart__svg"
+                    viewBox="0 0 400 200"
+                    preserveAspectRatio="none"
+                    aria-hidden
+                  >
+                    <defs>
+                      <linearGradient
+                        id="adminDashChartFillAdmin"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop offset="0%" stopColor="#005032" stopOpacity="0.22" />
+                        <stop offset="100%" stopColor="#005032" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <line
+                      x1="36"
+                      y1="10"
+                      x2="36"
+                      y2="175"
+                      stroke="#e5e7eb"
+                      strokeWidth="1"
+                    />
+                    <line
+                      x1="36"
+                      y1="175"
+                      x2="390"
+                      y2="175"
+                      stroke="#e5e7eb"
+                      strokeWidth="1"
+                    />
+                    <path
+                      d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32 L392,175 L40,175 Z"
+                      fill="url(#adminDashChartFillAdmin)"
+                    />
+                    <path
+                      d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
+                      fill="none"
+                      stroke="#005032"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  <div className="admin-dash-chart__overlay">
+                    <p className="admin-dash-chart__overlay-title">Coming Soon</p>
+                    <p className="admin-dash-chart__overlay-sub">
+                      Daily analytics and live traffic will appear here for your account
+                      when enabled.
+                    </p>
+                  </div>
+                </>
+              )
+            ) : null}
+          </div>
         </section>
         )}
 

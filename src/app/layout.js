@@ -92,7 +92,12 @@ export default async function RootLayout({ children }) {
         <meta property=" og:locale" content="en_IN" />
 
         
-
+        {/* Script Tag
+        <script type="application/ld+json">
+        {
+          "@context"=""
+        }
+        </script> */}
 
       </head>
       <body

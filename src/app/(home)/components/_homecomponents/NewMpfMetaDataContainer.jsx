@@ -3,8 +3,15 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import "./newmpfmetadata.css";
 import Image from "next/image";
 import Link from "next/link";
+import HomeRecommendationCards from "./HomeRecommendationCards";
 
-export default function NewMpfMetaDataContainer({ propertyTypes, projects, builders, cities }) {
+export default function NewMpfMetaDataContainer({
+  propertyTypes,
+  projects,
+  builders,
+  cities,
+  recommendedProperties = [],
+}) {
   const normalizePropertyTypeName = (value = "") => value.trim().toLowerCase();
   const semanticPropertyHeadings = ["Commercial", "New Launches", "Residential"].filter(
     (heading) =>
@@ -224,6 +231,13 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
           </div>
         ))}
       </div>
+
+      <HomeRecommendationCards
+        title="Recommended Properties"
+        subtitle="Curated property picks for buyers exploring top locations"
+        items={recommendedProperties}
+        kind="project"
+      />
     </div>
   );
 }

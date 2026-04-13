@@ -47,6 +47,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
               </Link>
             </div>
           </div>
+          <div className="home-banner-overlay" aria-hidden />
 
           <SearchFilter projectTypeList={projectTypeList} cityList={cityList} />
         </div>

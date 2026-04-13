@@ -11,6 +11,7 @@ import {
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
 import NewMpfMetaDataContainer from "../_homecomponents/NewMpfMetaDataContainer";
+import HomeRecommendationCards from "../_homecomponents/HomeRecommendationCards";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   ssr: true,
@@ -38,6 +39,48 @@ const NoidaProjectsSection = dynamic(
   { loading: () => <div className="py-4" /> }
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
+
+function sortTimeValue(value) {
+  if (value == null) return 0;
+  if (typeof value === "number") return value;
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function recommendationScore(project, topCities) {
+  if (!project || typeof project !== "object") return 0;
+
+  const status = String(project.projectStatusName || "").toLowerCase();
+  let score = 0;
+
+  if (project.propertyTypeName === "Residential") score += 40;
+  if (project.cityName && topCities.includes(project.cityName)) score += 18;
+  if (project.projectBannerImage || project.projectThumbnailImage) score += 14;
+  if (project.projectPrice != null && project.projectPrice !== "") score += 10;
+  if (project.projectConfiguration) score += 8;
+  if (status.includes("ready")) score += 8;
+  if (status.includes("new")) score += 6;
+
+  return score;
+}
+
+function buildRecommendedPropertyProjects(projects, topCities) {
+  if (!Array.isArray(projects)) return [];
+
+  return [...projects]
+    .filter((project) => project?.slugURL && project?.projectName)
+    .filter((project) => project.propertyTypeName === "Residential")
+    .sort((a, b) => {
+      const scoreDiff =
+        recommendationScore(b, topCities) - recommendationScore(a, topCities);
+      if (scoreDiff !== 0) return scoreDiff;
+      return (
+        sortTimeValue(b.updatedAt ?? b.createdAt ?? b.id) -
+        sortTimeValue(a.updatedAt ?? a.createdAt ?? a.id)
+      );
+    })
+    .slice(0, 6);
+}
 
 export default async function HomePage() {
   // Fetching all projects with short details
@@ -79,6 +122,7 @@ export default async function HomePage() {
     .filter(Boolean);
   // top cities
   const topCities = ["Noida", "Delhi", "Ghaziabad"];
+  const recommendedProperties = buildRecommendedPropertyProjects(projects, topCities);
   // Residential: slug-ordered first, then rest from getAllProjects (Residential type)
   const residentialFirst = residentialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
@@ -108,6 +152,10 @@ export default async function HomePage() {
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
+  const recommendedProjects = projects
+    .filter((project) => project?.slugURL && project?.projectName)
+    .slice(0, 6);
+
   // Top Picks: projects from selected builders only, rotates every 30s (testing)
   const mpfTopPicProject = await fetchTopPicksProject();
 
@@ -123,10 +171,18 @@ export default async function HomePage() {
           projects={projects}
           builders={builders.builders}
           cities={cityList}
+          recommendedProperties={recommendedProperties}
         />
 
         {/* MPF-top pick section (refreshes every 30s on client) */}
         <TopPicksWithRotation initialProject={mpfTopPicProject} />
+        <HomeRecommendationCards
+          title="Recommended Projects"
+          subtitle="The most searched projects in Delhi South West"
+          items={recommendedProjects}
+          kind="project"
+          viewAllHref="/projects"
+        />
 
         {/* Static Sections */}
         <div className="position-relative">

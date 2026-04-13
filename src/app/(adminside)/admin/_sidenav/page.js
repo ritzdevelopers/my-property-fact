@@ -229,6 +229,18 @@ export default function SideNav({ onLinkClick }) {
             </Link>
           </li>
         )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/super-tracking") ? "active" : ""
+            }
+          >
+            <Link href="/admin/dashboard/super-tracking" onClick={handleLinkClick}>
+              <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
+              <span>Traffic and logs</span>
+            </Link>
+          </li>
+        )}
         {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEBSITE) && (
           <li
             className={

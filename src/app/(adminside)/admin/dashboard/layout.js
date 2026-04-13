@@ -1,10 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
 import { AdminThemeProvider } from "../_contexts/AdminThemeContext";
 import SideNav from "../_sidenav/page";
 import AdminTopBar from "./AdminTopBar";
 import NavigationLoader from "./NavigationLoader";
+import AdminTelemetryMount from "./AdminTelemetryMount";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import "./admin-theme.css";
@@ -51,6 +52,9 @@ export default function AdminLayout({ children }) {
   return (
     <AdminRoleProvider>
     <AdminThemeProvider>
+    <Suspense fallback={null}>
+      <AdminTelemetryMount />
+    </Suspense>
     <div className="admin-layout-wrapper">
       {/* Mobile Header */}
       <div className="admin-mobile-header">

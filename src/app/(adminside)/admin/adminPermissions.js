@@ -38,6 +38,13 @@ export function canAccessAdminPath(roles, permissions, pathname) {
   }
 
   if (
+    pathname === "/admin/dashboard/super-tracking" ||
+    pathname.startsWith("/admin/dashboard/super-tracking/")
+  ) {
+    return { ok: false, redirect: "/admin/dashboard" };
+  }
+
+  if (
     pathname === "/admin/dashboard/enquiries" ||
     pathname.startsWith("/admin/dashboard/enquiries/")
   ) {

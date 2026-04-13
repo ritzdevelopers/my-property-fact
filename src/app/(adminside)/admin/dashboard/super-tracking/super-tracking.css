@@ -1,0 +1,583 @@
+.super-tracking {
+  font-family: "Lato", system-ui, sans-serif;
+  color: #111827;
+}
+
+.super-tracking__kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.super-tracking__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.super-tracking__note {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+  max-width: 52rem;
+  line-height: 1.45;
+}
+
+.super-tracking__live-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid #e0f2fe;
+  background: linear-gradient(135deg, #f0f9ff 0%, #f8fafc 100%);
+}
+
+.super-tracking__live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #0369a1;
+}
+
+.super-tracking__live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #0ea5e9;
+  box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.5);
+  animation: super-tracking-live-pulse 2s ease-out infinite;
+}
+
+@keyframes super-tracking-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(14, 165, 233, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+  }
+}
+
+.super-tracking__live-meta {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #64748b;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.super-tracking__live-link {
+  color: #0369a1;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.super-tracking__live-link:hover {
+  text-decoration: underline;
+}
+
+.super-tracking__live-sep {
+  color: #cbd5e1;
+  font-weight: 400;
+  padding: 0 0.15rem;
+}
+
+.super-tracking__live-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+/* Rotate the SVG root (Font Awesome); avoids fighting internal svg transforms on the wrapper. */
+.super-tracking__live-refresh-icon {
+  color: #0369a1;
+  font-size: 0.95rem;
+  animation: super-tracking-refresh-spin 1.1s linear infinite;
+  transform-origin: center;
+}
+
+.super-tracking__live-updated {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.super-tracking__live-updated time {
+  font-variant-numeric: tabular-nums;
+  color: #0f172a;
+}
+
+.super-tracking__live-updated-ago {
+  font-weight: 600;
+  color: #64748b;
+}
+
+@keyframes super-tracking-refresh-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.super-tracking__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.super-tracking__tab {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #374151;
+  font-weight: 700;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.super-tracking__tab:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.super-tracking__tab--active {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+.super-tracking__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .super-tracking__metrics {
+    grid-template-columns: 1fr;
+  }
+}
+
+.super-tracking__metric {
+  border-radius: 12px;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid #e8ecf0;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.super-tracking__metric-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-bottom: 0.35rem;
+}
+
+.super-tracking__metric-value {
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #111827;
+}
+
+.super-tracking__panel {
+  border-radius: 12px;
+  border: 1px solid #e8ecf0;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.super-tracking__panel-head {
+  padding: 0.85rem 1rem;
+  font-weight: 800;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: #fafafa;
+}
+
+.super-tracking__table-wrap {
+  overflow-x: auto;
+}
+
+.super-tracking table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.super-tracking th,
+.super-tracking td {
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: top;
+}
+
+.super-tracking th {
+  font-weight: 800;
+  color: #6b7280;
+  white-space: nowrap;
+}
+
+.super-tracking__mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  word-break: break-all;
+}
+
+.super-tracking__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.72rem;
+}
+
+.super-tracking__pill--ok {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.super-tracking__pill--fail {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.super-tracking__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  align-items: flex-end;
+}
+
+.super-tracking__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.super-tracking__field label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+}
+
+.super-tracking__field input,
+.super-tracking__field select {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.8125rem;
+  min-width: 8rem;
+}
+
+.super-tracking__btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  background: #111827;
+  color: #fff;
+}
+
+.super-tracking__btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.super-tracking__pager {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #f3f4f6;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.super-tracking__pager button {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.super-tracking__pager button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.super-tracking__err {
+  margin: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.super-tracking__muted {
+  padding: 1.25rem 1rem;
+  color: #9ca3af;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* —— Admin logs: terminal / “cyber” theme —— */
+.super-tracking__cyber {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+  border-radius: 10px;
+  padding: 0.5rem 0 1rem;
+}
+
+.super-tracking__panel--cyber {
+  border-color: #134e4a;
+  background: #020617;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.super-tracking__panel-head--cyber {
+  background: #0f172a;
+  color: #5eead4;
+  border-bottom-color: #134e4a;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.super-tracking__filters--cyber {
+  border-bottom-color: #134e4a;
+  background: #020617;
+}
+
+.super-tracking__field--cyber label {
+  color: #2dd4bf;
+}
+
+.super-tracking__filters--cyber .super-tracking__field input,
+.super-tracking__filters--cyber .super-tracking__field select {
+  background: #0f172a;
+  border-color: #115e59;
+  color: #a7f3d0;
+  font-family: inherit;
+}
+
+.super-tracking__filters--cyber .super-tracking__field input::placeholder {
+  color: #5b7c73;
+}
+
+.super-tracking__btn--cyber {
+  background: #059669;
+  color: #ecfdf5;
+  font-family: inherit;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+}
+
+.super-tracking__btn--cyber:hover:not(:disabled) {
+  background: #10b981;
+}
+
+.super-tracking__btn--cyber-outline {
+  border: 1px solid #0f766e;
+  background: #0f172a;
+  color: #5eead4;
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.75rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.super-tracking__btn--cyber-outline:hover:not(:disabled) {
+  background: #134e4a;
+}
+
+.super-tracking__btn--cyber-outline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.super-tracking__table-wrap--cyber {
+  background: #020617;
+}
+
+.super-tracking__table--cyber {
+  font-size: 0.78rem;
+}
+
+.super-tracking__table--cyber th {
+  color: #34d399;
+  background: #0f172a;
+  border-bottom-color: #134e4a;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+}
+
+.super-tracking__td--cyber {
+  color: #6ee7b7;
+  border-bottom-color: #0f3d38;
+}
+
+.super-tracking__table--cyber tbody tr:hover .super-tracking__td--cyber {
+  background: rgba(16, 185, 129, 0.06);
+  color: #a7f3d0;
+}
+
+.super-tracking__task-cell {
+  font-weight: 700;
+  color: #bbf7d0;
+  max-width: 14rem;
+}
+
+.super-tracking__page-cell {
+  max-width: 10rem;
+  color: #86efac;
+}
+
+.super-tracking__pill--cyber {
+  font-family: inherit;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+}
+
+.super-tracking__pill--cyber-ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid #047857;
+}
+
+.super-tracking__pill--cyber-fail {
+  background: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+  border: 1px solid #991b1b;
+}
+
+.super-tracking__pager--cyber {
+  border-top-color: #134e4a;
+  background: #0f172a;
+  color: #5eead4;
+}
+
+.super-tracking__muted--cyber {
+  background: #020617;
+  color: #64748b;
+}
+
+.super-tracking__err--cyber {
+  margin: 0 0 0.75rem;
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  border: 1px solid #7f1d1d;
+  font-family: inherit;
+}
+
+.super-tracking__visits-panel {
+  margin-bottom: 1rem;
+}
+
+.super-tracking__visits-unlock {
+  padding: 0.85rem 1rem 0.25rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.super-tracking__visits-unlock-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.super-tracking__inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
+  background: #f1f5f9;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  color: #0f172a;
+}
+
+.super-tracking__visits-unlocked-msg {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #047857;
+}
+
+.super-tracking__visits-pin-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.super-tracking__visits-pin-input {
+  width: 5.5rem;
+  letter-spacing: 0.25em;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+}
+
+.super-tracking__btn--unlock {
+  background: #0f766e;
+}
+
+.super-tracking__btn--unlock:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.super-tracking__visits-pin-err {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #b91c1c;
+}

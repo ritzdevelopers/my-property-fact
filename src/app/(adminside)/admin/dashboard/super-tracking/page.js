@@ -37,7 +37,8 @@ async function adminFetchJson(url) {
 }
 
 /** Poll public-site traffic summary while the Website traffic tab is open (matches beacon data from the live site). */
-const TRAFFIC_POLL_MS = 5_000;
+/** Slightly faster poll so super-tracking feels closer to real time. */
+const TRAFFIC_POLL_MS = 4_000;
 
 function isLocalUiUrl(url) {
   if (!url) return true;
@@ -341,12 +342,12 @@ export default function SuperTrackingPage() {
     <div className="super-tracking">
       <p className="super-tracking__kicker">Super Admin</p>
       <h1 className="super-tracking__title">Traffic and audit logs</h1>
-      <p className="super-tracking__note">
+      {/* <p className="super-tracking__note">
         Website traffic counts come from client-side page views sent by the public site (JavaScript
         navigations), throttled per visitor and path. They do not include every static asset or
         non-JavaScript visit. Admin logs record authenticated calls to admin APIs after each request
         completes (method, path, HTTP status, and duration).
-      </p>
+      </p> */}
 
       <div className="super-tracking__tabs" role="tablist" aria-label="Tracking views">
         <button

@@ -11,66 +11,89 @@ import {
   faMinus,
   faCalendarWeek,
   faBolt,
+  faPercent,
+  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 
-function normalizeTrendPayload(raw) {
+function normalizeTodayPayload(raw) {
   if (!raw || typeof raw !== "object") return null;
-  const daily = Array.isArray(raw.dailyBuckets)
-    ? raw.dailyBuckets
-    : Array.isArray(raw.daily_buckets)
-      ? raw.daily_buckets
+  const hourly = Array.isArray(raw.hourlyBuckets)
+    ? raw.hourlyBuckets
+    : Array.isArray(raw.hourly_buckets)
+      ? raw.hourly_buckets
       : [];
-  const buckets = daily.map((b) => ({
-    date: String(b?.date ?? ""),
+  const buckets = hourly.map((b) => ({
+    hour: Number(b?.hour ?? 0) || 0,
+    label: String(b?.label ?? ""),
     count: Number(b?.count ?? 0) || 0,
   }));
-  const visitsLast7 =
-    Number(raw.visitsLast7Days ?? raw.visits_last_7_days ?? 0) || 0;
-  const visitsPrior7 =
-    Number(raw.visitsPrior7Days ?? raw.visits_prior_7_days ?? 0) || 0;
-  let pct =
-    raw.percentChangeVsPrior7Days ?? raw.percent_change_vs_prior7_days ?? null;
-  if (pct != null && pct !== "") {
-    const n = Number(pct);
-    pct = Number.isFinite(n) ? n : null;
+  const todayTotalSoFar =
+    Number(raw.todayTotalSoFar ?? raw.today_total_so_far ?? 0) || 0;
+  const yesterdayFullDayTotal =
+    Number(raw.yesterdayFullDayTotal ?? raw.yesterday_full_day_total ?? 0) || 0;
+  const yesterdaySameWindowTotal =
+    Number(raw.yesterdaySameWindowTotal ?? raw.yesterday_same_window_total ?? 0) || 0;
+  let pctSame =
+    raw.percentChangeVsYesterdaySameWindow ??
+    raw.percent_change_vs_yesterday_same_window ??
+    null;
+  if (pctSame != null && pctSame !== "") {
+    const n = Number(pctSame);
+    pctSame = Number.isFinite(n) ? n : null;
   } else {
-    pct = null;
+    pctSame = null;
   }
-  return { buckets, visitsLast7, visitsPrior7, percentChange: pct };
+  let pctOfFull =
+    raw.todaySoFarPercentOfYesterdayFullDay ??
+    raw.today_so_far_percent_of_yesterday_full_day ??
+    null;
+  if (pctOfFull != null && pctOfFull !== "") {
+    const n = Number(pctOfFull);
+    pctOfFull = Number.isFinite(n) ? n : null;
+  } else {
+    pctOfFull = null;
+  }
+  const calendarDate = String(raw.calendarDate ?? raw.calendar_date ?? "");
+  const zoneId = String(raw.zoneId ?? raw.zone_id ?? "");
+  return {
+    buckets,
+    todayTotalSoFar,
+    yesterdayFullDayTotal,
+    yesterdaySameWindowTotal,
+    percentChangeVsYesterdaySameWindow: pctSame,
+    todaySoFarPercentOfYesterdayFullDay: pctOfFull,
+    calendarDate,
+    zoneId,
+  };
 }
 
-function formatShortDate(isoDate) {
-  if (!isoDate || typeof isoDate !== "string") return "";
-  const parts = isoDate.split("-");
-  if (parts.length === 3) {
-    return `${parts[1]}/${parts[2]}`;
+function formatTodayVsYesterdayPillLabel(
+  pctSame,
+  yesterdaySameWindowTotal,
+  todayTotalSoFar,
+) {
+  if (pctSame != null && Number.isFinite(pctSame)) {
+    const sign = pctSame > 0 ? "+" : "";
+    return `${sign}${pctSame.toFixed(1)}% vs yesterday (same hours)`;
   }
-  return isoDate;
+  if (yesterdaySameWindowTotal <= 0 && todayTotalSoFar > 0) {
+    return "No same-window traffic yesterday — today is the baseline";
+  }
+  if (todayTotalSoFar <= 0 && yesterdaySameWindowTotal <= 0) {
+    return "No traffic yet today or in the comparison window";
+  }
+  return "Same hours as yesterday (0 views yesterday)";
 }
 
-function formatWowLabel(percentChange, visitsLast7, visitsPrior7) {
-  if (percentChange != null && Number.isFinite(percentChange)) {
-    const sign = percentChange > 0 ? "+" : "";
-    return `${sign}${percentChange.toFixed(1)}% vs prior week`;
-  }
-  if (visitsPrior7 <= 0 && visitsLast7 > 0) {
-    return "No prior week to compare";
-  }
-  if (visitsLast7 <= 0 && visitsPrior7 <= 0) {
-    return "No traffic in window yet";
-  }
-  return "Flat vs prior week (0 prior views)";
-}
-
-function WowPill({ percentChange, visitsLast7, visitsPrior7 }) {
-  const up =
-    percentChange != null && Number.isFinite(percentChange) && percentChange > 0;
-  const down =
-    percentChange != null && Number.isFinite(percentChange) && percentChange < 0;
+function TodayVsYesterdayPill({
+  pctSame,
+  yesterdaySameWindowTotal,
+  todayTotalSoFar,
+}) {
+  const up = pctSame != null && Number.isFinite(pctSame) && pctSame > 0;
+  const down = pctSame != null && Number.isFinite(pctSame) && pctSame < 0;
   const neutral =
-    percentChange != null &&
-    Number.isFinite(percentChange) &&
-    Math.abs(percentChange) < 0.05;
+    pctSame != null && Number.isFinite(pctSame) && Math.abs(pctSame) < 0.05;
 
   let tone = "admin-dash-chart__wow--neutral";
   if (up && !neutral) tone = "admin-dash-chart__wow--up";
@@ -80,7 +103,11 @@ function WowPill({ percentChange, visitsLast7, visitsPrior7 }) {
   if (up && !neutral) icon = faArrowTrendUp;
   if (down) icon = faArrowTrendDown;
 
-  const label = formatWowLabel(percentChange, visitsLast7, visitsPrior7);
+  const label = formatTodayVsYesterdayPillLabel(
+    pctSame,
+    yesterdaySameWindowTotal,
+    todayTotalSoFar,
+  );
 
   return (
     <div className={`admin-dash-chart__wow ${tone}`} title={label}>
@@ -108,155 +135,265 @@ function TrafficKpiCard({ icon, label, value, sub }) {
 const CHART_LINE = "#0d9488";
 const CHART_FILL = "rgba(13, 148, 136, 0.12)";
 
+/** Derive simple stats from the 24 hourly buckets returned for today. */
+function buildTodayHourAnalysis(buckets) {
+  if (!buckets?.length) {
+    return null;
+  }
+  let maxCount = 0;
+  let peakLabel = "—";
+  let sumBuckets = 0;
+  let activeHours = 0;
+  for (const b of buckets) {
+    sumBuckets += b.count;
+    if (b.count > 0) {
+      activeHours += 1;
+    }
+    if (b.count > maxCount) {
+      maxCount = b.count;
+      peakLabel = b.label || `${String(b.hour).padStart(2, "0")}:00`;
+    }
+  }
+  const avgActive =
+    activeHours > 0 ? sumBuckets / activeHours : 0;
+  return {
+    peakLabel,
+    maxCount,
+    sumBuckets,
+    activeHours,
+    avgActive,
+  };
+}
+
 export default function SiteTrafficTrendChart({
-  payload,
-  loading,
-  error,
+  todayPayload,
+  todayLoading,
   showSuperDetailsLink,
 }) {
-  const norm = useMemo(() => normalizeTrendPayload(payload), [payload]);
+  const todayNorm = useMemo(() => normalizeTodayPayload(todayPayload), [todayPayload]);
 
-  const { dataset, peak } = useMemo(() => {
-    const buckets = norm?.buckets?.length ? norm.buckets : [];
-    let best = { count: 0, date: "" };
-    const rows = buckets.map((b) => {
-      if (b.count > best.count) best = { count: b.count, date: b.date };
-      return {
-        dateLabel: formatShortDate(b.date),
-        dateRaw: b.date,
-        views: b.count,
-      };
-    });
-    return { dataset: rows, peak: best };
-  }, [norm]);
+  const { todayHourDataset, todayYMax } = useMemo(() => {
+    const buckets = todayNorm?.buckets?.length ? todayNorm.buckets : [];
+    const rows = buckets.map((b) => ({
+      hourLabel: b.label,
+      views: b.count,
+    }));
+    const maxV = rows.length ? Math.max(...rows.map((r) => r.views), 0) : 0;
+    return {
+      todayHourDataset: rows,
+      todayYMax: Math.max(5, Math.ceil(Math.max(maxV, 1) * 1.08)),
+    };
+  }, [todayNorm]);
 
-  if (loading && !norm) {
-    return (
-      <div className="admin-dash-chart__traffic-loading" aria-busy="true">
-        <p className="admin-dash-chart__traffic-loading-text">Loading traffic…</p>
-      </div>
-    );
-  }
+  const hourAnalysis = useMemo(
+    () => buildTodayHourAnalysis(todayNorm?.buckets),
+    [todayNorm],
+  );
 
-  if (error) {
-    return (
-      <div className="admin-dash-chart__traffic-error" role="alert">
-        <p className="admin-dash-chart__traffic-error-title">Could not load traffic</p>
-        <p className="admin-dash-chart__traffic-error-msg">{error}</p>
-      </div>
-    );
-  }
-
-  const hasPoints = dataset.length > 0;
+  const hasTodayHours = todayHourDataset.length > 0;
 
   return (
     <div className="admin-dash-chart__traffic-body">
-      {norm ? (
-        <div className="admin-dash-chart__traffic-head">
-          <WowPill
-            percentChange={norm.percentChange}
-            visitsLast7={norm.visitsLast7}
-            visitsPrior7={norm.visitsPrior7}
-          />
-          {showSuperDetailsLink ? (
-            <Link
-              href="/admin/dashboard/super-tracking"
-              className="admin-dash-chart__traffic-details-link"
-            >
-              Full analytics
-            </Link>
-          ) : null}
-        </div>
-      ) : null}
-
-      {norm ? (
-        <div className="admin-dash-chart__kpi-row">
-          <TrafficKpiCard
-            icon={faChartLine}
-            label="Last 7 days"
-            value={norm.visitsLast7.toLocaleString()}
-            sub="Total views"
-          />
-          <TrafficKpiCard
-            icon={faCalendarWeek}
-            label="Prior 7 days"
-            value={norm.visitsPrior7.toLocaleString()}
-            sub="Baseline window"
-          />
-          <TrafficKpiCard
-            icon={faBolt}
-            label="Peak day"
-            value={
-              peak.count > 0 ? peak.count.toLocaleString() : "—"
-            }
-            sub={
-              peak.count > 0
-                ? formatShortDate(peak.date)
-                : "No spike in range"
-            }
-          />
-        </div>
-      ) : null}
-
-      <div className="admin-dash-chart__mui-chart-host">
-        {hasPoints ? (
-          <LineChart
-            dataset={dataset}
-            xAxis={[
-              {
-                scaleType: "point",
-                dataKey: "dateLabel",
-                tickLabelStyle: { fontSize: 10, fill: "#6b7280" },
-                label: "Date",
-                labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
-              },
-            ]}
-            yAxis={[
-              {
-                label: "Views",
-                tickLabelStyle: { fontSize: 10, fill: "#6b7280" },
-                labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
-                width: 44,
-              },
-            ]}
-            series={[
-              {
-                type: "line",
-                dataKey: "views",
-                label: "Page views",
-                color: CHART_LINE,
-                area: true,
-                curve: "natural",
-                showMark: true,
-                valueFormatter: (v) =>
-                  v == null || Number.isNaN(v) ? "" : `${Number(v).toLocaleString()} views`,
-              },
-            ]}
-            height={280}
-            margin={{ top: 28, right: 18, bottom: 44, left: 12 }}
-            grid={{ vertical: true, horizontal: true }}
-            hideLegend
-            axisHighlight={{ x: "line", y: "line" }}
-            sx={{
-              width: "100%",
-              "& .MuiAreaElement-root": { fill: CHART_FILL },
-              "& .MuiLineElement-root": {
-                strokeWidth: 2.5,
-                stroke: CHART_LINE,
-              },
-              "& .MuiMarkElement-root": {
-                fill: "#fff",
-                stroke: CHART_LINE,
-                strokeWidth: 2,
-              },
-            }}
-          />
-        ) : (
-          <div className="admin-dash-chart__traffic-empty-chart">
-            <p>No daily buckets yet</p>
+      {todayNorm ? (
+        <>
+          <div className="admin-dash-chart__traffic-head">
+            <TodayVsYesterdayPill
+              pctSame={todayNorm.percentChangeVsYesterdaySameWindow}
+              yesterdaySameWindowTotal={todayNorm.yesterdaySameWindowTotal}
+              todayTotalSoFar={todayNorm.todayTotalSoFar}
+            />
+            {showSuperDetailsLink ? (
+              <Link
+                href="/admin/dashboard/super-tracking"
+                className="admin-dash-chart__traffic-details-link"
+              >
+                Full analytics
+              </Link>
+            ) : null}
           </div>
-        )}
-      </div>
+
+          <p className="admin-dash-chart__traffic-day-meta admin-dash-chart__traffic-day-meta--above-chart">
+            {todayNorm.calendarDate || "—"}
+            {todayNorm.zoneId ? ` · ${todayNorm.zoneId}` : ""} · Full-day view (24 hourly buckets)
+          </p>
+
+          <div className="admin-dash-chart__mui-chart-host">
+            {hasTodayHours ? (
+              <LineChart
+                dataset={todayHourDataset}
+                xAxis={[
+                  {
+                    scaleType: "point",
+                    dataKey: "hourLabel",
+                    tickLabelStyle: { fontSize: 9, fill: "#6b7280" },
+                    label: "Hour (today)",
+                    labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
+                  },
+                ]}
+                yAxis={[
+                  {
+                    min: 0,
+                    max: todayYMax,
+                    label: "Views / hour",
+                    tickLabelStyle: { fontSize: 10, fill: "#6b7280" },
+                    labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
+                    width: 52,
+                  },
+                ]}
+                series={[
+                  {
+                    type: "line",
+                    dataKey: "views",
+                    label: "Page views",
+                    color: CHART_LINE,
+                    area: true,
+                    curve: "natural",
+                    showMark: true,
+                    valueFormatter: (v) =>
+                      v == null || Number.isNaN(v) ? "" : `${Number(v).toLocaleString()} views`,
+                  },
+                ]}
+                height={280}
+                margin={{ top: 28, right: 18, bottom: 44, left: 12 }}
+                grid={{ vertical: true, horizontal: true }}
+                hideLegend
+                axisHighlight={{ x: "line", y: "line" }}
+                sx={{
+                  width: "100%",
+                  "& .MuiAreaElement-root": { fill: CHART_FILL },
+                  "& .MuiLineElement-root": {
+                    strokeWidth: 2.5,
+                    stroke: CHART_LINE,
+                  },
+                  "& .MuiMarkElement-root": {
+                    fill: "#fff",
+                    stroke: CHART_LINE,
+                    strokeWidth: 2,
+                  },
+                }}
+              />
+            ) : (
+              <div className="admin-dash-chart__traffic-empty-chart">
+                <p>No hourly buckets yet</p>
+              </div>
+            )}
+          </div>
+
+          <div className="admin-dash-chart__traffic-analysis">
+            <h3 className="admin-dash-chart__traffic-analysis__title">Today&apos;s analysis</h3>
+            <p className="admin-dash-chart__traffic-analysis__lead">
+              Summary and percentages use server totals; the breakdown below is computed from the
+              hourly chart for this calendar day.
+            </p>
+
+            {todayNorm.todaySoFarPercentOfYesterdayFullDay != null &&
+            Number.isFinite(todayNorm.todaySoFarPercentOfYesterdayFullDay) ? (
+              <p className="admin-dash-chart__traffic-today-pct-sub">
+                So far today ={" "}
+                <strong>{todayNorm.todaySoFarPercentOfYesterdayFullDay.toFixed(1)}%</strong> of all
+                visits on the previous full calendar day.
+              </p>
+            ) : null}
+
+            <div className="admin-dash-chart__kpi-row">
+              <TrafficKpiCard
+                icon={faChartLine}
+                label="Today (so far)"
+                value={todayNorm.todayTotalSoFar.toLocaleString()}
+                sub="Server total · since midnight"
+              />
+              <TrafficKpiCard
+                icon={faCalendarWeek}
+                label="Yesterday (full day)"
+                value={todayNorm.yesterdayFullDayTotal.toLocaleString()}
+                sub="Previous calendar day"
+              />
+              <TrafficKpiCard
+                icon={faPercent}
+                label="Same hours yesterday"
+                value={todayNorm.yesterdaySameWindowTotal.toLocaleString()}
+                sub="Views in same clock window"
+              />
+            </div>
+
+            {hourAnalysis ? (
+              <ul className="admin-dash-chart__traffic-analysis__list">
+                <li>
+                  <strong>Peak hour:</strong>{" "}
+                  {hourAnalysis.maxCount > 0
+                    ? `${hourAnalysis.peakLabel} (${hourAnalysis.maxCount.toLocaleString()} views)`
+                    : "No views yet in any hour"}
+                </li>
+                <li>
+                  <strong>Active hours:</strong>{" "}
+                  {hourAnalysis.activeHours} of 24 with at least one view
+                </li>
+                <li>
+                  <strong>Average when active:</strong>{" "}
+                  {hourAnalysis.activeHours > 0
+                    ? `${(hourAnalysis.avgActive).toFixed(1)} views / hour`
+                    : "—"}
+                </li>
+                <li>
+                  <strong>Sum of hourly buckets:</strong>{" "}
+                  {hourAnalysis.sumBuckets.toLocaleString()}
+                  {hourAnalysis.sumBuckets !== todayNorm.todayTotalSoFar ? (
+                    <span className="admin-dash-chart__traffic-analysis__note">
+                      {" "}
+                      (server total {todayNorm.todayTotalSoFar.toLocaleString()} may differ slightly
+                      from rounding or timing)
+                    </span>
+                  ) : null}
+                </li>
+              </ul>
+            ) : null}
+
+            <div className="admin-dash-chart__kpi-row admin-dash-chart__kpi-row--analysis-mini">
+              <TrafficKpiCard
+                icon={faBolt}
+                label="Peak (chart)"
+                value={
+                  hourAnalysis && hourAnalysis.maxCount > 0
+                    ? hourAnalysis.maxCount.toLocaleString()
+                    : "—"
+                }
+                sub={hourAnalysis && hourAnalysis.maxCount > 0 ? hourAnalysis.peakLabel : "—"}
+              />
+              <TrafficKpiCard
+                icon={faClock}
+                label="Busy hours"
+                value={hourAnalysis ? String(hourAnalysis.activeHours) : "—"}
+                sub="Hours with traffic"
+              />
+              <TrafficKpiCard
+                icon={faChartLine}
+                label="Avg / active hr"
+                value={
+                  hourAnalysis && hourAnalysis.activeHours > 0
+                    ? hourAnalysis.avgActive.toFixed(1)
+                    : "—"
+                }
+                sub="From hourly data"
+              />
+            </div>
+          </div>
+        </>
+      ) : todayLoading ? (
+        <div className="admin-dash-chart__traffic-loading admin-dash-chart__traffic-loading--compact" aria-busy="true">
+          <p className="admin-dash-chart__traffic-loading-text">Loading today&apos;s chart…</p>
+        </div>
+      ) : (
+        <div className="admin-dash-chart__traffic-placeholder" role="status">
+          <p className="admin-dash-chart__traffic-placeholder__title">24-hour daily analysis</p>
+          <p className="admin-dash-chart__traffic-placeholder__msg">
+            The Full Chart and Breakdown Appear When The Server Returns Today&apos;s Hourly Traffic.
+          </p>
+          <p className="admin-dash-chart__traffic-placeholder__hint">
+            Use <strong>Last 60 minutes</strong> on the left for live traffic while this loads.
+            Your backend must expose today&apos;s hourly traffic for this panel to fill in.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

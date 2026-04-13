@@ -237,7 +237,7 @@ export default function SideNav({ onLinkClick }) {
           >
             <Link href="/admin/dashboard/super-tracking" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
-              <span>Traffic and logs</span>
+              <span>MPF Traffic and Logs</span>
             </Link>
           </li>
         )}

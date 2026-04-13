@@ -13,7 +13,7 @@ const NAV_INDEX = [
   { label: "Property Approvals", href: "/admin/dashboard/property-approvals", tags: "approve reject listing" },
   { label: "Manage Users", href: "/admin/dashboard/manage-users", tags: "users accounts roles admin superadmin" },
   { label: "Pending Admin Access", href: "/admin/dashboard/pending-admin-approvals", tags: "pending approval admin staff" },
-  { label: "Traffic and logs", href: "/admin/dashboard/super-tracking", tags: "tracking traffic audit superadmin logs analytics" },
+  { label: "Website Traffic and Logs", href: "/admin/dashboard/super-tracking", tags: "tracking traffic audit superadmin logs analytics" },
   { label: "Manage Projects", href: "/admin/dashboard/manage-projects", tags: "projects properties listings add edit delete" },
   { label: "Builders", href: "/admin/dashboard/builder", tags: "builder developer company" },
   { label: "Project Types", href: "/admin/dashboard/project-types", tags: "type residential commercial plot" },

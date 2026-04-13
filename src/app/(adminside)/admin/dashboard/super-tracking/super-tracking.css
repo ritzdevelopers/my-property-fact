@@ -157,14 +157,21 @@
 }
 
 .super-tracking__tab:hover {
-  border-color: #d1d5db;
-  background: #f9fafb;
+  border-color: #111827;
+  background: #fff;
+  color: #111827;
 }
 
 .super-tracking__tab--active {
   border-color: #111827;
   background: #111827;
   color: #fff;
+}
+
+.super-tracking__tab--active:hover {
+  background: #fff;
+  color: #111827;
+  border-color: #111827;
 }
 
 .super-tracking__metrics {

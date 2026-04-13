@@ -118,8 +118,6 @@ export default function HomeRecommendationCards({
   const [visibleCount, setVisibleCount] = useState(4);
   const [startIndex, setStartIndex] = useState(0);
 
-  if (!safeItems.length) return null;
-
   const maxStartIndex = Math.max(0, safeItems.length - visibleCount);
   const canSlide = safeItems.length > visibleCount;
   const trackStyle = {
@@ -151,6 +149,8 @@ export default function HomeRecommendationCards({
   const handleNext = () => {
     setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
   };
+
+  if (!safeItems.length) return null;
 
   return (
     <section className="container home-projects-preview" aria-label={title}>

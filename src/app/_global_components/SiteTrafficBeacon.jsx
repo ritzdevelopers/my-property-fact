@@ -74,6 +74,8 @@ export default function SiteTrafficBeacon() {
     }
     currentPathRef.current = pathname;
     pathEnteredAtRef.current = now;
+    // Real-time counts: record a view as soon as the route is active (throttled server-side per IP+path).
+    postTraffic({ path: pathname });
   }, [pathname]);
 
   useEffect(() => {

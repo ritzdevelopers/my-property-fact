@@ -17,6 +17,10 @@ import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import "./dashboard-home.css";
 import { useRouter } from "next/navigation";
 import SiteTrafficTrendChart from "./SiteTrafficTrendChart";
+import AdminDashboardLast60Traffic from "./AdminDashboardLast60Traffic";
+
+/** How often super-admin traffic charts refetch (no full page reload). */
+const SITE_TRAFFIC_POLL_MS = 5_000;
 
 const DASH_MINI_ICONS = {
   cities: "/images/admin/Vector (4).svg",
@@ -238,9 +242,13 @@ export default function Dashboard({
   const [recentTasks, setRecentTasks] = useState([]);
   const [recentLoading, setRecentLoading] = useState(false);
 
-  const [trafficTrend, setTrafficTrend] = useState(null);
-  const [trafficTrendErr, setTrafficTrendErr] = useState("");
-  const [trafficTrendLoading, setTrafficTrendLoading] = useState(false);
+  const [trafficLive, setTrafficLive] = useState(null);
+  const [trafficLiveErr, setTrafficLiveErr] = useState("");
+  const [trafficLiveLoading, setTrafficLiveLoading] = useState(false);
+  const [trafficLiveUpdatedAt, setTrafficLiveUpdatedAt] = useState(null);
+  const [trafficToday, setTrafficToday] = useState(null);
+  const [trafficTodayErr, setTrafficTodayErr] = useState("");
+  const [trafficTodayLoading, setTrafficTodayLoading] = useState(false);
 
   useEffect(() => {
     if (roleLoading) return;
@@ -288,53 +296,99 @@ export default function Dashboard({
   useEffect(() => {
     if (roleLoading) return;
     if (!showLiveTrafficAnalytics) {
-      setTrafficTrend(null);
-      setTrafficTrendErr("");
-      setTrafficTrendLoading(false);
+      setTrafficLive(null);
+      setTrafficLiveErr("");
+      setTrafficLiveLoading(false);
+      setTrafficLiveUpdatedAt(null);
+      setTrafficToday(null);
+      setTrafficTodayErr("");
+      setTrafficTodayLoading(false);
       return;
     }
     let cancelled = false;
-    (async () => {
-      setTrafficTrendLoading(true);
-      setTrafficTrendErr("");
-      try {
-        const apiBase = getPublicApiBase();
-        if (!apiBase) {
-          if (!cancelled) {
-            setTrafficTrend(null);
-            setTrafficTrendErr("API URL not configured");
-          }
-          return;
+    let pollId = null;
+
+    const loadBoth = async (isInitial) => {
+      const apiBase = getPublicApiBase();
+      if (!apiBase) {
+        if (!cancelled) {
+          setTrafficLive(null);
+          setTrafficToday(null);
+          setTrafficLiveErr("API URL not configured");
+          setTrafficTodayErr("API URL not configured");
+          setTrafficLiveLoading(false);
+          setTrafficTodayLoading(false);
         }
-        const res = await fetch(
-          `${apiBase}admin/dashboard/site-traffic-trends?days=14`,
-          {
+        return;
+      }
+      if (isInitial) {
+        setTrafficLiveLoading(true);
+        setTrafficTodayLoading(true);
+        setTrafficLiveErr("");
+        setTrafficTodayErr("");
+      }
+      try {
+        const [lRes, dayRes] = await Promise.all([
+          fetch(`${apiBase}admin/dashboard/site-traffic-live?minutes=60`, {
             credentials: "include",
             headers: { ...adminFetchHeaders(), Accept: "application/json" },
-          },
-        );
+          }),
+          fetch(`${apiBase}admin/dashboard/site-traffic-today`, {
+            credentials: "include",
+            headers: { ...adminFetchHeaders(), Accept: "application/json" },
+          }),
+        ]);
         if (cancelled) return;
-        if (!res.ok) {
-          const t = await res.text();
-          setTrafficTrend(null);
-          setTrafficTrendErr(
-            t && t.length < 200 ? t : `Request failed (${res.status})`,
+
+        if (lRes.ok) {
+          setTrafficLive(await lRes.json());
+          setTrafficLiveErr("");
+        } else {
+          const t = await lRes.text();
+          setTrafficLive(null);
+          setTrafficLiveErr(
+            t && t.length < 200 ? t : `Live traffic failed (${lRes.status})`,
           );
-          return;
         }
-        const data = await res.json();
-        if (!cancelled) setTrafficTrend(data);
+
+        if (dayRes.ok) {
+          setTrafficToday(await dayRes.json());
+          setTrafficTodayErr("");
+        } else {
+          const t = await dayRes.text();
+          setTrafficToday(null);
+          setTrafficTodayErr(
+            t && t.length < 200 ? t : `Today traffic failed (${dayRes.status})`,
+          );
+        }
+
+        if (!cancelled && (lRes.ok || dayRes.ok)) {
+          setTrafficLiveUpdatedAt(new Date());
+        }
       } catch (e) {
         if (!cancelled) {
-          setTrafficTrend(null);
-          setTrafficTrendErr(e.message || "Network error");
+          setTrafficLiveErr(e.message || "Network error");
+          setTrafficTodayErr(e.message || "Network error");
         }
       } finally {
-        if (!cancelled) setTrafficTrendLoading(false);
+        if (!cancelled && isInitial) {
+          setTrafficLiveLoading(false);
+          setTrafficTodayLoading(false);
+        }
       }
+    };
+
+    void (async () => {
+      await loadBoth(true);
+      if (cancelled) return;
+      pollId = window.setInterval(() => {
+        void loadBoth(false);
+      }, SITE_TRAFFIC_POLL_MS);
     })();
+
     return () => {
       cancelled = true;
+      if (pollId != null) window.clearInterval(pollId);
     };
   }, [roleLoading, showLiveTrafficAnalytics]);
 
@@ -554,6 +608,233 @@ export default function Dashboard({
     canManageWebStories,
   };
 
+  const renderSplitChartSection = () => {
+    if (!showDailyUserTrackingChart) return null;
+    return (
+      <section
+        className="admin-dash-chart"
+        aria-label={showLiveTrafficAnalytics ? "Website Traffic (24 Hours)" : "Daily user tracking"}
+      >
+        <div className="admin-dash-chart__head">
+          <div className="admin-dash-chart__title-block">
+            <h2 className="admin-dash-chart__title">
+              {showLiveTrafficAnalytics ? "Website Traffic (24 Hours)" : "Daily user tracking"}
+            </h2>
+            {showLiveTrafficAnalytics ? (
+              <p className="admin-dash-chart__subtitle">
+                Public page views from the site beacon. The main area is today&apos;s 24-hour hourly
+                analysis (resets at midnight server time); the summary below the chart is derived
+                from that data. The left column shows the last 60 minutes. Values refresh about every{" "}
+                {SITE_TRAFFIC_POLL_MS / 1000} seconds while you keep this page open.
+              </p>
+            ) : (
+              <p className="admin-dash-chart__subtitle">
+                Live traffic analytics are available to super admins only.
+              </p>
+            )}
+          </div>
+          {showLiveTrafficAnalytics ? (
+            <span className="admin-dash-chart__live">
+              <span className="admin-dash-chart__live-dot" />
+              LIVE DATA
+            </span>
+          ) : null}
+        </div>
+        <div
+          className={
+            showLiveTrafficAnalytics
+              ? "admin-dash-chart__plot-wrap admin-dash-chart__plot-wrap--traffic"
+              : "admin-dash-chart__plot-wrap"
+          }
+        >
+          {!roleLoading && showDailyUserTrackingChart ? (
+            showLiveTrafficAnalytics ? (
+              <SiteTrafficTrendChart
+                todayPayload={trafficToday}
+                todayLoading={trafficTodayLoading}
+                showSuperDetailsLink
+              />
+            ) : (
+              <>
+                <svg
+                  className="admin-dash-chart__svg"
+                  viewBox="0 0 400 200"
+                  preserveAspectRatio="none"
+                  aria-hidden
+                >
+                  <defs>
+                    <linearGradient
+                      id="adminDashChartFillAdmin"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#005032" stopOpacity="0.22" />
+                      <stop offset="100%" stopColor="#005032" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+                  <line
+                    x1="36"
+                    y1="10"
+                    x2="36"
+                    y2="175"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1="36"
+                    y1="175"
+                    x2="390"
+                    y2="175"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <path
+                    d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32 L392,175 L40,175 Z"
+                    fill="url(#adminDashChartFillAdmin)"
+                  />
+                  <path
+                    d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
+                    fill="none"
+                    stroke="#005032"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <div className="admin-dash-chart__overlay">
+                  <p className="admin-dash-chart__overlay-title">Coming Soon</p>
+                  <p className="admin-dash-chart__overlay-sub">
+                    Daily analytics and live traffic will appear here for your account when enabled.
+                  </p>
+                </div>
+              </>
+            )
+          ) : null}
+        </div>
+      </section>
+    );
+  };
+
+  const renderSplitAside = () => (
+    <aside
+      className={`admin-dash-pending${showLiveTrafficAnalytics ? " admin-dash-pending--last60" : ""}`}
+      aria-label={
+        showLiveTrafficAnalytics ? "Last 60 minutes website traffic" : "Your recent tasks"
+      }
+    >
+      {showLiveTrafficAnalytics ? (
+        <AdminDashboardLast60Traffic
+          livePayload={trafficLive}
+          liveLoading={trafficLiveLoading}
+          liveError={trafficLiveErr}
+          liveUpdatedAt={trafficLiveUpdatedAt}
+        />
+      ) : (
+        <>
+          <h2 className="admin-dash-pending__title">Your recent tasks</h2>
+          {!roleLoading && displayName ? (
+            <p
+              style={{
+                margin: "-0.35rem 0 0.85rem",
+                fontSize: "0.78rem",
+                fontWeight: 600,
+                color: "#6b7280",
+              }}
+            >
+              Recent actions — {displayName}
+            </p>
+          ) : null}
+          <div className="admin-dash-pending__list">
+            {recentLoading ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.8125rem",
+                  color: "#6b7280",
+                  fontWeight: 600,
+                }}
+              >
+                Loading your activity…
+              </p>
+            ) : null}
+            {!recentLoading && recentTasks.length > 0
+              ? recentTasks.map((activity, index) => {
+                const variant = activityThumbVariant(
+                  activity.taskType,
+                  index,
+                );
+                const href =
+                  typeof activity.href === "string" &&
+                    activity.href.startsWith("/")
+                    ? activity.href
+                    : null;
+                const inner = (
+                  <div className="admin-dash-pending-item">
+                    <ActivityThumb variantIndex={variant} />
+                    <div className="admin-dash-pending-item__body">
+                      <p className="admin-dash-pending-item__name">
+                        {activity.title || "Action"}
+                      </p>
+                      <p className="admin-dash-pending-item__meta">
+                        {formatActivityMeta(activity)}
+                      </p>
+                    </div>
+                  </div>
+                );
+                const key = `${activity.taskType || "x"}-${activity.occurredAt || index}-${index}`;
+                if (href && canOpenActivityHref(href, activityLinkGates)) {
+                  return (
+                    <Link
+                      key={key}
+                      href={href}
+                      style={{
+                        textDecoration: "none",
+                        color: "inherit",
+                        display: "block",
+                      }}
+                    >
+                      {inner}
+                    </Link>
+                  );
+                }
+                return <div key={key}>{inner}</div>;
+              })
+              : null}
+            {!recentLoading && recentTasks.length === 0 ? (
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "0.8125rem",
+                  color: "#6b7280",
+                  fontWeight: 600,
+                }}
+              >
+                No tasks logged yet. Saving blogs, web stories, their categories, or approving
+                listings will show up here for your account.
+              </p>
+            ) : null}
+          </div>
+          <div className="admin-dash-pending__footer">
+            {canApprovals ? (
+              <Link
+                href="/admin/dashboard/property-approvals"
+                className="admin-dash-pending__link"
+              >
+                Open property approvals →
+              </Link>
+            ) : (
+              <span className="admin-dash-pending__link" style={{ opacity: 0.55 }}>
+                Property queue requires approvals access
+              </span>
+            )}
+          </div>
+        </>
+      )}
+    </aside>
+  );
+
   return (
     <div className="admin-dash-home">
       <header>
@@ -640,212 +921,20 @@ export default function Dashboard({
         </div>
       </section>
 
-      <div className={`admin-dash-home__split${!showDailyUserTrackingChart ? " admin-dash-home__split--no-chart" : ""}`}>
-        {showDailyUserTrackingChart && (
-          <section
-            className="admin-dash-chart"
-            aria-label={showLiveTrafficAnalytics ? "Website traffic" : "Daily user tracking"}
-          >
-          <div className="admin-dash-chart__head">
-            <div className="admin-dash-chart__title-block">
-              <h2 className="admin-dash-chart__title">
-                {showLiveTrafficAnalytics ? "Website traffic" : "Daily user tracking"}
-              </h2>
-              {showLiveTrafficAnalytics ? (
-                <p className="admin-dash-chart__subtitle">
-                  Public page views per day (beacon). Week-over-week compares the last 7
-                  calendar days to the 7 days before.
-                </p>
-              ) : (
-                <p className="admin-dash-chart__subtitle">
-                  Live traffic analytics are available to super admins only.
-                </p>
-              )}
-            </div>
-            {showLiveTrafficAnalytics ? (
-              <span className="admin-dash-chart__live">
-                <span className="admin-dash-chart__live-dot" />
-                LIVE DATA
-              </span>
-            ) : null}
-          </div>
-          <div
-            className={
-              showLiveTrafficAnalytics
-                ? "admin-dash-chart__plot-wrap admin-dash-chart__plot-wrap--traffic"
-                : "admin-dash-chart__plot-wrap"
-            }
-          >
-            {!roleLoading && showDailyUserTrackingChart ? (
-              showLiveTrafficAnalytics ? (
-                <SiteTrafficTrendChart
-                  payload={trafficTrend}
-                  loading={trafficTrendLoading}
-                  error={trafficTrendErr}
-                  showSuperDetailsLink
-                />
-              ) : (
-                <>
-                  <svg
-                    className="admin-dash-chart__svg"
-                    viewBox="0 0 400 200"
-                    preserveAspectRatio="none"
-                    aria-hidden
-                  >
-                    <defs>
-                      <linearGradient
-                        id="adminDashChartFillAdmin"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop offset="0%" stopColor="#005032" stopOpacity="0.22" />
-                        <stop offset="100%" stopColor="#005032" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-                    <line
-                      x1="36"
-                      y1="10"
-                      x2="36"
-                      y2="175"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <line
-                      x1="36"
-                      y1="175"
-                      x2="390"
-                      y2="175"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <path
-                      d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32 L392,175 L40,175 Z"
-                      fill="url(#adminDashChartFillAdmin)"
-                    />
-                    <path
-                      d="M40,165 C90,150 130,130 170,115 S260,75 320,55 S370,40 392,32"
-                      fill="none"
-                      stroke="#005032"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  <div className="admin-dash-chart__overlay">
-                    <p className="admin-dash-chart__overlay-title">Coming Soon</p>
-                    <p className="admin-dash-chart__overlay-sub">
-                      Daily analytics and live traffic will appear here for your account
-                      when enabled.
-                    </p>
-                  </div>
-                </>
-              )
-            ) : null}
-          </div>
-        </section>
+      <div
+        className={`admin-dash-home__split${!showDailyUserTrackingChart ? " admin-dash-home__split--no-chart" : ""}${showLiveTrafficAnalytics && showDailyUserTrackingChart ? " admin-dash-home__split--traffic-live" : ""}`}
+      >
+        {showLiveTrafficAnalytics && showDailyUserTrackingChart ? (
+          <>
+            {renderSplitAside()}
+            {renderSplitChartSection()}
+          </>
+        ) : (
+          <>
+            {renderSplitChartSection()}
+            {renderSplitAside()}
+          </>
         )}
-
-        <aside className="admin-dash-pending" aria-label="Your recent tasks">
-          <h2 className="admin-dash-pending__title">Your recent tasks</h2>
-          {!roleLoading && displayName ? (
-            <p
-              style={{
-                margin: "-0.35rem 0 0.85rem",
-                fontSize: "0.78rem",
-                fontWeight: 600,
-                color: "#6b7280",
-              }}
-            >
-              Recent actions — {displayName}
-            </p>
-          ) : null}
-          <div className="admin-dash-pending__list">
-            {recentLoading ? (
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.8125rem",
-                  color: "#6b7280",
-                  fontWeight: 600,
-                }}
-              >
-                Loading your activity…
-              </p>
-            ) : null}
-            {!recentLoading && recentTasks.length > 0
-              ? recentTasks.map((activity, index) => {
-                const variant = activityThumbVariant(
-                  activity.taskType,
-                  index,
-                );
-                const href =
-                  typeof activity.href === "string" &&
-                    activity.href.startsWith("/")
-                    ? activity.href
-                    : null;
-                const inner = (
-                  <div className="admin-dash-pending-item">
-                    <ActivityThumb variantIndex={variant} />
-                    <div className="admin-dash-pending-item__body">
-                      <p className="admin-dash-pending-item__name">
-                        {activity.title || "Action"}
-                      </p>
-                      <p className="admin-dash-pending-item__meta">
-                        {formatActivityMeta(activity)}
-                      </p>
-                    </div>
-                  </div>
-                );
-                const key = `${activity.taskType || "x"}-${activity.occurredAt || index}-${index}`;
-                if (href && canOpenActivityHref(href, activityLinkGates)) {
-                  return (
-                    <Link
-                      key={key}
-                      href={href}
-                      style={{
-                        textDecoration: "none",
-                        color: "inherit",
-                        display: "block",
-                      }}
-                    >
-                      {inner}
-                    </Link>
-                  );
-                }
-                return <div key={key}>{inner}</div>;
-              })
-              : null}
-            {!recentLoading && recentTasks.length === 0 ? (
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: "0.8125rem",
-                  color: "#6b7280",
-                  fontWeight: 600,
-                }}
-              >
-                No tasks logged yet. Saving blogs, web stories, their categories,
-                or approving listings will show up here for your account.
-              </p>
-            ) : null}
-          </div>
-          <div className="admin-dash-pending__footer">
-            {canApprovals ? (
-              <Link
-                href="/admin/dashboard/property-approvals"
-                className="admin-dash-pending__link"
-              >
-                Open property approvals →
-              </Link>
-            ) : (
-              <span className="admin-dash-pending__link" style={{ opacity: 0.55 }}>
-                Property queue requires approvals access
-              </span>
-            )}
-          </div>
-        </aside>
       </div>
 
       {quickLinks.length > 0 ? (

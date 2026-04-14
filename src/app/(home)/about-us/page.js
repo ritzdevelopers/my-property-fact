@@ -2,6 +2,11 @@ import CommonBreadCrum from "../components/common/breadcrum";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import AboutUs from "./aboutUs";
 import NewAboutUs from "./NewAboutUs";
+import {
+  getAllProjects,
+  fetchBuilderData,
+  fetchCityData,
+} from "@/app/_global_components/masterFunction";
 
 export const metadata = {
   title: "About Us | MyPropertyFact – Real Estate Price Trends & Insights",
@@ -11,7 +16,7 @@ export const metadata = {
   },
 };
 
-export default function AboutUsPage() {
+export default async function AboutUsPage() {
   //Defining what we offer array
   const whatWeOffer = [
     {
@@ -45,6 +50,18 @@ export default function AboutUsPage() {
   const ourCommitment = {
     heading: "Our Commitment",
     text: "We’re committed to transparency, innovation, and reliability. By harnessing the power of technology and a dedicated support team, we aim to make the entire real estate journey from initial search to final closing as smooth and rewarding as possible."
+  };
+
+  const [projects, buildersRes, cities] = await Promise.all([
+    getAllProjects(),
+    fetchBuilderData(),
+    fetchCityData(),
+  ]);
+  const buildersList = buildersRes?.builders ?? buildersRes?.data ?? [];
+  const platformStats = {
+    cities: Array.isArray(cities) ? cities.length : 0,
+    builders: Array.isArray(buildersList) ? buildersList.length : 0,
+    projects: Array.isArray(projects) ? projects.length : 0,
   };
 
   //Defining why my property fact array
@@ -90,7 +107,7 @@ export default function AboutUsPage() {
         whatWeOffer={whatWeOffer}
         ourCommitment={ourCommitment}
       /> */}
-      <NewAboutUs />
+      <NewAboutUs platformStats={platformStats} />
     </>
   );
 }

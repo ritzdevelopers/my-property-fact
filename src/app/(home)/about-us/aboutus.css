@@ -154,6 +154,17 @@
   object-fit: cover;
 }
 
+/* Platform stats row (Cities, Builders, Projects, Units) — between Why MPF and Our Commitment */
+.about-us-platform-stats {
+  position: relative;
+  z-index: 2;
+  margin-top: 3rem;
+  margin-bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+}
+
 /* ============================================
    OUR COMMITMENT SECTION
    ============================================ */

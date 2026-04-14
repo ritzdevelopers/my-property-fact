@@ -796,7 +796,7 @@ export default function Properties({
 
           {/* Property Category Tabs */}
           <div className="properties-category-tabs">
-            <button
+            {/* <button
               className={`category-tab ${activeTab === "All Properties" ? "active" : ""}`}
               onClick={() => setActiveTab("All Properties")}
               aria-label="View All Properties"
@@ -805,7 +805,7 @@ export default function Properties({
               <span className="tab-count">
                 ({filteredAndSortedProperties.length})
               </span>
-            </button>
+            </button> */}
             <button
               className={`category-tab ${activeTab === "Residences" ? "active" : ""}`}
               onClick={() => setActiveTab("Residences")}

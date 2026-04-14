@@ -1,3 +1,5 @@
+import { getPublicApiBase } from "@/lib/publicApiBase";
+
 const HEADER_PAGE = "X-MPF-Admin-Page";
 const HEADER_DWELL = "X-MPF-Dwell-Ms";
 const DWELL_CAP_MS = 86_400_000;
@@ -11,6 +13,19 @@ let adminPathEnteredAt = Date.now();
 export function setAdminTelemetryPath(pathname) {
   adminPathname = typeof pathname === "string" ? pathname : "";
   adminPathEnteredAt = Date.now();
+}
+
+/**
+ * True when this URL should receive admin-shell telemetry headers (audit log task + page context).
+ * Includes {@code /api/v1/admin/*} and same-origin {@code NEXT_PUBLIC_API_URL} calls from the dashboard.
+ */
+export function shouldSendAdminTelemetryForUrl(url) {
+  if (typeof url !== "string" || !url) return false;
+  if (url.includes("/api/v1/admin")) return true;
+  const base = getPublicApiBase();
+  if (!base) return false;
+  const normalized = base.replace(/\/?$/, "");
+  return url.startsWith(`${normalized}/`) || url === normalized;
 }
 
 /**

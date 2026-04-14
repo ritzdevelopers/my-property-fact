@@ -3,9 +3,9 @@ export const ghdHeroBannerAlt =
   "GHD Group Velvet Vista — hero home banner";
 
 export const ghdHeroBannerSrc = {
-  desktop: "/static/banners/ghd_desktop_final.jpg",
-  tablet: "/static/banners/ghd_tablet_final.jpg",
-  mobile: "/static/banners/ghd_mobile_final.jpg",
+  desktop: "/static/banners/mpf banner-01 (3).jpg",
+  tablet: "/static/banners/mpf banner-01 (3).jpg",
+  mobile: "/static/banners/mpf banner-01 (3).jpg",
 };
 
 export function getGhdHeroImagePropsCommon() {

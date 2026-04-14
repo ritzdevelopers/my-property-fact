@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useMatchMaxWidth } from "./useMatchMaxWidth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBolt,
@@ -62,6 +63,7 @@ export default function AdminDashboardLast60Traffic({
   liveError,
   liveUpdatedAt,
 }) {
+  const compactChart = useMatchMaxWidth(576);
   const liveNorm = useMemo(() => normalizeLivePayload(livePayload), [livePayload]);
 
   const { liveDataset, liveYMax } = useMemo(() => {
@@ -77,18 +79,27 @@ export default function AdminDashboardLast60Traffic({
     };
   }, [liveNorm]);
 
+  const chartHeight = compactChart ? 190 : 220;
+  const chartMargins = compactChart
+    ? { top: 16, right: 4, bottom: 52, left: 2 }
+    : { top: 20, right: 8, bottom: 48, left: 6 };
+  const xTickSize = compactChart ? 7 : 8;
+  const yTickSize = compactChart ? 8 : 9;
+  const yAxisWidth = compactChart ? 34 : 40;
+
   return (
     <div className="admin-dash-last60">
       <div className="admin-dash-last60__head">
         <div>
-          <h2 className="admin-dash-last60__title">Website Traffic (Last 60 minutes)</h2>
+          <h2 className="admin-dash-last60__title">Live traffic (last hour)</h2>
           <p className="admin-dash-last60__sub">
-            Per-minute page views · Y-axis from 0 · auto-refresh while you stay on this page
+            People opening pages on your public site — not the admin panel. The big number is the
+            rolling last 60 minutes; the chart is one point per minute.
           </p>
         </div>
         {liveUpdatedAt instanceof Date && !Number.isNaN(liveUpdatedAt.getTime()) ? (
           <p className="admin-dash-last60__updated" suppressHydrationWarning>
-            Updated{" "}
+            Last updated{" "}
             {liveUpdatedAt.toLocaleTimeString(undefined, {
               hour: "2-digit",
               minute: "2-digit",
@@ -99,26 +110,35 @@ export default function AdminDashboardLast60Traffic({
       </div>
 
       {liveNorm ? (
-        <div className="admin-dash-last60__kpi-row">
-          <TrafficKpiCard
-            icon={faBolt}
-            label="Last 15 min"
-            value={liveNorm.visitsLast15.toLocaleString()}
-            sub="Rolling"
-          />
-          <TrafficKpiCard
-            icon={faChartLine}
-            label="Last 1 hour"
-            value={liveNorm.visitsLast1Hour.toLocaleString()}
-            sub="Rolling"
-          />
-          <TrafficKpiCard
-            icon={faCalendarWeek}
-            label="Window"
-            value={`${liveNorm.windowMinutes || liveDataset.length} min`}
-            sub="Buckets"
-          />
-        </div>
+        <>
+          <div className="admin-dash-last60__hero">
+            <p className="admin-dash-last60__hero-label">Visits in the last 60 minutes</p>
+            <p className="admin-dash-last60__hero-value">
+              {liveNorm.visitsLast1Hour.toLocaleString()}
+            </p>
+            <p className="admin-dash-last60__hero-hint">Rolling total · updates while you stay here</p>
+          </div>
+          <div className="admin-dash-last60__kpi-row">
+            <TrafficKpiCard
+              icon={faBolt}
+              label="Last 15 minutes"
+              value={liveNorm.visitsLast15.toLocaleString()}
+              sub="Short recent window"
+            />
+            <TrafficKpiCard
+              icon={faChartLine}
+              label="Last 60 minutes"
+              value={liveNorm.visitsLast1Hour.toLocaleString()}
+              sub="Matches the headline above"
+            />
+            <TrafficKpiCard
+              icon={faCalendarWeek}
+              label="Minutes on chart"
+              value={String(liveNorm.windowMinutes || liveDataset.length || 60)}
+              sub="One dot per minute"
+            />
+          </div>
+        </>
       ) : null}
 
       {liveError ? (
@@ -135,15 +155,19 @@ export default function AdminDashboardLast60Traffic({
       ) : null}
 
       {liveNorm && liveDataset.length > 0 ? (
-        <div className="admin-dash-last60__chart">
-          <LineChart
+        <div className="admin-dash-last60__chart-wrap">
+          <p className="admin-dash-last60__chart-caption">
+            Vertical axis = how many visits happened in that minute (0 is the bottom line).
+          </p>
+          <div className="admin-dash-last60__chart">
+            <LineChart
             dataset={liveDataset}
             xAxis={[
               {
                 scaleType: "point",
                 dataKey: "tlabel",
-                tickLabelStyle: { fontSize: 8, fill: "#6b7280" },
-                label: "Time",
+                tickLabelStyle: { fontSize: xTickSize, fill: "#6b7280" },
+                label: "Minute",
                 labelStyle: { fontSize: 10, fill: "#9ca3af", fontWeight: 600 },
               },
             ]}
@@ -151,17 +175,17 @@ export default function AdminDashboardLast60Traffic({
               {
                 min: 0,
                 max: liveYMax,
-                label: "Views",
-                tickLabelStyle: { fontSize: 9, fill: "#6b7280" },
+                label: "Visits",
+                tickLabelStyle: { fontSize: yTickSize, fill: "#6b7280" },
                 labelStyle: { fontSize: 10, fill: "#9ca3af", fontWeight: 600 },
-                width: 40,
+                width: yAxisWidth,
               },
             ]}
             series={[
               {
                 type: "line",
                 dataKey: "views",
-                label: "Views / min",
+                label: "Visits this minute",
                 color: CHART_LINE,
                 area: true,
                 curve: "natural",
@@ -170,8 +194,8 @@ export default function AdminDashboardLast60Traffic({
                   v == null || Number.isNaN(v) ? "" : `${Number(v).toLocaleString()} views`,
               },
             ]}
-            height={220}
-            margin={{ top: 20, right: 8, bottom: 48, left: 6 }}
+            height={chartHeight}
+            margin={chartMargins}
             grid={{ vertical: true, horizontal: true }}
             hideLegend
             axisHighlight={{ x: "line", y: "line" }}
@@ -184,12 +208,14 @@ export default function AdminDashboardLast60Traffic({
               },
             }}
           />
+          </div>
         </div>
       ) : null}
 
       {liveNorm && liveDataset.length === 0 && !liveLoading ? (
         <div className="admin-dash-last60__empty">
-          <p>No visits in this window yet</p>
+          <p>No visits in the last hour yet</p>
+          <p className="admin-dash-last60__empty-sub">When visitors browse the public site, counts will show here.</p>
         </div>
       ) : null}
     </div>

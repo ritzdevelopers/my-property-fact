@@ -131,7 +131,7 @@
 }
 
 /* Active state for regular navigation links (exclude dropdown toggles) */
-#sidebar ul li.active>a:not(.dropdown-toggle) {
+#sidebar ul li.active > a:not(.dropdown-toggle) {
     color: #fff;
     background: rgba(255, 255, 255, 0.2);
     font-weight: 600;
@@ -152,7 +152,7 @@
 }
 
 /* Active state for nested dropdown items */
-#sidebar ul li.active ul li.active>a {
+#sidebar ul li.active ul li.active > a {
     background: rgba(255, 255, 255, 0.3);
     border-left: 3px solid #fff;
     padding-left: 29px;
@@ -160,7 +160,8 @@
 }
 
 /* Dropdown toggle links - no background, just normal styling */
-#sidebar ul li.active>a.dropdown-toggle {
+#sidebar ul li.active > a.dropdown-toggle,
+#sidebar ul li.active > button.dropdown-toggle {
     color: #fff;
     background: transparent !important;
     border-left: none;
@@ -185,11 +186,13 @@ a.dropdown-toggle[aria-expanded="true"] {
     /* background: rgba(255, 107, 107, 0.15); */
 }
 
-a[data-toggle="collapse"] {
+a[data-toggle="collapse"],
+button.dropdown-toggle {
     position: relative;
 }
 
-a.dropdown-toggle .admin-nav-label {
+a.dropdown-toggle .admin-nav-label,
+button.dropdown-toggle .admin-nav-label {
     flex: 1;
     min-width: 0;
     text-align: left;
@@ -201,6 +204,7 @@ a.dropdown-toggle .admin-nav-label {
     top: 50%;
     right: 20px;
     transform: translateY(-50%);
+    pointer-events: none;
 }
 
 .sidebar-header ul ul a {
@@ -273,7 +277,8 @@ a.dropdown-toggle .admin-nav-label {
         opacity: 1 !important;
     }
     
-    #sidebar ul li a {
+    #sidebar ul li a,
+    #sidebar ul li > button.dropdown-toggle {
         padding: 12px 20px;
         font-size: 1em;
         display: flex !important;
@@ -283,19 +288,45 @@ a.dropdown-toggle .admin-nav-label {
         color: #fff !important;
         opacity: 1 !important;
     }
+
+    #sidebar ul li > button.dropdown-toggle {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        border: none;
+        background: transparent;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
     
-    #sidebar ul li ul {
+    /* Respect Bootstrap .collapse — do not force nested menus open (breaks toggles on touch) */
+    #sidebar ul li ul.collapse:not(.show) {
+        display: none !important;
+    }
+
+    #sidebar ul li ul.collapse.show {
         display: block !important;
         visibility: visible !important;
     }
-    
+
     #sidebar ul li ul li {
         display: block !important;
         visibility: visible !important;
     }
-    
+
     #sidebar ul li ul li a {
-        display: block !important;
+        display: flex !important;
+        align-items: center !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    #sidebar ul li ul li button.dropdown-toggle {
+        display: flex !important;
+        align-items: center !important;
         visibility: visible !important;
         opacity: 1 !important;
     }

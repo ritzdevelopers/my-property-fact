@@ -3,16 +3,15 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { useMatchMaxWidth } from "./useMatchMaxWidth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowTrendDown,
   faArrowTrendUp,
-  faChartLine,
   faMinus,
   faCalendarWeek,
   faBolt,
   faPercent,
-  faClock,
 } from "@fortawesome/free-solid-svg-icons";
 
 function normalizeTodayPayload(raw) {
@@ -73,16 +72,20 @@ function formatTodayVsYesterdayPillLabel(
   todayTotalSoFar,
 ) {
   if (pctSame != null && Number.isFinite(pctSame)) {
-    const sign = pctSame > 0 ? "+" : "";
-    return `${sign}${pctSame.toFixed(1)}% vs yesterday (same hours)`;
+    const rounded = Math.round(pctSame * 10) / 10;
+    const sign = rounded > 0 ? "+" : "";
+    if (Math.abs(rounded) < 0.1) {
+      return "About the same as yesterday at this time";
+    }
+    return `${sign}${rounded}% vs yesterday at this time`;
   }
   if (yesterdaySameWindowTotal <= 0 && todayTotalSoFar > 0) {
-    return "No same-window traffic yesterday — today is the baseline";
+    return "No visits yesterday in this part of the day — you are building a new baseline";
   }
   if (todayTotalSoFar <= 0 && yesterdaySameWindowTotal <= 0) {
-    return "No traffic yet today or in the comparison window";
+    return "No visits yet in the window we compare";
   }
-  return "Same hours as yesterday (0 views yesterday)";
+  return "Yesterday had no visits in this same period";
 }
 
 function TodayVsYesterdayPill({
@@ -170,6 +173,7 @@ export default function SiteTrafficTrendChart({
   todayLoading,
   showSuperDetailsLink,
 }) {
+  const compactChart = useMatchMaxWidth(576);
   const todayNorm = useMemo(() => normalizeTodayPayload(todayPayload), [todayPayload]);
 
   const { todayHourDataset, todayYMax } = useMemo(() => {
@@ -192,10 +196,37 @@ export default function SiteTrafficTrendChart({
 
   const hasTodayHours = todayHourDataset.length > 0;
 
+  const chartHeight = compactChart ? 220 : 280;
+  const chartMargins = compactChart
+    ? { top: 22, right: 6, bottom: 52, left: 4 }
+    : { top: 28, right: 18, bottom: 44, left: 12 };
+  const xTickSize = compactChart ? 7 : 9;
+  const yAxisWidth = compactChart ? 38 : 52;
+  const yTickSize = compactChart ? 8 : 10;
+
+  const plainSummary =
+    hourAnalysis && todayNorm
+      ? hourAnalysis.maxCount > 0
+        ? `Busiest hour so far: ${hourAnalysis.peakLabel} (${hourAnalysis.maxCount.toLocaleString()} visits). ${hourAnalysis.activeHours} of 24 hours had at least one visit.`
+        : "No visits recorded in any hour yet today on this chart."
+      : null;
+
   return (
     <div className="admin-dash-chart__traffic-body">
       {todayNorm ? (
         <>
+          <div className="admin-dash-traffic-hero">
+            <p className="admin-dash-traffic-hero__label">Public site visits today (so far)</p>
+            <p className="admin-dash-traffic-hero__value">
+              {todayNorm.todayTotalSoFar.toLocaleString()}
+            </p>
+            <p className="admin-dash-traffic-hero__hint">
+              Counted from midnight
+              {todayNorm.zoneId ? ` (${todayNorm.zoneId})` : ""}
+              {todayNorm.calendarDate ? ` · ${todayNorm.calendarDate}` : ""}
+            </p>
+          </div>
+
           <div className="admin-dash-chart__traffic-head">
             <TodayVsYesterdayPill
               pctSame={todayNorm.percentChangeVsYesterdaySameWindow}
@@ -207,14 +238,13 @@ export default function SiteTrafficTrendChart({
                 href="/admin/dashboard/super-tracking"
                 className="admin-dash-chart__traffic-details-link"
               >
-                Full analytics
+                Open full traffic & logs
               </Link>
             ) : null}
           </div>
 
           <p className="admin-dash-chart__traffic-day-meta admin-dash-chart__traffic-day-meta--above-chart">
-            {todayNorm.calendarDate || "—"}
-            {todayNorm.zoneId ? ` · ${todayNorm.zoneId}` : ""} · Full-day view (24 hourly buckets)
+            Each point on the chart = total visits in that clock hour today (24 hours).
           </p>
 
           <div className="admin-dash-chart__mui-chart-host">
@@ -225,8 +255,8 @@ export default function SiteTrafficTrendChart({
                   {
                     scaleType: "point",
                     dataKey: "hourLabel",
-                    tickLabelStyle: { fontSize: 9, fill: "#6b7280" },
-                    label: "Hour (today)",
+                    tickLabelStyle: { fontSize: xTickSize, fill: "#6b7280" },
+                    label: "Time of day",
                     labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
                   },
                 ]}
@@ -234,10 +264,10 @@ export default function SiteTrafficTrendChart({
                   {
                     min: 0,
                     max: todayYMax,
-                    label: "Views / hour",
-                    tickLabelStyle: { fontSize: 10, fill: "#6b7280" },
+                    label: "Visits that hour",
+                    tickLabelStyle: { fontSize: yTickSize, fill: "#6b7280" },
                     labelStyle: { fontSize: 11, fill: "#9ca3af", fontWeight: 600 },
-                    width: 52,
+                    width: yAxisWidth,
                   },
                 ]}
                 series={[
@@ -253,8 +283,8 @@ export default function SiteTrafficTrendChart({
                       v == null || Number.isNaN(v) ? "" : `${Number(v).toLocaleString()} views`,
                   },
                 ]}
-                height={280}
-                margin={{ top: 28, right: 18, bottom: 44, left: 12 }}
+                height={chartHeight}
+                margin={chartMargins}
                 grid={{ vertical: true, horizontal: true }}
                 hideLegend
                 axisHighlight={{ x: "line", y: "line" }}
@@ -274,123 +304,106 @@ export default function SiteTrafficTrendChart({
               />
             ) : (
               <div className="admin-dash-chart__traffic-empty-chart">
-                <p>No hourly buckets yet</p>
+                <p>No hourly data yet for today</p>
+                <p className="admin-dash-chart__traffic-empty-chart__sub">
+                  When the server sends hourly counts, the chart will appear here.
+                </p>
               </div>
             )}
           </div>
 
-          <div className="admin-dash-chart__traffic-analysis">
-            <h3 className="admin-dash-chart__traffic-analysis__title">Today&apos;s analysis</h3>
-            <p className="admin-dash-chart__traffic-analysis__lead">
-              Summary and percentages use server totals; the breakdown below is computed from the
-              hourly chart for this calendar day.
-            </p>
+          {plainSummary ? (
+            <p className="admin-dash-traffic-summary-line">{plainSummary}</p>
+          ) : null}
 
-            {todayNorm.todaySoFarPercentOfYesterdayFullDay != null &&
-            Number.isFinite(todayNorm.todaySoFarPercentOfYesterdayFullDay) ? (
-              <p className="admin-dash-chart__traffic-today-pct-sub">
-                So far today ={" "}
-                <strong>{todayNorm.todaySoFarPercentOfYesterdayFullDay.toFixed(1)}%</strong> of all
-                visits on the previous full calendar day.
-              </p>
-            ) : null}
-
+          <div className="admin-dash-chart__traffic-analysis admin-dash-chart__traffic-analysis--compact">
+            <h3 className="admin-dash-chart__traffic-analysis__title">Quick compare</h3>
             <div className="admin-dash-chart__kpi-row">
               <TrafficKpiCard
-                icon={faChartLine}
-                label="Today (so far)"
-                value={todayNorm.todayTotalSoFar.toLocaleString()}
-                sub="Server total · since midnight"
-              />
-              <TrafficKpiCard
                 icon={faCalendarWeek}
-                label="Yesterday (full day)"
+                label="Yesterday (whole day)"
                 value={todayNorm.yesterdayFullDayTotal.toLocaleString()}
-                sub="Previous calendar day"
+                sub="All visits on the previous calendar day"
               />
               <TrafficKpiCard
                 icon={faPercent}
-                label="Same hours yesterday"
+                label="Yesterday up to now"
                 value={todayNorm.yesterdaySameWindowTotal.toLocaleString()}
-                sub="Views in same clock window"
+                sub="Same hours as right now, yesterday"
               />
-            </div>
-
-            {hourAnalysis ? (
-              <ul className="admin-dash-chart__traffic-analysis__list">
-                <li>
-                  <strong>Peak hour:</strong>{" "}
-                  {hourAnalysis.maxCount > 0
-                    ? `${hourAnalysis.peakLabel} (${hourAnalysis.maxCount.toLocaleString()} views)`
-                    : "No views yet in any hour"}
-                </li>
-                <li>
-                  <strong>Active hours:</strong>{" "}
-                  {hourAnalysis.activeHours} of 24 with at least one view
-                </li>
-                <li>
-                  <strong>Average when active:</strong>{" "}
-                  {hourAnalysis.activeHours > 0
-                    ? `${(hourAnalysis.avgActive).toFixed(1)} views / hour`
-                    : "—"}
-                </li>
-                <li>
-                  <strong>Sum of hourly buckets:</strong>{" "}
-                  {hourAnalysis.sumBuckets.toLocaleString()}
-                  {hourAnalysis.sumBuckets !== todayNorm.todayTotalSoFar ? (
-                    <span className="admin-dash-chart__traffic-analysis__note">
-                      {" "}
-                      (server total {todayNorm.todayTotalSoFar.toLocaleString()} may differ slightly
-                      from rounding or timing)
-                    </span>
-                  ) : null}
-                </li>
-              </ul>
-            ) : null}
-
-            <div className="admin-dash-chart__kpi-row admin-dash-chart__kpi-row--analysis-mini">
               <TrafficKpiCard
                 icon={faBolt}
-                label="Peak (chart)"
+                label="Peak hour today"
                 value={
                   hourAnalysis && hourAnalysis.maxCount > 0
                     ? hourAnalysis.maxCount.toLocaleString()
                     : "—"
                 }
-                sub={hourAnalysis && hourAnalysis.maxCount > 0 ? hourAnalysis.peakLabel : "—"}
-              />
-              <TrafficKpiCard
-                icon={faClock}
-                label="Busy hours"
-                value={hourAnalysis ? String(hourAnalysis.activeHours) : "—"}
-                sub="Hours with traffic"
-              />
-              <TrafficKpiCard
-                icon={faChartLine}
-                label="Avg / active hr"
-                value={
-                  hourAnalysis && hourAnalysis.activeHours > 0
-                    ? hourAnalysis.avgActive.toFixed(1)
-                    : "—"
+                sub={
+                  hourAnalysis && hourAnalysis.maxCount > 0
+                    ? `At ${hourAnalysis.peakLabel}`
+                    : "No peak yet"
                 }
-                sub="From hourly data"
               />
             </div>
+            {todayNorm.todaySoFarPercentOfYesterdayFullDay != null &&
+            Number.isFinite(todayNorm.todaySoFarPercentOfYesterdayFullDay) ? (
+              <p className="admin-dash-chart__traffic-today-pct-sub">
+                Today so far is{" "}
+                <strong>{todayNorm.todaySoFarPercentOfYesterdayFullDay.toFixed(0)}%</strong> of
+                yesterday&apos;s full-day total — useful when the day is still in progress.
+              </p>
+            ) : null}
+            <details className="admin-dash-traffic-details">
+              <summary className="admin-dash-traffic-details__summary">
+                Technical details (optional)
+              </summary>
+              <div className="admin-dash-traffic-details__body">
+                <p className="admin-dash-traffic-details__p">
+                  Numbers use the server&apos;s official totals where available; the chart is built
+                  from hourly buckets and may differ slightly from the headline total because of
+                  timing or rounding.
+                </p>
+                {hourAnalysis ? (
+                  <ul className="admin-dash-chart__traffic-analysis__list">
+                    <li>
+                      <strong>Hours with traffic:</strong> {hourAnalysis.activeHours} of 24
+                    </li>
+                    <li>
+                      <strong>Average per busy hour:</strong>{" "}
+                      {hourAnalysis.activeHours > 0
+                        ? `${hourAnalysis.avgActive.toFixed(1)} visits`
+                        : "—"}
+                    </li>
+                    <li>
+                      <strong>Sum of hourly bars:</strong> {hourAnalysis.sumBuckets.toLocaleString()}
+                      {hourAnalysis.sumBuckets !== todayNorm.todayTotalSoFar ? (
+                        <span className="admin-dash-chart__traffic-analysis__note">
+                          {" "}
+                          (headline today total: {todayNorm.todayTotalSoFar.toLocaleString()})
+                        </span>
+                      ) : null}
+                    </li>
+                  </ul>
+                ) : null}
+              </div>
+            </details>
           </div>
         </>
       ) : todayLoading ? (
         <div className="admin-dash-chart__traffic-loading admin-dash-chart__traffic-loading--compact" aria-busy="true">
-          <p className="admin-dash-chart__traffic-loading-text">Loading today&apos;s chart…</p>
+          <p className="admin-dash-chart__traffic-loading-text">Loading today&apos;s hourly chart…</p>
         </div>
       ) : (
         <div className="admin-dash-chart__traffic-placeholder" role="status">
-          <p className="admin-dash-chart__traffic-placeholder__title">24-hour daily analysis</p>
+          <p className="admin-dash-chart__traffic-placeholder__title">Today-by-hour chart not ready</p>
           <p className="admin-dash-chart__traffic-placeholder__msg">
-            The Full Chart and Breakdown Appear When The Server Returns Today&apos;s Hourly Traffic.
+            We could not load today&apos;s hourly breakdown yet. The live &quot;last hour&quot; panel on the
+            left still works when data is available.
           </p>
           <p className="admin-dash-chart__traffic-placeholder__hint">
-            Use <strong>Last 60 minutes</strong> on the left for live traffic while this loads.
-            Your backend must expose today&apos;s hourly traffic for this panel to fill in.
+            If this stays empty, check that the dashboard API returns today&apos;s hourly traffic for
+            super admins.
           </p>
         </div>
       )}

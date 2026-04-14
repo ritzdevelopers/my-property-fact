@@ -3,12 +3,16 @@
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import axios from "axios";
-import { setAdminTelemetryPath, getAdminTelemetryHeaders } from "@/lib/adminTelemetry";
+import {
+  setAdminTelemetryPath,
+  getAdminTelemetryHeaders,
+  shouldSendAdminTelemetryForUrl,
+} from "@/lib/adminTelemetry";
 import { installAdminFetchTelemetry } from "@/lib/adminFetchTelemetry";
 
 /**
- * Tracks the current admin pathname and injects X-MPF-Admin-Page / X-MPF-Dwell-Ms on admin API calls
- * (axios + fetch) for Super Admin audit logs.
+ * Tracks the current admin pathname and injects X-MPF-Admin-Page / X-MPF-Dwell-Ms on dashboard API calls
+ * (axios + fetch) so Super Admin audit logs capture the on-screen page plus meaningful task labels.
  */
 export default function AdminTelemetryMount() {
   const pathname = usePathname();
@@ -20,7 +24,7 @@ export default function AdminTelemetryMount() {
   useEffect(() => {
     const reqId = axios.interceptors.request.use((config) => {
       const url = `${config.baseURL || ""}${config.url || ""}`;
-      if (!url.includes("/api/v1/admin")) {
+      if (!shouldSendAdminTelemetryForUrl(url)) {
         return config;
       }
       const extra = getAdminTelemetryHeaders();

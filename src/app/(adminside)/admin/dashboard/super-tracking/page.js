@@ -109,6 +109,28 @@ function formatVisitOccurredAtCell(row) {
   return d ? d.toLocaleString() : "—";
 }
 
+function auditOccurredAtCell(row) {
+  const d = parseVisitOccurredAt(row?.occurredAt ?? row?.occurred_at);
+  return d ? d.toLocaleString() : "—";
+}
+
+function auditTaskLabel(row) {
+  const t = row?.taskLabel ?? row?.task_label;
+  return typeof t === "string" && t.trim() ? t.trim() : "—";
+}
+
+function auditClientPage(row) {
+  const p = row?.clientAdminPage ?? row?.client_admin_page;
+  return typeof p === "string" && p.trim() ? p.trim() : "—";
+}
+
+function auditDwellMs(row) {
+  const v = row?.clientDwellMs ?? row?.client_dwell_ms;
+  if (v == null) return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
 function formatVisitDwellCell(row) {
   const dms = visitDwellMs(row);
   return dms != null ? formatDwellOnPage(dms) : "—";
@@ -638,40 +660,42 @@ export default function SuperTrackingPage() {
                     {logs.content.map((row) => (
                       <tr key={row.id}>
                         <td className="super-tracking__mono super-tracking__td--cyber">
-                          {row.occurredAt
-                            ? new Date(row.occurredAt).toLocaleString()
-                            : "—"}
+                          {auditOccurredAtCell(row)}
                         </td>
-                        <td className="super-tracking__td--cyber">{row.actorEmail}</td>
+                        <td className="super-tracking__td--cyber">
+                          {row.actorEmail ?? row.actor_email ?? "—"}
+                        </td>
                         <td
                           className="super-tracking__td--cyber super-tracking__task-cell"
                           title={
-                            row.queryString
-                              ? `${row.httpMethod} ${row.requestPath}?${row.queryString}`
-                              : `${row.httpMethod} ${row.requestPath}`
+                            row.queryString ?? row.query_string
+                              ? `${row.httpMethod ?? row.http_method} ${row.requestPath ?? row.request_path}?${row.queryString ?? row.query_string}`
+                              : `${row.httpMethod ?? row.http_method} ${row.requestPath ?? row.request_path}`
                           }
                         >
-                          {row.taskLabel || "—"}
+                          {auditTaskLabel(row)}
                         </td>
                         <td className="super-tracking__mono super-tracking__td--cyber super-tracking__page-cell">
-                          {row.clientAdminPage || "—"}
+                          {auditClientPage(row)}
                         </td>
                         <td className="super-tracking__mono super-tracking__td--cyber">
-                          {formatDwellOnPage(row.clientDwellMs)}
+                          {formatDwellOnPage(auditDwellMs(row))}
                         </td>
-                        <td className="super-tracking__td--cyber">{row.httpStatus}</td>
+                        <td className="super-tracking__td--cyber">
+                          {row.httpStatus ?? row.http_status ?? "—"}
+                        </td>
                         <td className="super-tracking__td--cyber">
                           <span
                             className={`super-tracking__pill super-tracking__pill--cyber ${
-                              row.success
-                                ? "super-tracking__pill--cyber-ok"
-                                : "super-tracking__pill--cyber-fail"
+                              row.success ? "super-tracking__pill--cyber-ok" : "super-tracking__pill--cyber-fail"
                             }`}
                           >
                             {row.success ? "OK" : "FAIL"}
                           </span>
                         </td>
-                        <td className="super-tracking__mono super-tracking__td--cyber">{row.durationMs}</td>
+                        <td className="super-tracking__mono super-tracking__td--cyber">
+                          {row.durationMs ?? row.duration_ms ?? "—"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

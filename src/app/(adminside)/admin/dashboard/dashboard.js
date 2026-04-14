@@ -612,20 +612,21 @@ export default function Dashboard({
     if (!showDailyUserTrackingChart) return null;
     return (
       <section
-        className="admin-dash-chart"
-        aria-label={showLiveTrafficAnalytics ? "Website Traffic (24 Hours)" : "Daily user tracking"}
+        className={`admin-dash-chart${showLiveTrafficAnalytics ? " admin-dash-chart--website-traffic" : ""}`}
+        aria-label={
+          showLiveTrafficAnalytics ? "Today public website traffic by hour" : "Daily user tracking"
+        }
       >
         <div className="admin-dash-chart__head">
           <div className="admin-dash-chart__title-block">
             <h2 className="admin-dash-chart__title">
-              {showLiveTrafficAnalytics ? "Website Traffic (24 Hours)" : "Daily user tracking"}
+              {showLiveTrafficAnalytics ? "Today on your website (by hour)" : "Daily user tracking"}
             </h2>
             {showLiveTrafficAnalytics ? (
               <p className="admin-dash-chart__subtitle">
-                Public page views from the site beacon. The main area is today&apos;s 24-hour hourly
-                analysis (resets at midnight server time); the summary below the chart is derived
-                from that data. The left column shows the last 60 minutes. Values refresh about every{" "}
-                {SITE_TRAFFIC_POLL_MS / 1000} seconds while you keep this page open.
+                Real visits to your public website (not admin). Left: last hour, minute by minute.
+                Right: today by hour. Refreshes about every {SITE_TRAFFIC_POLL_MS / 1000}s while this
+                tab stays open.
               </p>
             ) : (
               <p className="admin-dash-chart__subtitle">
@@ -721,7 +722,7 @@ export default function Dashboard({
     <aside
       className={`admin-dash-pending${showLiveTrafficAnalytics ? " admin-dash-pending--last60" : ""}`}
       aria-label={
-        showLiveTrafficAnalytics ? "Last 60 minutes website traffic" : "Your recent tasks"
+        showLiveTrafficAnalytics ? "Live public site traffic last hour" : "Your recent tasks"
       }
     >
       {showLiveTrafficAnalytics ? (

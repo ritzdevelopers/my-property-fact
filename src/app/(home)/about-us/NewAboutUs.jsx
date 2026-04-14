@@ -39,7 +39,7 @@ const slidesData = [
   },
 ];
 
-export default function NewAboutUs() {
+export default function NewAboutUs({ platformStats }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [cardsPerView, setCardsPerView] = useState(3);
   const [windowWidth, setWindowWidth] = useState(0);
@@ -467,7 +467,7 @@ export default function NewAboutUs() {
           </motion.div>
         </motion.div>
       </div>
-      <WhyMyPropertyFact />
+      <WhyMyPropertyFact platformStats={platformStats} />
     </>
   );
 }

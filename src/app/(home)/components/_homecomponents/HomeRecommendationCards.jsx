@@ -67,35 +67,52 @@ function getPropertyImage(property) {
   return `/${rawImage.replace(/^\/+/, "")}`;
 }
 
+function effectiveCardKind(item, kind) {
+  if (kind === "mixed" && (item?.itemKind === "property" || item?.itemKind === "project")) {
+    return item.itemKind;
+  }
+  return kind;
+}
+
+function stripItemKind(item, kind) {
+  if (kind !== "mixed" || item == null || typeof item !== "object") return item;
+  const { itemKind: _ignored, ...rest } = item;
+  return rest;
+}
+
 function getCardPayload(item, kind) {
-  if (kind === "property") {
+  const k = effectiveCardKind(item, kind);
+  const source = stripItemKind(item, kind);
+
+  if (k === "property") {
     return {
-      key: item?.id || item?.slug || item?.title,
-      href: item?.slug ? `/properties/${item.slug}` : "/properties",
-      image: getPropertyImage(item),
-      badge: item?.constructionStatus || item?.listingType || "Property",
-      title: item?.title || "Property",
+      key: source?.id || source?.slug || source?.title,
+      href: source?.slug ? `/properties/${source.slug}` : "/properties",
+      image: getPropertyImage(source),
+      badge: source?.constructionStatus || source?.listingType || "Property",
+      title: source?.title || "Property",
       meta:
-        [item?.bedroom, item?.propertyTypeCategory || item?.subType]
+        [source?.bedroom, source?.propertyTypeCategory || source?.subType]
           .filter(Boolean)
           .join(" ") || "Property details available on listing page",
-      location: item?.location || "Location not specified",
-      price: item?.price || "Price on request",
+      location: source?.location || "Location not specified",
+      price: source?.price || "Price on request",
     };
   }
 
   return {
-    key: item?.slugURL || item?.slugUrl || item?.projectName,
-    href: getProjectHref(item),
-    image: getProjectImage(item),
+    key: source?.slugURL || source?.slugUrl || source?.projectName,
+    href: getProjectHref(source),
+    image: getProjectImage(source),
     badge:
-      (typeof item?.projectStatusName === "string" && item.projectStatusName.trim()) || "Project",
-    title: item?.projectName || "Project",
+      (typeof source?.projectStatusName === "string" && source.projectStatusName.trim()) ||
+      "Project",
+    title: source?.projectName || "Project",
     meta:
-      (typeof item?.projectConfiguration === "string" && item.projectConfiguration.trim()) ||
+      (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
       "Explore configurations on project page",
-    location: getProjectLocation(item),
-    price: formatProjectPrice(item?.projectPrice),
+    location: getProjectLocation(source),
+    price: formatProjectPrice(source?.projectPrice),
   };
 }
 
@@ -114,7 +131,7 @@ export default function HomeRecommendationCards({
   className = "",
 }) {
   const safeItems = useMemo(
-    () => (Array.isArray(items) ? items.slice(0, 6) : []),
+    () => (Array.isArray(items) ? items.slice(0, 8) : []),
     [items],
   );
   const [visibleCount, setVisibleCount] = useState(4);
@@ -167,7 +184,12 @@ export default function HomeRecommendationCards({
         <div className="home-projects-preview__actions">
           {viewAllHref ? (
             <Link href={viewAllHref} className="home-projects-preview__view-all">
-              View all {kind === "property" ? "properties" : "projects"}
+              View all{" "}
+              {kind === "property"
+                ? "properties"
+                : kind === "mixed"
+                  ? "projects"
+                  : "projects"}
             </Link>
           ) : null}
           {canSlide ? (
@@ -176,7 +198,7 @@ export default function HomeRecommendationCards({
                 type="button"
                 className="home-projects-preview__nav-btn"
                 onClick={handlePrev}
-                aria-label={`Show previous ${kind === "property" ? "properties" : "projects"}`}
+                aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
               >
                 <Image
                   src="/icon/arrow-left-s-line.svg"
@@ -190,7 +212,7 @@ export default function HomeRecommendationCards({
                 type="button"
                 className="home-projects-preview__nav-btn"
                 onClick={handleNext}
-                aria-label={`Show next ${kind === "property" ? "properties" : "projects"}`}
+                aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
               >
                 <Image
                   src="/icon/arrow-right-s-line.svg"
@@ -207,10 +229,14 @@ export default function HomeRecommendationCards({
 
       <div className="home-projects-preview__viewport">
         <div className="home-projects-preview__track" style={trackStyle}>
-          {safeItems.map((item) => {
+          {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
+            const rowKey =
+              kind === "mixed"
+                ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
+                : card.key ?? idx;
             return (
-              <div key={card.key} className="home-projects-preview__slide">
+              <div key={rowKey} className="home-projects-preview__slide">
                 <Link href={card.href} className="home-project-card">
                   <div className="home-project-card__media">
                     <Image

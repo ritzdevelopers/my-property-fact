@@ -856,6 +856,34 @@ img.mpf-admin-login__input-icon {
   text-transform: none;
 }
 
+.mpf-admin-login__link--forgot-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: right;
+}
+
+.mpf-admin-login__forgot-panel {
+  margin-top: 1rem;
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  background: rgba(15, 81, 50, 0.06);
+  border: 1px solid rgba(15, 81, 50, 0.15);
+}
+
+.mpf-admin-login__forgot-panel-intro {
+  font-size: 0.8125rem;
+  color: var(--mpf-text-muted);
+  margin: 0 0 0.85rem;
+  line-height: 1.45;
+}
+
+.mpf-admin-login__forgot-success p:last-child {
+  margin-bottom: 0;
+}
+
 .mpf-admin-login__footer-register {
   margin: 1.35rem 0 0;
   text-align: center;

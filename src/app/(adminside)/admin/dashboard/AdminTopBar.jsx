@@ -6,13 +6,17 @@ import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Cookies from "js-cookie";
+import axios from "axios";
+import { getPublicApiBase } from "@/lib/publicApiBase";
 
 /** All searchable admin pages / nav items */
 const NAV_INDEX = [
   { label: "Dashboard", href: "/admin/dashboard", tags: "home overview stats" },
   { label: "Property Approvals", href: "/admin/dashboard/property-approvals", tags: "approve reject listing" },
   { label: "Manage Users", href: "/admin/dashboard/manage-users", tags: "users accounts roles admin superadmin" },
-  { label: "Pending Admin Access", href: "/admin/dashboard/pending-admin-approvals", tags: "pending approval admin staff" },
+  { label: "Pending permissions", href: "/admin/dashboard/pending-permissions", tags: "pending approval admin staff password reset" },
   { label: "Website Traffic and Logs", href: "/admin/dashboard/super-tracking", tags: "tracking traffic audit superadmin logs analytics" },
   { label: "Manage Projects", href: "/admin/dashboard/manage-projects", tags: "projects properties listings add edit delete" },
   { label: "Builders", href: "/admin/dashboard/builder", tags: "builder developer company" },
@@ -64,7 +68,7 @@ function highlight(text, query) {
 }
 
 export default function AdminTopBar() {
-  const { displayName, roleLabel, loading } = useAdminRole();
+  const { displayName, roleLabel, loading, isSuperAdmin } = useAdminRole();
   const { theme, toggleTheme } = useAdminTheme();
   const name = !loading && displayName ? displayName : loading ? "…" : "Administrator";
   const role = !loading && roleLabel ? roleLabel : "Staff";
@@ -75,6 +79,48 @@ export default function AdminTopBar() {
   const [activeIdx, setActiveIdx] = useState(0);
   const inputRef = useRef(null);
   const wrapRef = useRef(null);
+
+  const [notifyOpen, setNotifyOpen] = useState(false);
+  const notifyWrapRef = useRef(null);
+  const [pendingTotal, setPendingTotal] = useState(0);
+  const [pendingAdmin, setPendingAdmin] = useState(0);
+  const [pendingPassword, setPendingPassword] = useState(0);
+
+  const fetchPendingCounts = useCallback(async () => {
+    if (!isSuperAdmin) return;
+    const base = getPublicApiBase();
+    if (!base) return;
+    try {
+      const res = await axios.get(`${base}users/pending-permissions-count`, {
+        withCredentials: true,
+        headers: {
+          ...(typeof window !== "undefined" && Cookies.get("token")
+            ? { Authorization: `Bearer ${Cookies.get("token")}` }
+            : {}),
+        },
+      });
+      const d = res.data || {};
+      setPendingTotal(Number(d.totalPending) || 0);
+      setPendingAdmin(Number(d.adminAccessPending) || 0);
+      setPendingPassword(Number(d.passwordChangePending) || 0);
+    } catch {
+      setPendingTotal(0);
+      setPendingAdmin(0);
+      setPendingPassword(0);
+    }
+  }, [isSuperAdmin]);
+
+  useEffect(() => {
+    if (!isSuperAdmin || loading) return;
+    fetchPendingCounts();
+    const t = setInterval(fetchPendingCounts, 60000);
+    const onFocus = () => fetchPendingCounts();
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [isSuperAdmin, loading, fetchPendingCounts]);
 
   const results = query.trim().length > 0
     ? NAV_INDEX.filter((item) => {
@@ -94,6 +140,9 @@ export default function AdminTopBar() {
     const handler = (e) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target)) {
         setOpen(false);
+      }
+      if (notifyWrapRef.current && !notifyWrapRef.current.contains(e.target)) {
+        setNotifyOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -195,14 +244,76 @@ export default function AdminTopBar() {
             className="admin-theme-toggle-svg"
           />
         </button>
-        <button
-          type="button"
-          className="admin-app-topbar__icon-btn admin-topbar-notify-btn"
-          aria-label="Notifications"
-          title="Notifications"
-        >
-          <img className="admin-topbar-aux-icon" src="/images/admin/notification.svg" alt="Notifications" style={{ width: "22px", height: "auto" }} />
-        </button>
+        <div className="admin-topbar-notify-wrap" ref={notifyWrapRef}>
+          <button
+            type="button"
+            className="admin-app-topbar__icon-btn admin-topbar-notify-btn"
+            aria-label="Notifications"
+            title="Notifications"
+            aria-expanded={notifyOpen}
+            onClick={() => {
+              setNotifyOpen((v) => !v);
+              if (isSuperAdmin) fetchPendingCounts();
+            }}
+          >
+            <img
+              className="admin-topbar-aux-icon"
+              src="/images/admin/notification.svg"
+              alt=""
+              style={{ width: "22px", height: "auto" }}
+            />
+            {isSuperAdmin && pendingTotal > 0 ? (
+              <span className="admin-topbar-notify-badge" aria-hidden>
+                {pendingTotal > 9 ? "9+" : pendingTotal}
+              </span>
+            ) : null}
+          </button>
+          {notifyOpen ? (
+            <div className="admin-topbar-notify-dropdown" role="region" aria-label="Notifications">
+              {isSuperAdmin ? (
+                pendingTotal > 0 ? (
+                  <>
+                    <p className="admin-topbar-notify-dropdown__title">Pending permissions</p>
+                    <p className="admin-topbar-notify-dropdown__body">
+                      You have items waiting for review under Pending permissions:
+                      {pendingAdmin > 0 ? (
+                        <span>
+                          {" "}
+                          {pendingAdmin} admin access
+                          {pendingAdmin !== 1 ? " requests" : " request"}
+                        </span>
+                      ) : null}
+                      {pendingAdmin > 0 && pendingPassword > 0 ? " and" : null}
+                      {pendingPassword > 0 ? (
+                        <span>
+                          {" "}
+                          {pendingPassword} password change
+                          {pendingPassword !== 1 ? " requests" : " request"}
+                        </span>
+                      ) : null}
+                      . Open the page to accept, edit, or reject.
+                    </p>
+                    <Link
+                      className="admin-topbar-notify-dropdown__link"
+                      href="/admin/dashboard/pending-permissions"
+                      onClick={() => setNotifyOpen(false)}
+                    >
+                      Go to Pending permissions
+                    </Link>
+                  </>
+                ) : (
+                  <p className="admin-topbar-notify-dropdown__body mb-0">
+                    No pending admin access or password change requests.
+                  </p>
+                )
+              ) : (
+                <p className="admin-topbar-notify-dropdown__body mb-0">
+                  No notifications.
+                </p>
+              )}
+            </div>
+          ) : null}
+        </div>
         <div className="admin-app-topbar__divider" aria-hidden />
         <div className="admin-app-topbar__user">
           <div className="admin-app-topbar__user-text">

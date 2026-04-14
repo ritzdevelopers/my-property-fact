@@ -34,11 +34,11 @@ function AdminPageContent() {
   const [buttonName, setButtonName] = useState("Sign In");
   const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [staySignedIn, setStaySignedIn] = useState(false);
 
   useEffect(() => {
     setMounted(true);
     router.prefetch("/admin/dashboard");
+    router.prefetch("/admin/forgot-password");
   }, [router]);
 
   useEffect(() => {
@@ -243,7 +243,7 @@ function AdminPageContent() {
                       className="form-control mpf-admin-login__input mpf-admin-login__input--with-icons"
                       id="admin-dashboard-username"
                       name="dashboardUsername"
-                      placeholder="Enter Dashboard Username`"
+                      placeholder="Enter dashboard username"
                       value={formData.dashboardUsername}
                       onChange={handleChange}
                       aria-describedby="admin-dashboard-username-help"
@@ -293,7 +293,7 @@ function AdminPageContent() {
                     </label>
                     <Link
                       className="mpf-admin-login__link mpf-admin-login__link--forgot"
-                      href="#"
+                      href="/admin/forgot-password"
                     >
                       Forgot Password?
                     </Link>
@@ -333,15 +333,6 @@ function AdminPageContent() {
                     <div className="invalid-feedback">Password is required.</div>
                   </div>
                 </div>
-
-                {/* <label className="mpf-admin-login__remember">
-                  <input
-                    type="checkbox"
-                    checked={staySignedIn}
-                    onChange={(e) => setStaySignedIn(e.target.checked)}
-                  />
-                  <span>Stay signed in for 30 days</span>
-                </label> */}
 
                 <div className="mpf-admin-login__submit-wrap">
                   <button

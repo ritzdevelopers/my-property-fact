@@ -130,15 +130,6 @@ export default async function RootLayout({ children }) {
         <meta property="og:image" content="https://mypropertyfact.in/logo.webp" />
         <meta property="og:image:alt" content="MyPropertyFact - Real Estate Insights Platform" />
         <meta property=" og:locale" content="en_IN" />
-
-        
-        {/* Script Tag
-        <script type="application/ld+json">
-        {
-          "@context"=""
-        }
-        </script> */}
-
       </head>
       <body
         className={`${gothamBold.variable} ${gothamLight.variable}`} suppressHydrationWarning={true}>

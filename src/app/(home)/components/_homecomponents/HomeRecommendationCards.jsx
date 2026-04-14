@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
   const raw = process.env.NEXT_PUBLIC_API_URL || "";
@@ -110,6 +111,7 @@ export default function HomeRecommendationCards({
   items,
   kind,
   viewAllHref,
+  className = "",
 }) {
   const safeItems = useMemo(
     () => (Array.isArray(items) ? items.slice(0, 6) : []),
@@ -153,7 +155,10 @@ export default function HomeRecommendationCards({
   if (!safeItems.length) return null;
 
   return (
-    <section className="container home-projects-preview" aria-label={title}>
+    <section
+      className={`container home-projects-preview ${className}`.trim()}
+      aria-label={title}
+    >
       <div className="home-projects-preview__head">
         <div>
           <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">{title}</h2>

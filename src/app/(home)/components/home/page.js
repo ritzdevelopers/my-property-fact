@@ -10,8 +10,8 @@ import {
   fetchTopPicksProject,
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
-import NewMpfMetaDataContainer from "../_homecomponents/NewMpfMetaDataContainer";
 import HomeRecommendationCards from "../_homecomponents/HomeRecommendationCards";
+import { transformPublicPropertyList } from "../../properties/transformPublicProperties";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   ssr: true,
@@ -40,51 +40,31 @@ const NoidaProjectsSection = dynamic(
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
-function sortTimeValue(value) {
-  if (value == null) return 0;
-  if (typeof value === "number") return value;
-  const parsed = new Date(value).getTime();
-  return Number.isNaN(parsed) ? 0 : parsed;
-}
+async function loadPublicProperties() {
+  const raw = process.env.NEXT_PUBLIC_API_URL || "";
+  const base = raw.endsWith("/") ? raw.slice(0, -1) : raw;
+  if (!base) return [];
 
-function recommendationScore(project, topCities) {
-  if (!project || typeof project !== "object") return 0;
-
-  const status = String(project.projectStatusName || "").toLowerCase();
-  let score = 0;
-
-  if (project.propertyTypeName === "Residential") score += 40;
-  if (project.cityName && topCities.includes(project.cityName)) score += 18;
-  if (project.projectBannerImage || project.projectThumbnailImage) score += 14;
-  if (project.projectPrice != null && project.projectPrice !== "") score += 10;
-  if (project.projectConfiguration) score += 8;
-  if (status.includes("ready")) score += 8;
-  if (status.includes("new")) score += 6;
-
-  return score;
-}
-
-function buildRecommendedPropertyProjects(projects, topCities) {
-  if (!Array.isArray(projects)) return [];
-
-  return [...projects]
-    .filter((project) => project?.slugURL && project?.projectName)
-    .filter((project) => project.propertyTypeName === "Residential")
-    .sort((a, b) => {
-      const scoreDiff =
-        recommendationScore(b, topCities) - recommendationScore(a, topCities);
-      if (scoreDiff !== 0) return scoreDiff;
-      return (
-        sortTimeValue(b.updatedAt ?? b.createdAt ?? b.id) -
-        sortTimeValue(a.updatedAt ?? a.createdAt ?? a.id)
-      );
-    })
-    .slice(0, 6);
+  try {
+    const res = await fetch(`${base}/public/properties`, {
+      next: { revalidate: 60 },
+    });
+    const data = await res.json();
+    if (data?.success && Array.isArray(data.properties)) {
+      return transformPublicPropertyList(data.properties);
+    }
+    return [];
+  } catch {
+    return [];
+  }
 }
 
 export default async function HomePage() {
   // Fetching all projects with short details
-  const projects = await getAllProjects();
+  const [projects, latestPublicProperties] = await Promise.all([
+    getAllProjects(),
+    loadPublicProperties(),
+  ]);
 
   // Allowed slugs for featured projects
   const allowedSlugs = [
@@ -122,7 +102,6 @@ export default async function HomePage() {
     .filter(Boolean);
   // top cities
   const topCities = ["Noida", "Delhi", "Ghaziabad"];
-  const recommendedProperties = buildRecommendedPropertyProjects(projects, topCities);
   // Residential: slug-ordered first, then rest from getAllProjects (Residential type)
   const residentialFirst = residentialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
@@ -152,9 +131,35 @@ export default async function HomePage() {
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
+  // Latest properties for "Recommended Properties" (prefer clear BHK like 2/3/4 BHK)
+  const preferredBhkProperties = [...latestPublicProperties]
+    .filter((item) => item?.slug && item?.title)
+    .filter((item) => {
+      const bed = Number(item?.bedrooms);
+      return Number.isFinite(bed) && bed >= 2 && bed <= 4;
+    })
+    .sort((a, b) => {
+      const aTime = new Date(a?.raw?.createdAt || 0).getTime();
+      const bTime = new Date(b?.raw?.createdAt || 0).getTime();
+      return bTime - aTime;
+    })
+    .slice(0, 8);
+  const fallbackLatestProperties = [...latestPublicProperties]
+    .filter((item) => item?.slug && item?.title)
+    .sort((a, b) => {
+      const aTime = new Date(a?.raw?.createdAt || 0).getTime();
+      const bTime = new Date(b?.raw?.createdAt || 0).getTime();
+      return bTime - aTime;
+    })
+    .slice(0, 8);
+  const recommendedProperties =
+    preferredBhkProperties.length > 0
+      ? preferredBhkProperties
+      : fallbackLatestProperties;
+
   const recommendedProjects = projects
     .filter((project) => project?.slugURL && project?.projectName)
-    .slice(0, 6);
+    .slice(0, 8);
 
   // Top Picks: projects from selected builders only, rotates every 30s (testing)
   const mpfTopPicProject = await fetchTopPicksProject();
@@ -163,22 +168,28 @@ export default async function HomePage() {
     return (
       <>
         {/* Hero section component  */}
-        <HeroSection projectTypeList={projectTypeList} cityList={cityList} />
+        <HeroSection
+          projectTypeList={projectTypeList}
+          cityList={cityList}
+          cityCount={cityList.length}
+          builderCount={builders?.builders?.length || 0}
+          projectCount={projects.length}
+          unitCount={10030}
+        />
 
-        {/* My property fact meta data container component */}
-        <NewMpfMetaDataContainer
-          propertyTypes={projectTypeList}
-          projects={projects}
-          builders={builders.builders}
-          cities={cityList}
-          recommendedProperties={recommendedProperties}
+        <HomeRecommendationCards
+          title="Recommended Properties"
+          subtitle="Latest 2BHK, 3BHK, 4BHK and more handpicked listings"
+          items={recommendedProperties}
+          kind="property"
+          className="recommended-properties-section"
         />
 
         {/* MPF-top pick section (refreshes every 30s on client) */}
         <TopPicksWithRotation initialProject={mpfTopPicProject} />
         <HomeRecommendationCards
           title="Recommended Projects"
-          subtitle="The most searched projects in Delhi South West"
+          subtitle="Trending projects selected for location, demand and value"
           items={recommendedProjects}
           kind="project"
           viewAllHref="/projects"

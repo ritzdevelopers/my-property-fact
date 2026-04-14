@@ -461,8 +461,37 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
+  flex-shrink: 0;
   background: #34d399;
-  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5);
+  animation: admin-dash-live-dot-pulse 2s ease-out infinite;
+}
+
+@keyframes admin-dash-live-dot-pulse {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55);
+  }
+  45% {
+    opacity: 0.55;
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+  }
+  70% {
+    opacity: 1;
+    box-shadow: 0 0 0 9px rgba(52, 211, 153, 0);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-dash-chart__live-dot {
+    animation: none;
+    opacity: 1;
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.4);
+  }
 }
 
 .admin-dash-chart__filters {
@@ -643,12 +672,15 @@
 
 .admin-dash-chart__mui-chart-host {
   width: 100%;
+  min-width: 0;
   min-height: 280px;
   border-radius: 14px;
   border: 1px solid #eef0f4;
   background: #fff;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
 }
 
 .admin-dash-chart__mui-chart-host .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel {
@@ -789,7 +821,165 @@
   font-weight: 600;
   color: #64748b;
   line-height: 1.35;
-  max-width: 22rem;
+  max-width: 36rem;
+}
+
+.admin-dash-last60__hero {
+  padding: 0.75rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid rgba(13, 148, 136, 0.28);
+  background: linear-gradient(135deg, rgba(13, 148, 136, 0.08) 0%, rgba(240, 253, 250, 0.9) 100%);
+  text-align: center;
+}
+
+.admin-dash-last60__hero-label {
+  margin: 0;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.admin-dash-last60__hero-value {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1.65rem, 4vw, 2.1rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.admin-dash-last60__hero-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1.35;
+}
+
+.admin-dash-last60__chart-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.admin-dash-last60__chart-caption {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1.4;
+  padding: 0 0.15rem;
+}
+
+.admin-dash-last60__empty-sub {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.4;
+  max-width: 18rem;
+  text-align: center;
+}
+
+.admin-dash-traffic-hero {
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(13, 148, 136, 0.22);
+  background: linear-gradient(145deg, rgba(13, 148, 136, 0.09) 0%, #f8fafc 55%, #fff 100%);
+  margin-bottom: 0.35rem;
+}
+
+.admin-dash-traffic-hero__label {
+  margin: 0;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #0f766e;
+}
+
+.admin-dash-traffic-hero__value {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #111827;
+  line-height: 1.05;
+}
+
+.admin-dash-traffic-hero__hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.admin-dash-traffic-summary-line {
+  margin: 0.65rem 0 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  line-height: 1.45;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.admin-dash-chart__traffic-analysis--compact {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.admin-dash-chart__traffic-analysis--compact .admin-dash-chart__traffic-analysis__title {
+  margin-bottom: 0.5rem;
+}
+
+.admin-dash-traffic-details {
+  margin-top: 0.65rem;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fafafa;
+  padding: 0.35rem 0.65rem 0.5rem;
+}
+
+.admin-dash-traffic-details__summary {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  list-style: none;
+}
+
+.admin-dash-traffic-details__summary::-webkit-details-marker {
+  display: none;
+}
+
+.admin-dash-traffic-details__body {
+  padding: 0.35rem 0 0.15rem;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 0.35rem;
+}
+
+.admin-dash-traffic-details__p {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.admin-dash-chart__traffic-empty-chart__sub {
+  margin: 0.4rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #94a3b8;
+  line-height: 1.4;
 }
 
 .admin-dash-last60__updated {
@@ -876,8 +1066,11 @@
 .admin-dash-last60__loading,
 .admin-dash-last60__empty {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+  padding: 1rem 0.75rem;
   min-height: 120px;
   border-radius: 12px;
   border: 1px dashed #cbd5e1;
@@ -1393,4 +1586,79 @@
   line-height: 1.65;
   font-weight: 600;
   word-break: break-word;
+}
+
+/* Website traffic block (super-admin): narrow phones */
+@media (max-width: 576px) {
+  .admin-dash-home__split--traffic-live {
+    gap: 0.85rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .admin-dash-chart--website-traffic {
+    padding: 0.85rem 0.65rem 0.75rem;
+    min-height: 0;
+  }
+
+  .admin-dash-chart__traffic-head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .admin-dash-chart__wow {
+    max-width: 100%;
+  }
+
+  .admin-dash-chart__traffic-details-link {
+    align-self: flex-start;
+  }
+
+  .admin-dash-chart__subtitle {
+    max-width: 100%;
+    font-size: 0.68rem;
+  }
+
+  .admin-dash-chart__traffic-day-meta {
+    font-size: 0.62rem;
+    word-break: break-word;
+  }
+
+  .admin-dash-chart__mui-chart-host {
+    min-height: 220px;
+  }
+
+  .admin-dash-chart__traffic-analysis {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+  }
+
+  .admin-dash-chart__traffic-analysis__list {
+    padding-left: 1.1rem;
+  }
+
+  .admin-dash-pending--last60 {
+    padding: 0.85rem 0.65rem 0.75rem;
+    min-width: 0;
+  }
+
+  .admin-dash-last60__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-dash-last60__title {
+    font-size: 0.92rem;
+  }
+
+  .admin-dash-last60__sub {
+    max-width: 100%;
+    font-size: 0.68rem;
+  }
+
+  .admin-dash-last60__chart {
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }

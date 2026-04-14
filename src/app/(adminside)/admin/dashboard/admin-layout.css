@@ -129,6 +129,7 @@
 
 .admin-sidebar-wrapper .dropdown-toggle::after {
   border-top-color: #9ca3af !important;
+  pointer-events: none;
 }
 
 /* Main Content — full width minus sidebar (no centered max-width column) */
@@ -404,6 +405,77 @@
   margin-right: 4px;
 }
 
+/* Submenu expand/collapse — use <button> so Next.js Link + hash does not steal taps on mobile */
+.admin-sidebar-wrapper #sidebar ul.components li > button.dropdown-toggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  margin: 2px 10px;
+  border-radius: 10px;
+  font-family: "Lato", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.4px;
+  color: #00000099;
+  text-align: left;
+  cursor: pointer;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: calc(100% - 20px);
+  max-width: 100%;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-sidebar-wrapper #sidebar ul.components li > button.dropdown-toggle:hover {
+  color: #111111;
+  background: #f3f4f6;
+}
+
+.admin-sidebar-wrapper #sidebar ul li.active > button.dropdown-toggle {
+  color: #111111;
+  font-weight: 700;
+}
+
+.admin-sidebar-wrapper #sidebar ul li ul li > button.dropdown-toggle {
+  appearance: none;
+  border: none;
+  background: transparent;
+  margin: 2px 8px;
+  border-radius: 10px;
+  font-family: "Lato", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.4px;
+  color: #00000099;
+  text-align: left;
+  cursor: pointer;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: calc(100% - 16px);
+  max-width: 100%;
+  box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-sidebar-wrapper #sidebar ul li ul li > button.dropdown-toggle:hover {
+  color: #111111;
+  background: #f3f4f6;
+}
+
+.admin-sidebar-wrapper #sidebar ul li ul li.active > button.dropdown-toggle {
+  color: #111111;
+  font-weight: 700;
+}
+
 .admin-sidebar-wrapper #sidebar ul li a:hover {
   color: #111111;
   background: #f3f4f6;
@@ -411,7 +483,7 @@
 }
 
 /* Active/selected — Lato 700 Bold #111111 */
-.admin-sidebar-wrapper #sidebar ul li.active>a:not(.dropdown-toggle) {
+.admin-sidebar-wrapper #sidebar ul li.active > a:not(.dropdown-toggle) {
   color: #111111 !important;
   background: rgba(0, 125, 81, 0.1);
   font-family: "Lato", system-ui, sans-serif !important;
@@ -432,7 +504,7 @@
   font-weight: 700 !important;
 }
 
-.admin-sidebar-wrapper #sidebar ul li.active>a.dropdown-toggle {
+.admin-sidebar-wrapper #sidebar ul li.active > a.dropdown-toggle {
   color: #111111;
   font-weight: 700;
 }
@@ -632,7 +704,8 @@
   .admin-sidebar-wrapper #sidebar {
     width: 100% !important;
     height: 100% !important;
-    display: block !important;
+    display: flex !important;
+    flex-direction: column !important;
     visibility: visible !important;
     opacity: 1 !important;
     margin-left: 0 !important;
@@ -648,10 +721,27 @@
     visibility: visible !important;
   }
 
-  .admin-sidebar-wrapper #sidebar ul.components li a {
-    display: block !important;
+  .admin-sidebar-wrapper #sidebar ul.components li > a,
+  .admin-sidebar-wrapper #sidebar ul.components li > button.dropdown-toggle {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
     visibility: visible !important;
     opacity: 1 !important;
+    width: calc(100% - 20px);
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .admin-sidebar-wrapper #sidebar ul.components li ul li > a {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 44px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .admin-main-content {
@@ -709,6 +799,22 @@
   }
 
   .admin-sidebar-wrapper #sidebar ul li a:hover {
+    color: #111827 !important;
+  }
+
+  .admin-sidebar-wrapper #sidebar ul.components li > button.dropdown-toggle {
+    color: #4b5563 !important;
+  }
+
+  .admin-sidebar-wrapper #sidebar ul.components li > button.dropdown-toggle:hover {
+    color: #111827 !important;
+  }
+
+  .admin-sidebar-wrapper #sidebar ul li ul li > button.dropdown-toggle {
+    color: #4b5563 !important;
+  }
+
+  .admin-sidebar-wrapper #sidebar ul li ul li > button.dropdown-toggle:hover {
     color: #111827 !important;
   }
 }

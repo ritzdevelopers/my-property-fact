@@ -250,16 +250,15 @@ export default function SideNav({ onLinkClick }) {
                 : ""
             }
           >
-            <Link
-              href="#"
+            <button
+              type="button"
               onClick={(e) => toggleDropdown(e, "dropdown6")}
-              data-toggle="collapse"
-              aria-expanded="false"
+              aria-expanded={activeDropdown === "dropdown6"}
               className="dropdown-toggle"
             >
               <FontAwesomeIcon icon={faGlobe} className="admin-nav-ico" />
               <span className="admin-nav-label">Manage Website</span>
-            </Link>
+            </button>
             <ul
               className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown6"
                 ? "show"
@@ -274,16 +273,15 @@ export default function SideNav({ onLinkClick }) {
                     : ""
                 }
               >
-                <Link
-                  href="#"
+                <button
+                  type="button"
                   onClick={(e) => toggleSubDropdown(e, "dropdown6-home-page")}
-                  data-toggle="collapse"
-                  aria-expanded="false"
+                  aria-expanded={activeSubDropdown === "dropdown6-home-page"}
                   className="dropdown-toggle"
                 >
                   <FontAwesomeIcon icon={faHouse} className="admin-nav-ico" />
                   <span className="admin-nav-label">Home Page</span>
-                </Link>
+                </button>
                 <ul
                   className={`collapse list-unstyled ms-4 ${activeSubDropdown === "dropdown6-home-page"
                     ? "show"
@@ -330,16 +328,15 @@ export default function SideNav({ onLinkClick }) {
                 : ""
             }
           >
-            <Link
-              href="#"
+            <button
+              type="button"
               onClick={(e) => toggleDropdown(e, "dropdown3")}
-              data-toggle="collapse"
-              aria-expanded="false"
+              aria-expanded={activeDropdown === "dropdown3"}
               className="dropdown-toggle"
             >
               <FontAwesomeIcon icon={faSliders} className="admin-nav-ico" />
               <span className="admin-nav-label">Manage Options</span>
-            </Link>
+            </button>
             <ul
               className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown3" ? "show" : ""
                 }`}
@@ -487,16 +484,15 @@ export default function SideNav({ onLinkClick }) {
                   : ""
               }
             >
-              <Link
-                href="#"
-                data-toggle="collapse"
-                aria-expanded="false"
+              <button
+                type="button"
+                aria-expanded={activeDropdown === "dropdown1"}
                 onClick={(e) => toggleDropdown(e, "dropdown1")}
                 className="dropdown-toggle"
               >
                 <FontAwesomeIcon icon={faBuilding} className="admin-nav-ico" />
                 <span className="admin-nav-label">Management</span>
-              </Link>
+              </button>
               <ul
                 className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown1" ||
                   isDropdownActive([
@@ -644,16 +640,15 @@ export default function SideNav({ onLinkClick }) {
                 : ""
             }
           >
-            <Link
-              href="#"
+            <button
+              type="button"
               onClick={(e) => toggleDropdown(e, "dropdown2")}
-              data-toggle="collapse"
-              aria-expanded="false"
+              aria-expanded={activeDropdown === "dropdown2"}
               className="dropdown-toggle"
             >
               <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
               <span className="admin-nav-label">Insight Management</span>
-            </Link>
+            </button>
             <ul
               className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown2" ||
                 isDropdownActive([
@@ -779,16 +774,15 @@ export default function SideNav({ onLinkClick }) {
                 : ""
             }
           >
-            <Link
-              href="#"
+            <button
+              type="button"
               onClick={(e) => toggleDropdown(e, "dropdown4")}
-              data-toggle="collapse"
-              aria-expanded="false"
+              aria-expanded={activeDropdown === "dropdown4"}
               className="dropdown-toggle"
             >
               <FontAwesomeIcon icon={faPenToSquare} className="admin-nav-ico" />
               <span className="admin-nav-label">Blog management</span>
-            </Link>
+            </button>
             <ul
               className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown4" ||
                 isDropdownActive([
@@ -838,16 +832,15 @@ export default function SideNav({ onLinkClick }) {
                 : ""
             }
           >
-            <Link
-              href="#"
+            <button
+              type="button"
               onClick={(e) => toggleDropdown(e, "dropdown5")}
-              data-toggle="collapse"
-              aria-expanded="false"
+              aria-expanded={activeDropdown === "dropdown5"}
               className="dropdown-toggle"
             >
               <FontAwesomeIcon icon={faBookOpen} className="admin-nav-ico" />
               <span className="admin-nav-label">Web story management</span>
-            </Link>
+            </button>
             <ul
               className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown5" ||
                 isDropdownActive([

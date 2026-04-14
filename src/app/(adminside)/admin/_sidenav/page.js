@@ -217,15 +217,15 @@ export default function SideNav({ onLinkClick }) {
         {isSuperAdmin && (
           <li
             className={
-              isActive("/admin/dashboard/pending-admin-approvals") ? "active" : ""
+              isActive("/admin/dashboard/pending-permissions") ? "active" : ""
             }
           >
             <Link
-              href="/admin/dashboard/pending-admin-approvals"
+              href="/admin/dashboard/pending-permissions"
               onClick={handleLinkClick}
             >
               <FontAwesomeIcon icon={faUserClock} className="admin-nav-ico" />
-              <span>Pending admin access</span>
+              <span>Pending permissions</span>
             </Link>
           </li>
         )}

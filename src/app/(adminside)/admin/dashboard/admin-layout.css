@@ -327,6 +327,69 @@
   background: transparent;
 }
 
+.admin-topbar-notify-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-topbar-notify-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.28rem;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1.1rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.admin-topbar-notify-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.45rem);
+  width: min(320px, calc(100vw - 2rem));
+  padding: 0.85rem 1rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+  z-index: 1200;
+  text-align: left;
+}
+
+.admin-topbar-notify-dropdown__title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0 0 0.4rem;
+  color: #111827;
+}
+
+.admin-topbar-notify-dropdown__body {
+  font-size: 0.8125rem;
+  color: #4b5563;
+  margin: 0 0 0.65rem;
+  line-height: 1.45;
+}
+
+.admin-topbar-notify-dropdown__link {
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #15803d;
+  text-decoration: none;
+}
+
+.admin-topbar-notify-dropdown__link:hover {
+  text-decoration: underline;
+}
+
 .admin-app-topbar__user {
   display: flex;
   align-items: center;

@@ -1,7 +1,5 @@
-import PendingAdminApprovalsClient from "./PendingAdminApprovalsClient";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-export default function PendingAdminApprovalsPage() {
-  return <PendingAdminApprovalsClient />;
+export default function PendingAdminApprovalsRedirectPage() {
+  redirect("/admin/dashboard/pending-permissions");
 }

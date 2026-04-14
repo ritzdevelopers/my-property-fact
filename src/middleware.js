@@ -89,6 +89,13 @@ export async function middleware(req) {
     return NextResponse.next();
   }
 
+  if (
+    path === "/admin/forgot-password" ||
+    path === "/admin/forgot-password/"
+  ) {
+    return NextResponse.next();
+  }
+
   // Special case: login page
   if (path === "/admin") {
     // Check if accessDenied query parameter is already present

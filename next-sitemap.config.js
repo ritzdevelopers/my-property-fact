@@ -6,6 +6,34 @@ function toPathSlug(value) {
   return String(value || "").trim().replace(/^\/+|\/+$/g, "");
 }
 
+/** Matches `isCityTypeUrl` / BHK listing pages: hyphenated city from `cityName`. */
+function listingCitySlug(city) {
+  if (!city || typeof city !== "object") return "";
+  const fromName = String(city.cityName || "")
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
+  if (fromName) return fromName;
+  return toPathSlug(city.slugURL || city.slugUrl || "");
+}
+
+/**
+ * Curated listing URLs only (see `master-bhk-project-list` slugType / hubs).
+ * `{slug}-in-{city}` except apartments hub `apartments-in-{city}`.
+ */
+const LISTING_COMMERCIAL_FLOOR_SLUGS = [
+  "food-court",
+  "office",
+
+  "shop",
+  "shops",
+  "sco-plots",
+  "kiosk",
+  "sco"
+];
+
+const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
+
 module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: true,
@@ -124,6 +152,33 @@ module.exports = {
         lastmod: new Date().toISOString(),
       }))
     );
+
+    // Apartments hub + selected commercial typology listings: `apartments-in-{city}`, `{type}-in-{city}`
+    if (Array.isArray(cities) && cities.length > 0) {
+      const seen = new Set(allPaths.map((p) => p.loc));
+      const stamp = new Date().toISOString();
+      const pushLoc = (loc, priority = 0.72) => {
+        if (!loc || seen.has(loc)) return;
+        seen.add(loc);
+        allPaths.push({
+          loc,
+          changefreq: "weekly",
+          priority,
+          lastmod: stamp,
+        });
+      };
+
+      for (const city of cities) {
+        const citySlug = listingCitySlug(city);
+        if (!citySlug) continue;
+
+        pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, 0.75);
+
+        for (const floor of LISTING_COMMERCIAL_FLOOR_SLUGS) {
+          pushLoc(`/${floor}-in-${citySlug}`);
+        }
+      }
+    }
 
     return allPaths;
   },

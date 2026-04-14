@@ -1,10 +1,10 @@
-import { getAdminTelemetryHeaders } from "@/lib/adminTelemetry";
+import { getAdminTelemetryHeaders, shouldSendAdminTelemetryForUrl } from "@/lib/adminTelemetry";
 
 let installDepth = 0;
 let originalFetch = null;
 
 function shouldAttachAdminTelemetry(url) {
-  return typeof url === "string" && url.includes("/api/v1/admin");
+  return shouldSendAdminTelemetryForUrl(url);
 }
 
 /**

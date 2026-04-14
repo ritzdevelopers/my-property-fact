@@ -83,6 +83,9 @@ export default async function RootLayout({ children }) {
         />
         <meta name="author" content="My Property Fact" />
         <meta name="publisher" content="My Property Fact" />
+
+          
+        
         {/* Open Graph Tags */}
         <meta property="og:title" content="My Property Fact | Real Estate Insights, Property News & Investment Tips" />
         <meta property="og:site_name" content="MyPropertyFact" />

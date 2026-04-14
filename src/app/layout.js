@@ -108,12 +108,12 @@ export default async function RootLayout({ children }) {
           }}
         />
 
-        <meta name="twitter:card" content="summary">
-        <meta name="twitter:title" content="Best Property Deals in India | My Property Fact">
-        <meta name="twitter:site" content="@my_propertyfact">
-        <meta name="twitter:description" content="Looking to buy or invest in property? Explore trusted listings, price trends & expert advice on My Property Fact.">
-        <meta name="twitter:image" content="https://mypropertyfact.in/_next/image?url=%2Flogo.webp&w=128&q=45">
-        <meta name="twitter:image:alt" content="My Property Fact">
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content="Best Property Deals in India | My Property Fact" />
+        <meta name="twitter:site" content="@my_propertyfact" />
+        <meta name="twitter:description" content="Looking to buy or invest in property? Explore trusted listings, price trends & expert advice on My Property Fact." />
+        <meta name="twitter:image" content="https://mypropertyfact.in/_next/image?url=%2Flogo.webp&w=128&q=45" />
+        <meta name="twitter:image:alt" content="My Property Fact" />
 
           
         <meta name="author" content="My Property Fact" />

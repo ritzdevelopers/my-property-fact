@@ -54,11 +54,25 @@ export function projectLatestTimestamp(project) {
   return Number.isNaN(ms) ? 0 : ms;
 }
 
-function normalizePlaceToken(s) {
+export function normalizePlaceToken(s) {
   return String(s || "")
     .trim()
     .toLowerCase()
     .replace(/\s+/g, " ");
+}
+
+const TOKEN_STOPWORDS = new Set([
+  "india",
+  "asia",
+  "unnamed road",
+  "road",
+  "state",
+  "city",
+]);
+
+function isUsefulToken(t) {
+  const n = normalizePlaceToken(t);
+  return n.length >= 3 && !TOKEN_STOPWORDS.has(n);
 }
 
 /** 1 = city-level match, 2 = state-only match, 0 = no match */
@@ -84,6 +98,52 @@ export function projectRegionTier(project, geoCity, geoState) {
   return 0;
 }
 
+/**
+ * Match project against every place label from reverse geocode (locality, district, etc.)
+ * and against project locality / address (sectors, area names).
+ */
+export function projectRegionTierFromTokens(project, geoTokens) {
+  if (!Array.isArray(geoTokens) || geoTokens.length === 0) return 0;
+
+  const pcity = normalizePlaceToken(project?.cityName);
+  const pstate = normalizePlaceToken(project?.stateName);
+  const locality = normalizePlaceToken(project?.projectLocality);
+  const addr = normalizePlaceToken(project?.projectAddress);
+
+  let best = 0;
+
+  for (const rawT of geoTokens) {
+    if (!isUsefulToken(rawT)) continue;
+    const t = normalizePlaceToken(rawT);
+
+    if (pcity && (pcity === t || pcity.includes(t) || t.includes(pcity))) {
+      best = Math.max(best, 1);
+      continue;
+    }
+    if (locality && (locality.includes(t) || t.includes(locality))) {
+      best = Math.max(best, 1);
+      continue;
+    }
+    if (addr && t.length >= 3 && addr.includes(t)) {
+      best = Math.max(best, 1);
+      continue;
+    }
+    if (pstate && (pstate === t || pstate.includes(t) || t.includes(pstate))) {
+      best = Math.max(best, 2);
+    }
+  }
+
+  return best;
+}
+
+export function combinedProjectRegionTier(project, geoCity, geoState, geoTokens) {
+  const a = projectRegionTier(project, geoCity, geoState);
+  const b = projectRegionTierFromTokens(project, geoTokens);
+  if (a === 1 || b === 1) return 1;
+  if (a === 2 || b === 2) return 2;
+  return 0;
+}
+
 /** 1 = city-level match in listing text, 2 = state only */
 export function listingRegionTier(listing, geoCity, geoState) {
   const city = normalizePlaceToken(geoCity);
@@ -106,6 +166,41 @@ export function listingRegionTier(listing, geoCity, geoState) {
   return 0;
 }
 
+export function listingRegionTierFromTokens(listing, geoTokens) {
+  if (!Array.isArray(geoTokens) || geoTokens.length === 0) return 0;
+
+  const raw = listing?.raw || {};
+  const blob = normalizePlaceToken(
+    [raw.city, raw.state, raw.locality, raw.address, listing?.location]
+      .filter(Boolean)
+      .join(" "),
+  );
+  if (!blob) return 0;
+
+  let best = 0;
+  for (const rawT of geoTokens) {
+    if (!isUsefulToken(rawT)) continue;
+    const t = normalizePlaceToken(rawT);
+    if (!blob.includes(t)) continue;
+
+    const rawState = normalizePlaceToken(raw.state);
+    if (rawState && (rawState === t || rawState.includes(t) || t.includes(rawState))) {
+      best = Math.max(best, 2);
+    } else {
+      best = Math.max(best, 1);
+    }
+  }
+  return best;
+}
+
+export function combinedListingRegionTier(listing, geoCity, geoState, geoTokens) {
+  const a = listingRegionTier(listing, geoCity, geoState);
+  const b = listingRegionTierFromTokens(listing, geoTokens);
+  if (a === 1 || b === 1) return 1;
+  if (a === 2 || b === 2) return 2;
+  return 0;
+}
+
 export function buildSubtitleForRegion(geoCity, geoState) {
   const c = String(geoCity || "").trim();
   const s = String(geoState || "").trim();
@@ -121,10 +216,13 @@ export function buildMixedRecommendationsForRegion({
   excludeSlugSet,
   geoCity,
   geoState,
+  geoTokens = [],
   limit = 8,
 }) {
   const exclude =
     excludeSlugSet instanceof Set ? excludeSlugSet : new Set(excludeSlugSet || []);
+
+  const tokenList = Array.isArray(geoTokens) ? geoTokens : [];
 
   const projectsSortedLatest = [...normalizeProjectsArray(projects)]
     .filter((p) => p?.slugURL && p?.projectName)
@@ -137,7 +235,7 @@ export function buildMixedRecommendationsForRegion({
     .map((p) => ({
       itemKind: "project",
       sort: projectLatestTimestamp(p),
-      tier: projectRegionTier(p, geoCity, geoState),
+      tier: combinedProjectRegionTier(p, geoCity, geoState, tokenList),
       payload: p,
     }))
     .filter((x) => x.tier > 0);
@@ -147,7 +245,7 @@ export function buildMixedRecommendationsForRegion({
     .map((row) => ({
       itemKind: "property",
       sort: propertyListingLatestTimestamp(row),
-      tier: listingRegionTier(row, geoCity, geoState),
+      tier: combinedListingRegionTier(row, geoCity, geoState, tokenList),
       payload: row,
     }))
     .filter((x) => x.tier > 0);

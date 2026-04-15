@@ -28,10 +28,15 @@ export default function RecommendedProjectsWithGeolocation({
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         try {
-          const { latitude, longitude } = pos.coords;
-          const res = await fetch(
-            `/api/home/recommended-by-location?lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}`,
-          );
+          const { latitude, longitude, accuracy } = pos.coords;
+          const q = new URLSearchParams({
+            lat: String(latitude),
+            lon: String(longitude),
+          });
+          if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
+            q.set("accuracy", String(Math.round(accuracy)));
+          }
+          const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
           const data = await res.json();
           if (
             data.success &&
@@ -52,9 +57,9 @@ export default function RecommendedProjectsWithGeolocation({
         /* denied or unavailable — keep fallback */
       },
       {
-        enableHighAccuracy: false,
-        maximumAge: 300_000,
-        timeout: 12_000,
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 20_000,
       },
     );
   }, []);

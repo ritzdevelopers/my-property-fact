@@ -330,6 +330,7 @@
   /* Same horizontal band as “Why choose us?” so headline, marquee, and CTA line up */
   width: 100%;
   max-width: min(620px, 52%);
+  font-family: "Montserrat", sans-serif !important;
 }
 
 .transform-home-mpf-logo-wrap {
@@ -353,7 +354,7 @@
   gap: 0;
   max-width: 100%;
   padding: 0;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif !important;
   font-weight: 400;
   font-style: normal;
   font-size: clamp(22px, 5vw, 48px);
@@ -380,7 +381,7 @@
 
 @media (min-width: 992px) {
   .transform-home-headline-inner {
-    font-size: 48px;
+    font-size: 44px;
   }
 }
 
@@ -396,7 +397,7 @@
 
 .transform-home-why-title {
   margin: 0 0 clamp(14px, 2.5vw, 20px);
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif !important;
   font-weight: 500;
   font-style: normal;
   font-size: 28px;
@@ -433,10 +434,10 @@
 }
 
 .transform-home-why-text {
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif !important;
   font-weight: 400;
   font-style: normal;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 100%;
   letter-spacing: 0;
   color: #000000;
@@ -454,9 +455,9 @@
   align-items: center;
   gap: clamp(14px, 2.2vw, 24px);
   box-sizing: border-box;
-  /* Keep strip wider than the card column so more logos are visible */
-  width: min(820px, calc(100vw - 120px));
-  max-width: 100%;
+  /* Wider + linear viewport scaling for smoother growth */
+  width: clamp(660px, 78vw, 980px);
+  max-width: calc(100vw - 20px);
   margin-top: 0;
   padding: clamp(12px, 2vw, 20px) 0 0;
 }
@@ -472,7 +473,7 @@
 
 .transform-home-developers-label-line {
   display: block;
-  font-family: "Montserrat", sans-serif;
+  font-family: "Montserrat", sans-serif !important;
   font-weight: 600;
   font-size: clamp(13px, 1.6vw, 15px);
   color: #2a2a2a;
@@ -591,14 +592,14 @@
 
 .transform-home-explore-projects-wrap {
   width: 100%;
-  padding-top: clamp(6px, 1.2vw, 12px);
+  padding-top: 20px;
 }
 
 .transform-home-explore-projects-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-family: "Plus Jakarta Sans", sans-serif;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
   font-weight: 400;
   font-size: clamp(14px, 1.5vw, 15px);
   line-height: 1.2;
@@ -617,13 +618,13 @@
 }
 
 .transform-home-explore-projects-btn:hover {
-  background: #146e24;
+  background: #0D5834;
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(23, 140, 44, 0.32);
+  box-shadow: 0 4px 14px rgba(2, 103, 21, 0.32);
 }
 
 .transform-home-explore-projects-btn:focus-visible {
-  outline: 2px solid #178c2c;
+  outline: 2px solid #0D5834;
   outline-offset: 3px;
 }
 

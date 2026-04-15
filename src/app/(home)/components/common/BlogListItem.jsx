@@ -15,6 +15,7 @@ export default function BlogListItem({ blog }) {
     (blog.blogMetaDescription || "").split(/\s+/).slice(0, 35).join(" ") +
     " ...";
   const featuredAlt = blogFeaturedImageAlt(blog.blogTitle);
+  const authorLabel = String(blog?.authorName || "").trim() || "Admin";
   return (
     <div className="card-blog border-0 shadow-sm mb-4">
       {blog.blogImage && (
@@ -40,7 +41,8 @@ export default function BlogListItem({ blog }) {
           </Link>
         </h3>
         <div className="text-muted mb-3">
-          By <span className="fw-semibold">admin</span>, {formatDate(blog.createdAt)}
+          By <span className="fw-semibold">{authorLabel}</span>,{" "}
+          {formatDate(blog.createdAt)}
         </div>
         <div className="blog-meta-divider mb-3"></div>
         <p className="mb-3 blog-typography-content">{excerpt}</p>

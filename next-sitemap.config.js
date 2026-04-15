@@ -45,8 +45,12 @@ module.exports = {
     const dynamicPatterns = [
       "/projects/[projecttype]",
       "/[property]",
+      "/apartments/*",
+      "/flats/*",
+      "/new-projects/*",
       "/builder/[buildername]",
       "/blog/[blogpage]",
+      
     ];
 
     // Exclude dynamic patterns

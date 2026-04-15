@@ -98,6 +98,20 @@ const EXCEL_EXPORT_UI_INITIAL = {
   imageTotal: 0,
 };
 
+const BLOG_AUTHORS = [
+  "Aryan Tomar",
+  "Shorye Verma",
+  "Akansha Verma",
+  "Manav Raj Chopra",
+  "Aditya Bishwakarma",
+  "mohd khubeb",
+  "Soniya Joshi",
+  "Utpanna Shrivastava",
+  "Syed Arhan Rizvi",
+  "Varun Mathur",
+  "Alisba Ansari",
+];
+
 export default function ManageBlogs({ list, categoryList, cityList }) {
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState(null);
@@ -132,6 +146,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     blogDescription: "",
     slugUrl: "",
     blogImage: null,
+    authorName: "",
     status: 1,
     blogCategory: "",
     id: 0,
@@ -162,6 +177,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       data.append("blogDescription", blogDescription);
       data.append("slugUrl", formData.slugUrl);
       data.append("image", formData.blogImage);
+      data.append("authorName", formData.authorName || "");
       data.append("blogCategory", formData.blogCategory);
       data.append("id", formData.id);
       data.append("cityId", formData.cityId);
@@ -248,6 +264,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       blogKeywords: item.blogKeywords,
       blogMetaDescription: item.blogMetaDescription,
       slugUrl: item.slugUrl,
+      authorName: item.authorName || "",
       blogCategory: item.categoryId,
       id: item.id,
       cityId: item.cityId,
@@ -325,6 +342,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       "Meta description",
       "Description (HTML)",
       "Slug URL",
+      "Author Name",
       "Category",
       "City",
       "Status",
@@ -381,6 +399,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           b.blogMetaDescription ?? "",
           b.blogDescription ?? "",
           b.slugUrl ?? "",
+          b.authorName ?? "",
           b.blogCategory ?? "",
           b.cityName ?? "",
           b.status === 1 ? "Published" : "Draft",
@@ -493,6 +512,13 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       sortable: false,
       renderCell: (params) =>
         truncCell(params.row.blogMetaDescription || params.row.blogKeywords, 60),
+    },
+    {
+      field: "authorName",
+      headerName: "Author",
+      minWidth: 180,
+      flex: 0.8,
+      renderCell: (p) => truncCell(p.value || "—", 30),
     },
     {
       field: "blogCategory",
@@ -731,6 +757,25 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                 </Form.Select>
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
               </Form.Group>
+              <Form.Group as={Col} md="6" controlId="authorName">
+                <Form.Label>Author name</Form.Label>
+                <Form.Select
+                  name="authorName"
+                  value={formData.authorName || ""}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select author</option>
+                  {BLOG_AUTHORS.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </Form.Select>
+                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+              </Form.Group>
+            </Row>
+            <Row className="mb-3">
               <Form.Group as={Col} md="6" controlId="blogImage">
                 <Form.Label>Blog Image</Form.Label>
                 {previousBlogImage && (

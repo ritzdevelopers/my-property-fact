@@ -268,7 +268,7 @@
 }
 
 .transform-home-section {
-  display: block;
+  display: none;
   margin-top: 8px;
   margin-bottom: 28px;
 }
@@ -311,7 +311,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  /* Same horizontal band as “Why choose us?” so headline, marquee, and CTA line up */
   width: 100%;
+  max-width: min(620px, 52%);
 }
 
 .transform-home-mpf-logo-wrap {
@@ -369,13 +371,11 @@
 .transform-home-why {
   margin-top: clamp(6px, 1.5vw, 12px);
   width: 100%;
-  max-width: 52%;
   padding: clamp(18px, 3vw, 24px) clamp(18px, 3vw, 24px);
   background: #ffffff;
   border-radius: 12px;
   text-align: left;
   box-shadow: 0 4px 24px rgb(0 0 0 / 6%);
-  align-self: center;
 }
 
 .transform-home-why-title {
@@ -439,7 +439,6 @@
   gap: clamp(14px, 2.2vw, 24px);
   box-sizing: border-box;
   width: 100%;
-  max-width: 620px;
   margin-top: 0;
   padding: clamp(12px, 2vw, 20px) 0 0;
 }
@@ -553,6 +552,10 @@
 }
 
 @media (max-width: 575.98px) {
+  .transform-home-headline-stack {
+    max-width: 100%;
+  }
+
   .transform-home-developers {
     flex-wrap: wrap;
   }

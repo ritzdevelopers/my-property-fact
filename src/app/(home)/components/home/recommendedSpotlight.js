@@ -67,24 +67,15 @@ export function isNewLaunchProject(project) {
   return s.includes("new launch") || s.includes("new launched");
 }
 
-/**
- * Home "Recommended Properties": new launches first (newest activity first),
- * then latest other projects to fill up to `limit`.
- */
+/** Home "Recommended Properties": new-launch projects only, newest first (may return fewer than `limit`). */
 export function pickRecommendedPropertiesShowcase(projects, limit = 8) {
   const list = [...normalizeProjectsArray(projects)].filter(
     (p) => p?.slugURL && p?.projectName,
   );
-  const newLaunchSorted = list
+  return list
     .filter(isNewLaunchProject)
-    .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
-  const head = newLaunchSorted.slice(0, limit);
-  if (head.length >= limit) return head;
-  const used = new Set(head.map((p) => p.slugURL));
-  const rest = list
-    .filter((p) => !used.has(p.slugURL))
-    .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
-  return [...head, ...rest.slice(0, limit - head.length)];
+    .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a))
+    .slice(0, limit);
 }
 
 const TOKEN_STOPWORDS = new Set([

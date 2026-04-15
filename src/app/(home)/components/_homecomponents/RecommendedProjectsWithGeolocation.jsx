@@ -4,10 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import HomeRecommendationCards from "./HomeRecommendationCards";
 
 export default function RecommendedProjectsWithGeolocation({
+  title = "Recommended Projects",
   fallbackItems,
   fallbackSubtitle,
   viewAllHref,
   className = "",
+  /** Cards row: `project` = new projects only, `mixed` = projects + resale listings */
+  kind = "mixed",
+  /** API branch: `mixed` matches second home row; `projects` = location-based projects only (first row). */
+  locationIntent = "mixed",
 }) {
   const [items, setItems] = useState(fallbackItems);
   const [subtitle, setSubtitle] = useState(fallbackSubtitle);
@@ -36,6 +41,7 @@ export default function RecommendedProjectsWithGeolocation({
           if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
             q.set("accuracy", String(Math.round(accuracy)));
           }
+          q.set("intent", locationIntent);
           const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
           const data = await res.json();
           if (
@@ -62,14 +68,14 @@ export default function RecommendedProjectsWithGeolocation({
         timeout: 20_000,
       },
     );
-  }, []);
+  }, [locationIntent]);
 
   return (
     <HomeRecommendationCards
-      title="Recommended Projects"
+      title={title}
       subtitle={subtitle}
       items={items}
-      kind="mixed"
+      kind={kind}
       viewAllHref={viewAllHref}
       className={className}
     />

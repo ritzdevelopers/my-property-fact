@@ -3,6 +3,7 @@ import {
   buildMixedRecommendationsForRegion,
   buildSubtitleForRegion,
   fetchSpotlightDataForApi,
+  isNewLaunchProject,
   normalizeProjectsArray,
   normalizePlaceToken,
   projectLatestTimestamp,
@@ -292,6 +293,8 @@ export async function GET(request) {
     const lat = parseCoord(searchParams.get("lat"));
     const lon = parseCoord(searchParams.get("lon"));
     const _accuracyM = parseCoord(searchParams.get("accuracy"));
+    /** `mixed` = projects + public listings (home second row). `projects` = new-launch projects near coords only (first row). */
+    const intent = searchParams.get("intent") || "mixed";
 
     if (lat == null || lon == null || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
       return NextResponse.json(
@@ -333,6 +336,44 @@ export async function GET(request) {
     }
 
     const { projects, latestPublicListings } = await fetchSpotlightDataForApi();
+
+    if (intent === "projects") {
+      const newLaunchProjects = normalizeProjectsArray(projects).filter(isNewLaunchProject);
+      let items = [];
+      const attempts = [
+        { geoCity: region.city, geoState: region.state },
+        { geoCity: "", geoState: region.state },
+        { geoCity: "", geoState: "" },
+      ];
+      for (const a of attempts) {
+        items = buildMixedRecommendationsForRegion({
+          projects: newLaunchProjects,
+          latestPublicListings: [],
+          excludeSlugSet: new Set(),
+          geoCity: a.geoCity,
+          geoState: a.geoState,
+          geoTokens,
+          limit: 8,
+        });
+        if (items.length > 0) break;
+      }
+
+      let subtitle = buildSubtitleForRegion(region.city, region.state).trim();
+      if (!subtitle) subtitle = "New launches near you";
+
+      return NextResponse.json({
+        success: items.length > 0,
+        items,
+        subtitle,
+        region: {
+          city: region.city,
+          state: region.state,
+          source: region.source,
+          ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
+        },
+      });
+    }
+
     const list = normalizeProjectsArray(projects);
     const projectsSortedLatest = [...list]
       .filter((p) => p?.slugURL && p?.projectName)

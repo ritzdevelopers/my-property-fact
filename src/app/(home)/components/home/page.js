@@ -12,7 +12,6 @@ import {
   fetchTopPicksProject,
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
-import HomeRecommendationCards from "../_homecomponents/HomeRecommendationCards";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
@@ -136,11 +135,7 @@ export default async function HomePage() {
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
-  const projectsSortedLatest = [...(Array.isArray(projects) ? projects : [])]
-    .filter((p) => p?.slugURL && p?.projectName)
-    .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
-
-  const recommendedProperties = projectsSortedLatest.slice(0, 8);
+  const recommendedProperties = pickRecommendedPropertiesShowcase(projects, 8);
 
   const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
   const dailyCityLabel = getDailyRecommendedProjectCityLabel();
@@ -261,17 +256,20 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <HomeRecommendationCards
+        <RecommendedProjectsWithGeolocation
           title="Recommended Properties"
-          subtitle="Exclusively Chosen For You"
-          items={recommendedProperties}
+          fallbackItems={recommendedProperties}
+          fallbackSubtitle="Exclusively Chosen For You"
           kind="project"
+          locationIntent="projects"
+          viewAllHref="/projects"
           className="recommended-properties-section"
         />
 
         {/* MPF-top pick section (refreshes every 30s on client) */}
         <TopPicksWithRotation initialProject={mpfTopPicProject} />
         <RecommendedProjectsWithGeolocation
+          title="Recommended Projects"
           fallbackItems={recommendedProjects}
           fallbackSubtitle={
             dailyCityLabel === "Noida"

@@ -10,10 +10,10 @@ function LogoCell({ item, suppressA11y }) {
     <Image
       src={item.src}
       alt={alt}
-      width={140}
+      width={176}
       height={56}
       className="transform-home-developers-logo"
-      sizes="140px"
+      sizes="(max-width: 576px) 140px, 176px"
     />
   );
 

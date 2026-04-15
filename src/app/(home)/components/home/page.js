@@ -13,6 +13,7 @@ import {
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
+import GetTouchEnquirySection from "../common/GetTouchEnquirySection";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
 import {
@@ -158,15 +159,26 @@ export default async function HomePage() {
   const mpfTopPicProject = await fetchTopPicksProject();
 
   try {
+    const row = (i, node) => (
+      <div
+        key={i}
+        className="home-entrance-row"
+        style={{ "--mpf-yank-i": 11 + i }}
+      >
+        {node}
+      </div>
+    );
+
     return (
       <>
-        {/* Hero section component  */}
-        <HeroSection
-          projectTypeList={projectTypeList}
-          cityList={cityList}
-        />
+        {row(
+          0,
+          <HeroSection projectTypeList={projectTypeList} cityList={cityList} />,
+        )}
 
-        <section className="container transform-home-section">
+        {row(
+          1,
+          <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
             <Image
               src="/static/banners/transform.png"
@@ -255,70 +267,79 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+        )}
 
-        <RecommendedProjectsWithGeolocation
-          title="Recommended Properties"
-          fallbackItems={recommendedProperties}
-          fallbackSubtitle="Exclusively Chosen For You"
-          kind="project"
-          locationIntent="projects"
-          viewAllHref="/projects"
-          className="recommended-properties-section"
-        />
+        {row(
+          2,
+          <RecommendedProjectsWithGeolocation
+            title="Recommended Properties"
+            fallbackItems={recommendedProperties}
+            fallbackSubtitle="Exclusively Chosen For You"
+            kind="project"
+            locationIntent="projects"
+            viewAllHref="/projects"
+            className="recommended-properties-section"
+          />,
+        )}
 
-        {/* MPF-top pick section (refreshes every 30s on client) */}
-        <TopPicksWithRotation initialProject={mpfTopPicProject} />
-        <RecommendedProjectsWithGeolocation
-          title="Recommended Projects"
-          fallbackItems={recommendedProjects}
-          fallbackSubtitle={
-            dailyCityLabel === "Noida"
-              ? "Latest Projects in Noida & Greater Noida"
-              : `Latest Projects in ${dailyCityLabel}`
-          }
-          viewAllHref="/projects"
-        />
+        {row(
+          3,
+          <TopPicksWithRotation initialProject={mpfTopPicProject} />,
+        )}
 
-        {/* Static Sections */}
+        {row(
+          4,
+          <RecommendedProjectsWithGeolocation
+            title="Recommended Projects"
+            fallbackItems={recommendedProjects}
+            fallbackSubtitle={
+              dailyCityLabel === "Noida"
+                ? "Latest Projects in Noida & Greater Noida"
+                : `Latest Projects in ${dailyCityLabel}`
+            }
+            viewAllHref="/projects"
+          />,
+        )}
+
         <div className="position-relative">
-          {/* Insight section  */}
-          <NewInsight />
+          {row(5, <NewInsight />)}
 
-          {/* featured projects section  */}
-          <FeaturedPage
-            title="Featured Projects"
-            type="Featured"
-            autoPlay={false}
-            allFeaturedProperties={featuredProjects}
-          />
-          {/* dream cities section  */}
-          <DreamPropertySection />
-
-          {/* Residential + Commercial in one section with tabs */}
-          <div className="container">
+          {row(
+            6,
             <FeaturedPage
-              title="Explore Our Premier Residential Projects"
-              autoPlay={true}
-              allFeaturedProperties={[]}
-              residentialProjects={residentialProjects}
-              commercialProjects={commercialProjects}
-            />
-          </div>
+              title="Featured Projects"
+              type="Featured"
+              autoPlay={false}
+              allFeaturedProperties={featuredProjects}
+            />,
+          )}
 
-          {/* web story section  */}
-          <NewsViews title="Realty Updates Web Stories" />
+          {row(7, <DreamPropertySection />)}
 
-          {/* Top projects container on home page */}
-          <NoidaProjectsSection cities={cityList} />
+          {row(
+            8,
+            <div className="container">
+              <FeaturedPage
+                title="Explore Our Premier Residential Projects"
+                autoPlay={true}
+                allFeaturedProperties={[]}
+                residentialProjects={residentialProjects}
+                commercialProjects={commercialProjects}
+              />
+            </div>,
+          )}
 
-          {/* Latest blogs from our blog section */}
-          <SocialFeedPage />
+          {row(9, <NewsViews title="Realty Updates Web Stories" />)}
 
-          {/* Social feeds from instagram and facebook */}
-          <SocialFeedsOfMPF />
+          {row(10, <NoidaProjectsSection cities={cityList} />)}
 
-          {/* Popular cities section on home page  */}
-          <PopularCitiesSection />
+          {row(11, <SocialFeedPage />)}
+
+          {row(12, <SocialFeedsOfMPF />)}
+
+          {row(13, <PopularCitiesSection />)}
+
+          {row(14, <GetTouchEnquirySection />)}
         </div>
       </>
     );

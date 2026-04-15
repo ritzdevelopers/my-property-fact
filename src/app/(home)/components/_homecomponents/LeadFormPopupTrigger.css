@@ -1,9 +1,12 @@
-/* Floating lead form popup trigger button */
+/*
+ * Same horizontal axis as chatbot launcher (right: 24px desktop).
+ * Stack (bottom → top): chatbot → enquire → scroll-to-top.
+ */
 .lead-form-popup-trigger {
   position: fixed;
-  right: 0;
-  bottom: 160px;
-  z-index: 9998;
+  right: 24px;
+  bottom: calc(24px + 60px + 12px);
+  z-index: 2147483644;
 
   border: 0;
   padding: 12px 8px;
@@ -13,13 +16,13 @@
   text-transform: uppercase;
   color: #fff;
 
-  background: linear-gradient(135deg, #0d5834 0%, #0a4729 100%);
-  border-radius: 8px 0 0 8px;
+  background: #c9a24d;
+  border-radius: 12px 12px 12px 12px;
 
-  width: 40px;
+  width: 48px;
   height: 150px;
 
-  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
 
   cursor: pointer;
 
@@ -27,46 +30,189 @@
   align-items: center;
   justify-content: center;
 
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, background 0.2s ease, right 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Hover slide effect */
+.lead-form-popup-trigger--icon {
+  padding: 10px 6px;
+}
+
+.lead-form-popup-trigger__icon-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+}
+
+.lead-form-popup-trigger__icon-img--vertical {
+  max-width: 36px;
+  max-height: 120px;
+}
+
 .lead-form-popup-trigger:hover {
-  right: 4px;
-  background: linear-gradient(135deg, #0a4729 0%, #083d22 100%);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+  right: 20px;
+  background: #0f6a1f;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Vertical text */
-.lead-form-popup-trigger__text {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Mobile */
 @media (max-width: 768px) {
   .lead-form-popup-trigger {
-    bottom: 140px;
+    right: 15px;
+    bottom: calc(20px + 56px + 12px);
     width: 48px;
     height: 130px;
+  }
+
+  .lead-form-popup-trigger:hover {
+    right: 11px;
+  }
+
+  .lead-form-popup-trigger__icon-img--vertical {
+    max-width: 40px;
+    max-height: 108px;
   }
 }
 
 @media (max-width: 480px) {
   .lead-form-popup-trigger {
-    bottom: 120px;
+    right: 11px;
+    bottom: calc(16px + 50px + 12px);
     width: 44px;
     height: 120px;
+  }
+
+  .lead-form-popup-trigger:hover {
+    right: 7px;
+  }
+
+  .lead-form-popup-trigger__icon-img--vertical {
+    max-width: 36px;
+    max-height: 100px;
   }
 }
 
 @media (max-width: 360px) {
   .lead-form-popup-trigger {
-    bottom: 110px;
+    right: 12px;
+    bottom: calc(12px + 48px + 12px);
+  }
+
+  .lead-form-popup-trigger:hover {
+    right: 8px;
+  }
+}
+
+/* Home: collapsed circular enquire — 60×60 to match chatbot launcher */
+.lead-form-popup-trigger--collapsed {
+  right: 24px;
+  bottom: calc(24px + 60px + 12px);
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  padding: 6px;
+  border-radius: 50%;
+  flex-direction: row;
+  gap: 0;
+  align-items: center;
+  justify-content: center;
+  background: #c9a24d;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  animation: lead-form-mini-in 0.45s cubic-bezier(0.22, 0.82, 0.22, 1) both;
+  z-index: 2147483644;
+  transition: transform 0.2s ease, background 0.2s ease, right 0.2s ease, box-shadow 0.2s ease;
+}
+
+.lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
+  border-radius: 50%;
+  max-width: 44px;
+  max-height: 44px;
+}
+
+.lead-form-popup-trigger--collapsed:hover {
+  right: 20px;
+  background: #0f6a1f;
+  transform: scale(1.05);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+@keyframes lead-form-mini-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .lead-form-popup-trigger--collapsed {
+    right: 15px;
+    bottom: calc(20px + 56px + 12px);
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    min-height: 56px;
+    padding: 5px;
+  }
+
+  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
+    max-width: 40px;
+    max-height: 40px;
+  }
+
+  .lead-form-popup-trigger--collapsed:hover {
+    right: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .lead-form-popup-trigger--collapsed {
+    right: 11px;
+    bottom: calc(16px + 50px + 12px);
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    min-height: 50px;
+    padding: 5px;
+  }
+
+  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
+    max-width: 36px;
+    max-height: 36px;
+  }
+
+  .lead-form-popup-trigger--collapsed:hover {
+    right: 7px;
+  }
+}
+
+@media (max-width: 360px) {
+  .lead-form-popup-trigger--collapsed {
+    right: 12px;
+    bottom: calc(12px + 48px + 12px);
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+  }
+
+  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
+    max-width: 34px;
+    max-height: 34px;
+  }
+
+  .lead-form-popup-trigger--collapsed:hover {
+    right: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lead-form-popup-trigger--collapsed {
+    animation: none;
   }
 }

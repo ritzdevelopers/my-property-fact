@@ -16,19 +16,15 @@ import {
   faPlus,
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import Image from "next/image";
 import NotFound from "../../not-found";
 import CommonPopUpform from "../../(home)/components/common/popupform";
-import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import GetTouchEnquirySection from "../../(home)/components/common/GetTouchEnquirySection";
 import Featured from "../../(home)/components/home/featured/featured";
 import PopularCitiesSection from "../../(home)/components/home/popular-cities/PopularCitiesSection";
-import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
-import { Col, Row } from "react-bootstrap";
-import { usePathname, useRouter, notFound } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 
 function ScrollFadeSection({
   as: Tag = "section",
@@ -169,7 +165,6 @@ export default function Property({
   const [isAnswerVisible, setIsAnswerVisible] = useState({});
   const [isScrolled, setIsScrolled] = useState(false);
   const [showPopUp, setShowPopUp] = useState(false);
-  const [showLoading, setShowLoading] = useState(false);
   const [showAllAmenitiesPanel, setShowAllAmenitiesPanel] = useState(false);
   const [isMobileOrTablet, setIsMobileOrTablet] = useState(false);
   const [isAmenitiesInView, setIsAmenitiesInView] = useState(false);
@@ -181,75 +176,9 @@ export default function Property({
   const [allNearbyBenefits, setAllNearbyBenefits] = useState(() =>
     Array.isArray(nearbyBenefitsList) ? nearbyBenefitsList : [],
   );
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-    enquiryFrom: "",
-    projectLink: "",
-    pageName: "",
-  });
-  const pathname = usePathname();
   const router = useRouter();
-  const [validated1, setValidated1] = useState(false);
   //Defining loading state
   const [loading, setLoading] = useState(true);
-
-  //Validation errors state
-  const [errors, setErrors] = useState({
-    name: "",
-    email: "",
-    phone: "",
-  });
-
-  //Validation functions
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    // Allow letters, spaces, hyphens, and apostrophes
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    // Remove spaces, dashes, and parentheses for validation
-    const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    // Check if it's all digits
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-    // Check length (exactly 10 digits)
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
-    }
-    // Check if first digit is between 6-9
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-    return "";
-  };
 
   //Handling answer div
   const toggleAnswer = (faqKey) => {
@@ -308,119 +237,6 @@ export default function Property({
       ? "₹ " + Math.round(parseFloat(price) * 100) + " Lakh* Onwards"
       : "₹ " + parseFloat(price) + " Cr* Onwards";
   };
-  //Handle form input data
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((preData) => ({
-      ...preData,
-      [name]: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-  };
-
-  //Handle blur validation
-  const handleBlur = (e) => {
-    const { name, value } = e.target;
-    let error = "";
-
-    if (name === "name") {
-      error = validateName(value);
-    } else if (name === "email") {
-      error = validateEmail(value);
-    } else if (name === "phone") {
-      error = validatePhone(value);
-    }
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: error,
-    }));
-  };
-
-  //Handle submit form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-
-    // Validate all fields
-    const nameError = validateName(formData.name);
-    const emailError = validateEmail(formData.email);
-    const phoneError = validatePhone(formData.phone);
-
-    const newErrors = {
-      name: nameError,
-      email: emailError,
-      phone: phoneError,
-    };
-
-    setErrors(newErrors);
-
-    // Check if form is valid
-    const isFormValid =
-      form.checkValidity() &&
-      !nameError &&
-      !emailError &&
-      !phoneError &&
-      formData.message.trim() !== "";
-
-    if (!isFormValid) {
-      e.stopPropagation();
-      setValidated1(true);
-      toast.error("Please fill all fields correctly!");
-      return;
-    }
-
-    try {
-      setShowLoading(true);
-      // Make API request
-      const submitData = {
-        ...formData,
-        enquiryFrom: projectDetail.projectName,
-        projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
-        pageName: "Project Detail",
-      };
-
-      const response = await axios.post(
-        process.env.NEXT_PUBLIC_API_URL + "enquiry/post",
-        submitData,
-      );
-      // Check if response is successful
-      if (response.data.isSuccess === 1) {
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          message: "",
-          enquiryFrom: "",
-          projectLink: "",
-        });
-        setErrors({
-          name: "",
-          email: "",
-          phone: "",
-        });
-        setValidated1(false);
-        toast.success(response.data.message);
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error(
-        error.response?.data?.message || "An error occurred. Please try again.",
-      );
-    } finally {
-      setShowLoading(false);
-    }
-  };
-
   // Back to home: show text while scrolling, icon only when scroll stopped
   useEffect(() => {
     let scrollEndTimer = null;
@@ -787,12 +603,6 @@ const addNearbyImageIcon = (benefit) => {
     projectDetail?.builder?.slugURL || projectDetail?.builder?.slugUrl || "",
   ).trim();
   const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
-  const getInTouchPoints = [
-    "Book a Site Visit",
-    "Ask For a Brochure",
-    "Speak to a Representative",
-    "Ask for a Quotation",
-  ];
   const locationBenefitList =
     projectDetail.locationBenefits || projectDetail.projectLocationBenefitList || [];
   const locationBenefitsToRender = locationBenefitList.length
@@ -1517,114 +1327,7 @@ const addNearbyImageIcon = (benefit) => {
       </ScrollFadeSection>
 
       <ParallaxImageStrip imageSrc={aboutBuilderImageSrc}>
-        <div className="get-touch-overlay-inner">
-          <h2 className="get-touch-title">Get in Touch</h2>
-          <p className="get-touch-copy">
-            If you have any additional queries regarding the project or would like to
-            take the next step in your investment journey, you can fill out this query
-            form and our team will be happy to assist you with what you need.
-          </p>
-
-          <div className="get-touch-point-list">
-            {getInTouchPoints.map((point) => (
-              <span key={point} className="get-touch-point-item">
-                <span className="get-touch-point-icon">
-                  <Image src="/icon/verify.svg" alt="" width={12} height={12} />
-                </span>
-                <span>{point}</span>
-              </span>
-            ))}
-          </div>
-
-          <div className="project-detail-contact-form get-touch-form-wrap">
-            <Form
-              noValidate
-              validated={validated1}
-              className="w-100"
-              onSubmit={(e) => handleSubmit(e)}
-            >
-              <Row className="g-2">
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="first_name">
-                    <Form.Control
-                      type="text"
-                      placeholder="Full Name"
-                      value={formData.name || ""}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="name"
-                      isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.name || "Please provide a valid name."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="email_id">
-                    <Form.Control
-                      type="email"
-                      placeholder="Email Id"
-                      value={formData.email || ""}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="email"
-                      isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.email || "Please provide a valid email."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-
-                <Col md={4}>
-                  <Form.Group className="mb-2" controlId="phone_number">
-                    <Form.Control
-                      type="tel"
-                      placeholder="Phone Number"
-                      value={formData.phone || ""}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="phone"
-                      isInvalid={!!errors.phone || (validated1 && !formData.phone.trim())}
-                      required
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.phone || "Please provide a valid phone number."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
-
-              <Form.Group className="mb-2" controlId="message">
-                <Form.Control
-                  as="textarea"
-                  rows={4}
-                  placeholder="Message"
-                  value={formData.message || ""}
-                  onChange={(e) => handleChange(e)}
-                  name="message"
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a valid message.
-                </Form.Control.Feedback>
-              </Form.Group>
-
-              <Button
-                className="btn btn-background text-white border-0 w-100 py-3 text-capitalize get-touch-submit-btn"
-                type="submit"
-                disabled={showLoading}
-              >
-                Submit
-                <LoadingSpinner show={showLoading} />
-              </Button>
-            </Form>
-          </div>
-        </div>
+        <GetTouchEnquirySection projectDetail={projectDetail} embeddedInParallax />
       </ParallaxImageStrip>
 
       {/* Similar Projects */}

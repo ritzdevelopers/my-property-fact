@@ -147,7 +147,11 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           }}
         >
           <div className="d-flex flex-wrap flex-md-row flex-column p-3 p-md-4 gap-2 gap-md-3 plus-jakarta-sans-regular">
-            <div className="col">{renderDropdown(
+            <div
+              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
+              style={{ ["--mpf-yank-i"]: 7 }}
+            >
+              {renderDropdown(
               "type",
               propertType,
               setPropertyType,
@@ -155,8 +159,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               effectiveProjectTypes,
               (o) => o.projectTypeName,
               (o) => o.id
-            )}</div>
-            <div className="col">{renderDropdown(
+            )}
+            </div>
+            <div
+              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
+              style={{ ["--mpf-yank-i"]: 8 }}
+            >
+              {renderDropdown(
               "location",
               propertyLocation,
               setPropertyLocation,
@@ -164,8 +173,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               effectiveCityList,
               (o) => o.cityName,
               (o) => o.id
-            )}</div>
-            <div className="col">{renderDropdown(
+            )}
+            </div>
+            <div
+              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
+              style={{ ["--mpf-yank-i"]: 9 }}
+            >
+              {renderDropdown(
               "price",
               budget,
               setBudget,
@@ -173,9 +187,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               projectRange,
               (o) => o,
               (o) => o
-            )}</div>
+            )}
+            </div>
 
-            <div className="d-flex align-items-end">
+            <div
+              className="d-flex align-items-end mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
+              style={{ ["--mpf-yank-i"]: 10 }}
+            >
               <button
                 type="submit"
                 className="search-btn-home-page"

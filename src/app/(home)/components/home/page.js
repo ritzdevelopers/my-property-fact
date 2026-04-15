@@ -13,9 +13,14 @@ import {
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
 import HomeRecommendationCards from "../_homecomponents/HomeRecommendationCards";
+import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
-import { transformPublicPropertyList } from "../../properties/transformPublicProperties";
+import {
+  loadPublicPropertiesForSpotlight,
+  buildMixedRecommendationsForRegion,
+  projectLatestTimestamp,
+} from "./recommendedSpotlight";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   ssr: true,
@@ -44,52 +49,7 @@ const NoidaProjectsSection = dynamic(
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
-async function loadPublicProperties() {
-  const raw = process.env.NEXT_PUBLIC_API_URL || "";
-  const base = raw.endsWith("/") ? raw.slice(0, -1) : raw;
-  if (!base) return [];
-
-  try {
-    const res = await fetch(`${base}/public/properties`, {
-      next: { revalidate: 60 },
-    });
-    const data = await res.json();
-    if (data?.success && Array.isArray(data.properties)) {
-      return transformPublicPropertyList(data.properties);
-    }
-    return [];
-  } catch {
-    return [];
-  }
-}
-
-function propertyListingLatestTimestamp(listing) {
-  const raw = listing?.raw?.updatedAt ?? listing?.raw?.createdAt ?? null;
-  if (raw == null) return 0;
-  const ms = new Date(raw).getTime();
-  return Number.isNaN(ms) ? 0 : ms;
-}
-
-function projectLatestTimestamp(project) {
-  if (!project || typeof project !== "object") return 0;
-  const raw =
-    project.updatedAt ??
-    project.updated_at ??
-    project.createdAt ??
-    project.created_at ??
-    project.modifiedAt ??
-    project.dateCreated ??
-    null;
-  if (raw == null) {
-    const id = project.id ?? project.projectId;
-    return typeof id === "number" ? id : 0;
-  }
-  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
-  const ms = new Date(raw).getTime();
-  return Number.isNaN(ms) ? 0 : ms;
-}
-
-/** Alternates by calendar day (IST): e.g. one day Delhi, next Noida. */
+/** Alternates by calendar day (IST): e.g. one day Delhi, next Noida — SSR fallback before geolocation. */
 const DAILY_RECOMMENDED_PROJECT_CITIES = ["Delhi", "Noida"];
 
 function getDailyRecommendedProjectCityLabel() {
@@ -105,57 +65,10 @@ function getDailyRecommendedProjectCityLabel() {
   return DAILY_RECOMMENDED_PROJECT_CITIES[dayOrdinal % 2];
 }
 
-function projectCityMatchesLabel(project, cityLabel) {
-  const cn = String(project?.cityName || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-  if (!cn) return false;
-  if (cityLabel === "Delhi") {
-    return cn === "delhi" || cn === "new delhi";
-  }
-  if (cityLabel === "Noida") {
-    return (
-      cn === "noida" ||
-      cn === "greater noida" ||
-      cn.includes("greater noida") ||
-      cn.includes("noida")
-    );
-  }
-  return cn === String(cityLabel).trim().toLowerCase();
-}
-
-/** Public `/public/properties` rows: match Noida + Greater Noida or Delhi for the daily spotlight. */
-function publicListingMatchesDailyCity(listing, cityLabel) {
-  const raw = listing?.raw || {};
-  const blob = [
-    raw.city,
-    raw.locality,
-    raw.address,
-    listing?.location,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase()
-    .replace(/\s+/g, " ");
-  if (!blob.trim()) return false;
-  if (cityLabel === "Delhi") {
-    return blob.includes("delhi") || blob.includes("new delhi");
-  }
-  if (cityLabel === "Noida") {
-    return (
-      blob.includes("greater noida") ||
-      blob.includes("noida") ||
-      blob.includes("noida extension")
-    );
-  }
-  return false;
-}
-
 export default async function HomePage() {
   const [projects, latestPublicListings] = await Promise.all([
     getAllProjects(),
-    loadPublicProperties(),
+    loadPublicPropertiesForSpotlight(),
   ]);
 
   // Allowed slugs for featured projects
@@ -232,31 +145,14 @@ export default async function HomePage() {
   const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
   const dailyCityLabel = getDailyRecommendedProjectCityLabel();
 
-  const spotlightProjectPool = projectsSortedLatest
-    .filter((p) => projectCityMatchesLabel(p, dailyCityLabel))
-    .filter((p) => !firstSlugs.has(p.slugURL))
-    .map((p) => ({
-      itemKind: "project",
-      sort: projectLatestTimestamp(p),
-      payload: p,
-    }));
-
-  const spotlightListingPool = (Array.isArray(latestPublicListings)
-    ? latestPublicListings
-    : []
-  )
-    .filter((row) => row?.slug && row?.title)
-    .filter((row) => publicListingMatchesDailyCity(row, dailyCityLabel))
-    .map((row) => ({
-      itemKind: "property",
-      sort: propertyListingLatestTimestamp(row),
-      payload: row,
-    }));
-
-  const recommendedProjects = [...spotlightProjectPool, ...spotlightListingPool]
-    .sort((a, b) => b.sort - a.sort)
-    .slice(0, 8)
-    .map(({ itemKind, payload }) => ({ itemKind, ...payload }));
+  const recommendedProjects = buildMixedRecommendationsForRegion({
+    projects,
+    latestPublicListings,
+    excludeSlugSet: firstSlugs,
+    geoCity: dailyCityLabel,
+    geoState: "",
+    limit: 8,
+  });
 
   const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
     builders,
@@ -375,15 +271,13 @@ export default async function HomePage() {
 
         {/* MPF-top pick section (refreshes every 30s on client) */}
         <TopPicksWithRotation initialProject={mpfTopPicProject} />
-        <HomeRecommendationCards
-          title="Recommended Projects"
-          subtitle={
+        <RecommendedProjectsWithGeolocation
+          fallbackItems={recommendedProjects}
+          fallbackSubtitle={
             dailyCityLabel === "Noida"
               ? "Latest Projects in Noida & Greater Noida"
               : `Latest Projects in ${dailyCityLabel}`
           }
-          items={recommendedProjects}
-          kind="mixed"
           viewAllHref="/projects"
         />
 

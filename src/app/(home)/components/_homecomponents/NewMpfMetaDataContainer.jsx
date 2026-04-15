@@ -75,7 +75,7 @@ export default function NewMpfMetaDataContainer({
 
       <HomeRecommendationCards
         title="Recommended Properties"
-        subtitle="Curated property picks for buyers exploring top locations"
+        subtitle="New launches & latest projects"
         items={recommendedProperties}
         kind="project"
       />

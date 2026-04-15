@@ -268,7 +268,7 @@
 }
 
 .transform-home-section {
-  display: none;
+  display: block;
   margin-top: 8px;
   margin-bottom: 28px;
 }
@@ -276,7 +276,7 @@
 .transform-home-image-wrap {
   position: relative;
   width: 100%;
-  min-height: 743px;
+  min-height: 550px;
   overflow: hidden;
   border-radius: 14px;
 }
@@ -310,14 +310,11 @@
 .transform-home-headline-stack {
   display: flex;
   flex-direction: column;
-  align-items: center;
-
+  align-items: flex-start;
   width: 100%;
-
 }
 
 .transform-home-mpf-logo-wrap {
-  align-self: flex-start;
   line-height: 3;
 }
 
@@ -371,13 +368,14 @@
 
 .transform-home-why {
   margin-top: clamp(6px, 1.5vw, 12px);
-  
-  max-width: 100%;
+  width: 100%;
+  max-width: 52%;
   padding: clamp(18px, 3vw, 24px) clamp(18px, 3vw, 24px);
   background: #ffffff;
   border-radius: 12px;
   text-align: left;
   box-shadow: 0 4px 24px rgb(0 0 0 / 6%);
+  align-self: center;
 }
 
 .transform-home-why-title {
@@ -438,7 +436,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-
+  gap: clamp(14px, 2.2vw, 24px);
   box-sizing: border-box;
   width: 100%;
   max-width: 620px;
@@ -572,7 +570,6 @@
 
 .transform-home-explore-projects-wrap {
   width: 100%;
-  align-self: flex-start;
   padding-top: clamp(6px, 1.2vw, 12px);
 }
 

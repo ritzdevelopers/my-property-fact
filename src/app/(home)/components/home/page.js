@@ -19,7 +19,7 @@ import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopers
 import {
   loadPublicPropertiesForSpotlight,
   buildMixedRecommendationsForRegion,
-  projectLatestTimestamp,
+  pickRecommendedPropertiesShowcase,
 } from "./recommendedSpotlight";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {

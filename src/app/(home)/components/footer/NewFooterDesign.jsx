@@ -10,7 +10,6 @@ import {
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import "./newfooter.css";
 
@@ -24,18 +23,6 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
 
   // Use prop when provided (e.g. property page) - else context (e.g. home page with SiteDataProvider)
   const cityList = cityListProp ?? contextCityList;
-  const [visibleCount, setVisibleCount] = useState({
-    apartments: 5,
-    newProjects: 5,
-    commercial: 5,
-    flats: 5,
-  });
-  const [animatingItems, setAnimatingItems] = useState({
-    apartments: [],
-    newProjects: [],
-    commercial: [],
-    flats: [],
-  });
 
   // Helper function to generate URL slug from prefix
   const generateSlug = (prefix) => {
@@ -73,50 +60,6 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     });
   };
 
-  // Load more cities (5 at a time) for each category
-  const loadMoreCities = (category, totalCities) => {
-    const currentCount = visibleCount[category] || 5;
-    const newCount = Math.min(currentCount + 5, totalCities);
-    const newItemsStartIndex = currentCount;
-    const newItemsEndIndex = newCount;
-    
-    // Track which items are being animated
-    const newItemIndices = [];
-    for (let i = newItemsStartIndex; i < newItemsEndIndex; i++) {
-      newItemIndices.push(i);
-    }
-    
-    // Set animation state first
-    setAnimatingItems(prev => ({
-      ...prev,
-      [category]: newItemIndices
-    }));
-    
-    // Then update visible count (slight delay for animation trigger)
-    setTimeout(() => {
-      setVisibleCount(prev => ({
-        ...prev,
-        [category]: newCount
-      }));
-    }, 10);
-    
-    // Remove animation class after animation completes
-    setTimeout(() => {
-      setAnimatingItems(prev => ({
-        ...prev,
-        [category]: []
-      }));
-    }, 600);
-  };
-
-  // Reset to initial 5 cities
-  const resetCities = (category) => {
-    setVisibleCount(prev => ({
-      ...prev,
-      [category]: 5
-    }));
-  };
-
   // Filter cities based on category (same logic as old footer), then sort Delhi NCR first
   // Prop from server (property page): use immediately. Context (home): defer until mounted to avoid hydration mismatch.
   const safeCityList = Array.isArray(cityListProp)
@@ -133,30 +76,18 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     safeCityList.filter((item) => item?.cityName && !["Agra", "Bareilly", "Chennai", "Dehradun", "Kochi", "Thiruvananthapuram", "Vrindavan"].includes(item.cityName))
   );
 
-  // Helper function to render city list with Load More
+  const SCROLL_HINT_MIN_CITIES = 6;
+
+  // City lists: scrollable region + pulse hint (no Load More button)
   const renderCityList = (cities, category, prefix, generateSlugFn) => {
-    const currentVisible = visibleCount[category] || 5;
-    const visibleCities = cities.slice(0, currentVisible);
-    const hasMore = cities.length > currentVisible;
-    const isExpanded = currentVisible > 5;
-    const animatingIndices = animatingItems[category] || [];
+    const useScroll = cities.length >= SCROLL_HINT_MIN_CITIES;
 
     return (
       <>
-        <ul className="footer-links">
-          {visibleCities.map((city, index) => {
-            const isAnimating = animatingIndices.includes(index);
-            const animationIndex = isAnimating ? animatingIndices.indexOf(index) : 0;
-            const animationDelay = isAnimating ? animationIndex * 0.05 : 0;
-            
-            return (
-              <li 
-                key={`${category}-${city.id || index}`}
-                className={isAnimating ? 'city-item-animating' : ''}
-                style={isAnimating ? { 
-                  animationDelay: `${animationDelay}s`
-                } : {}}
-              >
+        <div className={useScroll ? "footer-links-scroll" : undefined}>
+          <ul className="footer-links">
+            {cities.map((city, index) => (
+              <li key={`${category}-${city.id || index}`}>
                 <Link
                   href={`${generateSlugFn(prefix)}${city.slugURL}`}
                   prefetch={false}
@@ -165,32 +96,20 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                   {prefix}{city.cityName}
                 </Link>
               </li>
-            );
-          })}
-        </ul>
-        {hasMore && (
-          <button
-            onClick={() => loadMoreCities(category, cities.length)}
-            className="read-more-less-btn"
+            ))}
+          </ul>
+        </div>
+        {useScroll && (
+          <div
+            className="footer-scroll-hint"
+            role="status"
+            aria-label="Scroll the list above to view more links"
           >
-            <span>Load More</span>
-            <FontAwesomeIcon 
-              icon={faChevronDown} 
-              className="read-more-icon"
-            />
-          </button>
-        )}
-        {isExpanded && !hasMore && (
-          <button
-            onClick={() => resetCities(category)}
-            className="read-more-less-btn"
-          >
-            <span>Show Less</span>
-            <FontAwesomeIcon 
-              icon={faChevronUp} 
-              className="read-more-icon"
-            />
-          </button>
+            <span className="footer-scroll-hint__pulse" aria-hidden>
+              <span className="footer-scroll-hint__pulse-dot" />
+            </span>
+            <span className="footer-scroll-hint__text">Scroll to view more</span>
+          </div>
         )}
       </>
     );

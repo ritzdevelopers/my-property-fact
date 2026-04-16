@@ -8,8 +8,8 @@ import NavigationLoader from "./NavigationLoader";
 import AdminTelemetryMount from "./AdminTelemetryMount";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import "./admin-theme.css";
 import "./admin-layout.css";
+import "./admin-theme.css";
 
 const MOBILE_SIDEBAR_MAX = 992;
 

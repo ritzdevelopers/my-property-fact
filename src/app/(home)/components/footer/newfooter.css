@@ -3,7 +3,8 @@
     background-size: cover;
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 10;
+    isolation: isolate;
     padding: 60px 0 15px;
 }
 
@@ -322,6 +323,92 @@
 
 .read-more-less-btn:active {
     transform: translateY(0);
+}
+
+/* After Load More: all links in a fixed-height scroll area (scrollbar always reserved) */
+.footer-links-scroll {
+    max-height: clamp(160px, 28vh, 280px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: auto;
+    padding-right: 0;
+    margin-bottom: 2px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Legacy Edge/IE */
+}
+
+.footer-links-scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none; /* Chromium/Safari */
+}
+
+.footer-links-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.footer-links-scroll::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.footer-links-scroll::-webkit-scrollbar-thumb:hover {
+    background: transparent;
+}
+
+/* Scroll hint (replaces Load More): gold pulse + label */
+.footer-scroll-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    color: #D4AF37;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.footer-scroll-hint__text {
+    line-height: 1.2;
+    color: #D4AF37;
+}
+
+.footer-scroll-hint__pulse {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+}
+
+.footer-scroll-hint__pulse-dot {
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: #D4AF37;
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+    animation: footer-scroll-hint-pulse 1.5s ease-out infinite;
+}
+
+@keyframes footer-scroll-hint-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+    }
+    55% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .footer-scroll-hint__pulse-dot {
+        animation: none;
+        box-shadow: none;
+    }
 }
 
 /* Stay Updated Section */

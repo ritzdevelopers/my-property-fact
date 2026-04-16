@@ -13,7 +13,6 @@ import {
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
-import GetTouchEnquirySection from "../common/GetTouchEnquirySection";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
 import {
@@ -338,8 +337,6 @@ export default async function HomePage() {
           {row(12, <SocialFeedsOfMPF />)}
 
           {row(13, <PopularCitiesSection />)}
-
-          {row(14, <GetTouchEnquirySection />)}
         </div>
       </>
     );

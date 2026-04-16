@@ -1,6 +1,7 @@
 /* Standalone "Get in Touch" (home + legacy property page) — same look as V2 parallax overlay form */
 .mpf-get-touch-enquiry {
   position: relative;
+  z-index: 0;
   width: 100%;
   margin: 0;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.88) 100%);

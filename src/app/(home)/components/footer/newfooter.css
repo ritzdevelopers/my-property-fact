@@ -3,7 +3,8 @@
     background-size: cover;
     width: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 10;
+    isolation: isolate;
     padding: 60px 0 15px;
 }
 

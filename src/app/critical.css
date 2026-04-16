@@ -88,6 +88,40 @@ body {
   object-position: center;
 }
 
+.hero-art-direction {
+  aspect-ratio: 458 / 810;
+  display: block;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-art-direction {
+    aspect-ratio: 1920 / 600;
+  }
+
+  .hero-banner-image--full {
+    object-fit: contain;
+    object-position: center center;
+  }
+}
+
+.home-banner.hero-art-direction picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.home-banner.hero-art-direction picture img.hero-banner-image {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  display: block;
+}
+
 /* Critical Typography */
 h1, h2, h3, h4, h5, h6, button, a {
   font-family: var(--heaing-font) !important;

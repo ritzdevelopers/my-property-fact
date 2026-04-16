@@ -1,52 +1,33 @@
-import { getImageProps } from "next/image";
-import {
-  ghdHeroBannerSrc,
-  getGhdHeroImagePropsCommon,
-} from "./ghdHeroBannerConfig";
+import { ghdHeroBannerSrc } from "./ghdHeroBannerConfig";
 
 /**
- * Responsive preloads so the LCP image URL is discoverable from the document
- * head (matches Next Image /_next/image URLs used by the hero <picture>).
+ * Preload hero assets by viewport — direct /static URLs (no /_next/image).
  */
 export default function HeroLcpPreloads() {
-  const common = getGhdHeroImagePropsCommon();
-
-  const mobile = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.mobile,
-  }).props;
-  const tablet = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.tablet,
-  }).props;
-  const desktop = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.desktop,
-  }).props;
+  const mobile = encodeURI(ghdHeroBannerSrc.mobile);
+  const tablet = encodeURI(ghdHeroBannerSrc.tablet);
+  const desktop = encodeURI(ghdHeroBannerSrc.desktop);
 
   return (
     <>
       <link
         rel="preload"
         as="image"
-        imageSrcSet={mobile.srcSet}
-        imageSizes={mobile.sizes}
+        href={mobile}
         fetchPriority="high"
         media="(max-width: 767px)"
       />
       <link
         rel="preload"
         as="image"
-        imageSrcSet={tablet.srcSet}
-        imageSizes={tablet.sizes}
+        href={tablet}
         fetchPriority="high"
-        media="(min-width: 768px) and (max-width: 991px)"
+        media="(min-width: 768px) and (max-width: 991.98px)"
       />
       <link
         rel="preload"
         as="image"
-        imageSrcSet={desktop.srcSet}
-        imageSizes={desktop.sizes}
+        href={desktop}
         fetchPriority="high"
         media="(min-width: 992px)"
       />

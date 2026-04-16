@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  unoptimized: true,
 
 
   async redirects() {

@@ -227,6 +227,84 @@ export function buildSubtitleForRegion(geoCity, geoState) {
   return "";
 }
 
+/** Subtitle when showing MPF projects only (no resale/public listings). */
+export function buildSubtitleLatestProjectsNear(geoCity, geoState) {
+  const c = String(geoCity || "").trim();
+  const s = String(geoState || "").trim();
+  if (c && s) return `Latest projects near ${c}, ${s}`;
+  if (c) return `Latest projects near ${c}`;
+  if (s) return `Latest projects in ${s}`;
+  return "";
+}
+
+/** Subtitle for new-launch–only rows (Recommended Properties). */
+export function buildSubtitleNewLaunchesNear(geoCity, geoState) {
+  const c = String(geoCity || "").trim();
+  const s = String(geoState || "").trim();
+  if (c && s) return `New launch projects near ${c}, ${s}`;
+  if (c) return `New launch projects near ${c}`;
+  if (s) return `New launch projects in ${s}`;
+  return "";
+}
+
+/**
+ * MPF projects only, newest-first within region tier (tier 1 → 2 → global fill).
+ * Used for home "Recommended Projects" — no public property listings.
+ */
+export function buildLatestProjectsForRegion({
+  projects,
+  excludeSlugSet,
+  geoCity,
+  geoState,
+  geoTokens = [],
+  limit = 8,
+}) {
+  const exclude =
+    excludeSlugSet instanceof Set ? excludeSlugSet : new Set(excludeSlugSet || []);
+  const tokenList = Array.isArray(geoTokens) ? geoTokens : [];
+
+  const base = [...normalizeProjectsArray(projects)]
+    .filter((p) => p?.slugURL && p?.projectName && !exclude.has(p.slugURL))
+    .map((p) => ({
+      payload: p,
+      sort: projectLatestTimestamp(p),
+      tier: combinedProjectRegionTier(p, geoCity, geoState, tokenList),
+    }));
+
+  const inRegion = base
+    .filter((x) => x.tier > 0)
+    .sort((a, b) => {
+      if (a.tier !== b.tier) return a.tier - b.tier;
+      return b.sort - a.sort;
+    });
+
+  if (inRegion.length >= limit) {
+    return inRegion.slice(0, limit).map((x) => x.payload);
+  }
+
+  const picked = new Set(inRegion.map((x) => x.payload.slugURL));
+  const globalRest = base
+    .filter((x) => !picked.has(x.payload.slugURL))
+    .sort((a, b) => b.sort - a.sort);
+
+  return [...inRegion.map((x) => x.payload), ...globalRest.map((x) => x.payload)].slice(
+    0,
+    limit,
+  );
+}
+
+/**
+ * New-launch MPF projects only (`projectStatusName`), same region + latest ordering as
+ * {@link buildLatestProjectsForRegion}. Home "Recommended Properties" row.
+ */
+export function buildNewLaunchProjectsForRegion(opts) {
+  const { projects, ...rest } = opts;
+  const pool = [...normalizeProjectsArray(projects)].filter(
+    (p) => p?.slugURL && p?.projectName && isNewLaunchProject(p),
+  );
+  return buildLatestProjectsForRegion({ ...rest, projects: pool });
+}
+
 export function buildMixedRecommendationsForRegion({
   projects,
   latestPublicListings,

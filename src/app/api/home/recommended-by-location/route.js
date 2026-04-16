@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import {
+  buildLatestProjectsForRegion,
   buildMixedRecommendationsForRegion,
+  buildNewLaunchProjectsForRegion,
   buildSubtitleForRegion,
+  buildSubtitleLatestProjectsNear,
+  buildSubtitleNewLaunchesNear,
   fetchSpotlightDataForApi,
   isNewLaunchProject,
   normalizeProjectsArray,
@@ -293,7 +297,7 @@ export async function GET(request) {
     const lat = parseCoord(searchParams.get("lat"));
     const lon = parseCoord(searchParams.get("lon"));
     const _accuracyM = parseCoord(searchParams.get("accuracy"));
-    /** `mixed` = projects + public listings (home second row). `projects` = new-launch projects near coords only (first row). */
+    /** `mixed` = projects + public listings. `projects` = new-launch projects near coords. `latest-projects` = MPF projects only, newest-first (home Recommended Projects row). */
     const intent = searchParams.get("intent") || "mixed";
 
     if (lat == null || lon == null || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
@@ -339,27 +343,96 @@ export async function GET(request) {
 
     if (intent === "projects") {
       const newLaunchProjects = normalizeProjectsArray(projects).filter(isNewLaunchProject);
-      let items = [];
-      const attempts = [
-        { geoCity: region.city, geoState: region.state },
-        { geoCity: "", geoState: region.state },
-        { geoCity: "", geoState: "" },
-      ];
-      for (const a of attempts) {
-        items = buildMixedRecommendationsForRegion({
-          projects: newLaunchProjects,
-          latestPublicListings: [],
-          excludeSlugSet: new Set(),
-          geoCity: a.geoCity,
-          geoState: a.geoState,
-          geoTokens,
-          limit: 8,
+      const list = [...newLaunchProjects]
+        .filter((p) => p?.slugURL && p?.projectName)
+        .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
+      const recommendedTop = list.slice(0, 8);
+      const excludeSlugSet = new Set(recommendedTop.map((p) => p.slugURL));
+
+      const baseArgs = {
+        projects: newLaunchProjects,
+        excludeSlugSet,
+        geoTokens,
+        limit: 8,
+      };
+
+      let items = buildNewLaunchProjectsForRegion({
+        ...baseArgs,
+        geoCity: region.city,
+        geoState: region.state,
+      });
+
+      if (items.length === 0 && region.state) {
+        items = buildNewLaunchProjectsForRegion({
+          ...baseArgs,
+          geoCity: "",
+          geoState: region.state,
         });
-        if (items.length > 0) break;
       }
 
-      let subtitle = buildSubtitleForRegion(region.city, region.state).trim();
-      if (!subtitle) subtitle = "New launches near you";
+      if (items.length === 0 && geoTokens.length > 0) {
+        items = buildNewLaunchProjectsForRegion({
+          ...baseArgs,
+          geoCity: "",
+          geoState: "",
+        });
+      }
+
+      let subtitle = buildSubtitleNewLaunchesNear(region.city, region.state).trim();
+      if (!subtitle) subtitle = "New launch projects near you";
+
+      return NextResponse.json({
+        success: items.length > 0,
+        items,
+        subtitle,
+        region: {
+          city: region.city,
+          state: region.state,
+          source: region.source,
+          ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
+        },
+      });
+    }
+
+    if (intent === "latest-projects") {
+      const list = normalizeProjectsArray(projects);
+      const projectsSortedLatest = [...list]
+        .filter((p) => p?.slugURL && p?.projectName)
+        .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
+      const recommendedTop = projectsSortedLatest.slice(0, 8);
+      const excludeSlugSet = new Set(recommendedTop.map((p) => p.slugURL));
+
+      const baseArgs = {
+        projects,
+        excludeSlugSet,
+        geoTokens,
+        limit: 8,
+      };
+
+      let items = buildLatestProjectsForRegion({
+        ...baseArgs,
+        geoCity: region.city,
+        geoState: region.state,
+      });
+
+      if (items.length === 0 && region.state) {
+        items = buildLatestProjectsForRegion({
+          ...baseArgs,
+          geoCity: "",
+          geoState: region.state,
+        });
+      }
+
+      if (items.length === 0 && geoTokens.length > 0) {
+        items = buildLatestProjectsForRegion({
+          ...baseArgs,
+          geoCity: "",
+          geoState: "",
+        });
+      }
+
+      let subtitle = buildSubtitleLatestProjectsNear(region.city, region.state).trim();
+      if (!subtitle) subtitle = "Latest projects listed on My Property Fact";
 
       return NextResponse.json({
         success: items.length > 0,

@@ -503,6 +503,7 @@ body.gateway-open {
   overflow: hidden;
 }
 
+/* Home entry: solid brand background only — no extra decorative overlays */
 .mpf-gateway-overlay {
   position: fixed;
   inset: 0;
@@ -512,73 +513,64 @@ body.gateway-open {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
   padding: 24px;
-  animation: mpf-gateway-fade-in 500ms ease-out both;
-}
-
-.mpf-gateway-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, rgba(35, 52, 127, 0.4), transparent 62%);
-  animation: mpf-gateway-bg-pulse 4.4s ease-in-out infinite;
-}
-
-.mpf-gateway-overlay::after {
-  content: "";
-  position: absolute;
-  width: min(58vw, 480px);
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    rgba(212, 175, 55, 0.15),
-    rgba(212, 175, 55, 0),
-    rgba(212, 175, 55, 0.15)
-  );
-  filter: blur(1px);
-  animation: mpf-gateway-halo-spin 11s linear infinite;
-  opacity: 0.75;
+  animation: mpf-gateway-fade-in 420ms ease-out both;
 }
 
 .mpf-gateway-overlay--exit {
-  transform-origin: right center;
+  transform-origin: center;
   animation: mpf-gateway-fade-out 950ms cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
 }
 
-.mpf-gateway-logo-wrap {
+.mpf-gateway-loader {
   position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
-  animation: mpf-gateway-logo-in 1000ms cubic-bezier(0.2, 0.95, 0.25, 1) both;
+  width: min(78vw, 300px);
+  aspect-ratio: 1;
+  max-width: 100%;
 }
 
-.mpf-gateway-logo {
-  width: clamp(90px, 12vw, 132px);
-  height: auto;
-  animation: mpf-gateway-float 4.8s ease-in-out infinite;
+.mpf-gateway-loader__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 24px rgba(0, 0, 0, 0.25));
 }
 
-.mpf-gateway-title {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  min-height: 1.3em;
-  color: #f4f6ff;
-  font-family: "Montserrat", sans-serif;
+.mpf-gateway-loader__track {
+  stroke: rgba(255, 255, 255, 0.14);
+  stroke-width: 3.5;
+}
+
+.mpf-gateway-loader__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding: 16%;
+  pointer-events: none;
+}
+
+.mpf-gateway-loader__logo {
+  width: clamp(64px, 20vw, 92px) !important;
+  height: auto !important;
+  max-height: 42%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.3));
+}
+
+.mpf-gateway-loader__percent {
+  font-family: "Montserrat", system-ui, sans-serif;
+  font-size: clamp(1.2rem, 4.2vw, 1.75rem);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-align: center;
-  font-size: clamp(24px, 4.2vw, 44px);
-  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.28);
-  animation: mpf-gateway-title-glow 3.2s ease-in-out infinite;
-}
-
-.mpf-gateway-caret {
-  color: #d4af37;
-  margin-left: 2px;
-  animation: mpf-gateway-caret-blink 1.15s step-end infinite;
+  letter-spacing: 0.06em;
+  color: #f4f6ff;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.35);
+  line-height: 1.1;
 }
 
 @keyframes mpf-gateway-fade-in {
@@ -604,89 +596,16 @@ body.gateway-open {
   }
 }
 
-@keyframes mpf-gateway-logo-in {
-  from {
-    opacity: 0;
-    transform: scale(0.8) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-@keyframes mpf-gateway-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-@keyframes mpf-gateway-bg-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.08);
-  }
-}
-
-@keyframes mpf-gateway-halo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes mpf-gateway-title-glow {
-  0%,
-  100% {
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.28), 0 0 0 rgba(212, 175, 55, 0);
-  }
-  50% {
-    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.28), 0 0 18px rgba(212, 175, 55, 0.25);
-  }
-}
-
-@keyframes mpf-gateway-caret-blink {
-  0%,
-  45% {
-    opacity: 1;
-  }
-  50%,
-  100% {
-    opacity: 0;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .mpf-gateway-overlay,
-  .mpf-gateway-overlay::before,
-  .mpf-gateway-overlay::after,
-  .mpf-gateway-logo-wrap,
-  .mpf-gateway-logo,
-  .mpf-gateway-title,
-  .mpf-gateway-caret {
+  .mpf-gateway-overlay {
     animation: none !important;
   }
 }
 
-/* After home gateway: “pull / stitch” text & blocks from below with overshoot */
-.mpf-gateway-reveal-target {
+/* After home gateway: yank animation — header nav text only (not hero/body). */
+.mpf-gateway-reveal-target--header {
   display: inline-block;
   transform-origin: 50% 100%;
-}
-
-.mpf-gateway-reveal-target--block {
-  display: block;
 }
 
 @keyframes mpf-text-yank-up {
@@ -707,23 +626,19 @@ body.gateway-open {
   }
 }
 
-body.gateway-open .mpf-gateway-reveal-target,
-body.gateway-open .home-page-entrance .home-entrance-row {
+body.gateway-open .mpf-gateway-reveal-target--header {
   opacity: 0;
   transform: translate3d(0, clamp(28px, 5vh, 56px), 0);
 }
 
-body.mpf-post-gateway-reveal .mpf-gateway-reveal-target,
-body.mpf-post-gateway-reveal .home-page-entrance .home-entrance-row {
+body.mpf-post-gateway-reveal .mpf-gateway-reveal-target--header {
   animation: mpf-text-yank-up 1.55s cubic-bezier(0.2, 0.88, 0.32, 1.05) both;
   animation-delay: calc(var(--mpf-yank-i, 0) * 110ms);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.gateway-open .mpf-gateway-reveal-target,
-  body.gateway-open .home-page-entrance .home-entrance-row,
-  body.mpf-post-gateway-reveal .mpf-gateway-reveal-target,
-  body.mpf-post-gateway-reveal .home-page-entrance .home-entrance-row {
+  body.gateway-open .mpf-gateway-reveal-target--header,
+  body.mpf-post-gateway-reveal .mpf-gateway-reveal-target--header {
     opacity: 1 !important;
     transform: none !important;
     animation: none !important;

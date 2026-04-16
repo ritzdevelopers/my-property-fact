@@ -11,7 +11,7 @@ export default function RecommendedProjectsWithGeolocation({
   className = "",
   /** Cards row: `project` = new projects only, `mixed` = projects + resale listings */
   kind = "mixed",
-  /** API branch: `mixed` matches second home row; `projects` = location-based projects only (first row). */
+  /** API `intent`: `mixed` = projects + listings; `projects` = new launches near you; `latest-projects` = MPF projects only (newest, home Recommended Projects). */
   locationIntent = "mixed",
 }) {
   const [items, setItems] = useState(fallbackItems);

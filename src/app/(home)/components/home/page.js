@@ -17,9 +17,10 @@ import GetTouchEnquirySection from "../common/GetTouchEnquirySection";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
 import {
-  loadPublicPropertiesForSpotlight,
-  buildMixedRecommendationsForRegion,
-  pickRecommendedPropertiesShowcase,
+  buildLatestProjectsForRegion,
+  buildNewLaunchProjectsForRegion,
+  buildSubtitleLatestProjectsNear,
+  buildSubtitleNewLaunchesNear,
 } from "./recommendedSpotlight";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
@@ -66,10 +67,7 @@ function getDailyRecommendedProjectCityLabel() {
 }
 
 export default async function HomePage() {
-  const [projects, latestPublicListings] = await Promise.all([
-    getAllProjects(),
-    loadPublicPropertiesForSpotlight(),
-  ]);
+  const projects = await getAllProjects();
 
   // Allowed slugs for featured projects
   const allowedSlugs = [
@@ -136,14 +134,20 @@ export default async function HomePage() {
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
-  const recommendedProperties = pickRecommendedPropertiesShowcase(projects, 8);
-
-  const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
   const dailyCityLabel = getDailyRecommendedProjectCityLabel();
 
-  const recommendedProjects = buildMixedRecommendationsForRegion({
+  const recommendedProperties = buildNewLaunchProjectsForRegion({
     projects,
-    latestPublicListings,
+    excludeSlugSet: new Set(),
+    geoCity: dailyCityLabel,
+    geoState: "",
+    limit: 8,
+  });
+
+  const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
+
+  const recommendedProjects = buildLatestProjectsForRegion({
+    projects,
     excludeSlugSet: firstSlugs,
     geoCity: dailyCityLabel,
     geoState: "",
@@ -159,15 +163,7 @@ export default async function HomePage() {
   const mpfTopPicProject = await fetchTopPicksProject();
 
   try {
-    const row = (i, node) => (
-      <div
-        key={i}
-        className="home-entrance-row"
-        style={{ "--mpf-yank-i": 11 + i }}
-      >
-        {node}
-      </div>
-    );
+    const row = (i, node) => <div key={i}>{node}</div>;
 
     return (
       <>
@@ -274,7 +270,10 @@ export default async function HomePage() {
           <RecommendedProjectsWithGeolocation
             title="Recommended Properties"
             fallbackItems={recommendedProperties}
-            fallbackSubtitle="Exclusively Chosen For You"
+            fallbackSubtitle={
+              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
+              "New launch projects near you"
+            }
             kind="project"
             locationIntent="projects"
             viewAllHref="/projects"
@@ -293,10 +292,11 @@ export default async function HomePage() {
             title="Recommended Projects"
             fallbackItems={recommendedProjects}
             fallbackSubtitle={
-              dailyCityLabel === "Noida"
-                ? "Latest Projects in Noida & Greater Noida"
-                : `Latest Projects in ${dailyCityLabel}`
+              buildSubtitleLatestProjectsNear(dailyCityLabel, "").trim() ||
+              "Latest projects listed on My Property Fact"
             }
+            kind="project"
+            locationIntent="latest-projects"
             viewAllHref="/projects"
           />,
         )}

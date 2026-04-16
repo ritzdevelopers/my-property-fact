@@ -461,7 +461,7 @@ const HeaderComponent = () => {
                     className={`text-light text-decoration-none py-3 plus-jakarta-sans-semi-bold${isCityRoute ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 0 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       City
                     </span>
                   </Link>
@@ -546,7 +546,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold ${isBuilderRoute ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 1 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builder
                     </span>
                   </Link>
@@ -628,7 +628,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/about-us" ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 2 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
                       About Us
                     </span>
                   </Link>
@@ -643,7 +643,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${isProjectTypeRoute ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 3 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
                       Projects
                     </span>
                   </Link>
@@ -912,7 +912,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${isBlogTypeRoute ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 4 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
                       Blog
                     </span>
                   </Link>
@@ -923,7 +923,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/career" ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 5 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
                       Career
                     </span>
                   </Link>
@@ -934,7 +934,7 @@ const HeaderComponent = () => {
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/contact-us" ? "header-link-active" : ""
                       }`}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 6 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
                       Contact Us
                     </span>
                   </Link>
@@ -1206,7 +1206,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("city")}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 0 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       City
                     </span>
                     <FontAwesomeIcon
@@ -1243,7 +1243,7 @@ const HeaderComponent = () => {
                     href="#"
                     onClick={() => openMenuMobile("builder")}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 1 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builder
                     </span>
                     <FontAwesomeIcon
@@ -1276,7 +1276,7 @@ const HeaderComponent = () => {
                     href="/about-us"
                     onClick={openMenu}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 2 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
                       About Us
                     </span>
                   </Link>
@@ -1290,7 +1290,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("projects")}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 3 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
                       Projects
                     </span>
                     <FontAwesomeIcon
@@ -1327,7 +1327,7 @@ const HeaderComponent = () => {
                     href="/blog"
                     onClick={openMenu}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 4 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
                       Blog
                     </span>
                   </Link>
@@ -1338,7 +1338,7 @@ const HeaderComponent = () => {
                     href="/career"
                     onClick={openMenu}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 5 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
                       Career
                     </span>
                   </Link>
@@ -1349,7 +1349,7 @@ const HeaderComponent = () => {
                     href="/contact-us"
                     onClick={openMenu}
                   >
-                    <span className="mpf-gateway-reveal-target" style={{ "--mpf-yank-i": 6 }}>
+                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
                       Contact us
                     </span>
                   </Link>

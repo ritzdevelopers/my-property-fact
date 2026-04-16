@@ -147,10 +147,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           }}
         >
           <div className="d-flex flex-wrap flex-md-row flex-column p-3 p-md-4 gap-2 gap-md-3 plus-jakarta-sans-regular">
-            <div
-              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
-              style={{ ["--mpf-yank-i"]: 7 }}
-            >
+            <div className="col">
               {renderDropdown(
               "type",
               propertType,
@@ -161,10 +158,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               (o) => o.id
             )}
             </div>
-            <div
-              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
-              style={{ ["--mpf-yank-i"]: 8 }}
-            >
+            <div className="col">
               {renderDropdown(
               "location",
               propertyLocation,
@@ -175,10 +169,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               (o) => o.id
             )}
             </div>
-            <div
-              className="col mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
-              style={{ ["--mpf-yank-i"]: 9 }}
-            >
+            <div className="col">
               {renderDropdown(
               "price",
               budget,
@@ -190,10 +181,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
             )}
             </div>
 
-            <div
-              className="d-flex align-items-end mpf-gateway-reveal-target mpf-gateway-reveal-target--block"
-              style={{ ["--mpf-yank-i"]: 10 }}
-            >
+            <div className="d-flex align-items-end">
               <button
                 type="submit"
                 className="search-btn-home-page"

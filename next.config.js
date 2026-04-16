@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  unoptimized: true,
 
 
   async redirects() {
@@ -108,6 +107,7 @@ const nextConfig = {
   // Ensure MUI and other packages are transpiled so vendor chunks are generated correctly
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
+    unoptimized: true,
     // Explicit qualities used by <Image quality={…}> across the app (required in Next.js 16+).
     qualities: [45, 60, 65, 75, 100],
     // Extra widths so fixed logos can avoid 256w when ~160w suffices (2× 80px), and

@@ -35,9 +35,12 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Image from "next/image";
 import NotFound from "../../not-found";
+import CommonPopUpform from "../../(home)/components/common/popupform";
+import GetTouchEnquirySection from "../../(home)/components/common/GetTouchEnquirySection";
+import LeadEmailOtpSection from "../../(home)/components/common/LeadEmailOtpSection";
 import Featured from "../../(home)/components/home/featured/featured";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { Col, Row, Modal } from "react-bootstrap";
 import { usePathname, notFound } from "next/navigation";
@@ -80,6 +83,11 @@ export default function Property({
     email: "",
     phone: "",
   });
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
 
   //Validation functions
   const validateName = (name) => {
@@ -312,6 +320,12 @@ export default function Property({
       }
     }
 
+    if (!emailVerificationToken) {
+      e.stopPropagation();
+      toast.error("Please verify your email with the OTP before submitting.");
+      return;
+    }
+
     try {
       setShowLoading(true);
       // Make API request
@@ -320,6 +334,7 @@ export default function Property({
         enquiryFrom: projectDetail.projectName,
         projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
         pageName: "Project Detail",
+        emailVerificationToken,
       };
 
       const response = await axios.post(
@@ -346,6 +361,7 @@ export default function Property({
         } else {
           setValidated(false);
         }
+        setEmailVerificationToken(null);
         toast.success(response.data.message);
       } else {
         toast.error(response.data.message);
@@ -926,6 +942,16 @@ const addNearbyImageIcon = (benefit) => {
                   {errors.email || "Please provide a valid email."}
                 </Form.Control.Feedback>
               </Form.Group>
+              <LeadEmailOtpSection
+                email={formData.email}
+                emailFieldValid={
+                  !errors.email && validateEmail(formData.email) === ""
+                }
+                verificationToken={emailVerificationToken}
+                onVerified={setEmailVerificationToken}
+                onClearVerification={() => setEmailVerificationToken(null)}
+                className="banner-form-otp"
+              />
               <Form.Group className="mb-3" controlId="phone_number">
                 <Form.Control
                   type="tel"
@@ -961,7 +987,7 @@ const addNearbyImageIcon = (benefit) => {
                 <Button
                   className="btn btn-background border-0 w-50"
                   type="submit"
-                  disabled={showLoading}
+                  disabled={showLoading || !emailVerificationToken}
                 >
                   Submit <LoadingSpinner show={showLoading} />
                 </Button>

@@ -1,0 +1,286 @@
+.lead-email-otp {
+  --otp-brand: #0d5834;
+  --otp-brand-dark: #093d24;
+  --otp-brand-soft: rgba(13, 88, 52, 0.12);
+  --otp-border: rgba(15, 23, 42, 0.1);
+  --otp-surface: linear-gradient(165deg, #ffffff 0%, #f8fafc 100%);
+  margin-bottom: 1.1rem;
+  padding: 1.1rem 1.15rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--otp-border);
+  background: var(--otp-surface);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+}
+
+.lead-email-otp--compact {
+  padding: 0.75rem 0.85rem 0.7rem;
+  margin-bottom: 0.75rem;
+  border-radius: 12px;
+}
+
+.lead-email-otp-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.lead-email-otp-badge {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--otp-brand);
+  background: linear-gradient(
+    145deg,
+    rgba(13, 88, 52, 0.18),
+    rgba(13, 88, 52, 0.06)
+  );
+  border: 1px solid rgba(13, 88, 52, 0.28);
+}
+
+.lead-email-otp-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.lead-email-otp-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: #64748b;
+}
+
+.lead-email-otp-actions {
+  margin-bottom: 1rem;
+}
+
+.lead-email-otp .lead-email-otp-btn-send.btn,
+.lead-email-otp .lead-email-otp-btn-send.btn-outline-secondary {
+  width: 100%;
+  font-weight: 600;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 2px solid var(--otp-brand) !important;
+  border-color: var(--otp-brand) !important;
+  background: #fff !important;
+  color: var(--otp-brand) !important;
+}
+
+.lead-email-otp .lead-email-otp-btn-send.btn:not(:disabled):hover,
+.lead-email-otp .lead-email-otp-btn-send.btn-outline-secondary:not(:disabled):hover {
+  border-color: var(--otp-brand-dark) !important;
+  background: var(--otp-brand-soft) !important;
+  color: var(--otp-brand-dark) !important;
+}
+
+.lead-email-otp .lead-email-otp-btn-send.btn:disabled,
+.lead-email-otp .lead-email-otp-btn-send.btn-outline-secondary:disabled {
+  opacity: 0.55;
+}
+
+.lead-email-otp-verify-block {
+  margin-bottom: 0.5rem;
+}
+
+.lead-email-otp-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.lead-email-otp-verify-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.lead-email-otp-input {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  font-size: 1.25rem !important;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  border-radius: 10px !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  height: 46px;
+  font-variant-numeric: tabular-nums;
+}
+
+.lead-email-otp--compact .lead-email-otp-input {
+  font-size: 1.05rem !important;
+  height: 42px;
+  letter-spacing: 0.28em;
+}
+
+.lead-email-otp .lead-email-otp-btn-verify.btn,
+.lead-email-otp .lead-email-otp-btn-verify.btn-primary {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 10px;
+  border: none !important;
+  background: linear-gradient(
+    180deg,
+    var(--otp-brand) 0%,
+    var(--otp-brand-dark) 100%
+  ) !important;
+  color: #fff !important;
+  min-width: 5.5rem;
+}
+
+.lead-email-otp .lead-email-otp-btn-verify.btn:hover:not(:disabled),
+.lead-email-otp .lead-email-otp-btn-verify.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.06);
+  color: #fff !important;
+  background: linear-gradient(
+    180deg,
+    #0e6a3e 0%,
+    var(--otp-brand) 100%
+  ) !important;
+}
+
+.lead-email-otp .lead-email-otp-btn-verify.btn:disabled,
+.lead-email-otp .lead-email-otp-btn-verify.btn-primary:disabled {
+  opacity: 0.5;
+}
+
+.lead-email-otp-error {
+  font-size: 0.8rem;
+  color: #b91c1c;
+  background: rgba(254, 226, 226, 0.65);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  border-radius: 8px;
+  padding: 0.45rem 0.6rem;
+  margin-top: 0.35rem;
+}
+
+.lead-email-otp-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.lead-email-otp-flash {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  border: 1px solid transparent;
+}
+
+.lead-email-otp-flash--success {
+  background: rgba(13, 88, 52, 0.08);
+  border-color: rgba(13, 88, 52, 0.28);
+  color: var(--otp-brand-dark);
+}
+
+.lead-email-otp-flash--error {
+  background: rgba(254, 226, 226, 0.9);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #7f1d1d;
+}
+
+.lead-email-otp-flash-text {
+  flex: 1;
+}
+
+.lead-email-otp-flash-dismiss {
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.65;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  cursor: pointer;
+}
+
+.lead-email-otp-flash-dismiss:hover {
+  opacity: 1;
+}
+
+.lead-email-otp--done {
+  padding: 0.85rem 1rem;
+  border-color: rgba(13, 88, 52, 0.3);
+  background: linear-gradient(
+    165deg,
+    rgba(13, 88, 52, 0.06) 0%,
+    #ffffff 100%
+  );
+}
+
+.lead-email-otp-done-inner {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.lead-email-otp-done-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--otp-brand);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.lead-email-otp-done-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--otp-brand-dark);
+}
+
+.lead-email-otp-done-sub {
+  font-size: 0.75rem;
+  color: var(--otp-brand);
+  margin-top: 0.15rem;
+  line-height: 1.35;
+}
+
+.lead-email-otp-change-link {
+  margin-top: 0.65rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--otp-brand);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lead-email-otp-change-link:hover {
+  color: var(--otp-brand-dark);
+}
+
+.lead-email-otp-btn-loading {
+  display: inline-block;
+}

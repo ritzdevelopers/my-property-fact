@@ -39,9 +39,19 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import axios from "axios";
+import LeadEmailOtpSection from "@/app/(home)/components/common/LeadEmailOtpSection";
 import "./property-detail.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+function validateContactEmail(email) {
+  if (!String(email || "").trim()) return "Email is required";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(String(email).trim())) {
+    return "Please enter a valid email address";
+  }
+  return "";
+}
 
 export default function PropertyDetailClient({
   slug: slugProp,
@@ -78,6 +88,8 @@ export default function PropertyDetailClient({
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState(null);
+  const [contactEmailVerificationToken, setContactEmailVerificationToken] =
+    useState(null);
   const [allAmenities, setAllAmenities] = useState(initialAllAmenities);
   const [allFeatures, setAllFeatures] = useState(initialAllFeatures);
   const [allNearbyBenefits, setAllNearbyBenefits] = useState(
@@ -204,12 +216,27 @@ export default function PropertyDetailClient({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [property]);
 
+  useEffect(() => {
+    setContactEmailVerificationToken(null);
+  }, [contactForm.email]);
+
   // Function for handle submit contact form
   const handleContactSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
     setSubmitError(null);
     setSubmitSuccess(false);
+
+    const emailErr = validateContactEmail(contactForm.email);
+    if (emailErr) {
+      setSubmitError(emailErr);
+      return;
+    }
+    if (!contactEmailVerificationToken) {
+      setSubmitError("Please verify your email with the OTP before submitting.");
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const response = await axios.post(
@@ -220,12 +247,14 @@ export default function PropertyDetailClient({
           phone: contactForm.phone,
           message: contactForm.message,
           propertyId: propertyId,
+          emailVerificationToken: contactEmailVerificationToken,
         },
       );
 
       if (response.data.success) {
         setSubmitSuccess(true);
         setContactForm({ name: "", email: "", phone: "", message: "" });
+        setContactEmailVerificationToken(null);
         setTimeout(() => {
           setShowContactModal(false);
           setSubmitSuccess(false);
@@ -1639,6 +1668,7 @@ export default function PropertyDetailClient({
           setShowContactModal(false);
           setSubmitError(null);
           setSubmitSuccess(false);
+          setContactEmailVerificationToken(null);
         }}
         centered
         size="sm"
@@ -1711,6 +1741,16 @@ export default function PropertyDetailClient({
                 />
               </Form.Group>
 
+              <LeadEmailOtpSection
+                email={contactForm.email}
+                emailFieldValid={validateContactEmail(contactForm.email) === ""}
+                verificationToken={contactEmailVerificationToken}
+                onVerified={setContactEmailVerificationToken}
+                onClearVerification={() => setContactEmailVerificationToken(null)}
+                compact
+                feedbackMode="inline"
+              />
+
               <Form.Group className="modern-form-group-compact">
                 <Form.Label className="modern-form-label-compact">
                   Phone <span className="required-star">*</span>
@@ -1758,7 +1798,7 @@ export default function PropertyDetailClient({
                 <Button
                   variant="primary"
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !contactEmailVerificationToken}
                   className="modern-submit-btn-compact"
                   size="sm"
                 >

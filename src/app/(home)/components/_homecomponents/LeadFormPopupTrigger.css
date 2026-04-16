@@ -13,6 +13,7 @@
   text-transform: uppercase;
   color: #fff;
 
+
   background: linear-gradient(135deg, #0d5834 0%, #0a4729 100%);
   border-radius: 8px 0 0 8px;
 
@@ -69,4 +70,5 @@
   .lead-form-popup-trigger {
     bottom: 110px;
   }
+
 }

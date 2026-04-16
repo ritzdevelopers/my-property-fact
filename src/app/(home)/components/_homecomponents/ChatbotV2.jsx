@@ -8,6 +8,7 @@ import {
   generateClientChatResponse,
 } from "./chatbotLogicClient";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import LeadEmailOtpSection from "@/app/(home)/components/common/LeadEmailOtpSection";
 
 import { usePathname, useRouter } from "next/navigation";
 
@@ -708,11 +709,16 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
   const pathName = usePathname();
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
 
   const handleSubmit = async () => {
     if (!formData.name || formData.name.trim().length < 3) {
@@ -725,6 +731,11 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError("Please enter a valid email address.");
+      return;
+    }
+
+    if (!emailVerificationToken) {
+      setError("Please verify your email with the OTP before submitting.");
       return;
     }
 
@@ -747,6 +758,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
         })(),
         pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
         sessionId,
+        emailVerificationToken,
       };
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}enquiry/post`, {
@@ -811,6 +823,17 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
         value={formData.email}
         onChange={(e) => handleChange("email", e.target.value)}
       />
+      <LeadEmailOtpSection
+        email={formData.email}
+        emailFieldValid={/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+          (formData.email || "").trim(),
+        )}
+        verificationToken={emailVerificationToken}
+        onVerified={setEmailVerificationToken}
+        onClearVerification={() => setEmailVerificationToken(null)}
+        compact
+        feedbackMode="inline"
+      />
       <textarea
         className={styles.formInput}
         placeholder="Message (optional)"
@@ -822,7 +845,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
       <button
         className={styles.submitBtn}
         onClick={handleSubmit}
-        disabled={isSubmitting}
+        disabled={isSubmitting || !emailVerificationToken}
       >
         {isSubmitting ? "Submitting... ⏳" : "Submit"}
       </button>

@@ -125,6 +125,7 @@ export default async function HomePage() {
           cities={cityList}
         />
 
+
         {/* MPF-top pick section (refreshes every 30s on client) */}
         <TopPicksWithRotation initialProject={mpfTopPicProject} />
 

@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
 import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
+import LeadEmailOtpSection from "./LeadEmailOtpSection";
 import "./popupform.css";
 
 function getProjectImageSrc(data) {
@@ -38,6 +38,9 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   const [formData, setFormData] = useState(intitalData);
   const [showLoading, setShowLoading] = useState(false);
   const [buttonName, setButtonName] = useState("Submit Enquiry");
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
+  /** Inline banner at top of form (Sonner sits behind this modal’s z-index). */
+  const [formNotice, setFormNotice] = useState(null);
 
   //Validation errors state
   const [errors, setErrors] = useState({
@@ -132,8 +135,16 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
       setFormData(intitalData);
       setValidated(false);
       setErrors({ name: "", email: "", phone: "" });
+      setEmailVerificationToken(null);
+      setFormNotice(null);
+    } else {
+      setFormNotice(null);
     }
   }, [show]);
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
 
   //handle form submit
   const handleSubmit = async (event) => {
@@ -161,7 +172,19 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
 
     if (!isFormValid) {
       event.stopPropagation();
-      toast.error("Please fill all fields correctly!");
+      setFormNotice({
+        type: "error",
+        message: "Please fill all fields correctly before submitting.",
+      });
+      return;
+    }
+
+    if (!emailVerificationToken) {
+      event.stopPropagation();
+      setFormNotice({
+        type: "error",
+        message: "Please verify your email with the code we sent before submitting.",
+      });
       return;
     }
 
@@ -174,6 +197,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
         enquiryFrom: from === "Project Detail" ? (data?.projectName || "Project Detail") : "Home Page",
         projectLink: from === "Project Detail" ? `${process.env.NEXT_PUBLIC_UI_URL}${pathname}` : `${process.env.NEXT_PUBLIC_UI_URL}`,
         pageName: from === "Project Detail" ? "Project Detail" : "Home",
+        emailVerificationToken,
       };
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
@@ -181,17 +205,34 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
       );
       // Check if response is successful
       if (response.data.isSuccess === 1) {
-        // onSuccess();
-        handleClose(false);
-        setValidated(false); // Reset validation state
+        setFormNotice({
+          type: "success",
+          message:
+            response.data.message ||
+            "Thank you — we’ll contact you shortly.",
+        });
+        setValidated(false);
         setFormData(intitalData);
         setErrors({ name: "", email: "", phone: "" });
-        toast.success(response.data.message);
+        setEmailVerificationToken(null);
+        window.setTimeout(() => {
+          handleClose(false);
+          setFormNotice(null);
+        }, 950);
       } else {
-        toast.error(response.data.message);
+        setFormNotice({
+          type: "error",
+          message: response.data.message || "Submission was not successful.",
+        });
       }
     } catch (error) {
-      toast.error(error.data.message);
+      setFormNotice({
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          error.message ||
+          "Something went wrong. Please try again.",
+      });
       console.error("Error submitting form:", error);
     } finally {
       setShowLoading(false);
@@ -200,7 +241,11 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   };
 
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
-  const projectImageSrc = isProjectDetail ? getProjectImageSrc(data) : null;
+  const HOME_ENQUIRY_SIDE_IMAGE = "/static/icon/enquiry_home_image.png";
+  const splitImageSrc = isProjectDetail ? getProjectImageSrc(data) : HOME_ENQUIRY_SIDE_IMAGE;
+  const splitImageAlt = isProjectDetail
+    ? data?.projectName || "Project"
+    : "Premium homes — My Property Fact";
 
   return (
     <>
@@ -208,21 +253,23 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
         show={show}
         onHide={() => handleClose(false)}
         centered
-        className={`enquiry-popup ${isProjectDetail ? "enquiry-popup--split" : ""}`}
+
+        backdropClassName="enquiry-popup-backdrop"
+        className="enquiry-popup enquiry-popup--split"
         dialogClassName="enquiry-popup-dialog"
       >
-        <button
-          type="button"
-          className="btn-close enquiry-popup-close"
-          aria-label="Close"
-          onClick={() => handleClose(false)}
-        />
-        {isProjectDetail ? (
+        <>
+          <button
+            type="button"
+            className="btn-close enquiry-popup-close"
+            aria-label="Close"
+            onClick={() => handleClose(false)}
+          />
           <div className="enquiry-popup-split">
             <div className="enquiry-popup-image">
               <Image
-                src={projectImageSrc}
-                alt={data?.projectName || "Project"}
+                src={splitImageSrc}
+                alt={splitImageAlt}
                 fill
                 className="enquiry-popup-image-img"
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -245,7 +292,25 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                 onSubmit={handleSubmit}
                 className="enquiry-popup-form"
               >
-                <Form.Group className="mb-3" controlId="full_name">
+                {formNotice ? (
+                  <div
+                    className={`enquiry-form-notice enquiry-form-notice--${formNotice.type}`}
+                    role="status"
+                  >
+                    <span className="enquiry-form-notice-text">
+                      {formNotice.message}
+                    </span>
+                    <button
+                      type="button"
+                      className="enquiry-form-notice-dismiss"
+                      aria-label="Dismiss"
+                      onClick={() => setFormNotice(null)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : null}
+                <Form.Group className="mb-3" controlId="enquiry_full_name">
                   <Form.Control
                     className="enquiry-popup-input"
                     type="text"
@@ -261,7 +326,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                     {errors.name || "Please provide a valid name."}
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="email_id">
+                <Form.Group className="mb-3" controlId="enquiry_email_id">
                   <Form.Control
                     className="enquiry-popup-input"
                     type="email"
@@ -277,7 +342,19 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                     {errors.email || "Please provide a valid email."}
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="phone_number">
+                <LeadEmailOtpSection
+                  email={formData.email}
+                  emailFieldValid={
+                    !errors.email &&
+                    validateEmail(formData.email) === ""
+                  }
+                  verificationToken={emailVerificationToken}
+                  onVerified={setEmailVerificationToken}
+                  onClearVerification={() => setEmailVerificationToken(null)}
+                  className="enquiry-popup-otp"
+                  feedbackMode="inline"
+                />
+                <Form.Group className="mb-3" controlId="enquiry_phone_number">
                   <Form.Control
                     className="enquiry-popup-input"
                     type="tel"
@@ -293,7 +370,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                     {errors.phone || "Please provide a valid phone number."}
                   </Form.Control.Feedback>
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="message">
+                <Form.Group className="mb-3" controlId="enquiry_message">
                   <Form.Control
                     className="enquiry-popup-input"
                     as="textarea"
@@ -310,7 +387,7 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
                 <Button
                   type="submit"
                   className="fw-bold border-0 enquiry-popup-submit enquiry-popup-submit--callback"
-                  disabled={showLoading}
+                  disabled={showLoading || !emailVerificationToken}
                 >
                   Request a Callback <LoadingSpinner show={showLoading} />
                 </Button>
@@ -318,89 +395,8 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
               <p className="enquiry-popup-footer">Ready to help! Fill the form, and we&apos;ll call soon.</p>
             </div>
           </div>
-        ) : (
-          <>
-            <p className="enquiry-popup-subtitle px-6 px-md-4 mb-0">
-              Share your details and our team will contact you shortly.
-            </p>
-            <Form
-              noValidate
-              validated={validated}
-              onSubmit={handleSubmit}
-              className="enquiry-popup-form p-3 p-md-4 pt-3"
-            >
-              <Form.Group className="mb-3" controlId="full_name">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="text"
-                  placeholder="Full name"
-                  value={formData.name}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="name"
-                  isInvalid={!!errors.name || (validated && !formData.name.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.name || "Please provide a valid name."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="email_id">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="email"
-                  placeholder="Email id"
-                  value={formData.email}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="email"
-                  isInvalid={!!errors.email || (validated && !formData.email.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.email || "Please provide a valid email."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="phone_number">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={formData.phone}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="phone"
-                  isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.phone || "Please provide a valid phone number."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="message">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  as="textarea"
-                  rows={3}
-                  placeholder="Message"
-                  value={formData.message}
-                  onChange={(e) => handleChange(e)}
-                  name="message"
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a valid message.
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Button
-                type="submit"
-                className="fw-bold border-0 enquiry-popup-submit"
-                disabled={showLoading}
-              >
-                {buttonName} <LoadingSpinner show={showLoading} />
-              </Button>
-            </Form>
-          </>
-        )}
+
+        </>
       </Modal>
     </>
   );

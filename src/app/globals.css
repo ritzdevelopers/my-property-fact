@@ -488,6 +488,7 @@ body.menu-open {
   width: 100%;
 }
 
+
 /* Desktop h2 font size */
 @media (min-width: 1024px) {
   h2 {
@@ -506,4 +507,9 @@ body.menu-open {
 /* Default row alignment (blog page overrides with .blogContentRow for sticky sidebar) */
 .row {
   align-items: flex-start !important;
+}
+
+/* Sonner: above headers and Bootstrap modals; enquiry popup uses higher z — use inline notices there */
+[data-sonner-toaster] {
+  z-index: 120000 !important;
 }

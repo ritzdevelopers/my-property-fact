@@ -133,6 +133,7 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
+
 .statistics-icon {
   font-size: 36px;
   color: #333333;
@@ -292,6 +293,7 @@
   .statistics-label {
     font-size: 13px;
   }
+
 }
 
 @media (max-width: 576px) {

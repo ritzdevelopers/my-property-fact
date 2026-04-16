@@ -8,11 +8,13 @@ import {
   faUser,
   faVoicemail,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
-import { toast } from "react-toastify";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import axios from "axios";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
+import LeadEmailOtpSection from "../components/common/LeadEmailOtpSection";
+
 export default function ContactUs() {
   const [validated, setValidated] = useState(false);
   const [buttonName, setButtonName] = useState("Get a free service");
@@ -35,6 +37,11 @@ export default function ContactUs() {
     email: "",
     phone: "",
   });
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
 
   //Validation functions
   const validateName = (name) => {
@@ -121,12 +128,21 @@ export default function ContactUs() {
       return;
     }
 
+    if (!emailVerificationToken) {
+      e.stopPropagation();
+      toast.error("Please verify your email with the OTP before submitting.");
+      setShowLoading(false);
+      setButtonName("Get a free service");
+      return;
+    }
+
     try {
       const submitData = {
         ...formData,
         pageName: "Contact us",
         projectLink: `${process.env.NEXT_PUBLIC_ROOT_URL}${pathName}`,
         enquiryFrom: `Contact us page`,
+        emailVerificationToken,
       };
 
       const response = await axios.post(
@@ -149,6 +165,7 @@ export default function ContactUs() {
           phone: "",
         });
         setValidated(false);
+        setEmailVerificationToken(null);
         setButtonName("Get a free service");
         setShowLoading(false);
       } else {
@@ -248,6 +265,13 @@ export default function ContactUs() {
             <FontAwesomeIcon icon={faVoicemail} width={20} />
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
+          <LeadEmailOtpSection
+            email={formData.email}
+            emailFieldValid={!errors.email && validateEmail(formData.email) === ""}
+            verificationToken={emailVerificationToken}
+            onVerified={setEmailVerificationToken}
+            onClearVerification={() => setEmailVerificationToken(null)}
+          />
           <div className="input-item">
             <input
               placeholder="Enter your phone number"
@@ -274,7 +298,7 @@ export default function ContactUs() {
             />
             <FontAwesomeIcon icon={faPencil} width={20} />
           </div>
-          <button type="submit" disabled={showLoading}>
+          <button type="submit" disabled={showLoading || !emailVerificationToken}>
             {buttonName}
             <LoadingSpinner show={showLoading} />
           </button>

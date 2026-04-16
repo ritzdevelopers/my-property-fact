@@ -1,9 +1,10 @@
 "use client";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { useState, useEffect, useRef } from "react";
+import LeadEmailOtpSection from "../../components/common/LeadEmailOtpSection";
 import Image from "next/image";
 import { Button, Form } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import BlogSidebar from "../../components/common/BlogSidebar";
@@ -67,7 +68,22 @@ export default function BlogDetail({
   //Validation errors state
   const [errors, setErrors] = useState({
     phone: "",
+    email: "",
   });
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
+
+  const validateEmail = (email) => {
+    if (!String(email || "").trim()) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(String(email).trim())) {
+      return "Please enter a valid email address";
+    }
+    return "";
+  };
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   
@@ -123,19 +139,28 @@ export default function BlogDetail({
 
     // Validate phone
     const phoneError = validatePhone(formData.phone);
+    const emailError = validateEmail(formData.email);
     const newErrors = {
       phone: phoneError,
+      email: emailError,
     };
     setErrors(newErrors);
 
     // Check if form is valid
     const isFormValid =
       form.checkValidity() &&
-      !phoneError;
+      !phoneError &&
+      !emailError;
 
     if (!isFormValid) {
       setValidated(true);
       event.stopPropagation();
+      return;
+    }
+
+    if (!emailVerificationToken) {
+      event.stopPropagation();
+      toast.error("Please verify your email with the OTP before submitting.");
       return;
     }
 
@@ -146,11 +171,15 @@ export default function BlogDetail({
       formData.enquiryFrom = blogDetail.blogTitle.replace(/\u00A0/g, " ")
       formData.projectLink = process.env.NEXT_PUBLIC_UI_URL + pathname;
       formData.pageName = "Blog Page";
-      const response = await submitBlogEnquiryAction(formData);
+      const response = await submitBlogEnquiryAction({
+        ...formData,
+        emailVerificationToken,
+      });
       if (response.ok) {
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state
-        setErrors({ phone: "" });
+        setErrors({ phone: "", email: "" });
+        setEmailVerificationToken(null);
         toast.success(response.message);
       } else {
         toast.error(response.message);
@@ -186,6 +215,13 @@ export default function BlogDetail({
     const { name, value } = e.target;
     if (name === "phone") {
       const error = validatePhone(value);
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error,
+      }));
+    }
+    if (name === "email") {
+      const error = validateEmail(value);
       setErrors((prev) => ({
         ...prev,
         [name]: error,
@@ -262,12 +298,22 @@ export default function BlogDetail({
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
+                    onBlur={handleBlur}
+                    isInvalid={!!errors.email || (validated && !formData.email.trim())}
                     required
                   />
                   <Form.Control.Feedback type="invalid">
-                    Please enter a valid email address.
+                    {errors.email || "Please enter a valid email address."}
                   </Form.Control.Feedback>
                 </Form.Group>
+
+                <LeadEmailOtpSection
+                  email={formData.email}
+                  emailFieldValid={!errors.email && validateEmail(formData.email) === ""}
+                  verificationToken={emailVerificationToken}
+                  onVerified={setEmailVerificationToken}
+                  onClearVerification={() => setEmailVerificationToken(null)}
+                />
 
                 <Form.Group className="mb-3" controlId="phone">
                   <Form.Control
@@ -299,7 +345,7 @@ export default function BlogDetail({
                 <Button
                   type="submit"
                   className={detailStyles.blogDetailSubmitBtn}
-                  disabled={showLoading}
+                  disabled={showLoading || !emailVerificationToken}
                 >
                   {buttonName} <LoadingSpinner show={showLoading} />
                 </Button>

@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import "./contact.css";
 import Image from "next/image";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
+import LeadEmailOtpSection from "../components/common/LeadEmailOtpSection";
 
 export default function NewContactUs() {
   const pathname = usePathname();
@@ -25,6 +26,11 @@ export default function NewContactUs() {
     email: "",
     phone: "",
   });
+  const [emailVerificationToken, setEmailVerificationToken] = useState(null);
+
+  useEffect(() => {
+    setEmailVerificationToken(null);
+  }, [formData.email]);
 
   //Validation functions
   const validateName = (name) => {
@@ -142,6 +148,12 @@ export default function NewContactUs() {
       return;
     }
 
+    if (!emailVerificationToken) {
+      e.stopPropagation();
+      toast.error("Please verify your email with the OTP before submitting.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -160,6 +172,7 @@ export default function NewContactUs() {
         }${pathname}`,
         status: "PENDING",
         id: 0, // Required for new enquiry
+        emailVerificationToken,
       };
 
       const response = await axios.post(
@@ -190,6 +203,7 @@ export default function NewContactUs() {
           phone: "",
         });
         setValidated(false);
+        setEmailVerificationToken(null);
       } else {
         toast.error(
           response.data.message || "Failed to submit enquiry. Please try again."
@@ -323,6 +337,19 @@ export default function NewContactUs() {
                   </div>
                 </div>
                 <div className="row mb-3">
+                  <div className="col-12">
+                    <LeadEmailOtpSection
+                      email={formData.email}
+                      emailFieldValid={
+                        !errors.email && validateEmail(formData.email) === ""
+                      }
+                      verificationToken={emailVerificationToken}
+                      onVerified={setEmailVerificationToken}
+                      onClearVerification={() => setEmailVerificationToken(null)}
+                    />
+                  </div>
+                </div>
+                <div className="row mb-3">
                   <div className="col-md-6 mb-3 mb-md-0">
                     <input
                       type="tel"
@@ -369,7 +396,7 @@ export default function NewContactUs() {
                   <button
                     type="submit"
                     className="btn get-quote-submit-btn"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !emailVerificationToken}
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </button>

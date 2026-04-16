@@ -36,11 +36,11 @@ export default function HeroSection({
                   <source media="(min-width: 768px)" srcSet={tablet} />
                   <img
                     {...rest}
+                    className="hero-banner-image hero-banner-image--full"
                     loading="eager"
                     fetchPriority="high"
                     decoding="sync"
                     style={{
-                      objectFit: "cover",
                       width: "100%",
                       height: "100%",
                     }}

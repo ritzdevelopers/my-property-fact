@@ -57,6 +57,21 @@
 }
 
 @media (min-width: 769px) {
+  .enquiry-popup-split--home {
+    grid-template-columns: minmax(320px, 42%) 1fr;
+  }
+
+  .enquiry-popup-image--home {
+    background: #f4f4f4;
+  }
+
+  .enquiry-popup-image-img--home {
+    object-fit: contain;
+    object-position: center center;
+  }
+}
+
+@media (min-width: 769px) {
   .enquiry-popup-split {
     min-height: 480px;
   }
@@ -89,16 +104,22 @@
   letter-spacing: 0;
   color: #0f172a;
   margin: 0 0 1.5rem;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: nowrap;
+  column-gap: 0.35rem;
 }
 
 .enquiry-popup-title-regular {
   font-weight: 200;
   font-style: normal;
+  white-space: nowrap;
 }
 
 .enquiry-popup-title-accent-wrap {
   position: relative;
   display: inline-block;
+  white-space: nowrap;
 }
 
 .enquiry-popup-title-accent {
@@ -187,6 +208,7 @@
     font-size: 28px;
     line-height: 36px;
     margin-bottom: 1rem;
+    display: block;
   }
 
   .enquiry-popup-title-regular,

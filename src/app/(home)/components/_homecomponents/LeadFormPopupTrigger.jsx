@@ -1,12 +1,13 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import CommonPopUpform from "../common/popupform";
 import "./LeadFormPopupTrigger.css";
 
-const ENQUIRE_TRIGGER_ICON = "/9412919.png";
+const ENQUIRE_TRIGGER_ICON = "/static/icon/enquire.png";
+const MODAL_FLEX_CLASS = "lead-form-popup-trigger--modal-flex";
 
 /**
  * Floating control that opens lead form popup.
@@ -41,6 +42,15 @@ export default function LeadFormPopupTrigger({
 
   const showDefaultVerticalTrigger = !showOnHomeOnly;
 
+  useEffect(() => {
+    if (!showPopup) return undefined;
+
+    document.body.classList.add(MODAL_FLEX_CLASS);
+    return () => {
+      document.body.classList.remove(MODAL_FLEX_CLASS);
+    };
+  }, [showPopup]);
+
   if (hiddenByRoute) return null;
 
   return (
@@ -55,10 +65,10 @@ export default function LeadFormPopupTrigger({
           <Image
             src={ENQUIRE_TRIGGER_ICON}
             alt=""
-            width={40}
-            height={40}
+            width={30}
+            height={30}
             className="lead-form-popup-trigger__icon-img lead-form-popup-trigger__icon-img--vertical"
-            sizes="40px"
+        
           />
         </button>
       )}
@@ -73,10 +83,10 @@ export default function LeadFormPopupTrigger({
           <Image
             src={ENQUIRE_TRIGGER_ICON}
             alt=""
-            width={44}
-            height={44}
+            width={30}
+            height={30}
             className="lead-form-popup-trigger__icon-img"
-            sizes="48px"
+            sizes="30px"
           />
         </button>
       )}

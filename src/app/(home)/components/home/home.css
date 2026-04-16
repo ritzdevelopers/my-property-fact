@@ -64,6 +64,14 @@
   object-position: center;
 }
 
+/* Keep complete desktop banner visible on laptop/desktop widths. */
+@media (min-width: 992px) {
+  .hero-banner-image--full {
+    object-fit: contain;
+    object-position: center center;
+  }
+}
+
 .hero-banner-slide {
   position: relative;
 }
@@ -380,8 +388,46 @@
 }
 
 @media (min-width: 992px) {
+  .transform-home-headline-stack {
+    max-width: min(760px, 68%);
+  }
+
   .transform-home-headline-inner {
     font-size: 44px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .transform-home-headline-base,
+  .transform-home-headline-highlight {
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .transform-home-content {
+    padding-right: clamp(16px, 2vw, 24px);
+  }
+
+  .transform-home-headline-inner {
+    font-size: clamp(34px, 3.6vw, 40px);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .transform-home-headline-stack {
+    max-width: 100%;
+  }
+
+  .transform-home-headline-inner {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    font-size: clamp(30px, 3.9vw, 36px);
+  }
+
+  .transform-home-headline-base,
+  .transform-home-headline-highlight {
+    white-space: nowrap;
   }
 }
 

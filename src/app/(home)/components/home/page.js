@@ -186,9 +186,9 @@ export default async function HomePage() {
             <div className="transform-home-content">
               <div className="transform-home-headline-stack">
                 <h2 className="transform-home-headline-inner">
-                  <span className="transform-home-headline-base">Transform yo</span>
+                  <span className="transform-home-headline-base">Transform your</span>
                   <span className="transform-home-headline-highlight">
-                    ur Home with
+                    Home with
                   </span>
                 </h2>
                 <div className="transform-home-mpf-logo-wrap">

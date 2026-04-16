@@ -200,7 +200,12 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   };
 
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
-  const projectImageSrc = isProjectDetail ? getProjectImageSrc(data) : null;
+  const useSplitLayout = isProjectDetail || from === "Home Page";
+  const isHomeSplit = !isProjectDetail && useSplitLayout;
+  const popupImageSrc = isProjectDetail
+    ? getProjectImageSrc(data)
+    : "/static/icon/enquiry.png";
+  const popupImageAlt = isProjectDetail ? data?.projectName || "Project" : "Enquiry";
 
   return (
     <>
@@ -209,10 +214,10 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
         onHide={() => handleClose(false)}
         centered
         backdropClassName="enquiry-popup-backdrop"
-        className={`enquiry-popup ${isProjectDetail ? "enquiry-popup--split" : "enquiry-popup--home"}`}
-        dialogClassName={`enquiry-popup-dialog ${!isProjectDetail ? "enquiry-popup-dialog--home" : ""}`}
+        className={`enquiry-popup ${useSplitLayout ? "enquiry-popup--split" : "enquiry-popup--home"}`}
+        dialogClassName={`enquiry-popup-dialog ${!useSplitLayout ? "enquiry-popup-dialog--home" : ""}`}
       >
-        {isProjectDetail ? (
+        {useSplitLayout ? (
           <>
         <button
           type="button"
@@ -220,13 +225,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
           aria-label="Close"
           onClick={() => handleClose(false)}
         />
-          <div className="enquiry-popup-split">
-            <div className="enquiry-popup-image">
+          <div className={`enquiry-popup-split ${isHomeSplit ? "enquiry-popup-split--home" : ""}`}>
+            <div className={`enquiry-popup-image ${isHomeSplit ? "enquiry-popup-image--home" : ""}`}>
               <Image
-                src={projectImageSrc}
-                alt={data?.projectName || "Project"}
+                src={popupImageSrc}
+                alt={popupImageAlt}
                 fill
-                className="enquiry-popup-image-img"
+                className={`enquiry-popup-image-img ${isHomeSplit ? "enquiry-popup-image-img--home" : ""}`}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>

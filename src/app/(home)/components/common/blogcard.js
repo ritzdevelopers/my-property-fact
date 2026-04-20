@@ -18,6 +18,7 @@ export default function BlogCard({ blog }) {
         <>
             <Link href={`/blog/${blog.slugUrl}`}
                 className="card border-0 rounded-4 overflow-hidden blog-card my-3 text-decoration-none"
+                title={blog?.blogTitle ? `Read ${blog.blogTitle}` : "Read blog post"}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >

@@ -59,6 +59,7 @@ export default function NewInsight() {
                     <Link
                       className="insight-link plus-jakarta-sans-semi-bold"
                       href={insight.href}
+                      title={insight.heading}
                     >
                       Explore Now
                       <span className="insight-link-arrow">
@@ -72,7 +73,12 @@ export default function NewInsight() {
             </div>
           </div>
           <div className="insight-image-wrapper">
-            <Link href={`${process.env.NEXT_PUBLIC_UI_URL}/exotica-132`} target="_blank" rel="noopener noreferrer">
+            <Link
+              href={`${process.env.NEXT_PUBLIC_UI_URL}/exotica-132`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Exotica-132"
+            >
             <Image
               src="/static/expert_insights.jpg"
               alt="Exotica One32 — commercial project featured in Expert Insights & Resources"

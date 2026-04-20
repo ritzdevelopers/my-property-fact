@@ -66,7 +66,7 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
                 {breadcrumbItems.map((item, index) => (
                   <li key={index} className="breadcrumb-item">
                     {item.href ? (
-                      <Link href={item.href} className="breadcrumb-link">
+                      <Link href={item.href} className="breadcrumb-link" title={item.label}>
                         {item.label}
                       </Link>
                     ) : (

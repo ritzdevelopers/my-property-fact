@@ -256,19 +256,23 @@ body.lead-form-popup-trigger--modal-flex .enquiry-popup-form-wrap {
 }
 
 body.lead-form-popup-trigger--modal-flex .enquiry-popup-title-main {
-  display: block;
-  font-size: clamp(32px, 3vw, 52px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.08em;
+  /* font-size: clamp(32px, 3vw, 52px); */
+  font-size: 41px;
   line-height: 1.16;
   margin-bottom: 1.4rem;
 }
 
 body.lead-form-popup-trigger--modal-flex .enquiry-popup-title-regular {
-  display: inline;
-  white-space: normal;
+  display: block;
+  white-space: nowrap;
 }
 
 body.lead-form-popup-trigger--modal-flex .enquiry-popup-title-accent-wrap {
-  display: inline-block;
+  display: block;
   white-space: nowrap;
 }
 
@@ -322,7 +326,7 @@ body.lead-form-popup-trigger--modal-flex .enquiry-popup-submit--callback {
   }
 
   body.lead-form-popup-trigger--modal-flex .enquiry-popup-title-main {
-    font-size: 30px;
+    font-size: clamp(22px, 7vw, 30px);
     line-height: 1.2;
   }
 

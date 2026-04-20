@@ -182,6 +182,7 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
                 <Link
                   href={`projects/${item.slugUrl}`}
                   className="btn-normal-color rounded-5 py-2 px-3 text-white text-decoration-none z-3 position-relative"
+                  title={`${item.projectTypeName} projects`}
                 >
                   {item.projectTypeName}
                 </Link>

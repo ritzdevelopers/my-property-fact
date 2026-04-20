@@ -15,6 +15,7 @@ const CityList = ({ cityList, prefix, cat }) => {
             href={`/${prefix.replace(/ /g, "-").toLowerCase().trim()}${
               item.slugURL
             }`}
+            title={`${prefix}${item.cityName}`}
           >
             {prefix}
             {item.cityName}

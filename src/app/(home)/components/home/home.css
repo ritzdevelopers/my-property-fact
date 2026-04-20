@@ -320,12 +320,10 @@
   content: "";
   position: absolute;
   inset: 0;
-  /* Light wash for better text/card contrast over busy background image */
   background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.38) 0%,
-    rgba(255, 255, 255, 0.3) 42%,
-    rgba(255, 255, 255, 0.22) 100%
+    263deg,
+    rgba(246, 246, 246, 0.3) -3.37%,
+    #ffffff 106.16%
   );
   z-index: 1;
   pointer-events: none;
@@ -362,6 +360,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: clamp(10px, 1.6vw, 18px);
   /* Same horizontal band as “Why choose us?” — use px cap only; % width was ~52% of container (~195px on phones) */
   width: 100%;
   max-width: min(620px, 100%);
@@ -370,7 +369,8 @@
 }
 
 .transform-home-mpf-logo-wrap {
-  line-height: 3;
+  line-height: 1.3;
+  margin-top: 2px;
 }
 
 .transform-home-mpf-logo {
@@ -481,10 +481,10 @@
 }
 
 .transform-home-why {
-  margin-top: clamp(6px, 1.5vw, 12px);
+  margin-top: 0;
   width: 100%;
-  padding: clamp(18px, 3vw, 24px) clamp(18px, 3vw, 24px);
-  background: #ffffff;
+  padding: 0;
+ 
   /* border-radius: 12px; */
   text-align: left;
   /* box-shadow: 0 4px 24px rgb(0 0 0 / 6%); */
@@ -733,7 +733,7 @@
 
 .transform-home-explore-projects-wrap {
   width: 100%;
-  padding-top: 20px;
+  padding-top: 14px;
 }
 
 .transform-home-explore-projects-btn {
@@ -828,14 +828,15 @@
   }
 
   .transform-home-mpf-logo-wrap {
-    line-height: 1.35;
+    line-height: 1.2;
+    margin-top: 0;
   }
 
   .transform-home-why {
     box-sizing: border-box;
     overflow-wrap: anywhere;
     word-break: break-word;
-    margin-top: 20px;
+    margin-top: 6px;
   }
 
   .transform-home-headline-stack {
@@ -915,10 +916,9 @@
 
   .transform-home-image-wrap::after {
     background: linear-gradient(
-      165deg,
-      rgba(255, 255, 255, 0.48) 0%,
-      rgba(255, 255, 255, 0.28) 45%,
-      rgba(255, 255, 255, 0.18) 100%
+      263.48deg,
+      rgba(246, 246, 246, 0.3) -3.37%,
+      #ffffff 106.16%
     );
   }
 

@@ -134,6 +134,7 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${data.projectName}`}
+        title={data.projectName ? `View ${data.projectName}` : "View project details"}
       >
         <div className="w-100 project-image-container">
           <Image

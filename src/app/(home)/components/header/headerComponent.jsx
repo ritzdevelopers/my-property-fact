@@ -434,6 +434,7 @@ const HeaderComponent = () => {
             <Link
               href="/"
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
+              title="My Property Fact Home"
             >
               <Image
                 src="/logo.webp"
@@ -460,6 +461,7 @@ const HeaderComponent = () => {
                     href="#"
                     className={`text-light text-decoration-none py-3 plus-jakarta-sans-semi-bold${isCityRoute ? "header-link-active" : ""
                       }`}
+                    title="Browse cities"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       Cities
@@ -477,18 +479,21 @@ const HeaderComponent = () => {
                             <Link
                               href="/projects/commercial"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                              title="Commercial projects"
                             >
                               Commercial
                             </Link>
                             <Link
                               href="/projects/residential"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                              title="Residential projects"
                             >
                               Residential
                             </Link>
                             <Link
                               href="/projects/new-launches"
                               className="city-dropdown-item with-badge plus-jakarta-sans-semi-bold"
+                              title="New launch projects"
                             >
                               New Launches{" "}
                               <NewBadge isVisible={isDropdownHovered} />
@@ -496,6 +501,7 @@ const HeaderComponent = () => {
                             <Link
                               href="/blog"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                              title="Articles and news"
                             >
                               Articles &amp; News
                             </Link>
@@ -510,6 +516,7 @@ const HeaderComponent = () => {
                                       ? "header-link-active"
                                       : ""
                                     }`}
+                                  title={`${city.cityName} properties`}
                                 >
                                   {city.cityName}
                                 </Link>
@@ -545,6 +552,7 @@ const HeaderComponent = () => {
                     href="#"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold ${isBuilderRoute ? "header-link-active" : ""
                       }`}
+                    title="Browse builders"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builders
@@ -563,6 +571,7 @@ const HeaderComponent = () => {
                               href="/projects/commercial"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="Commercial projects"
                             >
                               Commercial
                             </Link>
@@ -570,6 +579,7 @@ const HeaderComponent = () => {
                               href="/projects/residential"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="Residential projects"
                             >
                               Residential
                             </Link>
@@ -577,6 +587,7 @@ const HeaderComponent = () => {
                               href="/projects/new-launches"
                               className="city-dropdown-item with-badge plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="New launch projects"
                             >
                               New Launches{" "}
                               <NewBadge isVisible={isDropdownHovered} />
@@ -584,6 +595,7 @@ const HeaderComponent = () => {
                             <Link
                               href="/blog"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                              title="Articles and news"
                             >
                               Articles &amp; News
                             </Link>
@@ -597,6 +609,7 @@ const HeaderComponent = () => {
                                       ? "header-link-active"
                                       : ""
                                     }`}
+                                  title={`${builder.builderName} projects`}
                                 >
                                   {builder.builderName.toLowerCase()}
                                 </Link>
@@ -627,6 +640,7 @@ const HeaderComponent = () => {
                     href="/about-us"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/about-us" ? "header-link-active" : ""
                       }`}
+                    title="About Us"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
                       About Us
@@ -642,6 +656,7 @@ const HeaderComponent = () => {
                     href="/projects"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${isProjectTypeRoute ? "header-link-active" : ""
                       }`}
+                    title="Browse projects"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
                       Projects
@@ -663,6 +678,7 @@ const HeaderComponent = () => {
                               href="/projects/commercial"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="Commercial projects"
                             >
                               Commercial
                             </Link>
@@ -670,6 +686,7 @@ const HeaderComponent = () => {
                               href="/projects/residential"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="Residential projects"
                             >
                               Residential
                             </Link>
@@ -677,6 +694,7 @@ const HeaderComponent = () => {
                               href="/projects/new-launches"
                               className="city-dropdown-item with-badge plus-jakarta-sans-semi-bold"
                               prefetch={true}
+                              title="New launch projects"
                             >
                               New Launches{" "}
                               <NewBadge isVisible={isDropdownHovered} />
@@ -684,6 +702,7 @@ const HeaderComponent = () => {
                             <Link
                               href="/blog"
                               className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                              title="Articles and news"
                             >
                               Articles &amp; News
                             </Link>
@@ -911,6 +930,7 @@ const HeaderComponent = () => {
                     href="/blog"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${isBlogTypeRoute ? "header-link-active" : ""
                       }`}
+                    title="Blog"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
                       Blog
@@ -922,6 +942,7 @@ const HeaderComponent = () => {
                     href="/career"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/career" ? "header-link-active" : ""
                       }`}
+                    title="Careers"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
                       Career
@@ -933,6 +954,7 @@ const HeaderComponent = () => {
                     href="/contact-us"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/contact-us" ? "header-link-active" : ""
                       }`}
+                    title="Contact Us"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
                       Contact Us
@@ -969,6 +991,7 @@ const HeaderComponent = () => {
                 openMenu();
               }}
               className="mobile-menu-logo"
+              title="My Property Fact Home"
             >
               <Image
                 src="/logo.webp"
@@ -1205,6 +1228,7 @@ const HeaderComponent = () => {
                     href="#"
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("city")}
+                    title="Browse cities"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       Cities
@@ -1226,6 +1250,7 @@ const HeaderComponent = () => {
                             prefetch={false}
                             onClick={openMenu}
                             className={`text-decoration-none${pathname === `/city/${city.slugURL}` ? " header-link-active" : ""}`}
+                            title={`${city.cityName} properties`}
                           >
                             {city.cityName}
                           </Link>
@@ -1242,6 +1267,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none mobile-menu-item"
                     href="#"
                     onClick={() => openMenuMobile("builder")}
+                    title="Browse builders"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builders
@@ -1262,6 +1288,7 @@ const HeaderComponent = () => {
                             className={`text-decoration-none builder-link${pathname === `/builder/${builder.slugUrl}` ? " header-link-active" : ""}`}
                             href={`/builder/${builder.slugUrl}`}
                             onClick={openMenu}
+                            title={`${builder.builderName} projects`}
                           >
                             {builder.builderName}
                           </Link>
@@ -1275,6 +1302,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="/about-us"
                     onClick={openMenu}
+                    title="About Us"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
                       About Us
@@ -1289,6 +1317,7 @@ const HeaderComponent = () => {
                     href="#"
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("projects")}
+                    title="Browse projects"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
                       Projects
@@ -1309,6 +1338,7 @@ const HeaderComponent = () => {
                             href={`/projects/${project.slugUrl}`}
                             onClick={openMenu}
                             className="text-decoration-none"
+                            title={`${project.projectTypeName} projects`}
                           >
                             {project.projectTypeName}
                           </Link>
@@ -1326,6 +1356,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="/blog"
                     onClick={openMenu}
+                    title="Blog"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
                       Blog
@@ -1337,6 +1368,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="/career"
                     onClick={openMenu}
+                    title="Careers"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
                       Career
@@ -1348,6 +1380,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="/contact-us"
                     onClick={openMenu}
+                    title="Contact Us"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
                       Contact us
@@ -1369,6 +1402,8 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.facebook.com/mypropertyfact1/"
                     target="_blank"
+                    title="My Property Fact on Facebook"
+                    aria-label="My Property Fact on Facebook"
                   >
                     <FontAwesomeIcon icon={faFacebook} />
                   </Link>
@@ -1378,6 +1413,8 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.instagram.com/my.property.fact/"
                     target="_blank"
+                    title="My Property Fact on Instagram"
+                    aria-label="My Property Fact on Instagram"
                   >
                     <FontAwesomeIcon icon={faInstagram} />
                   </Link>
@@ -1387,6 +1424,8 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.linkedin.com/company/my-property-fact/"
                     target="_blank"
+                    title="My Property Fact on LinkedIn"
+                    aria-label="My Property Fact on LinkedIn"
                   >
                     <FontAwesomeIcon icon={faLinkedin} />
                   </Link>
@@ -1396,6 +1435,8 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.youtube.com/@my.propertyfact/"
                     target="_blank"
+                    title="My Property Fact on YouTube"
+                    aria-label="My Property Fact on YouTube"
                   >
                     <FontAwesomeIcon icon={faYoutube} />
                   </Link>

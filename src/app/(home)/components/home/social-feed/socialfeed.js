@@ -15,7 +15,7 @@ export default function SocialFeed({ data }) {
           </div>
         ) : (
           <>
-            <h2 className="text-center mb-4">Investor Education Blog</h2>
+            <h2 className="text-center my-4">Investor Education Blog</h2>
             <div className="row investor-blog-grid mx-0">
               {data?.map((blog, index) => {
                 if (index < 2) {

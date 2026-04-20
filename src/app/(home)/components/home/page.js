@@ -176,8 +176,9 @@ export default async function HomePage() {
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
             <Image
-              src="/static/banners/transform.png"
+              src="/static/transform_new.png"
               alt="Transform your home visual section"
+              title="Transform your home visual section"
               fill
               className="transform-home-image"
               sizes="(max-width: 991px) 100vw, 1140px"
@@ -190,6 +191,7 @@ export default async function HomePage() {
                   <Image
                     src="/static/mpf_text.png"
                     alt="My Property Fact"
+                    title="My Property Fact"
                     width={224}
                     height={30}
                     className="transform-home-mpf-logo"

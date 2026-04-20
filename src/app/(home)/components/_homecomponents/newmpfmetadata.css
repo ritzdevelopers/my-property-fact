@@ -641,35 +641,38 @@
   }
 }
 
-/* Home hero (≤767px): two pills on row one, third centered on row two — layout-only, matches reference */
+/* Home hero (≤767px): keep all three pills in a single row */
 @media (max-width: 767.98px) {
   .property-buttons-overlay {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px 12px !important;
-    justify-items: stretch;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    justify-content: center;
     align-items: center;
     width: 100%;
     max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 
-  .property-buttons-overlay > a:nth-child(3),
-  .property-buttons-overlay > *:nth-child(3) {
-    grid-column: 1 / -1;
-    justify-self: center;
-    width: auto;
-    max-width: min(100%, 280px);
+  .property-buttons-overlay::-webkit-scrollbar {
+    display: none;
   }
 
   .property-buttons-overlay .btn-normal-color {
-    padding: 8px 14px !important;
-    font-size: 13px !important;
-    line-height: 1.25;
+    padding: 7px 10px !important;
+    font-size: 12px !important;
+    line-height: 1.2;
     text-align: center;
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    white-space: normal;
-    word-break: break-word;
-    min-width: 0;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    min-width: max-content;
+    max-width: none;
   }
 }
 

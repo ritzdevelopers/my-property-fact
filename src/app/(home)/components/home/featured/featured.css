@@ -115,6 +115,16 @@
     justify-content: center;
 }
 
+.home-featured-section .home-featured-filter-buttons {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+.home-featured-section .home-featured-section-title {
+    margin-top: 25px !important;
+    margin-bottom: 25px !important;
+}
+
 @media (min-width: 1024px) {
     .featured-filter-buttons {
         justify-content: flex-start;

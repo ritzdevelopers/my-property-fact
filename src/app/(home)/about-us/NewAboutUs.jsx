@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useLayoutEffect, useRef } from "react";
 import Image from "next/image";
 import { IoIosArrowBack, IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
@@ -39,40 +39,55 @@ const slidesData = [
   },
 ];
 
-export default function NewAboutUs() {
+export default function NewAboutUs({ platformStats }) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [cardsPerView, setCardsPerView] = useState(3);
-  const [windowWidth, setWindowWidth] = useState(0);
+  const [viewportWidth, setViewportWidth] = useState(0);
+  const [wrapperWidth, setWrapperWidth] = useState(0);
+  const cardsWrapperRef = useRef(null);
   const [isReadMore, setIsReadMore] = useState(false);
-  // Responsive cards per view
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setWindowWidth(width);
-      
-      if (width <= 480) {
-        setCardsPerView(1);
-      } else if (width <= 768) {
-        setCardsPerView(1);
-      } else if (width <= 1024) {
-        setCardsPerView(2);
-      } else {
-        setCardsPerView(3);
-      }
-    };
 
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  const cardsPerView = useMemo(() => {
+    if (viewportWidth <= 0) return 1;
+    if (viewportWidth <= 768) return 1;
+    if (viewportWidth <= 1024) return 2;
+    return 3;
+  }, [viewportWidth]);
 
-  // Calculate total slides based on responsive cardsPerView
-  const totalSlides = Math.max(
-    1,
-    Math.ceil((slidesData.length - cardsPerView) / cardsPerView) + 1
+  const section3Gap = viewportWidth <= 768 ? 16 : viewportWidth <= 1024 ? 20 : 24;
+
+  const cardWidthPx =
+    wrapperWidth > 0 && cardsPerView > 0
+      ? (wrapperWidth - section3Gap * (cardsPerView - 1)) / cardsPerView
+      : null;
+
+  const totalSlides = useMemo(
+    () => Math.max(1, Math.ceil(slidesData.length / cardsPerView)),
+    [cardsPerView],
   );
 
-  // Reset slide when cardsPerView changes
+  const trackX = wrapperWidth > 0 ? -currentSlide * wrapperWidth : 0;
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const measureAll = () => {
+      setViewportWidth(window.innerWidth);
+      const el = cardsWrapperRef.current;
+      if (el) setWrapperWidth(el.offsetWidth);
+    };
+    measureAll();
+    window.addEventListener("resize", measureAll);
+    const el = cardsWrapperRef.current;
+    let ro;
+    if (el && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(measureAll);
+      ro.observe(el);
+    }
+    return () => {
+      window.removeEventListener("resize", measureAll);
+      ro?.disconnect();
+    };
+  }, []);
+
   useEffect(() => {
     setCurrentSlide(0);
   }, [cardsPerView]);
@@ -360,10 +375,7 @@ export default function NewAboutUs() {
           </motion.div>
         </motion.div>
       </div>
-      <div
-        className="container-fluid position-relative"
-        style={{ background: "#EDF4FF", padding: "64px 0" }}
-      >
+      <div className="new-about-us-what-we-offer-band container-fluid position-relative">
         <motion.div 
           className="new-about-us-section-3-container-bg-image"
           initial={{ opacity: 0 }}
@@ -394,18 +406,14 @@ export default function NewAboutUs() {
             What We Offer
           </motion.h2>
 
-          <div className="new-about-us-section-3-cards-wrapper">
+          <div className="new-about-us-section-3-cards-wrapper" ref={cardsWrapperRef}>
             <motion.div
               className="new-about-us-section-3-cards"
-              animate={{
-                x: windowWidth > 768 
-                  ? `-${currentSlide * (100 / cardsPerView)}%`
-                  : `-${currentSlide * 100}%`,
-              }}
+              animate={{ x: trackX }}
               transition={{
-                type: "spring",
-                stiffness: 300,
-                damping: 30,
+                type: "tween",
+                duration: 0.42,
+                ease: [0.25, 0.1, 0.25, 1],
               }}
             >
               {slidesData.map((slide, index) => (
@@ -417,12 +425,19 @@ export default function NewAboutUs() {
                   whileInView="visible"
                   viewport={{ once: true }}
                   variants={cardStagger}
-                  whileHover={{ y: windowWidth > 768 ? -4 : 0, transition: { duration: 0.2 } }}
-                  style={{
-                    flex: `0 0 calc((100% - ${(cardsPerView - 1) * 24}px) / ${cardsPerView})`,
-                    minWidth: `calc((100% - ${(cardsPerView - 1) * 24}px) / ${cardsPerView})`,
-                    maxWidth: `calc((100% - ${(cardsPerView - 1) * 24}px) / ${cardsPerView})`,
+                  whileHover={{
+                    y: viewportWidth > 768 ? -4 : 0,
+                    transition: { duration: 0.2 },
                   }}
+                  style={
+                    cardWidthPx != null
+                      ? {
+                          flex: `0 0 ${cardWidthPx}px`,
+                          minWidth: `${cardWidthPx}px`,
+                          maxWidth: `${cardWidthPx}px`,
+                        }
+                      : undefined
+                  }
                 >
                   <h3 className="new-about-us-section-3-card-title plus-jakarta-sans-semi-bold">
                     {slide.title}
@@ -467,7 +482,7 @@ export default function NewAboutUs() {
           </motion.div>
         </motion.div>
       </div>
-      <WhyMyPropertyFact />
+      <WhyMyPropertyFact platformStats={platformStats} />
     </>
   );
 }

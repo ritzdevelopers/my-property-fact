@@ -605,6 +605,10 @@ const addNearbyImageIcon = (benefit) => {
   const builderPageHref = builderSlug ? `/builder/${builderSlug}` : null;
   const projectImageSrc = (filename) =>
     filename && slugURL ? `${imageBase}properties/${slugURL}/${filename}` : "/static/no_image.png";
+  const getBannerAltText = (item, index) =>
+    String(item?.altTag || "").trim() ||
+    String(projectDetail?.projectName || "").trim() ||
+    `${projectDetail.projectName || "Property"} banner ${index + 1}`;
 
   const viewAllAmenities = () => {
     const amenitiesList = projectDetail.amenities || [];
@@ -872,8 +876,8 @@ const addNearbyImageIcon = (benefit) => {
                 <div className="image-con">
                   <Image
                     src={projectImageSrc(item.desktopImage)}
-                    alt={item.altTag || "Property Banner"}
-                    title={item.altTag || "Property Banner"}
+                    alt={getBannerAltText(item, index)}
+                    title={getBannerAltText(item, index)}
                     fill
                     priority={index === 0}
                     fetchPriority={index === 0 ? "high" : "low"}

@@ -1,11 +1,31 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import "./popupform.css";
+
+/** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */
+const ENQUIRY_JOURNEY_PHRASES = [
+  "Perfect Space!",
+  "Ideal Property",
+  "Perfect Investment!",
+  "Perfect Workspace!",
+  "Perfect Location!",
+  "Ideal Space!",
+  "Perfect Office!",
+  "Ideal Residence!",
+  "Perfect Property!",
+];
+
+const ENQUIRY_JOURNEY_TYPE_MS = 68;
+const ENQUIRY_JOURNEY_DELETE_MS = 42;
+/** Pause when a phrase is fully typed, before backspacing. */
+const ENQUIRY_JOURNEY_PAUSE_END_MS = 2200;
+/** Short pause after clearing before typing the next phrase. */
+const ENQUIRY_JOURNEY_GAP_MS = 380;
 
 function getProjectImageSrc(data) {
   if (!data?.slugURL) return "/static/no_image.png";
@@ -38,6 +58,8 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   const [formData, setFormData] = useState(intitalData);
   const [showLoading, setShowLoading] = useState(false);
   const [buttonName, setButtonName] = useState("Submit Enquiry");
+  const [journeyTypedText, setJourneyTypedText] = useState("");
+  const journeyTypeTimerRef = useRef(null);
 
   //Validation errors state
   const [errors, setErrors] = useState({
@@ -200,7 +222,71 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   };
 
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
-  const projectImageSrc = isProjectDetail ? getProjectImageSrc(data) : null;
+  const useSplitLayout = isProjectDetail || from === "Home Page";
+  const isHomeSplit = !isProjectDetail && useSplitLayout;
+
+  useEffect(() => {
+    const clearTimer = () => {
+      if (journeyTypeTimerRef.current) {
+        clearTimeout(journeyTypeTimerRef.current);
+        journeyTypeTimerRef.current = null;
+      }
+    };
+
+    if (!show || !useSplitLayout) {
+      clearTimer();
+      setJourneyTypedText("");
+      return undefined;
+    }
+
+    let phraseIdx = 0;
+    let pos = 0;
+    let deleting = false;
+
+    const runTick = () => {
+      const full = ENQUIRY_JOURNEY_PHRASES[phraseIdx];
+      if (!deleting) {
+        if (pos < full.length) {
+          pos += 1;
+          setJourneyTypedText(full.slice(0, pos));
+          journeyTypeTimerRef.current = setTimeout(
+            runTick,
+            ENQUIRY_JOURNEY_TYPE_MS,
+          );
+        } else {
+          journeyTypeTimerRef.current = setTimeout(() => {
+            deleting = true;
+            runTick();
+          }, ENQUIRY_JOURNEY_PAUSE_END_MS);
+        }
+      } else if (pos > 0) {
+        pos -= 1;
+        setJourneyTypedText(full.slice(0, pos));
+        journeyTypeTimerRef.current = setTimeout(
+          runTick,
+          ENQUIRY_JOURNEY_DELETE_MS,
+        );
+      } else {
+        deleting = false;
+        phraseIdx = (phraseIdx + 1) % ENQUIRY_JOURNEY_PHRASES.length;
+        journeyTypeTimerRef.current = setTimeout(
+          runTick,
+          ENQUIRY_JOURNEY_GAP_MS,
+        );
+      }
+    };
+
+    setJourneyTypedText("");
+    journeyTypeTimerRef.current = setTimeout(runTick, ENQUIRY_JOURNEY_GAP_MS);
+
+    return () => {
+      clearTimer();
+    };
+  }, [show, useSplitLayout]);
+  const popupImageSrc = isProjectDetail
+    ? getProjectImageSrc(data)
+    : "/static/icon/enquiry.png";
+  const popupImageAlt = isProjectDetail ? data?.projectName || "Project" : "Enquiry";
 
   return (
     <>
@@ -208,23 +294,25 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
         show={show}
         onHide={() => handleClose(false)}
         centered
-        className={`enquiry-popup ${isProjectDetail ? "enquiry-popup--split" : ""}`}
-        dialogClassName="enquiry-popup-dialog"
+        backdropClassName="enquiry-popup-backdrop"
+        className={`enquiry-popup ${useSplitLayout ? "enquiry-popup--split" : "enquiry-popup--home"}`}
+        dialogClassName={`enquiry-popup-dialog ${!useSplitLayout ? "enquiry-popup-dialog--home" : ""}`}
       >
+        {useSplitLayout ? (
+          <>
         <button
           type="button"
           className="btn-close enquiry-popup-close"
           aria-label="Close"
           onClick={() => handleClose(false)}
         />
-        {isProjectDetail ? (
-          <div className="enquiry-popup-split">
-            <div className="enquiry-popup-image">
+          <div className={`enquiry-popup-split ${isHomeSplit ? "enquiry-popup-split--home" : ""}`}>
+            <div className={`enquiry-popup-image ${isHomeSplit ? "enquiry-popup-image--home" : ""}`}>
               <Image
-                src={projectImageSrc}
-                alt={data?.projectName || "Project"}
+                src={popupImageSrc}
+                alt={popupImageAlt}
                 fill
-                className="enquiry-popup-image-img"
+                className={`enquiry-popup-image-img ${isHomeSplit ? "enquiry-popup-image-img--home" : ""}`}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
@@ -235,7 +323,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
               <h2 className="enquiry-popup-title-main">
                 <span className="enquiry-popup-title-regular">Start Your Journey to the </span>
                 <span className="enquiry-popup-title-accent-wrap">
-                  <span className="enquiry-popup-title-accent">Perfect Home.</span>
+                  <span className="enquiry-popup-title-accent">
+                    {journeyTypedText}
+                  </span>
+                  <span
+                    className="enquiry-popup-title-cursor"
+                    aria-hidden="true"
+                  />
                   <div className="enquiry-popup-title-highlight" aria-hidden="true" />
                 </span>
               </h2>
@@ -318,88 +412,123 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
               <p className="enquiry-popup-footer">Ready to help! Fill the form, and we&apos;ll call soon.</p>
             </div>
           </div>
-        ) : (
-          <>
-            <p className="enquiry-popup-subtitle px-6 px-md-4 mb-0">
-              Share your details and our team will contact you shortly.
-            </p>
-            <Form
-              noValidate
-              validated={validated}
-              onSubmit={handleSubmit}
-              className="enquiry-popup-form p-3 p-md-4 pt-3"
-            >
-              <Form.Group className="mb-3" controlId="full_name">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="text"
-                  placeholder="Full name"
-                  value={formData.name}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="name"
-                  isInvalid={!!errors.name || (validated && !formData.name.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.name || "Please provide a valid name."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="email_id">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="email"
-                  placeholder="Email id"
-                  value={formData.email}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="email"
-                  isInvalid={!!errors.email || (validated && !formData.email.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.email || "Please provide a valid email."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="phone_number">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={formData.phone}
-                  onChange={(e) => handleChange(e)}
-                  onBlur={handleBlur}
-                  name="phone"
-                  isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.phone || "Please provide a valid phone number."}
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="message">
-                <Form.Control
-                  className="enquiry-popup-input"
-                  as="textarea"
-                  rows={3}
-                  placeholder="Message"
-                  value={formData.message}
-                  onChange={(e) => handleChange(e)}
-                  name="message"
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please provide a valid message.
-                </Form.Control.Feedback>
-              </Form.Group>
-              <Button
-                type="submit"
-                className="fw-bold border-0 enquiry-popup-submit"
-                disabled={showLoading}
-              >
-                {buttonName} <LoadingSpinner show={showLoading} />
-              </Button>
-            </Form>
           </>
+        ) : (
+          <div className="enquiry-popup-home">
+            <button
+              type="button"
+              className="btn-close enquiry-popup-home__close"
+              aria-label="Close"
+              onClick={() => handleClose(false)}
+            />
+            <div className="enquiry-popup-home__header">
+              <span className="enquiry-popup-home__eyebrow">We&apos;re here to help</span>
+              <h2 id="enquiry-popup-home-title" className="enquiry-popup-home__title">
+                Tell us how we can reach you
+              </h2>
+              <p className="enquiry-popup-home__lead">
+                A quick note is enough — our team usually responds within one business day.
+              </p>
+            </div>
+            <div className="enquiry-popup-home__body">
+              <Form
+                noValidate
+                validated={validated}
+                onSubmit={handleSubmit}
+                className="enquiry-popup-form enquiry-popup-home__form"
+                aria-labelledby="enquiry-popup-home-title"
+              >
+                <div className="enquiry-popup-home__grid">
+                  <Form.Group className="enquiry-popup-home__field" controlId="full_name_home">
+                    <Form.Label className="enquiry-popup-home__label">Full name</Form.Label>
+                    <Form.Control
+                      className="enquiry-popup-input enquiry-popup-input--home"
+                      type="text"
+                      placeholder="e.g. Rahul Sharma"
+                      value={formData.name}
+                      onChange={(e) => handleChange(e)}
+                      onBlur={handleBlur}
+                      name="name"
+                      isInvalid={!!errors.name || (validated && !formData.name.trim())}
+                      required
+                      autoComplete="name"
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.name || "Please provide a valid name."}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <Form.Group className="enquiry-popup-home__field" controlId="email_id_home">
+                    <Form.Label className="enquiry-popup-home__label">Email</Form.Label>
+                    <Form.Control
+                      className="enquiry-popup-input enquiry-popup-input--home"
+                      type="email"
+                      placeholder="name@email.com"
+                      value={formData.email}
+                      onChange={(e) => handleChange(e)}
+                      onBlur={handleBlur}
+                      name="email"
+                      isInvalid={!!errors.email || (validated && !formData.email.trim())}
+                      required
+                      autoComplete="email"
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.email || "Please provide a valid email."}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <Form.Group
+                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
+                    controlId="phone_number_home"
+                  >
+                    <Form.Label className="enquiry-popup-home__label">Mobile number</Form.Label>
+                    <Form.Control
+                      className="enquiry-popup-input enquiry-popup-input--home"
+                      type="tel"
+                      placeholder="10-digit mobile number"
+                      value={formData.phone}
+                      onChange={(e) => handleChange(e)}
+                      onBlur={handleBlur}
+                      name="phone"
+                      isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
+                      required
+                      autoComplete="tel"
+                      inputMode="numeric"
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.phone || "Please provide a valid phone number."}
+                    </Form.Control.Feedback>
+                  </Form.Group>
+                  <Form.Group
+                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
+                    controlId="message_home"
+                  >
+                    <Form.Label className="enquiry-popup-home__label">
+                      Message <span className="enquiry-popup-home__optional">(optional)</span>
+                    </Form.Label>
+                    <Form.Control
+                      className="enquiry-popup-input enquiry-popup-input--home enquiry-popup-input--textarea"
+                      as="textarea"
+                      rows={3}
+                      placeholder="Budget, location, or anything we should know…"
+                      value={formData.message}
+                      onChange={(e) => handleChange(e)}
+                      name="message"
+                    />
+                  </Form.Group>
+                </div>
+                <Button
+                  type="submit"
+                  className="enquiry-popup-submit enquiry-popup-submit--home"
+                  disabled={showLoading}
+                >
+                  <span className="enquiry-popup-submit__text">{buttonName}</span>
+                  <LoadingSpinner show={showLoading} />
+                </Button>
+                <p className="enquiry-popup-home__trust" role="status">
+                  Your details are used only to respond to this enquiry.
+                </p>
+              </Form>
+            </div>
+          </div>
         )}
       </Modal>
     </>

@@ -170,10 +170,10 @@ export default function Featured({
   return (
     <>
       {type !== "Similar" && (
-        <div className="container">
+        <div className="container home-featured-section">
           {autoPlay && type !== "Similar" && (
             <div
-              className="d-flex featured-filter-buttons mt-4 mt-lg-2 gap-3"
+              className="d-flex featured-filter-buttons home-featured-filter-buttons gap-3"
             >
               <button
                 className={`mpf-btn-primary ${projectType === "Residential" ? "active" : ""}`}
@@ -190,7 +190,7 @@ export default function Featured({
             </div>
           )}
           <div className="d-flex justify-content-between align-items-center">
-            <h2 className="text-left my-4 my-lg-5 plus-jakarta-sans-semi-bold">
+            <h2 className="text-left plus-jakarta-sans-semi-bold home-featured-section-title">
               {sectionTitle}
             </h2>
             {autoPlay && type !== "Similar" && (

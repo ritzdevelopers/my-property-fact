@@ -1,55 +1,17 @@
-import { getImageProps } from "next/image";
-import {
-  ghdHeroBannerSrc,
-  getGhdHeroImagePropsCommon,
-} from "./ghdHeroBannerConfig";
+// Preload links must mirror the <picture> breakpoints in heroSection.jsx exactly.
+const BANNER_DESKTOP = "/static/banners/mpf_generic_banner.jpg";
+const BANNER_TABLET  = "/static/banners/mpf_generic_banner_tab.jpg";
+const BANNER_MOBILE  = "/static/banners/mpf_generic_mobile.jpg";
 
-/**
- * Responsive preloads so the LCP image URL is discoverable from the document
- * head (matches Next Image /_next/image URLs used by the hero <picture>).
- */
 export default function HeroLcpPreloads() {
-  const common = getGhdHeroImagePropsCommon();
-
-  const mobile = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.mobile,
-  }).props;
-  const tablet = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.tablet,
-  }).props;
-  const desktop = getImageProps({
-    ...common,
-    src: ghdHeroBannerSrc.desktop,
-  }).props;
-
   return (
     <>
-      <link
-        rel="preload"
-        as="image"
-        imageSrcSet={mobile.srcSet}
-        imageSizes={mobile.sizes}
-        fetchPriority="high"
-        media="(max-width: 767px)"
-      />
-      <link
-        rel="preload"
-        as="image"
-        imageSrcSet={tablet.srcSet}
-        imageSizes={tablet.sizes}
-        fetchPriority="high"
-        media="(min-width: 768px) and (max-width: 991px)"
-      />
-      <link
-        rel="preload"
-        as="image"
-        imageSrcSet={desktop.srcSet}
-        imageSizes={desktop.sizes}
-        fetchPriority="high"
-        media="(min-width: 992px)"
-      />
+      {/* mobile  < 768 px */}
+      <link rel="preload" as="image" href={BANNER_MOBILE}  fetchPriority="high" media="(max-width: 767.98px)" />
+      {/* tablet  768 – 991 px */}
+      <link rel="preload" as="image" href={BANNER_TABLET}  fetchPriority="high" media="(min-width: 768px) and (max-width: 991.98px)" />
+      {/* desktop ≥ 992 px */}
+      <link rel="preload" as="image" href={BANNER_DESKTOP} fetchPriority="high" media="(min-width: 992px)" />
     </>
   );
 }

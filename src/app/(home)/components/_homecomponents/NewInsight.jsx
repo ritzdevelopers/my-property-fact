@@ -72,11 +72,11 @@ export default function NewInsight() {
             </div>
           </div>
           <div className="insight-image-wrapper">
-            <Link href={`${process.env.NEXT_PUBLIC_UI_URL}/saya-gold-avenue`} target="_blank" rel="noopener noreferrer">
+            <Link href={`${process.env.NEXT_PUBLIC_UI_URL}/exotica-132`} target="_blank" rel="noopener noreferrer">
             <Image
-              src="/static/saya.png"
-              alt="Saya Gold Avenue — residential project featured in Expert Insights & Resources"
-              title="Saya Gold Avenue — residential project featured in Expert Insights & Resources"
+              src="/static/expert_insights.jpg"
+              alt="Exotica One32 — commercial project featured in Expert Insights & Resources"
+              title="Exotica One32 — commercial project featured in Expert Insights & Resources"
               width={604}
               height={308}
               className="insight-main-image"

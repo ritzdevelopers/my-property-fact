@@ -1,4 +1,6 @@
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
 import NewsViews from "./new-views/page";
 import SocialFeedPage from "./social-feed/page";
 import HeroSection from "../_homecomponents/heroSection";
@@ -10,7 +12,15 @@ import {
   fetchTopPicksProject,
   fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
-import NewMpfMetaDataContainer from "../_homecomponents/NewMpfMetaDataContainer";
+import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
+import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
+import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
+import {
+  buildLatestProjectsForRegion,
+  buildNewLaunchProjectsForRegion,
+  buildSubtitleNewLaunchesNear,
+} from "./recommendedSpotlight";
+import RotatingHeroHeadline from "./RotatingHeroHeadline";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   ssr: true,
@@ -39,8 +49,23 @@ const NoidaProjectsSection = dynamic(
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
+/** Alternates by calendar day (IST): e.g. one day Delhi, next Noida — SSR fallback before geolocation. */
+const DAILY_RECOMMENDED_PROJECT_CITIES = ["Delhi", "Noida"];
+
+function getDailyRecommendedProjectCityLabel() {
+  const ymd = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+  const [y, m, d] = ymd.split("-").map(Number);
+  const middayUtcMs = Date.UTC(y, m - 1, d, 12, 0, 0);
+  const dayOrdinal = Math.floor(middayUtcMs / 86400000);
+  return DAILY_RECOMMENDED_PROJECT_CITIES[dayOrdinal % 2];
+}
+
 export default async function HomePage() {
-  // Fetching all projects with short details
   const projects = await getAllProjects();
 
   // Allowed slugs for featured projects
@@ -108,66 +133,202 @@ export default async function HomePage() {
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
+  const dailyCityLabel = getDailyRecommendedProjectCityLabel();
+
+  const recommendedProperties = buildNewLaunchProjectsForRegion({
+    projects,
+    excludeSlugSet: new Set(),
+    geoCity: dailyCityLabel,
+    geoState: "",
+    limit: 8,
+  });
+
+  const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
+
+  const recommendedProjects = buildLatestProjectsForRegion({
+    projects,
+    excludeSlugSet: firstSlugs,
+    geoCity: dailyCityLabel,
+    geoState: "",
+    limit: 8,
+  });
+
+  const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
+    builders,
+    projects,
+  );
+
   // Top Picks: projects from selected builders only, rotates every 30s (testing)
   const mpfTopPicProject = await fetchTopPicksProject();
 
   try {
+    const row = (i, node) => <div key={i}>{node}</div>;
+
     return (
       <>
-        {/* Hero section component  */}
-        <HeroSection projectTypeList={projectTypeList} cityList={cityList} />
+        {row(
+          0,
+          <HeroSection projectTypeList={projectTypeList} cityList={cityList} />,
+        )}
 
-        {/* My property fact meta data container component */}
-        <NewMpfMetaDataContainer
-          propertyTypes={projectTypeList}
-          projects={projects}
-          builders={builders.builders}
-          cities={cityList}
-        />
-
-        {/* MPF-top pick section (refreshes every 30s on client) */}
-        <TopPicksWithRotation initialProject={mpfTopPicProject} />
-
-        {/* Static Sections */}
-        <div className="position-relative">
-          {/* Insight section  */}
-          <NewInsight />
-
-          {/* featured projects section  */}
-          <FeaturedPage
-            title="Featured Projects"
-            type="Featured"
-            autoPlay={false}
-            allFeaturedProperties={featuredProjects}
-          />
-          {/* dream cities section  */}
-          <DreamPropertySection />
-
-          {/* Residential + Commercial in one section with tabs */}
-          <div className="container">
-            <FeaturedPage
-              title="Explore Our Premier Residential Projects"
-              autoPlay={true}
-              allFeaturedProperties={[]}
-              residentialProjects={residentialProjects}
-              commercialProjects={commercialProjects}
+        {row(
+          1,
+          <section className="container transform-home-section">
+          <div className="transform-home-image-wrap">
+            <Image
+              src="/static/banners/transform.png"
+              alt="Transform your home visual section"
+              fill
+              className="transform-home-image"
+              sizes="(max-width: 991px) 100vw, 1140px"
+              priority={false}
             />
+            <div className="transform-home-content">
+              <div className="transform-home-headline-stack">
+                <RotatingHeroHeadline />
+                <div className="transform-home-mpf-logo-wrap">
+                  <Image
+                    src="/static/mpf_text.png"
+                    alt="My Property Fact"
+                    width={224}
+                    height={30}
+                    className="transform-home-mpf-logo"
+                    sizes="(max-width: 991px) 85vw, 520px"
+                  />
+                </div>
+                <div className="transform-home-why">
+                  <h3 className="transform-home-why-title">Why choose us?</h3>
+                  <ul className="transform-home-why-list">
+                    <li className="transform-home-why-item">
+                      <span className="transform-home-why-check" aria-hidden>
+                        <svg
+                          viewBox="0 0 24 24"
+                          width={20}
+                          height={20}
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            stroke="#178c2c"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                      <span className="transform-home-why-text">
+                        Verified Property {" "}
+                        <strong>Insights for Smart Decision Making</strong>
+                      </span>
+                    </li>
+                    <li className="transform-home-why-item">
+                      <span className="transform-home-why-check" aria-hidden>
+                        <svg
+                          viewBox="0 0 24 24"
+                          width={20}
+                          height={20}
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M20 6L9 17l-5-5"
+                            stroke="#178c2c"
+                            strokeWidth="2.2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                      <span className="transform-home-why-text">
+                        <strong>Advanced Tools for Effortless Property Search</strong>{" "}
+                        & Cost Estimation
+                      </span>
+                    </li>
+                  </ul>
+                </div>
+                <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
+                <div className="transform-home-explore-projects-wrap">
+                  <Link href="/projects" className="transform-home-explore-projects-btn">
+                    Explore Projects
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
+        </section>
+        )}
 
-          {/* web story section  */}
-          <NewsViews title="Realty Updates Web Stories" />
+        {row(
+          2,
+          <RecommendedProjectsWithGeolocation
+            title="New Property Launches"
+            fallbackItems={recommendedProperties}
+            fallbackSubtitle={
+              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
+              "Explore New Residential & Commercial Properties"
+            }
+            kind="project"
+            locationIntent="projects"
+            viewAllHref="/projects"
+            className="recommended-properties-section"
+          />,
+        )}
 
-          {/* Top projects container on home page */}
-          <NoidaProjectsSection cities={cityList} />
+        {row(
+          3,
+          <TopPicksWithRotation initialProject={mpfTopPicProject} />,
+        )}
 
-          {/* Latest blogs from our blog section */}
-          <SocialFeedPage />
+        {row(
+          4,
+          <RecommendedProjectsWithGeolocation
+            title="Popular Projects"
+            fallbackItems={recommendedProjects}
+            fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${dailyCityLabel}`}
+            kind="project"
+            locationIntent="latest-projects"
+            viewAllHref="/projects"
+          />,
+        )}
 
-          {/* Social feeds from instagram and facebook */}
-          <SocialFeedsOfMPF />
+        <div className="position-relative">
+          {row(5, <NewInsight />)}
 
-          {/* Popular cities section on home page  */}
-          <PopularCitiesSection />
+          {row(
+            6,
+            <FeaturedPage
+              title="Featured Projects"
+              type="Featured"
+              autoPlay={false}
+              allFeaturedProperties={featuredProjects}
+            />,
+          )}
+
+          {row(7, <DreamPropertySection />)}
+
+          {row(
+            8,
+            <div className="container">
+              <FeaturedPage
+                title="Explore Our Premier Residential Projects"
+                autoPlay={true}
+                allFeaturedProperties={[]}
+                residentialProjects={residentialProjects}
+                commercialProjects={commercialProjects}
+              />
+            </div>,
+          )}
+
+          {row(9, <NewsViews title="Realty Updates Web Stories" />)}
+
+          {row(10, <NoidaProjectsSection cities={cityList} />)}
+
+          {row(11, <SocialFeedPage />)}
+
+          {row(12, <SocialFeedsOfMPF />)}
+
+          {row(13, <PopularCitiesSection />)}
         </div>
       </>
     );

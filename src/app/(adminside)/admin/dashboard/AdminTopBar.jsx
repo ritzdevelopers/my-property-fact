@@ -186,7 +186,6 @@ export default function AdminTopBar() {
             onKeyDown={handleKeyDown}
             autoComplete="off"
             aria-label="Global admin search"
-            aria-expanded={open && results.length > 0}
             aria-autocomplete="list"
           />
           {query && (

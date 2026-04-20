@@ -2,7 +2,9 @@
 import Image from "next/image";
 import "./aboutus.css";
 import Link from "next/link";
-export default function WhyMyPropertyFact() {
+import MpfPlatformStatistics from "./MpfPlatformStatistics";
+
+export default function WhyMyPropertyFact({ platformStats }) {
   const whyMpfShapedAlt =
     "Why My Property Fact — shaped decorative illustration on About Us page";
   const whyMpfFeatureAlt =
@@ -78,6 +80,15 @@ export default function WhyMyPropertyFact() {
               </div>
             </div>
           </div>
+
+          {platformStats ? (
+            <MpfPlatformStatistics
+              citiesCount={platformStats.cities}
+              buildersCount={platformStats.builders}
+              projectsCount={platformStats.projects}
+            />
+          ) : null}
+
           <div className="our-commitment-container">
             <div className="our-commitment-content-container">
               <h2 className="our-commitment-heading about-us-h2 plus-jakarta-sans-semi-bold">

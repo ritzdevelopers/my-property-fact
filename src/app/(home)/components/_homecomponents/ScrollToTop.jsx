@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUp } from "@fortawesome/free-solid-svg-icons";
 import "./scrollToTop.css";
 
 export default function ScrollToTop() {
+  const pathname = usePathname();
   const [isVisible, setIsVisible] = useState(false);
 
   // Show button when page is scrolled down
@@ -37,7 +39,7 @@ export default function ScrollToTop() {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="scroll-to-top-btn btn-normal-color"
+          className={`scroll-to-top-btn btn-normal-color${pathname === "/" ? " scroll-to-top-btn--home-stack" : ""}`}
           aria-label="Scroll to top"
         >
           <FontAwesomeIcon icon={faArrowUp} />

@@ -91,7 +91,7 @@ export default function Blog({
       >
         <h2
           id="investor-education-blog-heading"
-          className={`${styles.blogPageSectionHeading} mb-3 mb-md-4`}
+          className={`${styles.blogPageSectionHeading} mb-3 mb-md-4 mt-3`}
         >
           Investor Education Blog
         </h2>

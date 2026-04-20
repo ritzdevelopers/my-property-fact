@@ -8,6 +8,7 @@ import Providers from "./_global_components/providers/Providers";
 import { SiteDataProvider } from "./_global_components/contexts/SiteDataContext";
 import { fetchSiteDataFromApi } from "./_global_components/siteData/fetchSiteDataApi";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
+import WebsiteGateway from "./_global_components/WebsiteGateway";
 config.autoAddCss = false;
 
 const getSiteDataForRootLayout = cache(async () => {
@@ -163,6 +164,7 @@ export default async function RootLayout({ children }) {
             </SiteDataProvider>
           </Suspense>
         </Providers>
+        <WebsiteGateway />
 
         {/* third party scripts are loaded here */}
         <ThirdPartyScripts />

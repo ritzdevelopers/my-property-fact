@@ -298,24 +298,13 @@ export default function ChatbotV2() {
         {!isOpen ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            width="40"
-            height="40"
-            viewBox="0 0 32 32"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            width={28}
+            height={28}
+            aria-hidden
           >
-            <path d="M12 6h8" />
-            <path d="M16 3.5v2.5" />
-            <rect x="6" y="7.5" width="20" height="15" rx="5.5" />
-            <circle cx="12.2" cy="14.5" r="1.2" fill="currentColor" stroke="none" />
-            <circle cx="19.8" cy="14.5" r="1.2" fill="currentColor" stroke="none" />
-            <path d="M12 18.5h8" />
-            <path d="M10 22.5v3.2l3.2-3.2" />
-            <path d="M20.5 22.5v2.2h-9v-2.2" />
-            <path d="M13 24.7v-1.6h6v1.6" />
+            <path d="M10 3H14C18.4183 3 22 6.58172 22 11C22 15.4183 18.4183 19 14 19V22.5C9 20.5 2 17.5 2 11C2 6.58172 5.58172 3 10 3ZM12 17H14C17.3137 17 20 14.3137 20 11C20 7.68629 17.3137 5 14 5H10C6.68629 5 4 7.68629 4 11C4 14.61 6.46208 16.9656 12 19.4798V17Z" />
           </svg>
         ) : (
           <svg

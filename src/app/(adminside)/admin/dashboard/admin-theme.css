@@ -866,7 +866,7 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar {
   border-bottom-color: rgba(255, 255, 255, 0.14);
 }
 
-/* Default page copy on dark shell; light Bootstrap cards keep dark text */
+/* Default page copy + cards: black surfaces, white type */
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container {
   color: #ffffff;
 }
@@ -875,7 +875,10 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container .card,
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container .card-header,
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container .card-body,
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container .card-footer {
-  color: #111827;
+  background-color: #000000 !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container .form-label,
@@ -1097,6 +1100,454 @@ html[data-admin-theme="dark"] .enquiries-page .status-custom-item:hover {
 html[data-admin-theme="dark"] .enquiries-page .status-custom-item.is-active {
   background: rgba(52, 211, 153, 0.12);
   color: #86efac;
+}
+
+/* —— Dark mode: main shell, Bootstrap utilities, dashboard home, super-tracking —— */
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-main-content {
+  background: #000000 !important;
+  background-image: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper #sidebar {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-sidebar-wrapper #sidebar .sidebar-header {
+  background: #000000 !important;
+  border-bottom-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"]
+  .admin-layout-wrapper
+  .admin-sidebar-wrapper
+  #sidebar
+  ul.components
+  li
+  > button.dropdown-toggle {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"]
+  .admin-layout-wrapper
+  .admin-sidebar-wrapper
+  #sidebar
+  ul.components
+  li
+  > button.dropdown-toggle:hover {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"]
+  .admin-layout-wrapper
+  .admin-sidebar-wrapper
+  #sidebar
+  ul
+  li
+  ul
+  li
+  > button.dropdown-toggle {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"]
+  .admin-layout-wrapper
+  .admin-sidebar-wrapper
+  #sidebar
+  ul
+  li
+  ul
+  li
+  > button.dropdown-toggle:hover {
+  background: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"]
+  .admin-layout-wrapper
+  .admin-sidebar-wrapper
+  #sidebar
+  ul
+  li.active
+  > button.dropdown-toggle {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .sidebar-header ul ul a {
+  background: #0a0f0c !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .sidebar-header a.download {
+  background: #141414 !important;
+  color: #ffffff !important;
+  border: 1px solid #404040 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-content-card {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+  box-shadow: 0 1px 0 #262626 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-header {
+  background: #000000 !important;
+  border: 1px solid #333333 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-header h1 {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-header p {
+  color: #e5e5e5 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .bg-white,
+html[data-admin-theme="dark"] .admin-layout-wrapper .bg-light {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .text-dark,
+html[data-admin-theme="dark"] .admin-layout-wrapper .text-body {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .table {
+  color: #ffffff !important;
+  --bs-table-bg: transparent;
+  --bs-table-color: #ffffff;
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: #0a0a0a !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .list-group-item {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .border,
+html[data-admin-theme="dark"] .admin-layout-wrapper .table-bordered {
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar--executive {
+  border-bottom-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar--executive .admin-dashboard-toolbar-title {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar--executive .admin-toolbar-btn--secondary-outline.btn-warning {
+  background: #0a0a0a !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar--executive .admin-toolbar-btn--secondary-outline.btn-warning:hover {
+  background: #1a1a1a !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+/* Dashboard home — metric + chart cards */
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home__kicker,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home__title {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home__signed-in-meta {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home__typing-cursor {
+  background: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-home__trend {
+  background: #0a0a0a !important;
+  border-color: #333333 !important;
+  color: #e5e5e5 !important;
+  box-shadow: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--white,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--mint,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--cyan,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--slate {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric__label {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric__value {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric__sub {
+  color: #a3e635 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric__sub--muted {
+  color: #a3a3a3 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--white .admin-dash-metric__icon,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--mint .admin-dash-metric__icon,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--cyan .admin-dash-metric__icon,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--slate .admin-dash-metric__icon {
+  color: #86efac !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-cities,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-builders,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-amenities,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-stories,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-story-categories {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini__label,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini__value,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini__meta {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__head,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__plot-wrap,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__traffic-body,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__kpi-card {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__title,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__subtitle,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__filter {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__filter {
+  border-color: #444444 !important;
+  background: #0a0a0a !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__filter:hover,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__filter.is-active {
+  background: #1a1a1a !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__kpi-card-label,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__kpi-card-value,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__kpi-card-sub {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__mui-chart-host .MuiChartsAxis-bottom .MuiChartsAxis-tickLabel,
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__mui-chart-host .MuiChartsAxis-left .MuiChartsAxis-tickLabel {
+  fill: #e5e5e5 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-chart__traffic-details-link {
+  color: #7dd3fc !important;
+}
+
+/* Super-tracking page */
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__kicker,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__title {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__note {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-row {
+  background: #0a0a0a !important;
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-badge,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-link,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-refresh-icon {
+  color: #7dd3fc !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-meta,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-updated,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-updated-ago {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-updated time {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab {
+  background: #000000 !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab:hover {
+  background: #1a1a1a !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab--active {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab--active:hover {
+  background: #e5e5e5 !important;
+  color: #000000 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__metric,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__panel {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__panel.super-tracking__panel--cyber {
+  background: #020617 !important;
+  border-color: #134e4a !important;
+  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 12px 40px rgba(0, 0, 0, 0.45) !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__metric-label {
+  color: #a3a3a3 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__metric-value {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__panel-head {
+  background: #0a0a0a !important;
+  border-bottom-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking th,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking td {
+  border-bottom-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking th {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__filters {
+  background: #000000 !important;
+  border-bottom-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__field label {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__field input,
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__field select {
+  background: #0a0a0a !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__pager {
+  background: #000000 !important;
+  border-top-color: #333333 !important;
+  color: #e5e5e5 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__pager button {
+  background: #0a0a0a !important;
+  border-color: #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__pill--ok {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #86efac !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__pill--fail {
+  background: rgba(248, 113, 113, 0.12) !important;
+  color: #fca5a5 !important;
+}
+
+/* Property approvals & similar custom cards */
+html[data-admin-theme="dark"] .admin-layout-wrapper .approval-card {
+  background: #000000 !important;
+  border-color: #333333 !important;
+  box-shadow: none !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .approval-card__image-container {
+  background-color: #0a0a0a !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .approval-card__location,
+html[data-admin-theme="dark"] .admin-layout-wrapper .approval-card__title {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .approval-card__badge-type {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border: 1px solid #444444 !important;
+}
+
+/* MUI Paper / Card used on some admin pages */
+html[data-admin-theme="dark"] .admin-layout-wrapper .MuiPaper-root {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid #333333 !important;
 }
 
 /* —— Theme toggle: slow wave filling the screen (body classes from AdminThemeContext) —— */

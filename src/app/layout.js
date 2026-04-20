@@ -120,6 +120,8 @@ export default async function RootLayout({ children }) {
         <meta name="author" content="My Property Fact" />
         <meta name="publisher" content="My Property Fact" />
 
+        <meta name="robots" content="index,follow" />
+
           
         
         {/* Open Graph Tags */}

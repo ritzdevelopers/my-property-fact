@@ -33,6 +33,27 @@ const LISTING_COMMERCIAL_FLOOR_SLUGS = [
 ];
 
 const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
+const LISTING_BHK_CATEGORY_SLUGS = ["apartments", "flats", "new-projects"];
+
+function extractBhkFloorSlugs(floorPlansPayload) {
+  const out = new Set();
+  if (!Array.isArray(floorPlansPayload)) return out;
+
+  const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*bhk/gi;
+  for (const project of floorPlansPayload) {
+    if (!Array.isArray(project?.plans)) continue;
+    for (const plan of project.plans) {
+      const source = String(plan?.planType || "").toLowerCase();
+      if (!source) continue;
+      let match;
+      while ((match = bhkRegex.exec(source)) !== null) {
+        if (match[1]) out.add(`${match[1]}-bhk`);
+        if (match[2]) out.add(`${match[2]}-bhk`);
+      }
+    }
+  }
+  return out;
+}
 
 module.exports = {
   siteUrl: SITE_URL,
@@ -73,6 +94,7 @@ module.exports = {
 
   additionalPaths: async (config) => {
     let allPaths = [];
+    let bhkFloorSlugs = new Set();
 
     // Projects
     const projects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}projects`);
@@ -157,6 +179,20 @@ module.exports = {
       }))
     );
 
+    // Floor plans -> discover BHK slugs (e.g. 2-bhk, 3-bhk) for listing URLs
+    try {
+      const floorPlansRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}floor-plans/get-all`
+      );
+      if (floorPlansRes.ok) {
+        const floorPlans = await floorPlansRes.json();
+        bhkFloorSlugs = extractBhkFloorSlugs(floorPlans);
+      }
+    } catch (error) {
+      // Keep sitemap generation resilient; other URLs should still be emitted.
+      bhkFloorSlugs = new Set();
+    }
+
     // Apartments hub + selected commercial typology listings: `apartments-in-{city}`, `{type}-in-{city}`
     if (Array.isArray(cities) && cities.length > 0) {
       const seen = new Set(allPaths.map((p) => p.loc));
@@ -177,6 +213,12 @@ module.exports = {
         if (!citySlug) continue;
 
         pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, 0.75);
+
+        for (const bhk of bhkFloorSlugs) {
+          for (const category of LISTING_BHK_CATEGORY_SLUGS) {
+            pushLoc(`/${bhk}-${category}-in-${citySlug}`, 0.73);
+          }
+        }
 
         for (const floor of LISTING_COMMERCIAL_FLOOR_SLUGS) {
           pushLoc(`/${floor}-in-${citySlug}`);

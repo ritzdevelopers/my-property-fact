@@ -176,7 +176,7 @@ export default async function HomePage() {
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
             <Image
-              src="/static/banners/transform.png"
+              src="/static/transform.jpg"
               alt="Transform your home visual section"
               fill
               className="transform-home-image"

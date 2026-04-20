@@ -67,8 +67,8 @@ export default function LeadFormPopupTrigger({
             alt=""
             width={30}
             height={30}
-            className="lead-form-popup-trigger__icon-img lead-form-popup-trigger__icon-img--vertical"
-        
+            className="lead-form-popup-trigger__icon-img"
+            sizes="30px"
           />
         </button>
       )}

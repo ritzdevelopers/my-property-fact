@@ -432,7 +432,7 @@ export async function GET(request) {
       }
 
       let subtitle = buildSubtitleLatestProjectsNear(region.city, region.state).trim();
-      if (!subtitle) subtitle = "Latest projects listed on My Property Fact";
+      if (!subtitle) subtitle = "Explore the Best-Selling Properties Today nearby you";
 
       return NextResponse.json({
         success: items.length > 0,

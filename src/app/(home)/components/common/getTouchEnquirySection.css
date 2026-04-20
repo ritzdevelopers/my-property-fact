@@ -94,6 +94,55 @@
   font-size: 1.05rem;
 }
 
+/* Legacy project-page style (used by `propertypage.js`) */
+.mpf-get-touch-enquiry--legacy {
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 14px;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-overlay-inner {
+  padding: 2rem 1.25rem;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-title--legacy {
+  color: #212529;
+  font-size: clamp(1.55rem, 2.8vw, 2rem);
+  margin-bottom: 0.8rem;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-copy--legacy {
+  color: #5f5f5f;
+  font-size: 15px;
+  margin-bottom: 1.1rem;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-point-list--legacy {
+  margin-bottom: 1rem;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-point-item--legacy {
+  color: #212529;
+  font-size: 0.98rem;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-form-wrap .form-control {
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+  color: #212529;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-form-wrap .form-control::placeholder {
+  color: #7a7a7a;
+}
+
+.mpf-get-touch-enquiry--legacy .get-touch-form-wrap .form-control:focus {
+  background: #ffffff;
+  border-color: #0d5834;
+  color: #212529;
+  box-shadow: 0 0 0 0.2rem rgba(13, 88, 52, 0.1);
+}
+
 @media (max-width: 991px) {
   .mpf-get-touch-enquiry .get-touch-overlay-inner {
     padding: 2rem 1.25rem;

@@ -18,9 +18,9 @@ import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopers
 import {
   buildLatestProjectsForRegion,
   buildNewLaunchProjectsForRegion,
-  buildSubtitleLatestProjectsNear,
   buildSubtitleNewLaunchesNear,
 } from "./recommendedSpotlight";
+import RotatingHeroHeadline from "./RotatingHeroHeadline";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   ssr: true,
@@ -185,12 +185,7 @@ export default async function HomePage() {
             />
             <div className="transform-home-content">
               <div className="transform-home-headline-stack">
-                <h2 className="transform-home-headline-inner">
-                  <span className="transform-home-headline-base">Transform your</span>
-                  <span className="transform-home-headline-highlight">
-                    Home with
-                  </span>
-                </h2>
+                <RotatingHeroHeadline />
                 <div className="transform-home-mpf-logo-wrap">
                   <Image
                     src="/static/mpf_text.png"
@@ -223,8 +218,8 @@ export default async function HomePage() {
                         </svg>
                       </span>
                       <span className="transform-home-why-text">
-                        Compare &amp; choose from{" "}
-                        <strong>300+ top verified interior brands</strong>
+                        Verified Property {" "}
+                        <strong>Insights for Smart Decision Making</strong>
                       </span>
                     </li>
                     <li className="transform-home-why-item">
@@ -246,8 +241,8 @@ export default async function HomePage() {
                         </svg>
                       </span>
                       <span className="transform-home-why-text">
-                        <strong>Calculate your interiors cost instantly</strong>{" "}
-                        with our advanced estimator
+                        <strong>Advanced Tools for Effortless Property Search</strong>{" "}
+                        & Cost Estimation
                       </span>
                     </li>
                   </ul>
@@ -267,11 +262,11 @@ export default async function HomePage() {
         {row(
           2,
           <RecommendedProjectsWithGeolocation
-            title="Recommended Properties"
+            title="New Property Launches"
             fallbackItems={recommendedProperties}
             fallbackSubtitle={
               buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
-              "New launch projects near you"
+              "Explore New Residential & Commercial Properties"
             }
             kind="project"
             locationIntent="projects"
@@ -288,12 +283,9 @@ export default async function HomePage() {
         {row(
           4,
           <RecommendedProjectsWithGeolocation
-            title="Recommended Projects"
+            title="Popular Projects"
             fallbackItems={recommendedProjects}
-            fallbackSubtitle={
-              buildSubtitleLatestProjectsNear(dailyCityLabel, "").trim() ||
-              "Latest projects listed on My Property Fact"
-            }
+            fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${dailyCityLabel}`}
             kind="project"
             locationIntent="latest-projects"
             viewAllHref="/projects"

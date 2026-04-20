@@ -227,6 +227,59 @@ export default function Property({
       </button>
     );
   };
+  const FloorPlanPrevArrow = (props) => {
+    const { className, onClick } = props;
+    return (
+      <button
+        type="button"
+        className={`${className || ""} floorplan-slider-arrow floorplan-slider-arrow-prev`}
+        onClick={onClick}
+        aria-label="Previous floor plans"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} />
+      </button>
+    );
+  };
+
+  const FloorPlanNextArrow = (props) => {
+    const { className, onClick } = props;
+    return (
+      <button
+        type="button"
+        className={`${className || ""} floorplan-slider-arrow floorplan-slider-arrow-next`}
+        onClick={onClick}
+        aria-label="Next floor plans"
+      >
+        <FontAwesomeIcon icon={faArrowRight} />
+      </button>
+    );
+  };
+  const GalleryPrevArrow = (props) => {
+    const { className, onClick } = props;
+    return (
+      <button
+        type="button"
+        className={`${className || ""} gallery-modern-arrow gallery-modern-arrow--prev`}
+        onClick={onClick}
+        aria-label="Previous gallery images"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} />
+      </button>
+    );
+  };
+  const GalleryNextArrow = (props) => {
+    const { className, onClick } = props;
+    return (
+      <button
+        type="button"
+        className={`${className || ""} gallery-modern-arrow gallery-modern-arrow--next`}
+        onClick={onClick}
+        aria-label="Next gallery images"
+      >
+        <FontAwesomeIcon icon={faArrowRight} />
+      </button>
+    );
+  };
 
   //Generating price in lakh & cr
   const generatePrice = (price) => {
@@ -695,6 +748,61 @@ const addNearbyImageIcon = (benefit) => {
       },
     ],
   };
+  const shouldUseFloorPlanSlider = floorPlans.length > 3;
+  const floorPlanSlidesToShow = Math.min(3, floorPlans.length || 1);
+  const floorPlanSliderSettings = {
+    dots: false,
+    infinite: false,
+    speed: 400,
+    arrows: floorPlans.length > floorPlanSlidesToShow,
+    prevArrow: <FloorPlanPrevArrow />,
+    nextArrow: <FloorPlanNextArrow />,
+    slidesToShow: floorPlanSlidesToShow,
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1200,
+        settings: {
+          slidesToShow: Math.min(2, floorPlans.length),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 768,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
+  const shouldUseGallerySlider = galleryImages.length > 3;
+  const gallerySliderSettings = {
+    dots: false,
+    infinite: galleryImages.length > 3,
+    speed: 450,
+    slidesToShow: Math.min(3, galleryImages.length || 1),
+    slidesToScroll: 1,
+    arrows: galleryImages.length > 1,
+    prevArrow: <GalleryPrevArrow />,
+    nextArrow: <GalleryNextArrow />,
+    responsive: [
+      {
+        breakpoint: 992,
+        settings: {
+          slidesToShow: Math.min(2, galleryImages.length),
+          slidesToScroll: 1,
+        },
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 1,
+          slidesToScroll: 1,
+        },
+      },
+    ],
+  };
   const faqList = projectDetail.faqs || [];
   const getFloorPlanImage = (plan) => {
     const imageName =
@@ -725,6 +833,10 @@ const addNearbyImageIcon = (benefit) => {
 
     return parts.length ? parts.join(" • ") : "On Request";
   };
+  const getBannerAltText = (item, index) =>
+    String(item?.altTag || "").trim() ||
+    String(projectDetail?.projectName || "").trim() ||
+    `${projectDetail.projectName || "Property"} banner ${index + 1}`;
 
   const openGalleryModal = (index) => {
     setActiveGalleryIndex(index);
@@ -733,6 +845,18 @@ const addNearbyImageIcon = (benefit) => {
 
   const closeGalleryModal = () => {
     setShowGalleryModal(false);
+  };
+  const showPrevGalleryImage = () => {
+    if (!galleryImages.length) return;
+    setActiveGalleryIndex((prev) =>
+      prev === 0 ? galleryImages.length - 1 : prev - 1,
+    );
+  };
+  const showNextGalleryImage = () => {
+    if (!galleryImages.length) return;
+    setActiveGalleryIndex((prev) =>
+      prev === galleryImages.length - 1 ? 0 : prev + 1,
+    );
   };
 
   return (
@@ -984,7 +1108,7 @@ const addNearbyImageIcon = (benefit) => {
                   {/* Default fallback */}
                   <Image
                     src={projectImageSrc(item.desktopImage)}
-                    alt={item.altTag || "Property Banner"}
+                    alt={getBannerAltText(item, index)}
                     width={2225}
                     height={1065}
                   />
@@ -1105,71 +1229,139 @@ const addNearbyImageIcon = (benefit) => {
               ></div>
             )}
           </div>
-          {!!floorPlans.length && (
-            <div className={`floorplan-grid${floorPlans.length === 1 ? " floorplan-grid--single" : ""}`}>
-              {floorPlans.map((item, index) => (
-                <article
-                  key={`${item.id || item.planType || "plan"}-${index}`}
-                  data-floor-index={index}
-                  className={`floorplan-card ${visibleFloorPlanCards[index] ? "is-visible" : ""}`}
-                >
-                  <div className="floorplan-card-top-meta">
-                    <p>
-                      <span>Type</span>
-                      <strong>{item.planType || item.type || "Offices"}</strong>
-                    </p>
-                    <p>
-                      <span>Size</span>
-                      <strong>{getFloorPlanArea(item)}</strong>
-                    </p>
-                  </div>
+          {!!floorPlans.length &&
+            (shouldUseFloorPlanSlider ? (
+              <div className="floorplan-slider-wrap">
+                <Slider {...floorPlanSliderSettings} className="floorplan-slider">
+                  {floorPlans.map((item, index) => (
+                    <div key={`${item.id || item.planType || "plan"}-${index}`} className="floorplan-slide">
+                      <article
+                        data-floor-index={index}
+                        className={`floorplan-card ${visibleFloorPlanCards[index] ? "is-visible" : ""}`}
+                      >
+                        <div className="floorplan-card-top-meta">
+                          <p>
+                            <span>Type</span>
+                            <strong>{item.planType || item.type || "Offices"}</strong>
+                          </p>
+                          <p>
+                            <span>Size</span>
+                            <strong>{getFloorPlanArea(item)}</strong>
+                          </p>
+                        </div>
 
-                  <div className="floorplan-image-wrap">
-                    <Image
-                      width={500}
-                      height={300}
-                      className="img-fluid floorplan-image floorplan-image--blurred"
-                      src={getFloorPlanImage(item)}
-                      alt={item.altTag || item.planType || "Floor plan"}
-                    />
-                  </div>
+                        <div className="floorplan-image-wrap">
+                          <Image
+                            width={500}
+                            height={300}
+                            className="img-fluid floorplan-image floorplan-image--blurred"
+                            src={getFloorPlanImage(item)}
+                            alt={item.altTag || item.planType || "Floor plan"}
+                          />
+                        </div>
 
-                  <button
-                    type="button"
-                    className="floorplan-expand-btn"
-                    onClick={() => setShowPopUp(true)}
-                    aria-label={`Enquire for ${item.planType || "floor plan"}`}
+                        <button
+                          type="button"
+                          className="floorplan-price-btn"
+                          onClick={() => setShowPopUp(true)}
+                          aria-label={`Request price for ${item.planType || "floor plan"}`}
+                        >
+                          Price On Request
+                        </button>
+                      </article>
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            ) : (
+              <div className={`floorplan-grid${floorPlans.length === 1 ? " floorplan-grid--single" : ""}`}>
+                {floorPlans.map((item, index) => (
+                  <article
+                    key={`${item.id || item.planType || "plan"}-${index}`}
+                    data-floor-index={index}
+                    className={`floorplan-card ${visibleFloorPlanCards[index] ? "is-visible" : ""}`}
                   >
-                    <FontAwesomeIcon icon={faArrowRight} />
-                  </button>
-                </article>
-              ))}
-            </div>
-          )}
+                    <div className="floorplan-card-top-meta">
+                      <p>
+                        <span>Type</span>
+                        <strong>{item.planType || item.type || "Offices"}</strong>
+                      </p>
+                      <p>
+                        <span>Size</span>
+                        <strong>{getFloorPlanArea(item)}</strong>
+                      </p>
+                    </div>
+
+                    <div className="floorplan-image-wrap">
+                      <Image
+                        width={500}
+                        height={300}
+                        className="img-fluid floorplan-image floorplan-image--blurred"
+                        src={getFloorPlanImage(item)}
+                        alt={item.altTag || item.planType || "Floor plan"}
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      className="floorplan-price-btn"
+                      onClick={() => setShowPopUp(true)}
+                      aria-label={`Request price for ${item.planType || "floor plan"}`}
+                    >
+                      Price On Request
+                    </button>
+                  </article>
+                ))}
+              </div>
+            ))}
         </div>
 
         {/* Gallery section */}
         <div className="container pt-4 pb-2 mb-3 gallery-modern-section" id="gallery">
           <h2 className="gallery-modern-title">Gallery</h2>
           {!!galleryImages.length && (
-            <div className="gallery-modern-grid">
-              {galleryImages.map((item, index) => (
-                <button
-                  type="button"
-                  key={`${index}-${item.id || item.imageName}`}
-                  className="gallery-modern-item"
-                  onClick={() => openGalleryModal(index)}
-                  aria-label={`Open gallery image ${index + 1}`}
-                >
-                  <Image
-                    src={projectImageSrc(item.imageName)}
-                    alt={item.altTag || `Gallery image ${index + 1}`}
-                    fill
-                    className="gallery-modern-image"
-                  />
-                </button>
-              ))}
-            </div>
+            shouldUseGallerySlider ? (
+              <div className="gallery-modern-slider-wrap">
+                <Slider {...gallerySliderSettings} className="gallery-modern-slider">
+                  {galleryImages.map((item, index) => (
+                    <div key={`${index}-${item.id || item.imageName}`} className="gallery-modern-slide">
+                      <button
+                        type="button"
+                        className="gallery-modern-item"
+                        onClick={() => openGalleryModal(index)}
+                        aria-label={`Open gallery image ${index + 1}`}
+                      >
+                        <Image
+                          src={projectImageSrc(item.imageName)}
+                          alt={item.altTag || `Gallery image ${index + 1}`}
+                          fill
+                          className="gallery-modern-image"
+                        />
+                      </button>
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            ) : (
+              <div className="gallery-modern-grid">
+                {galleryImages.map((item, index) => (
+                  <button
+                    type="button"
+                    key={`${index}-${item.id || item.imageName}`}
+                    className="gallery-modern-item"
+                    onClick={() => openGalleryModal(index)}
+                    aria-label={`Open gallery image ${index + 1}`}
+                  >
+                    <Image
+                      src={projectImageSrc(item.imageName)}
+                      alt={item.altTag || `Gallery image ${index + 1}`}
+                      fill
+                      className="gallery-modern-image"
+                    />
+                  </button>
+                ))}
+              </div>
+            )
           )}
         </div>
         {/* Location section */}
@@ -1471,6 +1663,26 @@ const addNearbyImageIcon = (benefit) => {
           </button>
 
           <div className="gallery-zoom-viewer">
+            {galleryImages.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  className="gallery-modal-nav-btn gallery-modal-nav-btn--prev"
+                  onClick={showPrevGalleryImage}
+                  aria-label="Show previous gallery image"
+                >
+                  <FontAwesomeIcon icon={faArrowLeft} />
+                </button>
+                <button
+                  type="button"
+                  className="gallery-modal-nav-btn gallery-modal-nav-btn--next"
+                  onClick={showNextGalleryImage}
+                  aria-label="Show next gallery image"
+                >
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </button>
+              </>
+            )}
             {galleryImages[activeGalleryIndex] && (
               <Image
                 src={projectImageSrc(galleryImages[activeGalleryIndex].imageName)}

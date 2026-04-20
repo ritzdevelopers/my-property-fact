@@ -146,7 +146,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
             handleSubmit(e);
           }}
         >
-          <div className="d-flex flex-wrap flex-md-row flex-column p-3 p-md-4 gap-2 gap-md-3 plus-jakarta-sans-regular">
+          <div className="home-search-form-inner d-flex flex-wrap flex-md-row flex-column p-3 p-md-4 gap-2 gap-md-3 plus-jakarta-sans-regular">
             <div className="col">
               {renderDropdown(
               "type",
@@ -181,7 +181,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
             )}
             </div>
 
-            <div className="d-flex align-items-end">
+            <div className="col search-submit-col d-flex align-items-end">
               <button
                 type="submit"
                 className="search-btn-home-page"

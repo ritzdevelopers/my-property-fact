@@ -63,6 +63,7 @@ function validatePhone(phone) {
 export default function GetTouchEnquirySection({
   projectDetail = null,
   embeddedInParallax = false,
+  variant = "v2",
   title = "Get in Touch",
   bodyCopy,
 }) {
@@ -84,6 +85,12 @@ export default function GetTouchEnquirySection({
   const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [validated1, setValidated1] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+  const isLegacy = variant === "legacy";
+  const wrapperClass = `mpf-get-touch-enquiry${isLegacy ? " mpf-get-touch-enquiry--legacy" : ""}`;
+  const titleClass = `get-touch-title${isLegacy ? " get-touch-title--legacy" : ""}`;
+  const copyClass = `get-touch-copy${isLegacy ? " get-touch-copy--legacy" : ""}`;
+  const pointListClass = `get-touch-point-list${isLegacy ? " get-touch-point-list--legacy" : ""}`;
+  const pointItemClass = `get-touch-point-item${isLegacy ? " get-touch-point-item--legacy" : ""}`;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -169,14 +176,14 @@ export default function GetTouchEnquirySection({
 
   const inner = (
     <div className="get-touch-overlay-inner">
-      <h2 className="get-touch-title" id={`mpf-get-touch-title${uid}`}>
+      <h2 className={titleClass} id={`mpf-get-touch-title${uid}`}>
         {title}
       </h2>
-      <p className="get-touch-copy">{copy}</p>
+      <p className={copyClass}>{copy}</p>
 
-      <div className="get-touch-point-list">
+      <div className={pointListClass}>
         {GET_IN_TOUCH_POINTS.map((point) => (
-          <span key={point} className="get-touch-point-item">
+          <span key={point} className={pointItemClass}>
             <span className="get-touch-point-icon">
               <Image src="/icon/verify.svg" alt="" width={12} height={12} />
             </span>
@@ -281,7 +288,7 @@ export default function GetTouchEnquirySection({
   }
 
   return (
-    <section className="mpf-get-touch-enquiry" aria-labelledby={`mpf-get-touch-title${uid}`}>
+    <section className={wrapperClass} aria-labelledby={`mpf-get-touch-title${uid}`}>
       {inner}
     </section>
   );

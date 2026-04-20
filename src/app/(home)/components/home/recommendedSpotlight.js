@@ -231,9 +231,9 @@ export function buildSubtitleForRegion(geoCity, geoState) {
 export function buildSubtitleLatestProjectsNear(geoCity, geoState) {
   const c = String(geoCity || "").trim();
   const s = String(geoState || "").trim();
-  if (c && s) return `Latest projects near ${c}, ${s}`;
-  if (c) return `Latest projects near ${c}`;
-  if (s) return `Latest projects in ${s}`;
+  if (c && s) return `Explore the Best-Selling Properties Today nearby ${c}, ${s}`;
+  if (c) return `Explore the Best-Selling Properties Today nearby ${c}`;
+  if (s) return `Explore the Best-Selling Properties Today in ${s}`;
   return "";
 }
 
@@ -241,9 +241,9 @@ export function buildSubtitleLatestProjectsNear(geoCity, geoState) {
 export function buildSubtitleNewLaunchesNear(geoCity, geoState) {
   const c = String(geoCity || "").trim();
   const s = String(geoState || "").trim();
-  if (c && s) return `New launch projects near ${c}, ${s}`;
-  if (c) return `New launch projects near ${c}`;
-  if (s) return `New launch projects in ${s}`;
+  if (c && s) return `Explore New Residential & Commercial Properties near ${c}, ${s}`;
+  if (c) return `Explore New Residential & Commercial Properties near ${c}`;
+  if (s) return `Explore New Residential & Commercial Properties in ${s}`;
   return "";
 }
 

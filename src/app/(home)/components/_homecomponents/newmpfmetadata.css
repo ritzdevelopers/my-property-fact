@@ -96,6 +96,13 @@
   justify-content: center;
 }
 
+.property-type-heading {
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
+}
+
 /* Statistics Section */
 .statistics-section {
   display: flex;
@@ -631,6 +638,38 @@
   .city-skyline-svg,
   .house-figures-svg {
     max-width: 200px;
+  }
+}
+
+/* Home hero (≤767px): two pills on row one, third centered on row two — layout-only, matches reference */
+@media (max-width: 767.98px) {
+  .property-buttons-overlay {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 12px !important;
+    justify-items: stretch;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .property-buttons-overlay > a:nth-child(3),
+  .property-buttons-overlay > *:nth-child(3) {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: auto;
+    max-width: min(100%, 280px);
+  }
+
+  .property-buttons-overlay .btn-normal-color {
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    line-height: 1.25;
+    text-align: center;
+    justify-content: center;
+    white-space: normal;
+    word-break: break-word;
+    min-width: 0;
   }
 }
 

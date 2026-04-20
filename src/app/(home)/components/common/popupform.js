@@ -1,11 +1,31 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import "./popupform.css";
+
+/** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */
+const ENQUIRY_JOURNEY_PHRASES = [
+  "Perfect Space!",
+  "Ideal Property",
+  "Perfect Investment!",
+  "Perfect Workspace!",
+  "Perfect Location!",
+  "Ideal Space!",
+  "Perfect Office!",
+  "Ideal Residence!",
+  "Perfect Property!",
+];
+
+const ENQUIRY_JOURNEY_TYPE_MS = 68;
+const ENQUIRY_JOURNEY_DELETE_MS = 42;
+/** Pause when a phrase is fully typed, before backspacing. */
+const ENQUIRY_JOURNEY_PAUSE_END_MS = 2200;
+/** Short pause after clearing before typing the next phrase. */
+const ENQUIRY_JOURNEY_GAP_MS = 380;
 
 function getProjectImageSrc(data) {
   if (!data?.slugURL) return "/static/no_image.png";
@@ -38,6 +58,8 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   const [formData, setFormData] = useState(intitalData);
   const [showLoading, setShowLoading] = useState(false);
   const [buttonName, setButtonName] = useState("Submit Enquiry");
+  const [journeyTypedText, setJourneyTypedText] = useState("");
+  const journeyTypeTimerRef = useRef(null);
 
   //Validation errors state
   const [errors, setErrors] = useState({
@@ -202,6 +224,65 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
   const useSplitLayout = isProjectDetail || from === "Home Page";
   const isHomeSplit = !isProjectDetail && useSplitLayout;
+
+  useEffect(() => {
+    const clearTimer = () => {
+      if (journeyTypeTimerRef.current) {
+        clearTimeout(journeyTypeTimerRef.current);
+        journeyTypeTimerRef.current = null;
+      }
+    };
+
+    if (!show || !useSplitLayout) {
+      clearTimer();
+      setJourneyTypedText("");
+      return undefined;
+    }
+
+    let phraseIdx = 0;
+    let pos = 0;
+    let deleting = false;
+
+    const runTick = () => {
+      const full = ENQUIRY_JOURNEY_PHRASES[phraseIdx];
+      if (!deleting) {
+        if (pos < full.length) {
+          pos += 1;
+          setJourneyTypedText(full.slice(0, pos));
+          journeyTypeTimerRef.current = setTimeout(
+            runTick,
+            ENQUIRY_JOURNEY_TYPE_MS,
+          );
+        } else {
+          journeyTypeTimerRef.current = setTimeout(() => {
+            deleting = true;
+            runTick();
+          }, ENQUIRY_JOURNEY_PAUSE_END_MS);
+        }
+      } else if (pos > 0) {
+        pos -= 1;
+        setJourneyTypedText(full.slice(0, pos));
+        journeyTypeTimerRef.current = setTimeout(
+          runTick,
+          ENQUIRY_JOURNEY_DELETE_MS,
+        );
+      } else {
+        deleting = false;
+        phraseIdx = (phraseIdx + 1) % ENQUIRY_JOURNEY_PHRASES.length;
+        journeyTypeTimerRef.current = setTimeout(
+          runTick,
+          ENQUIRY_JOURNEY_GAP_MS,
+        );
+      }
+    };
+
+    setJourneyTypedText("");
+    journeyTypeTimerRef.current = setTimeout(runTick, ENQUIRY_JOURNEY_GAP_MS);
+
+    return () => {
+      clearTimer();
+    };
+  }, [show, useSplitLayout]);
   const popupImageSrc = isProjectDetail
     ? getProjectImageSrc(data)
     : "/static/icon/enquiry.png";
@@ -242,7 +323,13 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
               <h2 className="enquiry-popup-title-main">
                 <span className="enquiry-popup-title-regular">Start Your Journey to the </span>
                 <span className="enquiry-popup-title-accent-wrap">
-                  <span className="enquiry-popup-title-accent">Perfect Home.</span>
+                  <span className="enquiry-popup-title-accent">
+                    {journeyTypedText}
+                  </span>
+                  <span
+                    className="enquiry-popup-title-cursor"
+                    aria-hidden="true"
+                  />
                   <div className="enquiry-popup-title-highlight" aria-hidden="true" />
                 </span>
               </h2>

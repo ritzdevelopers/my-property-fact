@@ -462,7 +462,7 @@ const HeaderComponent = () => {
                       }`}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      City
+                      Cities
                     </span>
                   </Link>
                   <div className="dropdown dropdown-lg z-3 city-dropdown">
@@ -547,7 +547,7 @@ const HeaderComponent = () => {
                       }`}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
-                      Builder
+                      Builders
                     </span>
                   </Link>
                   <div className="dropdown dropdown-lg z-3 builder-dropdown">
@@ -1207,7 +1207,7 @@ const HeaderComponent = () => {
                     onClick={() => openMenuMobile("city")}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      City
+                      Cities
                     </span>
                     <FontAwesomeIcon
                       icon={faChevronDown}
@@ -1244,7 +1244,7 @@ const HeaderComponent = () => {
                     onClick={() => openMenuMobile("builder")}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
-                      Builder
+                      Builders
                     </span>
                     <FontAwesomeIcon
                       icon={faChevronDown}

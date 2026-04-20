@@ -1,8 +1,6 @@
 import { fetchBlogs } from "@/app/_global_components/masterFunction";
 import SocialFeed from "./socialfeed";
 
-export const dynamic = "force-dynamic";
-
 /** Latest first; used to drop the newest post from the home section. */
 function getBlogTimestamp(b) {
   const raw = b?.createdAt ?? b?.updatedAt ?? b?.publishedAt;
@@ -26,7 +24,8 @@ function blogsForHomeSection(content) {
 }
 
 export default async function SocialFeedPage() {
-  const list = await fetchBlogs(0, 16, "", "blog");
+  // We only render 4 cards after skipping newest post, so 5 records are enough.
+  const list = await fetchBlogs(0, 5, "", "blog");
   const raw = list?.content ?? [];
   const forHome = blogsForHomeSection(raw);
 

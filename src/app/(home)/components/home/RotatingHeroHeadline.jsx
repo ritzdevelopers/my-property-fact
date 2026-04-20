@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 const HEADLINES = [
-  { base: "Making Property Search ", highlight: "Hassle-Free" },
+  { base: "Property Search,", highlight: "Hassle-Free" },
   { base: "Real Estate, ", highlight: "Simple and Quick!" },
   { base: "Real Estate, ", highlight: "Fast and Simple!" },
 ];

@@ -128,7 +128,7 @@ function getCardPayload(item, kind) {
 }
 
 function getVisibleCount(viewportWidth) {
-  if (viewportWidth <= 576) return 1;
+  if (viewportWidth <= 576) return 2;
   if (viewportWidth <= 768) return 2;
   return 4;
 }
@@ -270,7 +270,7 @@ export default function HomeRecommendationCards({
                       alt={`${card.title} card image`}
                       title={`${card.title} card image`}
                       fill
-                      sizes="(max-width: 576px) 88vw, (max-width: 991px) 42vw, 22vw"
+                      sizes="(max-width: 576px) 44vw, (max-width: 991px) 42vw, 22vw"
                       className="home-project-card__image"
                     />
                     <span className="home-project-card__badge">{card.badge}</span>

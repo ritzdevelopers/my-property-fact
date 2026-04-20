@@ -10,7 +10,6 @@ import {
   fetchProjectTypes,
   getAllProjects,
   fetchTopPicksProject,
-  fetchBuilderData,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
@@ -23,7 +22,6 @@ import {
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
-  ssr: true,
   loading: () => <section className="py-5" style={{ minHeight: 180 }} aria-busy="true" />,
 });
 const NewInsight = dynamic(() => import("../_homecomponents/NewInsight"), {
@@ -92,10 +90,9 @@ export default async function HomePage() {
   ];
 
   // Fetching citylist and project types and storing in variables
-  const [cityList, projectTypeList, builders] = await Promise.all([
+  const [cityList, projectTypeList] = await Promise.all([
     fetchCityData(),
     fetchProjectTypes(),
-    fetchBuilderData(),
   ]);
 
   // Featured: slug-ordered first
@@ -154,7 +151,7 @@ export default async function HomePage() {
   });
 
   const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
-    builders,
+    null,
     projects,
   );
 

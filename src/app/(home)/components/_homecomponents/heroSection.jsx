@@ -8,7 +8,7 @@ import "./newmpfmetadata.css";
 const BANNER_ALT     = "My Property Fact";
 const BANNER_DESKTOP = "/static/banners/mpf_generic_banner.jpg";     // ≥ 992 px
 const BANNER_TABLET  = "/static/banners/mpf_generic_banner_tab.jpg"; // 768 – 991 px
-const BANNER_MOBILE  = "/static/banners/mpf_generic_mobile.jpg";     // < 768 px
+const BANNER_MOBILE  = "/static/banners/mpf-mobile-banner.jpg";     // < 768 px
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function HeroSection({ projectTypeList, cityList }) {
@@ -91,6 +91,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
                   key={`prop-type-${index}`}
                   href={`/projects/${item.slugUrl}`}
                   className="btn-normal-color rounded-5 py-2 px-3 text-white text-decoration-none"
+                  title={`${item.projectTypeName} projects`}
                 >
                   {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
                     <h2 className="property-type-heading m-0">{item.projectTypeName}</h2>

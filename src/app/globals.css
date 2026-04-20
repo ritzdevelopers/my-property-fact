@@ -586,12 +586,12 @@ body.gateway-open {
   from {
     opacity: 1;
     transform: translate3d(0, 0, 0);
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    clip-path: inset(0 0 0 0);
   }
   to {
     opacity: 0;
-    transform: translate3d(-18vw, -14vh, 0) skewX(-6deg);
-    clip-path: polygon(-28% 0, 66% 0, 28% 100%, -56% 100%);
+    transform: translate3d(0, 0, 0);
+    clip-path: inset(0 0 100% 0);
     visibility: hidden;
   }
 }

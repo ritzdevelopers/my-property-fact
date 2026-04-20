@@ -90,6 +90,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                           className="footer-text text-decoration-none"
                           href={`/city/${item.slugURL}`}
                           prefetch={false}
+                          title={`${item.cityName} properties`}
                         >
                           {item.cityName}
                         </Link>
@@ -142,6 +143,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                     <Link
                       className="footer-text text-decoration-none"
                       href={`/projects/${item.slugUrl}`}
+                      title={`${item.projectTypeName} projects`}
                     >
                       {item.projectTypeName}
                     </Link>
@@ -158,6 +160,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="footer-text text-decoration-none"
                       href={item.slugUrl}
                       scroll={true}
+                      title={item.name}
                     >
                       {item.name}
                     </Link>
@@ -167,6 +170,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                   <Link
                     className="footer-text text-decoration-none"
                     href="/privacy-policy"
+                    title="Privacy Policy"
                   >
                     Privacy Policy
                   </Link>
@@ -178,7 +182,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
               <ul className="p-0 list-unstyled">
                 {mediaArr.map((item, index) => (
                   <li key={`${item.id}-${index}`}>
-                    <Link className="footer-text text-decoration-none" href={item.slugUrl}>
+                    <Link className="footer-text text-decoration-none" href={item.slugUrl} title={item.name}>
                       {item.name}
                     </Link>
                   </li>
@@ -234,7 +238,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden"
                       href="https://x.com/my_propertyfact/"
                       target="_blank"
-                      title="youtube"
+                      title="X"
                     >
                       <FontAwesomeIcon icon={faXTwitter} />
                     </Link>
@@ -257,6 +261,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
           <Link
             className="footer-text text-decoration-none"
             href="/privacy-policy"
+            title="Privacy Policy"
           >
             Privacy Policy
           </Link>

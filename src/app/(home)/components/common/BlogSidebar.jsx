@@ -194,6 +194,11 @@ export default function BlogSidebar({
                 href={`/${latestProject.slugURL}`}
                 className="latest-property-link-fill"
                 prefetch={false}
+                title={
+                  latestProject.projectName?.trim()
+                    ? `View ${latestProject.projectName.trim()}`
+                    : "View latest property"
+                }
               >
                 <Image
                   src={

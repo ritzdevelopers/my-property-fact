@@ -46,7 +46,11 @@ export default function BlogListItem({ blog }) {
         </div>
         <div className="blog-meta-divider mb-3"></div>
         <p className="mb-3 blog-typography-content">{excerpt}</p>
-        <Link href={`/blog/${blog.slugUrl}`} className="read-more-link">
+        <Link
+          href={`/blog/${blog.slugUrl}`}
+          className="read-more-link"
+          title={blog.blogTitle ? `Read ${blog.blogTitle}` : "Read blog post"}
+        >
           Read more <span>→</span>
         </Link>
       </div>

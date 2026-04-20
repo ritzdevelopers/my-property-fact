@@ -11,6 +11,12 @@ function apiBaseUrl() {
   return raw.endsWith("/") ? raw : `${raw}/`;
 }
 
+function cleanMetaText(value, fallback = "") {
+  const text = String(value ?? "").trim();
+  if (!text || text === "/" || text.toLowerCase() === "null") return fallback;
+  return text;
+}
+
 function formatProjectPrice(value) {
   if (value == null || value === "") return "Price on request";
   const strValue = String(value).trim();
@@ -85,12 +91,16 @@ function getCardPayload(item, kind) {
   const source = stripItemKind(item, kind);
 
   if (k === "property") {
+    const cardTitle = cleanMetaText(source?.title, "Property");
     return {
       key: source?.id || source?.slug || source?.title,
       href: source?.slug ? `/properties/${source.slug}` : "/properties",
       image: getPropertyImage(source),
-      badge: source?.constructionStatus || source?.listingType || "Property",
-      title: source?.title || "Property",
+      badge:
+        cleanMetaText(source?.constructionStatus) ||
+        cleanMetaText(source?.listingType) ||
+        "Property",
+      title: cardTitle,
       meta:
         [source?.bedroom, source?.propertyTypeCategory || source?.subType]
           .filter(Boolean)
@@ -100,6 +110,7 @@ function getCardPayload(item, kind) {
     };
   }
 
+  const cardTitle = cleanMetaText(source?.projectName, "Project");
   return {
     key: source?.slugURL || source?.slugUrl || source?.projectName,
     href: getProjectHref(source),
@@ -107,7 +118,7 @@ function getCardPayload(item, kind) {
     badge:
       (typeof source?.projectStatusName === "string" && source.projectStatusName.trim()) ||
       "Project",
-    title: source?.projectName || "Project",
+    title: cardTitle,
     meta:
       (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
       "Explore configurations on project page",
@@ -183,7 +194,15 @@ export default function HomeRecommendationCards({
         </div>
         <div className="home-projects-preview__actions">
           {viewAllHref ? (
-            <Link href={viewAllHref} className="home-projects-preview__view-all">
+            <Link
+              href={viewAllHref}
+              className="home-projects-preview__view-all"
+              title={
+                kind === "property"
+                  ? "View all properties"
+                  : "View all projects"
+              }
+            >
               View all{" "}
               {kind === "property"
                 ? "properties"
@@ -202,7 +221,8 @@ export default function HomeRecommendationCards({
               >
                 <Image
                   src="/icon/arrow-left-s-line.svg"
-                  alt=""
+                  alt="Previous"
+                  title="Previous"
                   width={16}
                   height={16}
                   aria-hidden
@@ -216,7 +236,8 @@ export default function HomeRecommendationCards({
               >
                 <Image
                   src="/icon/arrow-right-s-line.svg"
-                  alt=""
+                  alt="Next"
+                  title="Next"
                   width={16}
                   height={16}
                   aria-hidden
@@ -237,11 +258,17 @@ export default function HomeRecommendationCards({
                 : card.key ?? idx;
             return (
               <div key={rowKey} className="home-projects-preview__slide">
-                <Link href={card.href} className="home-project-card">
+                <Link
+                  href={card.href}
+                  className="home-project-card"
+                  title={card.title ? `View ${card.title}` : "View project details"}
+                >
                   <div className="home-project-card__media">
+                    {/** Keep title/alt explicit for SEO audits; avoid "/" placeholders. */}
                     <Image
                       src={card.image}
                       alt={`${card.title} card image`}
+                      title={`${card.title} card image`}
                       fill
                       sizes="(max-width: 576px) 88vw, (max-width: 991px) 42vw, 22vw"
                       className="home-project-card__image"

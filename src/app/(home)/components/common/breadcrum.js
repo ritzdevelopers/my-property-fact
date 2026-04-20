@@ -5,7 +5,7 @@ export default function CommonBreadCrum({ firstPage, pageName }) {
     <div className="container bg-light my-4 rounded border p-3">
       <ul className="d-flex flex-wrap text-decoration-none align-items-center list-unstyled gap-1 fw-bold ps-3 m-0">
         <li>
-          <Link className="text-decoration-none text-dark" href="/">
+          <Link className="text-decoration-none text-dark" href="/" title="Home">
             Home
           </Link>
         </li>
@@ -14,6 +14,7 @@ export default function CommonBreadCrum({ firstPage, pageName }) {
             <Link
               className="text-decoration-none text-dark text-capitalize d-flex"
               href={`/${firstPage?.toLowerCase()}`}
+              title={firstPage}
             >
               {'\\ ' + firstPage}
             </Link>

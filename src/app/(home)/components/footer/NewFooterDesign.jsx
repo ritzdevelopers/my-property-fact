@@ -92,6 +92,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                   href={`${generateSlugFn(prefix)}${city.slugURL}`}
                   prefetch={false}
                   className="footer-link"
+                  title={`${prefix}${city.cityName}`}
                 >
                   {prefix}{city.cityName}
                 </Link>
@@ -176,16 +177,16 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                 <div className="footer-section-heading h4">Company info</div>
                 <ul className="footer-links">
                   <li>
-                    <Link href="/about-us" className="footer-link">About MPF</Link>
+                    <Link href="/about-us" className="footer-link" title="About MPF">About MPF</Link>
                   </li>
                   <li>
-                    <Link href="/projects/commercial" className="footer-link" prefetch={true}>Commercial</Link>
+                    <Link href="/projects/commercial" className="footer-link" prefetch={true} title="Commercial Projects">Commercial</Link>
                   </li>
                   <li>
-                    <Link href="/projects/new-launches" className="footer-link" prefetch={true}>New Launches</Link>
+                    <Link href="/projects/new-launches" className="footer-link" prefetch={true} title="New Launch Projects">New Launches</Link>
                   </li>
                   <li>
-                    <Link href="/projects/residential" className="footer-link" prefetch={true}>Residential</Link>
+                    <Link href="/projects/residential" className="footer-link" prefetch={true} title="Residential Projects">Residential</Link>
                   </li>
                 </ul>
               </div>
@@ -193,19 +194,19 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                 <div className="footer-section-heading h4">Resources</div>
                 <ul className="footer-links">
                   <li>
-                    <Link href="/career" className="footer-link">Careers</Link>
+                    <Link href="/career" className="footer-link" title="Careers at My Property Fact">Careers</Link>
                   </li>
                   <li>
-                    <Link href="/blog" className="footer-link">Blog</Link>
+                    <Link href="/blog" className="footer-link" title="My Property Fact Blog">Blog</Link>
                   </li>
                   <li>
-                    <Link href="/web-stories" className="footer-link">Web Stories</Link>
+                    <Link href="/web-stories" className="footer-link" title="My Property Fact Web Stories">Web Stories</Link>
                   </li>
                   <li>
-                    <Link href="/contact-us" className="footer-link">Contact Us</Link>
+                    <Link href="/contact-us" className="footer-link" title="Contact My Property Fact">Contact Us</Link>
                   </li>
                   <li>
-                    <Link href="/privacy-policy" className="footer-link">
+                    <Link href="/privacy-policy" className="footer-link" title="Privacy Policy">
                       Privacy Policy
                     </Link>
                   </li>
@@ -249,6 +250,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               target="_blank"
               rel="noopener noreferrer"
               className="social-icon"
+              title="My Property Fact on Facebook"
+              aria-label="My Property Fact on Facebook"
             >
               <FontAwesomeIcon icon={faFacebook} />
             </a>
@@ -257,6 +260,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               target="_blank"
               rel="noopener noreferrer"
               className="social-icon"
+              title="My Property Fact on X"
+              aria-label="My Property Fact on X"
             >
               <FontAwesomeIcon icon={faXTwitter} />
             </a>
@@ -265,6 +270,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               target="_blank"
               rel="noopener noreferrer"
               className="social-icon"
+              title="My Property Fact on Instagram"
+              aria-label="My Property Fact on Instagram"
             >
               <FontAwesomeIcon icon={faInstagram} />
             </a>
@@ -273,6 +280,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               target="_blank"
               rel="noopener noreferrer"
               className="social-icon"
+              title="My Property Fact on LinkedIn"
+              aria-label="My Property Fact on LinkedIn"
             >
               <FontAwesomeIcon icon={faLinkedin} />
             </a>
@@ -281,6 +290,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               target="_blank"
               rel="noopener noreferrer"
               className="social-icon"
+              title="My Property Fact on YouTube"
+              aria-label="My Property Fact on YouTube"
             >
               <FontAwesomeIcon icon={faYoutube} />
             </a>

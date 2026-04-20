@@ -66,6 +66,7 @@ export default function InsightNew() {
             <div key={i.id} className={`col-sm-12 col-md-6 col-xl-3 mb-3`}>
               <Link
                 href={i.href}
+                title={i.heading}
                 onClick={(e) => {
                   if (i.href === "#") {
                     e.preventDefault(); // stop scroll-to-top

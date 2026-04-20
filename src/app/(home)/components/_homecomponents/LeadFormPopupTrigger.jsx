@@ -64,7 +64,8 @@ export default function LeadFormPopupTrigger({
         >
           <Image
             src={ENQUIRE_TRIGGER_ICON}
-            alt=""
+            alt="Enquire now"
+            title="Enquire now"
             width={30}
             height={30}
             className="lead-form-popup-trigger__icon-img"
@@ -82,7 +83,8 @@ export default function LeadFormPopupTrigger({
         >
           <Image
             src={ENQUIRE_TRIGGER_ICON}
-            alt=""
+            alt="Enquire now"
+            title="Enquire now"
             width={30}
             height={30}
             className="lead-form-popup-trigger__icon-img"

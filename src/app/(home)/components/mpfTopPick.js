@@ -111,6 +111,7 @@ export default function MpfTopPicks({ topProject }) {
                         href={`/builder/${builderSlug}`}
                         className="text-decoration-none plus-jakarta-sans-semi-bold fs-6 d-flex gap-2 align-items-center hover-underline"
                         aria-label={`View projects by ${builderName}`}
+                        title={`View projects by ${builderName}`}
                       >
                         View Projects by {builderName} <RiArrowRightSLine />
                       </Link>
@@ -162,6 +163,7 @@ export default function MpfTopPicks({ topProject }) {
                   href={`/${slugURL}`}
                   className="mpf-top-picks-card__cta btn-normal-color plus-jakarta-sans-semi-bold"
                   aria-label={`More about ${projectName}`}
+                  title={`More about ${projectName}`}
                 >
                   More About {projectName}
                 </Link>

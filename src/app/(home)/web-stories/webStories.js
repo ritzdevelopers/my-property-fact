@@ -53,6 +53,7 @@ export default function WebStories({ webStoryList }) {
                                 <Link
                                     className="card h-100 w-100 text-decoration-none text-dark shadow-sm"
                                     href={`${process.env.NEXT_PUBLIC_API_URL}web-story/${item.categoryName}`}
+                                    title={`${item.categoryName} web story`}
                                 >
                                     <div style={imageWrapperStyle}>
                                         <Image

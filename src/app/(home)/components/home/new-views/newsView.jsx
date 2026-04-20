@@ -16,6 +16,7 @@ export default function NewsAndViews({ webStoryList }) {
               <Link
                 className="h-100 text-decoration-none text-dark shadow-sm"
                 href={`${process.env.NEXT_PUBLIC_API_URL}web-story/${item.categoryName}`}
+                title={`${item.categoryName} web story`}
               >
                 <div className="flip-card">
                   <div className="flip-card-inner">

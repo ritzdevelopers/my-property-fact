@@ -4,12 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import "../home/home.css";
 
+function sanitizeMetaText(value, fallback = "Developer") {
+  const text = String(value || "").trim();
+  if (!text || text === "/" || text.toLowerCase() === "null") return fallback;
+  return text;
+}
+
 function LogoCell({ item, suppressA11y }) {
-  const alt = suppressA11y ? "" : `${item.name} — developer logo`;
+  const safeName = sanitizeMetaText(item.name, "Developer");
+  const logoMeta = `${safeName} — developer logo`;
+  const alt = suppressA11y ? logoMeta : logoMeta;
   const img = (
     <Image
       src={item.src}
       alt={alt}
+      title={logoMeta}
       width={176}
       height={56}
       className="transform-home-developers-logo"
@@ -22,7 +31,7 @@ function LogoCell({ item, suppressA11y }) {
       <Link
         href={item.href}
         className="transform-home-developers-link"
-        title={item.name}
+        title={safeName}
       >
         {img}
       </Link>

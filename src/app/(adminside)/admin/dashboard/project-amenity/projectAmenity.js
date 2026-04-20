@@ -10,6 +10,17 @@ import CommonModal from "../common-model/common-model";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
+import Cookies from "js-cookie";
+
+const apiWithAuth = () => ({
+  withCredentials: true,
+  headers: {
+    ...(typeof window !== "undefined" && Cookies.get("token")
+      ? { Authorization: `Bearer ${Cookies.get("token")}` }
+      : {}),
+  },
+});
+
 export default function ProjectsAmenity({ projectList, amenityList }) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
@@ -74,6 +85,7 @@ export default function ProjectsAmenity({ projectList, amenityList }) {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}projects/add-update-amenity`,
           data,
+          apiWithAuth(),
         );
         if (response.data.isSuccess === 1) {
           router.refresh();
@@ -83,7 +95,13 @@ export default function ProjectsAmenity({ projectList, amenityList }) {
           toast.error(response.data.message);
         }
       } catch (error) {
-        toast.error(error);
+        const statusCode = error?.response?.status;
+        const message =
+          error?.response?.data?.message ||
+          (statusCode === 403
+            ? "Permission denied: you need project management access."
+            : "Failed to update project amenities.");
+        toast.error(message);
       } finally {
         setShowLoading(false);
         setButtonName("Add");
@@ -95,6 +113,7 @@ export default function ProjectsAmenity({ projectList, amenityList }) {
   const fetchProjectAmenities = async (projectId) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}amenity/get-by-project-id/${projectId}`,
+      apiWithAuth(),
     );
     return response.data;
   };

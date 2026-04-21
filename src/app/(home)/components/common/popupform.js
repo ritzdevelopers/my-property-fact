@@ -42,7 +42,14 @@ function getProjectImageSrc(data) {
   return `${imageBase}properties/${slug}/${filename}`;
 }
 
-export default function CommonPopUpform({ show, handleClose, from, data }) {
+export default function CommonPopUpform({
+  show,
+  handleClose,
+  from,
+  data,
+  /** When true with `from="Project Detail"`, uses the simple enquiry modal (no animated headline). */
+  skipAnimatedHeadline = false,
+}) {
   const [validated, setValidated] = useState(false);
   const pathname = usePathname();
   const intitalData = {
@@ -222,7 +229,8 @@ export default function CommonPopUpform({ show, handleClose, from, data }) {
   };
 
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
-  const useSplitLayout = isProjectDetail || from === "Home Page";
+  const useSplitLayout =
+    (isProjectDetail && !skipAnimatedHeadline) || from === "Home Page";
   const isHomeSplit = !isProjectDetail && useSplitLayout;
 
   useEffect(() => {

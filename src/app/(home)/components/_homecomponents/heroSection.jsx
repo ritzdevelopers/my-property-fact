@@ -6,7 +6,7 @@ import "./newmpfmetadata.css";
 
 // ─── Static banner assets ─────────────────────────────────────────────────────
 const BANNER_ALT     = "My Property Fact";
-const BANNER_DESKTOP = "/static/banners/mpf_generic_banner.jpg";     // ≥ 992 px
+const BANNER_DESKTOP = "/static/banners/mpf_new_banner_generic.jpg";     // ≥ 992 px
 const BANNER_TABLET  = "/static/banners/mpf_generic_banner_tab.jpg"; // 768 – 991 px
 const BANNER_MOBILE  = "/static/banners/mpf-mobile-banner.jpg";     // < 768 px
 // ─────────────────────────────────────────────────────────────────────────────

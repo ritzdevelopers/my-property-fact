@@ -8,6 +8,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import BlogSidebar from "../../components/common/BlogSidebar";
 import BlogFaqSection from "../../components/common/BlogFaqSection";
+import LeadFormPopupTrigger from "../../components/_homecomponents/LeadFormPopupTrigger";
 import "../../components/common/common.css";
 import styles from "../page.module.css";
 import detailStyles from "./blogpage.module.css";
@@ -344,6 +345,7 @@ export default function BlogDetail({
         faqItems={faqItems}
         subtitle="Find answers to common questions about property types, filters, and coverage on My Property Fact across India."
       />
+      <LeadFormPopupTrigger />
     </div>
   );
 }

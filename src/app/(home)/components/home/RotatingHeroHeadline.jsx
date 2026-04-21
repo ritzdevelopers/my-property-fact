@@ -30,7 +30,7 @@ export default function RotatingHeroHeadline() {
   const active = HEADLINES[activeIndex];
 
   return (
-    <h2
+    <p
       className={`transform-home-headline-inner ${
         isSwitchingOut ? "is-switching-out" : "is-switching-in"
       }`}
@@ -38,6 +38,6 @@ export default function RotatingHeroHeadline() {
     >
       <span className="transform-home-headline-base">{active.base}</span>
       <span className="transform-home-headline-highlight">{active.highlight}</span>
-    </h2>
+    </p>
   );
 }

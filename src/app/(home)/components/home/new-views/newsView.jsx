@@ -3,14 +3,31 @@ import Image from "next/image";
 import Link from "next/link";
 import "../new-views/newviews.css";
 
+const STORY_COVER_IMAGES = [
+  "/news-views/MPF_web stories-03.jpg",
+  "/news-views/MPF_web stories-01.jpg",
+  "/news-views/MPF_web stories-02.jpg",
+  "/news-views/MPF_web stories-04.jpg",
+];
+
 export default function NewsAndViews({ webStoryList }) {
+  const visibleStories = (Array.isArray(webStoryList) ? webStoryList : [])
+    .filter((item) => item.webStories.length > 0)
+    .sort((a, b) => {
+      const aName = String(a?.categoryName || "").toLowerCase();
+      const bName = String(b?.categoryName || "").toLowerCase();
+      const aPriority = aName.includes("gst") && aName.includes("bullish") ? 0 : 1;
+      const bPriority = bName.includes("gst") && bName.includes("bullish") ? 0 : 1;
+      return aPriority - bPriority;
+    })
+    .slice(0, 4);
+
   return (
     <div className="container">
       <div className="row web-stories-container">
-        {webStoryList
-          .filter((item) => item.webStories.length > 0)
-          .map((item, index) => {
+        {visibleStories.map((item, index) => {
             const storyCoverAlt = `${item.categoryName} — Realty Updates Web Stories cover image`;
+            const localStoryCover = STORY_COVER_IMAGES[index % STORY_COVER_IMAGES.length];
             return (
             <div key={index} className="col-12 col-md-6 col-lg-3">
               <Link
@@ -22,7 +39,7 @@ export default function NewsAndViews({ webStoryList }) {
                   <div className="flip-card-inner">
                     <div className="flip-card-front">
                       <Image
-                        src={`${process.env.NEXT_PUBLIC_IMAGE_URL}web-story/${item.storyCategoryImage}`}
+                        src={localStoryCover}
                         alt={storyCoverAlt}
                         title={storyCoverAlt}
                         width={384}
@@ -46,8 +63,7 @@ export default function NewsAndViews({ webStoryList }) {
               </Link>
             </div>
             );
-          })
-          .slice(0, 4)}
+          })}
       </div>
     </div>
   );

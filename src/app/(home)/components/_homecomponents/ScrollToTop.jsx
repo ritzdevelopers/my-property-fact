@@ -39,7 +39,13 @@ export default function ScrollToTop() {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className={`scroll-to-top-btn btn-normal-color${pathname === "/" ? " scroll-to-top-btn--home-stack" : ""}`}
+          className={`scroll-to-top-btn btn-normal-color${
+            pathname === "/"
+              ? " scroll-to-top-btn--home-stack"
+              : typeof pathname === "string" && pathname.startsWith("/blog")
+                ? " scroll-to-top-btn--blog-stack"
+                : ""
+          }`}
           aria-label="Scroll to top"
         >
           <FontAwesomeIcon icon={faArrowUp} />

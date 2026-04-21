@@ -147,7 +147,7 @@ export default function ProjectListByFloorTypeClient({
     setFilteredProjectsByBrType(filteredData);
   }, [projectList, floorType, cityName, categorySlug]);
 
-  const { pageItems, currentPage, totalPages, totalItems } =
+  const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
 
   return (
@@ -181,6 +181,7 @@ export default function ProjectListByFloorTypeClient({
             currentPage={currentPage}
             totalPages={totalPages}
             totalItems={totalItems}
+            onPageChange={setPage}
           />
         )}
       </div>

@@ -196,7 +196,7 @@ export default async function HomePage() {
                   />
                 </div>
                 <div className="transform-home-why">
-                  <h3 className="transform-home-why-title">Why choose us?</h3>
+                  <p className="transform-home-why-title">Why choose us?</p>
                   <ul className="transform-home-why-list">
                     <li className="transform-home-why-item">
                       <span className="transform-home-why-check" aria-hidden>

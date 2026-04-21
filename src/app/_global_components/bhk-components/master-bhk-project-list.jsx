@@ -315,7 +315,7 @@ export default function MasterBHKProjectList() {
   }, [projects, cityName, pathName, searchParams]);
 
   const { urlCategorySegment } = resolveListingCategory();
-  const { pageItems, currentPage, totalPages, totalItems } =
+  const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
 
   return (
@@ -349,6 +349,7 @@ export default function MasterBHKProjectList() {
             currentPage={currentPage}
             totalPages={totalPages}
             totalItems={totalItems}
+            onPageChange={setPage}
           />
         )}
       </div>

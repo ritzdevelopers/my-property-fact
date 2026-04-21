@@ -581,6 +581,43 @@
     },
   };
 
+  /** Shared tail for category/listing slugs with no API row and no static city metadata. */
+  const META_LISTING_BROWSE_SUFFIX =
+    "Browse apartments, villas, and plots categorized by BHK type. Get detailed price lists, floor plans, and location maps.";
+
+  const TITLE_CASE_SMALL_WORDS = new Set([
+    "a",
+    "an",
+    "and",
+    "at",
+    "by",
+    "for",
+    "in",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "vs",
+  ]);
+
+  /**
+   * Readable label from URL slug, e.g. "1-bhk-apartments-in-delhi" → "1 BHK Apartments in Delhi".
+   */
+  function formatSlugAsListingTitle(slug) {
+    if (typeof slug !== "string" || !slug.trim()) return "";
+    const parts = slug.trim().split("-").filter(Boolean);
+    return parts
+      .map((word, i) => {
+        const lower = word.toLowerCase();
+        if (lower === "bhk") return "BHK";
+        if (/^\d+$/.test(word)) return word;
+        if (i > 0 && TITLE_CASE_SMALL_WORDS.has(lower)) return lower;
+        return lower.charAt(0).toUpperCase() + lower.slice(1);
+      })
+      .join(" ");
+  }
+
   const normalizeKeywords = (keywords, slug) => {
     if (Array.isArray(keywords)) {
       return keywords;
@@ -659,12 +696,14 @@ export async function generateMetadata({ params }) {
         },
       };
     }
+    const listingTitle = formatSlugAsListingTitle(slug);
     return {
-      title:
-        slug.replace(/-/g, " ").replace(/\b\w/g, (char) => char.toUpperCase()) +
-        " Flats in India",
-      description:
-        "Browse apartments, villas, and plots categorized by BHK type. Get detailed price lists, floor plans, and location maps.",
+      title: listingTitle
+        ? `${listingTitle} | Flats in India`
+        : `${String(slug).replace(/-/g, " ")} Flats in India`,
+      description: listingTitle
+        ? `${listingTitle} | ${META_LISTING_BROWSE_SUFFIX}`
+        : META_LISTING_BROWSE_SUFFIX,
       keywords: normalizeKeywords("", slug),
       alternates: {
         canonical: `/${slug}`,

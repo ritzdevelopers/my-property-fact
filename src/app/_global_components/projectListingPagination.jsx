@@ -1,7 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronLeft, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import styles from "./projectListingPagination.module.css";
@@ -32,16 +31,32 @@ function buildVisiblePages(currentPage, totalPages) {
 }
 
 /**
- * Paginates a client-side list using the `page` query param (?page=2).
+ * Paginates a client-side list in memory (does not read or write `?page=` in the URL).
  */
 export function useProjectListingPagination(allItems, pageSize = LISTING_PAGE_SIZE) {
-  const searchParams = useSearchParams();
-  const pageRaw = searchParams.get("page");
-  const parsed = Math.max(1, parseInt(pageRaw || "1", 10) || 1);
   const total = allItems?.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize) || 1);
-  const currentPage = Math.min(parsed, totalPages);
+  const [page, setPageState] = useState(1);
+  const currentPage = Math.min(Math.max(1, page), totalPages);
   const start = (currentPage - 1) * pageSize;
+  const isFirstTotalRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstTotalRef.current) {
+      isFirstTotalRef.current = false;
+      return;
+    }
+    setPageState(1);
+  }, [total]);
+
+  const setPage = useCallback(
+    (p) => {
+      const n = Math.max(1, Math.min(parseInt(String(p), 10) || 1, totalPages));
+      setPageState(n);
+    },
+    [totalPages],
+  );
+
   const pageItems = useMemo(
     () => (allItems || []).slice(start, start + pageSize),
     [allItems, start, pageSize],
@@ -51,6 +66,7 @@ export function useProjectListingPagination(allItems, pageSize = LISTING_PAGE_SI
     currentPage,
     totalPages,
     totalItems: total,
+    setPage,
   };
 }
 
@@ -59,13 +75,10 @@ export function ProjectListingPaginationControls({
   totalPages,
   totalItems,
   pageSize = LISTING_PAGE_SIZE,
-  /** Client-side list (e.g. /projects): updates page without ?page= in the URL. */
   onPageChange,
+  /** When true (default), scroll to top after changing page. Set false if the parent scrolls (e.g. to a grid). */
+  scrollAfterPageChange = true,
 }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const visiblePages = useMemo(
     () => buildVisiblePages(currentPage, totalPages),
     [currentPage, totalPages],
@@ -74,15 +87,11 @@ export function ProjectListingPaginationControls({
   if (totalItems <= pageSize) return null;
 
   const goToPage = (p) => {
-    if (typeof onPageChange === "function") {
-      onPageChange(p);
-      return;
+    if (typeof onPageChange !== "function") return;
+    onPageChange(p);
+    if (scrollAfterPageChange && typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    const next = new URLSearchParams(searchParams.toString());
-    if (p <= 1) next.delete("page");
-    else next.set("page", String(p));
-    const q = next.toString();
-    router.push(q ? `${pathname}?${q}` : pathname, { scroll: true });
   };
 
   const from = (currentPage - 1) * pageSize + 1;

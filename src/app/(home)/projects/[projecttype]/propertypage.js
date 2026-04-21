@@ -26,7 +26,7 @@ export default function PropertyPage({ projectTypeDetails }) {
   };
   const projectsPageH2 = pageHeadingByType[projectTypeName] || "";
 
-  const { pageItems, currentPage, totalPages, totalItems } =
+  const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(list, LISTING_PAGE_SIZE);
 
   return (
@@ -57,6 +57,7 @@ export default function PropertyPage({ projectTypeDetails }) {
         totalPages={totalPages}
         totalItems={totalItems}
         pageSize={LISTING_PAGE_SIZE}
+        onPageChange={setPage}
       />
     </div>
   );

@@ -1274,6 +1274,7 @@ export default function Projects() {
                     totalPages={totalPages}
                     totalItems={displayProjects.length}
                     pageSize={PROJECTS_PER_PAGE}
+                    scrollAfterPageChange={false}
                     onPageChange={(p) => {
                       setCurrentPage(p);
                       scrollDesktopToProjectsGrid();

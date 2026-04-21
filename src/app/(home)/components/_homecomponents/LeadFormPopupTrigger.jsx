@@ -39,6 +39,7 @@ export default function LeadFormPopupTrigger({
   const handleClick = () => (isControlled ? onOpen() : setShowPopup(true));
   const from = projectData ? "Project Detail" : "Home Page";
   const data = projectData || null;
+  const isBlogRoute = typeof pathname === "string" && pathname.startsWith("/blog");
 
   const showDefaultVerticalTrigger = !showOnHomeOnly;
 
@@ -58,7 +59,7 @@ export default function LeadFormPopupTrigger({
       {showDefaultVerticalTrigger && (
         <button
           type="button"
-          className={`lead-form-popup-trigger lead-form-popup-trigger--icon ${showOnMobileOnly ? "d-md-none" : ""}`}
+          className={`lead-form-popup-trigger lead-form-popup-trigger--icon ${isBlogRoute ? "lead-form-popup-trigger--blog" : ""} ${showOnMobileOnly ? "d-md-none" : ""}`}
           onClick={handleClick}
           aria-label="Enquire Now - Open lead form"
         >

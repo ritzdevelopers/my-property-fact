@@ -9,6 +9,7 @@ import BlogSidebar from "../components/common/BlogSidebar";
 import BlogFaqSection from "../components/common/BlogFaqSection";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 import PopularCitiesSection from "../components/home/popular-cities/PopularCitiesSection";
+import LeadFormPopupTrigger from "../components/_homecomponents/LeadFormPopupTrigger";
 import { useRouter } from "next/navigation";
 
 export default function Blog({
@@ -144,6 +145,7 @@ export default function Blog({
       <BlogFaqSection faqItems={faqItems} />
       <SocialFeedsOfMPF />
       <PopularCitiesSection />
+      <LeadFormPopupTrigger />
     </>
   );
 }

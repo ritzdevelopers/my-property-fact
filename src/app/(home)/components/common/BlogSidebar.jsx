@@ -17,6 +17,7 @@ export default function BlogSidebar({
   onSearch,
   showSearch = true,
   showRecentPosts = true,
+  showRecentTitle = true,
   showLatestProperty = true,
   initialRecentPosts = [],
   initialLatestProject = null,
@@ -144,7 +145,9 @@ export default function BlogSidebar({
       )}
       {showRecentPosts && (
         <div className="recent-posts-container sidebar-align-right mb-4">
-          <h2 className="blog-sidebar-section-title">Recent Posts</h2>
+          {showRecentTitle && (
+            <div className="blog-sidebar-section-title">Recent Posts</div>
+          )}
           <div className="recent-posts-list">
             {recent.map((b, i) => {
               const recentThumbAlt = blogFeaturedImageAlt(b.blogTitle);
@@ -186,7 +189,7 @@ export default function BlogSidebar({
       )}
       {showLatestProperty && (
         <div className="latest-property-container sidebar-align-right mb-4">
-          <h2 className="blog-sidebar-section-title">Latest Property</h2>
+          <div className="blog-sidebar-section-title">Latest Property</div>
           <hr className="my-2" />
           <div className="latest-property-image">
             {latestProject ? (

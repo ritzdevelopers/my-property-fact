@@ -387,45 +387,7 @@ export default function BlogDetail({
         className={`container ${detailStyles.blogDetailContainer} ${detailStyles.blogDetailMainPad}`}
       >
         <div className={`row g-4 ${detailStyles.blogDetailRow}`}>
-          {/* LEFT rail — Related Blogs (sticky on desktop) */}
-          <aside
-            className={`col-12 col-lg-3 order-2 order-lg-1 ${detailStyles.leftRailCol}`}
-          >
-            <div className={detailStyles.stickyRail}>
-              <div className={`${detailStyles.sidebarCard} ${detailStyles.relatedBlogsCard}`}>
-                <h4 className={detailStyles.sidebarCardTitle}>Related Blogs</h4>
-                <div
-                  className={detailStyles.relatedBlogsSocial}
-                  role="navigation"
-                  aria-label="My Property Fact on social media"
-                >
-                  
-                </div>
-                
-                <BlogSidebar
-                  showSearch={false}
-                  showRecentPosts={true}
-                  showLatestProperty={false}
-                  initialRecentPosts={sidebarRecentPosts}
-                />
-                {RELATED_BLOGS_SOCIAL.map(({ id, href, label, Icon }) => (
-                    <Link
-                      key={id}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={detailStyles.relatedBlogsSocialLink}
-                      title={label}
-                      aria-label={label}
-                    >
-                      <Icon aria-hidden className={detailStyles.relatedBlogsSocialIcon} />
-                    </Link>
-                  ))}
-              </div>
-            </div>
-          </aside>
-
-          {/* CENTER — article body + Table of Contents */}
+          {/* CENTER first in DOM so <h1> is the first heading; flex order places column visually in the middle on desktop */}
           <article
             className={`col-12 col-lg-6 order-1 order-lg-2 ${detailStyles.articleCol}`}
           >
@@ -452,7 +414,7 @@ export default function BlogDetail({
                 className={detailStyles.tocCard}
                 aria-label="Table of contents"
               >
-                <h2 className={detailStyles.tocTitle}>Table of Contents</h2>
+                <div className={detailStyles.tocTitle}>Table of Contents</div>
                 <ol className={detailStyles.tocList}>
                   {toc.map((item, idx) => (
                     <li key={item.id} className={detailStyles.tocItem}>
@@ -483,14 +445,59 @@ export default function BlogDetail({
             </div>
           </article>
 
+          {/* LEFT rail — Related Blogs (sticky on desktop) */}
+          <aside
+            className={`col-12 col-lg-3 order-2 order-lg-1 ${detailStyles.leftRailCol}`}
+          >
+            <div className={detailStyles.stickyRail}>
+              <div className={`${detailStyles.sidebarCard} ${detailStyles.relatedBlogsCard}`}>
+                <div className={detailStyles.sidebarCardTitle}>Related Blogs</div>
+                <div
+                  className={detailStyles.relatedBlogsSocial}
+                  role="navigation"
+                  aria-label="My Property Fact on social media"
+                >
+                  {RELATED_BLOGS_SOCIAL.map(({ id, href, label, Icon }) => (
+                    <Link
+                      key={id}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={detailStyles.relatedBlogsSocialLink}
+                      title={label}
+                      aria-label={label}
+                    >
+                      <Icon aria-hidden className={detailStyles.relatedBlogsSocialIcon} />
+                    </Link>
+                  ))}
+                </div>
+
+                <BlogSidebar
+                  showSearch={false}
+                  showRecentPosts={true}
+                  showRecentTitle={false}
+                  showLatestProperty={false}
+                  initialRecentPosts={sidebarRecentPosts}
+                />
+              </div>
+            </div>
+          </aside>
+
           {/* RIGHT rail — Lead form + tags (sticky on desktop) */}
           <aside
             className={`col-12 col-lg-3 order-3 order-lg-3 ${detailStyles.rightRailCol}`}
           >
             <div className={detailStyles.stickyRail}>
               <div className={detailStyles.formCard}>
-                <h4 className={detailStyles.formCardTitle}>Get in Touch</h4>
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
+                <div className={detailStyles.formCardTitle} id="blog-detail-get-in-touch">
+                  Get in Touch
+                </div>
+                <Form
+                  noValidate
+                  validated={validated}
+                  onSubmit={handleSubmit}
+                  aria-labelledby="blog-detail-get-in-touch"
+                >
                   <Form.Group className="mb-3" controlId="name">
                     <Form.Control
                       type="text"
@@ -558,7 +565,7 @@ export default function BlogDetail({
 
               {categoriesList.length > 0 && (
                 <div className={detailStyles.sidebarCard}>
-                  <h4 className={detailStyles.sidebarCardTitle}>Blog Tags</h4>
+                  <div className={detailStyles.sidebarCardTitle}>Blog Tags</div>
                   <div className={detailStyles.sidebarCategoriesWrap}>
                     {visibleCategories.map((keyword, index) => (
                       <span key={index} className={detailStyles.sidebarCategoryTag}>

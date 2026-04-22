@@ -6,7 +6,8 @@
   --menu-color: #ffffff;
   --text-color: #cfab5a;
   --bg-with-gradient: radial-gradient(circle at center, #0d5834, #0c2e23);
-  --heaing-font: "plus-jakarta", "sans-serif";
+  --heaing-font: "Lato", "sans-serif";
+  --text-font: "Inter", "sans-serif";
   --btn-background: linear-gradient(180deg, #453106 0%, #E6A315 100%);
   --btn-normal-color: #C9A24D;
 }
@@ -26,6 +27,7 @@ html {
 
 body {
   scroll-behavior: smooth;
+  font-family: var(--text-font), sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -123,7 +125,7 @@ body {
 }
 
 /* Critical Typography */
-h1, h2, h3, h4, h5, h6, button, a {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--heaing-font) !important;
 }
 

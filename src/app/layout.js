@@ -1,6 +1,6 @@
 import "./critical.css";
 import "./globals.css";
-import localFont from "next/font/local";
+import { Inter, Lato } from "next/font/google";
 import { Suspense, cache } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -27,21 +27,19 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in")
 };
 
-// local fonts are loaded here
-const gothamBold = localFont({
-  src: "../../public/fonts/plus_jakarta_sans/PlusJakartaSans-VariableFont_wght.ttf",
+// Global typography: headings -> Lato, subheadings/body -> Inter
+const headingFont = Lato({
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
   variable: "--heaing-font",
-  style: "normal",
   display: "swap",
-  preload: true,
 });
 
-const gothamLight = localFont({
-  src: "../../public/fonts/montserrat/Montserrat-VariableFont_wght.ttf",
+const textFont = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   variable: "--text-font",
-  style: "normal",
   display: "swap",
-  preload: true,
 });
 
 export default async function RootLayout({ children }) {
@@ -135,7 +133,7 @@ export default async function RootLayout({ children }) {
         <meta property="og:locale" content="en_IN" />
       </head>
       <body
-        className={`${gothamBold.variable} ${gothamLight.variable}`} suppressHydrationWarning={true}>
+        className={`${headingFont.variable} ${textFont.variable}`} suppressHydrationWarning={true}>
         {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe

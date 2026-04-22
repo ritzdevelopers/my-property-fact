@@ -222,6 +222,6 @@ body {
   #location.container,
   .container.mb-5,
   .container-fluid.bg-white.mb-5 {
-    border-radius: 14px;
+  border-radius: 14px;
   }
 }

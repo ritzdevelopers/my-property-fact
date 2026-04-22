@@ -420,10 +420,10 @@ export default function BlogDetail({
                     <li key={item.id} className={detailStyles.tocItem}>
                       <a
                         href={`#${item.id}`}
+                        title={`Go to: ${item.text}`}
                         onClick={(e) => handleTocClick(e, item.id)}
-                        className={`${detailStyles.tocLink} ${
-                          activeTocId === item.id ? detailStyles.tocLinkActive : ""
-                        }`}
+                        className={`${detailStyles.tocLink} ${activeTocId === item.id ? detailStyles.tocLinkActive : ""
+                          }`}
                       >
                         <span className={detailStyles.tocIndex}>{idx + 1}.</span>
                         <span className={detailStyles.tocText}>{item.text}</span>
@@ -452,6 +452,14 @@ export default function BlogDetail({
             <div className={detailStyles.stickyRail}>
               <div className={`${detailStyles.sidebarCard} ${detailStyles.relatedBlogsCard}`}>
                 <div className={detailStyles.sidebarCardTitle}>Related Blogs</div>
+                <BlogSidebar
+                  showSearch={false}
+                  showRecentPosts={true}
+                  showRecentTitle={false}
+                  showLatestProperty={false}
+                  initialRecentPosts={sidebarRecentPosts}
+                />
+
                 <div
                   className={detailStyles.relatedBlogsSocial}
                   role="navigation"
@@ -471,15 +479,8 @@ export default function BlogDetail({
                     </Link>
                   ))}
                 </div>
-
-                <BlogSidebar
-                  showSearch={false}
-                  showRecentPosts={true}
-                  showRecentTitle={false}
-                  showLatestProperty={false}
-                  initialRecentPosts={sidebarRecentPosts}
-                />
               </div>
+
             </div>
           </aside>
 
@@ -593,40 +594,40 @@ export default function BlogDetail({
         userHasScrolled &&
         mainTocScrolledPast &&
         !floatingTocDismissed && (
-        <div
-          className={detailStyles.tocFloat}
-          role="complementary"
-          aria-label="On this page — jump to a section"
-        >
-          <div className={detailStyles.tocFloatHeader}>
-            <span className={detailStyles.tocFloatHeaderTitle}>Table Of Content</span>
-            <button
-              type="button"
-              className={detailStyles.tocFloatClose}
-              onClick={() => setFloatingTocDismissed(true)}
-              aria-label="Hide section navigation"
-            >
-              ×
-            </button>
+          <div
+            className={detailStyles.tocFloat}
+            role="complementary"
+            aria-label="On this page — jump to a section"
+          >
+            <div className={detailStyles.tocFloatHeader}>
+              <span className={detailStyles.tocFloatHeaderTitle}>Table Of Content</span>
+              <button
+                type="button"
+                className={detailStyles.tocFloatClose}
+                onClick={() => setFloatingTocDismissed(true)}
+                aria-label="Hide section navigation"
+              >
+                ×
+              </button>
+            </div>
+            <ol className={detailStyles.tocFloatList}>
+              {toc.map((item, idx) => (
+                <li key={item.id} className={detailStyles.tocFloatItem}>
+                  <a
+                    href={`#${item.id}`}
+                    title={`Go to: ${item.text}`}
+                    onClick={(e) => handleTocClick(e, item.id)}
+                    className={`${detailStyles.tocFloatLink} ${activeTocId === item.id ? detailStyles.tocFloatLinkActive : ""
+                      }`}
+                  >
+                    <span className={detailStyles.tocFloatIndex}>{idx + 1}.</span>
+                    <span className={detailStyles.tocFloatText}>{item.text}</span>
+                  </a>
+                </li>
+              ))}
+            </ol>
           </div>
-          <ol className={detailStyles.tocFloatList}>
-            {toc.map((item, idx) => (
-              <li key={item.id} className={detailStyles.tocFloatItem}>
-                <a
-                  href={`#${item.id}`}
-                  onClick={(e) => handleTocClick(e, item.id)}
-                  className={`${detailStyles.tocFloatLink} ${
-                    activeTocId === item.id ? detailStyles.tocFloatLinkActive : ""
-                  }`}
-                >
-                  <span className={detailStyles.tocFloatIndex}>{idx + 1}.</span>
-                  <span className={detailStyles.tocFloatText}>{item.text}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-        </div>
-      )}
+        )}
 
       <BlogFaqSection
         faqItems={faqItems}

@@ -8,7 +8,7 @@ function blogFeaturedImageAlt(blogTitle) {
     : "Blog featured image on My Property Fact";
 }
 
-export default function BlogListItem({ blog }) {
+export default function BlogListItem({ blog, openInNewTab = false }) {
   const formatDate = (d) =>
     new Date(d).toLocaleString("en-US", { dateStyle: "medium" });
   const excerpt =
@@ -16,10 +16,18 @@ export default function BlogListItem({ blog }) {
     " ...";
   const featuredAlt = blogFeaturedImageAlt(blog.blogTitle);
   const authorLabel = String(blog?.authorName || "").trim() || "Admin";
+  const linkProps = openInNewTab
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
   return (
     <div className="card-blog border-0 shadow-sm mb-4">
       {blog.blogImage && (
-        <Link href={`/blog/${blog.slugUrl}`} className="d-block" title={blog.blogTitle}>
+        <Link
+          href={`/blog/${blog.slugUrl}`}
+          className="d-block"
+          title={blog.blogTitle}
+          {...linkProps}
+        >
           <Image
             width={1200}
             height={628}
@@ -36,6 +44,7 @@ export default function BlogListItem({ blog }) {
             href={`/blog/${blog.slugUrl}`}
             className="text-decoration-none"
             title={blog.blogTitle}
+            {...linkProps}
           >
             {blog.blogTitle}
           </Link>
@@ -50,6 +59,7 @@ export default function BlogListItem({ blog }) {
           href={`/blog/${blog.slugUrl}`}
           className="read-more-link"
           title={blog.blogTitle ? `Read ${blog.blogTitle}` : "Read blog post"}
+          {...linkProps}
         >
           Read more <span>→</span>
         </Link>

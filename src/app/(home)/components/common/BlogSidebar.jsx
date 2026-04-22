@@ -19,6 +19,7 @@ export default function BlogSidebar({
   showRecentPosts = true,
   showRecentTitle = true,
   showLatestProperty = true,
+  openBlogLinksInNewTab = false,
   initialRecentPosts = [],
   initialLatestProject = null,
 }) {
@@ -28,6 +29,9 @@ export default function BlogSidebar({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef(null);
+  const blogLinkProps = openBlogLinksInNewTab
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 
   useEffect(() => {
     setRecent(initialRecentPosts);
@@ -103,6 +107,7 @@ export default function BlogSidebar({
                             href={`/blog/${b.slugUrl}`}
                             className="blog-result-link"
                             title={b.blogTitle}
+                            {...blogLinkProps}
                           >
                             <div className="blog-result-thumb">
                               {b.blogImage && (
@@ -157,6 +162,7 @@ export default function BlogSidebar({
                   href={`/blog/${b.slugUrl}`}
                   className="recent-post-item text-decoration-none"
                   title={b.blogTitle}
+                  {...blogLinkProps}
                 >
                   <div className="recent-thumb">
                     {b.blogImage && (

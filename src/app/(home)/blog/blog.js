@@ -81,6 +81,7 @@ export default function Blog({
             showSearch={true}
             showRecentPosts={false}
             showLatestProperty={false}
+            openBlogLinksInNewTab={true}
             initialRecentPosts={sidebarRecentPosts}
             initialLatestProject={sidebarLatestProject}
           />
@@ -102,6 +103,7 @@ export default function Blog({
               <BlogListItem
                 key={blog?.slugUrl ?? blog?.id ?? index}
                 blog={blog}
+                openInNewTab={true}
               />
             ))}
             <div className="d-flex justify-content-center align-items-center my-5">
@@ -123,6 +125,7 @@ export default function Blog({
             <div className={`col-lg-4 ${styles.blogSidebarCol}`}>
               <div className={styles.blogRightSticky}>
                 <BlogSidebar
+                  openBlogLinksInNewTab={true}
                   initialRecentPosts={sidebarRecentPosts}
                   initialLatestProject={sidebarLatestProject}
                 />
@@ -137,6 +140,7 @@ export default function Blog({
             showSearch={false}
             showRecentPosts={true}
             showLatestProperty={true}
+            openBlogLinksInNewTab={true}
             initialRecentPosts={sidebarRecentPosts}
             initialLatestProject={sidebarLatestProject}
           />

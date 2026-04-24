@@ -10,13 +10,21 @@
   border-radius: 12px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12), 0 2px 8px rgba(15, 23, 42, 0.06);
   font-family: inherit;
-  animation: popular-project-promo-in 0.4s ease-out both;
+  animation: popular-project-promo-in 0.6s cubic-bezier(0.22, 0.8, 0.35, 1) both;
+  overflow: visible;
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  /* Exit uses these transitions when .popular-project-promo--card-exit is applied */
+  transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 1.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.6s ease;
+  will-change: opacity, transform;
 }
 
 @keyframes popular-project-promo-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 12px, 0);
+    transform: translate3d(0, 16px, 0);
   }
   to {
     opacity: 1;
@@ -49,6 +57,31 @@
   color: #0f172a;
   background: #f1f5f9;
   outline: none;
+}
+
+/* Entire card: slow fade + drift out, then new content + slow fade in */
+.popular-project-promo--card-exit {
+  animation: none;
+  opacity: 0;
+  transform: translate3d(0, 1.75rem, 0) scale(0.97);
+  pointer-events: none;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.popular-project-promo--card-enter {
+  animation: popular-project-card-reveal 1.25s cubic-bezier(0.22, 0.9, 0.32, 1) both;
+  pointer-events: auto;
+}
+
+@keyframes popular-project-card-reveal {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 1.5rem, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
 }
 
 .popular-project-promo__row {
@@ -187,6 +220,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .popular-project-promo {
+    animation: none;
+    transition: none;
+  }
+
+  .popular-project-promo--card-enter {
     animation: none;
   }
 }

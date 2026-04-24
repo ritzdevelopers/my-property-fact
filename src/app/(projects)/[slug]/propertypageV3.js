@@ -324,6 +324,7 @@ function ProjectSearchBar() {
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => goToSuggestion(p)}
                 role="option"
+                aria-selected={false}
               >
                 <span className="pd3-search__option-name">
                   {p.projectName}
@@ -707,6 +708,15 @@ export default function PropertyV3({
     overviewHtml,
   ]);
 
+  const scrollToSection = useCallback((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 80;
+    window.scrollTo({ top, behavior: "smooth" });
+    setActiveTab(id);
+    setMobileMenuOpen(false);
+  }, []);
+
   /* --------- Early return if no data --------- */
 
   if (!projectDetail) {
@@ -725,15 +735,6 @@ export default function PropertyV3({
     e.preventDefault();
     setPopUp(true);
   };
-
-  const scrollToSection = useCallback((id) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 80;
-    window.scrollTo({ top, behavior: "smooth" });
-    setActiveTab(id);
-    setMobileMenuOpen(false);
-  }, []);
 
   /* ---------------------------- Render ---------------------------- */
 

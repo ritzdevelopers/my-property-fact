@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getBlogAuthorDisplayName } from "./blogAuthor";
 import "./common.css";
 
 function blogFeaturedImageAlt(blogTitle) {
@@ -15,7 +16,7 @@ export default function BlogListItem({ blog, openInNewTab = false }) {
     (blog.blogMetaDescription || "").split(/\s+/).slice(0, 35).join(" ") +
     " ...";
   const featuredAlt = blogFeaturedImageAlt(blog.blogTitle);
-  const authorLabel = String(blog?.authorName || "").trim() || "Admin";
+  const authorLabel = getBlogAuthorDisplayName(blog, "Admin");
   const linkProps = openInNewTab
     ? { target: "_blank", rel: "noopener noreferrer" }
     : {};

@@ -1,12 +1,15 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { getBlogAuthorDisplayName } from "./blogAuthor";
 import './common.css';
 export default function BlogCard({ blog }) {
 
     const featuredImageAlt = blog.blogTitle
       ? `${blog.blogTitle} — blog featured image on My Property Fact`
       : "Blog featured image on My Property Fact";
+
+    const authorLabel = getBlogAuthorDisplayName(blog, "My Property Fact");
 
     const truncateWords = (text, wordLimit) => {
         const words = text.trim().split(/\s+/);
@@ -32,10 +35,17 @@ export default function BlogCard({ blog }) {
                     
                 />
                 <div className="card-body d-flex flex-column plus-jakarta-semi-bold">
-                    <p className="blog-date m-0 mb-2">{new Date(blog.createdAt).toLocaleString('en-US', {
-                        dateStyle: 'medium',
-                        // timeStyle: 'short'
-                    })}</p>
+                    <p className="blog-date m-0 mb-1 text-muted small">
+                        By <span className="fw-semibold text-body">{authorLabel}</span>
+                        {blog.createdAt ? (
+                            <>
+                                {" · "}
+                                {new Date(blog.createdAt).toLocaleString("en-US", {
+                                    dateStyle: "medium",
+                                })}
+                            </>
+                        ) : null}
+                    </p>
                     <h3 className="card-title fw-bold h4" title={blog.blogTitle}>{blog.blogTitle}</h3>
 
                     <div className="flex-grow-1 mb-1">

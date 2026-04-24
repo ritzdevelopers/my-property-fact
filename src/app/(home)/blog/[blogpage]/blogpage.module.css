@@ -559,6 +559,24 @@
   letter-spacing: -0.02em;
 }
 
+/* Author + date under title */
+.articleByline {
+  font-family: "plus-jakarta", sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #5c5c5c;
+  margin: 0 0 1.5rem 0;
+}
+
+.articleBylineName {
+  font-weight: 600;
+  color: #333;
+}
+
+.articleBylineSep {
+  color: #9ca3af;
+}
+
 /* Article body – readable; avoid justify on short lines/headings (matches CMS / backend) */
 .articleContent {
   font-family: "plus-jakarta", sans-serif !important;

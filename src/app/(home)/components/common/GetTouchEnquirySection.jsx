@@ -185,7 +185,13 @@ export default function GetTouchEnquirySection({
         {GET_IN_TOUCH_POINTS.map((point) => (
           <span key={point} className={pointItemClass}>
             <span className="get-touch-point-icon">
-              <Image src="/icon/verify.svg" alt="" width={12} height={12} />
+              <Image
+                src="/icon/verify.svg"
+                alt="Verified point — Get in touch section"
+                title="Verified point — Get in touch section"
+                width={12}
+                height={12}
+              />
             </span>
             <span>{point}</span>
           </span>

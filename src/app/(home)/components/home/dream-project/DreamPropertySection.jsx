@@ -89,7 +89,7 @@ const DreamPropertySection = () => {
           <div className="header-left">
             <h2 className="dream-property-title plus-jakarta-sans-semi-bold">
               Find Your Dream Property In The City<br/> You Are Searching In
-              <Link href='/projects' >
+              <Link href="/projects" title="Browse all real estate projects on My Property Fact">
               <button
                 
                 className="nav-arrow-button"
@@ -101,7 +101,11 @@ const DreamPropertySection = () => {
               </Link>
             </h2>
           </div>
-          <Link href="/projects" className="see-all-button text-white btn-normal-color">
+          <Link
+            href="/projects"
+            className="see-all-button text-white btn-normal-color"
+            title="View all property listings on My Property Fact"
+          >
             See All Properties
           </Link>
         </div>
@@ -123,7 +127,12 @@ const DreamPropertySection = () => {
               </div>
               <div className="city-content">
                 <h3 className="city-name">{city.name}</h3>
-                <Link href={city.link} prefetch={false} className="explore-details-button">
+                <Link
+                  href={city.link}
+                  prefetch={false}
+                  className="explore-details-button"
+                  title={`Explore ${city.name} real estate, projects and local trends on My Property Fact`}
+                >
                   Explore Details
                 </Link>
               </div>

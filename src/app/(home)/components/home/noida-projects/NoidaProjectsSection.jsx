@@ -9,6 +9,46 @@ import "swiper/css";
 import "./NoidaProjectsSection.css";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
+const IMAGE_BASE =
+  (typeof process.env.NEXT_PUBLIC_IMAGE_URL === "string" &&
+    process.env.NEXT_PUBLIC_IMAGE_URL) ||
+  "";
+
+function getProjectImageUrl(project) {
+  if (!project?.slugURL) return null;
+  const file =
+    project.projectBannerImage || project.projectThumbnailImage || null;
+  if (!file) return null;
+  if (String(file).startsWith("http")) return file;
+  if (!IMAGE_BASE) return null;
+  return `${IMAGE_BASE}properties/${project.slugURL}/${file}`;
+}
+
+/** Prefer a project in this city with a banner, then higher indicative price. */
+function findTopProjectForCity(projectsArray, cityName) {
+  if (!cityName || !Array.isArray(projectsArray) || !projectsArray.length) {
+    return null;
+  }
+  const n = String(cityName).toLowerCase().trim();
+  const inCity = projectsArray.filter(
+    (p) => String(p.cityName || "")
+      .toLowerCase()
+      .trim() === n,
+  );
+  if (!inCity.length) return null;
+  inCity.sort((a, b) => {
+    const hasA = a.projectBannerImage || a.projectThumbnailImage ? 1 : 0;
+    const hasB = b.projectBannerImage || b.projectThumbnailImage ? 1 : 0;
+    if (hasB !== hasA) return hasB - hasA;
+    const ap = parseFloat(a.projectPrice);
+    const bp = parseFloat(b.projectPrice);
+    const aOk = !Number.isNaN(ap) ? ap : 0;
+    const bOk = !Number.isNaN(bp) ? bp : 0;
+    return bOk - aOk;
+  });
+  return inCity[0];
+}
+
 // Static city data (10 cards)
 const CITY_CARDS = [
   {
@@ -227,10 +267,17 @@ export default function NoidaProjectsSection() {
             }
           }
 
+          const topProject = findTopProjectForCity(
+            projectsArray,
+            card.name,
+          );
+          const displayImageSrc = getProjectImageUrl(topProject);
           return {
             ...card,
             totalProperties: count,
             priceRange: priceRange,
+            topProjectName: topProject?.projectName || null,
+            displayImageSrc: displayImageSrc || null,
           };
         });
 
@@ -292,64 +339,85 @@ export default function NoidaProjectsSection() {
 
 // City Card Component
 function CityCard({ city }) {
-  const cityDestinationAlt = `${city.name} — Popular Real Estate Destinations, projects for sale on My Property Fact`;
+  const cityLabel = (city.name && String(city.name).trim()) || "City";
+  const cityDestinationAlt = `${cityLabel} — popular real estate destination; projects for sale on My Property Fact`;
+  const topPickAlt = city.topProjectName
+    ? `${city.topProjectName} in ${cityLabel} — featured project on My Property Fact`
+    : cityDestinationAlt;
+  const heroImgDescription = topPickAlt;
+  const iconNavigateTitle = `View ${cityLabel} real estate on My Property Fact (opens city page)`;
+  const iconArrowTitle = `See all ${cityLabel} properties for sale (opens city page)`;
+  const heroSrc = city.displayImageSrc || city.imageSrc;
+  const isRemote = /^https?:\/\//.test(heroSrc);
+
+  const cityLinkTitle = `Explore ${cityLabel} real estate, listings and price trends on My Property Fact`;
+
   return (
     <Link
       href={city.href}
       prefetch={false}
       className="city-card city-card-link"
+      title={cityLinkTitle}
     >
-      {/* City Header */}
-      <div className="city-card-header">
-        <div className="city-header-row">
-          <h3 className="city-name">{city.name}</h3>
-          <span className="city-external-icon" aria-hidden="true">
-            <Image
-              src="/icon/navigate.svg"
-              alt="Open city destination"
-              title="Open city destination"
-              width={18}
-              height={18}
-              className="navigate-icon"
-              aria-hidden
-            />
-          </span>
+      <div className="city-card-hero">
+        <div className="city-card-hero__img">
+          <Image
+            src={heroSrc}
+            alt={heroImgDescription}
+            title={heroImgDescription}
+            fill
+            className="city-card-hero__image"
+            sizes="(max-width: 576px) 92vw, (max-width: 992px) 45vw, 32vw"
+            unoptimized={isRemote}
+          />
+        </div>
+        <div className="city-card-hero__bar" aria-hidden="true" />
+        <div className="city-card-hero__overlay">
+          <div className="city-header-row">
+            <h3 className="city-name city-name--on-image">{cityLabel}</h3>
+            <span className="city-external-icon" aria-hidden="true">
+              <Image
+                src="/icon/navigate.svg"
+                alt={iconNavigateTitle}
+                title={iconNavigateTitle}
+                width={18}
+                height={18}
+                className="navigate-icon navigate-icon--on-image"
+                aria-hidden
+              />
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Price Range */}
-      <div className="city-price-range">
-        <span className="price-text">{city.priceRange}</span>
-      </div>
+      <div className="city-card-body">
+        {city.topProjectName && (
+          <p className="city-top-pick" title={city.topProjectName ?? undefined}>
+            <span className="city-top-pick__label">Top project</span>
+            <span className="city-top-pick__name">{city.topProjectName}</span>
+          </p>
+        )}
 
-      {/* Total Properties Count */}
-      <div className="city-properties-count">
-        <span className="count-text">
-          {city.totalProperties}{" "}
-          {city.totalProperties === 1 ? "Property for Sale" : "Properties for Sale"}
-          <Image
-            src="/icon/arrow.svg"
-            alt="View city listings"
-            title="View city listings"
-            width={16}
-            height={16}
-            className="count-arrow-icon"
-            aria-hidden
-          />
-        </span>
-      </div>
+        <div className="city-price-range">
+          <span className="price-text">{city.priceRange}</span>
+        </div>
 
-      {/* Static City Image */}
-      <div className="city-projects-slider-container">
-        <div className="project-image-wrapper">
-          <Image
-            src={city.imageSrc}
-            alt={cityDestinationAlt}
-            title={cityDestinationAlt}
-            fill
-            className="project-slider-image"
-            unoptimized
-          />
+        <div className="city-properties-count">
+          <span className="count-text">
+            {city.totalProperties}{" "}
+            {city.totalProperties === 1
+              ? "Property for Sale"
+              : "Properties for Sale"}
+            <Image
+              src="/icon/arrow.svg"
+              alt={iconArrowTitle}
+              title={iconArrowTitle}
+              width={16}
+              height={16}
+              className="count-arrow-icon"
+              aria-hidden
+            />
+          </span>
         </div>
       </div>
     </Link>

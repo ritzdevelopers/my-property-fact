@@ -1483,7 +1483,10 @@ export default function PropertyV3({
                   </Link>
                 </div>
                 <div className="pd3-sim-grid">
-                  {similarProjects.slice(0, 8).map((p) => (
+                  {similarProjects.slice(0, 8).map((p) => {
+                    const simName = p.projectName || "Project";
+                    const simImgMeta = `${simName} — similar project photo on My Property Fact`;
+                    return (
                     <Link
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
@@ -1498,8 +1501,8 @@ export default function PropertyV3({
                                 ? `${imageBase}properties/${p.slugURL}/${p.projectThumbnailImage}`
                                 : "/static/no_image.png"
                           }
-                          alt={p.projectName}
-                          title={p.projectName}
+                          alt={simImgMeta}
+                          title={simImgMeta}
                           fill
                           sizes="(max-width: 768px) 50vw, 25vw"
                         />
@@ -1525,7 +1528,8 @@ export default function PropertyV3({
                         ) : null}
                       </div>
                     </Link>
-                  ))}
+                  );
+                  })}
                 </div>
               </section>
             ) : null}

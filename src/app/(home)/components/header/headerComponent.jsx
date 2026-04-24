@@ -825,6 +825,9 @@ const HeaderComponent = () => {
                                         >
                                           {projectSearchResults.map((project) => {
                                             const projectId = project.id || project.slugURL;
+                                            const searchProjectLabel =
+                                              project.projectName || project.name || "Project";
+                                            const searchProjectImgMeta = `${searchProjectLabel} — project banner preview, My Property Fact search`;
                                             return (
                                               <div
                                                 key={projectId}
@@ -838,13 +841,13 @@ const HeaderComponent = () => {
                                                     handleProjectClick(project);
                                                   }
                                                 }}
-                                                aria-label={`View ${project.projectName || project.name || "project"} (opens in new tab)`}
+                                                aria-label={`View ${searchProjectLabel} (opens in new tab)`}
                                               >
                                                 <div className="project-search-card-image">
                                                   <Image
                                                     src={getProjectImageSrc(project)}
-                                                    alt={project.projectName || project.name || "Project"}
-                                                    title={project.projectName || project.name || "Project"}
+                                                    alt={searchProjectImgMeta}
+                                                    title={searchProjectImgMeta}
                                                     width={200}
                                                     height={140}
                                                     unoptimized
@@ -1120,6 +1123,9 @@ const HeaderComponent = () => {
                           );
                           return visible.map((project) => {
                             const projectId = project.id || project.slugURL;
+                            const searchProjectLabel =
+                              project.projectName || project.name || "Project";
+                            const searchProjectImgMeta = `${searchProjectLabel} — project banner preview, My Property Fact search`;
                             return (
                               <div
                                 key={projectId}
@@ -1138,13 +1144,13 @@ const HeaderComponent = () => {
                                   }
 
                                 }}
-                                aria-label={`View ${project.projectName || project.name || "project"} (opens in new tab)`}
+                                aria-label={`View ${searchProjectLabel} (opens in new tab)`}
                               >
                                 <div className="mobile-project-search-card-image">
                                   <Image
                                     src={getProjectImageSrc(project)}
-                                    alt={project.projectName || project.name || "Project"}
-                                    title={project.projectName || project.name || "Project"}
+                                    alt={searchProjectImgMeta}
+                                    title={searchProjectImgMeta}
                                     width={100}
                                     height={80}
                                     unoptimized

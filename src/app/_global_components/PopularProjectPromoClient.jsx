@@ -6,7 +6,21 @@ import { usePathname } from "next/navigation";
 import "./PopularProjectPromo.css";
 
 const HIDE_PREFIXES = ["/admin", "/portal"];
-const AUTO_ROTATE_MS = 5000;
+/* Slower full-card out/in; must stay in sync with PopularProjectPromo.css */
+const AUTO_ROTATE_MS = 10000;
+/* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */
+const SLIDE_OUT_MS = 1250;
+const SLIDE_IN_MS = 1350;
+
+function getSlideDurations() {
+  if (typeof window === "undefined" || !window.matchMedia) {
+    return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
+  }
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return { out: 0, inn: 0 };
+  }
+  return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
+}
 
 /**
  * @param {Object} props
@@ -18,6 +32,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const [dismissed, setDismissed] = useState(false);
   const [ready, setReady] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
+  const [displayIdx, setDisplayIdx] = useState(0);
+  const [cardPhase, setCardPhase] = useState("idle");
   const hoverRef = useRef(false);
   const list = Array.isArray(items) ? items : [];
 
@@ -40,20 +56,57 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
     return () => window.clearInterval(id);
   }, [ready, dismissed, list.length]);
 
+  useEffect(() => {
+    if (!ready) return undefined;
+    if (list.length === 0) return undefined;
+    if (activeIdx === displayIdx) return undefined;
+
+    const { out, inn } = getSlideDurations();
+    if (out === 0 && inn === 0) {
+      setDisplayIdx(activeIdx);
+      setCardPhase("idle");
+      return undefined;
+    }
+
+    let innerT;
+    setCardPhase("exit");
+    const outT = window.setTimeout(() => {
+      setDisplayIdx(activeIdx);
+      setCardPhase("enter");
+      innerT = window.setTimeout(() => {
+        setCardPhase("idle");
+      }, inn);
+    }, out);
+
+    return () => {
+      window.clearTimeout(outT);
+      if (innerT) window.clearTimeout(innerT);
+    };
+  }, [activeIdx, displayIdx, ready, list.length]);
+
   const goTo = useCallback((idx) => {
     setActiveIdx(idx);
   }, []);
 
   if (list.length === 0 || hideByRoute || dismissed || !ready) return null;
 
-  const current = list[activeIdx] || list[0];
+  const current = list[displayIdx] || list[0];
   if (!current) return null;
+
+  const cardClass = [
+    "popular-project-promo",
+    cardPhase === "exit" ? "popular-project-promo--card-exit" : "",
+    cardPhase === "enter" ? "popular-project-promo--card-enter" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div
-      className="popular-project-promo"
+      className={cardClass}
       role="complementary"
       aria-label="Popular projects"
+      aria-hidden={cardPhase === "exit"}
       onMouseEnter={() => {
         hoverRef.current = true;
       }}
@@ -88,7 +141,7 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
         </svg>
         <p className="popular-project-promo__label">Popular right now</p>
       </div>
-      <div className="popular-project-promo__row">
+      <div className="popular-project-promo__row" key={current.key}>
         <div className="popular-project-promo__thumb">
           <img
             src={current.imageUrl}

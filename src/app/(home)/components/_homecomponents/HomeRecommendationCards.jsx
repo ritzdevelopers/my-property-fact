@@ -267,8 +267,8 @@ export default function HomeRecommendationCards({
                     {/** Keep title/alt explicit for SEO audits; avoid "/" placeholders. */}
                     <Image
                       src={card.image}
-                      alt={`${card.title} card image`}
-                      title={`${card.title} card image`}
+                      alt={`${card.title} — real estate listing card image on My Property Fact`}
+                      title={`${card.title} — real estate listing card image on My Property Fact`}
                       fill
                       sizes="(max-width: 576px) 44vw, (max-width: 991px) 42vw, 22vw"
                       className="home-project-card__image"

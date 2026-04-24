@@ -93,6 +93,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const current = list[displayIdx] || list[0];
   if (!current) return null;
 
+  const thumbAltTitle = `${current.name} — popular project preview, My Property Fact`;
+
   const cardClass = [
     "popular-project-promo",
     cardPhase === "exit" ? "popular-project-promo--card-exit" : "",
@@ -145,7 +147,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
         <div className="popular-project-promo__thumb">
           <img
             src={current.imageUrl}
-            alt={current.name}
+            alt={thumbAltTitle}
+            title={thumbAltTitle}
             width={56}
             height={56}
             loading="lazy"

@@ -1,0 +1,19 @@
+---
+description: next/image and img tags must have descriptive alt; add title for SEO/audit tools
+globs: **/*.{jsx,tsx,js,ts}
+alwaysApply: false
+---
+
+# Images: `alt` and `title`
+
+- Every `next/image` `Image` (and raw `<img>`) must have a **non-empty, meaningful** `alt` that describes the image or its role in context.
+- Add **`title`** when the image is a primary visual (hero, logo, product) or when product/audit checks expect a tooltip; keep it **consistent with** `alt` or a short natural phrase (avoid keyword stuffing).
+- **Decorative** images: prefer `alt=""` only when the same information is already in adjacent text **and** no SEO tool in your pipeline requires a filled `alt`. If audits flag empty alts, use a one-line description (e.g. "Arrow for next item") and keep the icon `aria-hidden` with redundant text in the same control.
+- **Icons** inside a link that already has a clear label: parent may use `aria-hidden` on the icon wrapper; the `img` can still use `alt` + `title` with action text (e.g. "View {City} real estate (opens city page)") to satisfy checkers; avoid duplicating the link’s visible name verbatim if it creates noisy screen reader output for users not using the same tool—prefer hiding decorative icons with `alt=""` when WCAG is the only requirement.
+
+**Example (hero + icons):**
+
+```jsx
+<Image src={url} alt={description} title={description} fill sizes="…" />
+<Image src="/icon/navigate.svg" alt={navDescription} title={navDescription} width={18} height={18} aria-hidden />
+```

@@ -1,0 +1,482 @@
+/* My Property Fact — Top Picks (spotlight, compact) */
+
+.mpf-tp {
+  /* Site brand green (property pages, promos) */
+  --mpf-tp-brand: #0d5834;
+  --mpf-tp-surface: #ffffff;
+  --mpf-tp-line: rgba(15, 23, 42, 0.08);
+  --mpf-tp-muted: #64748b;
+  --mpf-tp-ink: #0f172a;
+  --mpf-tp-gold-glow: rgba(201, 162, 77, 0.65);
+}
+
+/* Full-bleed band: fills viewport side margins with tone (content stays in .container) */
+.mpf-tp__band {
+  width: 100%;
+  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 38%, #ffffff 100%);
+  box-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.05);
+  padding-top: 0.25rem;
+  padding-bottom: 0.5rem;
+}
+
+.mpf-tp__wrap {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.mpf-tp__head {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.mpf-tp__kicker {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #7c2d12;
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border: 1px solid rgba(154, 52, 18, 0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  margin-bottom: 0.5rem;
+}
+
+.mpf-tp__title {
+  font-size: clamp(1.25rem, 2.6vw, 1.5rem);
+  line-height: 1.25;
+  color: var(--mpf-tp-ink);
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.02em;
+}
+
+.mpf-tp__sub {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--mpf-tp-muted);
+  margin: 0;
+  max-width: 38rem;
+  margin-inline: auto;
+}
+
+/* Full width inside home .container; image column slightly larger for a richer hero */
+.mpf-tp__card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.12fr);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  background: var(--mpf-tp-surface);
+  border: 1px solid var(--mpf-tp-line);
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.mpf-tp__main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.15rem 1.25rem 1.2rem;
+  min-width: 0;
+}
+
+.mpf-tp__dev {
+  display: flex;
+  align-items: center;
+  gap: 1rem 1.1rem;
+  flex-wrap: wrap;
+}
+
+/* Full logo, no box — fills space; wide logos read clearly on white */
+.mpf-tp__logo {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(7.5rem, 20vw, 12rem);
+  min-height: 3.25rem;
+  max-height: 4.5rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.mpf-tp__logo .mpf-tp__logo-img,
+.mpf-tp__logo .img-fluid {
+  object-fit: contain;
+  object-position: left center;
+  width: 100% !important;
+  height: auto !important;
+  max-height: 4.5rem;
+  max-width: 100%;
+}
+
+.mpf-tp__dev-txt {
+  min-width: 0;
+  flex: 1;
+}
+
+.mpf-tp__eyebrow {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  margin-bottom: 0.15rem;
+}
+
+@keyframes mpf-tp-project-glow {
+  0%,
+  100% {
+    text-shadow:
+      0 0 12px var(--mpf-tp-gold-glow),
+      0 0 28px rgba(201, 162, 77, 0.32),
+      0 0 3px rgba(201, 162, 77, 0.22);
+  }
+  50% {
+    text-shadow:
+      0 0 18px rgba(201, 162, 77, 0.85),
+      0 0 40px rgba(201, 162, 77, 0.45),
+      0 0 6px rgba(201, 162, 77, 0.35);
+  }
+}
+
+.mpf-tp__builder {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  color: var(--mpf-tp-ink);
+  margin: 0 0 0.2rem;
+}
+
+.mpf-tp__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3f3f46;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s;
+}
+
+.mpf-tp__link:hover,
+.mpf-tp__link:focus-visible {
+  color: var(--mpf-tp-brand);
+}
+
+.mpf-tp__link svg {
+  flex-shrink: 0;
+  width: 1.1em;
+  height: 1.1em;
+  color: currentColor;
+  transition: transform 0.2s;
+}
+
+.mpf-tp__link:hover svg,
+.mpf-tp__link:focus-visible svg {
+  transform: translateX(2px);
+}
+
+.mpf-tp__project {
+  position: relative;
+  z-index: 0;
+  font-size: clamp(1.12rem, 1.1rem + 0.35vw, 1.3rem);
+  line-height: 1.3;
+  color: var(--mpf-tp-ink);
+  margin: 0.15rem 0 0;
+  letter-spacing: -0.02em;
+  /* Golden glow on project name (e.g. Eldeco Camelot) */
+  text-shadow:
+    0 0 14px var(--mpf-tp-gold-glow),
+    0 0 32px rgba(201, 162, 77, 0.35),
+    0 0 4px rgba(201, 162, 77, 0.25);
+  animation: mpf-tp-project-glow 3.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-tp__project {
+    animation: none;
+  }
+}
+
+.mpf-tp__addr {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--mpf-tp-muted);
+  margin: 0;
+}
+
+.mpf-tp__addr .mpf-tp__addr-icon,
+.mpf-tp__addr svg {
+  color: var(--mpf-tp-brand);
+  width: 0.9rem !important;
+  height: 0.9rem !important;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.mpf-tp__chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.45rem;
+  margin-top: 0.1rem;
+}
+
+/* Same inner padding on price + BHK chips */
+.mpf-tp__chip {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  min-height: 2.85rem;
+  background: #f1f5f9;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: #334155;
+}
+
+.mpf-tp__chip--price {
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.mpf-tp__chip--price > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  min-width: 0;
+  justify-content: center;
+}
+
+.mpf-tp__chip--config {
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  justify-content: center;
+}
+
+.mpf-tp__chip p {
+  margin: 0;
+}
+
+.mpf-tp__chip--price p {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 0.82rem;
+}
+
+.mpf-tp__chip-lbl {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.mpf-tp__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s, color 0.2s;
+}
+
+.mpf-tp__cta.btn-normal-color,
+.mpf-tp__cta.btn-normal-color span {
+  color: #fff;
+}
+
+.mpf-tp__cta.btn-normal-color:hover,
+.mpf-tp__cta.btn-normal-color:focus-visible,
+.mpf-tp__cta.btn-normal-color:hover span,
+.mpf-tp__cta.btn-normal-color:focus-visible span {
+  color: #fff;
+}
+
+.mpf-tp__cta:hover,
+.mpf-tp__cta:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.mpf-tp__cta svg {
+  width: 1.1em;
+  height: 1.1em;
+  color: #fff;
+  transition: transform 0.2s;
+}
+
+.mpf-tp__cta:hover svg,
+.mpf-tp__cta:focus-visible svg {
+  transform: translateX(2px);
+}
+
+.mpf-tp__figure {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  background: #e2e8f0;
+  text-decoration: none;
+  color: inherit;
+  outline: none;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mpf-tp__figure:focus-visible {
+  box-shadow: inset 0 0 0 3px #f97316;
+  z-index: 1;
+}
+
+.mpf-tp__img {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1);
+  transform-origin: center center;
+  transition: transform 0.5s ease;
+  will-change: transform;
+}
+
+.mpf-tp__figure:hover .mpf-tp__img,
+.mpf-tp__figure:focus-visible .mpf-tp__img {
+  transform: scale(1.08);
+}
+
+.mpf-tp__grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 50%, rgba(15, 23, 42, 0.25) 100%);
+  pointer-events: none;
+}
+
+.mpf-tp__status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  max-width: min(12rem, 90%);
+  padding: 0.25rem 0.5rem 0.3rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+  line-height: 1.2;
+  text-align: right;
+  backdrop-filter: blur(6px);
+}
+
+.mpf-tp__status-eyebrow {
+  display: block;
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 0.05rem;
+}
+
+.mpf-tp__status-text {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+@media (max-width: 992px) {
+  .mpf-tp__card {
+    grid-template-columns: 1fr;
+  }
+
+  .mpf-tp__figure {
+    order: -1;
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+  }
+
+  .mpf-tp__main {
+    padding: 1rem 1rem 1.15rem;
+  }
+
+  .mpf-tp__head {
+    text-align: left;
+    margin-bottom: 1rem;
+  }
+
+  .mpf-tp__sub {
+    margin-inline: 0;
+  }
+}
+
+@media (min-width: 993px) {
+  .mpf-tp__head {
+    text-align: left;
+    margin-bottom: 1.25rem;
+  }
+
+  .mpf-tp__sub {
+    margin-inline: 0;
+    max-width: 42rem;
+  }
+
+  .mpf-tp__figure {
+    min-height: 200px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .mpf-tp__main {
+    padding: 1.35rem 1.75rem 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .mpf-tp__chips {
+    gap: 0.35rem;
+  }
+
+  .mpf-tp__chip {
+    font-size: 0.75rem;
+  }
+
+  .mpf-tp__status {
+    top: 8px;
+    right: 8px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .mpf-tp__figure:hover .mpf-tp__img,
+  .mpf-tp__figure:focus-visible .mpf-tp__img {
+    transform: none;
+  }
+
+  .mpf-tp__figure:active .mpf-tp__img {
+    transform: scale(1.02);
+  }
+}

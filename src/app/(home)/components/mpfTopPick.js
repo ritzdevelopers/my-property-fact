@@ -1,16 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import "./common.css";
+import "./mpfTopPick.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { RiArrowRightSLine } from "react-icons/ri";
 
 export default function MpfTopPicks({ topProject }) {
-  // If no top project is provided, return null
   if (!topProject) {
     return null;
   }
-  // Extracting data from top project
+
   const {
     builderName,
     builderSlug,
@@ -32,7 +32,6 @@ export default function MpfTopPicks({ topProject }) {
     ? `Project status: ${statusDisplay}`
     : "Project status: not specified in listing — see project page for details";
 
-  // Generating price in lakh & cr
   const generatePrice = (price) => {
     if (/[a-zA-Z]/.test(price)) {
       return price;
@@ -41,15 +40,13 @@ export default function MpfTopPicks({ topProject }) {
       ? "₹ " + Math.round(parseFloat(price) * 100) + " Lakh* Onwards"
       : "₹ " + parseFloat(price) + " Cr* Onwards";
   };
-  
-  // Base URL for project images (avoid "undefined" in path)
+
   const imageBase =
     (typeof process.env.NEXT_PUBLIC_IMAGE_URL === "string" &&
       process.env.NEXT_PUBLIC_IMAGE_URL) ||
     "";
   const canBuildImageUrl = imageBase && slugURL;
 
-  // Generating banner image source (use full URL if backend sent one)
   const bannerImageSrc =
     projectBannerImage && canBuildImageUrl && !projectBannerImage.startsWith("http")
       ? `${imageBase}properties/${slugURL}/${projectBannerImage}`
@@ -57,7 +54,6 @@ export default function MpfTopPicks({ topProject }) {
         ? projectBannerImage
         : "/static/no_image.png";
 
-  // Generating logo source
   const logoSrc =
     projectLogo && canBuildImageUrl && !projectLogo.startsWith("http")
       ? `${imageBase}properties/${slugURL}/${projectLogo}`
@@ -72,129 +68,135 @@ export default function MpfTopPicks({ topProject }) {
     ? `${projectName} — My Property Fact Top Picks featured project banner`
     : "Top Picks featured project banner — My Property Fact";
 
-  // Returning the MPF top picks section
   return (
-    <>
-      <div className="container-fluid position-relative mpf-top-picks-section-container">
+    <div className="mpf-tp">
+      <div className="mpf-tp__band">
         <section className="container pt-0 pt-lg-2 top-space">
-          <div className="mpf-top-picks-section">
-            <div className="mpf-top-picks-header">
-              <div>
-                <h2 className="plus-jakarta-sans-semi-bold">
-                  My Property Fact&apos;s Top Picks
-                </h2>
-                <p className="plus-jakarta-sans-semi-bold text-muted">
-                  Explore Top Living Options With Us
-                </p>
-              </div>
-            </div>
+          <div className="mpf-tp__wrap">
+          <header className="mpf-tp__head">
+            <span className="mpf-tp__kicker" aria-hidden="true">
+              Featured pick
+            </span>
+            <h2 className="mpf-tp__title plus-jakarta-sans-semi-bold">
+              My Property Fact&apos;s Top Picks
+            </h2>
+            <p className="mpf-tp__sub">
+              A curated, verified project we spotlight for buyers and investors on
+              MPF
+            </p>
+          </header>
 
-            <div className="mpf-top-picks-card">
-              <div className="mpf-top-picks-card__info">
-                <div className="mpf-top-picks-card__builder">
-                  <div className="project-logo-container">
-                    <Image
-                      src={logoSrc}
-                      alt={builderLogoAlt}
-                      title={builderLogoAlt}
-                      width={56}
-                      height={56}
-                      className="img-fluid"
-                      quality={60}
-                      sizes="56px"
-                    />
-                  </div>
-                  <div className="mpf-top-picks-card__builder-info">
-                    <h3 className="mpf-top-pic-project-name plus-jakarta-sans-semi-bold h4">{builderName}</h3>
-                    {builderSlug && (
-                      <Link
-                        href={`/builder/${builderSlug}`}
-                        className="text-decoration-none plus-jakarta-sans-semi-bold fs-6 d-flex gap-2 align-items-center hover-underline"
-                        aria-label={`View projects by ${builderName}`}
-                        title={`View projects by ${builderName}`}
-                      >
-                        View Projects by {builderName} <RiArrowRightSLine />
-                      </Link>
-                    )}
-                  </div>
+          <div className="mpf-tp__card">
+            <div className="mpf-tp__main">
+              <div className="mpf-tp__dev">
+                <div className="mpf-tp__logo">
+                  <Image
+                    src={logoSrc}
+                    alt={builderLogoAlt}
+                    title={builderLogoAlt}
+                    width={220}
+                    height={110}
+                    className="mpf-tp__logo-img img-fluid"
+                    quality={75}
+                    sizes="(max-width: 576px) 40vw, (max-width: 992px) 28vw, 220px"
+                  />
                 </div>
-
-                <div className="mpf-top-picks-card__project">
-                  <h4 className="mpf-top-picks-card__project-name">{projectName}</h4>
-                  <div className="mpf-top-pic-address-container">
-                    <FontAwesomeIcon icon={faLocationDot} />
-                    <span>{projectAddress}</span>
-                  </div>
+                <div className="mpf-tp__dev-txt">
+                  <span className="mpf-tp__eyebrow">Developer</span>
+                  <p className="mpf-tp__builder plus-jakarta-sans-semi-bold">
+                    {builderName}
+                  </p>
+                  {builderSlug && (
+                    <Link
+                      href={`/builder/${builderSlug}`}
+                      className="mpf-tp__link"
+                      aria-label={`View projects by ${builderName}`}
+                      title={`View projects by ${builderName}`}
+                    >
+                      View projects by {builderName}{" "}
+                      <RiArrowRightSLine aria-hidden />
+                    </Link>
+                  )}
                 </div>
-
-                <div className="mpf-top-picks-card__meta">
-                  <div className="mpf-top-picks-card__meta-block1">
-                    <span className="mpf-top-picks-card__meta-label1 d-flex gap-2 align-items-center">
-                      <Image
-                        src="/static/icon/arrow.png"
-                        alt="Starting price indicator"
-                        title="Starting price indicator"
-                        width={16}
-                        height={16}
-                        aria-hidden
-                      />
-                      Starting From
-                    </span>
-                    <p className="mpf-top-picks-card__meta-value1">
-                      {generatePrice(projectPrice)}
-                    </p>
-                  </div>
-                  <div className="mpf-top-picks-card__meta-block2">
-                    <p className="mpf-top-picks-card__meta-value2 text-uppercase plus-jakarta-sans-semi-bold d-flex gap-2 align-items-center">
-                    <Image
-                      src="/static/icon/home.png"
-                      alt="Project configuration"
-                      title="Project configuration"
-                      width={20}
-                      height={20}
-                      aria-hidden
-                    />
-                      {projectConfiguration}
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href={`/${slugURL}`}
-                  className="mpf-top-picks-card__cta btn-normal-color plus-jakarta-sans-semi-bold"
-                  aria-label={`More about ${projectName}`}
-                  title={`More about ${projectName}`}
-                >
-                  More About {projectName}
-                </Link>
               </div>
 
-              <div className="mpf-top-picks-card__media">
-                <Image
-                  src={bannerImageSrc}
-                  alt={topPicksBannerAlt}
-                  title={topPicksBannerAlt}
-                  fill
-                  sizes="(max-width: 576px) 84vw, (max-width: 992px) 76vw, 34vw"
-                  quality={60}
-                  className="mpf-top-picks-card__media-img"
+              <h3 className="mpf-tp__project plus-jakarta-sans-semi-bold">
+                {projectName}
+              </h3>
+              <p className="mpf-tp__addr">
+                <FontAwesomeIcon
+                  className="mpf-tp__addr-icon"
+                  icon={faLocationDot}
                 />
-                <div
-                  className="mpf-top-picks-card__tag"
-                  title={statusHoverLabel}
-                >
-                  <span className="mpf-top-picks-card__tag-eyebrow">
-                    Project status
-                  </span>
-                  <span className="mpf-top-picks-card__tag-title">
-                    {statusDisplay ?? "See project page"}
-                  </span>
+                <span>{projectAddress}</span>
+              </p>
+
+              <div className="mpf-tp__chips">
+                <div className="mpf-tp__chip mpf-tp__chip--price">
+                  <Image
+                    src="/static/icon/arrow.png"
+                    alt="Starting price indicator — My Property Fact Top Picks"
+                    title="Starting price indicator — My Property Fact Top Picks"
+                    width={14}
+                    height={14}
+                    aria-hidden
+                  />
+                  <div>
+                    <span className="mpf-tp__chip-lbl">Starting from</span>
+                    <p>{generatePrice(projectPrice)}</p>
+                  </div>
+                </div>
+                <div className="mpf-tp__chip mpf-tp__chip--config">
+                  <Image
+                    src="/static/icon/home.png"
+                    alt="Property configuration icon — My Property Fact Top Picks"
+                    title="Property configuration icon — My Property Fact Top Picks"
+                    width={16}
+                    height={16}
+                    aria-hidden
+                  />
+                  <span>{projectConfiguration}</span>
                 </div>
               </div>
+
+              <Link
+                href={`/${slugURL}`}
+                className="mpf-tp__cta btn-normal-color plus-jakarta-sans-semi-bold"
+                aria-label={`View ${projectName} — floor plans, pricing, and details`}
+                title={`View ${projectName}`}
+              >
+                <span>Explore {projectName}</span>
+                <RiArrowRightSLine aria-hidden />
+              </Link>
             </div>
+
+            <Link
+              href={`/${slugURL}`}
+              className="mpf-tp__figure"
+              aria-label={`Open ${projectName} — view photos and full details`}
+              title={topPicksBannerAlt}
+            >
+              <Image
+                src={bannerImageSrc}
+                alt={topPicksBannerAlt}
+                title={topPicksBannerAlt}
+                fill
+                sizes="(max-width: 992px) 92vw, (max-width: 1400px) 48vw, 600px"
+                quality={60}
+                className="mpf-tp__img"
+              />
+              <div className="mpf-tp__grad" aria-hidden="true" />
+              <div className="mpf-tp__status" title={statusHoverLabel}>
+                <span className="mpf-tp__status-eyebrow">Status</span>
+                <span className="mpf-tp__status-text">
+                  {statusDisplay ?? "See project page"}
+                </span>
+              </div>
+            </Link>
+          </div>
           </div>
         </section>
       </div>
-    </>
+    </div>
   );
 }

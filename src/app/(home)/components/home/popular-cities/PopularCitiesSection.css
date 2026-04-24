@@ -184,6 +184,9 @@
   display: flex;
   width: max-content;
   will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
   animation: pc-marquee 36s linear infinite;
 }
 
@@ -209,11 +212,12 @@
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-50%, 0, 0);
+    /* Three identical strips: -33.33% = one full segment, seamless loop */
+    transform: translate3d(calc(-100% / 3), 0, 0);
   }
 }
 
-/* Two identical flex groups: total width 200%, -50% = one full loop */
+/* Three equal flex groups: -33.33% shift loops without a visible gap */
 .pc__group {
   display: flex;
   flex-direction: row;

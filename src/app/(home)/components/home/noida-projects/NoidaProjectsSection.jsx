@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -288,6 +288,15 @@ export default function NoidaProjectsSection() {
       }
   }, [cityList, projectList]);
 
+  /**
+   * Swiper loop needs enough slides (>= 2 * slidesPerView on desktop). Duplicate
+   * the set so the loop is seamless and no blank space appears at the join.
+   */
+  const swiperSlides = useMemo(
+    () => [...cityCards, ...cityCards],
+    [cityCards],
+  );
+
   return (
     <section className="container noida-projects-section">
       <div className="noida-projects-container">
@@ -306,27 +315,26 @@ export default function NoidaProjectsSection() {
                 pauseOnMouseEnter: true,
                 waitForTransition: false,
               }}
-              loop={cityCards.length > 1}
-              loopedSlides={cityCards.length}
+              loop={swiperSlides.length > 1}
+              roundLengths
+              watchSlidesProgress
               watchOverflow={false}
               centerInsufficientSlides={false}
               spaceBetween={8}
+              speed={800}
               slidesPerView={3}
               breakpoints={{
                 0: { slidesPerView: 1, spaceBetween: 8 },
                 768: { slidesPerView: 2, spaceBetween: 8 },
                 992: { slidesPerView: 3, spaceBetween: 8 },
               }}
-              // watchOverflow={true}
-              preventClicks={true}
-              preventClicksPropagation={true}
+              preventClicks
+              preventClicksPropagation
               className="city-cards-swiper"
             >
-              {cityCards.map((city) => (
-                <SwiperSlide key={city.id}>
-                  <CityCard
-                    city={city}
-                  />
+              {swiperSlides.map((city, index) => (
+                <SwiperSlide key={`${city.id}-${index}`}>
+                  <CityCard city={city} />
                 </SwiperSlide>
               ))}
             </Swiper>

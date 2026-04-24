@@ -67,6 +67,7 @@
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.12fr);
   width: 100%;
   max-width: none;
+  min-width: 0;
   margin: 0;
   background: var(--mpf-tp-surface);
   border: 1px solid var(--mpf-tp-line);
@@ -335,6 +336,9 @@
 
 .mpf-tp__figure {
   position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   min-height: 0;
   min-width: 0;
   display: block;
@@ -348,6 +352,17 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* next/image (fill) wraps in a span; must not expand past the card (grid min-content bug) */
+.mpf-tp__figure > span {
+  position: relative !important;
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
 .mpf-tp__figure:focus-visible {
   box-shadow: inset 0 0 0 3px #f97316;
   z-index: 1;
@@ -355,9 +370,10 @@
 
 .mpf-tp__img {
   object-fit: cover;
-  object-position: center;
+  /* Bias to top: tall building / skyline banners are usually framed from the ground up */
+  object-position: top center;
   transform: scale(1);
-  transform-origin: center center;
+  transform-origin: center top;
   transition: transform 0.5s ease;
   will-change: transform;
 }
@@ -408,18 +424,33 @@
   word-break: break-word;
 }
 
+/* Tablet + mobile: single column, hero image on top (full width of card)
+   Use flex (not grid) so image + text always share the same width (avoids grid min-width overflow) */
 @media (max-width: 992px) {
   .mpf-tp__card {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
   }
 
   .mpf-tp__figure {
     order: -1;
-    aspect-ratio: 16 / 9;
-    max-height: 220px;
+    flex: 0 0 auto;
+    align-self: stretch;
+    width: 100%;
+    max-width: 100%;
+    /* 16:9 + 220px cap over-cropped tall banners; 4/3 + generous height shows towers */
+    aspect-ratio: 4 / 3;
+    max-height: min(60vh, 420px);
+    min-height: 220px;
   }
 
   .mpf-tp__main {
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     padding: 1rem 1rem 1.15rem;
   }
 
@@ -430,6 +461,13 @@
 
   .mpf-tp__sub {
     margin-inline: 0;
+  }
+}
+
+/* Use full content width below lg (Bootstrap .container is narrow at sm/md) */
+@media (max-width: 991.98px) {
+  .mpf-tp__band > .container {
+    max-width: 100%;
   }
 }
 
@@ -456,6 +494,12 @@
 }
 
 @media (max-width: 576px) {
+  .mpf-tp__figure {
+    min-height: 200px;
+    max-height: min(72vw, 360px);
+    aspect-ratio: 4 / 3;
+  }
+
   .mpf-tp__chips {
     gap: 0.35rem;
   }

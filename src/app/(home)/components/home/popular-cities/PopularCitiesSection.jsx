@@ -17,19 +17,21 @@ const cities = [
 ];
 
 function getRowCities(rowIndex) {
+  /** One row forward, one reverse; double the sequence so each strip is long enough to fill very wide viewports. */
+  const doubled = [...cities, ...cities];
   if (rowIndex === 0) {
-    return cities;
+    return doubled;
   }
-  return [...cities].reverse();
+  return [...doubled].reverse();
 }
 
 function CityStrip({ list, idPrefix, ariaHidden = false }) {
   return (
     <div className="pc__group" aria-hidden={ariaHidden} role={ariaHidden ? "none" : undefined}>
-      {list.map((city) => {
+      {list.map((city, cityIndex) => {
         return (
           <Link
-            key={`${idPrefix}-${city.name}`}
+            key={`${idPrefix}-${city.name}-${cityIndex}`}
             href={city.link}
             prefetch={false}
             className="pc__pill"
@@ -70,6 +72,7 @@ function MarqueeRow({ rowIndex }) {
         <div className="pc__track">
           <CityStrip list={list} idPrefix={`r${rowIndex}-a`} />
           <CityStrip list={list} idPrefix={`r${rowIndex}-b`} ariaHidden />
+          <CityStrip list={list} idPrefix={`r${rowIndex}-c`} ariaHidden />
         </div>
       </div>
     </div>

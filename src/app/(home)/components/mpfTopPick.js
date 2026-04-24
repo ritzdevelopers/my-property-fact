@@ -181,7 +181,7 @@ export default function MpfTopPicks({ topProject }) {
                 alt={topPicksBannerAlt}
                 title={topPicksBannerAlt}
                 fill
-                sizes="(max-width: 992px) 92vw, (max-width: 1400px) 48vw, 600px"
+                sizes="(max-width: 992px) 100vw, (max-width: 1400px) 48vw, 600px"
                 quality={60}
                 className="mpf-tp__img"
               />

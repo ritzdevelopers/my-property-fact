@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 import BlogSidebar from "../../components/common/BlogSidebar";
+import { getBlogAuthorDisplayName } from "../../components/common/blogAuthor";
 import BlogFaqSection from "../../components/common/BlogFaqSection";
 import LeadFormPopupTrigger from "../../components/_homecomponents/LeadFormPopupTrigger";
 import "../../components/common/common.css";
@@ -375,6 +376,10 @@ export default function BlogDetail({
   const blogHeroImageAlt = blogTitle?.trim()
     ? `${blogTitle.trim()} — blog featured image on My Property Fact`
     : "Blog featured image on My Property Fact";
+  const authorLine = getBlogAuthorDisplayName(blogDetail, "My Property Fact");
+  const publishedLine = blogDetail.createdAt
+    ? new Date(blogDetail.createdAt).toLocaleString("en-US", { dateStyle: "long" })
+    : "";
   return (
     <div className={detailStyles.blogDetailWrap}>
       <CommonHeaderBanner
@@ -407,6 +412,20 @@ export default function BlogDetail({
             <h1 className={detailStyles.articleTitle}>
               {blogDetail.blogTitle.replace(/\u00A0/g, " ")}
             </h1>
+            <p className={detailStyles.articleByline}>
+              By <span className={detailStyles.articleBylineName}>{authorLine}</span>
+              {publishedLine ? (
+                <>
+                  <span className={detailStyles.articleBylineSep} aria-hidden>
+                    {" "}
+                    ·{" "}
+                  </span>
+                  <time dateTime={blogDetail.createdAt ? new Date(blogDetail.createdAt).toISOString() : undefined}>
+                    {publishedLine}
+                  </time>
+                </>
+              ) : null}
+            </p>
 
             {toc.length > 0 && (
               <nav

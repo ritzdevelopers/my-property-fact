@@ -1295,14 +1295,6 @@ const addNearbyImageIcon = (benefit) => {
                   </div>
                 </div>
 
-                <div className="text-center mt-3">
-                  <button
-                    className="btn btn-background text-white px-4 py-2 rounded-pill"
-                    onClick={() => setShowPopUp(true)}
-                  >
-                    View On Map
-                  </button>
-                </div>
               </div>
             </div>
             <div className="col-md-6 p-3">
@@ -1323,6 +1315,14 @@ const addNearbyImageIcon = (benefit) => {
                 <div className="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white text-center">
                   <small className="fw-semibold">Project Location</small>
                 </div>
+              </div>
+              <div className="text-center mt-3">
+                <button
+                  className="btn btn-background text-white px-4 py-2 rounded-pill"
+                  onClick={() => setShowPopUp(true)}
+                >
+                  View On Map
+                </button>
               </div>
             </div>
           </div>

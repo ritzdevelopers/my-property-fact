@@ -17,7 +17,9 @@ export default function BlogSidebar({
   onSearch,
   showSearch = true,
   showRecentPosts = true,
+  showRecentTitle = true,
   showLatestProperty = true,
+  openBlogLinksInNewTab = false,
   initialRecentPosts = [],
   initialLatestProject = null,
 }) {
@@ -27,6 +29,9 @@ export default function BlogSidebar({
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const searchTimeoutRef = useRef(null);
+  const blogLinkProps = openBlogLinksInNewTab
+    ? { target: "_blank", rel: "noopener noreferrer" }
+    : {};
 
   useEffect(() => {
     setRecent(initialRecentPosts);
@@ -102,6 +107,7 @@ export default function BlogSidebar({
                             href={`/blog/${b.slugUrl}`}
                             className="blog-result-link"
                             title={b.blogTitle}
+                            {...blogLinkProps}
                           >
                             <div className="blog-result-thumb">
                               {b.blogImage && (
@@ -144,7 +150,9 @@ export default function BlogSidebar({
       )}
       {showRecentPosts && (
         <div className="recent-posts-container sidebar-align-right mb-4">
-          <h2 className="blog-sidebar-section-title">Recent Posts</h2>
+          {showRecentTitle && (
+            <div className="blog-sidebar-section-title">Recent Posts</div>
+          )}
           <div className="recent-posts-list">
             {recent.map((b, i) => {
               const recentThumbAlt = blogFeaturedImageAlt(b.blogTitle);
@@ -154,6 +162,7 @@ export default function BlogSidebar({
                   href={`/blog/${b.slugUrl}`}
                   className="recent-post-item text-decoration-none"
                   title={b.blogTitle}
+                  {...blogLinkProps}
                 >
                   <div className="recent-thumb">
                     {b.blogImage && (
@@ -186,7 +195,7 @@ export default function BlogSidebar({
       )}
       {showLatestProperty && (
         <div className="latest-property-container sidebar-align-right mb-4">
-          <h2 className="blog-sidebar-section-title">Latest Property</h2>
+          <div className="blog-sidebar-section-title">Latest Property</div>
           <hr className="my-2" />
           <div className="latest-property-image">
             {latestProject ? (

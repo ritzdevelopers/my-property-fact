@@ -1,34 +1,10 @@
-/* adding font library  starts*/
-/* Fonts loaded via next/font in layout.js - these @font-face are fallbacks with swap to prevent FOIT */
-@font-face {
-  font-family: "plus-jakarta";
-  src: url("/fonts/plus_jakarta_sans/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "heading-pro";
-  src: url("/fonts/plus_jakarta_sans/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
-  font-weight: bold;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Montserrat";
-  src: url("/Montserrat/static/Montserrat-Regular.ttf") format("truetype");
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --bg-color: #68ac78;
   --menu-color: #ffffff;
   --text-color: #cfab5a;
   --bg-with-gradient: radial-gradient(circle at center, #0d5834, #0c2e23);
-  --heaing-font: "plus-jakarta", "sans-serif";
-  --headeing-bolded: "heading-pro";
+  --heaing-font: "Lato", "sans-serif";
+  --headeing-bolded: "Lato", "sans-serif";
   /* --btn-background: linear-gradient(to right, #d1ad5b, #a07e38); */
   --btn-background: linear-gradient(180deg, #453106 0%, #E6A315 100%);
   --btn-background-hover: linear-gradient(to right, #b8934d, #8a6b2f);
@@ -48,6 +24,7 @@ html {
 
 body {
   scroll-behavior: smooth;
+  font-family: var(--text-font), sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -57,7 +34,7 @@ body {
   }
 }
 
-h1, h2, h3, h4, h5, h6, button, a {
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--heaing-font) !important;
 }
 
@@ -118,13 +95,25 @@ h1, h2, h3, h4, h5, h6, button, a {
 }
 
 .plus-jakarta-sans-semi-bold {
-  font-family: "plus-jakarta", sans-serif !important;
+  font-family: var(--heaing-font) !important;
   font-weight: 600 !important;
 }
 
 .plus-jakarta-sans-bold {
   font-family: var(--heaing-font) !important;
   font-weight: 700 !important;
+}
+
+/* Global subheading/body typography */
+p,
+span,
+li,
+label,
+small,
+input,
+textarea,
+select {
+  font-family: var(--text-font), sans-serif;
 }
 
 /* Webkit Browsers starts (Chrome, Safari, Edge) */

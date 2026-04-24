@@ -1,0 +1,143 @@
+"use client";
+
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import "./PopularProjectPromo.css";
+
+const HIDE_PREFIXES = ["/admin", "/portal"];
+const AUTO_ROTATE_MS = 5000;
+
+/**
+ * @param {Object} props
+ * @param {Array<{ key: string; name: string; href: string; imageUrl: string }>} props.items
+ * @param {number} [props.showAfterMs]
+ */
+export default function PopularProjectPromoClient({ items, showAfterMs = 1000 }) {
+  const pathname = usePathname() || "/";
+  const [dismissed, setDismissed] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const hoverRef = useRef(false);
+  const list = Array.isArray(items) ? items : [];
+
+  const hideByRoute = HIDE_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+
+  useEffect(() => {
+    if (list.length === 0 || hideByRoute || dismissed) return undefined;
+    const t = window.setTimeout(() => setReady(true), showAfterMs);
+    return () => window.clearTimeout(t);
+  }, [list.length, hideByRoute, dismissed, showAfterMs]);
+
+  useEffect(() => {
+    if (!ready || dismissed || list.length <= 1) return undefined;
+    const id = window.setInterval(() => {
+      if (hoverRef.current) return;
+      setActiveIdx((i) => (i + 1) % list.length);
+    }, AUTO_ROTATE_MS);
+    return () => window.clearInterval(id);
+  }, [ready, dismissed, list.length]);
+
+  const goTo = useCallback((idx) => {
+    setActiveIdx(idx);
+  }, []);
+
+  if (list.length === 0 || hideByRoute || dismissed || !ready) return null;
+
+  const current = list[activeIdx] || list[0];
+  if (!current) return null;
+
+  return (
+    <div
+      className="popular-project-promo"
+      role="complementary"
+      aria-label="Popular projects"
+      onMouseEnter={() => {
+        hoverRef.current = true;
+      }}
+      onMouseLeave={() => {
+        hoverRef.current = false;
+      }}
+    >
+      <button
+        type="button"
+        className="popular-project-promo__close"
+        onClick={() => setDismissed(true)}
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <div className="popular-project-promo__labelRow">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="popular-project-promo__labelIcon"
+          aria-hidden="true"
+        >
+          <path d="M7 10v12" />
+          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z" />
+        </svg>
+        <p className="popular-project-promo__label">Popular right now</p>
+      </div>
+      <div className="popular-project-promo__row">
+        <div className="popular-project-promo__thumb">
+          <img
+            src={current.imageUrl}
+            alt={current.name}
+            width={56}
+            height={56}
+            loading="lazy"
+            onError={(e) => {
+              if (e.currentTarget) e.currentTarget.src = "/static/no_image.png";
+            }}
+          />
+        </div>
+        <div className="popular-project-promo__text">
+          <p className="popular-project-promo__name" title={current.name}>
+            {current.name}
+          </p>
+          <Link
+            href={current.href}
+            className="popular-project-promo__explore"
+            title={`Explore ${current.name}`}
+          >
+            Explore
+          </Link>
+        </div>
+      </div>
+      {list.length > 1 && (
+        <div
+          className="popular-project-promo__dots"
+          role="tablist"
+          aria-label="Switch popular project"
+        >
+          {list.map((it, idx) => (
+            <button
+              key={it.key}
+              type="button"
+              role="tab"
+              aria-selected={idx === activeIdx}
+              className={
+                idx === activeIdx
+                  ? "popular-project-promo__dot popular-project-promo__dot--active"
+                  : "popular-project-promo__dot"
+              }
+              title={it.name}
+              aria-label={`Show ${it.name}`}
+              onClick={() => goTo(idx)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

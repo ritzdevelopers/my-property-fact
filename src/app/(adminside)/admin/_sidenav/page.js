@@ -102,7 +102,10 @@ export default function SideNav({ onLinkClick }) {
         "/admin/dashboard/web-story-category",
         "/admin/dashboard/web-story",
       ],
-      dropdown6: ["/admin/dashboard/manage-home-banners"],
+      dropdown6: [
+        "/admin/dashboard/manage-home-banners",
+        "/admin/dashboard/manage-testimonials",
+      ],
     };
 
     Object.keys(dropdownPaths).forEach((dropdownId) => {
@@ -111,7 +114,10 @@ export default function SideNav({ onLinkClick }) {
       }
     });
 
-    if (isActive("/admin/dashboard/manage-home-banners")) {
+    if (
+      isActive("/admin/dashboard/manage-home-banners") ||
+      isActive("/admin/dashboard/manage-testimonials")
+    ) {
       setActiveSubDropdown("dropdown6-home-page");
     }
   }, [pathname]);
@@ -245,7 +251,10 @@ export default function SideNav({ onLinkClick }) {
           <li
             className={
               activeDropdown === "dropdown6" ||
-                isDropdownActive(["/admin/dashboard/manage-home-banners"])
+                isDropdownActive([
+                  "/admin/dashboard/manage-home-banners",
+                  "/admin/dashboard/manage-testimonials",
+                ])
                 ? "active"
                 : ""
             }
@@ -268,7 +277,10 @@ export default function SideNav({ onLinkClick }) {
               <li
                 className={
                   activeSubDropdown === "dropdown6-home-page" ||
-                    isDropdownActive(["/admin/dashboard/manage-home-banners"])
+                    isDropdownActive([
+                      "/admin/dashboard/manage-home-banners",
+                      "/admin/dashboard/manage-testimonials",
+                    ])
                     ? "active"
                     : ""
                 }
@@ -301,6 +313,21 @@ export default function SideNav({ onLinkClick }) {
                     >
                       <FontAwesomeIcon icon={faImages} className="admin-nav-ico" />
                       <span>Banners</span>
+                    </Link>
+                  </li>
+                  <li
+                    className={
+                      isActive("/admin/dashboard/manage-testimonials")
+                        ? "active"
+                        : ""
+                    }
+                  >
+                    <Link
+                      href="/admin/dashboard/manage-testimonials"
+                      onClick={handleLinkClick}
+                    >
+                      <FontAwesomeIcon icon={faStar} className="admin-nav-ico" />
+                      <span>Testimonials</span>
                     </Link>
                   </li>
                 </ul>

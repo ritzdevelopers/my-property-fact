@@ -3,7 +3,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
-import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -69,7 +68,6 @@ function highlight(text, query) {
 
 export default function AdminTopBar() {
   const { displayName, roleLabel, loading, isSuperAdmin } = useAdminRole();
-  const { theme, toggleTheme } = useAdminTheme();
   const name = !loading && displayName ? displayName : loading ? "…" : "Administrator";
   const role = !loading && roleLabel ? roleLabel : "Staff";
   const router = useRouter();
@@ -224,25 +222,6 @@ export default function AdminTopBar() {
       </div>
 
       <div className="admin-app-topbar__actions">
-        <button
-          type="button"
-          className="admin-app-topbar__icon-btn admin-theme-toggle-btn"
-          onClick={toggleTheme}
-          aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
-          title={theme === "dark" ? "Light mode" : "Dark mode"}
-        >
-          <img
-            src={
-              theme === "dark"
-                ? "/images/admin/sun-line.svg"
-                : "/images/admin/moon-line.svg"
-            }
-            alt=""
-            width={22}
-            height={22}
-            className="admin-theme-toggle-svg"
-          />
-        </button>
         <div className="admin-topbar-notify-wrap" ref={notifyWrapRef}>
           <button
             type="button"

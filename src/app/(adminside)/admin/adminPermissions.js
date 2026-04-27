@@ -56,6 +56,7 @@ export function canAccessAdminPath(roles, permissions, pathname) {
 
   const rules = [
     ["/admin/dashboard/manage-home-banners", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
+    ["/admin/dashboard/manage-testimonials", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
     [
       "/admin/dashboard/manage-countries",
       ADMIN_PERMISSIONS.MANAGE_OPTIONS,

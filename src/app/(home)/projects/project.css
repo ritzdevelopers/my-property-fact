@@ -1399,3 +1399,112 @@ button.projects-newlaunch-stat--selectable.is-active .projects-newlaunch-stat-va
   text-align: center;
   padding-top: 4px;
 }
+
+.projecttype-search-wrap {
+  max-width: 640px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.projects-top-search--projecttype {
+  max-width: 460px;
+}
+
+.projects-top-search--compact .projects-top-search-icon {
+  left: 0.68rem;
+  font-size: 0.72rem;
+}
+
+.projects-top-search-input--compact {
+  height: 38px;
+  border-radius: 10px;
+  font-size: 0.86rem;
+  padding-left: 1.95rem;
+  padding-right: 2.1rem;
+}
+
+.projecttype-search-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.projecttype-search-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.projecttype-search-count {
+  position: absolute;
+  right: 0.62rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.projecttype-search-box {
+  position: relative;
+}
+
+.projecttype-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  display: inline-flex;
+}
+
+.projecttype-search-input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #111827;
+  font-size: 0.94rem;
+  padding: 0 38px 0 36px;
+  transition: all 0.2s ease;
+}
+
+.projecttype-search-input:focus {
+  outline: none;
+  border-color: #10b981;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.14);
+}
+
+.projecttype-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef2f7;
+  color: #6b7280;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.projecttype-search-clear:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.projecttype-search-label {
+  font-size: 0.78rem;
+  color: #6b7280;
+}

@@ -9,6 +9,26 @@ import "./LeadFormPopupTrigger.css";
 const ENQUIRE_TRIGGER_ICON = "/static/icon/enquire.png";
 const MODAL_FLEX_CLASS = "lead-form-popup-trigger--modal-flex";
 
+function EnquireHomeSparkles() {
+  const starPath =
+    "M12 2l1.4 4.9 5.1.4-3.9 3.1 1.2 5-4.8-3.1-4.8 3.1 1.2-5-3.9-3.1 5.1-.4z";
+  return (
+    <>
+      {[1, 2, 3, 4, 5, 6].map((n) => (
+        <svg
+          key={n}
+          className={`lead-form-popup-trigger__star lead-form-popup-trigger__star--${n}`}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden
+        >
+          <path className="lead-form-popup-trigger__star-path" d={starPath} />
+        </svg>
+      ))}
+    </>
+  );
+}
+
 /**
  * Floating control that opens lead form popup.
  * @param {Object} props
@@ -78,19 +98,12 @@ export default function LeadFormPopupTrigger({
       {showOnHomeOnly && showMiniEnquire && !showPopup && (
         <button
           type="button"
-          className={`lead-form-popup-trigger lead-form-popup-trigger--collapsed lead-form-popup-trigger--icon ${showOnMobileOnly ? "d-md-none" : ""}`}
+          className={`lead-form-popup-trigger--home-beside-chat ${showOnMobileOnly ? "d-md-none" : ""}`}
           onClick={handleClick}
-          aria-label="Enquire — open lead form"
+          aria-label="Enquire Now — open lead form"
         >
-          <Image
-            src={ENQUIRE_TRIGGER_ICON}
-            alt="Enquire now"
-            title="Enquire now"
-            width={30}
-            height={30}
-            className="lead-form-popup-trigger__icon-img"
-            sizes="30px"
-          />
+          <EnquireHomeSparkles />
+          <span className="lead-form-popup-trigger__enquire-label">Enquire Now</span>
         </button>
       )}
 

@@ -12,6 +12,37 @@ const AUTO_ROTATE_MS = 10000;
 const SLIDE_OUT_MS = 1250;
 const SLIDE_IN_MS = 1350;
 
+function imageBaseUrl() {
+  const raw = (process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
+  if (!raw) return "";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+function buildImageUrl(project) {
+  const slug = project?.slugURL || project?.slugUrl;
+  const raw =
+    project?.projectBannerImage ||
+    project?.projectThumbnailImage ||
+    project?.bannerImage ||
+    "";
+  if (typeof raw === "string" && raw.startsWith("http")) return raw;
+  const base = imageBaseUrl();
+  if (base && slug && raw) return `${base}properties/${slug}/${raw}`;
+  return "/static/no_image.png";
+}
+
+function toPromoItem(project) {
+  const slug = project?.slugURL || project?.slugUrl;
+  if (!slug) return null;
+  const name = String(project?.projectName || "").trim() || "Project";
+  return {
+    key: slug,
+    name,
+    href: `/${slug}`,
+    imageUrl: buildImageUrl(project),
+  };
+}
+
 function getSlideDurations() {
   if (typeof window === "undefined" || !window.matchMedia) {
     return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
@@ -35,7 +66,12 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const [displayIdx, setDisplayIdx] = useState(0);
   const [cardPhase, setCardPhase] = useState("idle");
   const hoverRef = useRef(false);
-  const list = Array.isArray(items) ? items : [];
+  const [locationItems, setLocationItems] = useState(null);
+  const list = Array.isArray(locationItems) && locationItems.length
+    ? locationItems
+    : Array.isArray(items)
+      ? items
+      : [];
 
   const hideByRoute = HIDE_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -46,6 +82,48 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
     const t = window.setTimeout(() => setReady(true), showAfterMs);
     return () => window.clearTimeout(t);
   }, [list.length, hideByRoute, dismissed, showAfterMs]);
+
+  useEffect(() => {
+    if (hideByRoute || dismissed) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    let cancelled = false;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude, accuracy } = pos.coords;
+          const q = new URLSearchParams({
+            lat: String(latitude),
+            lon: String(longitude),
+            intent: "projects",
+          });
+          if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
+            q.set("accuracy", String(Math.round(accuracy)));
+          }
+          const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
+          const data = await res.json();
+          if (!cancelled && data?.success && Array.isArray(data?.items) && data.items.length) {
+            const mapped = data.items.map(toPromoItem).filter(Boolean).slice(0, 5);
+            if (mapped.length) setLocationItems(mapped);
+          }
+        } catch {
+          // Keep server fallback list
+        }
+      },
+      () => {
+        // Permission denied/unavailable -> keep fallback list
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 20000,
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hideByRoute, dismissed]);
 
   useEffect(() => {
     if (!ready || dismissed || list.length <= 1) return undefined;

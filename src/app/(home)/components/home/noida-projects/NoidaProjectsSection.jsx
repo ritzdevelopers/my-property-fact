@@ -384,7 +384,7 @@ export default function NoidaProjectsSection() {
         <div className="destination-faq__inner">
           <div className="destination-faq__left">
             <span className="destination-faq__tag">Trusted By</span>
-            <h3 className="destination-faq__title">Frequently Asked Questions</h3>
+            <h2 className="destination-faq__title">Frequently Asked Questions</h2>
           </div>
 
           <div className="destination-faq__right">
@@ -395,19 +395,21 @@ export default function NoidaProjectsSection() {
                   key={item.id}
                   className={`destination-faq__item ${isOpen ? "is-open" : ""}`}
                 >
-                  <button
-                    type="button"
-                    className="destination-faq__question"
-                    onClick={() => toggleFaq(item.id)}
-                    aria-expanded={isOpen}
-                    aria-controls={`faq-panel-${item.id}`}
-                    id={`faq-trigger-${item.id}`}
-                  >
-                    <span>{item.question}</span>
-                    <span className="destination-faq__icon" aria-hidden="true">
-                      {isOpen ? "-" : "+"}
-                    </span>
-                  </button>
+                  <h3 className="destination-faq__question">
+                    <button
+                      type="button"
+                      className="destination-faq__question-btn"
+                      onClick={() => toggleFaq(item.id)}
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-panel-${item.id}`}
+                      id={`faq-trigger-${item.id}`}
+                    >
+                      <span>{item.question}</span>
+                      <span className="destination-faq__icon" aria-hidden="true">
+                        {isOpen ? "-" : "+"}
+                      </span>
+                    </button>
+                  </h3>
                   <div
                     id={`faq-panel-${item.id}`}
                     role="region"
@@ -424,7 +426,7 @@ export default function NoidaProjectsSection() {
           </div>
 
           <div className="destination-faq__contact">
-            <h4 className="destination-faq__contact-title">Still have questions ?</h4>
+            <p className="destination-faq__contact-title">Still have questions ?</p>
             <p className="destination-faq__contact-text">
               We&apos;re here to answer all your questions. Reach out today!
             </p>
@@ -432,6 +434,8 @@ export default function NoidaProjectsSection() {
               href="/contact-us"
               className="destination-faq__mail-btn"
               aria-label="Open contact us page"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Send Mail
             </Link>

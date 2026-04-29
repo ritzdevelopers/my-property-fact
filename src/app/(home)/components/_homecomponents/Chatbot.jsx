@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties`;
+const CHATBOT_LOGO_SRC = "/logo.webp";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -183,19 +184,15 @@ export default function Chatbot() {
         aria-label="Open Chatbot"
       >
         {!isOpen ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="28"
-            height="28"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2-2z"></path>
-          </svg>
+          <Image
+            src={CHATBOT_LOGO_SRC}
+            alt="My Property Fact logo — open chat"
+            title="Open My Property Fact chat"
+            width={80}
+            height={74}
+            sizes="48px"
+            style={{ objectFit: "contain", width: "auto", height: "30px", maxWidth: "44px" }}
+          />
         ) : (
           <FontAwesomeIcon icon={faTimes} size="lg" />
         )}
@@ -207,12 +204,12 @@ export default function Chatbot() {
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
               <Image
-                src="/logo.webp"
-                alt="My Property Fact — chat bot logo"
-                title="My Property Fact — chat bot logo"
-                width={40}
-                height={37}
-                sizes="40px"
+                src={CHATBOT_LOGO_SRC}
+                alt="My Property Fact logo — chat widget header"
+                title="My Property Fact logo — chat widget header"
+                width={80}
+                height={74}
+                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

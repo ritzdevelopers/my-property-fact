@@ -9,6 +9,8 @@ const AdminRoleContext = createContext({
   permissions: [],
   displayName: "",
   roleLabel: "",
+  /** Numeric user id from session (Manage Users delete self-guard). */
+  currentUserId: null,
   isSuperAdmin: false,
   isAdmin: false,
   /** Admin (non–super-admin) staff */
@@ -41,6 +43,7 @@ export function AdminRoleProvider({ children }) {
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [displayName, setDisplayName] = useState("");
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -51,6 +54,7 @@ export function AdminRoleProvider({ children }) {
           setRoles([]);
           setPermissions([]);
           setDisplayName("");
+          setCurrentUserId(null);
           setLoading(false);
         }
         return;
@@ -64,6 +68,7 @@ export function AdminRoleProvider({ children }) {
             setRoles([]);
             setPermissions([]);
             setDisplayName("");
+            setCurrentUserId(null);
             setLoading(false);
           }
           return;
@@ -83,6 +88,13 @@ export function AdminRoleProvider({ children }) {
           setRoles(list);
           setPermissions(permList);
           setDisplayName(name);
+          setCurrentUserId(
+            typeof data.userId === "number"
+              ? data.userId
+              : data.userId != null
+                ? Number(data.userId)
+                : null,
+          );
           setLoading(false);
         }
       } catch {
@@ -90,6 +102,7 @@ export function AdminRoleProvider({ children }) {
           setRoles([]);
           setPermissions([]);
           setDisplayName("");
+          setCurrentUserId(null);
           setLoading(false);
         }
       }
@@ -116,13 +129,14 @@ export function AdminRoleProvider({ children }) {
       roles,
       permissions,
       displayName,
+      currentUserId,
       roleLabel,
       isSuperAdmin,
       isAdmin,
       isAdminOnly,
       hasPermission,
     };
-  }, [loading, roles, permissions, displayName]);
+  }, [loading, roles, permissions, displayName, currentUserId]);
 
   return (
     <AdminRoleContext.Provider value={value}>

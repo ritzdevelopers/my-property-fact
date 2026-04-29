@@ -1024,18 +1024,29 @@
 
   .new-about-us-section-3-cards-wrapper {
     width: 100%;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: visible;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
 
   .new-about-us-section-3-cards {
     gap: 16px;
+    width: max-content;
+    align-items: stretch;
   }
 
   .new-about-us-section-3-card {
     flex: 0 0 100%;
     min-width: 100%;
     max-width: 100%;
+    height: auto;
+    min-height: 230px;
     padding: 24px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    overflow: visible;
   }
 
   .new-about-us-section-3-card-title {
@@ -1044,6 +1055,8 @@
 
   .new-about-us-section-3-card-text {
     font-size: 13px;
+    flex: 0 0 auto;
+    overflow: visible;
   }
 
   .new-about-us-section-3-container-bg-image {
@@ -1205,12 +1218,21 @@
     gap: 24px;
   }
 
+  .new-about-us-section-3-cards-wrapper {
+    scrollbar-width: none;
+  }
+
+  .new-about-us-section-3-cards-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
   .new-about-us-section-3-heading {
     font-size: 24px;
   }
 
   .new-about-us-section-3-card {
     padding: 20px;
+    min-height: 210px;
   }
 
   .new-about-us-section-3-card-title {
@@ -1221,6 +1243,7 @@
   .new-about-us-section-3-card-text {
     font-size: 12px;
     line-height: 1.5;
+    flex: 0 0 auto;
   }
 
   .new-about-us-section-3-container-bg-image {

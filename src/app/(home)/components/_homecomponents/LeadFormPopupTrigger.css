@@ -1,6 +1,6 @@
 /*
- * Same horizontal axis as chatbot launcher (right: 24px desktop).
- * Stack (bottom → top): chatbot → enquire → scroll-to-top.
+ * Home: "Enquire Now" sits to the left of the chat launcher (same row); pulse CTA.
+ * Other routes: vertical strip / icon — stack (bottom → top): chatbot → enquire → scroll-to-top.
  */
 .lead-form-popup-trigger {
   position: fixed;
@@ -89,7 +89,7 @@
 @media (max-width: 768px) {
   .lead-form-popup-trigger {
     right: 15px;
-    bottom: calc(20px + 56px + 12px);
+    bottom: calc(20px + 78px + 12px);
     width: 48px;
     height: 130px;
   }
@@ -109,7 +109,7 @@
     min-width: 52px;
     min-height: 52px;
     right: 15px;
-    bottom: calc(20px + 56px + 12px);
+    bottom: calc(20px + 78px + 12px);
     padding: 5px;
   }
 
@@ -126,7 +126,7 @@
 @media (max-width: 480px) {
   .lead-form-popup-trigger {
     right: 11px;
-    bottom: calc(16px + 50px + 12px);
+    bottom: calc(16px + 74px + 12px);
     width: 44px;
     height: 120px;
   }
@@ -146,7 +146,7 @@
     min-width: 48px;
     min-height: 48px;
     right: 11px;
-    bottom: calc(16px + 50px + 12px);
+    bottom: calc(16px + 74px + 12px);
     padding: 5px;
   }
 
@@ -163,7 +163,7 @@
 @media (max-width: 360px) {
   .lead-form-popup-trigger {
     right: 12px;
-    bottom: calc(12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px);
   }
 
   .lead-form-popup-trigger:hover {
@@ -172,7 +172,7 @@
 
   .lead-form-popup-trigger--blog {
     right: 12px;
-    bottom: calc(12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px);
   }
 
   .lead-form-popup-trigger--blog:hover {
@@ -180,116 +180,218 @@
   }
 }
 
-/* Home: collapsed circular enquire — 60×60 to match chatbot launcher */
-.lead-form-popup-trigger--collapsed {
-  right: 24px;
-  bottom: calc(24px + 60px + 12px);
-  width: 60px;
-  height: 60px;
-  min-width: 60px;
-  min-height: 60px;
-  padding: 6px;
-  border-radius: 50%;
-  flex-direction: row;
-  gap: 0;
+/* Home: Uiverse-style sparkle hover (MuhammadHasann) — scoped, beside chat launcher */
+.lead-form-popup-trigger--home-beside-chat {
+  --enquire-peach: #0D5834;
+  --enquire-peach-glow: #fec1958c;
+  --enquire-ink: #181818;
+
+  position: fixed;
+  right: calc(24px + 60px + 12px);
+  bottom: 24px;
+  z-index: 2147483646;
+
+  min-height: 42px;
+
+  padding: 12px 22px;
+  width: max-content;
+  max-width: min(240px, calc(100vw - 32px - 60px - 12px - 16px));
+
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #c9a24d;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
-  animation: lead-form-mini-in 0.45s cubic-bezier(0.22, 0.82, 0.22, 1) both;
-  z-index: 2147483644;
-  transition: transform 0.2s ease, background 0.2s ease, right 0.2s ease, box-shadow 0.2s ease;
+
+  border: 3px solid var(--enquire-peach);
+  border-radius: 30px;
+  cursor: pointer;
+  overflow: visible;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #FFFFFF;
+
+  background: var(--enquire-peach);
+  box-shadow: 0 0 0 var(--enquire-peach-glow);
+  transition: all 0.3s ease-in-out;
 }
 
-.lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
-  /* border-radius: 50%; */
-  max-width: 44px;
-  max-height: 44px;
+.lead-form-popup-trigger__enquire-label {
+  position: relative;
+  z-index: 5;
+  white-space: nowrap;
+  line-height: 1.15;
 }
 
-.lead-form-popup-trigger--collapsed:hover {
-  right: 20px;
-  background: #0f6a1f;
-  transform: scale(1.05);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32);
+.lead-form-popup-trigger__star {
+  position: absolute;
+  width: 25px;
+  height: auto;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.75));
+  z-index: -5;
+  pointer-events: none;
+  transition: filter 0.35s ease;
 }
 
-@keyframes lead-form-mini-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 28px, 0) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+.lead-form-popup-trigger__star-path {
+  fill: #000000;
+  transition: fill 0.35s ease;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star-path {
+  fill: #c9a24d;
+}
+
+.lead-form-popup-trigger__star--1 {
+  top: 20%;
+  left: 20%;
+  width: 25px;
+  transition: all 1s cubic-bezier(0.05, 0.83, 0.43, 0.96);
+}
+
+.lead-form-popup-trigger__star--2 {
+  top: 45%;
+  left: 45%;
+  width: 15px;
+  transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.lead-form-popup-trigger__star--3 {
+  top: 40%;
+  left: 40%;
+  width: 5px;
+  transition: all 1s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.lead-form-popup-trigger__star--4 {
+  top: 20%;
+  left: 40%;
+  width: 8px;
+  transition: all 0.8s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.lead-form-popup-trigger__star--5 {
+  top: 25%;
+  left: 45%;
+  width: 15px;
+  transition: all 0.6s cubic-bezier(0, 0.4, 0, 1.01);
+}
+
+.lead-form-popup-trigger__star--6 {
+  top: 5%;
+  left: 50%;
+  width: 5px;
+  transition: all 0.8s ease;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover {
+  background: #e8e8e8;
+  color: var(--enquire-peach);
+  box-shadow: 0 0 25px var(--enquire-peach-glow);
+  transform: scale(1.02);
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--1 {
+  top: -80%;
+  left: -30%;
+  width: 25px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--2 {
+  top: -25%;
+  left: 10%;
+  width: 15px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--3 {
+  top: 55%;
+  left: 25%;
+  width: 5px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--4 {
+  top: 30%;
+  left: 80%;
+  width: 8px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--5 {
+  top: 25%;
+  left: 115%;
+  width: 15px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:hover .lead-form-popup-trigger__star--6 {
+  top: 5%;
+  left: 60%;
+  width: 5px;
+  filter: drop-shadow(0 0 10px #c9a24d);
+  z-index: 2;
+}
+
+.lead-form-popup-trigger--home-beside-chat:focus-visible {
+  outline: 3px solid #0f6a1f;
+  outline-offset: 3px;
 }
 
 @media (max-width: 768px) {
-  .lead-form-popup-trigger--collapsed {
+  .lead-form-popup-trigger--home-beside-chat {
     right: 15px;
-    bottom: calc(20px + 56px + 12px);
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    min-height: 56px;
-    padding: 5px;
-  }
-
-  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
-    max-width: 40px;
-    max-height: 40px;
-  }
-
-  .lead-form-popup-trigger--collapsed:hover {
-    right: 11px;
+    bottom: calc(20px + 78px + 10px);
+    min-height: 44px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    max-width: min(180px, calc(100vw - 30px));
   }
 }
 
 @media (max-width: 480px) {
-  .lead-form-popup-trigger--collapsed {
+  .lead-form-popup-trigger--home-beside-chat {
     right: 11px;
-    bottom: calc(16px + 50px + 12px);
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-    min-height: 50px;
-    padding: 5px;
-  }
-
-  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
-    max-width: 36px;
-    max-height: 36px;
-  }
-
-  .lead-form-popup-trigger--collapsed:hover {
-    right: 7px;
+    bottom: calc(16px + 74px + 10px);
+    min-height: 42px;
+    height: 42px;
+    padding: 0 11px;
+    font-size: 9px;
+    letter-spacing: 0.015em;
+    max-width: min(160px, calc(100vw - 22px));
   }
 }
 
 @media (max-width: 360px) {
-  .lead-form-popup-trigger--collapsed {
+  .lead-form-popup-trigger--home-beside-chat {
     right: 12px;
-    bottom: calc(12px + 48px + 12px);
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-  }
-
-  .lead-form-popup-trigger--collapsed .lead-form-popup-trigger__icon-img {
-    max-width: 34px;
-    max-height: 34px;
-  }
-
-  .lead-form-popup-trigger--collapsed:hover {
-    right: 8px;
+    bottom: calc(12px + 70px + 8px);
+    min-height: 40px;
+    height: 40px;
+    padding: 0 10px;
+    font-size: 9px;
+    letter-spacing: 0.015em;
+    max-width: min(152px, calc(100vw - 24px));
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lead-form-popup-trigger--collapsed {
-    animation: none;
+  .lead-form-popup-trigger--home-beside-chat,
+  .lead-form-popup-trigger--home-beside-chat .lead-form-popup-trigger__star {
+    transition: none;
+  }
+
+  .lead-form-popup-trigger--home-beside-chat:hover {
+    transform: none;
   }
 }
 

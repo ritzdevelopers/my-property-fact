@@ -1290,6 +1290,18 @@
   background: rgba(220, 38, 38, 0.15);
 }
 
+.mu-action-btn--danger {
+  color: #991b1b;
+  background: rgba(153, 27, 27, 0.14);
+}
+.mu-action-btn--danger:hover:not(:disabled) {
+  background: rgba(153, 27, 27, 0.22);
+}
+
+.mu-action-btn:disabled {
+  cursor: not-allowed;
+}
+
 /* ——————————————————————————————————————————
    DataGrid branded loader
    —————————————————————————————————————————— */

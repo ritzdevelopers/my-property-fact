@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faTimes, faMagnifyingGlass, faFilter, faCircleCheck, faCopy } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faTimes, faMagnifyingGlass, faFilter, faCircleCheck, faCopy, faTrash } from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -22,7 +22,7 @@ const apiWithAuth = () => ({
 
 export default function ManageUsers({ users: initialUsers }) {
   const router = useRouter();
-  const { isSuperAdmin } = useAdminRole();
+  const { isSuperAdmin, currentUserId } = useAdminRole();
   const [users, setUsers] = useState(initialUsers || []);
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
@@ -34,6 +34,9 @@ export default function ManageUsers({ users: initialUsers }) {
   const [permView, setPermView] = useState(null);
   /** One-time PIN display after save (plaintext not stored server-side) */
   const [enquiryPinReveal, setEnquiryPinReveal] = useState(null);
+  /** Pending permanent delete confirmation (modal). */
+  const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false);
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [formData, setFormData] = useState({
@@ -377,6 +380,53 @@ export default function ManageUsers({ users: initialUsers }) {
     }
   };
 
+  const openDeleteConfirm = (row) => {
+    if (
+      currentUserId != null &&
+      Number(row?.id) === Number(currentUserId)
+    ) {
+      toast.error("You cannot delete your own account.");
+      return;
+    }
+    setDeleteConfirmUser(row);
+  };
+
+  const closeDeleteConfirm = () => {
+    if (!deleteSubmitting) {
+      setDeleteConfirmUser(null);
+    }
+  };
+
+  const confirmDeletePermanently = async () => {
+    const row = deleteConfirmUser;
+    if (!row?.id) return;
+    setDeleteSubmitting(true);
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}users/${row.id}`,
+        apiWithAuth(),
+      );
+      toast.success("User deleted.");
+      setDeleteConfirmUser(null);
+      await reloadUsersList();
+      if (
+        editingUser &&
+        Number(editingUser.id) === Number(row.id)
+      ) {
+        handleClose();
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to delete user.";
+      toast.error(msg);
+    } finally {
+      setDeleteSubmitting(false);
+    }
+  };
+
   const reloadUsersList = async () => {
     try {
       const usersRes = await axios.get(
@@ -717,6 +767,28 @@ export default function ManageUsers({ users: initialUsers }) {
                               <FontAwesomeIcon icon={faCheck} />
                             </button>
                           )}
+                          {isSuperAdmin ? (
+                            <button
+                              type="button"
+                              className="mu-action-btn mu-action-btn--danger"
+                              title="Permanently delete user"
+                              disabled={
+                                currentUserId != null &&
+                                Number(user.id) === Number(currentUserId)
+                              }
+                              aria-label="Permanently delete user"
+                              onClick={() => openDeleteConfirm(user)}
+                              style={{
+                                opacity:
+                                  currentUserId != null &&
+                                  Number(user.id) === Number(currentUserId)
+                                    ? 0.45
+                                    : 1,
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          ) : null}
                         </div>
                       </td>
                     </tr>
@@ -727,6 +799,71 @@ export default function ManageUsers({ users: initialUsers }) {
           </table>
         </div>
       </div>
+
+      {/* Permanent delete confirmation */}
+      <Modal
+        show={!!deleteConfirmUser}
+        onHide={closeDeleteConfirm}
+        centered
+        backdrop={deleteSubmitting ? "static" : true}
+        keyboard={!deleteSubmitting}
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white" className="border-secondary-subtle">
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <FontAwesomeIcon icon={faTrash} className="text-danger" aria-hidden />
+            Delete user permanently?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {deleteConfirmUser ? (
+            <>
+              <p className="mb-2">
+                This will permanently remove the account from the system. This action
+                cannot be undone.
+              </p>
+              <p className="text-muted small mb-3">
+                Deletion only succeeds if this user has no property listings. Otherwise
+                remove or transfer those listings first (see error message from the
+                server).
+              </p>
+              <div
+                className="rounded p-3 mb-0"
+                style={{
+                  background: "rgba(220, 38, 38, 0.06)",
+                  border: "1px solid rgba(220, 38, 38, 0.2)",
+                }}
+              >
+                <div className="fw-semibold">{deleteConfirmUser.fullName || "—"}</div>
+                <div className="small text-break" style={{ wordBreak: "break-all" }}>
+                  {deleteConfirmUser.email || "—"}
+                </div>
+                <div className="text-muted small mt-1">User ID: {deleteConfirmUser.id}</div>
+              </div>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer className="border-secondary-subtle gap-2 flex-wrap">
+          <Button
+            type="button"
+            variant="secondary"
+            className="btn-admin-secondary"
+            disabled={deleteSubmitting}
+            onClick={closeDeleteConfirm}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={deleteSubmitting}
+            onClick={confirmDeletePermanently}
+          >
+            {deleteSubmitting ? "Deleting…" : "Delete permanently"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Edit User Modal */}
       <Modal

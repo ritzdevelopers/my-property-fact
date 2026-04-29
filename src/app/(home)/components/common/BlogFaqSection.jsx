@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Image from "next/image";
 import "./common.css";
 
 const DEFAULT_SUBTITLE =
@@ -31,13 +30,19 @@ export default function BlogFaqSection({
                   aria-expanded={openFaq === index}
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
                 >
-                  <Image
-                    src="/static/icon/plus.svg"
-                    alt="Toggle answer"
-                    title="Toggle answer"
-                    width={18}
-                    height={18}
-                  />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M9.75 0C4.374 0 0 4.374 0 9.75C0 15.126 4.374 19.5 9.75 19.5C15.126 19.5 19.5 15.126 19.5 9.75C19.5 4.374 15.126 0 9.75 0ZM9.75 1.5C14.3153 1.5 18 5.18475 18 9.75C18 14.3153 14.3153 18 9.75 18C5.18475 18 1.5 14.3153 1.5 9.75C1.5 5.18475 5.18475 1.5 9.75 1.5ZM9 5.25V9H5.25V10.5H9V14.25H10.5V10.5H14.25V9H10.5V5.25H9Z"
+                      fill="black"
+                    />
+                  </svg>
                 </button>
               </div>
               {openFaq === index && (

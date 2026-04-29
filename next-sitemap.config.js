@@ -1,5 +1,14 @@
 /** @type {import('next-sitemap').IConfig} */
 // Must match app/layout.js metadataBase (NEXT_PUBLIC_UI_URL) so sitemap loc = page canonical host.
+(function normalizeLegacyPublicApiEnv() {
+  const v = process.env.NEXT_PUBLIC_API_URL;
+  if (typeof v !== "string" || !v.trim()) return;
+  const withoutTrailing = v.trim().replace(/\/+$/, "");
+  if (/^https?:\/\/apis\.mypropertyfact\.in$/i.test(withoutTrailing)) {
+    process.env.NEXT_PUBLIC_API_URL = `${withoutTrailing}/api/v1/`;
+  }
+})();
+
 const SITE_URL = (process.env.NEXT_PUBLIC_UI_URL || process.env.NEXT_PUBLIC_ROOT_URL || "https://mypropertyfact.in").replace(/\/+$/, "");
 
 function toPathSlug(value) {

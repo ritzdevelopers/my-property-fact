@@ -11,8 +11,8 @@ export const metadata = {
 
 export default function CareerPage() {
   return (
-    <>
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
       <Career jobsArr={data} />
-    </>
+    </main>
   );
 }

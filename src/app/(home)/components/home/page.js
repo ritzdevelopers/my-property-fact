@@ -20,6 +20,7 @@ import {
   buildSubtitleNewLaunchesNear,
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
+import TestimonialSection from "./testimonials/TestimonialSection";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   loading: () => <section className="py-5" style={{ minHeight: 180 }} aria-busy="true" />,
@@ -63,8 +64,25 @@ function getDailyRecommendedProjectCityLabel() {
   return DAILY_RECOMMENDED_PROJECT_CITIES[dayOrdinal % 2];
 }
 
+async function fetchHomeTestimonials() {
+  try {
+    const base = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/?$/, "");
+    if (!base) return [];
+    const response = await fetch(`${base}/testimonial/get-active`, {
+      cache: "no-store",
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) return [];
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function HomePage() {
   const projects = await getAllProjects();
+  const testimonials = await fetchHomeTestimonials();
 
   // Allowed slugs for featured projects
   const allowedSlugs = [
@@ -325,9 +343,11 @@ export default async function HomePage() {
 
           {row(11, <SocialFeedPage />)}
 
-          {row(12, <SocialFeedsOfMPF />)}
+          {row(12, <TestimonialSection testimonials={testimonials} />)}
 
-          {row(13, <PopularCitiesSection />)}
+          {row(13, <SocialFeedsOfMPF />)}
+
+          {row(14, <PopularCitiesSection />)}
         </div>
       </>
     );

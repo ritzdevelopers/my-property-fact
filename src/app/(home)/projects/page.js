@@ -30,11 +30,11 @@ export default async function ProjectsPage() {
   const projects = await getAllProjects();
 
   return (
-    <>
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
       <Suspense fallback={<ProjectsFallback />}>
         <Projects projects={projects} />
       </Suspense>
       {/* <NewProjectListPage projects={projects} /> */}
-    </>
+    </main>
   );
 }

@@ -21,9 +21,9 @@
   animation: fadeIn 0.3s ease-in-out;
 }
 
-/* Home: collapsed enquire is 60px tall — tighter stack */
+/* Home: enquire is beside chat — only chat height + gap below scroll button */
 .scroll-to-top-btn.scroll-to-top-btn--home-stack {
-  bottom: calc(24px + 60px + 12px + 60px + 12px);
+  bottom: calc(24px + 60px + 12px);
 }
 
 /* Blog: compact circular enquire (.lead-form-popup-trigger--blog, 56px) — not 150px strip */
@@ -60,16 +60,16 @@
     width: 45px;
     height: 45px;
     right: 15px;
-    bottom: calc(20px + 56px + 12px + 150px + 12px);
+    bottom: calc(20px + 78px + 12px + 150px + 12px);
     font-size: 18px;
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--home-stack {
-    bottom: calc(20px + 56px + 12px + 56px + 12px);
+    bottom: calc(20px + 78px + 12px);
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--blog-stack {
-    bottom: calc(20px + 56px + 12px + 52px + 12px);
+    bottom: calc(20px + 78px + 12px + 52px + 12px);
     width: 52px;
     height: 52px;
     right: 15px;
@@ -81,16 +81,16 @@
     width: 40px;
     height: 40px;
     right: 11px;
-    bottom: calc(16px + 50px + 12px + 150px + 12px);
+    bottom: calc(16px + 74px + 12px + 150px + 12px);
     font-size: 16px;
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--home-stack {
-    bottom: calc(16px + 50px + 12px + 50px + 12px);
+    bottom: calc(16px + 74px + 12px);
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--blog-stack {
-    bottom: calc(16px + 50px + 12px + 48px + 12px);
+    bottom: calc(16px + 74px + 12px + 48px + 12px);
     width: 48px;
     height: 48px;
     right: 11px;
@@ -100,15 +100,15 @@
 @media (max-width: 360px) {
   .scroll-to-top-btn {
     right: 12px;
-    bottom: calc(12px + 48px + 12px + 150px + 12px);
+    bottom: calc(12px + 70px + 10px + 150px + 12px);
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--home-stack {
-    bottom: calc(12px + 48px + 12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px);
   }
 
   .scroll-to-top-btn.scroll-to-top-btn--blog-stack {
-    bottom: calc(12px + 48px + 12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px + 48px + 12px);
     width: 48px;
     height: 48px;
     right: 12px;

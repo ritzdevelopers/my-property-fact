@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import PropertyContainer from "@/app/(home)/components/common/page";
+import "../project.css";
 import {
   LISTING_PAGE_SIZE,
   ProjectListingPaginationControls,
@@ -11,6 +13,7 @@ export default function PropertyPage({ projectTypeDetails }) {
   const list = Array.isArray(projectTypeDetails?.projectList)
     ? projectTypeDetails.projectList
     : [];
+  const [projectSearchTerm, setProjectSearchTerm] = useState("");
   const projectTypeName = String(projectTypeDetails?.projectTypeName || "")
     .trim()
     .toLowerCase();
@@ -26,8 +29,20 @@ export default function PropertyPage({ projectTypeDetails }) {
   };
   const projectsPageH2 = pageHeadingByType[projectTypeName] || "";
 
+  const filteredList = useMemo(() => {
+    const q = String(projectSearchTerm || "").trim().toLowerCase();
+    if (!q) return list;
+    return list.filter((item) =>
+      String(item?.projectName || "").toLowerCase().includes(q),
+    );
+  }, [list, projectSearchTerm]);
+
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
-    useProjectListingPagination(list, LISTING_PAGE_SIZE);
+    useProjectListingPagination(filteredList, LISTING_PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [projectSearchTerm, setPage]);
 
   return (
     <div className="container my-5">
@@ -38,6 +53,51 @@ export default function PropertyPage({ projectTypeDetails }) {
           </div>
         </section>
       ) : null}
+      <section className="mb-4">
+        <div className="projects-top-search projects-top-search--compact projects-top-search--projecttype mx-auto">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="projects-top-search-icon"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            className="projects-top-search-input projects-top-search-input--compact"
+            value={projectSearchTerm}
+            onChange={(e) => setProjectSearchTerm(e.target.value)}
+            placeholder='Search "Eldeco, M3M, Godrej..."'
+        
+          />
+          {projectSearchTerm ? (
+            <button
+              type="button"
+              className="projecttype-search-clear"
+              onClick={() => setProjectSearchTerm("")}
+              aria-label="Clear project search"
+            >
+              ×
+            </button>
+          ) : (
+            <span className="projecttype-search-count">
+              {filteredList.length}
+            </span>
+          )}
+        </div>
+        {/* <div className="projecttype-search-label text-center mt-2">
+          Search project by name
+        </div> */}
+      </section>
       <div className="row g-3">
         {pageItems.length > 0 ? (
           pageItems.map((item, index) => (

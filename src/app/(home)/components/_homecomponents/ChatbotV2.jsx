@@ -11,6 +11,10 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 import { usePathname, useRouter } from "next/navigation";
 
+/** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
+const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot_new.gif";
+const CHATBOT_HEADER_LOGO = "/logo.webp";
+
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
 }
@@ -296,16 +300,16 @@ export default function ChatbotV2() {
         title={isOpen ? "Close chat" : "Open My Property Fact chat"}
       >
         {!isOpen ? (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            width={28}
-            height={28}
-            aria-hidden
-          >
-            <path d="M10 3H14C18.4183 3 22 6.58172 22 11C22 15.4183 18.4183 19 14 19V22.5C9 20.5 2 17.5 2 11C2 6.58172 5.58172 3 10 3ZM12 17H14C17.3137 17 20 14.3137 20 11C20 7.68629 17.3137 5 14 5H10C6.68629 5 4 7.68629 4 11C4 14.61 6.46208 16.9656 12 19.4798V17Z" />
-          </svg>
+          // eslint-disable-next-line @next/next/no-img-element -- GIF animation requires native img
+          <img
+            src={CHATBOT_LAUNCHER_LOGO}
+            alt="Open My Property Fact chat — assistant"
+            title="Open My Property Fact chat"
+            width={78}
+            height={78}
+            className={styles.launcherGif}
+            draggable={false}
+          />
         ) : (
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -329,12 +333,12 @@ export default function ChatbotV2() {
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
               <Image
-                src="/logo.webp"
-                alt="My Property Fact — chat bot logo"
-                title="My Property Fact — chat bot logo"
-                width={40}
-                height={37}
-                sizes="40px"
+                src={CHATBOT_HEADER_LOGO}
+                alt="My Property Fact logo — chat widget header"
+                title="My Property Fact logo — chat widget header"
+                width={80}
+                height={74}
+                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

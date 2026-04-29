@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { MPF_GATEWAY_HIDDEN_EVENT } from "./mpfGatewayEvents";
 import "./PopularProjectPromo.css";
 
 const HIDE_PREFIXES = ["/admin", "/portal"];
@@ -11,6 +12,37 @@ const AUTO_ROTATE_MS = 10000;
 /* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */
 const SLIDE_OUT_MS = 1250;
 const SLIDE_IN_MS = 1350;
+
+function imageBaseUrl() {
+  const raw = (process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
+  if (!raw) return "";
+  return raw.endsWith("/") ? raw : `${raw}/`;
+}
+
+function buildImageUrl(project) {
+  const slug = project?.slugURL || project?.slugUrl;
+  const raw =
+    project?.projectBannerImage ||
+    project?.projectThumbnailImage ||
+    project?.bannerImage ||
+    "";
+  if (typeof raw === "string" && raw.startsWith("http")) return raw;
+  const base = imageBaseUrl();
+  if (base && slug && raw) return `${base}properties/${slug}/${raw}`;
+  return "/static/no_image.png";
+}
+
+function toPromoItem(project) {
+  const slug = project?.slugURL || project?.slugUrl;
+  if (!slug) return null;
+  const name = String(project?.projectName || "").trim() || "Project";
+  return {
+    key: slug,
+    name,
+    href: `/${slug}`,
+    imageUrl: buildImageUrl(project),
+  };
+}
 
 function getSlideDurations() {
   if (typeof window === "undefined" || !window.matchMedia) {
@@ -22,6 +54,14 @@ function getSlideDurations() {
   return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
 }
 
+/** Matches WebsiteGateway (globals.css): overlay uses `gateway-open`; completion adds `mpf-post-gateway-reveal`. */
+function isHomeGatewayRevealDone() {
+  if (typeof document === "undefined") return false;
+  if (document.body.classList.contains("mpf-post-gateway-reveal")) return true;
+  if (!document.body.classList.contains("gateway-open")) return true;
+  return false;
+}
+
 /**
  * @param {Object} props
  * @param {Array<{ key: string; name: string; href: string; imageUrl: string }>} props.items
@@ -29,23 +69,89 @@ function getSlideDurations() {
  */
 export default function PopularProjectPromoClient({ items, showAfterMs = 1000 }) {
   const pathname = usePathname() || "/";
+  const isHome = pathname === "/";
   const [dismissed, setDismissed] = useState(false);
+  /** On `/`, defer promo until the entry loader (WebsiteGateway) finishes or is skipped (SPA). */
+  const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
   const [ready, setReady] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
   const [cardPhase, setCardPhase] = useState("idle");
   const hoverRef = useRef(false);
-  const list = Array.isArray(items) ? items : [];
+  const [locationItems, setLocationItems] = useState(null);
+  const list = Array.isArray(locationItems) && locationItems.length
+    ? locationItems
+    : Array.isArray(items)
+      ? items
+      : [];
 
   const hideByRoute = HIDE_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 
   useEffect(() => {
-    if (list.length === 0 || hideByRoute || dismissed) return undefined;
+    if (!isHome) {
+      setGatewayRevealDone(true);
+      return undefined;
+    }
+    const sync = () => {
+      if (isHomeGatewayRevealDone()) setGatewayRevealDone(true);
+    };
+    sync();
+    if (isHomeGatewayRevealDone()) return undefined;
+
+    const onHidden = () => setGatewayRevealDone(true);
+    window.addEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
+    return () => window.removeEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
+  }, [isHome]);
+
+  useEffect(() => {
+    if (list.length === 0 || hideByRoute || dismissed || !gatewayRevealDone) return undefined;
     const t = window.setTimeout(() => setReady(true), showAfterMs);
     return () => window.clearTimeout(t);
-  }, [list.length, hideByRoute, dismissed, showAfterMs]);
+  }, [list.length, hideByRoute, dismissed, showAfterMs, gatewayRevealDone]);
+
+  useEffect(() => {
+    if (hideByRoute || dismissed) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+
+    let cancelled = false;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude, accuracy } = pos.coords;
+          const q = new URLSearchParams({
+            lat: String(latitude),
+            lon: String(longitude),
+            intent: "projects",
+          });
+          if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
+            q.set("accuracy", String(Math.round(accuracy)));
+          }
+          const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
+          const data = await res.json();
+          if (!cancelled && data?.success && Array.isArray(data?.items) && data.items.length) {
+            const mapped = data.items.map(toPromoItem).filter(Boolean).slice(0, 5);
+            if (mapped.length) setLocationItems(mapped);
+          }
+        } catch {
+          // Keep server fallback list
+        }
+      },
+      () => {
+        // Permission denied/unavailable -> keep fallback list
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 20000,
+      },
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [hideByRoute, dismissed]);
 
   useEffect(() => {
     if (!ready || dismissed || list.length <= 1) return undefined;

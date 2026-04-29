@@ -29,7 +29,7 @@ export default function PortalSignInPage() {
     setError("");
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/google`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
         { token: token },
         { withCredentials: true }
       );
@@ -79,7 +79,7 @@ export default function PortalSignInPage() {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/send-otp`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
         { email: formData.email },
       );
 
@@ -121,7 +121,7 @@ export default function PortalSignInPage() {
       }
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/verify-otp`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/verify-otp`,
         requestData,
       );
 

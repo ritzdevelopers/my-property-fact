@@ -50,7 +50,7 @@ export default function AdminForgotPasswordPage() {
     setLoading(true);
     try {
       await axios.post(
-        `${apiBase}auth/admin-password-reset-check-email`,
+        `${apiBase}admin-portal/auth/admin-password-reset-check-email`,
         { email: trimmed },
         { withCredentials: true },
       );
@@ -94,7 +94,7 @@ export default function AdminForgotPasswordPage() {
     setLoading(true);
     try {
       await axios.post(
-        `${apiBase}auth/admin-password-reset-request`,
+        `${apiBase}admin-portal/auth/admin-password-reset-request`,
         {
           email: trimmedEmail,
           dashboardUsername: dash,

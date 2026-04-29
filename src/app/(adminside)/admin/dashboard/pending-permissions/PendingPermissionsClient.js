@@ -40,6 +40,8 @@ export default function PendingPermissionsClient() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editRequestId, setEditRequestId] = useState(null);
   const [editedPassword, setEditedPassword] = useState("");
+  const [rejectPortalUser, setRejectPortalUser] = useState(null);
+  const [rejectPortalSubmitting, setRejectPortalSubmitting] = useState(false);
 
   const load = useCallback(async () => {
     const base = getPublicApiBase();
@@ -91,7 +93,7 @@ export default function PendingPermissionsClient() {
         {},
         apiWithAuth(),
       );
-      toast.success("Admin access approved.");
+      toast.success("Registration approved.");
       await load();
       router.refresh();
     } catch (e) {
@@ -99,26 +101,35 @@ export default function PendingPermissionsClient() {
     }
   };
 
-  const rejectAdmin = async (id) => {
-    if (
-      !window.confirm(
-        "Reject this request? The Admin role and dashboard username will be removed.",
-      )
-    ) {
-      return;
+  const openRejectPortalModal = (u) => {
+    setRejectPortalUser(u);
+  };
+
+  const closeRejectPortalModal = () => {
+    if (!rejectPortalSubmitting) {
+      setRejectPortalUser(null);
     }
+  };
+
+  const confirmRejectPortal = async () => {
+    const u = rejectPortalUser;
+    if (!u) return;
     const base = getPublicApiBase();
+    setRejectPortalSubmitting(true);
     try {
       await axios.put(
-        `${base}users/${id}/reject-admin-staff`,
+        `${base}users/${u.id}/reject-admin-staff`,
         {},
         apiWithAuth(),
       );
-      toast.success("Request rejected.");
+      toast.success("Rejected.");
+      setRejectPortalUser(null);
       await load();
       router.refresh();
     } catch (e) {
       toast.error(e.response?.data?.message || "Reject failed.");
+    } finally {
+      setRejectPortalSubmitting(false);
     }
   };
 
@@ -198,18 +209,17 @@ export default function PendingPermissionsClient() {
     <div className="container-fluid">
       <DashboardHeader heading="Pending permissions" />
       <p className="text-muted mb-4">
-        Review staff who requested the Admin role from registration, and password
-        change requests sent from the admin login screen. You can approve as
-        submitted, set a different password, or reject.
+        Review portal registrations awaiting Super Administrator activation,
+        staff who requested Admin from registration, and password change requests from the admin
+        login screen. You can approve, edit, or reject.
       </p>
 
-      <h5 className="mb-3">Admin access</h5>
+      <h5 className="mb-3">Portal registrations</h5>
       <p className="text-muted small mb-3">
-        New registrations that included the Admin role and are waiting for your
-        approval.
+        Accounts created via the admin signup page that still need activation (User-only or Admin).
       </p>
       {adminRows.length === 0 ? (
-        <p className="text-muted mb-5">No pending admin access requests.</p>
+        <p className="text-muted mb-5">No pending portal registrations.</p>
       ) : (
         <div className="table-responsive mb-5">
           <table className="table table-bordered align-middle bg-white">
@@ -239,7 +249,7 @@ export default function PendingPermissionsClient() {
                     <Button
                       size="sm"
                       variant="outline-danger"
-                      onClick={() => rejectAdmin(u.id)}
+                      onClick={() => openRejectPortalModal(u)}
                     >
                       Reject
                     </Button>
@@ -310,6 +320,59 @@ export default function PendingPermissionsClient() {
           </table>
         </div>
       )}
+
+      <Modal
+        show={!!rejectPortalUser}
+        onHide={closeRejectPortalModal}
+        centered
+        backdrop={rejectPortalSubmitting ? "static" : true}
+        keyboard={!rejectPortalSubmitting}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Reject registration?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {rejectPortalUser ? (
+            <>
+              <p className="mb-3">
+                {(() => {
+                  const rolesUpper = (rejectPortalUser.roles || []).map((r) =>
+                    String(r?.roleName || "").toUpperCase(),
+                  );
+                  return rolesUpper.includes("ADMIN")
+                    ? "The Admin role and dashboard username will be removed."
+                    : "The portal account will be disabled.";
+                })()}
+              </p>
+              <div className="rounded border bg-light p-3 small">
+                <div className="fw-semibold">
+                  {rejectPortalUser.fullName || "—"}
+                </div>
+                <div className="text-break">{rejectPortalUser.email || "—"}</div>
+                <div className="text-muted mt-1">
+                  Dashboard user: {rejectPortalUser.dashboardUsername || "—"}
+                </div>
+              </div>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            disabled={rejectPortalSubmitting}
+            onClick={closeRejectPortalModal}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            disabled={rejectPortalSubmitting}
+            onClick={confirmRejectPortal}
+          >
+            {rejectPortalSubmitting ? "Rejecting…" : "Reject registration"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal show={editModalOpen} onHide={() => setEditModalOpen(false)} centered>
         <Modal.Header closeButton>

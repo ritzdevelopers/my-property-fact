@@ -257,8 +257,9 @@ export default function AdminTopBar() {
                       {pendingAdmin > 0 ? (
                         <span>
                           {" "}
-                          {pendingAdmin} admin access
-                          {pendingAdmin !== 1 ? " requests" : " request"}
+                          {pendingAdmin} portal registration
+                          {pendingAdmin !== 1 ? "s" : ""}
+                          {" "}awaiting activation
                         </span>
                       ) : null}
                       {pendingAdmin > 0 && pendingPassword > 0 ? " and" : null}
@@ -281,7 +282,7 @@ export default function AdminTopBar() {
                   </>
                 ) : (
                   <p className="admin-topbar-notify-dropdown__body mb-0">
-                    No pending admin access or password change requests.
+                    No portal registrations awaiting activation or password change requests.
                   </p>
                 )
               ) : (

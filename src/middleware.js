@@ -28,7 +28,7 @@ async function checkSession(req) {
       return { valid: false };
     }
     const cookieHeader = buildCookieHeader(req);
-    const res = await fetch(`${apiBase}auth/session`, {
+    const res = await fetch(`${apiBase}admin-portal/auth/session`, {
       headers: {
         Cookie: cookieHeader || "",
       },

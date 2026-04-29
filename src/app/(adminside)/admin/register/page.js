@@ -38,7 +38,7 @@ export default function AdminRegisterPage() {
   const loadMeta = useCallback(async () => {
     setMetaLoading(true);
     try {
-      const { data } = await axios.get(`${apiBase}auth/admin-register-meta`);
+      const { data } = await axios.get(`${apiBase}admin-portal/auth/admin-register-meta`);
       setRequiresPin(Boolean(data?.requiresPin));
       const roles = Array.isArray(data?.roles) ? data.roles : [];
       setRoleOptions(roles);
@@ -108,11 +108,15 @@ export default function AdminRegisterPage() {
           : undefined,
         registrationPin: requiresPin ? registrationPin.trim() : undefined,
       };
-      const res = await axios.post(`${apiBase}auth/admin-register`, payload, {
+      const res = await axios.post(`${apiBase}admin-portal/auth/admin-register`, payload, {
         headers: { "Content-Type": "application/json" },
       });
       if (res.status === 200) {
-        toast.success(res.data?.message || "Account created. You can sign in.");
+        toast.info(
+          res.data?.message ||
+            "Account created. Waiting for Super Administrator approval before you can sign in.",
+          { autoClose: 8000 },
+        );
         router.replace("/admin");
       }
     } catch (err) {
@@ -269,7 +273,8 @@ export default function AdminRegisterPage() {
                         <span>
                           <strong>User</strong>
                           <span className="mpf-admin-login__role-hint">
-                            Portal access (default)
+                            Portal access (default) — requires Super Admin approval
+                            before you can sign in
                           </span>
                         </span>
                       </label>

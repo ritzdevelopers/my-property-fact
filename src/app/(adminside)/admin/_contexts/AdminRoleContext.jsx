@@ -60,7 +60,7 @@ export function AdminRoleProvider({ children }) {
         return;
       }
       try {
-        const res = await fetch(`${base}auth/session`, {
+        const res = await fetch(`${base}admin-portal/auth/session`, {
           credentials: "include",
         });
         if (!res.ok) {

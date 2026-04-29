@@ -40,12 +40,15 @@ function blogMatchesHomeDateFilter(blog) {
 
 function blogsForHomeSection(content) {
   const list = Array.isArray(content) ? content : [];
-  const filtered = list.filter(blogMatchesHomeDateFilter);
-  if (filtered.length === 0) return [];
-  const sorted = [...filtered].sort(
+  const sortedAll = [...list].sort(
     (a, b) => getBlogTimestamp(b) - getBlogTimestamp(a),
   );
-  return sorted.slice(0, 4);
+  const filtered = sortedAll.filter(blogMatchesHomeDateFilter);
+
+  // Keep campaign-date preference, but never hide the section when
+  // no posts match those days. Fall back to latest published blogs.
+  if (filtered.length > 0) return filtered.slice(0, 4);
+  return sortedAll.slice(0, 4);
 }
 
 export default async function SocialFeedPage() {

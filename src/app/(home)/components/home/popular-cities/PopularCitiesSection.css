@@ -51,7 +51,12 @@
 }
 
 .pc__kicker {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 118px;
+  height: 34px;
+  box-sizing: border-box;
   font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -59,15 +64,20 @@
   color: #334155;
   background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(15, 23, 42, 0.1);
-  padding: 0.22rem 0.6rem;
+  padding: 0;
   border-radius: 999px;
 }
 
 .pc__cta {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 118px;
+  height: 34px;
+  box-sizing: border-box;
   background: linear-gradient(90deg, #cda958 0%, #67552c 100%);
   color: #fff !important;
-  padding: 0.35rem 0.9rem;
+  padding: 0;
   border-radius: 30px;
   text-decoration: none;
   font-weight: 500;

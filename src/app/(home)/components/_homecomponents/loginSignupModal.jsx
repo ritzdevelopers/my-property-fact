@@ -28,7 +28,7 @@ export default function LoginSignupModal({ show, handleClose }) {
 
     // Send token to your Spring Boot backend for verification
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}auth/google`,
+      `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
       {
         token: token,
       }
@@ -72,7 +72,7 @@ export default function LoginSignupModal({ show, handleClose }) {
     setIsLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/send-otp`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
         { phoneNumber: formData.phoneNumber }
       );
 
@@ -115,7 +115,7 @@ export default function LoginSignupModal({ show, handleClose }) {
       }
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/verify-otp`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/verify-otp`,
         requestData
       );
 

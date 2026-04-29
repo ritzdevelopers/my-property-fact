@@ -146,7 +146,7 @@ export default function Enquiries() {
   const fetchAccessStatus = useCallback(async () => {
     if (!apiBase) return null;
     try {
-      const res = await fetch(`${apiBase}auth/enquiry-access-status`, {
+      const res = await fetch(`${apiBase}admin-portal/auth/enquiry-access-status`, {
         credentials: "include",
       });
       if (!res.ok) return null;
@@ -240,7 +240,7 @@ export default function Enquiries() {
     }
     setUnlockBusy(true);
     try {
-      const res = await fetch(`${apiBase}auth/unlock-enquiries`, {
+      const res = await fetch(`${apiBase}admin-portal/auth/unlock-enquiries`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

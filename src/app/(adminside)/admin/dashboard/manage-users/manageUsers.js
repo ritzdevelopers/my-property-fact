@@ -37,6 +37,9 @@ export default function ManageUsers({ users: initialUsers }) {
   /** Pending permanent delete confirmation (modal). */
   const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  /** Reject pending portal registration (modal). */
+  const [rejectStaffUser, setRejectStaffUser] = useState(null);
+  const [rejectStaffSubmitting, setRejectStaffSubmitting] = useState(false);
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [formData, setFormData] = useState({
@@ -85,7 +88,7 @@ export default function ManageUsers({ users: initialUsers }) {
 
       try {
         const permRes = await axios.get(
-          `${process.env.NEXT_PUBLIC_API_URL}auth/admin-permission-definitions`,
+          `${process.env.NEXT_PUBLIC_API_URL}admin-portal/auth/admin-permission-definitions`,
           apiWithAuth(),
         );
         if (!cancelled && Array.isArray(permRes.data)) {
@@ -442,38 +445,49 @@ export default function ManageUsers({ users: initialUsers }) {
     router.refresh();
   };
 
-  const handleApproveAdminStaff = async (userId) => {
+  const handleApproveAdminStaff = async (userRow) => {
+    const userId = userRow?.id ?? userRow;
     try {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/approve-admin-staff`,
         {},
         apiWithAuth(),
       );
-      toast.success("Admin access approved. The user can sign in to the dashboard.");
+      toast.success("Registration approved.");
       await reloadUsersList();
     } catch (e) {
       toast.error(e.response?.data?.message || "Approval failed");
     }
   };
 
-  const handleRejectAdminStaff = async (userId) => {
-    if (
-      !window.confirm(
-        "Reject this admin access request? The Admin role and dashboard username will be removed.",
-      )
-    ) {
-      return;
+  const openRejectStaffConfirm = (userRow) => {
+    setRejectStaffUser(userRow);
+  };
+
+  const closeRejectStaffConfirm = () => {
+    if (!rejectStaffSubmitting) {
+      setRejectStaffUser(null);
     }
+  };
+
+  const confirmRejectAdminStaff = async () => {
+    const userRow = rejectStaffUser;
+    if (!userRow) return;
+    const userId = userRow?.id ?? userRow;
+    setRejectStaffSubmitting(true);
     try {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/reject-admin-staff`,
         {},
         apiWithAuth(),
       );
-      toast.success("Admin request rejected.");
+      toast.success("Rejected.");
+      setRejectStaffUser(null);
       await reloadUsersList();
     } catch (e) {
       toast.error(e.response?.data?.message || "Reject failed");
+    } finally {
+      setRejectStaffSubmitting(false);
     }
   };
 
@@ -595,10 +609,13 @@ export default function ManageUsers({ users: initialUsers }) {
                   const roleNamesUpper = (user.roles || []).map((r) =>
                     String(r?.roleName || "").toUpperCase(),
                   );
-                  const pendingAdmin =
-                    isSuperAdmin &&
-                    roleNamesUpper.includes("ADMIN") &&
-                    user.adminStaffApproved === false;
+                  const waitingPortalActivation =
+                    typeof user.portalActivationPending === "boolean"
+                      ? user.portalActivationPending
+                      : user.adminStaffApproved === false &&
+                          !roleNamesUpper.includes("SUPERADMIN");
+                  const pendingPortalApproval =
+                    isSuperAdmin && waitingPortalActivation;
                   const roleLabel = getRoleNames(user.roles);
                   const roleParts = roleLabel.split(", ");
                   const enabled =
@@ -627,10 +644,10 @@ export default function ManageUsers({ users: initialUsers }) {
                       {isSuperAdmin ? (
                         <>
                           <td>
-                            {!roleNamesUpper.includes("ADMIN") ? (
-                              <span className="text-muted small">—</span>
-                            ) : user.adminStaffApproved === false ? (
+                            {waitingPortalActivation ? (
                               <span className="admin-chip-warn">Pending</span>
+                            ) : !roleNamesUpper.includes("ADMIN") ? (
+                              <span className="text-muted small">—</span>
                             ) : (
                               <span className="admin-chip-ok">OK</span>
                             )}
@@ -713,19 +730,19 @@ export default function ManageUsers({ users: initialUsers }) {
                       </td>
                       <td>
                         <div className="manage-users-actions-grid" style={{ display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>
-                          {pendingAdmin ? (
+                          {pendingPortalApproval ? (
                             <>
                               <button
                                 className="mu-action-btn mu-action-btn--approve"
-                                title="Approve admin access"
-                                onClick={() => handleApproveAdminStaff(user.id)}
+                                title="Approve registration"
+                                onClick={() => handleApproveAdminStaff(user)}
                               >
                                 <FontAwesomeIcon icon={faCircleCheck} />
                               </button>
                               <button
                                 className="mu-action-btn mu-action-btn--reject"
-                                title="Reject admin access"
-                                onClick={() => handleRejectAdminStaff(user.id)}
+                                title="Reject registration"
+                                onClick={() => openRejectStaffConfirm(user)}
                               >
                                 <FontAwesomeIcon icon={faTimes} />
                               </button>
@@ -799,6 +816,72 @@ export default function ManageUsers({ users: initialUsers }) {
           </table>
         </div>
       </div>
+
+      {/* Reject pending registration confirmation */}
+      <Modal
+        show={!!rejectStaffUser}
+        onHide={closeRejectStaffConfirm}
+        centered
+        backdrop={rejectStaffSubmitting ? "static" : true}
+        keyboard={!rejectStaffSubmitting}
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white" className="border-secondary-subtle">
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <FontAwesomeIcon icon={faTimes} className="text-danger" aria-hidden />
+            Reject registration?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {rejectStaffUser ? (
+            <>
+              <p className="mb-3">
+                {(() => {
+                  const rolesUpper = (rejectStaffUser.roles || []).map((r) =>
+                    String(r?.roleName || "").toUpperCase(),
+                  );
+                  return rolesUpper.includes("ADMIN")
+                    ? "The Admin role and dashboard username will be removed."
+                    : "The portal account will be disabled.";
+                })()}
+              </p>
+              <div
+                className="rounded p-3 mb-0"
+                style={{
+                  background: "rgba(220, 38, 38, 0.06)",
+                  border: "1px solid rgba(220, 38, 38, 0.2)",
+                }}
+              >
+                <div className="fw-semibold">{rejectStaffUser.fullName || "—"}</div>
+                <div className="small text-break" style={{ wordBreak: "break-all" }}>
+                  {rejectStaffUser.email || "—"}
+                </div>
+                <div className="text-muted small mt-1">User ID: {rejectStaffUser.id}</div>
+              </div>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer className="border-secondary-subtle gap-2 flex-wrap">
+          <Button
+            type="button"
+            variant="secondary"
+            className="btn-admin-secondary"
+            disabled={rejectStaffSubmitting}
+            onClick={closeRejectStaffConfirm}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={rejectStaffSubmitting}
+            onClick={confirmRejectAdminStaff}
+          >
+            {rejectStaffSubmitting ? "Rejecting…" : "Reject registration"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Permanent delete confirmation */}
       <Modal

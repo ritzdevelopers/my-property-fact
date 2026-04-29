@@ -85,7 +85,7 @@ export const UserProvider = ({ children }) => {
     setUserData(null);
     try {
       await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}auth/logout`,
+        `${process.env.NEXT_PUBLIC_API_URL}app/auth/logout`,
         {},
         { withCredentials: true },
       );

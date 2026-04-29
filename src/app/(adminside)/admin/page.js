@@ -73,12 +73,12 @@ function AdminPageContent() {
       setShowLoading(true);
       setButtonName("");
       const response = await axios.post(
-        `${apiBase}auth/login`,
+        `${apiBase}admin-portal/auth/login`,
         formData,
         { withCredentials: true },
       );
       if (response.status === 200) {
-        const sessionRes = await fetch(`${apiBase}auth/session`, {
+        const sessionRes = await fetch(`${apiBase}admin-portal/auth/session`, {
           credentials: "include",
         });
         let sessionData = {};
@@ -99,7 +99,7 @@ function AdminPageContent() {
         const roles = sessionData.roles || [];
         if (!rolesIncludeStaffDashboard(roles)) {
           await axios.post(
-            `${apiBase}auth/logout`,
+            `${apiBase}admin-portal/auth/logout`,
             {},
             { withCredentials: true },
           );

@@ -76,10 +76,11 @@ const privacySections = [
 
 export default function PrivacyPolicyPage() {
   return (
-    <>
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
       <CommonHeaderBanner
         image={"project-banner.jpg"}
         headerText={"Privacy Policy"}
+        pageName={"Privacy Policy"}
       />
       <CommonBreadCrum firstPage={"privacy-policy"} pageName={"Privacy Policy"} />
 
@@ -163,6 +164,6 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }

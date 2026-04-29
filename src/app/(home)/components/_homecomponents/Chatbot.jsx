@@ -7,7 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties`;
-const CHATBOT_LOGO_SRC = "/icon/chatbot_logo.png";
+const CHATBOT_LOGO_SRC = "/logo.webp";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -186,12 +186,12 @@ export default function Chatbot() {
         {!isOpen ? (
           <Image
             src={CHATBOT_LOGO_SRC}
-            alt=""
-            width={30}
-            height={30}
-            sizes="30px"
-            style={{ objectFit: "contain" }}
-            aria-hidden
+            alt="My Property Fact logo — open chat"
+            title="Open My Property Fact chat"
+            width={80}
+            height={74}
+            sizes="48px"
+            style={{ objectFit: "contain", width: "auto", height: "30px", maxWidth: "44px" }}
           />
         ) : (
           <FontAwesomeIcon icon={faTimes} size="lg" />
@@ -205,11 +205,11 @@ export default function Chatbot() {
             <div className={styles.avatar}>
               <Image
                 src={CHATBOT_LOGO_SRC}
-                alt="My Property Fact — chat bot logo"
-                title="My Property Fact — chat bot logo"
-                width={40}
-                height={40}
-                sizes="40px"
+                alt="My Property Fact logo — chat widget header"
+                title="My Property Fact logo — chat widget header"
+                width={80}
+                height={74}
+                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

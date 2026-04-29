@@ -1,4 +1,13 @@
 /** @type {import('next').NextConfig} */
+(function normalizeLegacyPublicApiEnv() {
+  const v = process.env.NEXT_PUBLIC_API_URL;
+  if (typeof v !== "string" || !v.trim()) return;
+  const withoutTrailing = v.trim().replace(/\/+$/, "");
+  if (/^https?:\/\/apis\.mypropertyfact\.in$/i.test(withoutTrailing)) {
+    process.env.NEXT_PUBLIC_API_URL = `${withoutTrailing}/api/v1/`;
+  }
+})();
+
 const nextConfig = {
 
 
@@ -61,21 +70,16 @@ const nextConfig = {
       { source: "/builder/eleque", destination: "/", permanent: true },
       { source: "/builder/embessy", destination: "/", permanent: true },
       { source: "/builder/irajc-ventures", destination: "/", permanent: true },
-      {
-        source: "/landing-pages/disclaimer.html",
-        destination: "/landing-pages/eldeco-la-vida-bella",
-        permanent: true,
-      },
-      {
-        source: "/promotional-pages/eldeco-la-vida-bella",
-        destination: "/landing-pages/eldeco-la-vida-bella",
-        permanent: true,
-      },
-      {
-        source: "/promotional-pages/sikka-kimaya",
-        destination: "/landing-pages/sikka-kimaya",
-        permanent: true,
-      },
+      { source: "/landing-pages/disclaimer.html", destination: "/", permanent: true },
+      { source: "/landing-pages/eldeco-la-vida-bella", destination: "/", permanent: true },
+      { source: "/landing-pages/eldeco-la-vida-bella/thanks", destination: "/", permanent: true },
+      { source: "/promotional-pages/eldeco-la-vida-bella", destination: "/", permanent: true },
+      { source: "/landing-pages/eldeco-la-villa-bella2", destination: "/", permanent: true },
+      { source: "/landing-pages/eldeco-la-villa-bella2/thanks", destination: "/", permanent: true },
+      { source: "/promotional-pages/eldeco-la-villa-bella2", destination: "/", permanent: true },
+      { source: "/landing-pages/sikka-kimaya", destination: "/", permanent: true },
+      { source: "/landing-pages/sikka-kimaya/thanks", destination: "/", permanent: true },
+      { source: "/promotional-pages/sikka-kimaya", destination: "/", permanent: true },
 
 
 
@@ -107,7 +111,7 @@ const nextConfig = {
   // Ensure MUI and other packages are transpiled so vendor chunks are generated correctly
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
-    
+
     // Explicit qualities used by <Image quality={…}> across the app (required in Next.js 16+).
     qualities: [45, 60, 65, 75, 100],
     // Extra widths so fixed logos can avoid 256w when ~160w suffices (2× 80px), and

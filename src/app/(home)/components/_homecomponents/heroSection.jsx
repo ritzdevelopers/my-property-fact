@@ -24,6 +24,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
     "residential",
   ]);
   const heroBannerRef = useRef(null);
+  const railHoverLeaveTimerRef = useRef(null);
   const [showRightRail, setShowRightRail] = useState(false);
   const [openRightRailIndex, setOpenRightRailIndex] = useState(null);
   const rightRailOrder = ["commercial", "residential", "new launches"];
@@ -47,6 +48,50 @@ export default function HeroSection({ projectTypeList, cityList }) {
     if (normalized === "residential") return "residential";
     return "commercial";
   };
+
+  /** Labels for right-rail icons (SEO / alt+title tooling; link text stays primary for SR users). */
+  const railIconMetaForKey = (key) => {
+    switch (key) {
+      case "commercial":
+        return {
+          alt: "Commercial real estate icon — browse offices and retail projects on My Property Fact",
+          title: "Commercial projects — offices and retail listings",
+        };
+      case "residential":
+        return {
+          alt: "Residential property icon — browse homes and apartments on My Property Fact",
+          title: "Residential projects — homes and apartments",
+        };
+      default:
+        return {
+          alt: "New launch property icon — browse newly launched projects on My Property Fact",
+          title: "New launch projects — latest listings",
+        };
+    }
+  };
+
+  const onRightRailMouseEnter = (index) => {
+    if (railHoverLeaveTimerRef.current) {
+      clearTimeout(railHoverLeaveTimerRef.current);
+      railHoverLeaveTimerRef.current = null;
+    }
+    setOpenRightRailIndex(index);
+  };
+
+  const onRightRailMouseLeave = (index) => {
+    railHoverLeaveTimerRef.current = window.setTimeout(() => {
+      setOpenRightRailIndex((prev) => (prev === index ? null : prev));
+      railHoverLeaveTimerRef.current = null;
+    }, 140);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (railHoverLeaveTimerRef.current) {
+        clearTimeout(railHoverLeaveTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -123,44 +168,52 @@ export default function HeroSection({ projectTypeList, cityList }) {
           className={`home-right-type-rail ${showRightRail ? "is-visible" : ""}`}
           aria-label="Browse project types"
         >
-          {rightRailTypes.map((item, index) => (
+          {rightRailTypes.map((item, index) => {
+            const typeKey = getTypeKey(item?.projectTypeName);
+            const { alt: railIconAlt, title: railIconTitle } = railIconMetaForKey(typeKey);
+            return (
             <Link
               key={`right-rail-type-${index}`}
               href={`/projects/${item.slugUrl}`}
               className={`home-right-type-rail__link${openRightRailIndex === index ? " home-right-type-rail__link--open" : ""}`}
               title={`${item.projectTypeName} projects`}
               style={{ "--stagger": index }}
-              onMouseEnter={() => setOpenRightRailIndex(index)}
-              onMouseLeave={() =>
-                setOpenRightRailIndex((prev) => (prev === index ? null : prev))
-              }
-              onFocus={() => setOpenRightRailIndex(index)}
-              onBlur={() =>
-                setOpenRightRailIndex((prev) => (prev === index ? null : prev))
-              }
+              onMouseEnter={() => onRightRailMouseEnter(index)}
+              onMouseLeave={() => onRightRailMouseLeave(index)}
+              onFocus={() => onRightRailMouseEnter(index)}
+              onBlur={() => {
+                if (railHoverLeaveTimerRef.current) {
+                  clearTimeout(railHoverLeaveTimerRef.current);
+                  railHoverLeaveTimerRef.current = null;
+                }
+                setOpenRightRailIndex((prev) => (prev === index ? null : prev));
+              }}
             >
               <span
-                className={`home-right-type-rail__icon home-right-type-rail__icon--${getTypeKey(item?.projectTypeName)}`}
+                className={`home-right-type-rail__icon home-right-type-rail__icon--${typeKey}`}
                 aria-hidden
               >
-                {getTypeKey(item?.projectTypeName) === "commercial" ? (
+                {typeKey === "commercial" ? (
                   <Image
                     src="/icon/skyscrapers.png"
-                    alt=""
+                    alt={railIconAlt}
+                    title={railIconTitle}
                     width={36}
                     height={36}
                   />
-                ) : getTypeKey(item?.projectTypeName) === "residential" ? (
+                ) : typeKey === "residential" ? (
                   <Image
                     src="/icon/residential.png"
-                    alt=""
+                    alt={railIconAlt}
+                    title={railIconTitle}
                     width={36}
                     height={36}
                   />
                 ) : (
                   <Image
                     src={NEW_LAUNCHES_RAIL_ICON}
-                    alt=""
+                    alt={railIconAlt}
+                    title={railIconTitle}
                     width={36}
                     height={36}
                   />
@@ -174,7 +227,8 @@ export default function HeroSection({ projectTypeList, cityList }) {
                 )}
               </span>
             </Link>
-          ))}
+            );
+          })}
         </aside>
       ) : null}
     </>

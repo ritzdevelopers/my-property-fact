@@ -102,8 +102,42 @@ const CITY_CARDS = [
   },
 ];
 
+const FAQ_ITEMS = [
+  {
+    id: "faq-1",
+    question: "What is MyPropertyFact and how does it help homebuyers in Delhi NCR ?",
+    answer:
+      "MyPropertyFact is an authorized real estate advisory platform. They assist home buyers, investors and NRIs to make intelligent decisions on property investments. Specializing in identifying top-rated 2 BHK apartments Noida, 3 BHK flats Noida, commercial property Noida, properties in Delhi NCR. MyPropertyFact provides objective project reviews, builder credibility, RERA checks, expert advice completely free of charge.",
+  },
+  {
+    id: "faq-2",
+    question: "What types of properties does MyPropertyFact cover ?",
+    answer:
+      "We list different kinds of properties in India-like 2 BHK apartments in Hyderabad, 3 BHK flats in Pune, villas, residential apartments, commercial property in Ahmedabad, office spaces, shops and mixed-use properties. If you are wanting to buy a flat in Greater Noida, or searching 3 BHK flats near me or the lowest flat rates in India we guide you accordingly.",
+  },
+  {
+    id: "faq-3",
+    question: "Is MyPropertyFact a real estate agent or broker ?",
+    answer:
+      "No, MyPropertyFact is a completely separate real estate advisory platform and not an agent or broker. We do not have any deals with any builders and are impartial, only giving advice and reviews to buyers, for example, RERA verification, builder credibility and property investment analysis.",
+  },
+  {
+    id: "faq-4",
+    question: "How can MyPropertyFact help me verify a builder or project ?",
+    answer:
+      "From the RERA status of the project and the track record of the builder, the legal compliances and the possession deadlines, and actual property prices, we provide you with all the required data before you decide to purchase or invest whether 2 BHK flats in Noida or for investment in commercial properties.",
+  },
+  {
+    id: "faq-5",
+    question: "Can NRIs use MyPropertyFact to invest in Indian real estate ?",
+    answer:
+      "Absolutely! NRIs can invest in Indian real estate. We offer remote consultations to help with project shortlisting, FEMA regulations, home loan guidance, and documentation. NRI property investment has never been easier, and you can confidently invest in properties in Gurgaon, Noida, and other cities.",
+  },
+];
+
 export default function NoidaProjectsSection() {
   const [cityCards, setCityCards] = useState(CITY_CARDS);
+  const [openFaqId, setOpenFaqId] = useState(FAQ_ITEMS[0]?.id || null);
   const { cityList, projectList } = useSiteData();
 
   useEffect(() => {
@@ -297,6 +331,10 @@ export default function NoidaProjectsSection() {
     [cityCards],
   );
 
+  const toggleFaq = (faqId) => {
+    setOpenFaqId((prev) => (prev === faqId ? null : faqId));
+  };
+
   return (
     <section className="container noida-projects-section">
       <div className="noida-projects-container">
@@ -338,6 +376,65 @@ export default function NoidaProjectsSection() {
                 </SwiperSlide>
               ))}
             </Swiper>
+          </div>
+        </div>
+      </div>
+
+      <div className="destination-faq">
+        <div className="destination-faq__inner">
+          <div className="destination-faq__left">
+            <span className="destination-faq__tag">Trusted By</span>
+            <h3 className="destination-faq__title">Frequently Asked Questions</h3>
+          </div>
+
+          <div className="destination-faq__right">
+            {FAQ_ITEMS.map((item) => {
+              const isOpen = openFaqId === item.id;
+              return (
+                <div
+                  key={item.id}
+                  className={`destination-faq__item ${isOpen ? "is-open" : ""}`}
+                >
+                  <button
+                    type="button"
+                    className="destination-faq__question"
+                    onClick={() => toggleFaq(item.id)}
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-panel-${item.id}`}
+                    id={`faq-trigger-${item.id}`}
+                  >
+                    <span>{item.question}</span>
+                    <span className="destination-faq__icon" aria-hidden="true">
+                      {isOpen ? "-" : "+"}
+                    </span>
+                  </button>
+                  <div
+                    id={`faq-panel-${item.id}`}
+                    role="region"
+                    aria-labelledby={`faq-trigger-${item.id}`}
+                    className={`destination-faq__answer-wrap ${isOpen ? "is-open" : ""}`}
+                  >
+                    <div className="destination-faq__answer">
+                      <p>{item.answer}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="destination-faq__contact">
+            <h4 className="destination-faq__contact-title">Still have questions ?</h4>
+            <p className="destination-faq__contact-text">
+              We&apos;re here to answer all your questions. Reach out today!
+            </p>
+            <Link
+              href="/contact-us"
+              className="destination-faq__mail-btn"
+              aria-label="Open contact us page"
+            >
+              Send Mail
+            </Link>
           </div>
         </div>
       </div>

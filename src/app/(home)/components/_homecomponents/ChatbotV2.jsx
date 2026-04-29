@@ -11,7 +11,9 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 import { usePathname, useRouter } from "next/navigation";
 
-const CHATBOT_LOGO_SRC = "/icon/chatbot_logo.png";
+/** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
+const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot_new.gif";
+const CHATBOT_HEADER_LOGO = "/logo.webp";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -298,14 +300,15 @@ export default function ChatbotV2() {
         title={isOpen ? "Close chat" : "Open My Property Fact chat"}
       >
         {!isOpen ? (
-          <Image
-            src={CHATBOT_LOGO_SRC}
-            alt=""
-            width={30}
-            height={30}
-            sizes="30px"
-            style={{ objectFit: "contain" }}
-            aria-hidden
+          // eslint-disable-next-line @next/next/no-img-element -- GIF animation requires native img
+          <img
+            src={CHATBOT_LAUNCHER_LOGO}
+            alt="Open My Property Fact chat — assistant"
+            title="Open My Property Fact chat"
+            width={78}
+            height={78}
+            className={styles.launcherGif}
+            draggable={false}
           />
         ) : (
           <svg
@@ -330,12 +333,12 @@ export default function ChatbotV2() {
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
               <Image
-                src={CHATBOT_LOGO_SRC}
-                alt="My Property Fact — chat bot logo"
-                title="My Property Fact — chat bot logo"
-                width={40}
-                height={40}
-                sizes="40px"
+                src={CHATBOT_HEADER_LOGO}
+                alt="My Property Fact logo — chat widget header"
+                title="My Property Fact logo — chat widget header"
+                width={80}
+                height={74}
+                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

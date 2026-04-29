@@ -24,28 +24,52 @@
     --font-main: 'Outfit', sans-serif;
 }
 
-/* Launcher */
+/* Launcher — GIF only: no fill, border, or shadow on the button chrome */
 .launcher {
     position: fixed;
     bottom: 24px;
     right: 24px;
     width: 50px;
     height: 50px;
-    background: #C9A24D;
-    color: #FFFFFF;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    color: #243220;
     border: none;
-    border-radius: 50%;
+    border-radius: 0;
+    box-shadow: none;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s, background 0.2s;
+    transition: transform 0.2s ease;
     z-index: 2147483647;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.launcher:focus-visible {
+    outline: 2px solid rgba(13, 88, 52, 0.5);
+    outline-offset: 4px;
+}
+
+/* Match scrollToTop / lead-form stack: desktop uses 60px square for vertical gap math (.scroll-to-top-btn--home-stack bottom: calc(24px + 60px + 12px)) — same footprint as scroll circle (right edge aligns; centers stack). */
+.launcherGif {
+    width: 150px;
+    height: 150px;
+    max-width: none;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
 }
 
 .launcher:hover {
-    transform: scale(1.05);
-    background: #0f6a1f;
+    transform: scale(1.06);
+    background: transparent;
+    box-shadow: none;
+}
+
+.launcher:active {
+    transform: scale(0.98);
 }
 
 .launcher.hidden {
@@ -112,10 +136,13 @@
 }
 
 .avatar {
-    width: 40px;
     height: 40px;
+    width: auto;
+    aspect-ratio: 80 / 74;
+    max-width: 48px;
+    flex-shrink: 0;
     background: rgba(255, 255, 255, 0.12);
-    border-radius: 50%;
+    border-radius: 8px;
     overflow: hidden;
     padding: 4px;
 }
@@ -151,7 +178,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background-color: #F8FAFC;
+    background-color: #FFFFFF;
     scroll-behavior: smooth;
 }
 
@@ -640,16 +667,25 @@
 /* Tablet and below (max-width: 768px) */
 @media (max-width: 768px) {
     .launcher {
-        width: 56px;
-        height: 56px;
         bottom: 20px;
         right: 15px;
+        width: 78px;
+        height: 78px;
+        overflow: hidden;
+        border-radius: 16px;
+    }
+
+    .launcherGif {
+        width: 78px;
+        height: 78px;
+        transform: scale(1.35);
+        transform-origin: center;
     }
 
     .container {
         width: calc(100% - 32px);
         max-width: 380px;
-        bottom: 90px;
+        bottom: 102px;
         right: 16px;
         left: auto;
         height: calc(100vh - 120px);
@@ -666,8 +702,8 @@
     }
 
     .avatar {
-        width: 36px;
         height: 36px;
+        max-width: 44px;
     }
 
     .messages {
@@ -722,15 +758,24 @@
 /* Mobile devices (max-width: 480px) */
 @media (max-width: 480px) {
     .launcher {
-        width: 50px;
-        height: 50px;
         bottom: 16px;
         right: 11px;
+        width: 74px;
+        height: 74px;
+        overflow: hidden;
+        border-radius: 14px;
+    }
+
+    .launcherGif {
+        width: 74px;
+        height: 74px;
+        transform: scale(1.38);
+        transform-origin: center;
     }
 
     .container {
         width: calc(100% - 24px);
-        bottom: 80px;
+        bottom: 94px;
         right: 12px;
         height: calc(100vh - 100px);
         max-height: 70vh;
@@ -750,8 +795,8 @@
     }
 
     .avatar {
-        width: 32px;
         height: 32px;
+        max-width: 39px;
     }
 
     .messages {
@@ -847,15 +892,24 @@
 /* Small mobile devices (max-width: 360px) */
 @media (max-width: 360px) {
     .launcher {
-        width: 48px;
-        height: 48px;
         bottom: 12px;
         right: 12px;
+        width: 70px;
+        height: 70px;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+    .launcherGif {
+        width: 70px;
+        height: 70px;
+        transform: scale(1.4);
+        transform-origin: center;
     }
 
     .container {
         width: calc(100% - 16px);
-        bottom: 70px;
+        bottom: 90px;
         right: 8px;
         height: calc(100vh - 90px);
         max-height: 65vh;
@@ -870,8 +924,8 @@
     }
 
     .avatar {
-        width: 28px;
         height: 28px;
+        max-width: 34px;
     }
 
     .messages {

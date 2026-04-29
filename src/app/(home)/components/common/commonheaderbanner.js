@@ -2,6 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 import './common.css';
 
+function resolveBannerHeadingText(headerText, pageName) {
+  const h = headerText != null ? String(headerText).trim() : "";
+  if (h) return h;
+  const p = pageName != null ? String(pageName).trim() : "";
+  if (p) return p;
+  return "My Property Fact";
+}
+
 export default function CommonHeaderBanner({ image, headerText, firstPage, pageName, useH1 = true }) {
   // Build breadcrumb path
   const breadcrumbItems = [
@@ -54,9 +62,13 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
         {/* Content Container */}
         <div className="banner-content">
           {headerText === 'Blog-Detail' || !useH1 ? (
-            <p className="projects-heading fw-bold">{headerText}</p>
+            <p className="projects-heading fw-bold">
+              {resolveBannerHeadingText(headerText, pageName)}
+            </p>
           ) : (
-            <h1 className="projects-heading fw-bold">{headerText}</h1>
+            <h1 id="mpf-page-heading" className="projects-heading fw-bold">
+              {resolveBannerHeadingText(headerText, pageName)}
+            </h1>
           )}
           
           {/* Breadcrumb Navigation */}

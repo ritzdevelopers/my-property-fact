@@ -75,20 +75,29 @@ export const fetchBuilderData = cache(async () => {
   return res.json();
 });
 
-// Fetching project details by slug
 export const fetchProjectDetailsBySlug = cache(async (slug) => {
-  const projects = await fetchAllProjects();
-  const res = projects?.filter((item) => item.slugURL === slug);
-  if (res.length === 0) return "";
-
-  const projectBySlug = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}projects/get/${slug}`,
-    {
-      next: { revalidate: 60 },
-    },
-  );
-  if (!projectBySlug.ok) throw new Error("Failed to fetch project details");
-  return projectBySlug.json();
+  if (!apiUrl || slug == null || String(slug).trim() === "") {
+    return "";
+  }
+  const clean = String(slug).trim();
+  const res = await fetch(`${apiUrl}projects/get/${encodeURIComponent(clean)}`, {
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) {
+    return "";
+  }
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    return "";
+  }
+  if (!data || typeof data !== "object") return "";
+  const resolvedSlug =
+    data.slugURL != null ? String(data.slugURL).trim() : data.slugUrl != null ? String(data.slugUrl).trim() : "";
+  if (!resolvedSlug) return "";
+  if (resolvedSlug.toLowerCase() !== clean.toLowerCase()) return "";
+  return data;
 });
 
 /**
@@ -211,46 +220,58 @@ export function buildCompoundListingTitle(parsed) {
   return `${floor} ${cat} In ${city}`;
 }
 
-//Fetch all floor plans
+//Fetch all floor plans — slug set is cached once per server request (heavy API).
+const KNOWN_FLOOR_SLUGS_FALLBACK = [
+  "offices-and-shop",
+  "offices-and-shops",
+  "office-and-shop",
+  "offices",
+  "shops",
+  "office",
+  "shop",
+];
+
+const getFloorPlanUniqueUrls = cache(async () => {
+  if (!apiUrl) return new Set();
+  try {
+    const res = await fetch(`${apiUrl}floor-plans/get-all`, {
+      next: { revalidate: 120 },
+    });
+    if (!res.ok) return new Set();
+    const data = await res.json();
+    if (!Array.isArray(data)) return new Set();
+    const uniqueUrls = new Set();
+    data.forEach((project) => {
+      if (Array.isArray(project.plans)) {
+        project.plans.forEach((plan) => {
+          if (plan.planType) {
+            const slugified = plan.planType
+              .trim()
+              .toLowerCase()
+              .replace(/\s+/g, "-");
+            uniqueUrls.add(slugified);
+            uniqueUrls.add(normalizeFloorSlugSegment(slugified));
+          }
+        });
+      }
+    });
+    return uniqueUrls;
+  } catch {
+    return new Set();
+  }
+});
+
 export const isFloorTypeUrl = async (slug) => {
-  const res = await fetch(`${apiUrl}floor-plans/get-all`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch project details");
-  const data = await res.json(); // array of projects'
-  const uniqueUrls = new Set();
-  data.forEach((project) => {
-    if (Array.isArray(project.plans)) {
-      project.plans.forEach((plan) => {
-        if (plan.planType) {
-          const slugified = plan.planType
-            .trim()
-            .toLowerCase()
-            .replace(/\s+/g, "-");
-          uniqueUrls.add(slugified);
-          uniqueUrls.add(normalizeFloorSlugSegment(slugified));
-        }
-      });
-    }
-  });
+  if (!slug || typeof slug !== "string") return false;
+  const uniqueUrls = await getFloorPlanUniqueUrls();
   const floorType = slug.split("-in-")[0];
   const floorSlug = normalizeFloorSlugSegment(floorType);
-  // Fallback: known floor types that may not be in floor-plans API (e.g. offices-and-shop)
-  const knownFloorSlugs = [
-    "offices-and-shop",
-    "offices-and-shops",
-    "office-and-shop",
-    "offices",
-    "shops",
-    "office",
-    "shop",
-  ];
   const floorLower = floorType.toLowerCase();
   return (
     uniqueUrls.has(floorSlug) ||
     uniqueUrls.has(floorLower) ||
-    knownFloorSlugs.includes(floorSlug) ||
-    knownFloorSlugs.includes(floorLower)
+    KNOWN_FLOOR_SLUGS_FALLBACK.includes(floorSlug) ||
+    KNOWN_FLOOR_SLUGS_FALLBACK.includes(floorLower)
   );
 };
 

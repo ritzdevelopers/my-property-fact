@@ -14,7 +14,8 @@ import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/maste
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 
-export const dynamic = "force-dynamic";
+/** ISR-friendly cache; avoids force-dynamic so responses can be cached at the edge. */
+export const revalidate = 120;
 
 const SIMILAR_PROJECTS_MAX = 12;
 
@@ -71,11 +72,16 @@ export default async function PropertyPage({ params }) {
   ) {
     redirect(`/${canonicalFloorCity}`);
   }
-  const [cityList, projectDetail, featuredProjects] = await Promise.all([
+  const [cityList, projectDetail] = await Promise.all([
     fetchCityData(),
     fetchProjectDetailsBySlug(slug),
-    fetchAllProjects(),
   ]);
+
+  const projectResolved =
+    projectDetail &&
+    typeof projectDetail === "object" &&
+    !Array.isArray(projectDetail) &&
+    typeof projectDetail.slugURL === "string";
 
   let isCompoundFloorListing = false;
   if (maybeCompoundListing) {
@@ -91,20 +97,10 @@ export default async function PropertyPage({ params }) {
 
   const isFloorTypeSlug =
     !isCompoundFloorListing && (await isFloorTypeUrl(slug));
-  const isProjectSlug = projectDetail.slugURL === slug;
+  const isProjectSlug = projectResolved && projectDetail.slugURL === slug;
   /** Compound `{floor}-{category}-in-{city}` must not be treated as city hub (`*-in-{city}`). */
   const isCitySlug =
     !maybeCompoundListing && (await isCityTypeUrl(slug));
-
-  const similarProjectsSlim = featuredProjects
-    .filter(
-      (item) =>
-        item.cityName === projectDetail.city &&
-        item.propertyTypeName === projectDetail.propertyTypeName &&
-        item.id !== projectDetail.id,
-    )
-    .slice(0, SIMILAR_PROJECTS_MAX)
-    .map(slimProjectCardForPayload);
 
   if (isCitySlug) {
     return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
@@ -119,6 +115,18 @@ export default async function PropertyPage({ params }) {
   } else if (isFloorTypeSlug) {
     return <ProjectListByFloorType slug={slug} cityList={cityList} />;
   } else if (isProjectSlug) {
+    /** Full project list only needed for “similar projects” cards — skip for city/floor routes. */
+    const featuredProjects = await fetchAllProjects();
+    const similarProjectsSlim = featuredProjects
+      .filter(
+        (item) =>
+          item.cityName === projectDetail.city &&
+          item.propertyTypeName === projectDetail.propertyTypeName &&
+          item.id !== projectDetail.id,
+      )
+      .slice(0, SIMILAR_PROJECTS_MAX)
+      .map(slimProjectCardForPayload);
+
     const hasLocationBenefits =
       Array.isArray(projectDetail.locationBenefits) &&
       projectDetail.locationBenefits.length > 0;

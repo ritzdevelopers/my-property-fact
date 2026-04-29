@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { MPF_GATEWAY_HIDDEN_EVENT } from "./mpfGatewayEvents";
 import "./PopularProjectPromo.css";
 
 const HIDE_PREFIXES = ["/admin", "/portal"];
@@ -53,6 +54,14 @@ function getSlideDurations() {
   return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
 }
 
+/** Matches WebsiteGateway (globals.css): overlay uses `gateway-open`; completion adds `mpf-post-gateway-reveal`. */
+function isHomeGatewayRevealDone() {
+  if (typeof document === "undefined") return false;
+  if (document.body.classList.contains("mpf-post-gateway-reveal")) return true;
+  if (!document.body.classList.contains("gateway-open")) return true;
+  return false;
+}
+
 /**
  * @param {Object} props
  * @param {Array<{ key: string; name: string; href: string; imageUrl: string }>} props.items
@@ -60,7 +69,10 @@ function getSlideDurations() {
  */
 export default function PopularProjectPromoClient({ items, showAfterMs = 1000 }) {
   const pathname = usePathname() || "/";
+  const isHome = pathname === "/";
   const [dismissed, setDismissed] = useState(false);
+  /** On `/`, defer promo until the entry loader (WebsiteGateway) finishes or is skipped (SPA). */
+  const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
   const [ready, setReady] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
@@ -78,10 +90,26 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   );
 
   useEffect(() => {
-    if (list.length === 0 || hideByRoute || dismissed) return undefined;
+    if (!isHome) {
+      setGatewayRevealDone(true);
+      return undefined;
+    }
+    const sync = () => {
+      if (isHomeGatewayRevealDone()) setGatewayRevealDone(true);
+    };
+    sync();
+    if (isHomeGatewayRevealDone()) return undefined;
+
+    const onHidden = () => setGatewayRevealDone(true);
+    window.addEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
+    return () => window.removeEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
+  }, [isHome]);
+
+  useEffect(() => {
+    if (list.length === 0 || hideByRoute || dismissed || !gatewayRevealDone) return undefined;
     const t = window.setTimeout(() => setReady(true), showAfterMs);
     return () => window.clearTimeout(t);
-  }, [list.length, hideByRoute, dismissed, showAfterMs]);
+  }, [list.length, hideByRoute, dismissed, showAfterMs, gatewayRevealDone]);
 
   useEffect(() => {
     if (hideByRoute || dismissed) return;

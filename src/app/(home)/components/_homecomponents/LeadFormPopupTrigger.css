@@ -89,7 +89,7 @@
 @media (max-width: 768px) {
   .lead-form-popup-trigger {
     right: 15px;
-    bottom: calc(20px + 56px + 12px);
+    bottom: calc(20px + 78px + 12px);
     width: 48px;
     height: 130px;
   }
@@ -109,7 +109,7 @@
     min-width: 52px;
     min-height: 52px;
     right: 15px;
-    bottom: calc(20px + 56px + 12px);
+    bottom: calc(20px + 78px + 12px);
     padding: 5px;
   }
 
@@ -126,7 +126,7 @@
 @media (max-width: 480px) {
   .lead-form-popup-trigger {
     right: 11px;
-    bottom: calc(16px + 50px + 12px);
+    bottom: calc(16px + 74px + 12px);
     width: 44px;
     height: 120px;
   }
@@ -146,7 +146,7 @@
     min-width: 48px;
     min-height: 48px;
     right: 11px;
-    bottom: calc(16px + 50px + 12px);
+    bottom: calc(16px + 74px + 12px);
     padding: 5px;
   }
 
@@ -163,7 +163,7 @@
 @media (max-width: 360px) {
   .lead-form-popup-trigger {
     right: 12px;
-    bottom: calc(12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px);
   }
 
   .lead-form-popup-trigger:hover {
@@ -172,7 +172,7 @@
 
   .lead-form-popup-trigger--blog {
     right: 12px;
-    bottom: calc(12px + 48px + 12px);
+    bottom: calc(12px + 70px + 10px);
   }
 
   .lead-form-popup-trigger--blog:hover {
@@ -182,7 +182,7 @@
 
 /* Home: Uiverse-style sparkle hover (MuhammadHasann) — scoped, beside chat launcher */
 .lead-form-popup-trigger--home-beside-chat {
-  --enquire-peach: #1d8a0b;
+  --enquire-peach: #0D5834;
   --enquire-peach-glow: #fec1958c;
   --enquire-ink: #181818;
 
@@ -210,7 +210,7 @@
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: var(--enquire-ink);
+  color: #FFFFFF;
 
   background: var(--enquire-peach);
   box-shadow: 0 0 0 var(--enquire-peach-glow);
@@ -235,7 +235,7 @@
 }
 
 .lead-form-popup-trigger__star-path {
-  fill: #ffffff;
+  fill: #000000;
   transition: fill 0.35s ease;
 }
 
@@ -347,36 +347,40 @@
 
 @media (max-width: 768px) {
   .lead-form-popup-trigger--home-beside-chat {
-    right: calc(15px + 56px + 12px);
-    bottom: 20px;
-    min-height: 56px;
-    height: 56px;
-    padding: 0 14px;
-    font-size: 12px;
-    max-width: min(200px, calc(100vw - 28px - 56px - 12px - 16px));
+    right: 15px;
+    bottom: calc(20px + 78px + 10px);
+    min-height: 44px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    max-width: min(180px, calc(100vw - 30px));
   }
 }
 
 @media (max-width: 480px) {
   .lead-form-popup-trigger--home-beside-chat {
-    right: calc(11px + 50px + 12px);
-    bottom: 16px;
-    min-height: 50px;
-    height: 50px;
-    padding: 0 12px;
-    font-size: 11px;
-    letter-spacing: 0.02em;
+    right: 11px;
+    bottom: calc(16px + 74px + 10px);
+    min-height: 42px;
+    height: 42px;
+    padding: 0 11px;
+    font-size: 9px;
+    letter-spacing: 0.015em;
+    max-width: min(160px, calc(100vw - 22px));
   }
 }
 
 @media (max-width: 360px) {
   .lead-form-popup-trigger--home-beside-chat {
-    right: calc(12px + 48px + 12px);
-    bottom: 12px;
-    min-height: 48px;
-    height: 48px;
+    right: 12px;
+    bottom: calc(12px + 70px + 8px);
+    min-height: 40px;
+    height: 40px;
     padding: 0 10px;
-    font-size: 10px;
+    font-size: 9px;
+    letter-spacing: 0.015em;
+    max-width: min(152px, calc(100vw - 24px));
   }
 }
 

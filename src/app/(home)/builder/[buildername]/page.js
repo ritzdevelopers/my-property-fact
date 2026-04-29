@@ -2,6 +2,8 @@ import { fetchBuilderDetails } from "@/app/_global_components/masterFunction";
 import { notFound } from "next/navigation";
 import BuilderPage from "./builderpage";
 
+export const revalidate = 120;
+
 //Generating metatitle and meta description
 export async function generateMetadata({ params }) {
   const { buildername } = await params;

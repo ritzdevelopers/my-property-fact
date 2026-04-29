@@ -3,7 +3,7 @@ import NewContactUs from "./NewContactUs";
 
 export default function ContactUsPage() {
   return (
-    <>
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
       <CommonHeaderBanner
         image={"contact-banner.jpg"}
         headerText={"Contact Us"}
@@ -11,6 +11,6 @@ export default function ContactUsPage() {
       />
       {/* <CommonBreadCrum pageName={"Contact-us"} /> */}
       <NewContactUs />
-    </>
+    </main>
   );
 }

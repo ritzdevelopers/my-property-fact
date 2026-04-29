@@ -3,6 +3,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
 import { Accordion, Button, Form, Modal } from "react-bootstrap";
@@ -28,42 +29,71 @@ export default function ManageFaqs({ list, projectsList }) {
     const [faqList, setFaqList] = useState([]);
     const [projetOption, setProjectOption] = useState([]);
 
+    const mutationHeaders = () => {
+        const token =
+            typeof window !== "undefined" ? Cookies.get("token") : undefined;
+        return {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+    };
+
     //Handling submitting form
     const handleSubmit = async (e) => {
         e.preventDefault();
         const form = e.currentTarget;
+        const normalizedQuestion = question.trim();
+        const normalizedAnswer = answer.trim();
+        const normalizedProjectId = Number(projectId);
+
         if (form.checkValidity() === false) {
             e.stopPropagation();
             setValidated(true);
             return;
         }
+        if (!normalizedProjectId || Number.isNaN(normalizedProjectId)) {
+            toast.error("Please select a valid project");
+            setValidated(true);
+            return;
+        }
+        if (!normalizedQuestion || !normalizedAnswer) {
+            toast.error("Question and answer are required");
+            setValidated(true);
+            return;
+        }
         if (form.checkValidity() === true) {
             const data = {
-                question: question,
-                answer: answer,
-                projectId: projectId,
+                question: normalizedQuestion,
+                answer: normalizedAnswer,
+                projectId: normalizedProjectId,
             };
             if (faqId > 0) {
-                data.id = faqId;
+                data.id = Number(faqId);
             }
             try {
                 setShowLoading(true);
                 setButtonName("");
                 const response = await axios.post(
                     `${process.env.NEXT_PUBLIC_API_URL}project-faqs/add-update`,
-                    data
+                    data,
+                    {
+                        withCredentials: true,
+                        headers: mutationHeaders(),
+                    }
                 );
                 if (response.data.isSuccess === 1) {
                     toast.success(response.data.message);
                     router.refresh();
                     setShow(false);
                     setShowFaqList(false);
+                } else {
+                    toast.error(response?.data?.message || "Failed to save FAQ");
                 }
             } catch (error) {
-                toast.error("Error Occured");
+                toast.error(error?.response?.data?.message || "Error Occured");
             } finally {
                 setShowLoading(false);
-                setButtonName("Add FAQ");
+                setButtonName(faqId > 0 ? "Update" : "Add FAQ");
             }
         }
     };
@@ -101,6 +131,7 @@ export default function ManageFaqs({ list, projectsList }) {
         setAnswer(item.answer);
         setQuestion(item.question);
         setFaqId(item.id);
+        setProjectId(item.projectId || projectId || 0);
         projectWithoutFaq();
     };
 
@@ -158,7 +189,7 @@ export default function ManageFaqs({ list, projectsList }) {
                                 onChange={(e) => setProjectId(e.target.value)}
                                 value={projectId}
                                 required
-                                disabled={projectId !== 0 ? true : false}
+                                disabled={faqId > 0}
                             >
                                 <option value="">Select Project</option>
                                 {projetOption

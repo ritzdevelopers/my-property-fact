@@ -94,7 +94,7 @@ export default async function AboutUsPage() {
   ];
 
   return (
-    <>
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
       <CommonHeaderBanner 
       // image={"about-us.jpg"} 
       headerText={"About Us"} 
@@ -108,6 +108,6 @@ export default async function AboutUsPage() {
         ourCommitment={ourCommitment}
       /> */}
       <NewAboutUs platformStats={platformStats} />
-    </>
+    </main>
   );
 }

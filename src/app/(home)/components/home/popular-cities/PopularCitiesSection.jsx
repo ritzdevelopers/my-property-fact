@@ -101,7 +101,7 @@ export default function PopularCitiesSection() {
             >
               Popular Cities
             </h2>
-            <p className="pc__lede">Explore top markets we cover — tap a city to see listings &amp; trends.</p>
+            <p className="pc__lede">Explore top markets we cover tap a city to see listings &amp; trends.</p>
             <div className="pc__ghost" aria-hidden>
               India
             </div>

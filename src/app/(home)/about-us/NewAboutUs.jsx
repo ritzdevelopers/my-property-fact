@@ -44,7 +44,9 @@ export default function NewAboutUs({ platformStats }) {
   const [viewportWidth, setViewportWidth] = useState(0);
   const [wrapperWidth, setWrapperWidth] = useState(0);
   const cardsWrapperRef = useRef(null);
+  const cardsTrackRef = useRef(null);
   const [isReadMore, setIsReadMore] = useState(false);
+  const isMobile = viewportWidth > 0 && viewportWidth <= 768;
 
   const cardsPerView = useMemo(() => {
     if (viewportWidth <= 0) return 1;
@@ -189,15 +191,42 @@ export default function NewAboutUs({ platformStats }) {
   const nextSlide = () => {
     setCurrentSlide((prev) => {
       const maxSlide = totalSlides - 1;
-      return prev < maxSlide ? prev + 1 : prev;
+      const next = prev < maxSlide ? prev + 1 : prev;
+      if (isMobile && cardsWrapperRef.current) {
+        cardsWrapperRef.current.scrollTo({
+          left: next * (wrapperWidth + section3Gap),
+          behavior: "smooth",
+        });
+      }
+      return next;
     });
   };
 
   const prevSlide = () => {
     setCurrentSlide((prev) => {
-      return prev > 0 ? prev - 1 : prev;
+      const next = prev > 0 ? prev - 1 : prev;
+      if (isMobile && cardsWrapperRef.current) {
+        cardsWrapperRef.current.scrollTo({
+          left: next * (wrapperWidth + section3Gap),
+          behavior: "smooth",
+        });
+      }
+      return next;
     });
   };
+
+  useEffect(() => {
+    if (!isMobile || !cardsWrapperRef.current) return undefined;
+    const el = cardsWrapperRef.current;
+    const onScroll = () => {
+      const step = wrapperWidth + section3Gap;
+      if (!step) return;
+      const idx = Math.round(el.scrollLeft / step);
+      setCurrentSlide((prev) => (prev === idx ? prev : idx));
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [isMobile, wrapperWidth, section3Gap]);
 
   const isPrevDisabled = currentSlide === 0;
   const isNextDisabled = currentSlide >= totalSlides - 1;
@@ -408,13 +437,18 @@ export default function NewAboutUs({ platformStats }) {
 
           <div className="new-about-us-section-3-cards-wrapper" ref={cardsWrapperRef}>
             <motion.div
+              ref={cardsTrackRef}
               className="new-about-us-section-3-cards"
-              animate={{ x: trackX }}
-              transition={{
-                type: "tween",
-                duration: 0.42,
-                ease: [0.25, 0.1, 0.25, 1],
-              }}
+              animate={isMobile ? undefined : { x: trackX }}
+              transition={
+                isMobile
+                  ? undefined
+                  : {
+                      type: "tween",
+                      duration: 0.42,
+                      ease: [0.25, 0.1, 0.25, 1],
+                    }
+              }
             >
               {slidesData.map((slide, index) => (
                 <motion.div

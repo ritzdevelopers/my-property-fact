@@ -942,13 +942,13 @@ const HeaderComponent = () => {
                 </li>
                 <li className="hasChild">
                   <Link
-                    href="/career"
-                    className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/career" ? "header-link-active" : ""
+                    href="/join-our-team"
+                    className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/join-our-team" ? "header-link-active" : ""
                       }`}
-                    title="Careers"
+                    title="Join Our Team"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Career
+                      Join Our Team
                     </span>
                   </Link>
                 </li>
@@ -1372,12 +1372,12 @@ const HeaderComponent = () => {
                 <li>
                   <Link
                     className="text-decoration-none"
-                    href="/career"
+                    href="/join-our-team"
                     onClick={openMenu}
-                    title="Careers"
+                    title="Join Our Team"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Career
+                      Join Our Team
                     </span>
                   </Link>
                 </li>

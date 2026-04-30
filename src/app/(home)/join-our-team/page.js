@@ -5,7 +5,7 @@ export const metadata = {
   description:
     "Explore exciting career opportunities at MyPropertyFact. Join a passionate team shaping the future of real estate data, insights, and technology in India.",
   alternates: {
-    canonical: "/career",
+    canonical: "/join-our-team",
   },
 };
 

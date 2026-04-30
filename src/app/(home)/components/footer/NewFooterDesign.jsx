@@ -194,7 +194,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                 <div className="footer-section-heading h4">Resources</div>
                 <ul className="footer-links">
                   <li>
-                    <Link href="/career" className="footer-link" title="Careers at My Property Fact">Careers</Link>
+                    <Link href="/join-our-team" className="footer-link" title="Join our team — careers at My Property Fact">Join Our Team</Link>
                   </li>
                   <li>
                     <Link href="/blog" className="footer-link" title="My Property Fact Blog">Blog</Link>

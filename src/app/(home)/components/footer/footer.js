@@ -41,8 +41,8 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
     },
     {
       id: 5,
-      name: "Career",
-      slugUrl: "/career",
+      name: "Join Our Team",
+      slugUrl: "/join-our-team",
     },
   ];
   //Defining Explore array

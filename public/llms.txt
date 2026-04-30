@@ -401,5 +401,5 @@ Language: English
 
 - [EMI Calculator](https://mypropertyfact.in/emi-calculator): Calculate your home loan EMI instantly with an easy-to-use EMI calculator to plan your property investment and financial decisions effectively.
 - [Locate Score](https://mypropertyfact.in/locate-score): Discover Locate Score, India’s smartest property rating system to evaluate locations based on connectivity, infrastructure, and investment potential.
-- [Careers](https://mypropertyfact.in/career): Open positions and job applications.
+- [Join Our Team](https://mypropertyfact.in/join-our-team): Open positions and job applications.
 - [Privacy Policy](https://mypropertyfact.in/privacy-policy)

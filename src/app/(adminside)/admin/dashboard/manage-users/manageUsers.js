@@ -20,6 +20,23 @@ const apiWithAuth = () => ({
   },
 });
 
+const USER_CATEGORY_OPTIONS = [
+  { value: "APP_USER", label: "App User", hint: "Registered from website/app flows" },
+  { value: "ADMIN_USER", label: "Admin User", hint: "Created from admin portal side" },
+  { value: "TEST_USER", label: "Test User", hint: "Internal QA/testing account" },
+];
+
+const USER_CATEGORY_LABELS = {
+  APP_USER: "App User",
+  ADMIN_USER: "Admin User",
+  TEST_USER: "Test User",
+};
+
+function normalizeUserCategory(value) {
+  const v = String(value || "").trim().toUpperCase();
+  return USER_CATEGORY_LABELS[v] ? v : "APP_USER";
+}
+
 export default function ManageUsers({ users: initialUsers }) {
   const router = useRouter();
   const { isSuperAdmin, currentUserId } = useAdminRole();
@@ -56,6 +73,7 @@ export default function ManageUsers({ users: initialUsers }) {
     dashboardUsername: "",
     adminPermissions: [],
     enquiryAccessPin: "",
+    userCategory: "APP_USER",
   });
 
   // Fetch roles and users on the client with the same auth as other admin calls.
@@ -143,6 +161,7 @@ export default function ManageUsers({ users: initialUsers }) {
         ? [...user.adminPermissions]
         : [],
       enquiryAccessPin: "",
+      userCategory: normalizeUserCategory(user.userCategory),
     });
     setShowModal(true);
   };
@@ -164,6 +183,7 @@ export default function ManageUsers({ users: initialUsers }) {
       dashboardUsername: "",
       adminPermissions: [],
       enquiryAccessPin: "",
+      userCategory: "APP_USER",
     });
   };
 
@@ -204,6 +224,13 @@ export default function ManageUsers({ users: initialUsers }) {
         };
       }
     });
+  };
+
+  const handleUserCategoryPick = (value) => {
+    setFormData((prev) => ({
+      ...prev,
+      userCategory: normalizeUserCategory(value),
+    }));
   };
 
   const handleAdminPermissionToggle = (key) => {
@@ -290,6 +317,9 @@ export default function ManageUsers({ users: initialUsers }) {
         enabled: formData.enabled,
         dashboardUsername: formData.dashboardUsername,
       };
+      if (isSuperAdmin) {
+        userPayload.userCategory = normalizeUserCategory(formData.userCategory);
+      }
       if (editorHasAdminRole()) {
         userPayload.adminPermissions = formData.adminPermissions || [];
       }
@@ -582,6 +612,7 @@ export default function ManageUsers({ users: initialUsers }) {
                 <th>Dash. user</th>
                 <th>Phone</th>
                 <th>Roles</th>
+                <th>User type</th>
                 {isSuperAdmin ? (
                   <>
                     <th>Admin</th>
@@ -598,7 +629,7 @@ export default function ManageUsers({ users: initialUsers }) {
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={isSuperAdmin ? 12 : 9}
+                    colSpan={isSuperAdmin ? 13 : 10}
                     className="text-center text-muted py-4"
                   >
                     No users match your search.
@@ -640,6 +671,11 @@ export default function ManageUsers({ users: initialUsers }) {
                             </span>
                           ))
                         )}
+                      </td>
+                      <td>
+                        <span className="admin-chip-user-type">
+                          {USER_CATEGORY_LABELS[normalizeUserCategory(user.userCategory)]}
+                        </span>
                       </td>
                       {isSuperAdmin ? (
                         <>
@@ -1060,6 +1096,38 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
             </Row>
+            {isSuperAdmin ? (
+              <div className="admin-user-type-card mb-3">
+                <div className="admin-modal-section-title mb-2">User segment</div>
+                <div className="admin-user-type-options" role="radiogroup" aria-label="User segment">
+                  {USER_CATEGORY_OPTIONS.map((opt) => {
+                    const active = normalizeUserCategory(formData.userCategory) === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        className={`admin-user-type-option${active ? " is-active" : ""}`}
+                        onClick={() => handleUserCategoryPick(opt.value)}
+                      >
+                        <span className="admin-user-type-option-title">{opt.label}</span>
+                        <span className="admin-user-type-option-hint">{opt.hint}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="admin-user-type-preview mt-2">
+                  Current label:{" "}
+                  <span className="admin-chip-user-type">
+                    {USER_CATEGORY_LABELS[normalizeUserCategory(formData.userCategory)]}
+                  </span>
+                </div>
+                <Form.Text className="text-muted">
+                  Super Admin can mark each account as App User, Admin User, or Test User.
+                </Form.Text>
+              </div>
+            ) : null}
 
             <div className="admin-modal-section-title">Password</div>
             <Row>

@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  faFacebook,
   faInstagram,
   faLinkedin,
   faXTwitter,
@@ -253,7 +252,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               title="My Property Fact on Facebook"
               aria-label="My Property Fact on Facebook"
             >
-              <FontAwesomeIcon icon={faFacebook} />
+              <Image
+                src="/static/icon/facebook.png"
+                alt="Facebook"
+                title="Facebook"
+                width={24}
+                height={24}
+              />
             </a>
             <a
               href="https://x.com/my_propertyfact"
@@ -263,7 +268,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               title="My Property Fact on X"
               aria-label="My Property Fact on X"
             >
-              <FontAwesomeIcon icon={faXTwitter} />
+              <Image
+                src="/static/icon/twitter (1).png"
+                alt="X (Twitter)"
+                title="X (Twitter)"
+                width={24}
+                height={24}
+              />
             </a>
             <a
               href="https://www.instagram.com/my.property.fact/"
@@ -273,7 +284,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               title="My Property Fact on Instagram"
               aria-label="My Property Fact on Instagram"
             >
-              <FontAwesomeIcon icon={faInstagram} />
+              <Image
+                src="/static/icon/instagram.png"
+                alt="Instagram"
+                title="Instagram"
+                width={24}
+                height={24}
+              />
             </a>
             <a
               href="https://www.linkedin.com/company/my-property-fact/"
@@ -283,7 +300,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               title="My Property Fact on LinkedIn"
               aria-label="My Property Fact on LinkedIn"
             >
-              <FontAwesomeIcon icon={faLinkedin} />
+              <Image
+                src="/static/icon/linkedin.png"
+                alt="LinkedIn"
+                title="LinkedIn"
+                width={24}
+                height={24}
+              />
             </a>
             <a
               href="https://www.youtube.com/@my.propertyfact/"
@@ -293,7 +316,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               title="My Property Fact on YouTube"
               aria-label="My Property Fact on YouTube"
             >
-              <FontAwesomeIcon icon={faYoutube} />
+              <Image
+                src="/static/icon/youtube.png"
+                alt="YouTube"
+                title="YouTube"
+                width={24}
+                height={24}
+              />
             </a>
           </div>
         </div>

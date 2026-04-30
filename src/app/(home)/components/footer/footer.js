@@ -1,6 +1,5 @@
 "use client";
 import {
-  faFacebook,
   faInstagram,
   faLinkedin,
   faTwitter,
@@ -10,6 +9,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./footer.css";
 import Link from "next/link";
+import Image from "next/image";
 import CityList from "../common/citylistcard";
 
 export default function Footer({ cityList = [], projectTypes = [] }) {
@@ -200,7 +200,13 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       target="_blank"
                       title="facebook"
                     >
-                      <FontAwesomeIcon icon={faFacebook} />
+                      <Image
+                        src="/static/icon/facebook.png"
+                        alt="Facebook"
+                        title="Facebook"
+                        width={24}
+                        height={24}
+                      />
                     </Link>
                   </li>
                   <li className="">
@@ -210,7 +216,13 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       target="_blank"
                       title="instagram"
                     >
-                      <FontAwesomeIcon icon={faInstagram} />
+                      <Image
+                        src="/static/icon/instagram.png"
+                        alt="Instagram"
+                        title="Instagram"
+                        width={24}
+                        height={24}
+                      />
                     </Link>
                   </li>
                   <li className="">
@@ -220,7 +232,13 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       target="_blank"
                       title="linkedin"
                     >
-                      <FontAwesomeIcon icon={faLinkedin} />
+                      <Image
+                        src="/static/icon/linkedin.png"
+                        alt="LinkedIn"
+                        title="LinkedIn"
+                        width={24}
+                        height={24}
+                      />
                     </Link>
                   </li>
                   <li className="">
@@ -230,7 +248,13 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       target="_blank"
                       title="youtube"
                     >
-                      <FontAwesomeIcon icon={faYoutube} />
+                      <Image
+                        src="/static/icon/youtube.png"
+                        alt="YouTube"
+                        title="YouTube"
+                        width={24}
+                        height={24}
+                      />
                     </Link>
                   </li>
                   <li className="">
@@ -240,7 +264,13 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       target="_blank"
                       title="X"
                     >
-                      <FontAwesomeIcon icon={faXTwitter} />
+                      <Image
+                        src="/static/icon/twitter.png"
+                        alt="X (Twitter)"
+                        title="X (Twitter)"
+                        width={24}
+                        height={24}
+                      />
                     </Link>
                   </li>
                 </ul>

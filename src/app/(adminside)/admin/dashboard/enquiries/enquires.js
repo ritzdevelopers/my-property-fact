@@ -21,13 +21,10 @@ import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
-  const from = row.enquiryFrom;
-  if (from != null && String(from).trim() !== "") return String(from).trim();
-  if (row.pageName != null && String(row.pageName).trim() !== "")
-    return String(row.pageName).trim();
-  if (row.projectLink != null && String(row.projectLink).trim() !== "")
-    return "Project / listing";
-  return "—";
+  const from = String(row.enquiryFrom || "").trim().toUpperCase();
+  if (from === "APP") return "App";
+  // Existing frontend flow should be treated as Website by default.
+  return "Website";
 }
 
 function formatEnquiryDate(row) {
@@ -58,6 +55,26 @@ function truncate(text, max) {
   const s = String(text);
   if (s.length <= max) return s;
   return `${s.slice(0, max)}…`;
+}
+
+function sourceBadgeClass(source) {
+  return source === "App" ? "admin-chip-role" : "admin-chip-ok";
+}
+
+function getSourcePageLink(row) {
+  const direct = String(row?.projectLink || "").trim();
+  if (direct) return direct;
+
+  const pageName = String(row?.pageName || "").trim();
+  if (!pageName) return "";
+  if (/^https?:\/\//i.test(pageName)) return pageName;
+  if (pageName.startsWith("/")) {
+    if (typeof window !== "undefined" && window.location?.origin) {
+      return `${window.location.origin}${pageName}`;
+    }
+    return pageName;
+  }
+  return "";
 }
 
 const PAGE_SIZE = 10;
@@ -587,7 +604,8 @@ export default function Enquiries() {
                   <th>Name</th>
                   <th>Contact Info</th>
                   <th>Message</th>
-                  <th>Source & Page</th>
+                  <th>Device Source</th>
+                  <th>Source Page</th>
                   <th>When</th>
                   <th style={{ width: 140 }}>Status</th>
                   <th style={{ width: 60 }} className="text-center">Action</th>
@@ -606,6 +624,7 @@ export default function Enquiries() {
                     const when = formatEnquiryDate(row);
                     const st = row.status || "New";
                     const rowNum = safePage * PAGE_SIZE + idx + 1;
+                    const sourcePageLink = getSourcePageLink(row);
                     return (
                       <tr key={row.id}>
                         <td>{rowNum}</td>
@@ -626,14 +645,25 @@ export default function Enquiries() {
                           </div>
                         </td>
                         <td>
-                          <div className="small fw-600 text-primary mb-1">{truncate(src, 30)}</div>
-                          <div className="small text-muted" title={row.pageName}>
-                            {row.projectLink ? (
-                              <Link href={row.projectLink} target="_blank" className="text-decoration-none">
-                                {truncate(row.pageName || "View Page", 25)}
-                              </Link>
-                            ) : truncate(row.pageName, 25)}
+                          <div className="small mb-1">
+                            <span className={sourceBadgeClass(src)}>{src}</span>
                           </div>
+                        </td>
+                        <td>
+                          {sourcePageLink ? (
+                            <Link
+                              href={sourcePageLink}
+                              target="_blank"
+                              className="small text-decoration-none"
+                              title={sourcePageLink}
+                            >
+                              {truncate(sourcePageLink, 42)}
+                            </Link>
+                          ) : (
+                            <div className="small text-muted" title={row.pageName}>
+                              {truncate(row.pageName, 25)}
+                            </div>
+                          )}
                         </td>
                         <td>
                           <div className="text-nowrap small text-dark fw-500">{when}</div>

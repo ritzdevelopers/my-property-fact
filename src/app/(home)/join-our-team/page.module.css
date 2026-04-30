@@ -2,3 +2,26 @@
 .jobPostContainer {
     min-height: 430px;
 }
+
+.roleCardIcon {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+}
+
+.themeBtn {
+    background-color: #005032 !important;
+    border-color: #005032 !important;
+    color: #ffffff !important;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.themeBtn:hover,
+.themeBtn:focus,
+.themeBtn:active {
+    background-color: #006d45 !important;
+    border-color: #006d45 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 80, 50, 0.2) !important;
+}

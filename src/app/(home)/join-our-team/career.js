@@ -10,6 +10,36 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 
+function getRoleIconByTitle(title) {
+  const t = String(title || "").toLowerCase();
+  if (
+    t.includes("film") ||
+    t.includes("video") ||
+    t.includes("editor") ||
+    t.includes("motion")
+  ) {
+    return "/static/icon/film-editor.png";
+  }
+  if (t.includes("react")) {
+    return "/static/icon/react.png";
+  }
+  if (
+    t.includes("sales") ||
+    t.includes("business development") ||
+    t.includes("bdm")
+  ) {
+    return "/static/icon/sales-rep.png";
+  }
+  if (
+    t.includes("writer") ||
+    t.includes("content") ||
+    t.includes("copy")
+  ) {
+    return "/static/icon/writer.png";
+  }
+  return "/static/icon/developer.png";
+}
+
 export default function Career({ jobsArr }) {
   const [showJobDescription, setShowJobDescription] = useState(false);
   const [longDescription, setLongDescription] = useState("");
@@ -145,6 +175,7 @@ export default function Career({ jobsArr }) {
             {jobsArr.map((item, index) => {
               const roleLabel = item.postName?.trim() || "Open position";
               const roleIconAlt = `${roleLabel} — job role icon on My Property Fact careers page`;
+              const roleIconSrc = getRoleIconByTitle(item.postName);
               return (
               <div
                 key={`${item.id}-${index}`}
@@ -153,31 +184,21 @@ export default function Career({ jobsArr }) {
                 <div
                   className={`bg-white text-center job-post-container rounded-3 p-5 ${styles.jobPostContainer} p-4 mb-4`}
                 >
-                  <div className="d-flex justify-content-center align-items-center mb-3 position-relative">
-                    <div
-                      className="rounded-circle d-flex justify-content-center align-items-center self-align-center mb-3"
-                      style={{
-                        backgroundColor: "#FDDAD8",
-                        width: "80px",
-                        height: "80px",
-                      }}
-                    >
-                      <Image
-                        src={`/vector_icon.png`}
-                        alt={roleIconAlt}
-                        title={roleIconAlt}
-                        width={50}
-                        height={50}
-                        className="img-fluid mb-3 position-absolute"
-                        style={{ top: "12px" }}
-                      />
-                    </div>
+                  <div className="d-flex justify-content-center align-items-center mb-3">
+                    <Image
+                      src={roleIconSrc}
+                      alt={roleIconAlt}
+                      title={roleIconAlt}
+                      width={72}
+                      height={72}
+                      className={`img-fluid ${styles.roleCardIcon}`}
+                    />
                   </div>
                   <h3 className="mt-3">{item.postName}</h3>
                   <p>{item.shortDescription}</p>
                   <div className="d-flex justify-content-around mt-4">
                     <Button
-                      className="btn-background border-0"
+                      className={`${styles.themeBtn} border-0`}
                       onClick={() => openJobDescription(item)}
                     >
                       View Job Description
@@ -248,7 +269,7 @@ export default function Career({ jobsArr }) {
             you are passionate about real estate and technology, we would love
             to hear from you.
           </p>
-          <Button className="btn-background border-0" onClick={applyForJob}>Apply Now</Button>
+          <Button className={`${styles.themeBtn} border-0`} onClick={applyForJob}>Apply Now</Button>
         </div>
       </section>
 
@@ -270,7 +291,7 @@ export default function Career({ jobsArr }) {
           >
             Close
           </Button>
-          <Button variant="success" onClick={applyForJob}>
+          <Button className={styles.themeBtn} onClick={applyForJob}>
             Apply Now
           </Button>
         </Modal.Footer>
@@ -389,7 +410,7 @@ export default function Career({ jobsArr }) {
               />
             </Form.Group> */}
 
-            <Button variant="success" type="submit" className="mt-4">
+            <Button type="submit" className={`${styles.themeBtn} mt-4`}>
               Submit Application
             </Button>
           </Form>

@@ -12,7 +12,7 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { usePathname, useRouter } from "next/navigation";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
-const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot_new.gif";
+const CHATBOT_LAUNCHER_LOGO = "/static/icon/gif 2.gif";
 const CHATBOT_HEADER_LOGO = "/logo.webp";
 
 function createSessionId() {

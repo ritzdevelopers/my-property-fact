@@ -81,6 +81,9 @@ const nextConfig = {
       { source: "/landing-pages/sikka-kimaya/thanks", destination: "/", permanent: true },
       { source: "/promotional-pages/sikka-kimaya", destination: "/", permanent: true },
 
+      { source: "/career", destination: "/join-our-team", permanent: true },
+
+
 
 
       {

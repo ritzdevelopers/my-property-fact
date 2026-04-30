@@ -119,8 +119,8 @@ export default function Career({ jobsArr }) {
   };
   return (
     <>
-      <CommonHeaderBanner image={"career.jpg"} headerText={"Career"} />
-      <CommonBreadCrum pageName={"Career"} />
+      <CommonHeaderBanner image={"career.jpg"} headerText={"Join Our Team"} />
+      <CommonBreadCrum pageName={"Join Our Team"} />
       <section className="container mt-3 mb-5">
         <h2 className="text-center mb-3">Your next career move starts here.</h2>
         <p className="text-center mb-3">

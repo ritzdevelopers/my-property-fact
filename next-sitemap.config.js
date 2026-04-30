@@ -137,6 +137,42 @@ module.exports = {
       }))
     );
 
+    // Web stories from API: include hub page and each story category slug.
+    allPaths.push({
+      loc: "/web-stories",
+      changefreq: "weekly",
+      priority: 0.72,
+      lastmod: new Date().toISOString(),
+    });
+    try {
+      const webStoryRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get-all`
+      );
+      if (webStoryRes.ok) {
+        const webStoryCategories = await webStoryRes.json();
+        const wsStamp = new Date().toISOString();
+        if (Array.isArray(webStoryCategories)) {
+          allPaths = allPaths.concat(
+            webStoryCategories
+              .filter(
+                (item) =>
+                  item?.categoryName &&
+                  Array.isArray(item?.webStories) &&
+                  item.webStories.length > 0
+              )
+              .map((item) => ({
+                loc: `/web-story/${toPathSlug(item.categoryName)}`,
+                changefreq: "weekly",
+                priority: 0.68,
+                lastmod: wsStamp,
+              }))
+          );
+        }
+      }
+    } catch (error) {
+      // Keep sitemap generation resilient when API is unavailable at build time.
+    }
+
     // Builders
     const buildersRes = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}builder/get-all`

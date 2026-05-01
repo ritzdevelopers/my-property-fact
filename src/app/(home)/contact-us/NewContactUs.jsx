@@ -7,13 +7,31 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 
+/** Static spotlight card (no projects API on contact page). */
+const CONTACT_SPOTLIGHT = {
+  title: "Ansal Corporate Park, Noida",
+
+  imageSrc:
+    "/static/banners/Ansal%20Corporate%20Park-%20Noida__1556971966.jpg",
+  imageAlt:
+    "Ansal Corporate Park, Noida — commercial building featured on My Property Fact contact page",
+};
+
+const INTEREST_OPTIONS = [
+  "Commercial Property",
+  "Residential Property",
+  "Plot / Land",
+  "Investment / Advisory",
+  "Other",
+];
+
 export default function NewContactUs() {
   const pathname = usePathname();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     phone: "",
-    preferredTime: "",
+    interestedIn: "Commercial Property",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,15 +75,19 @@ export default function NewContactUs() {
     if (!phone.trim()) {
       return "Phone number is required";
     }
-    // Remove spaces, dashes, and parentheses for validation
-    const cleanedPhone = phone.replace(/[\s\-\(\)]/g, "");
+    let cleanedPhone = phone.replace(/[\s\-\(\)]/g, "");
+    if (cleanedPhone.startsWith("+91")) {
+      cleanedPhone = cleanedPhone.slice(3);
+    } else if (cleanedPhone.startsWith("91") && cleanedPhone.length >= 12) {
+      cleanedPhone = cleanedPhone.slice(2);
+    }
     // Check if it's all digits
     if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
+      return "Phone number can only contain digits, spaces, dashes, parentheses, or +91";
     }
     // Check length (exactly 10 digits)
     if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
+      return "Phone number must be exactly 10 digits (after country code)";
     }
     // Check if first digit is between 6-9
     if (!/^[6-9]/.test(cleanedPhone)) {
@@ -134,7 +156,7 @@ export default function NewContactUs() {
       !emailError &&
       !phoneError &&
       formData.message.trim() !== "" &&
-      formData.preferredTime.trim() !== "";
+      formData.interestedIn.trim() !== "";
 
     if (!isFormValid) {
       e.stopPropagation();
@@ -150,14 +172,14 @@ export default function NewContactUs() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        message: formData.preferredTime
-          ? `Preferred Time: ${formData.preferredTime}\n\nMessage: ${formData.message}`
+        interestedIn: formData.interestedIn,
+        message: formData.interestedIn
+          ? `Interested In: ${formData.interestedIn}\n\nMessage: ${formData.message}`
           : formData.message,
         pageName: "Contact Us - Get A Quote",
         enquiryFrom: "Contact Us Page",
-        projectLink: `${
-          process.env.NEXT_PUBLIC_ROOT_URL || window.location.origin
-        }${pathname}`,
+        projectLink: `${process.env.NEXT_PUBLIC_ROOT_URL || window.location.origin
+          }${pathname}`,
         status: "PENDING",
         id: 0, // Required for new enquiry
       };
@@ -181,7 +203,7 @@ export default function NewContactUs() {
           name: "",
           email: "",
           phone: "",
-          preferredTime: "",
+          interestedIn: "Commercial Property",
           message: "",
         });
         setErrors({
@@ -199,8 +221,8 @@ export default function NewContactUs() {
       console.error("Error submitting enquiry:", error);
       toast.error(
         error.response?.data?.message ||
-          error.message ||
-          "An error occurred. Please try again later."
+        error.message ||
+        "An error occurred. Please try again later."
       );
     } finally {
       setIsSubmitting(false);
@@ -210,7 +232,7 @@ export default function NewContactUs() {
   return (
     <>
       {/* Contact inforamtion of MPF here  */}
-      <div className="container-fluid">
+      {/* <div className="container-fluid">
         <div className="container">
           <div className="row py-5 contact-cards-row">
             <div className="col-lg-4 col-md-6 col-sm-12 p-2">
@@ -268,10 +290,289 @@ export default function NewContactUs() {
             </div>
           </div>
         </div>
+      </div> */}
+
+      <div className="container-fluid contact-expert-section g-0">
+        <div className="container contact-expert-inner py-5">
+          <header className="contact-expert-header text-center mx-auto px-2 px-sm-0">
+            <h1 className="contact-expert-title">
+              Talk To A Property Expert
+            </h1>
+            <p className="contact-expert-subtitle">
+              Tell Us What You&apos;re Looking For, And We&apos;ll Help You Find
+              The Right Property Faster.
+            </p>
+          </header>
+
+          <div className="row contact-expert-main-row g-0 align-items-start mt-2 mt-lg-3">
+            <div className="col-12 col-lg-4">
+              <div className="contact-expert-cards-column">
+                <div className="contact-expert-address-card-wrap">
+                  <div className="contact-expert-address-card">
+                    <div className="contact-expert-address-icon">
+                      <Image
+                        src="/icon/location.svg"
+                        alt="Location pin — office address on My Property Fact contact page"
+                        title="Location pin — office address"
+                        width={16}
+                        height={20}
+                        unoptimized
+                      />
+                    </div>
+                    <div className="contact-expert-address-body">
+                      <h2 className="contact-expert-address-title">Our Office</h2>
+                      <p className="contact-expert-address-text mb-0">
+                        Unit no: 603, 6th Floor, Corporate
+                        <br />
+                        Park Tower A1,
+                        <br />
+                        Sector 142 Noida, Uttar Pradesh
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="contact-expert-phone-card-wrap">
+                  <a
+                    href="tel:+918920024793"
+                    className="contact-expert-phone-card"
+                    aria-label="Call My Property Fact at +91 8920024793"
+                    title="Call My Property Fact — +91 8920024793"
+                  >
+                    <div className="contact-expert-phone-icon">
+                      <Image
+                        src="/static/icon/phone_call.svg"
+                        alt="Phone call icon — My Property Fact contact page"
+                        title="Phone call icon — tap to call"
+                        width={18}
+                        height={18}
+                        unoptimized
+                      />
+                    </div>
+                    <div className="contact-expert-phone-body">
+                      <h2 className="contact-expert-phone-title">Call Us</h2>
+                      <span className="contact-expert-phone-number">
+                        +91 8920024793
+                      </span>
+                      <p className="contact-expert-phone-hours mb-0">
+                        Mon-Sat, 10am - 7pm
+                      </p>
+                    </div>
+                  </a>
+                </div>
+
+                <div className="contact-expert-email-card-wrap">
+                  <a
+                    href="mailto:social@mypropertyfact.com"
+                    className="contact-expert-email-card"
+                    aria-label="Email My Property Fact at social@mypropertyfact.com"
+                    title="Email My Property Fact — social@mypropertyfact.com"
+                  >
+                    <div className="contact-expert-email-icon">
+                      <Image
+                        src="/static/icon/email.svg"
+                        alt="Email icon — My Property Fact contact page"
+                        title="Email icon — tap to compose email"
+                        width={20}
+                        height={16}
+                        unoptimized
+                      />
+                    </div>
+                    <div className="contact-expert-email-body">
+                      <h2 className="contact-expert-email-title">Email Us</h2>
+                      <span className="contact-expert-email-address">
+                        social@mypropertyfact.com
+                      </span>
+                    </div>
+                  </a>
+                </div>
+
+                <div className="contact-expert-image-card">
+                  <div className="contact-expert-image-slide">
+                    <Image
+                      src={CONTACT_SPOTLIGHT.imageSrc}
+                      alt={CONTACT_SPOTLIGHT.imageAlt}
+                      title={CONTACT_SPOTLIGHT.imageAlt}
+                      fill
+                      className="contact-expert-image-cover"
+                      sizes="(max-width: 991px) 100vw, 420px"
+                      unoptimized
+                    />
+                    <div
+                      className="contact-expert-image-gradient"
+                      aria-hidden
+                    />
+                    <span className="contact-expert-image-label">
+                      {CONTACT_SPOTLIGHT.title}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12 col-lg-8 contact-expert-form-column">
+              <div className="contact-expert-form-shell">
+              <div className="contact-expert-form-card">
+                <h2 className="contact-expert-form-heading">Send a Message</h2>
+                <p className="contact-expert-form-lead">
+                  Fill out the form below and one of our property consultants
+                  will reach out shortly.
+                </p>
+                <form
+                  className="contact-expert-form"
+                  onSubmit={handleSubmit}
+                  noValidate
+                >
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <label
+                        className="contact-expert-label"
+                        htmlFor="contact-expert-name"
+                      >
+                        Full Name
+                      </label>
+                      <input
+                        id="contact-expert-name"
+                        type="text"
+                        name="name"
+                        className={`contact-expert-input contact-expert-input--body ${errors.name ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter Your Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                      />
+                      {errors.name && (
+                        <span className="contact-expert-error">{errors.name}</span>
+                      )}
+                    </div>
+                    <div className="col-md-6">
+                      <label
+                        className="contact-expert-label"
+                        htmlFor="contact-expert-phone"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        id="contact-expert-phone"
+                        type="tel"
+                        name="phone"
+                        className={`contact-expert-input contact-expert-input--body ${errors.phone ? "is-invalid" : ""
+                          }`}
+                        placeholder="+91 00000 00000"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                      />
+                      {errors.phone && (
+                        <span className="contact-expert-error">{errors.phone}</span>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <label
+                        className="contact-expert-label"
+                        htmlFor="contact-expert-email"
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        id="contact-expert-email"
+                        type="email"
+                        name="email"
+                        className={`contact-expert-input ${errors.email ? "is-invalid" : ""
+                          }`}
+                        placeholder="Enter Your Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        required
+                      />
+                      {errors.email && (
+                        <span className="contact-expert-error">{errors.email}</span>
+                      )}
+                    </div>
+                    <div className="col-12">
+                      <fieldset className="contact-expert-interest-fieldset">
+                        <legend className="contact-expert-label contact-expert-interest-legend">
+                          Interested In
+                        </legend>
+                        <div className="contact-expert-radio-group">
+                          {INTEREST_OPTIONS.map((opt, i) => {
+                            const inputId = `contact-expert-interest-${i}`;
+                            return (
+                              <label
+                                key={opt}
+                                className="contact-expert-radio"
+                                htmlFor={inputId}
+                                title={opt}
+                              >
+                                <input
+                                  type="radio"
+                                  id={inputId}
+                                  name="interestedIn"
+                                  value={opt}
+                                  checked={formData.interestedIn === opt}
+                                  onChange={handleChange}
+                                  className="contact-expert-radio-input"
+                                />
+                                <span className="contact-expert-radio-text">
+                                  {opt}
+                                </span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      </fieldset>
+                    </div>
+                    <div className="col-12">
+                      <label
+                        className="contact-expert-label"
+                        htmlFor="contact-expert-message"
+                      >
+                        Your Message
+                      </label>
+                      <textarea
+                        id="contact-expert-message"
+                        name="message"
+                        className="contact-expert-textarea"
+                        placeholder="How can we help you?"
+                        rows={4}
+                        value={formData.message}
+                        onChange={handleChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="submit"
+                    className="contact-expert-submit"
+                    disabled={isSubmitting}
+                    title="Submit your inquiry — sends this form to My Property Fact"
+                  >
+                    <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
+                    <Image
+                      src="/static/icon/enquiry.svg"
+                      alt="Enquiry icon — submits this form"
+                      title="Enquiry icon — submits this form"
+                      width={19}
+                      height={16}
+                      className="contact-expert-submit-icon"
+                      unoptimized
+                      aria-hidden
+                    />
+                  </button>
+                </form>
+              </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* get a quote section here  */}
-      <div
+      {/* <div
         className="container-fluid get-quote-section"
         style={{ background: "#000000D9" }}
       >
@@ -378,7 +679,7 @@ export default function NewContactUs() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Looking for a dream home section  */}
       <div className="container-fluid looking-for-dream-home-section">

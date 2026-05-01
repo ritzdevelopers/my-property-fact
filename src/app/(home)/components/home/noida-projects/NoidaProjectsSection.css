@@ -564,6 +564,8 @@
   padding: 61px 98px;
   background: #fdfdfd;
   box-sizing: border-box;
+  /* Align with sticky header when jumping to #home-faq */
+  scroll-margin-top: clamp(72px, 12vw, 100px);
 }
 
 .destination-faq__inner {
@@ -702,9 +704,60 @@
   flex-direction: column;
   width: 826px;
   align-items: stretch;
-  min-height: 421px;
+  /* min-height: 0 so nested scroll area can shrink inside CSS grid */
+  min-height: 0;
   max-width: 100%;
   gap: 14px;
+}
+
+/* Scroll FAQ list inside a viewport-sized column; page scroll continues after inner ends */
+.destination-faq__scroll-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  min-height: 200px;
+  max-height: min(62vh, 560px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.28) transparent;
+}
+
+.destination-faq__scroll-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.destination-faq__scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.destination-faq__scroll-area::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.22);
+  border-radius: 999px;
+}
+
+.destination-faq__scroll-area::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.35);
+}
+
+@media (min-width: 992px) {
+  /* FAQ block fills the viewport so users “land” in the section, then scroll the list */
+  .destination-faq {
+    min-height: min(100dvh, 960px);
+  }
+
+  .destination-faq__scroll-area {
+    max-height: calc(100dvh - 220px);
+  }
+}
+
+.destination-faq__scroll-area .destination-faq__item {
+  flex-shrink: 0;
 }
 
 .destination-faq__item {
@@ -723,7 +776,7 @@
   max-width: 100%;
   border: 1px solid #eceff3;
   overflow: hidden;
-  box-shadow: 0 6px 24px 0 rgba(0, 0, 0, 0.05);
+
   box-sizing: border-box;
 }
 
@@ -736,6 +789,8 @@
 .destination-faq__question-btn {
   width: 100%;
   border: 0;
+  /* Reserve space so open state underline spans full row (text + icon) without layout jump */
+  border-bottom: 1px solid transparent;
   background: transparent;
   text-align: left;
   position: relative;
@@ -749,11 +804,16 @@
   font-weight: 500;
   color: #111827;
   cursor: pointer;
+  transition: border-bottom-color 0.35s cubic-bezier(0.33, 1, 0.25, 1);
 }
 
-.destination-faq__question-btn > span:first-child {
+.destination-faq__question-text {
   width: 100%;
   text-align: left;
+}
+
+.destination-faq__item.is-open .destination-faq__question-btn {
+  border-bottom-color: var(--primaryColor, #eceff3);
 }
 
 .destination-faq__icon {
@@ -767,25 +827,33 @@
   justify-content: center;
   font-size: 1rem;
   line-height: 1;
-  transition: transform 0.25s ease;
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.32, 1);
 }
 
 .destination-faq__item.is-open .destination-faq__icon {
   transform: rotate(180deg);
 }
 
+/* Smooth open/close: grid 0fr → 1fr (height follows content; no max-height snap) */
 .destination-faq__answer-wrap {
-  max-height: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  min-height: 0;
   opacity: 0;
   overflow: hidden;
   transition:
-    max-height 0.28s ease,
-    opacity 0.2s ease;
+    grid-template-rows 0.5s cubic-bezier(0.33, 1, 0.25, 1),
+    opacity 0.4s cubic-bezier(0.33, 1, 0.25, 1);
 }
 
 .destination-faq__answer-wrap.is-open {
-  max-height: 110px;
+  grid-template-rows: 1fr;
   opacity: 1;
+}
+
+.destination-faq__answer-inner {
+  overflow: hidden;
+  min-height: 0;
 }
 
 .destination-faq__answer {
@@ -795,10 +863,21 @@
 .destination-faq__answer p {
   margin: 0;
   text-align: left;
-  padding: 0 22px 14px;
+  padding: 14px 22px 14px;
   color: #4b5563;
   font-size: 0.92rem;
   line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .destination-faq__answer-wrap,
+  .destination-faq__answer-wrap.is-open {
+    transition-duration: 0.01ms;
+  }
+
+  .destination-faq__icon {
+    transition-duration: 0.01ms;
+  }
 }
 
 @media (max-width: 991px) {
@@ -839,6 +918,11 @@
   .destination-faq__right {
     width: 100%;
     height: auto;
+  }
+
+  .destination-faq__scroll-area {
+    max-height: min(52vh, 420px);
+    padding-right: 4px;
   }
 }
 

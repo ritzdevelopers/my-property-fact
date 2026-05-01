@@ -3,6 +3,866 @@
    ============================================ */
 
 /* ============================================
+   TALK TO A PROPERTY EXPERT (two-column block)
+   ============================================ */
+
+/* .contact-expert-section {
+  background: #f4f4f2;
+} */
+
+.contact-expert-inner {
+  padding-top: 3rem !important;
+  padding-bottom: 4rem !important;
+}
+
+.contact-expert-main-row {
+  --contact-expert-stack-gap: 0;
+  row-gap: var(--contact-expert-stack-gap);
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-main-row {
+    --contact-expert-stack-gap: 1.5rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .contact-expert-inner {
+    padding-top: 2rem !important;
+    padding-bottom: 2.5rem !important;
+  }
+}
+
+.contact-expert-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 720px;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-header {
+    margin-bottom: clamp(1.25rem, 4vw, 2.5rem);
+  }
+}
+
+.contact-expert-title {
+  align-self: stretch;
+  color: var(--textone, #0d5834);
+  text-align: center;
+  font-family: Lato, system-ui, -apple-system, sans-serif;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-transform: capitalize;
+  margin-bottom: 0.75rem;
+  padding-inline: 0;
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-title {
+    font-size: clamp(1.5rem, 2.2vw + 1rem, 2.25rem);
+    line-height: 1.2;
+  }
+}
+
+.contact-expert-subtitle {
+  align-self: stretch;
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  text-align: center;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: capitalize;
+  margin-bottom: 0;
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-subtitle {
+    font-size: clamp(0.9375rem, 0.4vw + 0.9rem, 1rem);
+    line-height: 1.45;
+    max-width: 38rem;
+    margin-inline: auto;
+  }
+}
+
+.contact-expert-cards-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  gap: 16px;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-cards-column {
+    gap: 20px;
+  }
+}
+
+.contact-expert-info-card {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.contact-expert-info-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(27, 67, 50, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-expert-info-icon img {
+  object-fit: contain;
+}
+
+.contact-expert-card-title {
+  color: #1b4332;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.35rem;
+  line-height: 1.3;
+}
+
+.contact-expert-card-text {
+  color: #666666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.contact-expert-address-card-wrap {
+  position: relative;
+  width: 372.66px;
+  max-width: 100%;
+  height: 148px;
+  align-self: stretch;
+}
+
+.contact-expert-phone-card-wrap {
+  position: relative;
+  width: 372.66px;
+  max-width: 100%;
+  height: 124px;
+  align-self: stretch;
+}
+
+.contact-expert-email-card-wrap {
+  position: relative;
+  width: 372.66px;
+  max-width: 100%;
+  height: 100px;
+  align-self: stretch;
+}
+
+.contact-expert-address-card,
+.contact-expert-phone-card,
+.contact-expert-email-card {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 372.66px;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0);
+  box-shadow: 0 4px 16px 0 rgba(125, 125, 125, 0.08);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+a.contact-expert-phone-card,
+a.contact-expert-email-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.contact-expert-phone-card:focus-visible,
+a.contact-expert-email-card:focus-visible {
+  outline: 2px solid #0d5834;
+  outline-offset: 2px;
+}
+
+.contact-expert-address-card {
+  height: 148px;
+}
+
+.contact-expert-phone-card {
+  height: 124px;
+}
+
+.contact-expert-email-card {
+  height: 100px;
+  box-shadow:
+    0 4px 16px 0 rgba(125, 125, 125, 0.08),
+    0 10px 30px -10px rgba(126, 87, 1, 0.08);
+}
+
+.contact-expert-address-body,
+.contact-expert-phone-body,
+.contact-expert-email-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.contact-expert-address-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.contact-expert-address-icon img {
+  display: block;
+}
+
+.contact-expert-address-title {
+  color: var(--textone, #0d5834);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 4px;
+}
+
+.contact-expert-address-text {
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.contact-expert-phone-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.contact-expert-phone-icon img {
+  display: block;
+}
+
+.contact-expert-phone-title {
+  color: var(--textone, #0d5834);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 4px;
+}
+
+.contact-expert-phone-number {
+  display: inline-block;
+  color: var(--primarycolor, #0d5834);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
+  text-decoration: none;
+}
+
+.contact-expert-phone-card:hover .contact-expert-phone-number {
+  color: var(--primarycolor, #0d5834);
+  filter: brightness(0.92);
+  text-decoration: underline;
+}
+
+.contact-expert-phone-hours {
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  margin-top: 4px;
+}
+
+.contact-expert-email-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.contact-expert-email-icon img {
+  display: block;
+}
+
+.contact-expert-email-title {
+  color: var(--textone, #0d5834);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  margin: 0 0 4px;
+}
+
+.contact-expert-email-address {
+  display: inline-block;
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.contact-expert-email-card:hover .contact-expert-email-address {
+  color: var(--textone, #0d5834);
+  text-decoration: underline;
+}
+
+/* Cards: fluid only below lg — desktop (992px+) matches original fixed layout */
+@media (max-width: 991.98px) {
+  .contact-expert-address-card-wrap,
+  .contact-expert-phone-card-wrap,
+  .contact-expert-email-card-wrap {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+  }
+
+  .contact-expert-address-card,
+  .contact-expert-phone-card,
+  .contact-expert-email-card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+.contact-expert-image-card {
+  display: flex;
+  height: auto;
+  min-height: clamp(200px, 42vw, 256px);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0);
+  box-shadow: 0 10px 30px -10px rgba(126, 87, 1, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-expert-image-skeleton {
+  position: absolute;
+  inset: 0;
+  background: #e8eae9;
+  border-radius: 12px;
+}
+
+.contact-expert-image-swiper {
+  width: 100%;
+  height: 100%;
+  min-height: clamp(200px, 42vw, 256px);
+}
+
+.contact-expert-image-swiper .swiper-slide {
+  height: auto;
+  min-height: clamp(200px, 42vw, 256px);
+}
+
+.contact-expert-image-slide {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+  min-height: clamp(200px, 42vw, 256px);
+  text-decoration: none;
+  color: inherit;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-image-card {
+    height: 256px;
+    min-height: 256px;
+    align-self: flex-start;
+    width: 372.66px;
+    max-width: 100%;
+  }
+
+  .contact-expert-image-swiper {
+    min-height: 256px;
+  }
+
+  .contact-expert-image-swiper .swiper-slide {
+    height: 256px;
+    min-height: 256px;
+  }
+
+  .contact-expert-image-slide {
+    min-height: 256px;
+  }
+}
+
+.contact-expert-image-cover {
+  object-fit: cover;
+  z-index: 0;
+  transition: transform 0.5s ease-in-out;
+}
+
+.contact-expert-image-card:hover .contact-expert-image-cover {
+  transform: scale(1.03);
+}
+
+.contact-expert-image-gradient {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(92, 110, 120, 0) 0%,
+    rgba(0, 0, 0, 0.79) 100%
+  );
+}
+
+.contact-expert-image-label {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 2;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.35;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.contact-expert-form-column {
+  position: relative;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-form-column {
+    min-height: 745px;
+  }
+}
+
+.contact-expert-form-shell {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0);
+  box-shadow: 0 10px 30px -10px rgba(126, 87, 1, 0.08);
+}
+
+@media (min-width: 992px) {
+  .contact-expert-form-shell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 745px;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-form-shell {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    overflow: visible;
+    align-items: stretch;
+  }
+
+  .contact-expert-form-column {
+    overflow: visible;
+    width: 100%;
+  }
+}
+
+.contact-expert-form-card {
+  display: flex;
+  padding: 48px 48px 64px 48px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  align-self: stretch;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 16px 0 rgba(125, 125, 125, 0.08);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-form-card {
+    flex: 1 0 0;
+    min-height: 0;
+    height: 100%;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .contact-expert-form-card {
+    flex: none;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-height: auto;
+    padding: clamp(1.375rem, 2.5vw, 1.75rem) clamp(1.125rem, 3vw, 2rem)
+      clamp(2rem, 4vw, 2.5rem);
+    gap: clamp(1rem, 2vw, 1.25rem);
+    height: auto;
+    max-height: none;
+  }
+
+  .contact-expert-form {
+    flex: none;
+    flex-grow: 0;
+    min-height: auto;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .contact-expert-form-card {
+    padding: 1.375rem 1.125rem 2rem;
+    gap: 1.125rem;
+  }
+
+  .contact-expert-form-heading {
+    font-size: 1.125rem;
+  }
+
+  .contact-expert-form-lead {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+  }
+}
+
+.contact-expert-form-heading {
+  align-self: stretch;
+  color: #1b1c1c;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin: 0;
+}
+
+.contact-expert-form-lead {
+  align-self: stretch;
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  margin: 0;
+}
+
+.contact-expert-form {
+  width: 100%;
+  align-self: stretch;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-form {
+    flex: 1 0 0;
+    min-height: 0;
+  }
+}
+
+.contact-expert-label {
+  display: block;
+  align-self: stretch;
+  color: var(--primaryColor, #333);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  margin-bottom: 0.4rem;
+}
+
+.contact-expert-input,
+.contact-expert-textarea {
+  box-sizing: border-box;
+  display: flex;
+  width: 100%;
+  align-self: stretch;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 13px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #fafafa;
+  color: var(--primaryColor, #333);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+/* Full name & phone — typed value matches design token */
+.contact-expert-input.contact-expert-input--body {
+  color: var(--texttwo, rgba(0, 0, 0, 0.6));
+  line-height: normal;
+}
+
+.contact-expert-input::placeholder,
+.contact-expert-textarea::placeholder {
+  color: #9a9a9a;
+}
+
+.contact-expert-input:focus,
+.contact-expert-textarea:focus {
+  outline: none;
+  border-color: rgba(27, 67, 50, 0.25);
+  box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.08);
+  background: #fafafa;
+}
+
+.contact-expert-input.is-invalid,
+.contact-expert-input:invalid:not(:placeholder-shown).is-invalid {
+  border-color: #dc3545;
+}
+
+.contact-expert-textarea {
+  display: block;
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Interested In — radio options (matches form card tone) */
+.contact-expert-interest-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.contact-expert-interest-legend {
+  float: none;
+  width: 100%;
+  margin: 0 0 0.65rem;
+  padding: 0;
+}
+
+.contact-expert-radio-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem 0.65rem;
+}
+
+.contact-expert-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: #fafafa;
+  cursor: pointer;
+  flex: 0 1 auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.contact-expert-radio:hover {
+  background: #f3f4f4;
+}
+
+.contact-expert-radio:has(.contact-expert-radio-input:focus-visible) {
+  outline: none;
+  border-color: rgba(27, 67, 50, 0.25);
+  box-shadow: 0 0 0 3px rgba(27, 67, 50, 0.08);
+}
+
+.contact-expert-radio:has(.contact-expert-radio-input:checked) {
+  border-color: rgba(13, 88, 52, 0.28);
+  background: rgba(13, 88, 52, 0.07);
+}
+
+.contact-expert-radio-input {
+  margin: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  accent-color: #0d5834;
+  cursor: pointer;
+}
+
+.contact-expert-radio-text {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.35;
+  color: var(--primaryColor, #333);
+  white-space: nowrap;
+}
+
+.contact-expert-radio:has(.contact-expert-radio-input:checked)
+  .contact-expert-radio-text {
+  font-weight: 600;
+  color: #0d5834;
+}
+
+@media (min-width: 992px) {
+  .contact-expert-radio-group {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+  }
+
+  .contact-expert-radio {
+    padding: 10px 14px;
+  }
+
+  .contact-expert-radio-text {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+}
+
+.contact-expert-error {
+  display: block;
+  color: #dc3545;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+
+.contact-expert-submit {
+  width: 100%;
+  margin-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #0d5834;
+  color: #fff !important;
+  border: none;
+  border-radius: 10px;
+  padding: 0.85rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.contact-expert-submit:hover:not(:disabled) {
+  background: #b08f4d;
+}
+
+.contact-expert-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.contact-expert-submit:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.contact-expert-submit-icon {
+  flex-shrink: 0;
+  display: block;
+}
+
+@media (max-width: 575.98px) {
+  .contact-expert-submit {
+    min-height: 48px;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
+
+  .contact-expert-label {
+    font-size: 0.9375rem;
+    line-height: 1.35;
+  }
+
+  .contact-expert-address-card,
+  .contact-expert-phone-card,
+  .contact-expert-email-card {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .contact-expert-address-title,
+  .contact-expert-phone-title,
+  .contact-expert-email-title {
+    font-size: 15px;
+    line-height: 22px;
+  }
+
+  .contact-expert-address-text,
+  .contact-expert-phone-number,
+  .contact-expert-phone-hours,
+  .contact-expert-email-address {
+    font-size: 15px;
+    line-height: 22px;
+  }
+}
+
+@media (max-width: 991.98px) and (min-width: 576px) {
+  .contact-expert-cards-column {
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+/* ============================================
    1. CONTACT INFO CONTAINER SECTION
    ============================================ */
 

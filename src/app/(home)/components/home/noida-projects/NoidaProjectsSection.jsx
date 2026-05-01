@@ -133,13 +133,52 @@ const FAQ_ITEMS = [
     answer:
       "Absolutely! NRIs can invest in Indian real estate. We offer remote consultations to help with project shortlisting, FEMA regulations, home loan guidance, and documentation. NRI property investment has never been easier, and you can confidently invest in properties in Gurgaon, Noida, and other cities.",
   },
+  {
+    id: "faq-6",
+    question: "Is the property consultation on MyPropertyFact free ?",
+    answer:
+      "Yes, our consultation is completely free! You can browse property listings, market insights, and investment guides without any charge. Our experts are also available for a free consultation to help you find the best properties like 3 BHK apartments in Greater Noida or flats in Gurgaon.",
+  },
+  {
+    id: "faq-7",
+    question: "Can MyPropertyFact help me with home loans for property in Delhi NCR ?",
+    answer:
+      "Yes, we cover the entire home loan process, from using our home loan EMI calculator to performing eligibility assessment to getting the best interest rates. Be it if you are a first-time home buyer or an NRI, we make your property finance in Delhi NCR a hassle-free and easy process.",
+  },
+  {
+    id: "faq-8",
+    question: "How is MyPropertyFact different from other real estate portals like 99acres or MagicBricks ?",
+    answer:
+      "We are MyPropertyFact, a buyer-first advisory platform along with  a listing-based portal. We provide accurate builder information, thorough RERA checks, and truthful investment advice, allowing you to find out information about properties, such as 3 BHK flats in Delhi, or commercial property in Noida, without any spam calls or builder driven advertisements.",
+  },
+  {
+    id: "faq-9",
+    question: "Can I search properties based on my budget on MyPropertyFact ?",
+    answer:
+      "Yes! MyPropertyFact can assist you find the kind of property you desire at a reasonable rate, whether affordable flats in Pune or luxury homes in Mumbai. MyPropertyFact provides all the options starting from less than 50 Lakh homes to upscale 3 BHK apartments.",
+  },
+  {
+    id: "faq-10",
+    question: "How do I get started with MyPropertyFact? ",
+    answer:"We are a step-by-step process to start! All you need to do is go to MyPropertyFact.in, look through all the properties by location and builders and talk to our team of advisors for a free consultation. No sign-ups, no extra charges! Start to find your ideal flat in Noida or investment property in Delhi NCR.",
+
+  },
+  {
+    id: "faq-11",
+    question: "Does MyPropertyFact provide property investment advice for first-time buyers? ",
+    answer: "Yes, first-time homebuyers are our priority. We guide you step-by-step from shortlisting properties, understanding home loans, conducting legal checks, and registration. We aim to make your first property investment in Noida or Delhi NCR or pan India stress-free and fully informed."
+  },
+  {
+    id: "faq-12",
+    question: "Can I compare multiple projects on MyPropertyFact before making a decision? ",
+    answer: "Yes! MyPropertyFact lets you compare real estate projects side by side : pricing, amenities, builder reputation, possession timelines, and RERA status. Make data-driven property decisions with confidence, not guesswork. Because buying property is one of life's biggest decisions and you deserve all the facts first."
+  }
 ];
 
 export default function NoidaProjectsSection() {
   const [cityCards, setCityCards] = useState(CITY_CARDS);
   const [openFaqId, setOpenFaqId] = useState(FAQ_ITEMS[0]?.id || null);
   const { cityList, projectList } = useSiteData();
-
   useEffect(() => {
       try {
         if (!cityList || cityList.length === 0 || !projectList || projectList.length === 0) {
@@ -380,7 +419,7 @@ export default function NoidaProjectsSection() {
         </div>
       </div>
 
-      <div className="destination-faq">
+      <div className="destination-faq" id="home-faq">
         <div className="destination-faq__inner">
           <div className="destination-faq__left">
             <span className="destination-faq__tag">Trusted By</span>
@@ -388,6 +427,11 @@ export default function NoidaProjectsSection() {
           </div>
 
           <div className="destination-faq__right">
+            <div
+              className="destination-faq__scroll-area"
+              role="region"
+              aria-label="FAQ answers list"
+            >
             {FAQ_ITEMS.map((item) => {
               const isOpen = openFaqId === item.id;
               return (
@@ -404,7 +448,9 @@ export default function NoidaProjectsSection() {
                       aria-controls={`faq-panel-${item.id}`}
                       id={`faq-trigger-${item.id}`}
                     >
-                      <span>{item.question}</span>
+                      <span className="destination-faq__question-text">
+                        {item.question}
+                      </span>
                       <span className="destination-faq__icon" aria-hidden="true">
                         {isOpen ? "-" : "+"}
                       </span>
@@ -416,13 +462,16 @@ export default function NoidaProjectsSection() {
                     aria-labelledby={`faq-trigger-${item.id}`}
                     className={`destination-faq__answer-wrap ${isOpen ? "is-open" : ""}`}
                   >
-                    <div className="destination-faq__answer">
-                      <p>{item.answer}</p>
+                    <div className="destination-faq__answer-inner">
+                      <div className="destination-faq__answer">
+                        <p>{item.answer}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
+            </div>
           </div>
 
           <div className="destination-faq__contact">

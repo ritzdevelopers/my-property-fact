@@ -188,6 +188,19 @@
   overflow-y: auto;
 }
 
+a.contact-expert-phone-card,
+a.contact-expert-email-card {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+a.contact-expert-phone-card:focus-visible,
+a.contact-expert-email-card:focus-visible {
+  outline: 2px solid #0d5834;
+  outline-offset: 2px;
+}
+
 .contact-expert-address-card {
   height: 148px;
 }
@@ -274,7 +287,7 @@
   text-decoration: none;
 }
 
-.contact-expert-phone-number:hover {
+.contact-expert-phone-card:hover .contact-expert-phone-number {
   color: var(--primarycolor, #0d5834);
   filter: brightness(0.92);
   text-decoration: underline;
@@ -324,7 +337,7 @@
   word-break: break-word;
 }
 
-.contact-expert-email-address:hover {
+.contact-expert-email-card:hover .contact-expert-email-address {
   color: var(--textone, #0d5834);
   text-decoration: underline;
 }

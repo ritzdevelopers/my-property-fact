@@ -435,6 +435,7 @@ const HeaderComponent = () => {
               href="/"
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
               title="My Property Fact Home"
+              aria-label="My Property Fact Home"
             >
               <Image
                 src="/logo.webp"
@@ -457,16 +458,17 @@ const HeaderComponent = () => {
                   onMouseEnter={() => setIsDropdownHovered(true)}
                   onMouseLeave={() => setIsDropdownHovered(false)}
                 >
-                  <Link
-                    href="#"
-                    className={`text-light text-decoration-none py-3 plus-jakarta-sans-semi-bold${isCityRoute ? "header-link-active" : ""
+                  <button
+                    type="button"
+                    className={`text-light text-decoration-none py-3 plus-jakarta-sans-semi-bold header-nav-dropdown-trigger${isCityRoute ? " header-link-active" : ""
                       }`}
-                    title="Browse cities"
+                    title="Browse cities — open city menu"
+                    aria-haspopup="true"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       Cities
                     </span>
-                  </Link>
+                  </button>
                   <div className="dropdown dropdown-lg z-3 city-dropdown">
                     {!isMounted || !cityList?.length ? (
                       <div className="d-flex align-items-center justify-content-center p-3">
@@ -548,16 +550,17 @@ const HeaderComponent = () => {
                   onMouseEnter={() => setIsDropdownHovered(true)}
                   onMouseLeave={() => setIsDropdownHovered(false)}
                 >
-                  <Link
-                    href="#"
-                    className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold ${isBuilderRoute ? "header-link-active" : ""
+                  <button
+                    type="button"
+                    className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold header-nav-dropdown-trigger ${isBuilderRoute ? "header-link-active" : ""
                       }`}
-                    title="Browse builders"
+                    title="Browse builders — open builder menu"
+                    aria-haspopup="true"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builders
                     </span>
-                  </Link>
+                  </button>
                   <div className="dropdown dropdown-lg z-3 builder-dropdown">
                     {!isMounted || builderList.length === 0 ? (
                       <div className="d-flex align-items-center justify-content-center p-3">
@@ -995,6 +998,7 @@ const HeaderComponent = () => {
               }}
               className="mobile-menu-logo"
               title="My Property Fact Home"
+              aria-label="My Property Fact Home"
             >
               <Image
                 src="/logo.webp"
@@ -1230,11 +1234,13 @@ const HeaderComponent = () => {
                   className={`mb-hasChild ${activeDropdown === "city" ? "active" : ""
                     }`}
                 >
-                  <Link
-                    href="#"
+                  <button
+                    type="button"
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("city")}
-                    title="Browse cities"
+                    title="Browse cities — expand menu"
+                    aria-expanded={activeDropdown === "city"}
+                    aria-controls="mobile-city-submenu"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
                       Cities
@@ -1243,8 +1249,9 @@ const HeaderComponent = () => {
                       icon={faChevronDown}
                       className={`mobile-dropdown-icon ${activeDropdown === "city" ? "rotate" : ""}`}
                     />
-                  </Link>
+                  </button>
                   <div
+                    id="mobile-city-submenu"
                     className={`dropdown mobile-dropdown ${activeDropdown === "city" ? "activeHeader" : ""
                       }`}
                   >
@@ -1269,11 +1276,13 @@ const HeaderComponent = () => {
                   className={`mb-hasChild ${activeDropdown === "builder" ? "active" : ""
                     }`}
                 >
-                  <Link
+                  <button
+                    type="button"
                     className="text-decoration-none mobile-menu-item"
-                    href="#"
                     onClick={() => openMenuMobile("builder")}
-                    title="Browse builders"
+                    title="Browse builders — expand menu"
+                    aria-expanded={activeDropdown === "builder"}
+                    aria-controls="mobile-builder-submenu"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
                       Builders
@@ -1282,8 +1291,9 @@ const HeaderComponent = () => {
                       icon={faChevronDown}
                       className={`mobile-dropdown-icon ${activeDropdown === "builder" ? "rotate" : ""}`}
                     />
-                  </Link>
+                  </button>
                   <div
+                    id="mobile-builder-submenu"
                     className={`dropdown mobile-dropdown ${activeDropdown === "builder" ? "activeHeader" : ""
                       }`}
                   >
@@ -1319,11 +1329,13 @@ const HeaderComponent = () => {
                   className={`mb-hasChild ${activeDropdown === "projects" ? "active" : ""
                     }`}
                 >
-                  <Link
-                    href="#"
+                  <button
+                    type="button"
                     className="text-decoration-none mobile-menu-item"
                     onClick={() => openMenuMobile("projects")}
-                    title="Browse projects"
+                    title="Browse projects — expand menu"
+                    aria-expanded={activeDropdown === "projects"}
+                    aria-controls="mobile-projects-submenu"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
                       Projects
@@ -1332,8 +1344,9 @@ const HeaderComponent = () => {
                       icon={faChevronDown}
                       className={`mobile-dropdown-icon ${activeDropdown === "projects" ? "rotate" : ""}`}
                     />
-                  </Link>
+                  </button>
                   <div
+                    id="mobile-projects-submenu"
                     className={`dropdown mobile-dropdown ${activeDropdown === "projects" ? "activeHeader" : ""
                       }`}
                   >

@@ -309,10 +309,11 @@ export default function NewContactUs() {
               <div className="contact-expert-cards-column">
                 <div className="contact-expert-address-card-wrap">
                   <div className="contact-expert-address-card">
-                    <div className="contact-expert-address-icon" aria-hidden>
+                    <div className="contact-expert-address-icon">
                       <Image
                         src="/icon/location.svg"
-                        alt=""
+                        alt="Location pin — office address on My Property Fact contact page"
+                        title="Location pin — office address"
                         width={16}
                         height={20}
                         unoptimized
@@ -332,11 +333,17 @@ export default function NewContactUs() {
                 </div>
 
                 <div className="contact-expert-phone-card-wrap">
-                  <div className="contact-expert-phone-card">
-                    <div className="contact-expert-phone-icon" aria-hidden>
+                  <a
+                    href="tel:+918920024793"
+                    className="contact-expert-phone-card"
+                    aria-label="Call My Property Fact at +91 8920024793"
+                    title="Call My Property Fact — +91 8920024793"
+                  >
+                    <div className="contact-expert-phone-icon">
                       <Image
                         src="/static/icon/phone_call.svg"
-                        alt=""
+                        alt="Phone call icon — My Property Fact contact page"
+                        title="Phone call icon — tap to call"
                         width={18}
                         height={18}
                         unoptimized
@@ -344,25 +351,28 @@ export default function NewContactUs() {
                     </div>
                     <div className="contact-expert-phone-body">
                       <h2 className="contact-expert-phone-title">Call Us</h2>
-                      <a
-                        href="tel:+918920024793"
-                        className="contact-expert-phone-number"
-                      >
+                      <span className="contact-expert-phone-number">
                         +91 8920024793
-                      </a>
+                      </span>
                       <p className="contact-expert-phone-hours mb-0">
                         Mon-Sat, 10am - 7pm
                       </p>
                     </div>
-                  </div>
+                  </a>
                 </div>
 
                 <div className="contact-expert-email-card-wrap">
-                  <div className="contact-expert-email-card">
-                    <div className="contact-expert-email-icon" aria-hidden>
+                  <a
+                    href="mailto:social@mypropertyfact.com"
+                    className="contact-expert-email-card"
+                    aria-label="Email My Property Fact at social@mypropertyfact.com"
+                    title="Email My Property Fact — social@mypropertyfact.com"
+                  >
+                    <div className="contact-expert-email-icon">
                       <Image
                         src="/static/icon/email.svg"
-                        alt=""
+                        alt="Email icon — My Property Fact contact page"
+                        title="Email icon — tap to compose email"
                         width={20}
                         height={16}
                         unoptimized
@@ -370,14 +380,11 @@ export default function NewContactUs() {
                     </div>
                     <div className="contact-expert-email-body">
                       <h2 className="contact-expert-email-title">Email Us</h2>
-                      <a
-                        href="mailto:social@mypropertyfact.com"
-                        className="contact-expert-email-address"
-                      >
+                      <span className="contact-expert-email-address">
                         social@mypropertyfact.com
-                      </a>
+                      </span>
                     </div>
-                  </div>
+                  </a>
                 </div>
 
                 <div className="contact-expert-image-card">
@@ -385,6 +392,7 @@ export default function NewContactUs() {
                     <Image
                       src={CONTACT_SPOTLIGHT.imageSrc}
                       alt={CONTACT_SPOTLIGHT.imageAlt}
+                      title={CONTACT_SPOTLIGHT.imageAlt}
                       fill
                       className="contact-expert-image-cover"
                       sizes="(max-width: 991px) 100vw, 420px"
@@ -541,11 +549,13 @@ export default function NewContactUs() {
                     type="submit"
                     className="contact-expert-submit"
                     disabled={isSubmitting}
+                    title="Submit your inquiry — sends this form to My Property Fact"
                   >
                     <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
                     <Image
                       src="/static/icon/enquiry.svg"
-                      alt=""
+                      alt="Enquiry icon — submits this form"
+                      title="Enquiry icon — submits this form"
                       width={19}
                       height={16}
                       className="contact-expert-submit-icon"

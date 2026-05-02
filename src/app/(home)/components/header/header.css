@@ -53,6 +53,11 @@
   color: #111 !important;
 }
 
+/* City / Builder menu triggers are <button>, not <a> — match link color when scrolled */
+.fixed-header .header-links .header-nav-dropdown-trigger {
+  color: #111 !important;
+}
+
 /* When fixed (white bg), hover must stay visible – use dark green */
 .fixed-header .hasChild:hover > a,
 .fixed-header .hasChild:hover > .header-nav-dropdown-trigger,
@@ -67,6 +72,10 @@
 
 /* Keep header links white on properties page when scrolled */
 .fixed-header.properties-header .header-links a {
+  color: #fff !important;
+}
+
+.fixed-header.properties-header .header-links .header-nav-dropdown-trigger {
   color: #fff !important;
 }
 

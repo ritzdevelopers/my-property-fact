@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { MPF_GATEWAY_HIDDEN_EVENT } from "./mpfGatewayEvents";
+import {
+  isHomeGatewayRevealDone,
+  MPF_GATEWAY_HIDDEN_EVENT,
+} from "./mpfGatewayEvents";
 import "./PopularProjectPromo.css";
 
 const HIDE_PREFIXES = ["/admin", "/portal"];
@@ -52,14 +55,6 @@ function getSlideDurations() {
     return { out: 0, inn: 0 };
   }
   return { out: SLIDE_OUT_MS, inn: SLIDE_IN_MS };
-}
-
-/** Matches WebsiteGateway (globals.css): overlay uses `gateway-open`; completion adds `mpf-post-gateway-reveal`. */
-function isHomeGatewayRevealDone() {
-  if (typeof document === "undefined") return false;
-  if (document.body.classList.contains("mpf-post-gateway-reveal")) return true;
-  if (!document.body.classList.contains("gateway-open")) return true;
-  return false;
 }
 
 /**

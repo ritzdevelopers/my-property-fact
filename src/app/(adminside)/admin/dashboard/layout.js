@@ -3,6 +3,7 @@ import { useState, useEffect, Suspense } from "react";
 import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
 import { AdminThemeProvider } from "../_contexts/AdminThemeContext";
 import SideNav from "../_sidenav/page";
+import AdminTimeBand from "../_components/AdminTimeBand";
 import AdminTopBar from "./AdminTopBar";
 import NavigationLoader from "./NavigationLoader";
 import AdminTelemetryMount from "./AdminTelemetryMount";
@@ -10,6 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import "./admin-layout.css";
 import "./admin-theme.css";
+import "../admin-ux-enhancements.css";
 
 const MOBILE_SIDEBAR_MAX = 992;
 
@@ -52,6 +54,7 @@ export default function AdminLayout({ children }) {
   return (
     <AdminRoleProvider>
     <AdminThemeProvider>
+    <AdminTimeBand />
     <Suspense fallback={null}>
       <AdminTelemetryMount />
     </Suspense>

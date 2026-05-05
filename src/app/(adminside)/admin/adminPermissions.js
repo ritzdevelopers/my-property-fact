@@ -46,6 +46,13 @@ export function canAccessAdminPath(roles, permissions, pathname) {
   }
 
   if (
+    pathname === "/admin/dashboard/activity-log" ||
+    pathname.startsWith("/admin/dashboard/activity-log/")
+  ) {
+    return { ok: false, redirect: "/admin/dashboard" };
+  }
+
+  if (
     pathname === "/admin/dashboard/enquiries" ||
     pathname.startsWith("/admin/dashboard/enquiries/")
   ) {

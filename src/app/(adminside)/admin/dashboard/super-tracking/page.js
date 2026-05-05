@@ -4,9 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowsRotate } from "@fortawesome/free-solid-svg-icons";
 import "./super-tracking.css";
+import WebsiteTrafficOverview from "./WebsiteTrafficOverview";
 
 function adminAuthHeaders() {
   const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
@@ -67,12 +66,15 @@ function publicSiteDisplayLabel() {
   }
 }
 
-function visitDwellMs(row) {
-  if (row == null) return null;
-  const v = row.dwellMs ?? row.dwell_ms;
-  if (v == null) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+function formatDwellOnPage(ms) {
+  if (ms == null || ms < 0) return "—";
+  if (ms < 1000) return `${Math.round(ms)}ms`;
+  const sec = Math.floor(ms / 1000);
+  if (sec < 60) return `${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ${sec % 60}s`;
+  const h = Math.floor(min / 60);
+  return `${h}h ${min % 60}m`;
 }
 
 /** Spring/Jackson may serialize LocalDateTime as an array [y, mo, d, h, mi, s, ns]. */
@@ -91,22 +93,6 @@ function parseVisitOccurredAt(raw) {
   }
   const d = new Date(raw);
   return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function formatDwellOnPage(ms) {
-  if (ms == null || ms < 0) return "—";
-  if (ms < 1000) return `${Math.round(ms)}ms`;
-  const sec = Math.floor(ms / 1000);
-  if (sec < 60) return `${sec}s`;
-  const min = Math.floor(sec / 60);
-  if (min < 60) return `${min}m ${sec % 60}s`;
-  const h = Math.floor(min / 60);
-  return `${h}h ${min % 60}m`;
-}
-
-function formatVisitOccurredAtCell(row) {
-  const d = parseVisitOccurredAt(row?.occurredAt ?? row?.occurred_at);
-  return d ? d.toLocaleString() : "—";
 }
 
 function auditOccurredAtCell(row) {
@@ -131,33 +117,17 @@ function auditDwellMs(row) {
   return Number.isFinite(n) ? n : null;
 }
 
-function formatVisitDwellCell(row) {
-  const dms = visitDwellMs(row);
-  return dms != null ? formatDwellOnPage(dms) : "—";
-}
-
-function formatLastUpdatedClock(d) {
-  if (!d || !(d instanceof Date) || Number.isNaN(d.getTime())) return "";
-  return d.toLocaleTimeString(undefined, {
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: true,
-  });
-}
-
-function secondsSinceUpdate(d) {
-  if (!d || !(d instanceof Date) || Number.isNaN(d.getTime())) return null;
-  return Math.max(0, Math.floor((Date.now() - d.getTime()) / 1000));
-}
-
-function relativeAgoFromSeconds(sec) {
-  if (sec == null) return "";
-  if (sec < 60) return `${sec}s ago`;
-  const m = Math.floor(sec / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(sec / 3600);
-  return `${h}h ago`;
+/** Backend adds actorFullName from users.full_name when actorUserId is set. */
+function getAuditActorParts(row) {
+  const email =
+    typeof row?.actorEmail === "string"
+      ? row.actorEmail.trim()
+      : typeof row?.actor_email === "string"
+        ? row.actor_email.trim()
+        : "";
+  const nameRaw = row?.actorFullName ?? row?.actor_full_name;
+  const name = typeof nameRaw === "string" ? nameRaw.trim() : "";
+  return { name, email };
 }
 
 export default function SuperTrackingPage() {
@@ -363,7 +333,7 @@ export default function SuperTrackingPage() {
   return (
     <div className="super-tracking">
       <p className="super-tracking__kicker">Super Admin</p>
-      <h1 className="super-tracking__title">Traffic and audit logs</h1>
+      <h1 className="super-tracking__title">MPF Traffic and Logs</h1>
       {/* <p className="super-tracking__note">
         Website traffic counts come from client-side page views sent by the public site (JavaScript
         navigations), throttled per visitor and path. They do not include every static asset or
@@ -381,207 +351,41 @@ export default function SuperTrackingPage() {
         >
           Website traffic
         </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "logs"}
-          className={`super-tracking__tab${tab === "logs" ? " super-tracking__tab--active" : ""}`}
-          onClick={() => setTab("logs")}
-        >
-          Admin logs
-        </button>
       </div>
 
       {tab === "traffic" && (
-        <>
-          <div className="super-tracking__live-row" aria-live="polite">
-            <span className="super-tracking__live-badge">
-              <span className="super-tracking__live-dot" aria-hidden />
-              Live
-            </span>
-            <span className="super-tracking__live-meta">
-              <a
-                href={publicSiteHref()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="super-tracking__live-link"
-              >
-                {publicSiteDisplayLabel()}
-              </a>
-              <span className="super-tracking__live-sep">·</span>
-              refreshes every {TRAFFIC_POLL_MS / 1000}s
-              <span className="super-tracking__live-sep">·</span>
-              <span
-                className="super-tracking__live-refresh"
-                title="Auto-refreshing"
-                aria-label="Auto-refreshing traffic data"
-              >
-                <FontAwesomeIcon icon={faArrowsRotate} className="super-tracking__live-refresh-icon" aria-hidden />
-              </span>
-              {trafficUpdatedAt ? (
-                <>
-                  <span className="super-tracking__live-sep">·</span>
-                  <span className="super-tracking__live-updated">
-                    Last updated{" "}
-                    <time dateTime={trafficUpdatedAt.toISOString()}>
-                      {formatLastUpdatedClock(trafficUpdatedAt)}
-                    </time>
-                    <span className="super-tracking__live-updated-ago">
-                      {" "}
-                      (
-                      {relativeAgoFromSeconds(secondsSinceUpdate(trafficUpdatedAt))}
-                      )
-                    </span>
-                  </span>
-                </>
-              ) : null}
-            </span>
-          </div>
-          {trafficErr ? <div className="super-tracking__err">{trafficErr}</div> : null}
-          {visitsErr ? <div className="super-tracking__err">{visitsErr}</div> : null}
-          <div className="super-tracking__metrics">
-            <div className="super-tracking__metric">
-              <div className="super-tracking__metric-label">Last 15 minutes</div>
-              <div className="super-tracking__metric-value">
-                {trafficLoading && !traffic ? "…" : traffic?.visitsLast15Minutes ?? "—"}
-              </div>
-            </div>
-            <div className="super-tracking__metric">
-              <div className="super-tracking__metric-label">Last 1 hour</div>
-              <div className="super-tracking__metric-value">
-                {trafficLoading && !traffic ? "…" : traffic?.visitsLast1Hour ?? "—"}
-              </div>
-            </div>
-            <div className="super-tracking__metric">
-              <div className="super-tracking__metric-label">Last 24 hours</div>
-              <div className="super-tracking__metric-value">
-                {trafficLoading && !traffic ? "…" : traffic?.visitsLast24Hours ?? "—"}
-              </div>
-            </div>
-          </div>
-          <div className="super-tracking__panel super-tracking__visits-panel">
-            <div className="super-tracking__panel-head">Recent page visits (48 hours)</div>
-            <div className="super-tracking__visits-unlock">
-              <p className="super-tracking__visits-unlock-hint">
-                Each row is one completed visit: time on that path before the visitor navigated away or
-                closed the tab. Visitor IP is stored from{" "}
-                <code className="super-tracking__inline-code">X-Forwarded-For</code> (or{" "}
-                <code className="super-tracking__inline-code">X-Real-IP</code> / remote address) and is
-                only shown after you enter the 4-digit code (default <strong>2026</strong>).
-              </p>
-              {ipRevealed ? (
-                <p className="super-tracking__visits-unlocked-msg">IP column is unlocked in this browser.</p>
-              ) : (
-                <div className="super-tracking__visits-pin-row">
-                  <input
-                    type="password"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    maxLength={4}
-                    value={trafficPin}
-                    onChange={(e) =>
-                      setTrafficPin(e.target.value.replace(/\D/g, "").slice(0, 4))
-                    }
-                    placeholder="••••"
-                    className="super-tracking__visits-pin-input"
-                    aria-label="Four digit code to show visitor IP"
-                  />
-                  <button
-                    type="button"
-                    className="super-tracking__btn super-tracking__btn--unlock"
-                    onClick={() => unlockTrafficIp()}
-                    disabled={trafficPinLoading || trafficPin.length !== 4}
-                  >
-                    {trafficPinLoading ? "…" : "Unlock IPs"}
-                  </button>
-                  {trafficPinErr ? (
-                    <span className="super-tracking__visits-pin-err">{trafficPinErr}</span>
-                  ) : null}
-                </div>
-              )}
-            </div>
-            {visits?.content?.length ? (
-              <div className="super-tracking__table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Time</th>
-                      <th>Path</th>
-                      <th>Time on page</th>
-                      <th>Visitor IP</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visits.content.map((row) => (
-                      <tr key={row.id}>
-                        <td className="super-tracking__mono">{formatVisitOccurredAtCell(row)}</td>
-                        <td className="super-tracking__mono">{row.path}</td>
-                        <td className="super-tracking__mono">{formatVisitDwellCell(row)}</td>
-                        <td className="super-tracking__mono">{row.clientIp || "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="super-tracking__muted">
-                No visit rows with duration yet. Open the public site in another tab, stay on a page, then
-                navigate—dwell time and IP are recorded when you leave each page.
-              </div>
-            )}
-          </div>
-          <div className="super-tracking__panel">
-            <div className="super-tracking__panel-head">Top paths (24 hours)</div>
-            {traffic?.topPathsLast24Hours?.length ? (
-              <div className="super-tracking__table-wrap">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Path</th>
-                      <th>Views</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {traffic.topPathsLast24Hours.map((row) => (
-                      <tr key={row.path}>
-                        <td className="super-tracking__mono">{row.path}</td>
-                        <td>{row.count}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="super-tracking__muted">
-                {trafficLoading && !traffic ? "Loading…" : "No traffic data yet."}
-              </div>
-            )}
-          </div>
-          <div className="super-tracking__pager" style={{ borderTop: "none", justifyContent: "flex-start" }}>
-            <button
-              type="button"
-              className="super-tracking__btn"
-              onClick={async () => {
-                await loadTraffic({ silent: false });
-                await loadRevealStatus();
-                await loadVisits({ silent: true });
-              }}
-              disabled={trafficLoading}
-            >
-              Refresh now
-            </button>
-          </div>
-        </>
+        <WebsiteTrafficOverview
+          siteUrl={publicSiteHref()}
+          siteLabel={publicSiteDisplayLabel()}
+          traffic={traffic}
+          trafficLoading={trafficLoading}
+          trafficErr={trafficErr}
+          trafficUpdatedAt={trafficUpdatedAt}
+          visits={visits}
+          visitsErr={visitsErr}
+          ipRevealed={ipRevealed}
+          trafficPin={trafficPin}
+          setTrafficPin={setTrafficPin}
+          trafficPinErr={trafficPinErr}
+          trafficPinLoading={trafficPinLoading}
+          onUnlockIp={unlockTrafficIp}
+          onRefresh={async () => {
+            await loadTraffic({ silent: false });
+            await loadRevealStatus();
+            await loadVisits({ silent: true });
+          }}
+          onRefreshDisabled={trafficLoading}
+        />
       )}
 
       {tab === "logs" && (
-        <div className="super-tracking__cyber">
-          {logsErr ? <div className="super-tracking__err super-tracking__err--cyber">{logsErr}</div> : null}
-          <div className="super-tracking__panel super-tracking__panel--cyber">
-            <div className="super-tracking__panel-head super-tracking__panel-head--cyber">Filters</div>
-            <div className="super-tracking__filters super-tracking__filters--cyber">
-              <div className="super-tracking__field super-tracking__field--cyber">
-                <label htmlFor="st-email">Actor email</label>
+        <>
+          {logsErr ? <div className="super-tracking__err">{logsErr}</div> : null}
+          <div className="super-tracking__panel">
+            <div className="super-tracking__panel-head">Filters</div>
+            <div className="super-tracking__filters">
+              <div className="super-tracking__field">
+                <label htmlFor="st-email">Email</label>
                 <input
                   id="st-email"
                   value={email}
@@ -589,7 +393,7 @@ export default function SuperTrackingPage() {
                   placeholder="contains…"
                 />
               </div>
-              <div className="super-tracking__field super-tracking__field--cyber">
+              <div className="super-tracking__field">
                 <label htmlFor="st-success">Result</label>
                 <select
                   id="st-success"
@@ -601,7 +405,7 @@ export default function SuperTrackingPage() {
                   <option value="false">Failure</option>
                 </select>
               </div>
-              <div className="super-tracking__field super-tracking__field--cyber">
+              <div className="super-tracking__field">
                 <label htmlFor="st-path">Search</label>
                 <input
                   id="st-path"
@@ -610,7 +414,7 @@ export default function SuperTrackingPage() {
                   placeholder="Task label or API path…"
                 />
               </div>
-              <div className="super-tracking__field super-tracking__field--cyber">
+              <div className="super-tracking__field">
                 <label htmlFor="st-from">From</label>
                 <input
                   id="st-from"
@@ -619,7 +423,7 @@ export default function SuperTrackingPage() {
                   onChange={(e) => setFrom(e.target.value)}
                 />
               </div>
-              <div className="super-tracking__field super-tracking__field--cyber">
+              <div className="super-tracking__field">
                 <label htmlFor="st-to">To</label>
                 <input
                   id="st-to"
@@ -630,7 +434,7 @@ export default function SuperTrackingPage() {
               </div>
               <button
                 type="button"
-                className="super-tracking__btn super-tracking__btn--cyber"
+                className="super-tracking__btn"
                 onClick={() => {
                   if (page !== 0) setPage(0);
                   else fetchAuditLogs(0);
@@ -640,14 +444,20 @@ export default function SuperTrackingPage() {
                 Apply
               </button>
             </div>
-            <div className="super-tracking__panel-head super-tracking__panel-head--cyber">Entries</div>
-            {!logsLoading && logs?.content?.length ? (
-              <div className="super-tracking__table-wrap super-tracking__table-wrap--cyber">
-                <table className="super-tracking__table--cyber">
+            <div className="super-tracking__panel-head">Entries</div>
+            {logsLoading ? (
+              <div className="wt-table-skeleton" style={{ padding: "0.75rem 1rem 1rem" }} aria-busy="true">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((k) => (
+                  <div key={k} className="admin-skel wt-table-skeleton__row" />
+                ))}
+              </div>
+            ) : logs?.content?.length ? (
+              <div className="super-tracking__table-wrap">
+                <table>
                   <thead>
                     <tr>
                       <th>When</th>
-                      <th>Actor</th>
+                      <th>Person</th>
                       <th>Task</th>
                       <th>Page</th>
                       <th>On page</th>
@@ -659,14 +469,25 @@ export default function SuperTrackingPage() {
                   <tbody>
                     {logs.content.map((row) => (
                       <tr key={row.id}>
-                        <td className="super-tracking__mono super-tracking__td--cyber">
-                          {auditOccurredAtCell(row)}
-                        </td>
-                        <td className="super-tracking__td--cyber">
-                          {row.actorEmail ?? row.actor_email ?? "—"}
+                        <td className="super-tracking__mono">{auditOccurredAtCell(row)}</td>
+                        <td className="super-tracking__actor-cell">
+                          {(() => {
+                            const { name, email } = getAuditActorParts(row);
+                            if (name) {
+                              return (
+                                <>
+                                  <div className="super-tracking__actor-name">{name}</div>
+                                  {email ? (
+                                    <div className="super-tracking__actor-email">{email}</div>
+                                  ) : null}
+                                </>
+                              );
+                            }
+                            return email || "—";
+                          })()}
                         </td>
                         <td
-                          className="super-tracking__td--cyber super-tracking__task-cell"
+                          className="super-tracking__task-cell"
                           title={
                             row.queryString ?? row.query_string
                               ? `${row.httpMethod ?? row.http_method} ${row.requestPath ?? row.request_path}?${row.queryString ?? row.query_string}`
@@ -675,25 +496,23 @@ export default function SuperTrackingPage() {
                         >
                           {auditTaskLabel(row)}
                         </td>
-                        <td className="super-tracking__mono super-tracking__td--cyber super-tracking__page-cell">
+                        <td className="super-tracking__mono super-tracking__page-cell">
                           {auditClientPage(row)}
                         </td>
-                        <td className="super-tracking__mono super-tracking__td--cyber">
+                        <td className="super-tracking__mono">
                           {formatDwellOnPage(auditDwellMs(row))}
                         </td>
-                        <td className="super-tracking__td--cyber">
-                          {row.httpStatus ?? row.http_status ?? "—"}
-                        </td>
-                        <td className="super-tracking__td--cyber">
+                        <td>{row.httpStatus ?? row.http_status ?? "—"}</td>
+                        <td>
                           <span
-                            className={`super-tracking__pill super-tracking__pill--cyber ${
-                              row.success ? "super-tracking__pill--cyber-ok" : "super-tracking__pill--cyber-fail"
+                            className={`super-tracking__pill ${
+                              row.success ? "super-tracking__pill--ok" : "super-tracking__pill--fail"
                             }`}
                           >
                             {row.success ? "OK" : "FAIL"}
                           </span>
                         </td>
-                        <td className="super-tracking__mono super-tracking__td--cyber">
+                        <td className="super-tracking__mono">
                           {row.durationMs ?? row.duration_ms ?? "—"}
                         </td>
                       </tr>
@@ -702,17 +521,14 @@ export default function SuperTrackingPage() {
                 </table>
               </div>
             ) : (
-              <div className="super-tracking__muted super-tracking__muted--cyber">
-                {logsLoading ? "Loading…" : "No log entries match your filters."}
-              </div>
+              <div className="super-tracking__muted">No log entries match your filters.</div>
             )}
-            <div className="super-tracking__pager super-tracking__pager--cyber">
+            <div className="super-tracking__pager">
               <span>
                 Page {(logs?.number ?? page) + 1} / {Math.max(logs?.totalPages ?? 1, 1)}
               </span>
               <button
                 type="button"
-                className="super-tracking__btn--cyber-outline"
                 disabled={logsLoading || page <= 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
               >
@@ -720,7 +536,6 @@ export default function SuperTrackingPage() {
               </button>
               <button
                 type="button"
-                className="super-tracking__btn--cyber-outline"
                 disabled={
                   logsLoading ||
                   !logs ||
@@ -732,7 +547,7 @@ export default function SuperTrackingPage() {
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

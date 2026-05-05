@@ -1,0 +1,172 @@
+/* —— Time-of-day ambient corners (set by AdminTimeBand) —— */
+.admin-layout-wrapper {
+  position: relative;
+  isolation: isolate;
+}
+
+html[data-admin-timeband="morning"] .admin-layout-wrapper::before,
+html[data-admin-timeband="morning"] .admin-layout-wrapper::after,
+html[data-admin-timeband="day"] .admin-layout-wrapper::before,
+html[data-admin-timeband="day"] .admin-layout-wrapper::after,
+html[data-admin-timeband="evening"] .admin-layout-wrapper::before,
+html[data-admin-timeband="evening"] .admin-layout-wrapper::after,
+html[data-admin-timeband="night"] .admin-layout-wrapper::before,
+html[data-admin-timeband="night"] .admin-layout-wrapper::after {
+  content: "";
+  position: fixed;
+  pointer-events: none;
+  width: min(38vw, 400px);
+  height: min(38vw, 400px);
+  z-index: 0;
+  opacity: 0.26;
+  filter: saturate(0.92);
+}
+
+html[data-admin-timeband="morning"] .admin-layout-wrapper::before {
+  top: 0;
+  left: 0;
+  background: radial-gradient(ellipse 85% 75% at top left, rgba(251, 191, 36, 0.26), transparent 68%);
+}
+html[data-admin-timeband="morning"] .admin-layout-wrapper::after {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(ellipse 85% 75% at bottom right, rgba(245, 158, 11, 0.14), transparent 70%);
+}
+
+html[data-admin-timeband="day"] .admin-layout-wrapper::before {
+  top: 0;
+  left: 0;
+  background: radial-gradient(ellipse 85% 75% at top left, rgba(45, 212, 191, 0.18), transparent 68%);
+}
+html[data-admin-timeband="day"] .admin-layout-wrapper::after {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(ellipse 85% 75% at bottom right, rgba(56, 189, 248, 0.12), transparent 70%);
+}
+
+html[data-admin-timeband="evening"] .admin-layout-wrapper::before {
+  top: 0;
+  left: 0;
+  background: radial-gradient(ellipse 85% 75% at top left, rgba(251, 146, 60, 0.2), transparent 68%);
+}
+html[data-admin-timeband="evening"] .admin-layout-wrapper::after {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(ellipse 85% 75% at bottom right, rgba(167, 139, 250, 0.14), transparent 70%);
+}
+
+html[data-admin-timeband="night"] .admin-layout-wrapper::before {
+  top: 0;
+  left: 0;
+  background: radial-gradient(ellipse 85% 75% at top left, rgba(99, 102, 241, 0.16), transparent 68%);
+}
+html[data-admin-timeband="night"] .admin-layout-wrapper::after {
+  bottom: 0;
+  right: 0;
+  background: radial-gradient(ellipse 85% 75% at bottom right, rgba(30, 58, 138, 0.12), transparent 70%);
+}
+
+.admin-layout-wrapper .admin-sidebar-wrapper,
+.admin-layout-wrapper .admin-main-content {
+
+  z-index: 1;
+}
+
+/* —— Skeleton pulse —— */
+@keyframes admin-skel-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.admin-skel {
+  border-radius: 10px;
+  background: linear-gradient(
+    110deg,
+    #eef2f6 0%,
+    #f8fafc 38%,
+    #eef2f6 72%,
+    #e8edf2 100%
+  );
+  background-size: 220% 100%;
+  animation: admin-skel-shimmer 1.35s ease-in-out infinite;
+}
+
+@keyframes admin-skel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+html[data-admin-theme="dark"] .admin-skel {
+  background: linear-gradient(110deg, #2d3748 0%, #3d4b5f 45%, #2d3748 100%);
+  background-size: 220% 100%;
+}
+
+.admin-skel-line {
+  height: 1rem;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.admin-skel-line--lg {
+  height: 1.75rem;
+  width: min(100%, 320px);
+}
+
+.admin-skel-line--sm {
+  height: 0.85rem;
+  width: min(100%, 220px);
+}
+
+.admin-skel-card {
+  height: 96px;
+  border-radius: 14px;
+}
+
+.admin-skel-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .admin-skel-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-dash-chart__traffic-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.5rem 0 1rem;
+}
+
+.admin-dash-chart__traffic-skeleton-block {
+  height: 180px;
+  border-radius: 12px;
+}
+
+.admin-dash-last60__skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.admin-dash-last60__skeleton-hero {
+  height: 88px;
+  border-radius: 12px;
+}
+
+.admin-dash-last60__skeleton-chart {
+  height: 220px;
+  border-radius: 12px;
+}

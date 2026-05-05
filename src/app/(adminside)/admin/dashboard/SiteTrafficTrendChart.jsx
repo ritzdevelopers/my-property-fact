@@ -391,8 +391,10 @@ export default function SiteTrafficTrendChart({
           </div>
         </>
       ) : todayLoading ? (
-        <div className="admin-dash-chart__traffic-loading admin-dash-chart__traffic-loading--compact" aria-busy="true">
-          <p className="admin-dash-chart__traffic-loading-text">Loading today&apos;s hourly chart…</p>
+        <div className="admin-dash-chart__traffic-skeleton" aria-busy="true">
+          <div className="admin-skel admin-dash-chart__traffic-skeleton-block" />
+          <div className="admin-skel admin-dash-chart__traffic-skeleton-block" style={{ height: 240 }} />
+          <div className="admin-skel-line admin-skel-line--lg" style={{ width: "70%" }} />
         </div>
       ) : (
         <div className="admin-dash-chart__traffic-placeholder" role="status">

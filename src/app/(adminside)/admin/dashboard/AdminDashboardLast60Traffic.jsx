@@ -149,8 +149,9 @@ export default function AdminDashboardLast60Traffic({
       ) : null}
 
       {liveLoading && !liveNorm && !liveError ? (
-        <div className="admin-dash-last60__loading" aria-busy="true">
-          <p>Loading…</p>
+        <div className="admin-dash-last60__skeleton" aria-busy="true">
+          <div className="admin-skel admin-dash-last60__skeleton-hero" />
+          <div className="admin-skel admin-dash-last60__skeleton-chart" />
         </div>
       ) : null}
 

@@ -17,6 +17,7 @@ const NAV_INDEX = [
   { label: "Manage Users", href: "/admin/dashboard/manage-users", tags: "users accounts roles admin superadmin" },
   { label: "Pending permissions", href: "/admin/dashboard/pending-permissions", tags: "pending approval admin staff password reset" },
   { label: "Website Traffic and Logs", href: "/admin/dashboard/super-tracking", tags: "tracking traffic audit superadmin logs analytics" },
+  { label: "Activity log", href: "/admin/dashboard/activity-log", tags: "management audit history superadmin actions" },
   { label: "Manage Projects", href: "/admin/dashboard/manage-projects", tags: "projects properties listings add edit delete" },
   { label: "Builders", href: "/admin/dashboard/builder", tags: "builder developer company" },
   { label: "Project Types", href: "/admin/dashboard/project-types", tags: "type residential commercial plot" },

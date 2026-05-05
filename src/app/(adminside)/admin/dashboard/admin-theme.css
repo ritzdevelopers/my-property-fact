@@ -1535,27 +1535,75 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__live-update
   color: #ffffff !important;
 }
 
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tabs {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab {
-  background: #000000 !important;
-  border-color: #444444 !important;
-  color: #ffffff !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  color: #cbd5e1 !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab:hover {
-  background: #1a1a1a !important;
-  border-color: #737373 !important;
-  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(45, 212, 191, 0.35) !important;
+  color: #5eead4 !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab--active {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border-color: #ffffff !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  color: #5eead4 !important;
+  border-color: rgba(45, 212, 191, 0.35) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35) !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__tab--active:hover {
-  background: #e5e5e5 !important;
-  color: #000000 !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #99f6e4 !important;
+}
+
+/* Traffic overview cards (same layout, dark surfaces) */
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-overview__hero {
+  background: linear-gradient(145deg, #0f1715 0%, #111827 45%, #0c1210 100%) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-overview__heading,
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-panel__title {
+  color: #f8fafc !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-overview__lead,
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-panel__sub {
+  color: #94a3b8 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-stat-card,
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-panel {
+  background: #000000 !important;
+  border-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-stat-card--accent {
+  background: linear-gradient(165deg, #0c1917 0%, #000000 55%) !important;
+  border-color: rgba(45, 212, 191, 0.25) !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-panel__head {
+  background: linear-gradient(180deg, #0a0a0a 0%, #000000 100%) !important;
+  border-bottom-color: #333333 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-overview__live-meta {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .wt-overview__btn--primary {
+  box-shadow: 0 2px 14px rgba(13, 148, 136, 0.35) !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__metric,
@@ -1563,12 +1611,6 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__panel {
   background: #000000 !important;
   border-color: #333333 !important;
   box-shadow: none !important;
-}
-
-html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__panel.super-tracking__panel--cyber {
-  background: #020617 !important;
-  border-color: #134e4a !important;
-  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.12), 0 12px 40px rgba(0, 0, 0, 0.45) !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__metric-label {
@@ -1593,6 +1635,14 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking td {
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking th {
   color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__actor-name {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__actor-email {
+  color: #a3a3a3 !important;
 }
 
 html[data-admin-theme="dark"] .admin-layout-wrapper .super-tracking__filters {

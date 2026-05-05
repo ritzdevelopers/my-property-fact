@@ -31,6 +31,7 @@ import {
   faImages,
   faGear,
   faCircleQuestion,
+  faClipboardList,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
@@ -244,6 +245,18 @@ export default function SideNav({ onLinkClick }) {
             <Link href="/admin/dashboard/super-tracking" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
               <span>MPF Traffic and Logs</span>
+            </Link>
+          </li>
+        )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/activity-log") ? "active" : ""
+            }
+          >
+            <Link href="/admin/dashboard/activity-log" onClick={handleLinkClick}>
+              <FontAwesomeIcon icon={faClipboardList} className="admin-nav-ico" />
+              <span>Activity log</span>
             </Link>
           </li>
         )}

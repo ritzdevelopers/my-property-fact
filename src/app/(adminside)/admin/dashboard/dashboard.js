@@ -839,32 +839,33 @@ export default function Dashboard({
   return (
     <div className="admin-dash-home">
       <header>
-        {/* <p className="admin-dash-home__kicker">Executive overview</p> */}
-        <div className="admin-dash-home__hero-row">
-          <h1
-            className="admin-dash-home__title admin-dash-home__title--greeting"
-            aria-label={greetingTarget || "Admin dashboard"}
-          >
-            {typedGreeting}
-            {greetingTarget && !greetingTypingDone ? (
-              <span
-                className="admin-dash-home__typing-cursor"
-                aria-hidden
-              />
+        {roleLoading ? (
+          <div className="admin-dash-home__hero-row" aria-busy="true">
+            <div className="admin-skel admin-skel-line admin-skel-line--lg" style={{ marginBottom: "0.65rem" }} />
+            <div className="admin-skel admin-skel-line admin-skel-line--sm" style={{ maxWidth: 280 }} />
+          </div>
+        ) : (
+          <>
+            <div className="admin-dash-home__hero-row">
+              <h1
+                className="admin-dash-home__title admin-dash-home__title--greeting"
+                aria-label={greetingTarget || "Admin dashboard"}
+              >
+                {typedGreeting}
+                {greetingTarget && !greetingTypingDone ? (
+                  <span className="admin-dash-home__typing-cursor" aria-hidden />
+                ) : null}
+              </h1>
+            </div>
+            {(welcomeName || roleLabel) ? (
+              <p className="admin-dash-home__signed-in-meta">
+                {welcomeName ? <>Signed in as {welcomeName}</> : null}
+                {welcomeName && roleLabel ? " · " : null}
+                {roleLabel ? <span>{roleLabel}</span> : null}
+              </p>
             ) : null}
-          </h1>
-          {/* <div className="admin-dash-home__trend">
-            <FontAwesomeIcon icon={faArrowTrendUp} />
-            <span>12.5% vs last quarter</span>
-          </div> */}
-        </div>
-        {!roleLoading && (welcomeName || roleLabel) ? (
-          <p className="admin-dash-home__signed-in-meta">
-            {welcomeName ? <>Signed in as {welcomeName}</> : null}
-            {welcomeName && roleLabel ? " · " : null}
-            {roleLabel ? <span>{roleLabel}</span> : null}
-          </p>
-        ) : null}
+          </>
+        )}
       </header>
 
       <section aria-label="Key metrics">

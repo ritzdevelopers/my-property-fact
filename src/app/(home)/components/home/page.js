@@ -9,6 +9,7 @@ import {
   fetchCityData,
   fetchProjectTypes,
   getAllProjects,
+  fetchBuilderData,
   fetchTopPicksProject,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
@@ -81,7 +82,10 @@ async function fetchHomeTestimonials() {
 }
 
 export default async function HomePage() {
-  const projects = await getAllProjects();
+  const [projects, buildersRes] = await Promise.all([
+    getAllProjects(),
+    fetchBuilderData(),
+  ]);
   const testimonials = await fetchHomeTestimonials();
 
   // Allowed slugs for featured projects
@@ -169,7 +173,7 @@ export default async function HomePage() {
   });
 
   const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
-    null,
+    buildersRes,
     projects,
   );
 

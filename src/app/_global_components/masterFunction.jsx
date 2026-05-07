@@ -68,7 +68,7 @@ export const fetchProjectTypes = cache(async () => {
 
 // Fetching builder data
 export const fetchBuilderData = cache(async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}builder/get-all`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}builder/get-all-builders`, {
     next: { revalidate: 60 },
   });
   if (!res.ok) throw new Error("Failed to fetch builders");

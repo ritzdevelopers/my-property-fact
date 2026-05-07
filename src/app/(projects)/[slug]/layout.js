@@ -657,6 +657,49 @@
     return null;
   };
 
+  /** Shown only for legacy rows — both API timestamps must be before the cutoff (see below). */
+  const PROJECT_LEGACY_TITLE_SUFFIX =
+    "| Price List & Brochure, Floor Plan, Location Map & Reviews";
+
+  /** Start of 7 May 2026 (IST). New listings or any save on/after this drop the long suffix. */
+  const PROJECT_LEGACY_TITLE_SUFFIX_CUTOFF_MS = new Date(
+    "2026-05-07T00:00:00+05:30",
+  ).getTime();
+
+  /** Supports ISO strings and Jackson LocalDateTime-as-array. */
+  function parseProjectDateTime(raw) {
+    if (raw == null) return null;
+    if (Array.isArray(raw) && raw.length >= 3) {
+      const y = Number(raw[0]);
+      const mo = Number(raw[1]) - 1;
+      const d = Number(raw[2]);
+      const h = raw.length > 3 ? Number(raw[3]) : 0;
+      const mi = raw.length > 4 ? Number(raw[4]) : 0;
+      const s = raw.length > 5 ? Number(raw[5]) : 0;
+      const ms = raw.length > 6 ? Math.floor(Number(raw[6]) / 1e6) : 0;
+      if ([y, mo, d, h, mi, s].some((x) => Number.isNaN(x))) return null;
+      return new Date(y, mo, d, h, mi, s, ms);
+    }
+    const dt = new Date(raw);
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+
+  /**
+   * Append the long SEO suffix only when both createdAt and updatedAt are strictly before 7 May 2026.
+   * If either is on/after that date (new project or any edit), the suffix is omitted.
+   */
+  function shouldAppendLegacyProjectTitleSuffix(project) {
+    const c = parseProjectDateTime(project?.createdAt ?? project?.created_at);
+    const u = parseProjectDateTime(project?.updatedAt ?? project?.updated_at);
+    const createdMs = c != null ? c.getTime() : null;
+    const updatedMs = u != null ? u.getTime() : null;
+    if (createdMs == null || updatedMs == null) return false;
+    return (
+      createdMs < PROJECT_LEGACY_TITLE_SUFFIX_CUTOFF_MS &&
+      updatedMs < PROJECT_LEGACY_TITLE_SUFFIX_CUTOFF_MS
+    );
+  }
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   let response;
@@ -717,12 +760,11 @@ export async function generateMetadata({ params }) {
   const description =
     response?.metaDescription ??
     "Get project details, floor plan, brochure, location map and pricing.";
-  const titleSuffix =
-    "| Price List & Brochure, Floor Plan, Location Map & Reviews";
-  const title =
-    [titlePrefix, projectAddress].filter(Boolean).join(" ") +
-    " " +
-    titleSuffix;
+  const baseTitle = [titlePrefix, projectAddress].filter(Boolean).join(" ");
+  const titleSuffix = shouldAppendLegacyProjectTitleSuffix(response)
+    ? PROJECT_LEGACY_TITLE_SUFFIX
+    : "";
+  const title = titleSuffix ? `${baseTitle} ${titleSuffix}` : baseTitle;
 
   return {
     title: title.trim(),

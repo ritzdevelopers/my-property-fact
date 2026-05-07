@@ -34,12 +34,12 @@ export default function City({ list, stateList }) {
         {
             id: "metaDescription",
             label: "Meta Description",
-            type: "textarea",
+            type: "editor",
         },
         {
             id: "cityDescription",
             label: "City Description",
-            type: "textarea",
+            type: "editor",
         },
     ];
     const getInitialFormData = () =>

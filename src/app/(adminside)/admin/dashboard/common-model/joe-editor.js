@@ -6,6 +6,10 @@ import JoditEditor from "jodit-react";
 
 const Editor = ({ value, onChange }) => {
   const editor = useRef(null);
+  const getJodit = () =>
+    editor.current?.editor ||
+    editor.current?.jodit ||
+    editor.current;
 
   const config = {
     readonly: false,
@@ -17,28 +21,36 @@ const Editor = ({ value, onChange }) => {
     },
     events: {
       beforePaste: (event) => {
-        if (event.clipboardData) {
-          let html = event.clipboardData.getData("text/html");
-          if (html) {
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, "text/html");
+        if (!event?.clipboardData) return;
+        const jodit = getJodit();
+        const html = event.clipboardData.getData("text/html");
+        const plainText = event.clipboardData.getData("text/plain");
 
-            // Remove inline styles, classes, and extra span tags
-            doc.querySelectorAll("*").forEach((el) => {
-              el.removeAttribute("style");
-              el.removeAttribute("class");
-              // optional: strip Word/Docs leftover spans
-              if (
-                el.tagName.toLowerCase() === "span" &&
-                el.attributes.length === 0
-              ) {
-                el.replaceWith(...el.childNodes);
-              }
-            });
+        if (!jodit?.s) return;
+        if (html) {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, "text/html");
 
-            event.preventDefault();
-            event.target.jodit.s.insertHTML(doc.body.innerHTML);
-          }
+          // Remove inline styles, classes, and extra span tags
+          doc.querySelectorAll("*").forEach((el) => {
+            el.removeAttribute("style");
+            el.removeAttribute("class");
+            if (
+              el.tagName.toLowerCase() === "span" &&
+              el.attributes.length === 0
+            ) {
+              el.replaceWith(...el.childNodes);
+            }
+          });
+
+          event.preventDefault();
+          jodit.s.insertHTML(doc.body.innerHTML);
+          return;
+        }
+
+        if (plainText) {
+          event.preventDefault();
+          jodit.s.insertHTML(plainText);
         }
       },
     },

@@ -295,9 +295,9 @@ export default function NewContactUs() {
       <div className="container-fluid contact-expert-section g-0">
         <div className="container contact-expert-inner py-5">
           <header className="contact-expert-header text-center mx-auto px-2 px-sm-0">
-            <h1 className="contact-expert-title">
+            <h2 className="contact-expert-title">
               Talk To A Property Expert
-            </h1>
+            </h2>
             <p className="contact-expert-subtitle">
               Tell Us What You&apos;re Looking For, And We&apos;ll Help You Find
               The Right Property Faster.
@@ -320,7 +320,7 @@ export default function NewContactUs() {
                       />
                     </div>
                     <div className="contact-expert-address-body">
-                      <h2 className="contact-expert-address-title">Our Office</h2>
+                      <p className="contact-expert-address-title">Our Office</p>
                       <p className="contact-expert-address-text mb-0">
                         Unit no: 603, 6th Floor, Corporate
                         <br />
@@ -350,7 +350,7 @@ export default function NewContactUs() {
                       />
                     </div>
                     <div className="contact-expert-phone-body">
-                      <h2 className="contact-expert-phone-title">Call Us</h2>
+                      <p className="contact-expert-phone-title">Call Us</p>
                       <span className="contact-expert-phone-number">
                         +91 8920024793
                       </span>
@@ -379,7 +379,7 @@ export default function NewContactUs() {
                       />
                     </div>
                     <div className="contact-expert-email-body">
-                      <h2 className="contact-expert-email-title">Email Us</h2>
+                      <p className="contact-expert-email-title">Email Us</p>
                       <span className="contact-expert-email-address">
                         social@mypropertyfact.com
                       </span>
@@ -413,7 +413,7 @@ export default function NewContactUs() {
             <div className="col-12 col-lg-8 contact-expert-form-column">
               <div className="contact-expert-form-shell">
               <div className="contact-expert-form-card">
-                <h2 className="contact-expert-form-heading">Send a Message</h2>
+                <p className="contact-expert-form-heading">Send a Message</p>
                 <p className="contact-expert-form-lead">
                   Fill out the form below and one of our property consultants
                   will reach out shortly.

@@ -615,7 +615,7 @@
   flex-direction: row;
   align-items: center;
   width: max-content;
-  animation: transform-home-developers-marquee 560s linear infinite;
+  animation: transform-home-developers-marquee 500s linear infinite;
 }
 
 .transform-home-developers-marquee:hover .transform-home-developers-track {
@@ -705,8 +705,8 @@
 
 .transform-home-developers-logo {
   width: auto;
-  max-width: clamp(130px, 16vw, 176px);
-  height: clamp(44px, 5.5vw, 56px);
+  max-width: clamp(112px, 14vw, 162px);
+  height: clamp(38px, 4.8vw, 48px);
   object-fit: contain;
 }
 

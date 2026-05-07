@@ -1,9 +1,16 @@
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import Cookies from "js-cookie";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
+
+const Editor = dynamic(() => import("./joe-editor"), {
+  ssr: false,
+  loading: () => <p>Loading editor...</p>,
+});
 
 function adminMutationHeaders() {
   const token =
@@ -18,10 +25,37 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
     setShowLoading, setButtonName, buttonName, showLoading, formData, title, setFormData, api
 }) {
     const router = useRouter();
+    const [editorErrors, setEditorErrors] = useState({});
+    const hasEditorField = inputFields.some((item) => item.type === "editor");
+
+    const normalizeEditorHtml = (value) => {
+        const raw = String(value || "").trim();
+        if (!raw) return "";
+        const withoutTags = raw
+            .replace(/<br\s*\/?>/gi, "")
+            .replace(/&nbsp;/gi, " ")
+            .replace(/<[^>]*>/g, "")
+            .trim();
+        return withoutTags;
+    };
+
     // Function to handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         const form = e.currentTarget;
+        const nextEditorErrors = {};
+        inputFields
+            .filter((item) => item.type === "editor" && item.required !== false)
+            .forEach((item) => {
+                if (!normalizeEditorHtml(formData[item.id])) {
+                    nextEditorErrors[item.id] = `${item.label} is required !`;
+                }
+            });
+        setEditorErrors(nextEditorErrors);
+        if (Object.keys(nextEditorErrors).length > 0) {
+            setValidated(true);
+            return;
+        }
         if (form.checkValidity() === false) {
             e.stopPropagation();
         } else {
@@ -43,6 +77,7 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
                 if (response.data.isSuccess === 1) {
                     router.refresh();
                     setShowModal(false);
+                    setEditorErrors({});
                     toast.success(response.data.message);
                 } else {
                     toast.error(response.data.message);
@@ -71,7 +106,13 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
     }
 
     return (
-        <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal
+            show={showModal}
+            onHide={() => setShowModal(false)}
+            centered
+            scrollable={hasEditorField}
+            size={hasEditorField ? "xl" : undefined}
+        >
             <Modal.Header closeButton>
                 <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
@@ -114,19 +155,36 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
                                     </Form.Control.Feedback>
                                 </Form.Group>
                                     :
-                                    <Form.Group key={`${item.id}-${index}`} className="mb-3" controlId={item.id}>
-                                        <Form.Label>{item.label}</Form.Label>
-                                        <Form.Control
-                                            as="textarea"
-                                            placeholder={`Enter ${item.label}`}
-                                            value={formData[item.id] || ""}
-                                            onChange={handleChange}
-                                            required
-                                        />
-                                        <Form.Control.Feedback type="invalid">
-                                            {`${item.label} is required !`}
-                                        </Form.Control.Feedback>
-                                    </Form.Group>
+                                    (item.type === "editor" ? (
+                                        <Form.Group key={`${item.id}-${index}`} className="mb-3" controlId={item.id}>
+                                            <Form.Label>{item.label}</Form.Label>
+                                            <Editor
+                                                value={formData[item.id] || ""}
+                                                onChange={(value) =>
+                                                    setFormData((prev) => ({ ...prev, [item.id]: value }))
+                                                }
+                                            />
+                                            {editorErrors[item.id] ? (
+                                                <div className="text-danger mt-1" style={{ fontSize: "0.875rem" }}>
+                                                    {editorErrors[item.id]}
+                                                </div>
+                                            ) : null}
+                                        </Form.Group>
+                                    ) : (
+                                        <Form.Group key={`${item.id}-${index}`} className="mb-3" controlId={item.id}>
+                                            <Form.Label>{item.label}</Form.Label>
+                                            <Form.Control
+                                                as="textarea"
+                                                placeholder={`Enter ${item.label}`}
+                                                value={formData[item.id] || ""}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            <Form.Control.Feedback type="invalid">
+                                                {`${item.label} is required !`}
+                                            </Form.Control.Feedback>
+                                        </Form.Group>
+                                    ))
                                 )
                             }
                         </div>

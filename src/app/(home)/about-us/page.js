@@ -7,6 +7,7 @@ import {
   fetchBuilderData,
   fetchCityData,
 } from "@/app/_global_components/masterFunction";
+import { normalizeBuildersResponse } from "../components/_homecomponents/topDevelopersMarqueeData";
 
 export const metadata = {
   title: "About Us | MyPropertyFact – Real Estate Price Trends & Insights",
@@ -57,7 +58,7 @@ export default async function AboutUsPage() {
     fetchBuilderData(),
     fetchCityData(),
   ]);
-  const buildersList = buildersRes?.builders ?? buildersRes?.data ?? [];
+  const buildersList = normalizeBuildersResponse(buildersRes);
   const platformStats = {
     cities: Array.isArray(cities) ? cities.length : 0,
     builders: Array.isArray(buildersList) ? buildersList.length : 0,

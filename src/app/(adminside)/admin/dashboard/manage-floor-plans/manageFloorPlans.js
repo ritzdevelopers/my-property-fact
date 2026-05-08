@@ -1,6 +1,7 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -58,9 +59,17 @@ export default function ManageFloorPlans({ list, projectsList }) {
     try {
       setShowLoading(true);
       setButtonName("");
+      const token =
+        typeof window !== "undefined" ? Cookies.get("token") : undefined;
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}floor-plans/add-update`,
-        data
+        data,
+        {
+          withCredentials: true,
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        }
       );
       if (response.data.isSuccess == 1) {
         toast.success(response.data.message);

@@ -41,6 +41,9 @@
 .new-design-footer-top-left {
     width: 50%;
 }
+.new-design-footer-top-new-left {
+    width: 25%;
+}
 
 .new-design-footer-top-left-logo {
     margin-bottom: 20px;
@@ -111,6 +114,10 @@
 
 .new-design-footer-top-right {
     width: 50%;
+}
+.new-design-footer-top-new-right
+{
+    width: 75%;
 }
 
 .new-design-footer-top-left-content{
@@ -191,7 +198,68 @@
     margin-bottom: 20px;
     text-transform: capitalize;
 }
+.newlatter-heading {
+font-family: Lato;
+font-weight: 600;
+font-style: SemiBold;
+font-size: 24px;
+line-height: 32px;
+letter-spacing: 0%;
+color:#333333;
+text-transform: capitalize;
 
+}
+.newsletter-paragraph {
+    font-family: Inter;
+font-weight: 400;
+font-style: Regular;
+font-size: 16px;
+padding-top: 10px;
+color:#00000099;
+line-height: 24px;
+letter-spacing: 0%;
+
+}
+.newsletter-text{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.footer-new-heading{
+font-family: Lato;
+font-weight: 600;
+font-style: SemiBold;
+font-size: 20px;
+color:#333333;
+line-height: 100%;
+letter-spacing: 0%;
+}
+.footer-new-link{
+    font-family: Plus Jakarta Sans;
+font-weight: 400;
+font-style: Regular;
+font-size: 15px;
+color:#333333;
+line-height: 100%;
+letter-spacing: 0%;
+
+}
+.footer-new-links a{
+    color:#333333;
+    text-decoration: none;
+}
+
+.footer-new-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.footer-new-link:hover {
+    color: #D4AF37;
+}
 .footer-links {
     list-style: none;
     padding: 0;
@@ -326,6 +394,17 @@
 }
 
 /* After Load More: all links in a fixed-height scroll area (scrollbar always reserved) */
+.footer-new-links-scroll {
+    max-height: clamp(150px, 15vh, 280px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: auto;
+    padding-right: 0;
+    padding-top:10px;
+    margin-bottom: 2px;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Legacy Edge/IE */
+}
 .footer-links-scroll {
     max-height: clamp(160px, 28vh, 280px);
     overflow-y: auto;
@@ -577,7 +656,9 @@
     .new-design-footer-top-left {
         width: 100%;
     }
-    
+      .new-design-footer-top-new-left {
+        width: 100%;
+    }
     .new-design-footer-top-left-content {
         width: 100%;
         margin-bottom: 25px;
@@ -586,6 +667,9 @@
     .new-design-footer-top-right {
         width: 100%;
     }
+        .new-design-footer-top-new-right {
+            width: 100%;
+        }
     
     .new-design-footer-top-right-content {
         gap: 4rem;

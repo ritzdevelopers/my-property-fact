@@ -169,7 +169,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               </form>
             </div>
             <div className="new-design-footer-top-right" style={{ padding: "0px" }}>
-              <img src="/static/footer/newsletter.png" alt="Building" />
+              <img src="/static/footer/newsletter.png" alt="Building" style={{width:"100%"}} />
             </div>
           </div>
         </div>

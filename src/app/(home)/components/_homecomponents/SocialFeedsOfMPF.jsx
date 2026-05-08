@@ -39,30 +39,24 @@ export default function SocialFeedsOfMPF() {
 
   const socialPosts = [
     {
-      text: `India's first Wellness Sanctuary - DXP Estate by Signature Global!
-      Watch the video to know what it has in store for you.
-      Experience a lifestyle powered by:
-      Tatva Spa • Ajivasan Music • MS Dhoni's Tagda Raho • Fittr • Michael Phelps Swimming • Tiger Shroff's Matrix Dance`,
+      text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
       position: "top",
-      video: "/static/social-media/social1.mp4"
+      video: "/static/social-media/social11.mp4"
     },
     {
-      text: `Sector 12, Greater Noida West is changing the luxury game and Ashtech is leading the way.
-From a 5.7 acre corner plot to Sunday Deck balconies, triple-height lobbies and 70,000 sq.ft. clubhouse,
-this is where lifestyle meets pure elegance!`,
+      text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
       position: "bottom",
-      video: "/static/social-media/social2.mp4"
+      video: "/static/social-media/social22.mp4"
     },
     {
-      text: `Ever looked at a plot and wondered what truly defines its potential? It’s not just the size - it’s the FAR.
-Curious how this one number can change the entire value of land? Understand FAR in this video and see real estate with a whole new lens.`,
+      text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
       position: "bottom",
-      video: "/static/social-media/social3.mp4"
+      video: "/static/social-media/social33.mp4"
     },
     {
-      text: "From Shah Rukh khan to Hritik Roshan, Bollywood celebs are now the face of Dubai’s premium real estate launches. Reason? strategy 🔥",
+      text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
       position: "top",
-      video: "/static/social-media/social5.mp4"
+      video: "/static/social-media/social44.mp4"
     }
   ];
 

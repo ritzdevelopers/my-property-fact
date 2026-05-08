@@ -2326,7 +2326,7 @@ button.header-nav-dropdown-trigger {
 }
 
 .bigMenuList ul li a {
-  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-size: clamp(1rem, 5vw, 1rem);
   font-family: "Benton300", sans-serif;
   line-height: 1.4;
   word-wrap: break-word;
@@ -2381,7 +2381,7 @@ button.header-nav-dropdown-trigger {
 
 @media (max-width: 426px) {
   .bigMenuList ul li a {
-    font-size: 1.5rem;
+    font-size: 1rem;
   }
 
   .bigMenuList .dropdown li a {

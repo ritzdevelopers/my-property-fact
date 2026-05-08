@@ -12,52 +12,6 @@ import {
 import { number } from "framer-motion";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzPGcu-_n28K8ZrRudpWfoZJ6a2F2EtvDq_Vlnin9RCTfw_A6lx986V-66fE-VyVRDZ7A/exec";
-const RITZ_CRM_BASE_URL = "https://eldeco.4erealty.com/WebCreate.aspx";
-
-const sendRitzGoogleCrmLead = async ({ formData, pathParam }) => {
-  // CRM integration is required only for /eldeco-camelot/7.
-  if (String(pathParam) !== "7") return;
-
-  const mobile = String(formData?.PHONE || "").replace(/\D/g, "");
-  if (!mobile) return;
-
-  const pageUrl =
-    typeof window !== "undefined"
-      ? `${window.location.hostname}${window.location.pathname}`
-      : "";
-
-  const query = new URLSearchParams({
-    UID: "fourqt",
-    PWD: "wn9mxO76f34=",
-    Channel: "RGA",
-    Src: "Ritz Google",
-    ISD: "91",
-    Mob: mobile,
-    Email: String(formData?.EMAIL || ""),
-    name: String(formData?.FIRSTNAME || ""),
-    City: "",
-    Location: "",
-    Project: "Eldeco Camelot",
-    Remark: String(formData?.MESSAGE || ""),
-    url: pageUrl,
-    UniqueId: "0",
-    fld1: "Google PPC",
-    fld2: "Eldeco Camelot",
-    fld3: "CTM",
-    fld4: "",
-  });
-
-  try {
-    // Use no-cors so this client-side hit is sent even without CORS headers.
-    await fetch(`${RITZ_CRM_BASE_URL}?${query.toString()}`, {
-      method: "GET",
-      mode: "no-cors",
-    });
-  } catch (error) {
-    // Keep existing lead flow unchanged even if CRM hit fails.
-    console.error("Ritz CRM call failed:", error);
-  }
-};
 
 export default function ContactForm({ formType = "hero", className = "" }) {
   const router = useRouter();
@@ -144,8 +98,6 @@ export default function ContactForm({ formType = "hero", className = "" }) {
       const result = await response.json();
 
       if (result.result === "success") {
-        await sendRitzGoogleCrmLead({ formData, pathParam });
-
         // Close modal if it's modal form
         if (formType === "modal") {
           const modalElement = document.getElementById("contactModal");

@@ -355,14 +355,13 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                   <div className="footer-section-heading h4">Our Partners</div>
                   <ul className="footer-links">
                     <li>
-                      <Link href="" className="footer-link"
-                        title="Creative Thinks Media">Creative Thinks Media</Link>
+                      <Link href="https://creativethinksmedia.com/" className="footer-link" title="Creative Thinks Media">Creative Thinks Media</Link>
                     </li>
                     <li>
-                      <Link href="" className="footer-link" title="Ritz Media World">Ritz Media World</Link>
+                      <Link href="https://ritzmediaworld.com/" className="footer-link" title="Ritz Media World">Ritz Media World</Link>
                     </li>
                     <li>
-                      <Link href="" className="footer-link" title="Contenaissance">Contenaissance</Link>
+                      <Link href="https://www.contenaissance.com/" className="footer-link" title="Contenaissance">Contenaissance</Link>
                     </li>
                   </ul>
                 </div>

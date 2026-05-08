@@ -39,7 +39,7 @@ export default function SocialFeedsOfMPF() {
 
   const socialPosts = [
     {
-      text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens • 30,000 Sq. Ft. Clubhouse • 24×7 Security • Wave Galleria Market • Sector 62 Connectivity.`,
+      text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
       position: "top",
       video: "/static/social-media/social11.mp4"
     },
@@ -49,7 +49,7 @@ export default function SocialFeedsOfMPF() {
       video: "/static/social-media/social22.mp4"
     },
     {
-      text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  • 25+ Lifestyle Amenities • 130m Wide Road Access • Green Surroundings •`,
+      text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
       position: "bottom",
       video: "/static/social-media/social33.mp4"
     },

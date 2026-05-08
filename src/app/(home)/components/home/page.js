@@ -205,7 +205,7 @@ export default async function HomePage() {
             />
             <div className="transform-home-heading-box">
                 <h1 className="headgradient">Find Flats & Property Across India | Buy & Invest</h1>
-                <p className=" headsub">“Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.”</p>
+                <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
             </div>
             <div className="transform-home-content">
               <div className="transform-home-headline-stack">

@@ -660,6 +660,8 @@
   /** Shown only for legacy rows — both API timestamps must be before the cutoff (see below). */
   const PROJECT_LEGACY_TITLE_SUFFIX =
     "| Price List & Brochure, Floor Plan, Location Map & Reviews";
+  const PROJECT_LEGACY_TITLE_SUFFIX_TEXT =
+    "Price List & Brochure, Floor Plan, Location Map & Reviews"; //ashish add code for test title suffix
 
   /** Start of 7 May 2026 (IST). New listings or any save on/after this drop the long suffix. */
   const PROJECT_LEGACY_TITLE_SUFFIX_CUTOFF_MS = new Date(
@@ -683,7 +685,26 @@
     const dt = new Date(raw);
     return Number.isNaN(dt.getTime()) ? null : dt;
   }
+  //ashish add code for test title suffix
 
+  function escapeRegExp(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function stripLegacyProjectTitleSuffix(value) {
+    if (typeof value !== "string") return "";
+    return value
+      .replace(
+        new RegExp(
+          `\\s*\\|?\\s*${escapeRegExp(PROJECT_LEGACY_TITLE_SUFFIX_TEXT)}\\s*`,
+          "gi",
+        ),
+        " ",
+      )
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }
+//ashish end code for test title suffix
   /**
    * Append the long SEO suffix only when both createdAt and updatedAt are strictly before 7 May 2026.
    * If either is on/after that date (new project or any edit), the suffix is omitted.
@@ -755,8 +776,12 @@ export async function generateMetadata({ params }) {
   }
 
   const projectAddress = response?.projectAddress ?? "";
+  const rawTitlePrefix =
+    response?.metaTitle ?? response?.projectName ?? "Project"; //ashish add code for test title suffix
   const titlePrefix =
-    response?.metaTitle ?? response?.projectName ?? "Project";
+    stripLegacyProjectTitleSuffix(rawTitlePrefix) ||
+    response?.projectName ||
+    "Project"; //ashish add code for test title suffix
   const description =
     response?.metaDescription ??
     "Get project details, floor plan, brochure, location map and pricing.";

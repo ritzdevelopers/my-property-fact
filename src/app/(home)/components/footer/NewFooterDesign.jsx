@@ -144,32 +144,31 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     <div>
       <div className="new-footer-design">
         {/* Newsletter Section */}
-        <div className="container">
-          <div className="new-design-footer-top" style={{ backgroundColor: "#FAFAFA", borderRadius: "12px" }}>
-            <div className="new-design-footer-top-left newsletter-text" style={{ padding: "30px" }}>
+        <div className="container newslettermaxwidth">
+          <div className="new-design-footer-top newsletter-background">
+            <div className="new-design-footer-top-left newsletterbox-left newsletter-text">
               <div className="newlatter-heading">
                 Join My Newsletter
               </div>
               <p className="newsletter-paragraph">
                 Receive fresh articles straight in your inbox, every Friday morning.
-                <br />
                 I also share interesting finds from the internet!
               </p>
               <form onSubmit={handleSubmit}>
                 <div className="newsletter-form">
-                  <input type="email" placeholder="Your Email"
+                  <input type="email" placeholder="Your email address…"
                     value={email} onChange={(e) => setEmail(e.target.value)}
                     className="newsletter-input" />
-                  <button className="newsletter-button btn-normal-color"
+                  <button className="newsletter-button btn-normal-color newletterbutton"
                     type="submit" disabled={loading}
-                    style={{ backgroundColor: "#0D5834", width: "120px", height: "45px" }}>
+                   >
                     {loading ? "Saving..." : "Subscribe"}
                   </button>
                 </div>
               </form>
             </div>
-            <div className="new-design-footer-top-right" style={{ padding: "0px" }}>
-              <img src="/static/footer/newsletter.png" alt="Building" style={{width:"100%"}} />
+            <div className="new-design-footer-top-right newsletterbox-right" style={{ marginTop: "-6%" }}>
+              <img src="/static/footer/newsletter1.png" alt="Building" className="center-img" />
             </div>
           </div>
         </div>

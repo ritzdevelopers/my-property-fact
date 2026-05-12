@@ -28,28 +28,6 @@ const apiWithAuth = () => ({
       : {}),
   },
 });
-//ashish add code for test title suffix
-const PROJECT_LEGACY_TITLE_SUFFIX_TEXT =
-  "Price List & Brochure, Floor Plan, Location Map & Reviews";
-
-function escapeRegExp(value) {
-  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function stripLegacyProjectTitleSuffix(value) {
-  if (typeof value !== "string") return value;
-  return value
-    .replace(
-      new RegExp(
-        `\\s*\\|?\\s*${escapeRegExp(PROJECT_LEGACY_TITLE_SUFFIX_TEXT)}\\s*`,
-        "gi",
-      ),
-      " ",
-    )
-    .replace(/\s{2,}/g, " ")
-    .trim();
-}
-//ashish end  code for test title suffix
 function formatProjectDateTime(value) {
   if (value == null || value === "") return "—";
   if (typeof value === "string") {
@@ -231,7 +209,6 @@ export default function ManageProjects({
     setFormData({
       ...initialFormData, // You can retain the initial values if needed
       ...item, // Overwrite with item data
-      metaTitle: stripLegacyProjectTitleSuffix(item.metaTitle), //ashish add code for test title suffix
       amenityDescription: item.amenityDesc,
       locationDescription: item.locationDesc,
       floorPlanDescription: item.floorPlanDesc,
@@ -329,8 +306,6 @@ export default function ManageProjects({
     delete dto.projectLogo;
     delete dto.locationMap;
     delete dto.projectThumbnail;
-    delete dto.updatedAt;
-    dto.metaTitle = stripLegacyProjectTitleSuffix(dto.metaTitle); //ashish add code for test title suffix
     data.append(
       "addUpdateProjectDto",
       new Blob([JSON.stringify(dto)], { type: "application/json" }),

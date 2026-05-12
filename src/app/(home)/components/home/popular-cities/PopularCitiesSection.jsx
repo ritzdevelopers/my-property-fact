@@ -84,16 +84,7 @@ export default function PopularCitiesSection() {
     <section className="popular-cities-section" aria-labelledby="popular-cities-heading">
       <div className="pc__head-wrap">
         <div className="pc__head-inner">
-          <div className="pc__head-top">
-            <span className="pc__kicker">Cities</span>
-            <Link
-              href="/projects"
-              className="pc__cta"
-              title="Browse all real estate projects on My Property Fact"
-            >
-              Explore more
-            </Link>
-          </div>
+ 
           <div className="pc__head-title-block">
             <h2
               id="popular-cities-heading"
@@ -114,6 +105,16 @@ export default function PopularCitiesSection() {
           <MarqueeRow key={i} rowIndex={i} />
         ))}
       </div>
+      <div className="pc__head-top" style={{marginTop: "20px"}}>
+            {/* <span className="pc__kicker">Cities</span> */}
+            <Link
+              href="/projects"
+              className="pc__cta"
+              title="Browse all real estate projects on My Property Fact"
+            >
+              Explore more
+            </Link>
+          </div>
     </section>
   );
 }

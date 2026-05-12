@@ -1,6 +1,7 @@
 "use client";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import CommonHeaderBanner from "../../common/commonheaderbanner";
 import "./insight.css";
 import Link from "next/link";
 import Image from "next/image";
@@ -59,8 +60,15 @@ export default function InsightNew() {
   };
   return (
     <>
+      <CommonHeaderBanner
+        image={"contact-banner.jpg"}
+        headerText={"Investor Education Blog"}
+        pageName={"Investor Education Blog"}
+      />
+      <div style={{ marginTop: "30px" }}></div>
       <div className="container">
-        <h2 className="text-center my-5">Investor Education Blog</h2>
+
+        {/* <h2 className="text-center my-5">Investor Education Blog</h2> */}
         <div className="row">
           {data.map((i) => (
             <div key={i.id} className={`col-sm-12 col-md-6 col-xl-3 mb-3`}>

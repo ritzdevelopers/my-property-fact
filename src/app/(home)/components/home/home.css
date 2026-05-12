@@ -620,7 +620,11 @@
 .transform-home-developers-marquee {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  scrollbar-width: none;
   mask-image: linear-gradient(
     90deg,
     transparent,
@@ -637,12 +641,21 @@
   );
 }
 
+.transform-home-developers-marquee::-webkit-scrollbar {
+  display: none;
+}
+
+.transform-home-developers-marquee.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .transform-home-developers-track {
   display: flex;
   flex-direction: row;
   align-items: center;
   width: max-content;
-  animation: transform-home-developers-marquee 500s linear infinite;
+  animation: transform-home-developers-marquee 100s linear infinite;
 }
 
 .transform-home-developers-marquee:hover .transform-home-developers-track {

@@ -242,8 +242,8 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                       src="/static/icon/twitter (1).png"
                       alt="X (Twitter)"
                       title="X (Twitter)"
-                      width={24}
-                      height={24}
+                      width={20}
+                      height={20}
                     />
                   </a>
                   <a

@@ -5,6 +5,7 @@ import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Image from "next/image";
+import { useState } from "react";
 
 export default function CityPage({ cityData }) {
   // Safely handle cases where API doesn't return a project list
@@ -15,7 +16,9 @@ export default function CityPage({ cityData }) {
   const cityName = cityData?.cityName?.trim() || "City";
   const aboutSectionLeftAlt = `${cityName} — city guide section, left illustration on My Property Fact`;
   const aboutSectionRightAlt = `${cityName} — city guide section, right illustration on My Property Fact`;
+  const [showMore, setShowMore] = useState(false);
 
+  const description = cityData?.cityDescription || "";
   return (
     <>
       <div className="p-0">
@@ -47,9 +50,45 @@ export default function CityPage({ cityData }) {
               height={353}
             />
           </div>
+          {/* <div>
+            <p>
+              {showMore
+                ?  description
+                : description.slice(0, 500) +
+                (description.length > 500 ? "..." : "")}</p>
+                 <div style={{display: "flex", justifyContent: "center", marginBottom: "1rem"}}>
+            {description.length > 500 && (
+              <div  className="pc__cta" onClick={() => setShowMore(!showMore)}>
+                {showMore ? "Read Less" : "Read More"}
+              </div>
+            )}
+            </div>
+          </div> */}
           <div>
-            <p>{cityData?.cityDescription}</p>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: showMore
+                  ? description
+                  : description.slice(0, 500) +
+                  (description.length > 500 ? "..." : ""),
+              }}
+            />
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginBottom: "1rem",
+              }}
+            >
+              {description.length > 500 && (
+                <div className="pc__cta" onClick={() => setShowMore(!showMore)}>
+                  {showMore ? "Read Less" : "Read More"}
+                </div>
+              )}
+            </div>
           </div>
+
           <div>
             <Image
               src={"/static/about-us-bg-right.png"}
@@ -61,10 +100,7 @@ export default function CityPage({ cityData }) {
           </div>
         </div>
         {false ? (
-          <div
-            className="d-flex justify-content-center align-items-center"
-            style={{ minHeight: "250px" }}
-          >
+          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "250px" }}>
             <LoadingSpinner show={loading} />
           </div>
         ) : (

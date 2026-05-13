@@ -221,7 +221,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
               </span>
               <span className="home-right-type-rail__text">
                 {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
-                  <h2 className="property-type-heading m-0">{item.projectTypeName}</h2>
+                  <div className="property-type-heading m-0">{item.projectTypeName}</div>
                 ) : (
                   <span>{item.projectTypeName}</span>
                 )}

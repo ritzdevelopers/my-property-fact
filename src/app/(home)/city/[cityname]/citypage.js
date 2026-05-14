@@ -5,7 +5,7 @@ import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Image from "next/image";
-import { useState } from "react";
+import { useState ,useEffect, useRef} from "react";
 
 export default function CityPage({ cityData }) {
   // Safely handle cases where API doesn't return a project list
@@ -19,6 +19,21 @@ export default function CityPage({ cityData }) {
   const [showMore, setShowMore] = useState(false);
 
   const description = cityData?.cityDescription || "";
+  const [showButton, setShowButton] = useState(false);
+  const contentRef = useRef(null);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (el) {
+      const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+      const lines = el.scrollHeight / lineHeight;
+      if (lines > 5) {
+        setShowButton(true);
+      } else {
+        setShowButton(false);
+      }
+    }
+  }, [description]);
   return (
     <>
       <div className="p-0">
@@ -66,21 +81,20 @@ export default function CityPage({ cityData }) {
           </div> */}
 
           <div className="citypage_content" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <div className={showMore ? "" : "content-clamp"}>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: description,
-                }}
-              />
-            </div>
-
-            {description?.length > 500 && (
-              <div className="text-center">
-              <div className="pc__cta" onClick={() => setShowMore(!showMore)}>
-                {showMore ? "Read Less" : "Read More"}
-              </div>
-              </div>
-            )}
+          <div>
+      <div
+        ref={contentRef}
+        className={`desc ${showMore ? "expanded" : "collapsed"}`}
+        dangerouslySetInnerHTML={{ __html: description }}
+      />
+<div className="text-center">
+      {showButton && (
+        <div className="pc__cta" onClick={() => setShowMore(!showMore)}>
+          {showMore ? "Show Less" : "Show More"}
+        </div>
+      )}
+      </div>
+    </div>
           </div>
           <div>
             <Image

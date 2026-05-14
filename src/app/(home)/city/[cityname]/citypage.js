@@ -64,31 +64,24 @@ export default function CityPage({ cityData }) {
             )}
             </div>
           </div> */}
-          <div>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: showMore
-                  ? description
-                  : description.slice(0, 500) +
-                  (description.length > 500 ? "..." : ""),
-              }}
-            />
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "1rem",
-              }}
-            >
-              {description.length > 500 && (
-                <div className="pc__cta" onClick={() => setShowMore(!showMore)}>
-                  {showMore ? "Read Less" : "Read More"}
-                </div>
-              )}
+          <div className="citypage_content" style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div className={showMore ? "" : "content-clamp"}>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: description,
+                }}
+              />
             </div>
-          </div>
 
+            {description?.length > 500 && (
+              <div className="text-center">
+              <div className="pc__cta" onClick={() => setShowMore(!showMore)}>
+                {showMore ? "Read Less" : "Read More"}
+              </div>
+              </div>
+            )}
+          </div>
           <div>
             <Image
               src={"/static/about-us-bg-right.png"}

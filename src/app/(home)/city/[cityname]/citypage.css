@@ -19,6 +19,7 @@
     width: 118px;
     height: 34px;
     box-sizing: border-box;
+    background: transparent!important;
     border: solid 2px #977d59;
     color: #333333 !important;
     padding: 0;
@@ -56,6 +57,23 @@
     margin-top: 1rem !important;
 }
 
+.citypage_content {
+    /* background: #ffffff; */
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 0;
+    /* box-shadow: 0 8px 24px rgba(20, 24, 31, .08);
+    border: 1px solid #edf0f2; */
+    overflow-x: hidden;
+    overflow-y: visible;
+    width: 80% !important;
+    box-sizing: border-box;
+}
+.content-clamp {
+    max-height: 300px;
+    overflow: hidden;
+    position: relative;
+  }
 @media (max-width: 768px) {
     .about-us-container img{
         display: none !important;

@@ -95,7 +95,7 @@ function Section10() {
 
           <div className="mt-[16px] space-y-[18px] leading-[1.55] text-[#202020]">
             <p className={`${styles.paragraph} font-[400] lg:text-[13px] text-[16px] xl:text-[16px] text-center lg:text-left  `}>
-              Eldeco Group is one of India's most trusted and established real estate
+              Eldeco Group is one of India&apos;s most trusted and established real estate
               developers, with a legacy spanning over four decades. Known for
               delivering premium residential, commercial, and integrated township
               developments, the group has consistently created landmark projects that

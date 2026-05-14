@@ -69,10 +69,39 @@
     width: 80% !important;
     box-sizing: border-box;
 }
-.content-clamp {
-    max-height: 300px;
+.desc {
+    width: 100%;
+    line-height: 1.5;
+  }
+  
+  /* collapsed = 4 lines max */
+  .collapsed {
+    max-height: 10em; /* 1.5 * 4 lines */
     overflow: hidden;
-    position: relative;
+    /* position: relative; */
+  }
+  
+  .collapsed::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 1.5em; /* fade height */
+    background: linear-gradient(to bottom, transparent, white);
+  }
+  
+  /* expanded */
+  .expanded {
+    max-height: none;
+  }
+  
+  .toggle-btn {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
   }
 @media (max-width: 768px) {
     .about-us-container img{
@@ -81,5 +110,9 @@
 
     .about-us-container{
         padding: 1rem;
+    }
+    .citypage_content{
+        width: 100% !important;
+        padding: 0px !important;
     }
 }

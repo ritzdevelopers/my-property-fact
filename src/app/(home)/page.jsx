@@ -5,7 +5,7 @@ import HeroLcpPreloads from "./components/_homecomponents/HeroLcpPreloads";
 export default function Home() {
   return (
     <>
-      <h1 className="visually-hidden">Smart Real Estate Decisions Start Here</h1>
+      {/* <h1 className="visually-hidden">Smart Real Estate Decisions Start Here</h1> */}
       <HeroLcpPreloads />
       <HomeIntroMotion>
         <HomePage />

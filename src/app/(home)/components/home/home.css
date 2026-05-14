@@ -340,6 +340,33 @@
   z-index: 0;
 }
 
+.headgradient {
+  background: linear-gradient(to right, #0D5834, #F18D30); 
+  -webkit-background-clip: text;                         
+  background-clip: text;                                  
+  -webkit-text-fill-color: transparent;                   
+  color: transparent;                                     
+  font-weight: bold;                                   
+}
+.headsub{
+  font-size: 15px!important;
+  color: #000!important;
+}
+.transform-home-heading-box {
+  position: relative;
+  z-index: 2;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  text-align: center;
+  /* One shared left margin for headline, logo, and card (Figma column) */
+  padding: clamp(28px, 5vw, 30px) clamp(20px, 4vw, 40px)
+    clamp(28px, 5vw, 30px) clamp(24px, 5vw, 40px);
+  max-width: 100%;  
+}
 .transform-home-content {
   position: relative;
   z-index: 2;
@@ -593,7 +620,11 @@
 .transform-home-developers-marquee {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+
+  overflow-x: auto;
+  overflow-y: hidden;
+  cursor: grab;
+  scrollbar-width: none;
   mask-image: linear-gradient(
     90deg,
     transparent,
@@ -610,12 +641,21 @@
   );
 }
 
+.transform-home-developers-marquee::-webkit-scrollbar {
+  display: none;
+}
+
+.transform-home-developers-marquee.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .transform-home-developers-track {
   display: flex;
   flex-direction: row;
   align-items: center;
   width: max-content;
-  animation: transform-home-developers-marquee 500s linear infinite;
+  animation: transform-home-developers-marquee 150s linear infinite;
 }
 
 .transform-home-developers-marquee:hover .transform-home-developers-track {
@@ -1029,7 +1069,7 @@
   width: 100%;
   min-width: 0;
   position: relative;
-  z-index: 25;
+  /* z-index: 25; */
 }
 
 .home-search-container .custom-sort-options {
@@ -1043,7 +1083,8 @@
   width: 100% !important;
   padding: 10px 14px !important;
   padding-left: 16px !important;
-  padding-right: 36px !important;
+  /* padding-right: 36px !important; */
+  padding-right: 16px !important;
   min-height: 42px !important;
   height: 42px !important;
   min-width: unset !important;

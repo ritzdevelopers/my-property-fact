@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600;700;800&display=swap");
+
+.heading {
+  font-family: "Montserrat", Arial, sans-serif;
+}
+
+.paragraph {
+  font-family: "Open Sans", Arial, sans-serif;
+}
+
+.floatingEnquiryButton {
+  animation: floating-enquiry-button 2.8s ease-in-out infinite;
+}
+
+@keyframes floating-enquiry-button {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (min-width: 1024px) {
+  .floatingEnquiryButton {
+    animation-name: floating-enquiry-button-desktop;
+  }
+  
+
+  @keyframes floating-enquiry-button-desktop {
+    0%,
+    100% {
+      transform: translateY(-50%);
+    }
+
+    50% {
+      transform: translateY(calc(-50% - 8px));
+    }
+  }
+}
+
+.height_responsive {
+  height: auto !important;
+}
+@media (min-width: 1342px) {
+  .height_responsive {
+    height: 365px !important;
+   }
+}

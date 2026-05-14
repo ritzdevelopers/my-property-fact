@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { canAccessAdminPath } from "./app/(adminside)/admin/adminPermissions";
 import { getPublicApiBase } from "./lib/publicApiBase";
+import { ELDECO_LANDING_BASE_PATH } from "./components/eldecoPaths";
 
 const protectedRoutes = [
   "/admin",
@@ -81,8 +82,27 @@ function hasAdminDashboardAccess(roles) {
   return hasRole(roles, "SUPERADMIN") || hasRole(roles, "ADMIN");
 }
 
+function isEldecoTerraSolPath(pathname) {
+  let decoded = pathname;
+  try {
+    decoded = decodeURIComponent(pathname);
+  } catch {
+    // keep raw pathname
+  }
+  return (
+    decoded === ELDECO_LANDING_BASE_PATH ||
+    decoded.startsWith(`${ELDECO_LANDING_BASE_PATH}/`)
+  );
+}
+
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
+
+  if (isEldecoTerraSolPath(path)) {
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-mpf-hide-popular-promo", "1");
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   // Public registration (no session required)
   if (path === "/admin/register" || path === "/admin/register/") {
@@ -190,5 +210,10 @@ export async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/portal/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/portal/:path*",
+    "/Eldeco-terra&sol",
+    "/Eldeco-terra&sol/:path*",
+  ],
 };

@@ -32,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-  ],
+, "src/app/api/crm-lead/route.js", "src/app/Eldeco-terra&sol/thankyou/page.jsx"  ],
   "exclude": [
     "node_modules"
   ]

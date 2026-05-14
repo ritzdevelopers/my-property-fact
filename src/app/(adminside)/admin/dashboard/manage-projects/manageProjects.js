@@ -28,7 +28,6 @@ const apiWithAuth = () => ({
       : {}),
   },
 });
-
 function formatProjectDateTime(value) {
   if (value == null || value === "") return "—";
   if (typeof value === "string") {
@@ -307,7 +306,6 @@ export default function ManageProjects({
     delete dto.projectLogo;
     delete dto.locationMap;
     delete dto.projectThumbnail;
-
     data.append(
       "addUpdateProjectDto",
       new Blob([JSON.stringify(dto)], { type: "application/json" }),

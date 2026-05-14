@@ -12,7 +12,32 @@
     margin-bottom: 0;
     padding: .75rem 1rem;
 }
-
+.pc__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 118px;
+    height: 34px;
+    box-sizing: border-box;
+    background: transparent!important;
+    border: solid 2px #977d59;
+    color: #333333 !important;
+    padding: 0;
+    border-radius: 30px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  
+  .pc__cta:hover,
+  .pc__cta:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    color: #fff;
+  }
 .about-us-container{
     display: flex;
     justify-content: space-between;
@@ -28,9 +53,27 @@
 }
 
 .about-us-container p{
-    margin-bottom: 2rem !important;
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
 }
 
+.citypage_content {
+    /* background: #ffffff; */
+    border-radius: 14px;
+    padding: 1.75rem 2rem;
+    margin-bottom: 0;
+    /* box-shadow: 0 8px 24px rgba(20, 24, 31, .08);
+    border: 1px solid #edf0f2; */
+    overflow-x: hidden;
+    overflow-y: visible;
+    width: 80% !important;
+    box-sizing: border-box;
+}
+.content-clamp {
+    max-height: 300px;
+    overflow: hidden;
+    position: relative;
+  }
 @media (max-width: 768px) {
     .about-us-container img{
         display: none !important;

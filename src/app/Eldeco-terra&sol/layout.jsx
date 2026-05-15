@@ -1,6 +1,9 @@
 import EldecoTailwindGate from "./EldecoTailwindGate";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+
+const GTAG_ID = "AW-16457709652";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,10 +32,37 @@ export const metadata = {
 
 export default function EldecoLayout({ children }) {
   return (
-    <EldecoTailwindGate>
-      <div className={`${geistSans.variable} ${geistMono.variable}`}>
-        {children}
-      </div>
-    </EldecoTailwindGate>
+    <>
+      <Script
+        id="eldeco-landing-gtag-base"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+          `,
+        }}
+      />
+      <Script
+        id="eldeco-landing-gtag-js"
+        src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script
+        id="eldeco-landing-gtag-config"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            gtag('js', new Date());
+            gtag('config', '${GTAG_ID}');
+          `,
+        }}
+      />
+      <EldecoTailwindGate>
+        <div className={`${geistSans.variable} ${geistMono.variable}`}>
+          {children}
+        </div>
+      </EldecoTailwindGate>
+    </>
   );
 }

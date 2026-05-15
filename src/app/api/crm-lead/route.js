@@ -71,6 +71,6 @@ export async function POST(request) {
       { status: 502 },
     );
   }
-
+  console.log("response", res);
   return NextResponse.json({ ok: true });
 }

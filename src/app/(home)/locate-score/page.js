@@ -8,6 +8,7 @@ export const metadata = {
   alternates: {
     canonical: "https://mypropertyfact.in/locate-score",
   },
+  description:"Discover top property insights, LOCATE scores, expert tips, and trends to make smarter real estate decisions across India. Trusted by investors."
 };
 
 // Extract cities from JSON data

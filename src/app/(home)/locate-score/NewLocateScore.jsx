@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import styles from "./NewLocateScore.module.css";
 import axios from "axios";
+import { getDisplayCityList } from "@/app/_global_components/cityAliasUtils";
 import { BarChart } from "@mui/x-charts/BarChart";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
@@ -95,7 +96,7 @@ export default function NewLocateScore() {
 
   useEffect(() => {
     const loadCities = async () => {
-      const cities = await fetchAllCities();
+      const cities = getDisplayCityList(await fetchAllCities());
       const filtered =
         Array.isArray(cities) && cities.length > 0
           ? cities.filter((c) => c.localities?.length > 0)
@@ -154,7 +155,7 @@ export default function NewLocateScore() {
       ],
     },
     {
-      city: "Gurgaon",
+      city: "Gurugram",
       locality: [
         {
           localityName: "Sector 18",

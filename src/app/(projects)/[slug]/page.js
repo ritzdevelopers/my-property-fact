@@ -1,5 +1,6 @@
 import { redirect, notFound } from "next/navigation";
 import Property from "./propertypage-server";
+import { resolveCitySlugInCompoundSlug } from "@/app/_global_components/cityAliasUtils";
 import {
   canonicalizeFloorInCitySlug,
   fetchAllProjects,
@@ -62,6 +63,10 @@ function selectNearbyCatalogForProject(project, allNearby) {
 
 export default async function PropertyPage({ params }) {
   const { slug } = await params;
+  const aliasResolvedSlug = resolveCitySlugInCompoundSlug(slug);
+  if (aliasResolvedSlug && aliasResolvedSlug !== slug) {
+    redirect(`/${aliasResolvedSlug}`);
+  }
   const maybeCompoundListing = parseCompoundFloorListingSlug(slug);
   const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
   if (

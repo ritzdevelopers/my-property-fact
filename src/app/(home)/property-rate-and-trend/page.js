@@ -1,6 +1,7 @@
 import axios from "axios";
 import PropertyRageAndTrend from "./propertyRateAndTrend";
 import indiaInsight from "../../_global_components/insight-india-data.json";
+import { getDisplayCityList } from "@/app/_global_components/cityAliasUtils";
 export const dynamic = 'force-dynamic';
 // fetching all cities
 const fetchAllCities = async () => {
@@ -35,7 +36,7 @@ const insightsArray = [
 ];
 
 export default async function PropertyRateAndTrendPage() {
-  const allCities = await fetchAllCities();
+  const allCities = getDisplayCityList(await fetchAllCities());
   return (
     <PropertyRageAndTrend cityList={allCities} insightsArray={insightsArray} />
   );

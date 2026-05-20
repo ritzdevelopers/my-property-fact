@@ -61,7 +61,7 @@ export default async function RootLayout({ children }) {
                 url: process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in",
                 logo: `${process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in"}/logo.webp`,
                 description:
-                  "Discover top property insights, LOCATE scores, and real estate trends across India.",
+                  "Explore flats, residential & commercial properties across India on MyPropertyFact: NCR, Delhi, Faridabad, Noida, & top Indian cities with verified listings and top developers.",
                 sameAs: [
                   "https://www.facebook.com/mypropertyfact1",
                   "https://www.instagram.com/my.property.fact",

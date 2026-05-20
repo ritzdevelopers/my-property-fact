@@ -41,16 +41,16 @@ const NewFooterDesign = dynamic(
 export const metadata = {
   title: "My Property Fact | Smarter Real Estate Decisions Start Here",
   description:
-    "Discover top property insights, LOCATE scores, expert tips, and trends to make smarter real estate decisions across India. Trusted by investors.",
+    "Explore flats, residential & commercial properties across India on MyPropertyFact: NCR, Delhi, Faridabad, Noida, & top Indian cities with verified listings and top developers.",
   keywords: [
-    "real estate India",
-    "property insights",
-    "real estate trends",
-    "investment property",
-    "LOCATE score",
-    "smart real estate decisions",
-    "property investment tips",
-    "real estate guide India",
+    "real estate India" , 
+    "property insights" , 
+    "real estate trends" , 
+    "investment property" , 
+    "LOCATE score" , 
+    "smart real estate decisions" , 
+    "property investment tips" , 
+    "real estate guide India", 
   ],
   alternates: {
     canonical: process.env.NEXT_PUBLIC_UI_URL + "/",

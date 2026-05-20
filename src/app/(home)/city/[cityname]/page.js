@@ -1,6 +1,11 @@
 import CityPage from "./citypage";
 import axios from "axios";
 import { cache } from "react";
+import { redirect } from "next/navigation";
+import {
+  LEGACY_CITY_SLUGS_FOR_PAGE_MERGE,
+  resolveCitySlug,
+} from "@/app/_global_components/cityAliasUtils";
 
 export const dynamic = "force-dynamic";
 
@@ -12,15 +17,54 @@ const fetchCityDataBySlug = cache(async (slug) => {
   return response.data;
 });
 
+function mergeCityProjectLists(primary, secondary) {
+  const primaryList = Array.isArray(primary?.projectList) ? primary.projectList : [];
+  const secondaryList = Array.isArray(secondary?.projectList)
+    ? secondary.projectList
+    : [];
+  if (!secondaryList.length) return primary;
+
+  const seen = new Set(
+    primaryList.map((p) => p?.id ?? p?.slugURL ?? p?.projectName).filter(Boolean),
+  );
+  const merged = [...primaryList];
+  secondaryList.forEach((project) => {
+    const key = project?.id ?? project?.slugURL ?? project?.projectName;
+    if (key == null || seen.has(key)) return;
+    seen.add(key);
+    merged.push(project);
+  });
+
+  return { ...primary, projectList: merged };
+}
+
+async function fetchCityDataWithAliases(canonicalSlug) {
+  const cityData = await fetchCityDataBySlug(canonicalSlug);
+  const legacySlugs = LEGACY_CITY_SLUGS_FOR_PAGE_MERGE[canonicalSlug];
+  if (!legacySlugs?.length) return cityData;
+
+  let merged = cityData;
+  for (const legacySlug of legacySlugs) {
+    try {
+      const legacy = await fetchCityDataBySlug(legacySlug);
+      merged = mergeCityProjectLists(merged, legacy);
+    } catch {
+      // skip missing legacy city payload
+    }
+  }
+  return merged;
+}
+
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
   const { cityname } = await params;
-  const cityData = await fetchCityDataBySlug(cityname);
+  const canonicalSlug = resolveCitySlug(cityname) || cityname;
+  const cityData = await fetchCityDataWithAliases(canonicalSlug);
   return {
     title: cityData.metaTitle,
     description: cityData.metaDescription,
     alternates: {
-      canonical: `/city/${cityname}`,
+      canonical: `/city/${canonicalSlug}`,
     },
   };
 }
@@ -28,7 +72,11 @@ export async function generateMetadata({ params }) {
 // Main page component
 export default async function AllCityProjects({ params }) {
   const { cityname } = await params;
-  const cityData = await fetchCityDataBySlug(cityname);
+  const canonicalSlug = resolveCitySlug(cityname);
+  if (canonicalSlug && canonicalSlug !== String(cityname).toLowerCase().trim()) {
+    redirect(`/city/${canonicalSlug}`);
+  }
+  const cityData = await fetchCityDataWithAliases(canonicalSlug || cityname);
 
   return (
     <CityPage cityData={cityData} />

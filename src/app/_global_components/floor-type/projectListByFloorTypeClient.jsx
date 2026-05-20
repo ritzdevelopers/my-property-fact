@@ -6,6 +6,7 @@ import {
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
 import { useEffect, useState } from "react";
+import { cityNameMatchesFilter } from "../cityAliasUtils";
 import { useSiteData } from "../contexts/SiteDataContext";
 
 const normalizeType = (value = "") =>
@@ -65,21 +66,7 @@ const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
   );
 };
 
-const cityMatches = (item, cityKey) => {
-  const ck = normalizeType(cityKey);
-  if (!ck) return false;
-
-  const cityNorm = normalizeType(item?.cityName || "");
-  const addrNorm = normalizeType(item?.projectAddress || "");
-  const localityNorm = normalizeType(item?.projectLocality || "");
-
-  return (
-    cityNorm === ck ||
-    cityNorm.includes(ck) ||
-    addrNorm.includes(ck) ||
-    localityNorm.includes(ck)
-  );
-};
+const cityMatches = (item, cityKey) => cityNameMatchesFilter(cityKey, item);
 
 function applyListingCategoryFilter(items, categorySlug) {
   if (!categorySlug || !items?.length) return items;

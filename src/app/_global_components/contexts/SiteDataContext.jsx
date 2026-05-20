@@ -9,6 +9,7 @@ import {
   useMemo,
 } from "react";
 import { useSearchParams } from "next/navigation";
+import { projectMatchesCityFilter } from "../cityAliasUtils";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
 import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
 
@@ -68,6 +69,9 @@ export function SiteDataProvider({ children, initialData = null }) {
   const [cityList, setCityList] = useState(() =>
     initialData ? initialData.cityList || [] : []
   );
+  const [allCityList, setAllCityList] = useState(() =>
+    initialData ? initialData.allCityList || initialData.cityList || [] : []
+  );
   const [builderList, setBuilderList] = useState(() =>
     initialData ? initialData.builderList || [] : []
   );
@@ -101,6 +105,7 @@ export function SiteDataProvider({ children, initialData = null }) {
         if (initialData) {
           const data = {
             cityList: initialData.cityList || [],
+            allCityList: initialData.allCityList || initialData.cityList || [],
             builderList: initialData.builderList || [],
             projectTypes: initialData.projectTypes || [],
             projectStatuses: initialData.projectStatuses || [],
@@ -114,6 +119,7 @@ export function SiteDataProvider({ children, initialData = null }) {
 
         if (siteDataCache) {
           setCityList(siteDataCache.cityList);
+          setAllCityList(siteDataCache.allCityList || siteDataCache.cityList);
           setBuilderList(siteDataCache.builderList);
           setProjectTypes(siteDataCache.projectTypes);
           setProjectStatuses(siteDataCache.projectStatuses);
@@ -133,6 +139,7 @@ export function SiteDataProvider({ children, initialData = null }) {
 
         if (!cancelled) {
           setCityList(data.cityList);
+          setAllCityList(data.allCityList || data.cityList);
           setBuilderList(data.builderList);
           setProjectTypes(data.projectTypes);
           setProjectStatuses(data.projectStatuses);
@@ -250,12 +257,13 @@ export function SiteDataProvider({ children, initialData = null }) {
       const cityId = toNumber(queryFilters.propertyLocation);
       const city = citiesById.get(cityId);
       if (city) {
-        const cityNorm = normalizeText(city.cityName);
-        filtered = filtered.filter(
-          (item) =>
-            item.cityIdNum === cityId ||
-            item.cityNorm.includes(cityNorm) ||
-            item.projectAddressNorm.includes(cityNorm)
+        filtered = filtered.filter((item) =>
+          projectMatchesCityFilter(item.project, city, allCityList, {
+            cityNorm: item.cityNorm,
+            cityIdNum: item.cityIdNum,
+            projectAddressNorm: item.projectAddressNorm,
+            localityNorm: normalizeText(item.project?.projectLocality),
+          })
         );
       }
     }
@@ -295,12 +303,13 @@ export function SiteDataProvider({ children, initialData = null }) {
       const cityId = toNumber(projectFilters.city);
       const city = citiesById.get(cityId);
       if (city) {
-        const cityNorm = normalizeText(city.cityName);
-        filtered = filtered.filter(
-          (item) =>
-            item.cityIdNum === cityId ||
-            item.cityNorm.includes(cityNorm) ||
-            item.projectAddressNorm.includes(cityNorm)
+        filtered = filtered.filter((item) =>
+          projectMatchesCityFilter(item.project, city, allCityList, {
+            cityNorm: item.cityNorm,
+            cityIdNum: item.cityIdNum,
+            projectAddressNorm: item.projectAddressNorm,
+            localityNorm: normalizeText(item.project?.projectLocality),
+          })
         );
       }
     }
@@ -369,6 +378,7 @@ export function SiteDataProvider({ children, initialData = null }) {
     queryFilters,
     quickProjectFilter,
     projectFilters,
+    allCityList,
   ]);
 
   const hasActiveProjectFilters = useMemo(() => {

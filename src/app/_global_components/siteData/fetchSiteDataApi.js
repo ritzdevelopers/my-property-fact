@@ -1,3 +1,5 @@
+import { getDisplayCityList } from "../cityAliasUtils";
+
 /**
  * Shared site data fetch (cities, builders, types, statuses, projects).
  * Safe to call from Server Components and from the client fallback in SiteDataContext.
@@ -25,8 +27,10 @@ export async function fetchSiteDataFromApi() {
       projectsRes.json(),
     ]);
 
+  const allCities = cities || [];
   return {
-    cityList: cities || [],
+    cityList: getDisplayCityList(allCities),
+    allCityList: allCities,
     builderList: buildersData?.builders || [],
     projectTypes: typesData || [],
     projectStatuses: statusesData || [],

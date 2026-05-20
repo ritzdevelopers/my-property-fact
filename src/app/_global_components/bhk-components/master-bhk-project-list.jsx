@@ -7,6 +7,7 @@ import {
   ProjectListingPaginationControls,
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
+import { cityNameMatchesFilter } from "@/app/_global_components/cityAliasUtils";
 import { isBhkFloorSlugSegment } from "@/app/_global_components/masterFunction";
 import Link from "next/link";
 import { useSiteData } from "../contexts/SiteDataContext";
@@ -125,19 +126,7 @@ export default function MasterBHKProjectList() {
     return { label, slugType };
   };
 
-  const cityMatches = (item, cityKey) => {
-    const ck = normalizeType(cityKey);
-    if (!ck) return false;
-    const cityNorm = normalizeType(item.cityName || "");
-    const addrNorm = normalizeType(item.projectAddress || "");
-    const localityNorm = normalizeType(item.projectLocality || "");
-    return (
-      cityNorm === ck ||
-      cityNorm.includes(ck) ||
-      addrNorm.includes(ck) ||
-      localityNorm.includes(ck)
-    );
-  };
+  const cityMatches = (item, cityKey) => cityNameMatchesFilter(cityKey, item);
 
   const buildFloorTypeList = (projectData, city, category = "") => {
     const cityKey = city.trim().toLowerCase();

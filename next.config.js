@@ -83,6 +83,92 @@ const nextConfig = {
 
       { source: "/career", destination: "/join-our-team", permanent: true },
 
+      // Gurgaon → Gurugram (legacy city name)
+      { source: "/city/gurgaon", destination: "/city/gurugram", permanent: true },
+      {
+        source: "/property-rate-and-trend/gurgaon",
+        destination: "/property-rate-and-trend/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/apartments-in-gurgaon",
+        destination: "/apartments-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/flats-in-gurgaon",
+        destination: "/flats-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/commercial-property-in-gurgaon",
+        destination: "/commercial-property-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/new-projects-in-gurgaon",
+        destination: "/new-projects-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/offices-and-shop-in-gurgaon",
+        destination: "/offices-and-shop-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/:segment((?:\\d+-bhk|[^/]+))-in-gurgaon",
+        destination: "/:segment-in-gurugram",
+        permanent: true,
+      },
+      {
+        source: "/:floor((?:\\d+-bhk|[^/]+))-:category(new-projects|apartments|commercial|offices-and-shop)-in-gurgaon",
+        destination: "/:floor-:category-in-gurugram",
+        permanent: true,
+      },
+
+      // Dwarka → Delhi (locality listed as separate city in API)
+      { source: "/city/dwarka", destination: "/city/delhi", permanent: true },
+      {
+        source: "/property-rate-and-trend/dwarka",
+        destination: "/property-rate-and-trend/delhi",
+        permanent: true,
+      },
+      {
+        source: "/apartments-in-dwarka",
+        destination: "/apartments-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/flats-in-dwarka",
+        destination: "/flats-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/commercial-property-in-dwarka",
+        destination: "/commercial-property-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/new-projects-in-dwarka",
+        destination: "/new-projects-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/offices-and-shop-in-dwarka",
+        destination: "/offices-and-shop-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/:segment((?:\\d+-bhk|[^/]+))-in-dwarka",
+        destination: "/:segment-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/:floor((?:\\d+-bhk|[^/]+))-:category(new-projects|apartments|commercial|offices-and-shop)-in-dwarka",
+        destination: "/:floor-:category-in-delhi",
+        permanent: true,
+      },
+
 
 
 

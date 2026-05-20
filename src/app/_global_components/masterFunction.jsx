@@ -1,5 +1,10 @@
 import axios from "axios";
 import { cache } from "react";
+import {
+  CITY_SLUG_ALIASES,
+  getDisplayCityList,
+  resolveCitySlug,
+} from "./cityAliasUtils";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 // Function to check if a given slug corresponds to a valid project
@@ -42,7 +47,7 @@ export const fetchCityData = cache(async () => {
   });
   if (!res.ok) throw new Error("Failed to fetch cities");
   const data = await res.json();
-  return data;
+  return getDisplayCityList(data);
 });
 
 // Fetching project types
@@ -125,11 +130,13 @@ export function canonicalizeFloorInCitySlug(slug) {
   if (segments.length < 2) return null;
   const floorNorm = normalizeFloorSlugSegment(segments[0]);
   const cityPart = segments.slice(1).join("-in-");
-  const cityNorm = cityPart
-    .trim()
-    .toLowerCase()
-    .replace(/%20/g, "-")
-    .replace(/\s+/g, "-");
+  const cityNorm = resolveCitySlug(
+    cityPart
+      .trim()
+      .toLowerCase()
+      .replace(/%20/g, "-")
+      .replace(/\s+/g, "-"),
+  );
   if (!floorNorm || !cityNorm) return null;
   return `${floorNorm}-in-${cityNorm}`;
 }
@@ -156,13 +163,15 @@ export function parseCompoundFloorListingSlug(slug) {
   if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
   const segments = slug.split("-in-");
   if (segments.length < 2) return null;
-  const citySlug = segments
-    .slice(1)
-    .join("-in-")
-    .trim()
-    .toLowerCase()
-    .replace(/%20/g, "-")
-    .replace(/\s+/g, "-");
+  const citySlug = resolveCitySlug(
+    segments
+      .slice(1)
+      .join("-in-")
+      .trim()
+      .toLowerCase()
+      .replace(/%20/g, "-")
+      .replace(/\s+/g, "-"),
+  );
   const prefix = segments[0];
   if (!prefix || !citySlug) return null;
 
@@ -280,15 +289,20 @@ export const isCityTypeUrl = async (slug) => {
   const cities = await fetchCityData();
   const slugParts = slug.split("-in-");
   const isFloorUrl = await isFloorTypeUrl(slug);
-  const citySlug = slugParts[slugParts.length - 1]
+  const rawCitySlug = slugParts[slugParts.length - 1]
     .replace("%20", "-")
     .toLowerCase();
-  const exists = cities.some(
-    (item) =>
-      item.cityName.toLowerCase().replace(/\s+/g, "-") === citySlug &&
-      !isFloorUrl,
+  const citySlug = resolveCitySlug(rawCitySlug);
+  const exists = cities.some((item) => {
+    const itemSlug = item.slugURL
+      ? resolveCitySlug(item.slugURL)
+      : resolveCitySlug(item.cityName.toLowerCase().replace(/\s+/g, "-"));
+    return itemSlug === citySlug && !isFloorUrl;
+  });
+  return (
+    exists ||
+    (rawCitySlug !== citySlug && Boolean(CITY_SLUG_ALIASES[rawCitySlug]))
   );
-  return exists;
 };
 
 // fetching blogs list from api

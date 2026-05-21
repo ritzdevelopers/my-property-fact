@@ -21,7 +21,11 @@ const apiWithAuth = () => ({
   },
 });
 
-export default function ProjectsAmenity({ projectList, amenityList }) {
+export default function ProjectsAmenity({
+  projectList,
+  amenityList,
+  projectIdsWithAmenity = [],
+}) {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
@@ -53,15 +57,19 @@ export default function ProjectsAmenity({ projectList, amenityList }) {
   };
   const openAddModel = () => {
     setIsDisabled(false);
+    setProjectId("");
+    setSelectedValue([]);
     setProjectListOptions(
       projectList
-        .filter((item) => item.projectAmenityList.length === 0)
-        .sort((a, b) => a.projectName.localeCompare(b.projectName)),
+        .filter((item) => !projectIdsWithAmenity.includes(item.id))
+        .sort((a, b) =>
+          (a.projectName ?? "").localeCompare(b.projectName ?? ""),
+        ),
     );
     setValidated(false);
     setShowAmenityError(false);
     setShowModal(true);
-    setTitle("Add New Amenity");
+    setTitle("Add Project Amenity");
     setButtonName("Add");
   };
 

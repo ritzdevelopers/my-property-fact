@@ -17,30 +17,18 @@ export default function SocialFeed({ data }) {
           <>
             <h2 className="text-center my-4">Investor Education Blog</h2>
             <div className="row investor-blog-grid mx-0">
-              {data?.map((blog, index) => {
-                if (index < 2) {
-                  return (
-                    <div
-                      key={blog?.slugUrl ?? blog?.id ?? index}
-                      className="col-12 col-md-6 col-lg-4 d-flex investor-blog-col"
-                    >
-                      <BlogCard blog={blog} />
-                    </div>
-                  );
-                }
-
-                if (index === 2) {
-                  return (
-                    <div
-                      key={blog?.slugUrl ?? blog?.id ?? index}
-                      className="col-12 col-md-6 col-lg-4 d-none d-lg-flex justify-content-between investor-blog-col"
-                    >
-                      <BlogCard blog={blog} />
-                    </div>
-                  );
-                }
-
-                return null;
+              {data.slice(0, 3).map((blog, index) => {
+                const isThird = index === 2;
+                return (
+                  <div
+                    key={blog?.slugUrl ?? blog?.id ?? index}
+                    className={`col-12 col-md-6 col-lg-4 d-flex investor-blog-col${
+                      isThird ? " d-none d-lg-flex justify-content-between" : ""
+                    }`}
+                  >
+                    <BlogCard blog={blog} />
+                  </div>
+                );
               })}
             </div>
           </>

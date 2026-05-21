@@ -323,6 +323,13 @@ export const fetchBlogs = cache(async (page, size, search = "", fromSegment = "b
   return blogsData;
 });
 
+/** Latest blogs in API order — same as `/blog` page 1 and sidebar recent posts. */
+export const fetchLatestBlogs = cache(async (limit = 3) => {
+  const data = await fetchBlogs(0, limit, "");
+  const list = data?.content ?? [];
+  return Array.isArray(list) ? list.slice(0, limit) : [];
+});
+
 /** Single blog by slug — server-side fetch (use in RSC / generateMetadata). */
 export const fetchBlogBySlug = cache(async (slug) => {
   if (!slug || !apiUrl) return null;

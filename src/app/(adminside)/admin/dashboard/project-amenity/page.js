@@ -33,11 +33,17 @@ const fetchAmenityList = async () => {
 };
 
 export default async function ProjectsAmenityPage() {
-  const [projectsList, amenityList] = await Promise.all([
+  const [projectsList, amenityList, projectsWithAmenity] = await Promise.all([
     fetchProjects(),
     fetchAmenityList(),
+    fetchPrjectsAmenity(),
   ]);
+  const projectIdsWithAmenity = projectsWithAmenity.map((item) => item.projectId);
   return (
-    <ProjectsAmenity projectList={projectsList} amenityList={amenityList} />
+    <ProjectsAmenity
+      projectList={projectsList}
+      amenityList={amenityList}
+      projectIdsWithAmenity={projectIdsWithAmenity}
+    />
   );
 }

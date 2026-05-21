@@ -1,5 +1,6 @@
 import {
   fetchBlogs,
+  fetchLatestBlogs,
   fetchAllProjects,
   getWeeklyProject,
 } from "@/app/_global_components/masterFunction";
@@ -24,15 +25,14 @@ export default async function BlogPage({ searchParams }) {
   const pageIndex = pageNum - 1;
   const pageSize = 3;
 
-  const [blogsData, recentData, projects] = await Promise.all([
+  const [blogsData, sidebarRecentPosts, projects] = await Promise.all([
     fetchBlogs(pageIndex, pageSize, ""),
-    fetchBlogs(0, 3, ""),
+    fetchLatestBlogs(3),
     fetchAllProjects(),
   ]);
 
   const blogsList = blogsData?.content ?? [];
   const totalPages = Math.max(1, blogsData?.totalPages ?? 1);
-  const sidebarRecentPosts = recentData?.content ?? [];
   const projectArr = Array.isArray(projects) ? projects : [];
   const sidebarLatestProject = getWeeklyProject(projectArr);
 

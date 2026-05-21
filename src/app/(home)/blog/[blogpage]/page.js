@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import BlogDetail from "./blogpage";
 import {
   fetchBlogBySlug,
-  fetchBlogs,
+  fetchLatestBlogs,
 } from "@/app/_global_components/masterFunction";
 
 export async function generateMetadata({ params }) {
@@ -37,8 +37,7 @@ export default async function BlogPage({ params }) {
     notFound();
   }
 
-  const recentRes = await fetchBlogs(0, 3, "");
-  const sidebarRecentPosts = recentRes?.content ?? [];
+  const sidebarRecentPosts = await fetchLatestBlogs(3);
 
   return (
     <BlogDetail

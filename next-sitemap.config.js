@@ -67,6 +67,15 @@ function extractBhkFloorSlugs(floorPlansPayload) {
 module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: true,
+  robotsTxtOptions: {
+    policies: [
+      { userAgent: "*", disallow: ["/admin/"] },
+      { userAgent: "ChatGPT-User", allow: "/" },
+      { userAgent: "OAI-SearchBot", allow: "/" },
+      { userAgent: "Google-Extended", allow: "/" },
+      { userAgent: "GPTBot", allow: "/" },
+    ],
+  },
   sitemapSize: 5000,
   changefreq: "daily",
   priority: 0.7,

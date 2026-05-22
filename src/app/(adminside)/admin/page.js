@@ -349,11 +349,8 @@ function AdminPageContent() {
                   </button>
                 </div>
 
-                <p className="mpf-admin-login__footer-register">
-                  Don&apos;t have an admin account?{" "}
-                  <Link className="mpf-admin-login__footer-register-link" href="/admin/register">
-                    Register Here
-                  </Link>
+                <p className="mpf-admin-login__footer-register text-muted small mb-0">
+                  New accounts are created by your Super Administrator from Manage Users.
                 </p>
               </form>
             </div>

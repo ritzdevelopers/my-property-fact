@@ -104,9 +104,9 @@ export async function middleware(req) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // Public registration (no session required)
+  // Public registration removed — only Super Admin creates users from the dashboard
   if (path === "/admin/register" || path === "/admin/register/") {
-    return NextResponse.next();
+    return NextResponse.redirect(new URL("/admin", req.url));
   }
 
   if (

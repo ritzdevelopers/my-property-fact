@@ -51,6 +51,8 @@ export default function ManageUsers({ users: initialUsers }) {
   const [permView, setPermView] = useState(null);
   /** One-time PIN display after save (plaintext not stored server-side) */
   const [enquiryPinReveal, setEnquiryPinReveal] = useState(null);
+  /** Account details after Super Admin creates a user (copy to clipboard) */
+  const [accountCreatedReveal, setAccountCreatedReveal] = useState(null);
   /** Pending permanent delete confirmation (modal). */
   const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
@@ -141,6 +143,59 @@ export default function ManageUsers({ users: initialUsers }) {
       cancelled = true;
     };
   }, []);
+
+  const isCreateMode = !formData.id;
+
+  const assignableRoles = useMemo(
+    () =>
+      (roles || []).filter(
+        (r) => String(r?.roleName || "").toUpperCase() !== "SUPERADMIN",
+      ),
+    [roles],
+  );
+
+  const openCreateModal = () => {
+    setEditingUser(null);
+    const userRole = assignableRoles.find(
+      (r) => String(r?.roleName || "").toUpperCase() === "USER",
+    );
+    setFormData({
+      id: null,
+      fullName: "",
+      email: "",
+      phone: "",
+      location: "",
+      enabled: true,
+      verified: true,
+      roleIds: userRole ? [userRole.id] : [],
+      newPassword: "",
+      confirmPassword: "",
+      dashboardUsername: "",
+      adminPermissions: [],
+      enquiryAccessPin: "",
+      userCategory: "ADMIN_USER",
+    });
+    setShowModal(true);
+  };
+
+  const buildAccountClipboardText = (details) => {
+    if (!details) return "";
+    const lines = [
+      "My Property Fact — new account",
+      `Full name: ${details.fullName || "—"}`,
+      `Email: ${details.email || "—"}`,
+      `Password: ${details.password || "—"}`,
+      `Dashboard username: ${details.dashboardUsername || "—"}`,
+      `Roles: ${details.roles || "—"}`,
+      `User segment: ${details.userCategory || "—"}`,
+      `Status: ${details.enabled ? "Active" : "Inactive"}`,
+      `Sign in: ${details.signInUrl || "https://mypropertyfact.in/admin"}`,
+    ];
+    if (details.enquiryAccessPin) {
+      lines.push(`Enquiries access code: ${details.enquiryAccessPin}`);
+    }
+    return lines.join("\n");
+  };
 
   const openEditModal = (user) => {
     setEditingUser(user);
@@ -259,6 +314,110 @@ export default function ManageUsers({ users: initialUsers }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (isCreateMode) {
+      if (!formData.email?.trim()) {
+        toast.error("Email is required.");
+        return;
+      }
+      if (!formData.newPassword || formData.newPassword.length < 8) {
+        toast.error("Password must be at least 8 characters.");
+        return;
+      }
+      if (formData.newPassword !== formData.confirmPassword) {
+        toast.error("Password and confirmation do not match.");
+        return;
+      }
+      const hasAdminRoleSelected = editorHasAdminRole();
+      if (hasAdminRoleSelected && !formData.dashboardUsername?.trim()) {
+        toast.error("Dashboard username is required when Admin role is selected.");
+        return;
+      }
+
+      const permsUpper = (formData.adminPermissions || []).map((x) =>
+        String(x || "").toUpperCase(),
+      );
+      const hasEnquiryPerm = permsUpper.includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+      const pinTrim = (formData.enquiryAccessPin || "").trim();
+      if (isSuperAdmin && hasAdminRoleSelected && hasEnquiryPerm && !/^\d{4}$/.test(pinTrim)) {
+        toast.error(
+          "Set a 4-digit enquiries access code when enabling Manage enquiries.",
+        );
+        return;
+      }
+
+      setShowLoading(true);
+      try {
+        const jsonAuth = {
+          ...apiWithAuth(),
+          headers: {
+            ...apiWithAuth().headers,
+            "Content-Type": "application/json",
+          },
+        };
+        const payload = {
+          fullName: formData.fullName.trim(),
+          email: formData.email.trim(),
+          password: formData.newPassword,
+          phone: formData.phone?.trim() || undefined,
+          dashboardUsername: formData.dashboardUsername?.trim() || undefined,
+          roleIds: formData.roleIds?.length ? formData.roleIds : undefined,
+          enabled: formData.enabled,
+          verified: formData.verified,
+          userCategory: normalizeUserCategory(formData.userCategory),
+        };
+        if (hasAdminRoleSelected) {
+          payload.adminPermissions = formData.adminPermissions || [];
+          if (hasEnquiryPerm && /^\d{4}$/.test(pinTrim)) {
+            payload.enquiryAccessPin = pinTrim;
+          }
+        }
+
+        const res = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}users`,
+          payload,
+          jsonAuth,
+        );
+
+        const u = res.data?.user || {};
+        const roleLabel = Array.isArray(res.data?.roleNames)
+          ? res.data.roleNames.join(", ")
+          : getRoleNames(u.roles || []);
+        const signInUrl =
+          typeof window !== "undefined"
+            ? `${window.location.origin}/admin`
+            : "https://mypropertyfact.in/admin";
+
+        setAccountCreatedReveal({
+          fullName: u.fullName || formData.fullName,
+          email: u.email || formData.email,
+          password: res.data?.password || formData.newPassword,
+          dashboardUsername: u.dashboardUsername || formData.dashboardUsername || "—",
+          roles: roleLabel,
+          userCategory:
+            USER_CATEGORY_LABELS[normalizeUserCategory(u.userCategory || formData.userCategory)],
+          enabled: u.enabled !== false,
+          enquiryAccessPin: res.data?.enquiryAccessPin || "",
+          signInUrl,
+        });
+
+        toast.success("User created successfully");
+        await reloadUsersList();
+        handleClose();
+      } catch (error) {
+        console.error("Error creating user:", error);
+        const msg =
+          error.response?.data?.message ||
+          (Array.isArray(error.response?.data?.errors)
+            ? error.response.data.errors.map((x) => x.defaultMessage || x).join(", ")
+            : null) ||
+          "Failed to create user";
+        toast.error(msg);
+      } finally {
+        setShowLoading(false);
+      }
+      return;
+    }
 
     const wantPasswordChange =
       (formData.newPassword || "").trim().length > 0 ||
@@ -600,6 +759,15 @@ export default function ManageUsers({ users: initialUsers }) {
           <span className="manage-users-count">
             Showing {filteredUsers.length} of {users.length} users
           </span>
+          {isSuperAdmin ? (
+            <Button
+              type="button"
+              className="manage-users-create-btn ms-auto"
+              onClick={openCreateModal}
+            >
+              Create user
+            </Button>
+          ) : null}
         </div>
 
         <div className="manage-users-table-scroll" style={{ borderRadius: "12px", border: "1px solid #f3f4f6" }}>
@@ -994,7 +1162,7 @@ export default function ManageUsers({ users: initialUsers }) {
         contentClassName="admin-modal-surface"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Edit user</Modal.Title>
+          <Modal.Title>{isCreateMode ? "Create user" : "Edit user"}</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: "1 1 auto", minHeight: 0 }}>
           <Modal.Body>
@@ -1020,11 +1188,14 @@ export default function ManageUsers({ users: initialUsers }) {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    disabled
-                    readOnly
+                    disabled={!isCreateMode}
+                    readOnly={!isCreateMode}
+                    required={isCreateMode}
                   />
                   <Form.Text className="text-muted">
-                    Email cannot be changed
+                    {isCreateMode
+                      ? "Used for sign-in and account recovery."
+                      : "Email cannot be changed"}
                   </Form.Text>
                 </Form.Group>
               </Col>
@@ -1129,35 +1300,52 @@ export default function ManageUsers({ users: initialUsers }) {
               </div>
             ) : null}
 
-            <div className="admin-modal-section-title">Password</div>
+            <div className="admin-modal-section-title">
+              {isCreateMode ? "Password" : "Password"}
+            </div>
             <Row>
               <Col md={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>New password (optional)</Form.Label>
+                  <Form.Label>
+                    {isCreateMode ? "Password" : "New password (optional)"}
+                  </Form.Label>
                   <Form.Control
                     type="password"
                     name="newPassword"
                     autoComplete="new-password"
-                    placeholder="Leave blank to keep current password"
+                    placeholder={
+                      isCreateMode
+                        ? "At least 8 characters"
+                        : "Leave blank to keep current password"
+                    }
                     value={formData.newPassword}
                     onChange={handleChange}
+                    required={isCreateMode}
+                    minLength={isCreateMode ? 8 : undefined}
                   />
                 </Form.Group>
               </Col>
               <Col md={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Confirm new password</Form.Label>
+                  <Form.Label>
+                    {isCreateMode ? "Confirm password" : "Confirm new password"}
+                  </Form.Label>
                   <Form.Control
                     type="password"
                     name="confirmPassword"
                     autoComplete="new-password"
-                    placeholder="Repeat if changing password"
+                    placeholder={
+                      isCreateMode ? "Repeat password" : "Repeat if changing password"
+                    }
                     value={formData.confirmPassword}
                     onChange={handleChange}
+                    required={isCreateMode}
+                    minLength={isCreateMode ? 8 : undefined}
                   />
                   <Form.Text className="text-muted">
-                    Min. 8 characters. Only applies when you reset this
-                    user&apos;s password.
+                    {isCreateMode
+                      ? "Share these credentials securely with the new user."
+                      : "Min. 8 characters. Only applies when you reset this user\u2019s password."}
                   </Form.Text>
                 </Form.Group>
               </Col>
@@ -1180,7 +1368,7 @@ export default function ManageUsers({ users: initialUsers }) {
                         </small>
                       </div>
                     ) : (
-                      roles.map((role) => (
+                      assignableRoles.map((role) => (
                         <Form.Check
                           key={role.id}
                           type="checkbox"
@@ -1253,9 +1441,9 @@ export default function ManageUsers({ users: initialUsers }) {
                       pattern="[0-9]*"
                       maxLength={4}
                       placeholder={
-                        editingUser?.enquiryAccessPinSet
-                          ? "•••• (leave blank to keep)"
-                          : "Required (4 digits)"
+                        isCreateMode || !editingUser?.enquiryAccessPinSet
+                          ? "Required (4 digits)"
+                          : "•••• (leave blank to keep)"
                       }
                       value={formData.enquiryAccessPin}
                       onChange={handleChange}
@@ -1284,7 +1472,13 @@ export default function ManageUsers({ users: initialUsers }) {
               className="btn-admin-primary text-white"
               disabled={showLoading}
             >
-              {showLoading ? "Saving…" : "Save changes"}
+              {showLoading
+                ? isCreateMode
+                  ? "Creating…"
+                  : "Saving…"
+                : isCreateMode
+                  ? "Create user"
+                  : "Save changes"}
             </Button>
           </Modal.Footer>
         </Form>
@@ -1410,6 +1604,70 @@ export default function ManageUsers({ users: initialUsers }) {
           <Button
             className="btn-admin-primary text-white"
             onClick={() => setEnquiryPinReveal(null)}
+          >
+            Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={!!accountCreatedReveal}
+        onHide={() => setAccountCreatedReveal(null)}
+        centered
+        scrollable
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white">
+          <Modal.Title>Account created</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {accountCreatedReveal ? (
+            <>
+              <p className="mb-3">
+                Share these details with{" "}
+                <strong>{accountCreatedReveal.fullName}</strong>. The password
+                is not stored in plain text and cannot be shown again from this
+                screen.
+              </p>
+              <pre
+                className="user-select-all p-3 rounded small mb-3"
+                style={{
+                  background: "rgba(0, 80, 50, 0.06)",
+                  border: "1px solid rgba(0, 80, 50, 0.15)",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                  fontFamily: "ui-monospace, monospace",
+                }}
+              >
+                {buildAccountClipboardText(accountCreatedReveal)}
+              </pre>
+              <Button
+                type="button"
+                variant="outline-secondary"
+                size="sm"
+                className="btn-admin-secondary"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(
+                      buildAccountClipboardText(accountCreatedReveal),
+                    );
+                    toast.success("Account details copied to clipboard");
+                  } catch {
+                    toast.error("Could not copy — select and copy manually");
+                  }
+                }}
+              >
+                <FontAwesomeIcon icon={faCopy} className="me-1" />
+                Copy all to clipboard
+              </Button>
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn-admin-primary text-white"
+            onClick={() => setAccountCreatedReveal(null)}
           >
             Done
           </Button>

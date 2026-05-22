@@ -336,6 +336,23 @@
   margin-bottom: 0.85rem;
 }
 
+.manage-users-toolbar .manage-users-create-btn {
+  background: var(--admin-primary, #005032) !important;
+  border: none !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 0.45rem 1.1rem;
+  box-shadow: 0 4px 6px -4px rgba(0, 80, 50, 0.1), 0 10px 15px -3px rgba(0, 80, 50, 0.1);
+}
+
+.manage-users-toolbar .manage-users-create-btn:hover:not(:disabled),
+.manage-users-toolbar .manage-users-create-btn:focus-visible {
+  background: #003d26 !important;
+  color: #fff !important;
+  box-shadow: 0 6px 10px -4px rgba(0, 80, 50, 0.15), 0 12px 20px -3px rgba(0, 80, 50, 0.12);
+}
+
 .manage-users-search {
   max-width: 320px;
   min-width: 200px;

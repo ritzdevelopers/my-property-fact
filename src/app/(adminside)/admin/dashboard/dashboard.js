@@ -18,6 +18,7 @@ import "./dashboard-home.css";
 import { useRouter } from "next/navigation";
 import SiteTrafficTrendChart from "./SiteTrafficTrendChart";
 import AdminDashboardLast60Traffic from "./AdminDashboardLast60Traffic";
+import BackupNotificationBanner from "./BackupNotificationBanner";
 
 /** How often super-admin traffic charts refetch (no full page reload). */
 const SITE_TRAFFIC_POLL_MS = 5_000;
@@ -867,6 +868,8 @@ export default function Dashboard({
           </>
         )}
       </header>
+
+      {isSuperAdmin ? <BackupNotificationBanner /> : null}
 
       <section aria-label="Key metrics">
         <div className="admin-dash-home__top-metrics-row">

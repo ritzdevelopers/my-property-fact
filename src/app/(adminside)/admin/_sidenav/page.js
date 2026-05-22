@@ -32,6 +32,7 @@ import {
   faGear,
   faCircleQuestion,
   faClipboardList,
+  faDatabase,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
@@ -257,6 +258,18 @@ export default function SideNav({ onLinkClick }) {
             <Link href="/admin/dashboard/activity-log" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faClipboardList} className="admin-nav-ico" />
               <span>Activity log</span>
+            </Link>
+          </li>
+        )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/data-backup") ? "active" : ""
+            }
+          >
+            <Link href="/admin/dashboard/data-backup" onClick={handleLinkClick}>
+              <FontAwesomeIcon icon={faDatabase} className="admin-nav-ico" />
+              <span>Data backup</span>
             </Link>
           </li>
         )}

@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { projectMatchesCityFilter } from "../cityAliasUtils";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
 import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
+import { projectNameMatchesSearch } from "../projectSearchUtils";
 
 const DEFAULT_PROJECT_FILTERS = {
   propertyType: "",
@@ -393,18 +394,19 @@ export function SiteDataProvider({ children, initialData = null }) {
     const q = normalizeText(query);
     if (q.length < 2) return [];
 
-    const words = q.split(" ");
-
     return (projectList || []).filter((project) => {
+      const name = project?.projectName || project?.name || "";
+      if (projectNameMatchesSearch(name, q)) return true;
+
       const haystack = normalizeText(
         [
-          project?.projectName || project?.name || "",
+          name,
           project?.cityName || "",
           project?.builderName || "",
           project?.projectAddress || "",
-        ].join(" ")
+        ].join(" "),
       );
-
+      const words = q.split(" ").filter(Boolean);
       return words.every((word) => haystack.includes(word));
     });
   }, [projectList]);

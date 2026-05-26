@@ -8,6 +8,7 @@ import {
   ProjectListingPaginationControls,
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
+import { projectNameMatchesSearch } from "@/app/_global_components/projectSearchUtils";
 
 export default function PropertyPage({ projectTypeDetails }) {
   const list = Array.isArray(projectTypeDetails?.projectList)
@@ -30,10 +31,10 @@ export default function PropertyPage({ projectTypeDetails }) {
   const projectsPageH2 = pageHeadingByType[projectTypeName] || "";
 
   const filteredList = useMemo(() => {
-    const q = String(projectSearchTerm || "").trim().toLowerCase();
+    const q = String(projectSearchTerm || "").trim();
     if (!q) return list;
     return list.filter((item) =>
-      String(item?.projectName || "").toLowerCase().includes(q),
+      projectNameMatchesSearch(item?.projectName, q),
     );
   }, [list, projectSearchTerm]);
 

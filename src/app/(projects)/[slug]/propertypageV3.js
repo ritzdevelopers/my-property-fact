@@ -31,6 +31,10 @@ import {
 import { Modal } from "react-bootstrap";
 import CommonPopUpform from "../../(home)/components/common/popupform";
 import { sanitizeHtml } from "../../_global_components/sanitize";
+import {
+  findBestProjectBySearch,
+  scoreProjectSearchMatch,
+} from "../../_global_components/projectSearchUtils";
 import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
@@ -117,11 +121,7 @@ function ProjectSearchBar() {
     (rawText) => {
       const text = String(rawText || "").trim();
       if (!text) return;
-      const q = text.toLowerCase();
-      const match = projects.find((p) => {
-        const name = String(p?.projectName || "").trim().toLowerCase();
-        return name && (name === q || name.includes(q) || q.includes(name));
-      });
+      const match = findBestProjectBySearch(text, projects);
       const slug = match?.slugURL || match?.slug;
       if (slug) {
         setOpen(false);
@@ -187,21 +187,21 @@ function ProjectSearchBar() {
       setSuggestions([]);
       return undefined;
     }
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     const t = setTimeout(() => {
       const pool = Array.isArray(projects) ? projects : [];
       const ranked = [];
       for (const p of pool) {
-        const name = String(p?.projectName || "").toLowerCase();
-        const city = String(p?.city || "").toLowerCase();
-        const loc = String(p?.projectLocality || "").toLowerCase();
+        const name = String(p?.projectName || "");
+        const city = String(p?.city || "");
+        const loc = String(p?.projectLocality || "");
         if (!name && !city && !loc) continue;
-        let score = -1;
-        if (name.startsWith(q)) score = 0;
-        else if (name.includes(q)) score = 1;
-        else if (`${loc} ${city}`.includes(q)) score = 2;
+        let score = scoreProjectSearchMatch(name, q);
+        if (score < 0) {
+          const locCity = `${loc} ${city}`.toLowerCase();
+          if (locCity.includes(q.toLowerCase())) score = 6;
+        }
         if (score >= 0) ranked.push({ p, score });
-        if (ranked.length > 40) break;
       }
       ranked.sort((a, b) => a.score - b.score);
       setSuggestions(ranked.slice(0, 6).map((x) => x.p));

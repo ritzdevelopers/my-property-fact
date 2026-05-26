@@ -62,6 +62,7 @@ export default function WebStories({ webStoryList }) {
                                             fill
                                             sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 25vw"
                                             className="card-img-top"
+                                            title={`${item.categoryName} web story`}
                                             style={{ objectFit: "cover" }}
                                         />
                                     </div>

@@ -7,11 +7,11 @@ export default function HeroLcpPreloads() {
   return (
     <>
       {/* mobile  < 768 px */}
-      <link rel="preload" as="image" href={BANNER_MOBILE}  fetchPriority="high" media="(max-width: 767.98px)" />
+      <link rel="preload" as="image" title="My Property Fact Home Banner" href={BANNER_MOBILE}  fetchPriority="high" media="(max-width: 767.98px)" />
       {/* tablet  768 – 991 px */}
-      <link rel="preload" as="image" href={BANNER_TABLET}  fetchPriority="high" media="(min-width: 768px) and (max-width: 991.98px)" />
+      <link rel="preload" as="image" title="My Property Fact Home Banner" href={BANNER_TABLET}  fetchPriority="high" media="(min-width: 768px) and (max-width: 991.98px)" />
       {/* desktop ≥ 992 px */}
-      <link rel="preload" as="image" href={BANNER_DESKTOP} fetchPriority="high" media="(min-width: 992px)" />
+      <link rel="preload" as="image" title="My Property Fact Home Banner" href={BANNER_DESKTOP} fetchPriority="high" media="(min-width: 992px)" />
     </>
   );
 }

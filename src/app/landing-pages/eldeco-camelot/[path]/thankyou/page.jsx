@@ -91,7 +91,7 @@ export default function ThankYouPage() {
           <span> seconds</span>
         </div>
 
-        <Link href={backUrl} className="home-button">
+        <Link href={backUrl} title="Back to Eldeco Camelot" className="home-button">
           <i className="fa-solid fa-arrow-left"></i>
           Back to Eldeco Camelot
         </Link>

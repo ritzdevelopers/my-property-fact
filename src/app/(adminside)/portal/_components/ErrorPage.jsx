@@ -192,7 +192,7 @@ export default function ErrorPage({
                       )}
                       
                       {showHome && (
-                        <Link href="/portal/dashboard">
+                        <Link title="Go to Dashboard" href="/portal/dashboard">
                           <Button variant="primary">
                             <CIcon icon={cilHome} className="me-1" />
                             Go to Dashboard
@@ -207,7 +207,7 @@ export default function ErrorPage({
                 <div className="error-help">
                   <p className="text-muted">
                     Still having trouble? 
-                    <Link href="/portal/dashboard/help/contact-support" className="ms-1">
+                    <Link title="Contact Support" href="/portal/dashboard/help/contact-support" className="ms-1">
                       Contact Support
                     </Link>
                   </p>
@@ -222,7 +222,7 @@ export default function ErrorPage({
                   <Card.Body className="text-center">
                     <CIcon icon={cilHome} className="quick-link-icon" />
                     <h6>Dashboard</h6>
-                    <Link href="/portal/dashboard">
+                    <Link title="Go Home" href="/portal/dashboard">
                       <Button variant="outline-primary" size="sm">
                         Go Home
                       </Button>
@@ -235,7 +235,7 @@ export default function ErrorPage({
                   <Card.Body className="text-center">
                     <CIcon icon={cilSearch} className="quick-link-icon" />
                     <h6>Search</h6>
-                    <Link href="/portal/dashboard/listings">
+                    <Link title="Find Properties" href="/portal/dashboard/listings">
                       <Button variant="outline-success" size="sm">
                         Find Properties
                       </Button>
@@ -248,7 +248,7 @@ export default function ErrorPage({
                   <Card.Body className="text-center">
                     <CIcon icon={cilSettings} className="quick-link-icon" />
                     <h6>Settings</h6>
-                    <Link href="/portal/dashboard/profile">
+                    <Link title="Manage Profile" href="/portal/dashboard/profile">
                       <Button variant="outline-info" size="sm">
                         Manage Profile
                       </Button>

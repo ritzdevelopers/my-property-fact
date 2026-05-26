@@ -27,6 +27,7 @@ export default function ThankYouPage() {
 
 
             <Link
+              title="Back to Home"
               href="/promotional-pages/sikka-kimaya"
               className="btn px-4 py-2 mt-4 fw-semibold text-white"
               style={{

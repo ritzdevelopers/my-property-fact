@@ -74,6 +74,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
             {item.children.map((child) => (
               <CNavItem key={child.id}>
                 <Link 
+                  title={child.label}
                   href={child.href} 
                   className="nav-link"
                   onClick={onNavigate ? () => onNavigate() : undefined}
@@ -94,6 +95,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
         return (
           <CNavItem key={item.id}>
             <Link 
+              title={item.label}
               href={item.href} 
               className="nav-link"
               onClick={onNavigate ? () => onNavigate() : undefined}

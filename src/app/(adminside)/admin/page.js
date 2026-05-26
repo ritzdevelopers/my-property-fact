@@ -292,6 +292,7 @@ function AdminPageContent() {
                       Password
                     </label>
                     <Link
+                      title="Forgot Password"
                       className="mpf-admin-login__link mpf-admin-login__link--forgot"
                       href="/admin/forgot-password"
                     >

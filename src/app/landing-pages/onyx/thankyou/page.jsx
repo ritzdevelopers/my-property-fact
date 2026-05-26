@@ -15,6 +15,7 @@ export default function page() {
           Your message has been successfully submitted.
         </p>
         <Link
+          title="Go back home"
           href="/landing-pages/onyx"
           className="btn btn-success btn-lg fw-semibold px-5 py-2"
         >

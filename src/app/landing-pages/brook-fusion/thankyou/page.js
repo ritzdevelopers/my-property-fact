@@ -27,6 +27,7 @@ export default function ThankYouPage() {
             </p>
 
             <Link
+              title="Back to Home"
               href="/landing-pages/brook-fusion"
               className="btn px-4 py-2 mt-4 fw-semibold text-white"
               style={{

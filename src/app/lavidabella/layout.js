@@ -23,18 +23,21 @@ const ASSETS = "/eldeco-la-vida-bella";
 export default function Layout({ children }) {
     return (
         <>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+            <link title="Google Fonts" rel="preconnect" href="https://fonts.googleapis.com" />
+            <link title="Google Fonts" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
             {/* eslint-disable-next-line @next/next/no-page-custom-font -- fonts intentional for this landing only */}
             <link
+                title="Google Fonts"
                 href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap"
                 rel="stylesheet"
             />
             <link
+                title="Font Awesome"
                 rel="stylesheet"
                 href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
             />
-            <link
+            <link 
+                title="Normalize.css"
                 rel="stylesheet"
                 href="https://cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css"
             />

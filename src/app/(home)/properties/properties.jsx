@@ -781,7 +781,7 @@ export default function Properties({
             <div className="properties-breadcrumb">
               <nav aria-label="breadcrumb">
                 <div className="d-flex align-items-center gap-2">
-                  <Link href="/" className="breadcrumb-link">
+                  <Link title="Home" href="/" className="breadcrumb-link">
                     Home
                   </Link>
                   <span className="breadcrumb-separator">/</span>
@@ -2018,6 +2018,7 @@ export default function Properties({
                     <div key={property.id} className="new-property-card">
                       {/* Property Image */}
                       <Link
+                        title="View Property"
                         href={`/properties/${property.slug || property.id}`}
                         className="property-card-image-link"
                       >
@@ -2143,6 +2144,7 @@ export default function Properties({
 
                         {/* Title */}
                         <Link
+                          title="View Property"
                           href={`/properties/${property.slug || property.id}`}
                           className="property-card-title-link"
                         >

@@ -104,7 +104,7 @@ export default function WhyMyPropertyFact({ platformStats }) {
                 </p>
                 <p className="text-center">
                   Join Us At{" "}
-                  <Link href="https://www.mypropertyfact.com" target="_blank"
+                  <Link title="mypropertyfact.com" href="https://www.mypropertyfact.com" target="_blank"
                    className="our-commitment-link">
                     mypropertyfact.com
                   </Link>{" "}
@@ -114,6 +114,7 @@ export default function WhyMyPropertyFact({ platformStats }) {
                 </p>
               </div>
               <Link
+                title="Get Expert Advice"
                 href="/contact-us"
                 className="new-about-us-container-content-button mx-auto text-decoration-none d-inline-flex align-items-center justify-content-center"
               >

@@ -753,6 +753,7 @@ export default function PropertyV3({
             <FontAwesomeIcon icon={faBars} />
           </button>
           <Link
+            title="View builder profile"
             href={builderHref || "#"}
             className="pd3-topbar__dev"
             aria-label={projectDetail?.builder?.builderName || "Project developer"}
@@ -769,6 +770,7 @@ export default function PropertyV3({
           </Link>
           <ProjectSearchBar />
           <Link
+            title="My Property Fact home"
             href="/"
             className="pd3-topbar__brand"
             aria-label="My Property Fact — home"
@@ -834,11 +836,11 @@ export default function PropertyV3({
       {/* Breadcrumb */}
       <div className="pd3-container">
         <div className="pd3-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
+          <Link title="Home" href="/">Home</Link>
           <span className="pd3-breadcrumb__sep">›</span>
           {projectDetail.city ? (
             <>
-              <Link href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}>
+              <Link title="Projects in {projectDetail.city}" href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}>
                 Projects in {projectDetail.city}
               </Link>
               <span className="pd3-breadcrumb__sep">›</span>
@@ -1359,6 +1361,7 @@ export default function PropertyV3({
                 </div>
                 <div className="text-center">
                   <Link
+                    title="Check More Projects"
                     href={builderHref || "#"}
                     className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
                     {...(builderHref
@@ -1476,6 +1479,7 @@ export default function PropertyV3({
                 <div className="pd3-card__head">
                   <h2 className="pd3-card__title">Similar Projects</h2>
                   <Link
+                    title="View all projects in {projectDetail.city}"
                     href={`/city/${String(projectDetail.city || "").toLowerCase().replace(/\s+/g, "-")}`}
                     className="pd3-link"
                   >
@@ -1488,6 +1492,7 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
+                      title="View project"
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"

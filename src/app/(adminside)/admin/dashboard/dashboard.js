@@ -790,6 +790,7 @@ export default function Dashboard({
                   return (
                     <Link
                       key={key}
+                      title={activity.title || "Action"}
                       href={href}
                       style={{
                         textDecoration: "none",
@@ -821,6 +822,7 @@ export default function Dashboard({
           <div className="admin-dash-pending__footer">
             {canApprovals ? (
               <Link
+                title="Open property approvals"
                 href="/admin/dashboard/property-approvals"
                 className="admin-dash-pending__link"
               >
@@ -949,6 +951,7 @@ export default function Dashboard({
             {quickLinks.map((q) => (
               <Link
                 key={q.href + q.label}
+                title={q.label}
                 href={q.href}
                 className="admin-dash-quick-link"
               >

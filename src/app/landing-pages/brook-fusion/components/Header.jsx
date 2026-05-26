@@ -80,6 +80,7 @@ export default function Header() {
               ["#contact", "Contact"],
             ].map(([href, label]) => (
               <Link
+                title={label}
                 key={label}
                 href={href}
                 className="nav-link text-dark fs-5 px-2 py-1"
@@ -152,6 +153,7 @@ export default function Header() {
                 ["#contact", "Contact"],
               ].map(([href, label]) => (
                 <Link
+                  title={label}
                   key={label}
                   href={href}
                   className="fs-5 text-dark text-decoration-none"

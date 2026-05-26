@@ -295,7 +295,7 @@ export default function ContactUs() {
             <p>Looking for a dream home?</p>
             <p>We can help you realize your dream of a new home</p>
           </div>
-          <Link href="/projects">View Projects</Link>
+          <Link title="View Projects" href="/projects">View Projects</Link>
         </div>
       </div>
     </div>

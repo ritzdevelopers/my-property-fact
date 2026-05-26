@@ -510,13 +510,13 @@ export default function ModernDashboard() {
 
         {/* Actions */}
         <div className="property-actions">
-          <Link href={`/portal/dashboard/listings/${property.id}`}>
+          <Link title="View Property" href={`/portal/dashboard/listings/${property.id}`}>
             <Button variant="outline-primary" size="sm" className="me-2">
               <CIcon icon={cilViewModule} className="me-1" />
               View
             </Button>
           </Link>
-          <Link href={`/portal/dashboard/listings/${property.id}?edit=true`}>
+          <Link title="Edit Property" href={`/portal/dashboard/listings/${property.id}?edit=true`}>
             <Button variant="outline-secondary" size="sm">
               <CIcon icon={cilPencil} className="me-1" />
               Edit
@@ -613,7 +613,7 @@ export default function ModernDashboard() {
             <p>Here&apos;s what&apos;s happening with your properties today.</p>
           </div>
           <div className="header-actions">
-            <Link href="/portal/dashboard/listings?action=add">
+            <Link title="Add Property" href="/portal/dashboard/listings?action=add">
               <Button variant="light" className="me-2">
                 <CIcon icon={cilPlus} className="me-1" />
                 Add Property
@@ -686,7 +686,7 @@ export default function ModernDashboard() {
           <Card className="dashboard-card">
             <Card.Header className="d-flex justify-content-between align-items-center">
               <h5 className="mb-0">Top Performing Properties</h5>
-              <Link href="/portal/dashboard/listings">
+              <Link title="Manage All" href="/portal/dashboard/listings">
                 <Button variant="link" size="sm">
                   Manage All
                 </Button>
@@ -743,19 +743,19 @@ export default function ModernDashboard() {
             </Card.Header>
             <Card.Body>
               <div className="quick-actions">
-                <Link href="/portal/dashboard/listings?action=add">
+                <Link title="Add New Property" href="/portal/dashboard/listings?action=add">
                   <Button variant="primary" className="w-100 mb-2">
                     <CIcon icon={cilPlus} className="me-1" />
                     Add New Property
                   </Button>
                 </Link>
-                <Link href="/portal/dashboard/leads">
+                <Link title="View Leads" href="/portal/dashboard/leads">
                   <Button variant="outline-primary" className="w-100 mb-2">
                     <CIcon icon={cilUser} className="me-1" />
                     View Leads
                   </Button>
                 </Link>
-                <Link href="/portal/dashboard/profile">
+                <Link title="Update Profile" href="/portal/dashboard/profile">
                   <Button variant="outline-secondary" className="w-100">
                     <CIcon icon={cilSettings} className="me-1" />
                     Update Profile

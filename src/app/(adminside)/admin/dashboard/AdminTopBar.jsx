@@ -275,6 +275,7 @@ export default function AdminTopBar() {
                       . Open the page to accept, edit, or reject.
                     </p>
                     <Link
+                      title="Go to Pending permissions"
                       className="admin-topbar-notify-dropdown__link"
                       href="/admin/dashboard/pending-permissions"
                       onClick={() => setNotifyOpen(false)}

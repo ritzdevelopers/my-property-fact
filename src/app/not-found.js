@@ -54,10 +54,10 @@ export default function NotFound() {
           The page you&apos;re looking for doesn&apos;t exist or may have been moved. Let&apos;s get you back on track.
         </p>
         <div className={styles.actions}>
-          <Link href="/" className={`${styles.link} ${styles.linkPrimary}`}>
+          <Link title="Go to Home" href="/" className={`${styles.link} ${styles.linkPrimary}`}>
             Go to Home
           </Link>
-          <Link href="/projects" className={`${styles.link} ${styles.linkSecondary}`}>
+          <Link title="Browse Properties" href="/projects" className={`${styles.link} ${styles.linkSecondary}`}>
             Browse Properties
           </Link>
         </div>

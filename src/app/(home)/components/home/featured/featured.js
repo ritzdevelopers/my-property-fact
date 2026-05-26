@@ -196,6 +196,7 @@ export default function Featured({
             {autoPlay && type !== "Similar" && (
               <div className="text-center pt-3">
                 <Link
+                  title="View all projects"
                   className="btn text-white projects-view-all-btn btn-normal-color border-0"
                   href={`/projects/${url}`}
                 >

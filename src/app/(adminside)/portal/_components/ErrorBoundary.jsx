@@ -65,6 +65,7 @@ class ErrorBoundary extends React.Component {
             🔄 Try Again
           </button>
           <Link 
+            title="Go to Dashboard"
             href="/portal/dashboard"
             className="btn btn-primary"
           >

@@ -11,7 +11,7 @@ export default function Footer() {
       <div className="container d-flex flex-column flex-md-row justify-content-between align-items-start gap-4">
         {/* Logo + Description */}
         <div className="w-100 w-md-50">
-          <Link href="/" className="text-decoration-none">
+          <Link title="Sikka Logo" href="/" className="text-decoration-none">
             <div className="d-inline-block mb-3">
               <Image
                 src={logo}
@@ -41,6 +41,7 @@ export default function Footer() {
             ].map(({ label, href }) => (
               <li key={label} className="mb-2">
                 <Link
+                  title={label}
                   href={href}
                   className="text-white text-decoration-none d-inline-block"
                   style={{

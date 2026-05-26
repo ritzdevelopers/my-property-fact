@@ -629,6 +629,7 @@ const addNearbyImageIcon = (benefit) => {
   return (
     <>
       <Link
+        title="Back to My Property Fact home page (opens in a new tab)"
         href="/"
         target="_blank"
         rel="noopener noreferrer"
@@ -651,6 +652,7 @@ const addNearbyImageIcon = (benefit) => {
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex justify-content-center align-items-center">
               <Link
+                title="View builder profile"
                 href={builderPageHref || "/"}
                 aria-label={
                   builderPageHref
@@ -677,6 +679,7 @@ const addNearbyImageIcon = (benefit) => {
                 <ul className="list-inline d-flex text-decoration-none gap-5 m-0 align-items-center">
                   <li>
                     <Link
+                      title="View Overview"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#overview"
                     >
@@ -685,6 +688,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Amenities"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#amenities"
                     >
@@ -693,6 +697,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Plans & Price"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#floorplan"
                     >
@@ -701,6 +706,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Gallery"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#gallery"
                     >
@@ -709,6 +715,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Location"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#location"
                     >
@@ -733,6 +740,7 @@ const addNearbyImageIcon = (benefit) => {
                 {/* Mobile menu header with logo + close */}
                 <div className="project-mbMenu-header d-flex align-items-center justify-content-between mb-4">
                   <Link
+                    title="My Property Fact home (opens in a new tab)"
                     href="/"
                     onClick={(e) => {
                       e.preventDefault();
@@ -763,6 +771,7 @@ const addNearbyImageIcon = (benefit) => {
                 <ul className="project-mb-list d-lg-none">
                   <li>
                     <Link
+                      title="Back to My Property Fact home page (opens in a new tab)"
                       href="/"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -774,6 +783,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Overview"
                       href="#overview"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "overview")}
@@ -783,6 +793,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Amenities"
                       href="#amenities"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "amenities")}
@@ -792,6 +803,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Plans & Price"
                       href="#floorplan"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "floorplan")}
@@ -801,6 +813,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Gallery"
                       href="#gallery"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "gallery")}
@@ -810,6 +823,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="View Location"
                       href="#location"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "location")}
@@ -832,6 +846,7 @@ const addNearbyImageIcon = (benefit) => {
             {/* Logo container */}
             <div className="logo d-none d-lg-block px-4">
               <Link
+                title="My Property Fact home (opens in a new tab)"
                 href="/"
                 onClick={(e) => {
                   e.preventDefault();
@@ -1011,6 +1026,7 @@ const addNearbyImageIcon = (benefit) => {
                     <p className="fs-5 mb-3 text-muted d-flex align-items-center">
                       {builderPageHref ? (
                         <Link
+                          title="View builder profile"
                           href={builderPageHref}
                           className="text-decoration-none text-muted d-inline-flex align-items-center builder-profile-link"
                           aria-label={`View ${projectDetail.builder.builderName} profile`}
@@ -1365,6 +1381,7 @@ const addNearbyImageIcon = (benefit) => {
             {/* Action Buttons */}
             <div className="text-center">
               <Link
+                title="Check More Projects"
                 href={builderPageHref || "#"}
                 className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
                 {...(builderPageHref

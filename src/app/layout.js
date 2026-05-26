@@ -1,34 +1,110 @@
 import "./critical.css";
 import "./globals.css";
 import { Inter, Lato } from "next/font/google";
-import { Suspense, cache } from "react";
+import { Suspense } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
-import Providers from "./_global_components/providers/Providers";
-import { SiteDataProvider } from "./_global_components/contexts/SiteDataContext";
-import { fetchSiteDataFromApi } from "./_global_components/siteData/fetchSiteDataApi";
+import SiteDataShell from "./_global_components/SiteDataShell";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
+
 config.autoAddCss = false;
 
-const getSiteDataForRootLayout = cache(async () => {
-  try {
-    return await fetchSiteDataFromApi();
-  } catch (err) {
-    console.error("Server site data fetch failed:", err);
-    return null;
-  }
-});
+const siteUrl = process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in";
 
-// app/layout.js
 export const metadata = {
-  title: "My Property Fact | A valuable platform for buyers and sellers",
-  description: "MPF provides accurate information about project and properties with verified details.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in")
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "My Property Fact | A valuable platform for buyers and sellers",
+    template: "%s",
+  },
+  description:
+    "MPF provides accurate information about project and properties with verified details.",
+  authors: [{ name: "My Property Fact" }],
+  publisher: "My Property Fact",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  twitter: {
+    card: "summary",
+    title: "Best Property Deals in India | My Property Fact",
+    site: "@my_propertyfact",
+    description:
+      "Looking to buy or invest in property? Explore trusted listings, price trends & expert advice on My Property Fact.",
+    images: {
+      url: `${siteUrl}/logo.webp`,
+      alt: "My Property Fact",
+    },
+  },
+  openGraph: {
+    title:
+      "My Property Fact | Real Estate Insights, Property News & Investment Tips",
+    siteName: "MyPropertyFact",
+    url: siteUrl,
+    description:
+      "Explore the latest real estate news, property trends, investment tips, and expert insights on MyPropertyFact. Your trusted guide for smart property decisions in India.",
+    type: "website",
+    images: [
+      {
+        url: `${siteUrl}/logo.webp`,
+        alt: "MyPropertyFact - Real Estate Insights Platform",
+      },
+    ],
+    locale: "en_IN",
+  },
 };
 
-// Global typography: headings -> Lato, subheadings/body -> Inter
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "My Property Fact",
+  url: siteUrl,
+  logo: `${siteUrl}/logo.webp`,
+  description:
+    "Explore flats, residential & commercial properties across India on MyPropertyFact: NCR, Delhi, Faridabad, Noida, & top Indian cities with verified listings and top developers.",
+  sameAs: [
+    "https://www.facebook.com/mypropertyfact1",
+    "https://www.instagram.com/my.property.fact",
+  ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "My Property Fact",
+  url: siteUrl,
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteUrl}/projects?search={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+};
+
+const productJsonLd = {
+  "@context": "http://schema.org/",
+  "@type": "Product",
+  name: "Eldeco Camelot",
+  image:
+    "https://mypropertyfact.in/_next/image?url=https%3A%2F%2Fapis.mypropertyfact.in%2Fapi%2Fv1%2Fget%2Fimages%2Fproperties%2Feldeco-camelot%2F1770876748447_Eldeco_Camelot_Desktop_Banner_2_-_My_Property_Fact.jpg&w=1920&q=75",
+  description:
+    "Eldeco Camelot in Sector 17 Dwarka, Delhi offers premium 3 & 4 BHK apartments with modern amenities, clubhouse, landscaped greens, and excellent connectivity to IGI Airport and major NCR hubs.",
+  sku: "001",
+  brand: {
+    "@type": "Brand",
+    name: "My Property Fact",
+  },
+  offers: {
+    "@type": "Offer",
+    priceCurrency: "INR",
+    price: "74200000",
+    url: "https://mypropertyfact.in/eldeco-camelot",
+    itemCondition: "https://schema.org/NewCondition",
+    priceValidUntil: "2026-12-31",
+  },
+};
+
 const headingFont = Lato({
   subsets: ["latin"],
   weight: ["400", "700", "900"],
@@ -43,99 +119,26 @@ const textFont = Inter({
   display: "swap",
 });
 
-export default async function RootLayout({ children }) {
-  const initialSiteData = await getSiteDataForRootLayout();
-
+export default function RootLayout({ children }) {
   return (
     <html lang="en-IN">
-      <head>
-        <link rel="preconnect" href="https://www.googletagmanager.com" />
+      <body
+        className={`${headingFont.variable} ${textFont.variable}`}
+        suppressHydrationWarning={true}
+      >
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([
-              {
-                "@context": "https://schema.org",
-                "@type": "Organization",
-                name: "My Property Fact",
-                url: process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in",
-                logo: `${process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in"}/logo.webp`,
-                description:
-                  "Explore flats, residential & commercial properties across India on MyPropertyFact: NCR, Delhi, Faridabad, Noida, & top Indian cities with verified listings and top developers.",
-                sameAs: [
-                  "https://www.facebook.com/mypropertyfact1",
-                  "https://www.instagram.com/my.property.fact",
-                ],
-              },
-              {
-                "@context": "https://schema.org",
-                "@type": "WebSite",
-                name: "My Property Fact",
-                url: process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in",
-                potentialAction: {
-                  "@type": "SearchAction",
-                  target: `${process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in"}/projects?search={search_term_string}`,
-                  "query-input": "required name=search_term_string",
-                },
-              },
-            ]),
+            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
           }}
         />
-
-          <script type="application/ld+json"
+        <script
+          type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              "@context": "http://schema.org/",
-              "@type": "Product",
-              "name": "Eldeco Camelot",
-              "image": "https://mypropertyfact.in/_next/image?url=https%3A%2F%2Fapis.mypropertyfact.in%2Fapi%2Fv1%2Fget%2Fimages%2Fproperties%2Feldeco-camelot%2F1770876748447_Eldeco_Camelot_Desktop_Banner_2_-_My_Property_Fact.jpg&w=1920&q=75",
-              "description": "Eldeco Camelot in Sector 17 Dwarka, Delhi offers premium 3 & 4 BHK apartments with modern amenities, clubhouse, landscaped greens, and excellent connectivity to IGI Airport and major NCR hubs.",
-              "sku": "001",
-              "brand": {
-                "@type": "Brand",
-                "name": "My Property Fact"
-              },
-              "offers": {
-                "@type": "Offer",
-                "priceCurrency": "INR",
-                "price": "74200000",
-                "url": "https://mypropertyfact.in/eldeco-camelot",
-                "itemCondition": "https://schema.org/NewCondition",
-                "priceValidUntil": "2026-12-31"
-              }
-
-            })
+            __html: JSON.stringify(productJsonLd),
           }}
         />
 
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="Best Property Deals in India | My Property Fact" />
-        <meta name="twitter:site" content="@my_propertyfact" />
-        <meta name="twitter:description" content="Looking to buy or invest in property? Explore trusted listings, price trends & expert advice on My Property Fact." />
-        <meta name="twitter:image" content="https://mypropertyfact.in/logo.webp" />
-        <meta name="twitter:image:alt" content="My Property Fact" />
-
-          
-        <meta name="author" content="My Property Fact" />
-        <meta name="publisher" content="My Property Fact" />
-
-        <meta name="robots" content="index,follow" />
-
-          
-        
-        {/* Open Graph Tags */}
-        <meta property="og:title" content="My Property Fact | Real Estate Insights, Property News & Investment Tips" />
-        <meta property="og:site_name" content="MyPropertyFact" />
-        <meta property="og:url" content="https://mypropertyfact.in/" />
-        <meta property="og:description" content="Explore the latest real estate news, property trends, investment tips, and expert insights on MyPropertyFact. Your trusted guide for smart property decisions in India." />
-        <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://mypropertyfact.in/logo.webp" />
-        <meta property="og:image:alt" content="MyPropertyFact - Real Estate Insights Platform" />
-        <meta property="og:locale" content="en_IN" />
-      </head>
-      <body
-        className={`${headingFont.variable} ${textFont.variable}`} suppressHydrationWarning={true}>
-        {/* Google Tag Manager (noscript) */}
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-WL4BBZM8"
@@ -144,7 +147,6 @@ export default async function RootLayout({ children }) {
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-        {/* Meta Pixel noscript fallback - img required for no-JS tracking */}
         <noscript>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -156,23 +158,13 @@ export default async function RootLayout({ children }) {
           />
         </noscript>
 
-        <Providers>
-          <Suspense fallback={null}>
-            <SiteDataProvider initialData={initialSiteData}>
-              {children}
-            </SiteDataProvider>
-          </Suspense>
-        </Providers>
+        <SiteDataShell>{children}</SiteDataShell>
         <WebsiteGateway />
         <Suspense fallback={null}>
           <PopularProjectPromoFromRequest />
         </Suspense>
 
-        {/* third party scripts are loaded here */}
         <ThirdPartyScripts />
-
-        {/* Accept or reject cookies component  */}
-        {/* <CookieConsent /> */}
       </body>
     </html>
   );

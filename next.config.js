@@ -9,7 +9,8 @@
 })();
 
 const nextConfig = {
-
+  // Keep title, description, and canonical in <head> for all requests (not streamed into <body>).
+  htmlLimitedBots: /.*/,
 
   async redirects() {
     return [

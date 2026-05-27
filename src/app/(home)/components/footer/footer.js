@@ -198,6 +198,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden hover-green text-decoration-none"
                       href="https://www.facebook.com/mypropertyfact1/"
                       target="_blank"
+                      rel="noopener noreferrer"
                       title="facebook"
                     >
                       <Image
@@ -214,6 +215,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden"
                       href="https://www.instagram.com/my.property.fact/"
                       target="_blank"
+                      rel="noopener noreferrer"
                       title="instagram"
                     >
                       <Image
@@ -230,6 +232,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden"
                       href="https://www.linkedin.com/company/my-property-fact/"
                       target="_blank"
+                      rel="noopener noreferrer"
                       title="linkedin"
                     >
                       <Image
@@ -246,6 +249,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden"
                       href="https://www.youtube.com/@my.propertyfact/"
                       target="_blank"
+                      rel="noopener noreferrer"
                       title="youtube"
                     >
                       <Image
@@ -262,6 +266,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       className="fs-4 text-golden"
                       href="https://x.com/my_propertyfact/"
                       target="_blank"
+                      rel="noopener noreferrer"
                       title="X"
                     >
                       <Image

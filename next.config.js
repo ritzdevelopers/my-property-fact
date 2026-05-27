@@ -178,6 +178,14 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+
+      // Legacy API: https://apis.mypropertyfact.in/web-story/{slug} → /api/v1/web-story/{slug}
+      {
+        source: "/web-story/:slug*",
+        has: [{ type: "host", value: "apis.mypropertyfact.in" }],
+        destination: "/api/v1/web-story/:slug*",
+        permanent: true,
+      },
     ];
   },
 
@@ -193,6 +201,23 @@ const nextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains; preload",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' https: data: blob:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https:; form-action 'self' https:; upgrade-insecure-requests",
           },
         ],
       },

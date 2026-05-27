@@ -104,7 +104,11 @@ export default function WhyMyPropertyFact({ platformStats }) {
                 </p>
                 <p className="text-center">
                   Join Us At{" "}
-                  <Link title="mypropertyfact.com" href="https://www.mypropertyfact.com" target="_blank"
+                  <Link
+                    title="mypropertyfact.com"
+                    href="https://www.mypropertyfact.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
                    className="our-commitment-link">
                     mypropertyfact.com
                   </Link>{" "}

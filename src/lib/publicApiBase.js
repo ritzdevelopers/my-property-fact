@@ -24,3 +24,11 @@ export function getPublicApiBase() {
   }
   return normalizePublicApiUrl(raw);
 }
+
+/** Public AMP/web-story document URL on the API host (includes /api/v1/). */
+export function getWebStoryApiUrl(categorySlug) {
+  const slug = String(categorySlug || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "");
+  return `${getPublicApiBase()}web-story/${slug}`;
+}

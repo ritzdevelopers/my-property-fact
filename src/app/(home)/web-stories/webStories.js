@@ -67,9 +67,9 @@ export default function WebStories({ webStoryList }) {
                                         />
                                     </div>
                                     <div className="card-body d-flex flex-column">
-                                        <h5 className="card-title text-capitalize" style={titleClampStyle}>
+                                        <h2 className="card-title text-capitalize" style={titleClampStyle}>
                                             {item.categoryName}
-                                        </h5>
+                                        </h2>
                                         <p className="card-text mb-0" style={descriptionClampStyle}>
                                             {item.categoryDescription}
                                         </p>

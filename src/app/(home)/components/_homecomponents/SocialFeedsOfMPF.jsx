@@ -41,22 +41,22 @@ export default function SocialFeedsOfMPF() {
     {
       text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
       position: "top",
-      video: "/static/social-media/social11.mp4"
+      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social11.mp4"
     },
     {
       text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
       position: "bottom",
-      video: "/static/social-media/social22.mp4"
+      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social22.mp4"
     },
     {
       text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
       position: "bottom",
-      video: "/static/social-media/social33.mp4"
+      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social33.mp4"
     },
     {
       text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
       position: "top",
-      video: "/static/social-media/social44.mp4"
+      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social44.mp4"
     }
   ];
 

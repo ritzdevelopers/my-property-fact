@@ -5,6 +5,7 @@ export default function Property() {
       <div className="mt-3 d-flex justify-content-between">
         <h1>Projects List</h1>
           <Link
+            title="Add New Project"
             href="/admin/dashboard/projects/add-new-property"
             className="btn btn-success text-center pt-3"
           >

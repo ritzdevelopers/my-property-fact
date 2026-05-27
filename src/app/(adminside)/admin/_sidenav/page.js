@@ -188,7 +188,7 @@ export default function SideNav({ onLinkClick }) {
       </div>
       <ul className="list-unstyled components">
         <li className={isActive("/admin/dashboard") ? "active" : ""}>
-          <Link href="/admin/dashboard" onClick={handleLinkClick}>
+          <Link  title="Dashboard" href="/admin/dashboard" onClick={handleLinkClick}>
             <FontAwesomeIcon icon={faGaugeHigh} className="admin-nav-ico" />
             <span>Dashboard</span>
           </Link>
@@ -201,6 +201,7 @@ export default function SideNav({ onLinkClick }) {
               }
             >
               <Link
+                title="Property Approvals"
                 href="/admin/dashboard/property-approvals"
                 onClick={handleLinkClick}
               >
@@ -216,7 +217,7 @@ export default function SideNav({ onLinkClick }) {
           <li
             className={isActive("/admin/dashboard/manage-users") ? "active" : ""}
           >
-            <Link href="/admin/dashboard/manage-users" onClick={handleLinkClick}>
+            <Link title="Manage Users" href="/admin/dashboard/manage-users" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faUsers} className="admin-nav-ico" />
               <span>Manage Users</span>
             </Link>
@@ -229,6 +230,7 @@ export default function SideNav({ onLinkClick }) {
             }
           >
             <Link
+              title="Pending Permissions"
               href="/admin/dashboard/pending-permissions"
               onClick={handleLinkClick}
             >
@@ -243,7 +245,7 @@ export default function SideNav({ onLinkClick }) {
               isActive("/admin/dashboard/super-tracking") ? "active" : ""
             }
           >
-            <Link href="/admin/dashboard/super-tracking" onClick={handleLinkClick}>
+            <Link title="MPF Traffic and Logs" href="/admin/dashboard/super-tracking" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faChartLine} className="admin-nav-ico" />
               <span>MPF Traffic and Logs</span>
             </Link>
@@ -255,7 +257,7 @@ export default function SideNav({ onLinkClick }) {
               isActive("/admin/dashboard/activity-log") ? "active" : ""
             }
           >
-            <Link href="/admin/dashboard/activity-log" onClick={handleLinkClick}>
+            <Link title="Activity log" href="/admin/dashboard/activity-log" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faClipboardList} className="admin-nav-ico" />
               <span>Activity log</span>
             </Link>
@@ -267,7 +269,7 @@ export default function SideNav({ onLinkClick }) {
               isActive("/admin/dashboard/data-backup") ? "active" : ""
             }
           >
-            <Link href="/admin/dashboard/data-backup" onClick={handleLinkClick}>
+            <Link title="Data backup" href="/admin/dashboard/data-backup" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faDatabase} className="admin-nav-ico" />
               <span>Data backup</span>
             </Link>
@@ -334,6 +336,7 @@ export default function SideNav({ onLinkClick }) {
                     }
                   >
                     <Link
+                      title="Banners"
                       href="/admin/dashboard/manage-home-banners"
                       onClick={handleLinkClick}
                     >
@@ -349,6 +352,7 @@ export default function SideNav({ onLinkClick }) {
                     }
                   >
                     <Link
+                      title="Testimonials"
                       href="/admin/dashboard/manage-testimonials"
                       onClick={handleLinkClick}
                     >
@@ -400,6 +404,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Countries"
                   href="/admin/dashboard/manage-countries"
                   onClick={handleLinkClick}
                 >
@@ -412,6 +417,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage States"
                   href="/admin/dashboard/manage-states"
                   onClick={handleLinkClick}
                 >
@@ -424,6 +430,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Cities"
                   href="/admin/dashboard/manage-cities"
                   onClick={handleLinkClick}
                 >
@@ -436,6 +443,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Localities"
                   href="/admin/dashboard/manage-localities"
                   onClick={handleLinkClick}
                 >
@@ -450,6 +458,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Score Evalution"
                   href="/admin/dashboard/manage-score-evalution"
                   onClick={handleLinkClick}
                 >
@@ -462,6 +471,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Project Types"
                   href="/admin/dashboard/project-types"
                   onClick={handleLinkClick}
                 >
@@ -476,6 +486,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Project Status"
                   href="/admin/dashboard/manage-project-status"
                   onClick={handleLinkClick}
                 >
@@ -485,7 +496,7 @@ export default function SideNav({ onLinkClick }) {
               <li
                 className={isActive("/admin/dashboard/builder") ? "active" : ""}
               >
-                <Link href="/admin/dashboard/builder" onClick={handleLinkClick}>
+                <Link title="Manage Builders" href="/admin/dashboard/builder" onClick={handleLinkClick}>
                   Manage Builders
                 </Link>
               </li>
@@ -495,6 +506,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Budget Options"
                   href="/admin/dashboard/budget-options"
                   onClick={handleLinkClick}
                 >
@@ -509,6 +521,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Career Applications"
                   href="/admin/dashboard/manage-career-applications"
                   onClick={handleLinkClick}
                 >
@@ -568,6 +581,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Project&apos;s Amenities"
                     href="/admin/dashboard/project-amenity"
                     onClick={handleLinkClick}
                   >
@@ -580,6 +594,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Banners"
                     href="/admin/dashboard/manage-banners"
                     onClick={handleLinkClick}
                   >
@@ -592,6 +607,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Floor Plans"
                     href="/admin/dashboard/manage-floor-plans"
                     onClick={handleLinkClick}
                   >
@@ -604,6 +620,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Gallery"
                     href="/admin/dashboard/manage-gallery"
                     onClick={handleLinkClick}
                   >
@@ -616,6 +633,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage FAQs"
                     href="/admin/dashboard/manage-faqs"
                     onClick={handleLinkClick}
                   >
@@ -630,6 +648,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Project&apos;s About"
                     href="/admin/dashboard/manage-project-about"
                     onClick={handleLinkClick}
                   >
@@ -644,6 +663,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Manage Project&apos;s Walkthrough"
                     href="/admin/dashboard/manage-project-walkthrough"
                     onClick={handleLinkClick}
                   >
@@ -656,6 +676,7 @@ export default function SideNav({ onLinkClick }) {
                   }
                 >
                   <Link
+                    title="Location benifits"
                     href="/admin/dashboard/location-benifits"
                     onClick={handleLinkClick}
                   >
@@ -670,6 +691,7 @@ export default function SideNav({ onLinkClick }) {
               }
             >
               <Link
+                title="Manage Projects"
                 href="/admin/dashboard/manage-projects"
                 onClick={handleLinkClick}
               >
@@ -720,6 +742,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="City Price Data"
                   href="/admin/dashboard/city-price-data"
                   onClick={handleLinkClick}
                 >
@@ -734,6 +757,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Headers"
                   href="/admin/dashboard/manage-insight-headers"
                   onClick={handleLinkClick}
                 >
@@ -746,6 +770,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Insight Category"
                   href="/admin/dashboard/insight-category"
                   onClick={handleLinkClick}
                 >
@@ -758,6 +783,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Top developers"
                   href="/admin/dashboard/top-developers"
                   onClick={handleLinkClick}
                 >
@@ -769,7 +795,7 @@ export default function SideNav({ onLinkClick }) {
         )}
         {hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES) && (
           <li className={isActive("/admin/dashboard/aminities") ? "active" : ""}>
-            <Link href="/admin/dashboard/aminities" onClick={handleLinkClick}>
+            <Link title="Amenities" href="/admin/dashboard/aminities" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faLayerGroup} className="admin-nav-ico" />
               <span>Amenities</span>
             </Link>
@@ -782,6 +808,7 @@ export default function SideNav({ onLinkClick }) {
             }
           >
             <Link
+              title="Manage Features"
               href="/admin/dashboard/manage-features"
               onClick={handleLinkClick}
             >
@@ -799,6 +826,7 @@ export default function SideNav({ onLinkClick }) {
             }
           >
             <Link
+              title="Manage Nearby Benefits"
               href="/admin/dashboard/manage-location-benefits"
               onClick={handleLinkClick}
             >
@@ -809,7 +837,7 @@ export default function SideNav({ onLinkClick }) {
         )}
         {(isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES)) && (
           <li className={isActive("/admin/dashboard/enquiries") ? "active" : ""}>
-            <Link href="/admin/dashboard/enquiries" onClick={handleLinkClick}>
+            <Link title="Manage Enquiries" href="/admin/dashboard/enquiries" onClick={handleLinkClick}>
               <FontAwesomeIcon icon={faEnvelopeOpenText} className="admin-nav-ico" />
               <span>Manage Enquiries</span>
             </Link>
@@ -852,6 +880,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Blogs"
                   href="/admin/dashboard/manage-blogs"
                   onClick={handleLinkClick}
                 >
@@ -864,6 +893,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Manage Blog Categories"
                   href="/admin/dashboard/manage-categories"
                   onClick={handleLinkClick}
                 >
@@ -910,6 +940,7 @@ export default function SideNav({ onLinkClick }) {
                 }
               >
                 <Link
+                  title="Web Story category"
                   href="/admin/dashboard/web-story-category"
                   onClick={handleLinkClick}
                 >
@@ -919,7 +950,7 @@ export default function SideNav({ onLinkClick }) {
               <li
                 className={isActive("/admin/dashboard/web-story") ? "active" : ""}
               >
-                <Link href="/admin/dashboard/web-story" onClick={handleLinkClick}>
+                <Link title="Web Story" href="/admin/dashboard/web-story" onClick={handleLinkClick}>
                   Web Story
                 </Link>
               </li>
@@ -931,6 +962,7 @@ export default function SideNav({ onLinkClick }) {
       {hasPermission(ADMIN_PERMISSIONS.MANAGE_PROJECTS) ? (
         <div className="sidebar-cta-wrap">
           <Link
+            title="New listing"
             href="/admin/dashboard/projects/add-new-property"
             className="sidebar-new-listing-btn"
             onClick={handleLinkClick}
@@ -941,7 +973,7 @@ export default function SideNav({ onLinkClick }) {
       ) : null}
 
       <div className="sidebar-footer">
-        {/* <Link href="/admin/dashboard/manage-projects" onClick={handleLinkClick} className="sidebar-footer-link">
+        {/* <Link title="Settings" href="/admin/dashboard/manage-projects" onClick={handleLinkClick} className="sidebar-footer-link">
           <img src="/images/admin/Setting.svg" alt="" width={17} height={17} style={{ flexShrink: 0 }} />
           <span className="sidebar-footer-text">Settings</span>
         </Link>

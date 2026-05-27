@@ -862,6 +862,7 @@ const addNearbyImageIcon = (benefit) => {
   return (
     <>
       <Link
+        title="Back to MyPropertyFact home page"
         href="/"
         className={`back-to-home-floating ${backToHomeExpanded ? "back-to-home-floating--expanded" : ""}`}
         aria-label="Back to MyPropertyFact home page"
@@ -882,6 +883,7 @@ const addNearbyImageIcon = (benefit) => {
           <div className="d-flex justify-content-between align-items-center">
             <div className="d-flex justify-content-center align-items-center">
               <Link
+                title="View builder profile"
                 href={builderPageHref || "/"}
                 aria-label={
                   builderPageHref
@@ -906,6 +908,7 @@ const addNearbyImageIcon = (benefit) => {
                 <ul className="list-inline d-flex text-decoration-none gap-5 m-0 align-items-center">
                   <li>
                     <Link
+                      title="Overview"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#overview"
                     >
@@ -914,6 +917,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Amenities"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#amenities"
                     >
@@ -922,6 +926,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Plans &amp; Price"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#floorplan"
                     >
@@ -930,6 +935,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Gallery"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#gallery"
                     >
@@ -938,6 +944,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Location"
                       className="text-decoration-none text-light fs-5 fw-bold"
                       href="#location"
                     >
@@ -962,6 +969,7 @@ const addNearbyImageIcon = (benefit) => {
                 {/* Mobile menu header with logo + close */}
                 <div className="project-mbMenu-header d-flex align-items-center justify-content-between mb-4">
                   <Link
+                    title="My Property Fact home"
                     href="/"
                     onClick={(e) => {
                       e.preventDefault();
@@ -992,6 +1000,7 @@ const addNearbyImageIcon = (benefit) => {
                 <ul className="project-mb-list d-lg-none">
                   <li>
                     <Link
+                      title="Back to My Property Fact home page"
                       href="/"
                       className="text-decoration-none"
                       onClick={handleBackToHomeClick}
@@ -1001,6 +1010,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Overview"
                       href="#overview"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "overview")}
@@ -1010,6 +1020,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Amenities"
                       href="#amenities"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "amenities")}
@@ -1019,6 +1030,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Plans &amp; Price"
                       href="#floorplan"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "floorplan")}
@@ -1028,6 +1040,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Gallery"
                       href="#gallery"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "gallery")}
@@ -1037,6 +1050,7 @@ const addNearbyImageIcon = (benefit) => {
                   </li>
                   <li>
                     <Link
+                      title="Location"
                       href="#location"
                       className="text-decoration-none"
                       onClick={(e) => openMenu(e, "location")}

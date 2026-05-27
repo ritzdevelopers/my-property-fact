@@ -274,7 +274,7 @@ export default async function HomePage() {
                 </div>
                 <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
                 <div className="transform-home-explore-projects-wrap">
-                  <Link href="/projects" className="transform-home-explore-projects-btn">
+                  <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
                     Explore Projects
                   </Link>
                 </div>

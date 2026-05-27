@@ -215,7 +215,7 @@ export default function CommunicationPage() {
               <Row className="g-4">
                 {quickActions.map((action, index) => (
                   <Col md={4} key={index}>
-                    <Link href={action.href} className="quick-action-link">
+                    <Link title={action.title} href={action.href} className="quick-action-link">
                       <Card className="quick-action-card">
                         <Card.Body className="text-center">
                           <div className={`action-icon ${action.color}`}>
@@ -283,7 +283,7 @@ export default function CommunicationPage() {
                     <h6>Email Templates</h6>
                     <small className="text-muted">Pre-built message templates</small>
                   </div>
-                  <Link href="/portal/dashboard/communication/templates">
+                  <Link title="Manage Email Templates" href="/portal/dashboard/communication/templates">
                     <Button variant="outline-primary" size="sm">
                       Manage
                     </Button>
@@ -305,7 +305,7 @@ export default function CommunicationPage() {
                     <h6>Message History</h6>
                     <small className="text-muted">View all communication logs</small>
                   </div>
-                  <Link href="/portal/dashboard/communication/outbox">
+                  <Link title="View Message History" href="/portal/dashboard/communication/outbox">
                     <Button variant="outline-info" size="sm">
                       View
                     </Button>

@@ -386,6 +386,7 @@ export default function AdminForgotPasswordPage() {
 
               <div className="mpf-admin-login__footer mpf-admin-login__footer--register mt-3">
                 <Link
+                  title="Back to sign in"
                   className="mpf-admin-login__link mpf-admin-login__link--register-back"
                   href="/admin"
                 >

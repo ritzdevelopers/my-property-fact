@@ -28,7 +28,7 @@ export default function Header() {
           {/* Left: Logos */}
           <div className="col-auto flex-grow-1 flex-sm-grow-0">
             <div className="d-flex align-items-center">
-              <Link href="/" className="me-1 me-sm-2">
+              <Link title="First Logo" href="/" className="me-1 me-sm-2">
                 <Image
                   src={logo}
                   alt="Logo"
@@ -49,7 +49,7 @@ export default function Header() {
 
               <div className="vr mx-1 mx-sm-2 d-none d-sm-block" />
 
-              <Link href="/" className="d-none d-sm-block">
+              <Link title="Second Logo" href="/" className="d-none d-sm-block">
                 <Image
                   src={kimayaLogo}
                   alt="Second Logo"
@@ -73,6 +73,7 @@ export default function Header() {
                 { href: "#location", label: "Location" },
               ].map(({ href, label }) => (
                 <Link
+                  title={label}
                   key={href}
                   href={href}
                   className="nav-link position-relative text-dark text-decoration-none"
@@ -120,6 +121,7 @@ export default function Header() {
                   { href: "#location", label: "Location" },
                 ].map(({ href, label }) => (
                   <Link
+                    title={label}
                     key={href}
                     href={href}
                     onClick={closeMenu}

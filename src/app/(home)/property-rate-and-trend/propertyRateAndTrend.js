@@ -130,7 +130,7 @@ export default function PropertyRateAndTrend({ cityList1, insightsArray }) {
                             <Link href={`/property-rate-and-trend/${item.name.toLowerCase()}`} key={index + 1}>{item.name}</Link>
                         ))} */}
                         {['Ghaziabad', 'Mumbai', 'Noida'].map((item, index) => (
-                            <Link className={`${styles.customLink} px-3 py-1 border border-success rounded-5 
+                            <Link title={`View ${item} property rates`} className={`${styles.customLink} px-3 py-1 border border-success rounded-5 
                             text-black ${pathname === `/property-rate-and-trend/${item?.toLowerCase()}` ? styles.linkActive : ''}`}
                                 href={`/property-rate-and-trend/${item?.toLowerCase()}`} key={index + 1}>{item}</Link>
                         ))}

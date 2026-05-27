@@ -268,7 +268,7 @@ export default function Home() {
       <div className="container-fluid navbar_container" id="header_menu">
         <nav className="navbar navbar-expand-md navbar-light bg-white"> {/* Adjust classes as needed */}
           <div className="container"> {/* Optional: Add a container for better layout */}
-            <Link className="navbar-brand" href="#"> {/* Replace with your logo or brand name */}
+            <Link className="navbar-brand" href="#" title="Logo"> {/* Replace with your logo or brand name */}
               {/* Your Logo Here */}
               <img src="/eldeco-la-vida-bella-images/images/developer-logo.webp" alt="Logo" />
             </Link>
@@ -290,28 +290,28 @@ export default function Home() {
             >
               <ul className="navbar-nav">
                 <li className="nav-item">
-                  <Link className="nav-link" href="#">Home</Link>
+                  <Link className="nav-link" href="#" title="Home">Home</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link nav-link-custom" href="#overview">Overview</Link>
+                  <Link className="nav-link nav-link-custom" href="#overview" title="Overview">Overview</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link nav-link-custom" href="#highlights">Highlights</Link>
+                  <Link className="nav-link nav-link-custom" href="#highlights" title="Highlights">Highlights</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link nav-link-custom" href="#price-list">Price List</Link>
+                  <Link className="nav-link nav-link-custom" href="#price-list" title="Price List">Price List</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link nav-link-custom" href="#amenities">Amenities</Link>
+                  <Link className="nav-link nav-link-custom" href="#amenities" title="Amenities">Amenities</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link nav-link-custom" href="#floors-plan">Floors plan</Link>
+                  <Link className="nav-link nav-link-custom" href="#floors-plan" title="Floors plan">Floors plan</Link>
                 </li>
                 <li className="nav-item specail-li">
-                  <Link className="nav-link nav-link-custom" href="#location">Location</Link>
+                  <Link className="nav-link nav-link-custom" href="#location" title="Location">Location</Link>
                 </li>
                 <li className="nav-item specail-li">
-                  <Link className="nav-link nav-link-custom" href="#gallery">Gallery</Link>
+                  <Link className="nav-link nav-link-custom" href="#gallery" title="Gallery">Gallery</Link>
                 </li>
               </ul>
             </div>

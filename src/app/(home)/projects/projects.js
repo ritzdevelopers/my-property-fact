@@ -12,6 +12,11 @@ import {
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
 import { ProjectListingPaginationControls } from "@/app/_global_components/projectListingPagination";
+import {
+  findBestProjectBySearch,
+  projectNameMatchesSearch,
+  scoreProjectSearchMatch,
+} from "@/app/_global_components/projectSearchUtils";
 import { Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -54,39 +59,6 @@ function normalizeText(value) {
     .toLowerCase()
     .trim()
     .replace(/\s+/g, " ");
-}
-
-/** Match typed / spoken text to a project in the full list (exact name first, then substring). */
-function findProjectBySearchSelection(raw, list) {
-  const pool = Array.isArray(list) ? list : [];
-  const q = normalizeText(raw);
-  if (!q) return null;
-
-  for (const item of pool) {
-    const name = String(item?.projectName || "").trim();
-    if (!name) continue;
-    if (normalizeText(name) === q) return item;
-  }
-
-  let fallback = null;
-  for (const item of pool) {
-    const name = String(item?.projectName || "").trim();
-    if (!name) continue;
-    const n = normalizeText(name);
-    if (n.includes(q)) {
-      if (n.startsWith(q)) return item;
-      fallback = item;
-    }
-  }
-  if (fallback) return fallback;
-
-  for (const item of pool) {
-    const name = String(item?.projectName || "").trim();
-    if (!name) continue;
-    const n = normalizeText(name);
-    if (q.includes(n) && n.length >= 3) return item;
-  }
-  return null;
 }
 
 /** Quick tab + New Launch segment so the chosen project is visible in the grid. */
@@ -525,13 +497,35 @@ export default function Projects() {
     }, 400);
   };
 
-  /** Pick a project from the list, sync quick tab (and New Launch segment), then apply name search. */
+  /**
+   * Apply project search.
+   * @param {string} raw - typed or spoken query
+   * @param {{ exactSelection?: boolean }} [options] - true when user picked a suggestion (full name)
+   */
   const applySearchFromProjectName = useCallback(
-    (raw) => {
+    (raw, options = {}) => {
       const trimmed = String(raw || "").trim();
       if (!trimmed) return;
       const pool = Array.isArray(allProjectsList) ? allProjectsList : [];
-      const item = findProjectBySearchSelection(trimmed, pool);
+      const exactSelection = options.exactSelection === true;
+      const trimmedNorm = normalizeText(trimmed);
+
+      let item = null;
+      if (exactSelection) {
+        item =
+          pool.find(
+            (p) => normalizeText(p?.projectName) === trimmedNorm,
+          ) || findBestProjectBySearch(trimmed, pool);
+      } else {
+        item = pool.find((p) => normalizeText(p?.projectName) === trimmedNorm);
+        if (!item) {
+          const matches = pool.filter((p) =>
+            projectNameMatchesSearch(p?.projectName, trimmed),
+          );
+          if (matches.length === 1) item = matches[0];
+        }
+      }
+
       if (item) {
         const { quickTab, segment } = deriveQuickFilterAndSegmentFromProject(item);
         setQuickProjectFilter(quickTab);
@@ -543,9 +537,13 @@ export default function Projects() {
           window.scrollTo({ top: 260, behavior: "smooth" });
         }
       }
-      const displayName = item ? String(item.projectName || "").trim() : trimmed;
+
+      const displayName =
+        exactSelection && item
+          ? String(item.projectName || "").trim()
+          : trimmed;
       setProjectSearchTerm(displayName);
-      setAppliedProjectSearchTerm(displayName);
+      setAppliedProjectSearchTerm(trimmed);
       setCurrentPage(1);
       setFadeKey((prev) => prev + 1);
       setShowSearchSuggestions(false);
@@ -675,7 +673,10 @@ export default function Projects() {
         return false;
       }
 
-      if (searchText && !itemName.includes(searchText)) {
+      if (
+        searchText &&
+        !projectNameMatchesSearch(item?.projectName, searchText)
+      ) {
         return false;
       }
 
@@ -687,13 +688,20 @@ export default function Projects() {
     const query = normalizeText(searchSuggestionsQuery);
     if (!query) return [];
     const pool = Array.isArray(allProjectsList) ? allProjectsList : [];
-    const seen = new Set();
-    const results = [];
+    const ranked = [];
     for (const item of pool) {
       const name = String(item?.projectName || "").trim();
       if (!name) continue;
+      const score = scoreProjectSearchMatch(name, query);
+      if (score < 0) continue;
+      ranked.push({ name, score });
+    }
+    ranked.sort((a, b) => a.score - b.score || a.name.localeCompare(b.name));
+    const seen = new Set();
+    const results = [];
+    for (const { name } of ranked) {
       const key = normalizeText(name);
-      if (!key.includes(query) || seen.has(key)) continue;
+      if (seen.has(key)) continue;
       seen.add(key);
       results.push(name);
       if (results.length >= 8) break;
@@ -878,7 +886,11 @@ export default function Projects() {
                           key={`mobile-${suggestion}`}
                           type="button"
                           className="projects-search-suggestion-item"
-                          onClick={() => applySearchFromProjectName(suggestion)}
+                          onClick={() =>
+                            applySearchFromProjectName(suggestion, {
+                              exactSelection: true,
+                            })
+                          }
                         >
                           {suggestion}
                         </button>
@@ -1061,7 +1073,11 @@ export default function Projects() {
                                   key={suggestion}
                                   type="button"
                                   className="projects-search-suggestion-item"
-                                  onClick={() => applySearchFromProjectName(suggestion)}
+                                  onClick={() =>
+                            applySearchFromProjectName(suggestion, {
+                              exactSelection: true,
+                            })
+                          }
                                 >
                                   {suggestion}
                                 </button>

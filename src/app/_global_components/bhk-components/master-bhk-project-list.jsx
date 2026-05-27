@@ -359,6 +359,7 @@ export default function MasterBHKProjectList() {
                 : `${floorType.slugType}-in-${citySlug}`;
             return (
               <Link
+                title={floorType.label}
                 key={`${floorType.slugType}|${urlCategorySegment}|${floorType.city}`}
                 className="text-dark text-decoration-none bg-secondary rounded-3 px-3 py-2 fs-6 border border-secondary bg-white"
                 href={href}

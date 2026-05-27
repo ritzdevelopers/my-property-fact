@@ -48,7 +48,7 @@ export default function ProjectDetailPage() {
         <div className="text-center py-5">
           <h2>Property Not Found</h2>
           <p className="text-muted">The property you&apos;re looking for doesn&apos;t exist.</p>
-          <Link href="/properties" className="btn btn-primary mt-3">
+          <Link href="/properties" title="Back to Properties" className="btn btn-primary mt-3">
             Back to Properties
           </Link>
         </div>

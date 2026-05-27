@@ -31,6 +31,10 @@ import {
 import { Modal } from "react-bootstrap";
 import CommonPopUpform from "../../(home)/components/common/popupform";
 import { sanitizeHtml } from "../../_global_components/sanitize";
+import {
+  findBestProjectBySearch,
+  scoreProjectSearchMatch,
+} from "../../_global_components/projectSearchUtils";
 import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
@@ -117,11 +121,7 @@ function ProjectSearchBar() {
     (rawText) => {
       const text = String(rawText || "").trim();
       if (!text) return;
-      const q = text.toLowerCase();
-      const match = projects.find((p) => {
-        const name = String(p?.projectName || "").trim().toLowerCase();
-        return name && (name === q || name.includes(q) || q.includes(name));
-      });
+      const match = findBestProjectBySearch(text, projects);
       const slug = match?.slugURL || match?.slug;
       if (slug) {
         setOpen(false);
@@ -187,21 +187,21 @@ function ProjectSearchBar() {
       setSuggestions([]);
       return undefined;
     }
-    const q = query.trim().toLowerCase();
+    const q = query.trim();
     const t = setTimeout(() => {
       const pool = Array.isArray(projects) ? projects : [];
       const ranked = [];
       for (const p of pool) {
-        const name = String(p?.projectName || "").toLowerCase();
-        const city = String(p?.city || "").toLowerCase();
-        const loc = String(p?.projectLocality || "").toLowerCase();
+        const name = String(p?.projectName || "");
+        const city = String(p?.city || "");
+        const loc = String(p?.projectLocality || "");
         if (!name && !city && !loc) continue;
-        let score = -1;
-        if (name.startsWith(q)) score = 0;
-        else if (name.includes(q)) score = 1;
-        else if (`${loc} ${city}`.includes(q)) score = 2;
+        let score = scoreProjectSearchMatch(name, q);
+        if (score < 0) {
+          const locCity = `${loc} ${city}`.toLowerCase();
+          if (locCity.includes(q.toLowerCase())) score = 6;
+        }
         if (score >= 0) ranked.push({ p, score });
-        if (ranked.length > 40) break;
       }
       ranked.sort((a, b) => a.score - b.score);
       setSuggestions(ranked.slice(0, 6).map((x) => x.p));
@@ -753,6 +753,7 @@ export default function PropertyV3({
             <FontAwesomeIcon icon={faBars} />
           </button>
           <Link
+            title="View builder profile"
             href={builderHref || "#"}
             className="pd3-topbar__dev"
             aria-label={projectDetail?.builder?.builderName || "Project developer"}
@@ -769,6 +770,7 @@ export default function PropertyV3({
           </Link>
           <ProjectSearchBar />
           <Link
+            title="My Property Fact home"
             href="/"
             className="pd3-topbar__brand"
             aria-label="My Property Fact — home"
@@ -834,11 +836,11 @@ export default function PropertyV3({
       {/* Breadcrumb */}
       <div className="pd3-container">
         <div className="pd3-breadcrumb" aria-label="Breadcrumb">
-          <Link href="/">Home</Link>
+          <Link title="Home" href="/">Home</Link>
           <span className="pd3-breadcrumb__sep">›</span>
           {projectDetail.city ? (
             <>
-              <Link href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}>
+              <Link title="Projects in {projectDetail.city}" href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}>
                 Projects in {projectDetail.city}
               </Link>
               <span className="pd3-breadcrumb__sep">›</span>
@@ -1359,6 +1361,7 @@ export default function PropertyV3({
                 </div>
                 <div className="text-center">
                   <Link
+                    title="Check More Projects"
                     href={builderHref || "#"}
                     className="btn btn-success px-4 py-2 rounded-pill shadow-sm"
                     {...(builderHref
@@ -1476,6 +1479,7 @@ export default function PropertyV3({
                 <div className="pd3-card__head">
                   <h2 className="pd3-card__title">Similar Projects</h2>
                   <Link
+                    title="View all projects in {projectDetail.city}"
                     href={`/city/${String(projectDetail.city || "").toLowerCase().replace(/\s+/g, "-")}`}
                     className="pd3-link"
                   >
@@ -1488,6 +1492,7 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
+                      title="View project"
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"

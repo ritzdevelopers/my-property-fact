@@ -171,22 +171,22 @@ export default function Thanks() {
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">
                     <Link className="navbar-brand font-weight-bold text-white" href={HOME}>
-                        <img src={`${IMG}/updated-logo.png`} alt="Eldeco" className="updatedLogo" />
+                        <img src={`${IMG}/updated-logo.png`} title="Eldeco" alt="Eldeco" className="updatedLogo" />
                     </Link>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu" aria-label="Toggle menu">
                         <span className="navbar-toggler-icon" />
                     </button>
                     <div className="collapse navbar-collapse" id="navbarMenu">
                         <ul className="navbar-nav ml-auto">
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#home`}>Home</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#overview`}>Overview</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#highlights`}>Highlights</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Home" href={`${HOME}#home`}>Home</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Overview" href={`${HOME}#overview`}>Overview</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Highlights" href={`${HOME}#highlights`}>Highlights</Link></li>
                             <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#eldeco-group`}>Eldeco Group</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#amenities`}>Amenities</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Amenities" href={`${HOME}#amenities`}>Amenities</Link></li>
                             <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#gallery`}>Gallery</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#floors-plan`}>Floors Plan</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#location`}>Location</Link></li>
-                            <li className="nav-item"><Link className="nav-link text-white" href={`${HOME}#contact`}>Contact</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Floors Plan" href={`${HOME}#floors-plan`}>Floors Plan</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Location" href={`${HOME}#location`}>Location</Link></li>
+                            <li className="nav-item"><Link className="nav-link text-white" title="Contact" href={`${HOME}#contact`}>Contact</Link></li>
                         </ul>
                     </div>
                 </div>
@@ -216,7 +216,7 @@ export default function Thanks() {
 
             <footer className="project-footer">
                 <div className="container text-center">
-                    <img src={`${IMG}/barcode.png`} alt="QR Code" className="qr-image" />
+                    <img src={`${IMG}/barcode.png`} alt="QR Code" title="QR Code" className="qr-image" />
                     <p className="rera-text mt-3">
                         <strong>RERA NO.: UPRERAPRJ136219/04/2024</strong>{" "}
                         <a href="https://www.up-rera.in" target="_blank" rel="noopener noreferrer">www.up-rera.in</a>
@@ -231,7 +231,7 @@ export default function Thanks() {
                         regarding any unit in the project.
                     </p>
                     <p className="link-text">
-                        <a href="#">Disclaimer</a> &nbsp; <a href="#">Privacy Policy</a>
+                        <a href="#" title="Disclaimer">Disclaimer</a> &nbsp; <a href="#" title="Privacy Policy">Privacy Policy</a>
                     </p>
                     <p className="copyright-text">
                         © Copyright 2025 Eldeco-la-vida-bella. All Right Reserved.

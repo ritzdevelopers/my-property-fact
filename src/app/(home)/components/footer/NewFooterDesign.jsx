@@ -168,7 +168,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               </form>
             </div>
             <div className="new-design-footer-top-right newsletterbox-right" style={{ marginTop: "-6%" }}>
-              <img src="/static/footer/newsletter1.png" alt="Building" className="center-img" />
+              <img src="/static/footer/newsletter1.png" title="Corporate park" alt="Corporate park" className="center-img" />
             </div>
           </div>
         </div>

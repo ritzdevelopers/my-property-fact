@@ -235,6 +235,7 @@ export default function SiteTrafficTrendChart({
             />
             {showSuperDetailsLink ? (
               <Link
+                title="Open full traffic & logs"
                 href="/admin/dashboard/super-tracking"
                 className="admin-dash-chart__traffic-details-link"
               >

@@ -41,6 +41,7 @@ export default function ThankYouPage() {
               We appreciate your submission. Our team will get back to you shortly.
             </p>
             <Link
+              title="Back to Home"
               href="/promotional-pages/eldeco-la-vida-bella"
               aria-label="Back to Home"
             >

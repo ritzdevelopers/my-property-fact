@@ -1567,6 +1567,7 @@ export default function PropertyDetailClient({
                       return (
                         <SwiperSlide key={related.id}>
                           <Link
+                            title="View Property"
                             href={`/properties/${relatedSlug}`}
                             className="owner-property-card"
                           >

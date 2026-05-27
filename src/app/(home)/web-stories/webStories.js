@@ -58,10 +58,11 @@ export default function WebStories({ webStoryList }) {
                                     <div style={imageWrapperStyle}>
                                         <Image
                                             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}web-story/${item.storyCategoryImage}`}
-                                            alt={item.categoryName}
+                                            alt={`${item.categoryName} web story`}
                                             fill
                                             sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 25vw"
                                             className="card-img-top"
+                                            title={`${item.categoryName} web story`}
                                             style={{ objectFit: "cover" }}
                                         />
                                     </div>

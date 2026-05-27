@@ -28,6 +28,7 @@ export default function GlobalError({ error, reset }) {
         🔄 Try Again
       </button>
       <Link 
+        title="Go to Portal"
         href="/portal/dashboard"
         className="btn btn-primary"
       >

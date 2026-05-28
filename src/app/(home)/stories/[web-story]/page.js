@@ -55,11 +55,11 @@ export async function generateMetadata({ params }) {
         keywords: storyData?.metaKeywords || "real estate, property, stories",
         alternates: {
             canonical: canonicalUrl,
-            languages: {
-                "en-IN": canonicalUrl,
-                en: canonicalUrl,
-                "x-default": canonicalUrl,
-            },
+            // languages: {
+            //     "en-IN": canonicalUrl,
+            //     en: canonicalUrl,
+            //     "x-default": canonicalUrl,
+            // },
         },
     };
 }

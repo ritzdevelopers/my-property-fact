@@ -253,7 +253,6 @@ export default function SocialFeedsOfMPF() {
               <video
                 className="video-popup-player"
                 controls
-                autoPlay
                 loop
                 playsInline
                 aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}

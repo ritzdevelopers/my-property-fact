@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import CommonBreadCrum from "../components/common/breadcrum";
+import { getLegacyWebStoryPath } from "@/lib/publicApiBase";
 
 export default function WebStories({ webStoryList }) {
     const titleClampStyle = {
@@ -52,7 +53,7 @@ export default function WebStories({ webStoryList }) {
                             <div key={index} className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4 d-flex">
                                 <Link
                                     className="card h-100 w-100 text-decoration-none text-dark shadow-sm"
-                                    href={`${process.env.NEXT_PUBLIC_API_URL}web-story/${item.categoryName}`}
+                                    href={getLegacyWebStoryPath(item.categoryName)}
                                     title={`${item.categoryName} web story`}
                                 >
                                     <div style={imageWrapperStyle}>

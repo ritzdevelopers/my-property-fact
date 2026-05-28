@@ -32,3 +32,11 @@ export function getWebStoryApiUrl(categorySlug) {
     .replace(/^\/+|\/+$/g, "");
   return `${getPublicApiBase()}web-story/${slug}`;
 }
+
+/** Legacy path on the UI host; middleware redirects this to /api/v1/web-story/{slug}. */
+export function getLegacyWebStoryPath(categorySlug) {
+  const slug = String(categorySlug || "")
+    .trim()
+    .replace(/^\/+|\/+$/g, "");
+  return `/web-story/${slug}`;
+}

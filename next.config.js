@@ -8,9 +8,24 @@
   }
 })();
 
+function getBackendApiOrigin() {
+  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005/api/v1/";
+  return String(raw).trim().replace(/\/+$/, "").replace(/\/api\/v1$/i, "");
+}
+
 const nextConfig = {
   // Keep title, description, and canonical in <head> for all requests (not streamed into <body>).
   htmlLimitedBots: /.*/,
+
+  async rewrites() {
+    const apiOrigin = getBackendApiOrigin();
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${apiOrigin}/api/v1/:path*`,
+      },
+    ];
+  },
 
   async redirects() {
     return [
@@ -64,6 +79,11 @@ const nextConfig = {
       {
         source: "/builder/shubhashish-homes%7D",
         destination: "/builder/shubhashish-homes",
+        permanent: true,
+      },
+      {
+        source: "/builder/one-global-/-forbes",
+        destination: "/builder/one-global-forbes",
         permanent: true,
       },
 
@@ -179,10 +199,9 @@ const nextConfig = {
         permanent: true,
       },
 
-      // Legacy API: https://apis.mypropertyfact.in/web-story/{slug} → /api/v1/web-story/{slug}
+      // Legacy: /web-story/{slug} → /api/v1/web-story/{slug} (proxied to backend via rewrites)
       {
         source: "/web-story/:slug*",
-        has: [{ type: "host", value: "apis.mypropertyfact.in" }],
         destination: "/api/v1/web-story/:slug*",
         permanent: true,
       },

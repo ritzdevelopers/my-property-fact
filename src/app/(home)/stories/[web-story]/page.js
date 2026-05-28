@@ -12,6 +12,7 @@ function publicSiteOrigin() {
 
 async function fetchStoryCategory(storySlug) {
     const response = await fetch(
+        // `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get/${storySlug}`,
         `${getPublicApiBase()}web-story-category/get/${storySlug}`,
         { cache: "no-store" }
     );

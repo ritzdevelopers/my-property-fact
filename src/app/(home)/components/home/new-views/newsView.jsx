@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { getLegacyWebStoryPath } from "@/lib/publicApiBase";
 import "../new-views/newviews.css";
 
 const STORY_COVER_IMAGES = [
@@ -32,7 +33,7 @@ export default function NewsAndViews({ webStoryList }) {
             <div key={index} className="col-12 col-md-6 col-lg-3">
               <Link
                 className="h-100 text-decoration-none text-dark shadow-sm"
-                href={`${process.env.NEXT_PUBLIC_API_URL}web-story/${item.categoryName}`}
+                href={getLegacyWebStoryPath(item.categoryName)}
                 title={`${item.categoryName} web story`}
               >
                 <div className="flip-card">

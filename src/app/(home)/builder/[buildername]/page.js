@@ -4,12 +4,22 @@ import BuilderPage from "./builderpage";
 
 export const revalidate = 120;
 
+function normalizeBuilderSlug(slug) {
+  if (typeof slug !== "string") return "";
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 //Generating metatitle and meta description
 export async function generateMetadata({ params }) {
   const { buildername } = await params;
+  const normalizedBuilderSlug = normalizeBuilderSlug(buildername);
   let response = null;
   try {
-    response = await fetchBuilderDetails(buildername);
+    response = await fetchBuilderDetails(normalizedBuilderSlug);
   } catch {
     response = null;
   }
@@ -19,7 +29,7 @@ export async function generateMetadata({ params }) {
       title: "Builder Not Found | My Property Fact",
       description: "The requested builder page could not be found.",
       alternates: {
-        canonical: `/builder/${buildername}`,
+        canonical: `/builder/${normalizedBuilderSlug}`,
       },
     };
   }
@@ -31,16 +41,17 @@ export async function generateMetadata({ params }) {
       "Explore verified builder details, projects and company information.",
     keywords: response.metaKeywords || [],
     alternates: {
-      canonical: `/builder/${buildername}`,
+      canonical: `/builder/${normalizedBuilderSlug}`,
     },
   };
 }
 
 export default async function Builder({ params }) {
   const { buildername } = await params;
+  const normalizedBuilderSlug = normalizeBuilderSlug(buildername);
   let builderDetail = null;
   try {
-    builderDetail = await fetchBuilderDetails(buildername);
+    builderDetail = await fetchBuilderDetails(normalizedBuilderSlug);
   } catch {
     builderDetail = null;
   }

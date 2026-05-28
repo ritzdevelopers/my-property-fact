@@ -654,6 +654,7 @@ export default function Enquiries() {
                             <Link
                               href={sourcePageLink}
                               target="_blank"
+                              rel="noopener noreferrer"
                               className="small text-decoration-none"
                               title={sourcePageLink}
                             >

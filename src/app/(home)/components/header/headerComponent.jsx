@@ -1421,6 +1421,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.facebook.com/mypropertyfact1/"
                     target="_blank"
+                    rel="noopener noreferrer"
                     title="My Property Fact on Facebook"
                     aria-label="My Property Fact on Facebook"
                   >
@@ -1432,6 +1433,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.instagram.com/my.property.fact/"
                     target="_blank"
+                    rel="noopener noreferrer"
                     title="My Property Fact on Instagram"
                     aria-label="My Property Fact on Instagram"
                   >
@@ -1443,6 +1445,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.linkedin.com/company/my-property-fact/"
                     target="_blank"
+                    rel="noopener noreferrer"
                     title="My Property Fact on LinkedIn"
                     aria-label="My Property Fact on LinkedIn"
                   >
@@ -1454,6 +1457,7 @@ const HeaderComponent = () => {
                     className="text-decoration-none"
                     href="https://www.youtube.com/@my.propertyfact/"
                     target="_blank"
+                    rel="noopener noreferrer"
                     title="My Property Fact on YouTube"
                     aria-label="My Property Fact on YouTube"
                   >

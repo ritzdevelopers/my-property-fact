@@ -1192,7 +1192,7 @@ function Home() {
 
                     <p className="rera-text mt-3">
                         <strong>RERA NO.: UPRERAPRJ136219/04/2024</strong>
-                        <a href="https://www.up-rera.in" target="_blank">www.up-rera.in</a>
+                        <a href="https://www.up-rera.in" target="_blank" rel="noopener noreferrer">www.up-rera.in</a>
                     </p>
 
                     <p className="disclaimer-text">

@@ -8,9 +8,24 @@
   }
 })();
 
+function getBackendApiOrigin() {
+  const raw = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005/api/v1/";
+  return String(raw).trim().replace(/\/+$/, "").replace(/\/api\/v1$/i, "");
+}
+
 const nextConfig = {
   // Keep title, description, and canonical in <head> for all requests (not streamed into <body>).
   htmlLimitedBots: /.*/,
+
+  async rewrites() {
+    const apiOrigin = getBackendApiOrigin();
+    return [
+      {
+        source: "/api/v1/:path*",
+        destination: `${apiOrigin}/api/v1/:path*`,
+      },
+    ];
+  },
 
   async redirects() {
     return [
@@ -64,6 +79,11 @@ const nextConfig = {
       {
         source: "/builder/shubhashish-homes%7D",
         destination: "/builder/shubhashish-homes",
+        permanent: true,
+      },
+      {
+        source: "/builder/one-global-/-forbes",
+        destination: "/builder/one-global-forbes",
         permanent: true,
       },
 
@@ -178,6 +198,13 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+
+      // Legacy: /web-story/{slug} → /api/v1/web-story/{slug} (proxied to backend via rewrites)
+      {
+        source: "/web-story/:slug*",
+        destination: "/api/v1/web-story/:slug*",
+        permanent: true,
+      },
     ];
   },
 
@@ -193,6 +220,23 @@ const nextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=31536000; includeSubDomains; preload",
+          },
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          {
+            key: "X-Frame-Options",
+            value: "SAMEORIGIN",
+          },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' https: data: blob:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https:; form-action 'self' https:; upgrade-insecure-requests",
           },
         ],
       },

@@ -1102,7 +1102,7 @@ export default function Home() {
                   Project RERA No.: UPRERAPRJ136219/04/2024
                 </p>
                 <p>
-                  <Link href="disclaimer.html" target="_blank"
+                  <Link href="disclaimer.html" target="_blank" rel="noopener noreferrer"
                   >Disclaimer &amp; Privacy Policy</Link
                   >
                 </p>

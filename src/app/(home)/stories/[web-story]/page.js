@@ -1,5 +1,6 @@
 import WebStroy from "./webStroy";
 import { notFound } from "next/navigation";
+import { getPublicApiBase } from "@/lib/publicApiBase";
 
 function publicSiteOrigin() {
   const raw = process.env.NEXT_PUBLIC_UI_URL;
@@ -11,7 +12,8 @@ function publicSiteOrigin() {
 
 async function fetchStoryCategory(storySlug) {
     const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get/${storySlug}`,
+        // `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get/${storySlug}`,
+        `${getPublicApiBase()}web-story-category/get/${storySlug}`,
         { cache: "no-store" }
     );
     if (!response.ok) return null;
@@ -38,11 +40,11 @@ export async function generateMetadata({ params }) {
             description: "View our latest web stories.",
             alternates: {
                 canonical: canonicalUrl,
-                languages: {
-                    "en-IN": canonicalUrl,
-                    en: canonicalUrl,
-                    "x-default": canonicalUrl,
-                },
+                // languages: {
+                //     "en-IN": canonicalUrl,
+                //     en: canonicalUrl,
+                //     "x-default": canonicalUrl,
+                // },
             },
         };
     }

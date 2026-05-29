@@ -170,7 +170,8 @@ module.exports = {
                   item.webStories.length > 0
               )
               .map((item) => ({
-                loc: `/web-story/${toPathSlug(item.categoryName)}`,
+                // loc: `/web-story/${toPathSlug(item.categoryName)}`,
+                loc: `/api/v1/web-story/${toPathSlug(item.categoryName)}`,
                 changefreq: "weekly",
                 priority: 0.68,
                 lastmod: wsStamp,

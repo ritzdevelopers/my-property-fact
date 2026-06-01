@@ -139,7 +139,7 @@ export function buildProductJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
 
   return {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "RealEstateListing",
     name: project.projectName || project.metaTitle || slug,
     ...(image ? { image } : {}),
     ...(description ? { description } : {}),

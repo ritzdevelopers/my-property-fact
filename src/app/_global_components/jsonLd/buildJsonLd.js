@@ -1,14 +1,31 @@
 const DEFAULT_SITE_URL =
   process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in";
 
+function stripHtml(value) {
+  if (typeof value !== "string") return "";
+  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 export function normalizeFaqItems(rawFaqs) {
   if (!Array.isArray(rawFaqs)) return [];
   return rawFaqs
     .map((item) => ({
       q: item?.question ?? item?.q ?? item?.faqQuestion ?? "",
-      a: item?.answer ?? item?.a ?? item?.faqAnswer ?? "",
+      a: stripHtml(item?.answer ?? item?.a ?? item?.faqAnswer ?? ""),
     }))
     .filter((item) => String(item.q).trim() && String(item.a).trim());
+}
+
+/** Project detail APIs may expose FAQs under different keys. */
+export function resolveProjectFaqRawList(project) {
+  if (!project || typeof project !== "object") return [];
+  const raw =
+    project.faqs ??
+    project.projectFaqList ??
+    project.faqList ??
+    project.projectFaqs ??
+    [];
+  return Array.isArray(raw) ? raw : [];
 }
 
 export function buildFaqJsonLd(faqItems) {
@@ -115,11 +132,6 @@ function resolveProjectImage(project, siteUrl) {
   return `${siteUrl.replace(/\/$/, "")}/logo.webp`;
 }
 
-function stripHtml(value) {
-  if (typeof value !== "string") return "";
-  return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-}
-
 export function buildProductJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
   if (!project?.slugURL) return null;
 
@@ -162,11 +174,7 @@ export function buildProductJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
   };
 }
 
+/** @deprecated Use `buildProductJsonLd` + separate `buildFaqJsonLd` script tags on project pages. */
 export function buildProjectPageJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
-  const schemas = [buildProductJsonLd(project, siteUrl)];
-
-  const faqSchema = buildFaqJsonLd(project?.faqs);
-  if (faqSchema) schemas.push(faqSchema);
-
-  return schemas.filter(Boolean);
+  return buildProductJsonLd(project, siteUrl);
 }

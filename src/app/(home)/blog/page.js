@@ -5,6 +5,9 @@ import {
   getWeeklyProject,
 } from "@/app/_global_components/masterFunction";
 import Blog from "./blog";
+import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
+import { buildFaqJsonLd } from "@/app/_global_components/jsonLd/buildJsonLd";
+import { BLOG_LISTING_FAQ_ITEMS } from "./blogFaqItems";
 
 export const metadata = {
   title:
@@ -37,12 +40,15 @@ export default async function BlogPage({ searchParams }) {
   const sidebarLatestProject = getWeeklyProject(projectArr);
 
   return (
-    <Blog
-      initialBlogs={blogsList}
-      initialPageIndex={pageIndex}
-      totalPages={totalPages}
-      sidebarRecentPosts={sidebarRecentPosts}
-      sidebarLatestProject={sidebarLatestProject}
-    />
+    <>
+      <JsonLdScript data={buildFaqJsonLd(BLOG_LISTING_FAQ_ITEMS)} />
+      <Blog
+        initialBlogs={blogsList}
+        initialPageIndex={pageIndex}
+        totalPages={totalPages}
+        sidebarRecentPosts={sidebarRecentPosts}
+        sidebarLatestProject={sidebarLatestProject}
+      />
+    </>
   );
 }

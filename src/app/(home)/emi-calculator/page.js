@@ -1,4 +1,7 @@
 import Calculator from "./calculator";
+import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
+import { buildFaqJsonLd } from "@/app/_global_components/jsonLd/buildJsonLd";
+import { EMI_CALCULATOR_FAQ_ITEMS } from "./emiCalculatorFaqItems";
 
 export const metadata = {
     title: "Loan & EMI Calculator: Calculate Home Loan EMI Online India",
@@ -29,6 +32,7 @@ export const metadata = {
 export default function EmiCalculator() {
     return (
         <>
+            <JsonLdScript data={buildFaqJsonLd(EMI_CALCULATOR_FAQ_ITEMS)} />
             <Calculator />
         </>
     )

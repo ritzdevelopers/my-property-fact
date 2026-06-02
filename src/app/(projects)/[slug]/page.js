@@ -14,6 +14,12 @@ import {
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
+import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
+import {
+  buildFaqJsonLd,
+  buildProductJsonLd,
+  resolveProjectFaqRawList,
+} from "@/app/_global_components/jsonLd/buildJsonLd";
 
 /** ISR-friendly cache; avoids force-dynamic so responses can be cached at the edge. */
 export const revalidate = 120;
@@ -141,8 +147,23 @@ export default async function PropertyPage({ params }) {
           await fetchNearbyBenefitsAll(),
         )
       : [];
+    const projectAddress =
+      projectDetail.projectAddress ||
+      [projectDetail.projectLocality, projectDetail.city]
+        .filter(Boolean)
+        .join(", ");
+
+    const projectForJsonLd = {
+      ...projectDetail,
+      projectAddress,
+    };
+
     return (
       <>
+        <JsonLdScript data={buildProductJsonLd(projectForJsonLd)} />
+        <JsonLdScript
+          data={buildFaqJsonLd(resolveProjectFaqRawList(projectDetail))}
+        />
         <Property
           projectDetail={projectDetail}
           similarProjects={similarProjectsSlim}

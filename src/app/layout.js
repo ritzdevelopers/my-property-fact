@@ -82,29 +82,6 @@ const websiteJsonLd = {
   },
 };
 
-const productJsonLd = {
-  "@context": "http://schema.org/",
-  "@type": "Product",
-  name: "Eldeco Camelot",
-  image:
-    "https://mypropertyfact.in/_next/image?url=https%3A%2F%2Fapis.mypropertyfact.in%2Fapi%2Fv1%2Fget%2Fimages%2Fproperties%2Feldeco-camelot%2F1770876748447_Eldeco_Camelot_Desktop_Banner_2_-_My_Property_Fact.jpg&w=1920&q=75",
-  description:
-    "Eldeco Camelot in Sector 17 Dwarka, Delhi offers premium 3 & 4 BHK apartments with modern amenities, clubhouse, landscaped greens, and excellent connectivity to IGI Airport and major NCR hubs.",
-  sku: "001",
-  brand: {
-    "@type": "Brand",
-    name: "My Property Fact",
-  },
-  offers: {
-    "@type": "Offer",
-    priceCurrency: "INR",
-    price: "74200000",
-    url: "https://mypropertyfact.in/eldeco-camelot",
-    itemCondition: "https://schema.org/NewCondition",
-    priceValidUntil: "2026-12-31",
-  },
-};
-
 const headingFont = Lato({
   subsets: ["latin"],
   weight: ["400", "700", "900"],
@@ -129,13 +106,13 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd, websiteJsonLd]),
+            __html: JSON.stringify([organizationJsonLd]),
           }}
         />
-        <script
+           <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(productJsonLd),
+            __html: JSON.stringify([websiteJsonLd]),
           }}
         />
 

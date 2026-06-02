@@ -25,12 +25,17 @@ export function getPublicApiBase() {
   return normalizePublicApiUrl(raw);
 }
 
-/** Public AMP/web-story document URL on the API host (includes /api/v1/). */
+function getPublicSiteOrigin() {
+  const raw = process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in";
+  return String(raw).trim().replace(/\/+$/, "");
+}
+
+/** Public web-story URL on the main site (rewrites proxy to backend). */
 export function getWebStoryApiUrl(categorySlug) {
   const slug = String(categorySlug || "")
     .trim()
     .replace(/^\/+|\/+$/g, "");
-  return `${getPublicApiBase()}web-story/${slug}`;
+  return `${getPublicSiteOrigin()}/api/v1/web-story/${slug}`;
 }
 
 /** Legacy path on the UI host; middleware redirects this to /api/v1/web-story/{slug}. */

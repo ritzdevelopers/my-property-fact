@@ -1,107 +1,123 @@
+// app/page.tsx
+"use client";
+import { useState } from "react";
 import "./newinsight.css";
-import Image from "next/image";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import LatestProject from "./LatesProject";
+
 
 export default function NewInsight() {
-  // Defining insights data
-  const insights = [
-    {
-      id: 1,
-      heading: "EMI Calculator",
-      sub_heading:
-        "Compute Monthly EMI, Total Interest, Lifetime Cost Instantly; Adjust Loan Amount, Tenure, Rate...",
-      href: "/emi-calculator",
-      iconSrc: "/static/icon/Calci.svg",
-    },
-    {
-      id: 2,
-      heading: "Locate Score",
-      sub_heading:
-        "Assess Location Quality, Growth Potential, and Investment Risk. Check Price Trends, Connectivity, Amenities, and Infrastructure...",
-      href: "/locate-score",
-      iconSrc: "/static/icon/Graph.svg",
-    },
-  ];
-
-  // Returning the new insight section
+  const [activeTool, setActiveTool] = useState("emi");
   return (
-    <div className="container-fluid bg-light new-insight-container py-3 py-lg-5">
-      <div className="container insight-content-wrapper">
-        <div className="insight-layout">
-          <div className="insight-cards">
-            <h2 className="plus-jakarta-sans-semi-bold mb-3 mb-lg-4">
+    <>
+      <section className="expert-section" >
+        <div className="container">
+          <div className="mb-5">
+            <h2 className="section-title">
               Expert Insights & Resources
             </h2>
-            <div className="d-flex flex-column flex-md-row gap-3">
-              {insights.map((insight) => {
-                const insightIconAlt = `${insight.heading} — Expert Insights & Resources section icon`;
-                return (
-                <div className="insight-card" key={insight.id}>
-                  <div className="insight-icon-wrapper">
-                    <Image
-                      src={insight.iconSrc}
-                      alt={insightIconAlt}
-                      title={insightIconAlt}
-                      width={32}
-                      height={32}
-                      className="insight-icon"
-                    />
-                  </div>
-                  <div className="insight-content">
-                    <h3 className="insight-title plus-jakarta-sans-semi-bold">
-                      {insight.heading}
-                    </h3>
-                    <p className="insight-description plus-jakarta-sans-semi-bold">
-                      {insight.sub_heading}
-                    </p>
-                    <Link
-                      className="insight-link plus-jakarta-sans-semi-bold"
-                      href={insight.href}
-                      title={insight.heading}
-                    >
-                      Explore Now
-                      <span className="insight-link-arrow">
-                        <FontAwesomeIcon icon={faArrowRight} />
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              );
-              })}
-            </div>
+            <p className="section-desc">
+              Expert resources to help you navigate your next big move with confidence.
+            </p>
           </div>
-          <div className="insight-image-wrapper">
-            <Link
-              href={`${process.env.NEXT_PUBLIC_UI_URL}/exotica-132`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Exotica-132"
-            >
-            <Image
-              src="/static/expert_insights.jpg"
-              alt="Exotica One32 — commercial project featured in Expert Insights & Resources"
-              title="Exotica One32 — commercial project featured in Expert Insights & Resources"
-              width={604}
-              height={308}
-              className="insight-main-image"
-              quality={65}
-              sizes="(max-width: 1199px) 100vw, min(1380px, 92vw)"
-            />
-              </Link>
-            {/* <div className="insight-logo-wrapper">
-              <Image
-                src="/static/icon/jacob.svg"
-                alt="Jacob & Co"
-                width={170}
-                height={82}
-                className="insight-logo"
-              />
-            </div> */}
+          <div className="row align-items-center gap-2 gy-5">
+            <div className="col-lg-4 col-md-4 col-sm-12">
+              <div className="left-card">
+                
+              <div
+                  className={`tool-box ${activeTool === "emi" ? "active" : ""}`}
+                  onClick={() => setActiveTool("emi")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="icon-box">
+                    <img src="/static/emi.gif" alt="EMI Calculator" title="EMI Calculator"
+                      height={40} width={30} />
+                  </div>
+                  <h5 className="tool-title">
+                    EMI Calculator
+                  </h5>
+                </div>
+                <div
+                  className={`tool-box ${activeTool === "locate" ? "active" : ""}`}
+                  onClick={() => setActiveTool("locate")}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="icon-box">
+                    <img src="/static/locat.gif" alt="Locate Score" title="Locate Score"
+                      height={40} width={30} />
+                  </div>
+                  <h5 className="tool-title">
+                    Locate Score
+                  </h5>
+                </div>
+                <img
+                  src={
+                    activeTool === "emi"
+                      ? "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1200&auto=format&fit=crop"
+                      : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=1200&auto=format&fit=crop"
+                  }
+                  alt="Tool"
+                  className="home-image"
+                />
+                <p className="small-text">
+                  Expert resources to help you navigate your next big
+                  move with confidence.
+                </p>
+              </div>
+            </div>
+            <div className="col-lg-7 col-md-7 col-sm-12">
+            {
+            activeTool === "emi" ? (
+              <>
+              <div className="d-flex align-items-center flex-wrap mb-4">
+                <span className="badge-custom">
+                  Financial Tool
+                </span>
+                <span className="read-time">
+                  • 5 min read
+                </span>
+              </div>
+              <h3 className="section-title" style={{ fontWeight: 600, lineHeight: "40px" }}>
+                Master Your Mortgage with the EMI Calculator
+              </h3>
+              <p className="section-desc" style={{ fontWeight: 400, fontSize: "18px",lineHeight:"29px" }}>
+                Take the guesswork out of home financing. Our advanced EMI
+                calculator provides a complete amortization schedule, helps
+                you understand the impact of prepayments, and allows you
+                to compare different loan offers side-by-side.
+              </p>
+              <button className="main-btn" onClick={() => window.location.href = "/emi-calculator"}>
+                Open EMI Calculator
+              </button>
+              </>
+              ):(
+  <>
+       <div className="d-flex align-items-center flex-wrap mb-4">
+                <span className="badge-custom">
+                  Locate Score
+                </span>
+                <span className="read-time">
+                  • 5 min read
+                </span>
+              </div>
+              <h3 className="section-title" style={{ fontWeight: 600, lineHeight: "40px" }}>
+                Master Your Mortgage with the Locate Score
+              </h3>
+              <p className="section-desc" style={{ fontWeight: 400, fontSize: "18px",lineHeight:"29px" }}>
+                Take the guesswork out of home financing. Our advanced EMI
+                calculator provides a complete amortization schedule, helps
+                you understand the impact of prepayments, and allows you
+                to compare different loan offers side-by-side.
+              </p>
+              <button className="main-btn" onClick={() => window.location.href = "/locate-score"}>
+                Open Locate Score
+              </button>
+              </>
+)}
+            </div>
+
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

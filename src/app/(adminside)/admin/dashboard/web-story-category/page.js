@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getWebStoryApiUrl } from "@/lib/publicApiBase";
 import WebStroyCategory from "./webStroyCategory";
 export const dynamic = 'force-dynamic';
 
@@ -9,7 +10,7 @@ const fetchCategoryList = async () => {
         ...item,
         noOfStories: item.webStories.length,
         index: index + 1,
-        storyUrl: `${process.env.NEXT_PUBLIC_API_URL}web-story/${item.categoryName}`
+        storyUrl: getWebStoryApiUrl(item.categoryName),
     }))
     return res;
 }

@@ -141,19 +141,13 @@
     }
 }
 
-/* Featured Projects: show slider arrows only on mobile (like Residential/Commercial section) */
-@media (min-width: 769px) {
-  .featured-projects-mobile-arrows .slick-prev,
-  .featured-projects-mobile-arrows .slick-next {
-    display: none !important;
-  }
+.featured-projects-swiper-wrap .swiper {
+  width: 100%;
+  padding-bottom: 8px;
 }
 
-@media (max-width: 768px) {
-  .featured-projects-mobile-arrows .slick-prev,
-  .featured-projects-mobile-arrows .slick-next {
-    display: flex !important;
-  }
+.featured-projects-swiper-wrap .swiper-slide {
+  height: auto;
 }
 
 /* Wrapper for arrows to position them at the bottom */
@@ -368,4 +362,233 @@
 @keyframes featured-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+
+/*  New design of featured section */
+
+/* SECTION */
+
+.property-section {
+    /* padding: 60px 20px; */
+    background: #fff;
+  }
+  
+  .projecttitle {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #222;
+  }
+  
+  /* SLIDER */
+  
+  .slider-wrapper {
+    position: relative;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 50px;
+  }
+  
+  /* HIDE DEFAULT SWIPER BUTTONS */
+  
+  .swiper-button-prev,
+  .swiper-button-next {
+    display: none !important;
+  }
+  
+  /* CUSTOM BUTTONS */
+  
+  .custom-prev,
+  .custom-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 52px;
+    height: 52px;
+    border: none;
+    border-radius: 50%;
+    background: #fff;
+    color: #222;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 20;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+  }
+  
+  .custom-prev:hover,
+  .custom-next:hover {
+    background: #0D5834;
+    color: #fff;
+  }
+  
+  .custom-prev {
+    left: -25px;
+  }
+  
+  .custom-next {
+    right: -25px;
+  }
+  
+  /* CARD */
+  
+  .property-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    background: #fff;
+  }
+  
+  .property-image {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    display: block;
+    border-radius: 20px;
+  }
+
+  .property-image--demo {
+    object-fit: contain;
+    background: #f4f6f5;
+    padding: 12px;
+  }
+  
+  /* BADGE */
+  
+  .property-badge {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    z-index: 5;
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .property-badge--under-construction {
+    background-color: #566bca !important;
+    color: #fffffe !important;
+  }
+  
+  /* INFO CARD */
+  
+  .property-info-card {
+    position: relative;
+margin: auto;
+width: 96%;
+    bottom: 70px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+  .custom-prev, .custom-next{
+    top: 35%!important;
+  }
+  
+  .logo-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    background: #f4f4f4;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .logo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 4px;
+  }
+
+  .logo-box--demo {
+    border: 1px dashed #d0d0d0;
+  }
+  
+  .property-info-card h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: #222;
+  }
+  
+  .property-info-card p {
+    margin: 4px 0;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .property-info-card h5 {
+    margin: 0;
+    font-size: 18px;
+    color: #0D5834;
+    font-weight: 700;
+  }
+
+@media (max-width: 991px) {
+  .property-image {
+    height: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .property-image {
+    height: 280px;
+  }
+
+  .property-info-card {
+    padding: 14px;
+  }
+
+  .logo-box {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 575px) {
+  .property-image {
+    height: 250px;
+  }
+
+  .property-info-card h4 {
+    font-size: 15px;
+  }
+
+  .property-info-card p {
+    font-size: 13px;
+  }
+
+  .property-info-card h5 {
+    font-size: 15px;
+  }
+
+  .slider-wrapper {
+    padding: 0 40px;
+  }
+
+  .custom-prev,
+  .custom-next {
+    width: 42px;
+    height: 42px;
+    font-size: 16px;
+  }
+
+  .custom-prev {
+    left: 0;
+  }
+
+  .custom-next {
+    right: 0;
+  }
 }

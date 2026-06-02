@@ -265,3 +265,176 @@
     left: 15px !important;
   }
 }
+
+/* new css */
+/* ── Section wrapper ─────────────────────────────────────── */
+.dream-property-section {
+  position: relative;
+  /* overflow: hidden; */
+  padding: 60px 20px;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* ── Background image ────────────────────────────────────── */
+.dream-property-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.dream-property-bg-img {
+  object-fit: cover;
+  opacity: 0.45;
+}
+
+/* ── Content container ───────────────────────────────────── */
+.dream-property-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1250px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Heading ─────────────────────────────────────────────── */
+.dream-property-title {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  font-weight: 600;
+  line-height: 1.4;
+  color: #1a1a1a;
+  margin: 0 0 32px;
+}
+
+/* ── Wave grid — single row ──────────────────────────────── */
+.cities-wave-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cities-wave-wrapper::-webkit-scrollbar {
+  display: none;
+}
+.cities-wave {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  gap: clamp(14px, 3vw, 36px);
+  padding: 40px 12px 60px;
+  min-width: max-content;
+  margin: 0 auto;
+}
+
+/* ── City item — JS handles wave via requestAnimationFrame ── */
+.city-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+cursor: pointer;
+  will-change: transform;
+}
+
+
+/* ── Circle bubble ───────────────────────────────────────── */
+.city-circle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(140px, 10vw, 120px);
+  height: clamp(140px, 10vw, 120px);
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1.5px solid #e0e0e0;
+  overflow: visible;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+}
+.city-circle:hover {
+  transform: translateY(-5px);
+}
+.hover-arrow {
+  position: absolute;
+  top: 5px;
+  right: -5px;
+  opacity: 0;
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  background-color: #F4F4F4;
+  transition: all 0.3s ease;
+  font-size: 12px;
+  color: #000;
+ display: flex;
+ z-index: 99;
+ align-items: center;
+ justify-content: center;
+}
+
+.city-circle:hover .hover-arrow {
+  opacity: 1;
+  z-index: 1;
+}
+.arrow-icon {
+  color: #000;
+  font-size: 12px;
+  transform: rotate(-45deg);
+}
+
+/* ── City name ───────────────────────────────────────────── */
+.city-name1 {
+  font-size: clamp(14px, 1.5vw, 16px);
+  font-weight: 600;
+  color: #333333;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+/* ── CTA button ──────────────────────────────────────────── */
+.see-all-button1 {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 32px;
+  background-color: #0D5834;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 500;
+  border-radius: 100px;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.see-all-button:hover {
+  background-color: #0a4628;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* ── Responsive tweaks ───────────────────────────────────── */
+@media (max-width: 600px) {
+  .dream-property-section {
+    padding: 40px 16px;
+  }
+  .cities-wave {
+    gap: 12px;
+  }
+  .city-circle {
+    width: clamp(110px, 10vw, 104px);
+    height: clamp(110px, 10vw, 104px);
+  }
+}
+
+@media (max-width: 380px) {
+  .city-circle {
+    width: clamp(90px, 10vw, 104px);
+    height: clamp(90px, 10vw, 104px);
+  }
+  .city-name {
+    font-size: 10px;
+  }
+}

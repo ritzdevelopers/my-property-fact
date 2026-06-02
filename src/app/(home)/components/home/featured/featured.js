@@ -1,12 +1,27 @@
 "use client";
 import Slider from "react-slick";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import "swiper/css";
+import "swiper/css/navigation";
 import "./featured.css";
 import Image from "next/image";
 import Link from "next/link";
 import PropertyContainer from "../../common/page";
 import { useMemo, useState, useEffect } from "react";
+
+const DEMO_PROJECT_IMAGE = "/static/no_image.png";
+const DEMO_BUILDER_LOGO = "/logo.webp";
+
+function setDemoImageOnError(event, demoSrc) {
+  const img = event.currentTarget;
+  if (img.dataset.demoFallback === "1") return;
+  img.dataset.demoFallback = "1";
+  img.onerror = null;
+  img.src = demoSrc;
+}
 
 function NextArrow(props) {
   const { className, style, onClick } = props;
@@ -52,6 +67,49 @@ function PrevArrow(props) {
   );
 }
 
+function FeaturedProjectsSwiper({ projects, renderCard }) {
+  if (!projects?.length) return null;
+
+  return (
+    <div className="slider-wrapper featured-projects-swiper-wrap">
+      <button
+        type="button"
+        className="custom-prev featured-swiper-prev"
+        aria-label="Previous Slide"
+      >
+        ❮
+      </button>
+      <button
+        type="button"
+        className="custom-next featured-swiper-next"
+        aria-label="Next Slide"
+      >
+        ❯
+      </button>
+      <Swiper
+        modules={[Navigation]}
+        navigation={{
+          prevEl: ".featured-swiper-prev",
+          nextEl: ".featured-swiper-next",
+        }}
+        spaceBetween={24}
+        breakpoints={{
+          0: { slidesPerView: 1 },
+          576: { slidesPerView: 1 },
+          768: { slidesPerView: 2 },
+          1200: { slidesPerView: 2 },
+        }}
+      >
+        {projects.map((item) => (
+          <SwiperSlide key={item.id}>
+            {renderCard(item)}
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
+}
+
 export default function Featured({
   url = "",
   autoPlay,
@@ -65,7 +123,6 @@ export default function Featured({
   const [projectType, setProjectType] = useState("Residential");
   const [isLoading, setIsLoading] = useState(false);
 
-  // When residentialProjects + commercialProjects are passed, use them per tab (no filter). Else filter allProjects by type.
   const filteredProjects = useMemo(() => {
     if (residentialProjects && commercialProjects) {
       return projectType === "Residential" ? residentialProjects : commercialProjects;
@@ -79,10 +136,8 @@ export default function Featured({
       .slice(0, 9);
   }, [allProjects, projectType, type, residentialProjects, commercialProjects]);
 
-  // Clear loading state when filtered projects are ready
   useEffect(() => {
     if (isLoading) {
-      // Small delay to ensure smooth transition
       const timer = setTimeout(() => {
         setIsLoading(false);
       }, 300);
@@ -90,80 +145,182 @@ export default function Featured({
     }
   }, [filteredProjects, isLoading]);
 
-  // Show arrows for Featured, Similar, and Residential/Commercial (autoPlay true)
-  const showArrows = autoPlay || type === "Featured" || type === "Similar";
+  const isFeaturedProjectsSection = !autoPlay && type !== "Similar";
+  const projectCount = filteredProjects.length;
+  const showArrows = autoPlay || type === "Similar";
+
   const settings = useMemo(
     () => ({
       dots: false,
-      infinite: filteredProjects.length > 2,
+      infinite: projectCount > 2,
       speed: 500,
       autoplay: autoPlay,
       autoplaySpeed: 5000,
       arrows: showArrows,
-      nextArrow: showArrows && filteredProjects.length > 1 ? <NextArrow /> : null,
-      prevArrow: showArrows && filteredProjects.length > 1 ? <PrevArrow /> : null,
+      nextArrow: showArrows && projectCount > 1 ? <NextArrow /> : null,
+      prevArrow: showArrows && projectCount > 1 ? <PrevArrow /> : null,
       slidesToShow: 3,
       slidesToScroll: 1,
       responsive: [
         {
           breakpoint: 1200,
-          settings: {
-            slidesToShow: 3,
-            slidesToScroll: 1,
-          },
+          settings: { slidesToShow: 3, slidesToScroll: 1 },
         },
         {
           breakpoint: 992,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-          },
+          settings: { slidesToShow: 2, slidesToScroll: 1 },
         },
         {
           breakpoint: 768,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-          },
+          settings: { slidesToShow: 2, slidesToScroll: 1 },
         },
         {
           breakpoint: 576,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-          },
+          settings: { slidesToShow: 1, slidesToScroll: 1 },
         },
         {
           breakpoint: 375,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-          },
+          settings: { slidesToShow: 1, slidesToScroll: 1 },
         },
       ],
     }),
-    [filteredProjects.length, autoPlay, type, showArrows],
+    [projectCount, autoPlay, showArrows],
   );
 
-  // Memoized section title
   const sectionTitle = useMemo(() => {
     if (!autoPlay) return title;
     if (projectType === "Commercial" && type !== "Similar") {
       return `Explore Top Commercial Spaces for Growth`;
-    } else if (projectType === "Residential" && type !== "Similar") {
-      return `Explore Our Premier Residential Projects`;
-    } else if (type === "Similar") {
-      return "";
-    } else {
-      return title;
     }
-  }, [projectType, autoPlay, title]);
+    if (projectType === "Residential" && type !== "Similar") {
+      return `Explore Our Premier Residential Projects`;
+    }
+    if (type === "Similar") {
+      return "";
+    }
+    return title;
+  }, [projectType, autoPlay, title, type]);
 
-  // Fast tab switching handler with loading state
-  const handleProjectType = (type) => {
-    if (type !== projectType) {
+  const getFeaturedBadge = (item) => {
+    const statusRaw = item?.projectStatusName || item?.status || "";
+    const status = String(statusRaw).toLowerCase();
+    if (status.includes("ready")) {
+      return { label: "Ready to Move", className: "bg-warning" };
+    }
+    if (status.includes("new")) {
+      return { label: "New Launched", className: "bg-success" };
+    }
+    if (status.includes("luxury")) {
+      return { label: statusRaw || "Ultra Luxury", className: "bg-warning" };
+    }
+    if (status.includes("construction")) {
+      return {
+        label: statusRaw || "Under Construction",
+        className: "property-badge--under-construction",
+      };
+    }
+    return null;
+  };
+
+  const buildProjectImageSrc = (item) => {
+    const imageBase = String(process.env.NEXT_PUBLIC_IMAGE_URL || "");
+    const slug = String(item?.slugURL || item?.slugUrl || "").trim();
+    const file =
+      item?.projectBannerImage ||
+      item?.projectThumbnailImage ||
+      item?.bannerImage ||
+      item?.imageURL ||
+      item?.image;
+
+    if (!file || !String(file).trim()) return DEMO_PROJECT_IMAGE;
+    if (String(file).startsWith("http") || String(file).startsWith("/")) {
+      return String(file);
+    }
+    if (imageBase && slug) return `${imageBase}properties/${slug}/${file}`;
+    if (imageBase) return `${imageBase}${file}`;
+    return DEMO_PROJECT_IMAGE;
+  };
+
+  const buildBuilderLogoSrc = (item) => {
+    const apiBase = String(process.env.NEXT_PUBLIC_API_URL || "");
+    const imageBase = String(process.env.NEXT_PUBLIC_IMAGE_URL || "");
+    const slug = String(
+      item?.builder?.slugUrl ||
+        item?.builder?.slugURL ||
+        item?.builderSlug ||
+        item?.builderSlugUrl ||
+        item?.slugURL ||
+        "",
+    ).trim();
+    const file =
+      item?.projectLogo ||
+      item?.builder?.builderImage ||
+      item?.builder?.builderLogo ||
+      item?.builderImage ||
+      item?.builderLogo ||
+      item?.logo;
+
+    if (!file || !String(file).trim()) return DEMO_BUILDER_LOGO;
+    if (String(file).startsWith("http") || String(file).startsWith("/")) {
+      return String(file);
+    }
+    if (item?.projectLogo && imageBase && slug) {
+      return `${imageBase}properties/${slug}/${file}`;
+    }
+    if (slug && apiBase) {
+      const base = apiBase.endsWith("/") ? apiBase : `${apiBase}/`;
+      return `${base}get/images/builders/${slug}/${file}`;
+    }
+    if (slug && imageBase) return `${imageBase}builder/${slug}/${file}`;
+    if (imageBase) return `${imageBase}${file}`;
+    return DEMO_BUILDER_LOGO;
+  };
+
+  const renderFeaturedPropertyCard = (item) => {
+    const featuredBadge = getFeaturedBadge(item);
+    const projectImageSrc = buildProjectImageSrc(item);
+    const builderLogoSrc = buildBuilderLogoSrc(item);
+    const isProjectDemo = projectImageSrc === DEMO_PROJECT_IMAGE;
+    const isBuilderDemo = builderLogoSrc === DEMO_BUILDER_LOGO;
+
+    return (
+      <div className="property-card">
+        {featuredBadge && (
+          <span className={`badge property-badge ${featuredBadge.className}`}>
+            {featuredBadge.label}
+          </span>
+        )}
+        <img
+          src={projectImageSrc}
+          alt={item?.projectName || item?.name || "Featured project"}
+          className={`property-image${isProjectDemo ? " property-image--demo" : ""}`}
+          onError={(e) => setDemoImageOnError(e, DEMO_PROJECT_IMAGE)}
+        />
+        <div className="property-info-card">
+          <div className={`logo-box${isBuilderDemo ? " logo-box--demo" : ""}`}>
+            <img
+              src={builderLogoSrc}
+              alt={item?.builder?.builderName || item?.builderName || "Builder logo"}
+              className="img-fluid"
+              onError={(e) => setDemoImageOnError(e, DEMO_BUILDER_LOGO)}
+            />
+          </div>
+          <div>
+            <h4>{item?.projectName || item?.name || "Project"}</h4>
+            <p>{item?.locationName || item?.cityName || "India"}</p>
+            <h5>
+              {item?.startingPrice || item?.priceRange || "Price on request"}
+            </h5>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const handleProjectType = (nextType) => {
+    if (nextType !== projectType) {
       setIsLoading(true);
-      setProjectType(type);
+      setProjectType(nextType);
     }
   };
 
@@ -172,9 +329,7 @@ export default function Featured({
       {type !== "Similar" && (
         <div className="container home-featured-section">
           {autoPlay && type !== "Similar" && (
-            <div
-              className="d-flex featured-filter-buttons home-featured-filter-buttons gap-3"
-            >
+            <div className="d-flex featured-filter-buttons home-featured-filter-buttons gap-3">
               <button
                 className={`mpf-btn-primary ${projectType === "Residential" ? "active" : ""}`}
                 onClick={() => handleProjectType("Residential")}
@@ -211,18 +366,25 @@ export default function Featured({
               <p className="featured-loading-text">Loading projects...</p>
             </div>
           ) : filteredProjects?.length > 0 ? (
-            <div className={`featured-page-slider ${type === "Featured" && !autoPlay ? "featured-projects-mobile-arrows" : ""}`}>
-              <Slider {...settings}>
-                {filteredProjects.map((item) => (
-                  <div key={item.id} className="px-2 pb-3">
-                    <PropertyContainer
-                      data={item}
-                      badgeVariant={badgeVariant}
-                    />
-                  </div>
-                ))}
-              </Slider>
-            </div>
+            isFeaturedProjectsSection ? (
+              <FeaturedProjectsSwiper
+                projects={filteredProjects}
+                renderCard={renderFeaturedPropertyCard}
+              />
+            ) : (
+              <div className="featured-page-slider">
+                <Slider {...settings}>
+                  {filteredProjects.map((item) => (
+                    <div key={item.id} className="px-2 pb-3">
+                      <PropertyContainer
+                        data={item}
+                        badgeVariant={badgeVariant}
+                      />
+                    </div>
+                  ))}
+                </Slider>
+              </div>
+            )
           ) : (
             <div className="featured-no-projects">
               <p>No projects available for this category.</p>
@@ -231,19 +393,17 @@ export default function Featured({
         </div>
       )}
       {type === "Similar" && (
-        <>
-          <div className="container">
-            <div className="featured-page-slider">
-              <Slider {...settings}>
-                {filteredProjects.map((item) => (
-                  <div key={item.id} className="px-2 pb-3">
-                    <PropertyContainer data={item} />
-                  </div>
-                ))}
-              </Slider>
-            </div>
+        <div className="container">
+          <div className="featured-page-slider">
+            <Slider {...settings}>
+              {filteredProjects.map((item) => (
+                <div key={item.id} className="px-2 pb-3">
+                  <PropertyContainer data={item} />
+                </div>
+              ))}
+            </Slider>
           </div>
-        </>
+        </div>
       )}
     </>
   );

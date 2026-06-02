@@ -34,3 +34,12 @@ export default async function FeaturedPage({
     />
   );
 }
+
+// import PropertySlider from "./featured";
+// export default function FeaturedPage() {
+//   return (
+//     <div>
+//       <PropertySlider />
+//     </div>
+//   );
+// }

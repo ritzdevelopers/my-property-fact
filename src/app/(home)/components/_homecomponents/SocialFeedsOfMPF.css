@@ -1,3 +1,35 @@
+.social-feed-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 118px;
+  height: 37px;
+  padding: 0 1rem;
+  box-sizing: border-box;
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #000;
+  border-radius: 30px;
+  font-weight: 500;
+  font-size: clamp(0.8rem, 1.1vw, 0.9rem);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.social-feed-tab--active {
+  background: #0d5834;
+  color: #fff;
+  border: 1px solid #cda958;
+}
+
+.social-feed-tab--active:hover,
+.social-feed-tab--active:focus-visible {
+  background: #0d5834;
+  color: #cda958;
+  border-color: #cda958;
+}
+
 .social-feeds-section {
   /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
   overflow: hidden;

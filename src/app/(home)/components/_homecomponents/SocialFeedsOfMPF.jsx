@@ -1,274 +1,611 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+
+import { useEffect, useRef, useState } from "react";
+
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination } from "swiper/modules";
+import { Navigation } from "swiper/modules";
+
+import "./SocialFeedsOfMPF.css";
+import {
+  FaInstagram,
+  FaYoutube,
+  FaPlay,
+  FaHeart,
+  FaRegComment,
+  FaShare,
+  FaTimes,
+} from "react-icons/fa";
+
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "./SocialFeedsOfMPF.css";
 
 export default function SocialFeedsOfMPF() {
-  const [hoveredIndex, setHoveredIndex] = useState(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("instagram");
 
+  const [showModal, setShowModal] = useState(false);
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const scrollRef = useRef(null);
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Prevent body scroll when popup is open
-  useEffect(() => {
-    if (isPopupOpen) {
-      document.body.style.overflow = 'hidden';
+    if (showModal) {
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "auto";
     }
-
+  
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "auto";
     };
-  }, [isPopupOpen]);
-
-  const socialPosts = [
+  }, [showModal]);
+  // ---------------- INSTAGRAM DATA ----------------
+  const instagramPosts = [
     {
-      text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
-      position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social11.mp4"
+      id: 1,
+      type: "image",
+      media:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1200",
+      caption: "Great Place To Work Certified™",
     },
     {
-      text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
-      position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social22.mp4"
+      id: 2,
+      type: "video",
+      media: "https://www.w3schools.com/html/mov_bbb.mp4",
+      caption: "Team celebration moments",
     },
     {
-      text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
-      position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social33.mp4"
+      id: 3,
+      type: "image",
+      media:
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200",
+      caption: "Office culture & success",
     },
     {
-      text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
-      position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social44.mp4"
-    }
+      id: 4,
+      type: "image",
+      media:
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200",
+      caption: "Office culture & success",
+    },
+    {
+      id: 5,
+      type: "image",
+      media:
+        "https://www.instagram.com/my.property.fact/reel/DR1n2a_jxYV/",
+      caption: "Office culture & success",
+    },
+    {
+      id: 6,
+      type: "image",
+      media:
+        "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=1200",
+      caption: "Office culture & success",
+    },
   ];
 
-  const handleVideoClick = (index) => {
-    setSelectedVideoIndex(index);
-    setIsPopupOpen(true);
+  // ---------------- YOUTUBE DATA ----------------
+  const youtubeVideos = [
+    {
+      id: 1,
+      thumb: "https://i.ytimg.com/vi/7z2-277kK7w/maxresdefault.jpg",
+      video: "https://www.youtube.com/embed/7z2-277kK7w?autoplay=1",
+    },
+    {
+      id: 2,
+      thumb: "https://i.ytimg.com/vi/7z2-277kK7w/maxresdefault.jpg",
+      video: "https://www.youtube.com/embed/7z2-277kK7w?autoplay=1",
+    },
+    
+    {
+      id: 3,
+      thumb: "https://i.ytimg.com/vi_webp/vAUTVfKpWW4/maxresdefault.webp",
+      video: "https://www.youtube.com/embed/vAUTVfKpWW4?autoplay=1",
+    },
+    {
+      id: 4,
+      thumb: "https://i.ytimg.com/vi/7z2-277kK7w/maxresdefault.jpg",
+      video: "https://www.youtube.com/embed/7z2-277kK7w?autoplay=1",
+    },
+    
+    {
+      id: 5,
+      thumb: "https://i.ytimg.com/vi_webp/vAUTVfKpWW4/maxresdefault.webp",
+      video: "https://www.youtube.com/embed/vAUTVfKpWW4?autoplay=1",
+    },
+<iframe width="389" height="240" src="" title="Breaking Barriers in Real Estate | Ms. Noorjahan Saund | Beyond the Blueprints: Her Edition" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    
+  ];
+
+  const currentData =
+    activeTab === "instagram" ? instagramPosts : youtubeVideos;
+
+  // OPEN POPUP
+  const openPopup = (index) => {
+    setSelectedIndex(index);
+    setShowModal(true);
   };
 
-  const closePopup = useCallback(() => {
-    setIsPopupOpen(false);
-    setSelectedVideoIndex(null);
-  }, []);
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) {
-      closePopup();
-    }
-  };
-
-  const handleKeyDown = useCallback((e) => {
-    if (e.key === 'Escape' && isPopupOpen) {
-      closePopup();
-    }
-  }, [isPopupOpen, closePopup]);
-
+  // AUTO SCROLL ONLY FOR INSTAGRAM
   useEffect(() => {
-    if (isPopupOpen) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
+    if (showModal && activeTab === "instagram" && scrollRef.current) {
+      const child = scrollRef.current.children[selectedIndex];
+      child?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
-  }, [isPopupOpen, handleKeyDown]);
-
-  const selectedVideo = selectedVideoIndex !== null ? socialPosts[selectedVideoIndex] : null;
+  }, [showModal, selectedIndex, activeTab]);
 
   return (
-    <>
-      <div className="social-feeds-section my-4 my-lg-5">
-        <div className="container-fluid">
-          <div className="section-header-wrapper mb-lg-5">
-            <h2 className="text-center mb-0 plus-jakarta-sans-semi-bold">
-              Social Feeds from MPF on Instagram
-            </h2>
+    <div className="container py-5">
 
-          </div>
-          <div className="container">
-            <div className="social-feeds-swiper-wrapper">
-              <Swiper
-                modules={[Navigation, Pagination]}
-                spaceBetween={20}
-                slidesPerView={1}
-                centeredSlides={false}
-                navigation={{
-                  enabled: true,
-                  hideOnClick: false,
-                }}
-                pagination={{
-                  clickable: true,
-                  dynamicBullets: true,
-                  dynamicMainBullets: 3,
-                }}
-                loop={socialPosts.length > 1}
-                grabCursor={true}
-                speed={600}
-                breakpoints={{
-                  320: {
-                    slidesPerView: 1,
-                    spaceBetween: 15,
-                    centeredSlides: true,
-                  },
-                  480: {
-                    slidesPerView: 1.5,
-                    spaceBetween: 15,
-                    centeredSlides: true,
-                  },
-                  576: {
-                    slidesPerView: 2,
-                    spaceBetween: 20,
-                    centeredSlides: false,
-                  },
-                  768: {
-                    slidesPerView: 2,
-                    spaceBetween: 24,
-                    centeredSlides: false,
-                  },
-                  992: {
-                    slidesPerView: 3,
-                    spaceBetween: 24,
-                    centeredSlides: false,
-                  },
-                  1200: {
-                    slidesPerView: 4,
-                    spaceBetween: 24,
-                    centeredSlides: false,
-                  },
-                  1400: {
-                    slidesPerView: 4,
-                    spaceBetween: 30,
-                    centeredSlides: false,
-                  },
-                }}
-                className="social-feeds-swiper"
-              >
-                {socialPosts.map((post, index) => (
-                  <SwiperSlide key={index}>
-                    <div
-                      className="instagram-post-card"
-                      onMouseEnter={() => !isMobile && setHoveredIndex(index)}
-                      onMouseLeave={() => !isMobile && setHoveredIndex(null)}
-                      onTouchStart={() => isMobile && setHoveredIndex(index)}
-                      onTouchEnd={() => {
-                        setTimeout(() => {
-                          if (isMobile) setHoveredIndex(null);
-                        }, 2000);
-                      }}
-                    >
-                      <div className="card-border-gradient"></div>
-                      <div className="post-video-wrapper" onClick={() => handleVideoClick(index)}>
-                        <video
-                          id={`social-video-${index}`}
-                          className="post-video"
-                          loop
-                          muted
-                          playsInline
-                          preload="metadata"
-                          aria-label={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
-                        >
-                          <source src={post.video} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
-                        {/* Play Icon Overlay - Always show on hover */}
-                        {hoveredIndex === index && (
-                          <div className="play-icon-overlay show-on-hover">
-                            <div className="play-icon-circle">
-                              <svg
-                                width="28"
-                                height="28"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  d="M8 5V19L19 12L8 5Z"
-                                  fill="white"
-                                  stroke="white"
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </div>
-                          </div>
-                        )}
-                        {/* Instagram Logo Badge */}
-                        {/* <div className="instagram-badge">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="white"/>
-                          </svg>
-                        </div> */}
-                        {/* Text Overlay - Shows on hover with gradient background */}
-                        <div className={`post-text-overlay ${post.position} ${hoveredIndex === index ? 'show-text' : ''}`}>
-                          <div className="post-text-background">
-                            <div className="text-content-wrapper">
-                              <p className="post-text plus-jakarta-sans-semi-bold">{post.text}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-            </div>
-          </div>
-        </div>
+      {/* TITLE */}
+      <h2 className="text-center fw-bold mb-4">
+        Social Media Feed
+      </h2>
+
+      {/* TABS */}
+      <div className="d-flex justify-content-center gap-3 mb-4">
+
+        <button
+          type="button"
+          className={`social-feed-tab ${
+            activeTab === "instagram" ? "social-feed-tab--active" : ""
+          }`}
+          onClick={() => setActiveTab("instagram")}
+        >
+          <FaInstagram className="me-2" />
+          Instagram
+        </button>
+
+        <button
+          type="button"
+          className={`social-feed-tab ${
+            activeTab === "youtube" ? "social-feed-tab--active" : ""
+          }`}
+          onClick={() => setActiveTab("youtube")}
+        >
+          <FaYoutube className="me-2" />
+          YouTube
+        </button>
+
       </div>
 
-      {/* Video Popup Modal */}
-      {isPopupOpen && selectedVideo && (
-        <div
-          className="video-popup-overlay"
-          onClick={handleBackdropClick}
+      {/* SLIDER + NAVIGATION */}
+      <div className="position-relative overflow-hidden">
+
+        {/* PREV */}
+        <button
+          className="social-prev btn  position-absolute translate-middle-y z-3"
+          style={{ width: 45, height: 45, borderRadius: "40%" , backgroundColor: "#0D5834", color: "#fff", top: "40%",left: "-15px" }}
         >
-          <div className="video-popup-container">
-            <button
-              className="video-popup-close"
-              onClick={closePopup}
-              aria-label="Close video popup"
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <div className="video-popup-content">
-              <video
-                className="video-popup-player"
-                controls
-                loop
-                playsInline
-                aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
+          ❮
+        </button>
+
+        {/* NEXT */}
+        <button
+          className="social-next btn position-absolute  translate-middle-y z-3"
+          style={{ width: 45, height: 45, borderRadius: "40%", backgroundColor: "#0D5834", color: "#fff", top: "40%" ,right: "-15px" }}
+        >
+          ❯
+        </button>
+
+        <Swiper
+          modules={[Navigation]}
+          navigation={{
+            nextEl: ".social-next",
+            prevEl: ".social-prev",
+          }}
+          spaceBetween={20}
+          breakpoints={{
+            320: { slidesPerView: 1 },
+            768: { slidesPerView: 2 },
+            1200: { slidesPerView: 4 },
+          }}
+        >
+          {currentData.map((item, index) => (
+            <SwiperSlide key={item.id}>
+              <div
+                className="position-relative overflow-hidden rounded cursor-pointer"
+                onClick={() => openPopup(index)}
               >
-                <source src={selectedVideo.video} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              {selectedVideo.text && (
-                <div className="video-popup-text">
-                  <p>{selectedVideo.text}</p>
-                </div>
+                {activeTab === "instagram" ? (
+                  item.type === "image" ? (
+                    <img
+                      src={item.media}
+                      className="w-100"
+                      style={{ height: 300, objectFit: "cover" }}
+                    />
+                  ) : (
+                    <video
+                      src={item.media}
+                      className="w-100"
+                      style={{ height: 300, objectFit: "cover" }}
+                    />
+                  )
+                ) : (
+                  <>
+                    <img
+                      src={item.thumb}
+                      className="w-100"
+                      style={{ height: 300, objectFit: "cover" }}
+                    />
+
+                    <FaPlay
+                      className="position-absolute top-50 start-50 translate-middle text-white"
+                      style={{ fontSize: 60 }}
+                    />
+                  </>
+                )}
+              </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+
+{/* MODAL */}
+{showModal && (
+  <div
+    className="position-fixed top-0 start-0 w-100 h-100"
+    style={{
+      backgroundColor: "#080808e6",
+      zIndex: 9999,
+      overflow: "hidden",
+    }}
+  >
+    {/* CLOSE BUTTON */}
+    <button
+      className="btn btn-dark position-absolute"
+      style={{
+        top: "15px",
+        right: "15px",
+        zIndex: 10000,
+        width: "45px",
+        height: "45px",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+      onClick={() => setShowModal(false)}
+    >
+      <FaTimes />
+    </button>
+
+    {/* INSTAGRAM */}
+    {activeTab === "instagram" ? (
+      <div
+        ref={scrollRef}
+        className="h-100 w-100 overflow-auto"
+        style={{
+          scrollSnapType: "y mandatory",
+          WebkitOverflowScrolling: "touch",
+        }}
+      >
+        {currentData.map((item) => (
+          <div
+            key={item.id}
+            className="d-flex justify-content-center align-items-center"
+            style={{
+              height: "100vh",
+              width: "100%",
+              scrollSnapAlign: "start",
+              padding: "10px",
+            }}
+          >
+            {/* RESPONSIVE CARD */}
+            <div
+              className="bg-white rounded overflow-hidden shadow"
+              style={{
+                width: "100%",
+                maxWidth: "420px",
+              }}
+            >
+              {/* HEADER */}
+              <div className="d-flex justify-content-between p-2 border-bottom">
+                <strong>starestate_official</strong>
+                <button className="btn btn-sm btn-primary">
+                  Follow
+                </button>
+              </div>
+
+              {/* MEDIA */}
+              {item.type === "image" ? (
+                <img
+                  src={item.media}
+                  className="w-100"
+                  style={{
+                    height: "clamp(250px, 50vw, 400px)",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <video
+                  src={item.media}
+                  controls
+                  autoPlay
+                  muted
+                  className="w-100"
+                  style={{
+                    height: "clamp(250px, 50vw, 400px)",
+                    objectFit: "cover",
+                  }}
+                />
               )}
+
+              {/* ACTIONS */}
+              <div className="p-3">
+                <FaHeart className="me-2" />
+                <FaRegComment className="me-2" />
+                <FaShare className="me-2" />
+                <p className="mt-2 mb-0">{item.caption}</p>
+              </div>
             </div>
           </div>
+        ))}
+      </div>
+    ) : (
+      /* YOUTUBE RESPONSIVE */
+      <div className="h-100 d-flex justify-content-center align-items-center p-3">
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "900px",
+            aspectRatio: "16/9",
+          }}
+        >
+          <iframe
+            src={currentData[selectedIndex].video}
+            title="video"
+            allow="autoplay"
+            allowFullScreen
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+            }}
+          />
         </div>
-      )}
-    </>
+      </div>
+    )}
+  </div>
+)}
+    </div>
   );
 }
+
+// "use client";
+
+// import { useEffect, useState } from "react";
+
+// import { Swiper, SwiperSlide } from "swiper/react";
+// import { Navigation } from "swiper/modules";
+
+// import {
+//   FaInstagram,
+//   FaYoutube,
+//   FaPlay,
+// } from "react-icons/fa";
+
+// import "swiper/css";
+// import "swiper/css/navigation";
+
+// export default function SocialFeedsOfMPF() {
+
+//   const [activeTab, setActiveTab] = useState("instagram");
+
+//   const [instagramPosts, setInstagramPosts] = useState([]);
+
+//   const [youtubeVideos, setYoutubeVideos] = useState([]);
+
+//   // ================= INSTAGRAM FETCH =================
+//   useEffect(() => {
+
+//     const fetchInstagram = async () => {
+
+//       try {
+
+//         const token = process.env.NEXT_PUBLIC_INSTAGRAM_ACCESS_TOKEN;
+
+//         const res = await fetch(
+//           `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink&access_token=${token}`
+//         );
+
+//         const data = await res.json();
+
+//         setInstagramPosts(data.data || []);
+
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     };
+
+//     fetchInstagram();
+
+//   }, []);
+
+//   // ================= YOUTUBE FETCH =================
+//   useEffect(() => {
+
+//     const fetchYoutube = async () => {
+
+//       try {
+
+//         const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
+
+//         const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID;
+
+//         const res = await fetch(
+//           `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=10`
+//         );
+
+//         const data = await res.json();
+
+//         setYoutubeVideos(data.items || []);
+
+//       } catch (error) {
+//         console.log(error);
+//       }
+//     };
+
+//     fetchYoutube();
+
+//   }, []);
+
+//   const currentData =
+//     activeTab === "instagram"
+//       ? instagramPosts
+//       : youtubeVideos;
+
+//   return (
+//     <div className="container py-5">
+
+//       {/* TITLE */}
+//       <h2 className="text-center fw-bold mb-4">
+//         Social Media Feed
+//       </h2>
+
+//       {/* TABS */}
+//       <div className="d-flex justify-content-center gap-3 mb-4">
+
+//         <button
+//           className={`btn ${
+//             activeTab === "instagram"
+//               ? "btn-dark"
+//               : "btn-outline-dark"
+//           }`}
+//           onClick={() => setActiveTab("instagram")}
+//         >
+//           <FaInstagram className="me-2" />
+//           Instagram
+//         </button>
+
+//         <button
+//           className={`btn ${
+//             activeTab === "youtube"
+//               ? "btn-dark"
+//               : "btn-outline-dark"
+//           }`}
+//           onClick={() => setActiveTab("youtube")}
+//         >
+//           <FaYoutube className="me-2" />
+//           YouTube
+//         </button>
+
+//       </div>
+
+//       {/* SLIDER */}
+//       <div className="position-relative">
+
+//         {/* PREV */}
+//         <button
+//           className="social-prev btn btn-dark position-absolute top-50 start-0 translate-middle-y z-3"
+//           style={{
+//             width: 45,
+//             height: 45,
+//             borderRadius: "50%",
+//           }}
+//         >
+//           ❮
+//         </button>
+
+//         {/* NEXT */}
+//         <button
+//           className="social-next btn btn-dark position-absolute top-50 end-0 translate-middle-y z-3"
+//           style={{
+//             width: 45,
+//             height: 45,
+//             borderRadius: "50%",
+//           }}
+//         >
+//           ❯
+//         </button>
+
+//         <Swiper
+//           modules={[Navigation]}
+//           navigation={{
+//             nextEl: ".social-next",
+//             prevEl: ".social-prev",
+//           }}
+//           spaceBetween={20}
+//           breakpoints={{
+//             320: { slidesPerView: 1 },
+//             768: { slidesPerView: 2 },
+//             1200: { slidesPerView: 4 },
+//           }}
+//         >
+
+//           {/* INSTAGRAM */}
+//           {activeTab === "instagram" &&
+//             currentData.map((item) => (
+
+//               <SwiperSlide key={item.id}>
+
+//                 <a
+//                   href={item.permalink}
+//                   target="_blank"
+//                 >
+
+//                   <img
+//                     src={
+//                       item.media_type === "VIDEO"
+//                         ? item.thumbnail_url
+//                         : item.media_url
+//                     }
+//                     className="w-100 rounded"
+//                     style={{
+//                       height: 300,
+//                       objectFit: "cover",
+//                     }}
+//                     alt=""
+//                   />
+
+//                 </a>
+
+//               </SwiperSlide>
+//             ))}
+
+//           {/* YOUTUBE */}
+//           {activeTab === "youtube" &&
+//             currentData.map((item) => (
+
+//               <SwiperSlide key={item.id.videoId}>
+
+//                 <a
+//                   href={`https://www.youtube.com/watch?v=${item.id.videoId}`}
+//                   target="_blank"
+//                 >
+
+//                   <div className="position-relative">
+
+//                     <img
+//                       src={item.snippet.thumbnails.high.url}
+//                       className="w-100 rounded"
+//                       style={{
+//                         height: 300,
+//                         objectFit: "cover",
+//                       }}
+//                       alt=""
+//                     />
+
+//                     <FaPlay
+//                       className="position-absolute top-50 start-50 translate-middle text-white"
+//                       style={{
+//                         fontSize: 60,
+//                       }}
+//                     />
+
+//                   </div>
+
+//                 </a>
+
+//               </SwiperSlide>
+//             ))}
+
+//         </Swiper>
+
+//       </div>
+
+//     </div>
+//   );
+// }

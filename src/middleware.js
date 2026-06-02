@@ -95,27 +95,8 @@ function isEldecoTerraSolPath(pathname) {
   );
 }
 
-function legacyWebStoryRedirect(req) {
-  const path = req.nextUrl.pathname;
-  if (!path.startsWith("/web-story/")) {
-    return null;
-  }
-  const slug = path.slice("/web-story/".length).replace(/\/+$/, "");
-  if (!slug) {
-    return null;
-  }
-  const url = req.nextUrl.clone();
-  url.pathname = `/api/v1/web-story/${slug}`;
-  return NextResponse.redirect(url, 308);
-}
-
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
-
-  const webStoryRedirect = legacyWebStoryRedirect(req);
-  if (webStoryRedirect) {
-    return webStoryRedirect;
-  }
 
   if (isEldecoTerraSolPath(path)) {
     const requestHeaders = new Headers(req.headers);
@@ -230,7 +211,6 @@ export async function middleware(req) {
 
 export const config = {
   matcher: [
-    "/web-story/:path*",
     "/admin/:path*",
     "/portal/:path*",
     "/Eldeco-terra&sol",

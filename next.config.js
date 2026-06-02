@@ -13,6 +13,11 @@ function getBackendApiOrigin() {
   return String(raw).trim().replace(/\/+$/, "").replace(/\/api\/v1$/i, "");
 }
 
+function getPublicSiteOrigin() {
+  const raw = process.env.NEXT_PUBLIC_UI_URL || "https://mypropertyfact.in";
+  return String(raw).trim().replace(/\/+$/, "");
+}
+
 const nextConfig = {
   // Keep title, description, and canonical in <head> for all requests (not streamed into <body>).
   htmlLimitedBots: /.*/,
@@ -196,6 +201,14 @@ const nextConfig = {
       {
         source: "/__media__/js/netsoltrademark.php",
         destination: "/",
+        permanent: true,
+      },
+
+      // apis host → main site (indexed / shared legacy URLs)
+      {
+        source: "/api/v1/web-story/:slug*",
+        has: [{ type: "host", value: "apis.mypropertyfact.in" }],
+        destination: `${getPublicSiteOrigin()}/api/v1/web-story/:slug*`,
         permanent: true,
       },
 

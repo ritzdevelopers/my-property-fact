@@ -111,9 +111,7 @@ export default function SocialFeedsOfMPF() {
       id: 5,
       thumb: "https://i.ytimg.com/vi_webp/vAUTVfKpWW4/maxresdefault.webp",
       video: "https://www.youtube.com/embed/vAUTVfKpWW4?autoplay=1",
-    },
-<iframe width="389" height="240" src="" title="Breaking Barriers in Real Estate | Ms. Noorjahan Saund | Beyond the Blueprints: Her Edition" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    
+    },    
   ];
 
   const currentData =

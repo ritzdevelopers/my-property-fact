@@ -2,7 +2,6 @@
 "use client";
 import { useState } from "react";
 import "./newinsight.css";
-import LatestProject from "./LatesProject";
 
 
 export default function NewInsight() {

@@ -5,6 +5,7 @@ import {
   getDisplayCityList,
   resolveCitySlug,
 } from "./cityAliasUtils";
+import { stripProjectListForClient } from "./siteData/stripProjectForClient";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 // Function to check if a given slug corresponds to a valid project
@@ -30,7 +31,7 @@ export const fetchAllProjects = cache(async () => {
   });
   if (!res.ok) throw new Error("Failed to fetch projects");
   const data = await res.json();
-  return data;
+  return stripProjectListForClient(data);
 });
 
 //Fetch all projects with cached
@@ -561,6 +562,12 @@ export const fetchAllProjectsByProjectType = cache(async (projectType) => {
   });
   if (!projects.ok) throw new Error("Failed to fetch projects");
   const projectsData = await projects.json();
+  if (Array.isArray(projectsData?.projectList)) {
+    return {
+      ...projectsData,
+      projectList: stripProjectListForClient(projectsData.projectList),
+    };
+  }
   return projectsData;
 });
 

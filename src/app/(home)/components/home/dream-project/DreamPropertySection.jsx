@@ -2,23 +2,42 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useEffect } from "react";
-import { FaArrowRight, FaArrowRightUp as FaArrowRightup } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 import "./DreamPropertySection.css";
-const AMPLITUDE = 18;   // px — how far each city moves up/down
-const WAVE_SPEED = 0.018; // slow travelling wave
-const SPACING = 0.9;    // phase gap between cities (radians)
+
+const AMPLITUDE = 18;
+const WAVE_SPEED = 0.010;
+const SPACING = 0.5;
+
+function CityMarqueeItem({ city }) {
+  return (
+    <div className="city-item">
+      <Link
+        href={city.link}
+        prefetch={false}
+        title={`Explore ${city.name} properties on My Property Fact`}
+        className="city-circle"
+      >
+        <span className="hover-arrow" aria-hidden="true">
+          <FaArrowRight className="arrow-icon" />
+        </span>
+        <Image
+          src={city.image}
+          alt={`${city.name} — find properties on My Property Fact`}
+          title={city.name}
+          width={60}
+          height={60}
+          className="city-circle-image"
+          loading="lazy"
+          sizes="(max-width: 768px) 50vw, 105px"
+        />
+      </Link>
+      <h4 className="city-name1">{city.name}</h4>
+    </div>
+  );
+}
+
 const DreamPropertySection = () => {
-  const cityCardsRef = useRef(null);
-  // Scroll to cities function
-  const scrollToCities = () => {
-    if (cityCardsRef.current) {
-      cityCardsRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  };
-  // Cities data matching the image with name, link, image and alt text
   const cities = [
     {
       name: "Agra",
@@ -163,37 +182,22 @@ const DreamPropertySection = () => {
           ))}
         </div> */}
 
-        <div className="cities-wave-wrapper pt-5">
-          <div className="cities-wave" ref={rowRef}>
-            {cities.map((city) => (
-              <div key={city.name} className="city-item">
-                <Link
-                  href={city.link}
-                  prefetch={false}
-                  title={`Explore ${city.name} properties on My Property Fact`}
-                  className="city-circle"
-                >
-                  <span className="hover-arrow" aria-hidden="true">
-                    <FaArrowRight className="arrow-icon" />
-                  </span>
-                  <Image
-                    src={city.image}
-                    alt={`${city.name} — find properties on My Property Fact`}
-                    title={city.name}
-                    width={60}
-                    height={60}
-                    className="city-circle-image"
-                    loading="lazy"
-                    sizes="(max-width: 768px) 50vw, 105px"
-                  />
-                </Link>
-                <h4 className="city-name1">{city.name}</h4>
-              </div>
-            ))}
+        <div className="cities-marquee pt-5" aria-label="Featured cities">
+          <div className="cities-marquee-track" ref={rowRef}>
+            <div className="cities-marquee-segment">
+              {cities.map((city) => (
+                <CityMarqueeItem key={`a-${city.name}`} city={city} />
+              ))}
+            </div>
+            <div className="cities-marquee-segment" aria-hidden="true">
+              {cities.map((city) => (
+                <CityMarqueeItem key={`b-${city.name}`} city={city} />
+              ))}
+            </div>
           </div>
         </div>
 
-        <div style={{ marginTop: "5%" }}>
+        <div >
           <Link
             href="/projects"
             className="see-all-button1 text-white btn-normal-color"

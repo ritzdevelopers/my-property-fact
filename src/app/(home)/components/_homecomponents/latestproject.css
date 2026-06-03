@@ -1,84 +1,272 @@
-.propertyCard{
-    background:#fff;
-    border-radius:18px;
-    overflow:hidden;
-    display:flex;
-    padding: 20px;
-    height: 250px;
-    width: 100%;
-    flex-direction:row;
-    box-shadow:0 5px 18px rgba(0,0,0,0.08);
-    transition:0.3s;
-  }
-  
-  .propertyCard:hover{
-    transform:translateY(-5px);
-  }
-  
-  .propertyImage{
-    width:200px;
-    height:140px;
-    /* height:240px; */
-    /* object-fit:cover; */
-  }
-  
-  .propertyContent{
-    padding:20px;
-  }
-  
-  .propertyContent h3{
-    font-size:28px;
-    margin-bottom:10px;
-  }
-  
-  .location{
-    font-family: Plus Jakarta Sans;
-    font-weight: 400;
-    font-style: Regular;
-    font-size: 16px;
-    line-height: 24px;
-    letter-spacing: 0px;
-    color: #00000099;
-  }
-  
-  .headingtitle{
-    font-family: Inter;
-font-weight: 600;
-font-style: Semi Bold;
-font-size: 21px;
-color: #000000;
-line-height: 24px;
-letter-spacing: 0px;
+/* ── Marquee (Figma reference) ── */
+.lp-section {
+  width: 100%;
+  padding: 24px 0 32px;
+  overflow: hidden;
+}
 
+.lp-marquee {
+  overflow: hidden;
+  width: 100%;
+}
+
+.lp-track {
+  display: flex;
+  width: max-content;
+  animation: lp-scroll 50s linear infinite;
+}
+
+.lp-track__seg {
+  display: flex;
+  gap: 14px;
+  padding-right: 14px;
+}
+
+.lp-marquee:hover .lp-track {
+  animation-play-state: paused;
+}
+
+@keyframes lp-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  .price{
-    font-family: Inter;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 18px;
-    line-height: 100%;
-    letter-spacing: 0px;
-    /* text-align: right; */
-    color: #C9A24D;
+  to {
+    transform: translate3d(-50%, 0, 0);
   }
-  
-  .area{
-    color:#666;
-    margin-top:5px;
+}
+
+/* ── Card: 402 × 196 (2×2 grid) ── */
+.lp-card {
+  flex: 0 0 auto;
+  width: 514px;
+  height: 250px;
+  max-width: 92vw;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 16px;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.lp-card__grid {
+  display: grid;
+  grid-template-columns: 214px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 18px;
+  row-gap: 5px;
+  align-items: start;
+}
+
+.lp-card__thumb {
+  grid-column: 1;
+  grid-row: 1;
+  display: block;
+  /* width: 118px;
+  height: 132px; */
+  border-radius: 10px;
+  overflow: hidden;
+  background: #e8e8e8;
+  text-decoration: none;
+}
+
+.lp-card__img {
+  width: 213px;
+  height: 145px;
+  object-fit: cover;
+  display: block;
+}
+
+.lp-card__img--placeholder {
+  object-fit: cover;
+  background: #f0f0f0;
+}
+
+.lp-card__head {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 132px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.lp-card__title {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 600;
+  font-size: 21px;
+  line-height: 24px;
+  color: #000;
+}
+
+.lp-card__location {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.lp-card__pin {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 4px;
+  object-fit: contain;
+}
+
+.lp-card__location span {
+  min-width: 0;
+}
+
+.lp-card__price {
+  margin: 2px 0 0;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  color: #c9a24d;
+}
+
+.lp-card__builder {
+  grid-column: 1;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lp-card__builderName {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+  color: #000;
+}
+
+.lp-card__builderLink {
+  display: inline;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.55);
+  text-decoration: none;
+}
+
+.lp-card__builderLink:hover {
+  color: #000;
+}
+
+.lp-card__arrow {
+  margin-left: 2px;
+}
+
+.lp-card__specs {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  /* align-self: end; */
+}
+
+.lp-card__bhk {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  color: rgba(0, 0, 0, 0.78);
+}
+
+.lp-card__sqft {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  color: #438e82;
+}
+
+@media (max-width: 480px) {
+  .lp-card {
+    width: 340px;
+    padding: 16px;
+    height: auto;
   }
-  
-  .viewBtn{
-    display:inline-block;
-    margin-top:15px;
-    text-decoration:none;
-    color:#111;
-    font-weight:600;
+
+  .lp-card__grid {
+    grid-template-columns: 96px 1fr;
+    column-gap: 14px;
+    row-gap: 4px;
   }
-  
-  .swiper{
-    padding-bottom:50px !important;
+
+  .lp-card__thumb {
+    width: 96px;
+    height: 112px;
   }
-  
-  .swiper-pagination-bullet-active{
-    background:#000 !important;
+
+  .lp-card__head {
+    min-height: 112px;
   }
+
+  .lp-card__title {
+    font-size: 17px;
+    line-height: 22px;
+  }
+
+  .lp-card__location {
+    font-size: 13px;
+    line-height: 20px;
+  }
+
+  .lp-card__price {
+    font-size: 15px;
+    line-height: 20px;
+  }
+
+  .lp-card__builderName {
+    font-size: 13px;
+  }
+
+  .lp-card__builderLink {
+    font-size: 11px;
+    line-height: 16px;
+  }
+
+  .lp-card__bhk,
+  .lp-card__sqft {
+    font-size: 13px;
+    line-height: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-track {
+    animation: none;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .lp-track__seg {
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-right: 0;
+  }
+
+  .lp-marquee {
+    overflow: visible;
+  }
+}

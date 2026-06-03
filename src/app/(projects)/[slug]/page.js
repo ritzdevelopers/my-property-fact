@@ -18,8 +18,11 @@ import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
 import {
   buildFaqJsonLd,
   buildProductJsonLd,
+  normalizeFaqItems,
   resolveProjectFaqRawList,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
+import SeoFaqNarrative from "@/app/_global_components/seo/SeoFaqNarrative";
 
 /** ISR-friendly cache; avoids force-dynamic so responses can be cached at the edge. */
 export const revalidate = 120;
@@ -158,12 +161,23 @@ export default async function PropertyPage({ params }) {
       projectAddress,
     };
 
+    const projectFaqItems = normalizeFaqItems(
+      resolveProjectFaqRawList(projectDetail),
+    );
+    const seoSummary = [
+      projectDetail.metaDescription,
+      projectDetail.projectName,
+      projectAddress,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     return (
       <>
+        <SeoNarrative>{seoSummary}</SeoNarrative>
+        <SeoFaqNarrative items={projectFaqItems} />
         <JsonLdScript data={buildProductJsonLd(projectForJsonLd)} />
-        <JsonLdScript
-          data={buildFaqJsonLd(resolveProjectFaqRawList(projectDetail))}
-        />
+        <JsonLdScript data={buildFaqJsonLd(projectFaqItems)} />
         <Property
           projectDetail={projectDetail}
           similarProjects={similarProjectsSlim}

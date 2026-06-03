@@ -309,35 +309,74 @@
   margin: 0 0 32px;
 }
 
-/* ── Wave grid — single row ──────────────────────────────── */
-.cities-wave-wrapper {
+/* ── Infinite marquee ────────────────────────────────────── */
+.cities-marquee {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.cities-wave-wrapper::-webkit-scrollbar {
-  display: none;
-}
-.cities-wave {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(14px, 3vw, 36px);
-  padding: 40px 12px 60px;
-  min-width: max-content;
-  margin: 0 auto;
+  overflow: hidden;
 }
 
+.cities-marquee-track {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: cities-marquee-scroll 80s linear infinite;
+}
+
+.cities-marquee:hover .cities-marquee-track {
+  animation-play-state: paused;
+}
+
+.cities-marquee-segment {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: clamp(14px, 3vw, 36px);
+  padding: 40px clamp(14px, 3vw, 36px) 60px 0;
+}
+
+@keyframes cities-marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cities-marquee-track {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .cities-marquee{
+    width: 100%;
+    overflow: visible;
+  }
+  .dream-property-container{
+    width: 100%;
+    max-width: 100%;
+  }
+}
+  .cities-marquee-track {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: max-content;
+    will-change: transform;
+  }
 /* ── City item — JS handles wave via requestAnimationFrame ── */
 .city-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-cursor: pointer;
+  cursor: pointer;
   will-change: transform;
+  flex-shrink: 0;
 }
 
 
@@ -420,8 +459,9 @@ cursor: pointer;
   .dream-property-section {
     padding: 40px 16px;
   }
-  .cities-wave {
+  .cities-marquee-segment {
     gap: 12px;
+    padding-right: 12px;
   }
   .city-circle {
     width: clamp(110px, 10vw, 104px);

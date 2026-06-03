@@ -6,6 +6,8 @@ import {
   LEGACY_CITY_SLUGS_FOR_PAGE_MERGE,
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
+import { stripProjectListForClient } from "@/app/_global_components/siteData/stripProjectForClient";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
 
 export const dynamic = "force-dynamic";
 
@@ -35,13 +37,23 @@ function mergeCityProjectLists(primary, secondary) {
     merged.push(project);
   });
 
-  return { ...primary, projectList: merged };
+  return {
+    ...primary,
+    projectList: stripProjectListForClient(merged),
+  };
 }
 
 async function fetchCityDataWithAliases(canonicalSlug) {
   const cityData = await fetchCityDataBySlug(canonicalSlug);
   const legacySlugs = LEGACY_CITY_SLUGS_FOR_PAGE_MERGE[canonicalSlug];
-  if (!legacySlugs?.length) return cityData;
+  if (!legacySlugs?.length) {
+    return {
+      ...cityData,
+      projectList: stripProjectListForClient(
+        Array.isArray(cityData?.projectList) ? cityData.projectList : [],
+      ),
+    };
+  }
 
   let merged = cityData;
   for (const legacySlug of legacySlugs) {
@@ -78,7 +90,14 @@ export default async function AllCityProjects({ params }) {
   }
   const cityData = await fetchCityDataWithAliases(canonicalSlug || cityname);
 
+  const seoSummary = [cityData?.metaDescription, cityData?.metaTitle]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <CityPage cityData={cityData} />
+    <>
+      <SeoNarrative>{seoSummary}</SeoNarrative>
+      <CityPage cityData={cityData} />
+    </>
   );
 }

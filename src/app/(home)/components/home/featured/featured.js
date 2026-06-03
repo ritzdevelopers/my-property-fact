@@ -11,16 +11,103 @@ import Image from "next/image";
 import Link from "next/link";
 import PropertyContainer from "../../common/page";
 import { useMemo, useState, useEffect } from "react";
+import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
 const DEMO_PROJECT_IMAGE = "/static/no_image.png";
 const DEMO_BUILDER_LOGO = "/logo.webp";
 
-function setDemoImageOnError(event, demoSrc) {
-  const img = event.currentTarget;
-  if (img.dataset.demoFallback === "1") return;
-  img.dataset.demoFallback = "1";
-  img.onerror = null;
-  img.src = demoSrc;
+function cleanImageFile(value) {
+  const text = String(value ?? "").trim();
+  if (
+    !text ||
+    text === "/" ||
+    text.toLowerCase() === "null" ||
+    text.toLowerCase() === "undefined"
+  ) {
+    return "";
+  }
+  return text;
+}
+
+function formatProjectAddress(address) {
+  const parts = String(address || "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return "";
+
+  const normalized = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
+  const deduped = [];
+  for (const part of parts) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && normalized(prev) === normalized(part)) continue;
+    deduped.push(part);
+  }
+  return deduped.join(", ");
+}
+
+function generatePrice(price) {
+  if (price == null || price === "") return "Price on request";
+  const strValue = String(price).trim();
+  if (!strValue) return "Price on request";
+  if (/[a-zA-Z]/.test(strValue)) return strValue;
+  const numericValue = Number.parseFloat(strValue.replace(/,/g, ""));
+  if (!Number.isFinite(numericValue) || numericValue <= 0) return "Price on request";
+  return numericValue < 1
+    ? `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`
+    : `₹ ${numericValue} Cr* Onwards`;
+}
+
+function FeaturedCardImage({ src, demoSrc, alt, className }) {
+  const [currentSrc, setCurrentSrc] = useState(src || demoSrc);
+
+  useEffect(() => {
+    setCurrentSrc(src || demoSrc);
+  }, [src, demoSrc]);
+
+  const handleError = () => {
+    setCurrentSrc((prev) => (prev !== demoSrc ? demoSrc : prev));
+  };
+
+  const isDemo = !src || currentSrc === demoSrc;
+
+  return (
+    <img
+      src={currentSrc}
+      alt={alt}
+      className={`${className}${isDemo ? " property-image--demo" : ""}`}
+      onError={handleError}
+      loading="lazy"
+      decoding="async"
+    />
+  );
+}
+
+function FeaturedBuilderLogo({ src, demoSrc, alt, isDemoClass }) {
+  const [currentSrc, setCurrentSrc] = useState(src || demoSrc);
+
+  useEffect(() => {
+    setCurrentSrc(src || demoSrc);
+  }, [src, demoSrc]);
+
+  const handleError = () => {
+    setCurrentSrc((prev) => (prev !== demoSrc ? demoSrc : prev));
+  };
+
+  const isDemo = !src || currentSrc === demoSrc;
+
+  return (
+    <div className={`logo-box${isDemo || isDemoClass ? " logo-box--demo" : ""}`}>
+      <img
+        src={currentSrc}
+        alt={alt}
+        className="img-fluid"
+        onError={handleError}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  );
 }
 
 function NextArrow(props) {
@@ -77,14 +164,16 @@ function FeaturedProjectsSwiper({ projects, renderCard }) {
         className="custom-prev featured-swiper-prev"
         aria-label="Previous Slide"
       >
-        ❮
+        
+        <FaArrowLeft size={16} />
       </button>
       <button
         type="button"
         className="custom-next featured-swiper-next"
         aria-label="Next Slide"
       >
-        ❯
+        <FaArrowRight size={16} />
+      
       </button>
       <Swiper
         modules={[Navigation]}
@@ -225,14 +314,15 @@ export default function Featured({
   const buildProjectImageSrc = (item) => {
     const imageBase = String(process.env.NEXT_PUBLIC_IMAGE_URL || "");
     const slug = String(item?.slugURL || item?.slugUrl || "").trim();
-    const file =
+    const file = cleanImageFile(
       item?.projectBannerImage ||
-      item?.projectThumbnailImage ||
-      item?.bannerImage ||
-      item?.imageURL ||
-      item?.image;
+        item?.projectThumbnailImage ||
+        item?.bannerImage ||
+        item?.imageURL ||
+        item?.image,
+    );
 
-    if (!file || !String(file).trim()) return DEMO_PROJECT_IMAGE;
+    if (!file) return DEMO_PROJECT_IMAGE;
     if (String(file).startsWith("http") || String(file).startsWith("/")) {
       return String(file);
     }
@@ -252,15 +342,16 @@ export default function Featured({
         item?.slugURL ||
         "",
     ).trim();
-    const file =
+    const file = cleanImageFile(
       item?.projectLogo ||
-      item?.builder?.builderImage ||
-      item?.builder?.builderLogo ||
-      item?.builderImage ||
-      item?.builderLogo ||
-      item?.logo;
+        item?.builder?.builderImage ||
+        item?.builder?.builderLogo ||
+        item?.builderImage ||
+        item?.builderLogo ||
+        item?.logo,
+    );
 
-    if (!file || !String(file).trim()) return DEMO_BUILDER_LOGO;
+    if (!file) return DEMO_BUILDER_LOGO;
     if (String(file).startsWith("http") || String(file).startsWith("/")) {
       return String(file);
     }
@@ -280,8 +371,17 @@ export default function Featured({
     const featuredBadge = getFeaturedBadge(item);
     const projectImageSrc = buildProjectImageSrc(item);
     const builderLogoSrc = buildBuilderLogoSrc(item);
-    const isProjectDemo = projectImageSrc === DEMO_PROJECT_IMAGE;
-    const isBuilderDemo = builderLogoSrc === DEMO_BUILDER_LOGO;
+    const primaryProjectSrc =
+      projectImageSrc === DEMO_PROJECT_IMAGE ? "" : projectImageSrc;
+    const primaryBuilderSrc =
+      builderLogoSrc === DEMO_BUILDER_LOGO ? "" : builderLogoSrc;
+    const addressSummary =
+      formatProjectAddress(item?.projectAddress) ||
+      [item?.cityName, item?.stateName].filter(Boolean).join(", ") ||
+      "";
+    const priceDisplay = generatePrice(
+      item?.projectPrice ?? item?.projectStartingPrice,
+    );
 
     return (
       <div className="property-card">
@@ -290,27 +390,24 @@ export default function Featured({
             {featuredBadge.label}
           </span>
         )}
-        <img
-          src={projectImageSrc}
+        <FeaturedCardImage
+          src={primaryProjectSrc}
+          demoSrc={DEMO_PROJECT_IMAGE}
+          title={item?.projectName || item?.name || "Featured project"}
           alt={item?.projectName || item?.name || "Featured project"}
-          className={`property-image${isProjectDemo ? " property-image--demo" : ""}`}
-          onError={(e) => setDemoImageOnError(e, DEMO_PROJECT_IMAGE)}
+          className="property-image"
         />
         <div className="property-info-card">
-          <div className={`logo-box${isBuilderDemo ? " logo-box--demo" : ""}`}>
-            <img
-              src={builderLogoSrc}
-              alt={item?.builder?.builderName || item?.builderName || "Builder logo"}
-              className="img-fluid"
-              onError={(e) => setDemoImageOnError(e, DEMO_BUILDER_LOGO)}
-            />
-          </div>
+          <FeaturedBuilderLogo
+            src={primaryBuilderSrc}
+            demoSrc={DEMO_BUILDER_LOGO}
+            alt={item?.builder?.builderName || item?.builderName || "Builder logo"}
+            isDemoClass={!primaryBuilderSrc}
+          />
           <div>
             <h4>{item?.projectName || item?.name || "Project"}</h4>
-            <p>{item?.locationName || item?.cityName || "India"}</p>
-            <h5>
-              {item?.startingPrice || item?.priceRange || "Price on request"}
-            </h5>
+            {addressSummary ? <p>{addressSummary}</p> : null}
+            <h5>{priceDisplay}</h5>
           </div>
         </div>
       </div>

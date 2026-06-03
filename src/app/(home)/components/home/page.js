@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -13,6 +14,7 @@ import {
   fetchTopPicksProject,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
+import LatestProject from "../_homecomponents/latesproject";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
 import {
@@ -172,6 +174,12 @@ export default async function HomePage() {
     limit: 8,
   });
 
+  const latestMarqueeProjects = [...recommendedProperties, ...recommendedProjects].filter(
+    (project, index, list) =>
+      project?.slugURL &&
+      list.findIndex((item) => item.slugURL === project.slugURL) === index,
+  );
+
   const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
     buildersRes,
     projects,
@@ -181,7 +189,7 @@ export default async function HomePage() {
   const mpfTopPicProject = await fetchTopPicksProject();
 
   try {
-    const row = (i, node) => <div key={i}>{node}</div>;
+    const row = (i, node) => <Fragment key={i}>{node}</Fragment>;
 
     return (
       <>
@@ -286,18 +294,26 @@ export default async function HomePage() {
 
         {row(
           2,
-          <RecommendedProjectsWithGeolocation
-            title="New Property Launches"
-            fallbackItems={recommendedProperties}
-            fallbackSubtitle={
-              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
-              "Explore New Residential & Commercial Properties"
-            }
-            kind="project"
-            locationIntent="projects"
-            viewAllHref="/projects"
-            className="recommended-properties-section"
-          />,
+          <>
+            {latestMarqueeProjects.length > 0 ? (
+              <LatestProject
+                projects={latestMarqueeProjects}
+                ariaLabel="Latest projects near you"
+              />
+            ) : null}
+            <RecommendedProjectsWithGeolocation
+              title="New Property Launches"
+              fallbackItems={recommendedProperties}
+              fallbackSubtitle={
+                buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
+                "Explore New Residential & Commercial Properties"
+              }
+              kind="project"
+              locationIntent="projects"
+              viewAllHref="/projects"
+              className="recommended-properties-section"
+            />
+          </>,
         )}
 
         {row(
@@ -318,7 +334,7 @@ export default async function HomePage() {
         )}
 
         <div className="position-relative">
-          {row(5, <NewInsight />)}
+          {row(5, <NewInsight projects={latestMarqueeProjects} />)}
 
           {row(
             6,

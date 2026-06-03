@@ -6,6 +6,7 @@ import {
   getDisplayCityList,
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
 export const dynamic = 'force-dynamic';
 // fetching all cities
 const fetchAllCities = async () => {
@@ -47,10 +48,16 @@ export default async function PropertyRateAndTrendByCityPage({ params }) {
             data: indiaInsight[`topDevelopersByValueForCity${capitalizeFirst(cityForPage)}`],
         },
     ];    
+    const cityLabel = capitalizeFirst(cityForPage);
+    const seoSummary = `Compare property rates, price trends, micromarket averages, and transaction activity in ${cityLabel} with My Property Fact market insights and locality data.`;
+
     return (
-        <PropertyRateAndTrendByCity cityList={allCities}
-            insightArray={insightsArray}
-            cityName={capitalizeFirst(cityForPage)}
-        />
+        <>
+            <SeoNarrative>{seoSummary}</SeoNarrative>
+            <PropertyRateAndTrendByCity cityList={allCities}
+                insightArray={insightsArray}
+                cityName={cityLabel}
+            />
+        </>
     )
 }

@@ -1,6 +1,4 @@
-import { getAllProjects } from "@/app/_global_components/masterFunction";
 import Projects from "./projects";
-import NewProjectListPage from "./newProjectListPage";
 import { Suspense } from "react";
 
 export const metadata = {
@@ -26,15 +24,12 @@ function ProjectsFallback() {
   );
 }
 
-export default async function ProjectsPage() {
-  const projects = await getAllProjects();
-
+export default function ProjectsPage() {
   return (
     <main id="primary-content" aria-labelledby="mpf-page-heading">
       <Suspense fallback={<ProjectsFallback />}>
-        <Projects projects={projects} />
+        <Projects />
       </Suspense>
-      {/* <NewProjectListPage projects={projects} /> */}
     </main>
   );
 }

@@ -127,7 +127,6 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
     );
   };
   return (
-    <>
       <Link
         href={`/${data.slugURL}`}
         className="rounded-4 custom-shadow d-flex flex-column justify-content-between bg-white text-decoration-none text-dark project-container overflow-hidden position-relative"
@@ -143,8 +142,11 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
             title={projectCardImageAlt}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             priority={imagePriority}
+            loading={imagePriority ? undefined : "lazy"}
             width={400}
             height={400}
+            sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 33vw"
+            quality={60}
             onError={() => setImageError(true)}
             unoptimized={imageError || !bannerImage}
           />
@@ -160,11 +162,10 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
 
         <div className="ms-3 pb-3 text-truncate small fw-medium mt-2 d-flex align-items-center gap-2">
           <span className="flex-shrink-0">
-            <FontAwesomeIcon icon={faLocationDot} style={{ color: "#35A332" }} />
+            <FontAwesomeIcon icon={faLocationDot} className="project-location-icon" />
           </span>
           <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{addressSummary}</p>
         </div>
       </Link>
-    </>
   );
 }

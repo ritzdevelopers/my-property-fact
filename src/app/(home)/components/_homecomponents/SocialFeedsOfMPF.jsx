@@ -212,6 +212,8 @@ export default function SocialFeedsOfMPF() {
                     <img
                       src={item.media}
                       className="w-100"
+                      title={item.caption}
+                      alt={item.caption}
                       style={{ height: 300, objectFit: "cover" }}
                     />
                   ) : (
@@ -312,6 +314,8 @@ export default function SocialFeedsOfMPF() {
                 <img
                   src={item.media}
                   className="w-100"
+                  title={item.caption}
+                  alt={item.caption}
                   style={{
                     height: "clamp(250px, 50vw, 400px)",
                     objectFit: "cover",

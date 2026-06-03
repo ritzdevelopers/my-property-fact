@@ -1,4 +1,5 @@
 import { getDisplayCityList } from "../cityAliasUtils";
+import { stripProjectListForClient } from "./stripProjectForClient";
 
 /**
  * Shared site data fetch (cities, builders, types, statuses, projects).
@@ -34,6 +35,6 @@ export async function fetchSiteDataFromApi() {
     builderList: buildersData?.builders || [],
     projectTypes: typesData || [],
     projectStatuses: statusesData || [],
-    projectList: projectsData || [],
+    projectList: stripProjectListForClient(projectsData || []),
   };
 }

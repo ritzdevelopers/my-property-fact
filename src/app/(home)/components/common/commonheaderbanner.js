@@ -50,6 +50,7 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
           title={bannerImageAlt}
           className="banner-background-image"
           sizes="100vw"
+          quality={65}
           priority
         />
         {/* Dark Overlay */}

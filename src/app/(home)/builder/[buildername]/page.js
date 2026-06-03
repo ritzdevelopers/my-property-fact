@@ -1,6 +1,7 @@
 import { fetchBuilderDetails } from "@/app/_global_components/masterFunction";
 import { notFound } from "next/navigation";
 import BuilderPage from "./builderpage";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
 
 export const revalidate = 120;
 
@@ -60,5 +61,14 @@ export default async function Builder({ params }) {
     notFound();
   }
 
-  return <BuilderPage builderDetail={builderDetail} />;
+  const seoSummary = [builderDetail?.metaDescription, builderDetail?.metaTitle]
+    .filter(Boolean)
+    .join(" ");
+
+  return (
+    <>
+      <SeoNarrative>{seoSummary}</SeoNarrative>
+      <BuilderPage builderDetail={builderDetail} />
+    </>
+  );
 }

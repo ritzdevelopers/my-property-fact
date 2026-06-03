@@ -4,8 +4,13 @@ import "../../components/home/home.css";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import {
+  LISTING_PAGE_SIZE,
+  ProjectListingPaginationControls,
+  useProjectListingPagination,
+} from "@/app/_global_components/projectListingPagination";
 import Image from "next/image";
-import { useState ,useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function CityPage({ cityData }) {
   // Safely handle cases where API doesn't return a project list
@@ -21,6 +26,9 @@ export default function CityPage({ cityData }) {
   const description = cityData?.cityDescription || "";
   const [showButton, setShowButton] = useState(false);
   const contentRef = useRef(null);
+
+  const { pageItems, currentPage, totalPages, totalItems, setPage } =
+    useProjectListingPagination(projects, LISTING_PAGE_SIZE);
 
   useEffect(() => {
     const el = contentRef.current;
@@ -63,6 +71,8 @@ export default function CityPage({ cityData }) {
               title={aboutSectionLeftAlt}
               width={161}
               height={353}
+              loading="lazy"
+              sizes="161px"
             />
           </div>
           {/* <div>
@@ -103,6 +113,8 @@ export default function CityPage({ cityData }) {
               title={aboutSectionRightAlt}
               width={161}
               height={353}
+              loading="lazy"
+              sizes="161px"
             />
           </div>
         </div>
@@ -116,9 +128,12 @@ export default function CityPage({ cityData }) {
               Projects in {cityData?.cityName || "this city"}
             </h2>
             <div className="row g-3">
-              {projects.length > 0 ? (
-                projects.map((item, index) => (
-                  <div key={`${index}`} className="col-12 col-sm-6 col-md-4">
+              {pageItems.length > 0 ? (
+                pageItems.map((item, index) => (
+                  <div
+                    key={item?.id != null ? String(item.id) : `city-project-${index}`}
+                    className="col-12 col-sm-6 col-md-4"
+                  >
                     <PropertyContainer data={item} />
                   </div>
                 ))
@@ -126,6 +141,13 @@ export default function CityPage({ cityData }) {
                 <p className="text-center fs-4 fw-bold">No projects found</p>
               )}
             </div>
+            <ProjectListingPaginationControls
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              pageSize={LISTING_PAGE_SIZE}
+              onPageChange={setPage}
+            />
           </div>
         )}
       </div>

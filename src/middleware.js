@@ -95,13 +95,22 @@ function isEldecoTerraSolPath(pathname) {
   );
 }
 
+function nextWithPathname(req, extraHeaders) {
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-mpf-pathname", req.nextUrl.pathname);
+  if (extraHeaders) {
+    for (const [key, value] of Object.entries(extraHeaders)) {
+      requestHeaders.set(key, value);
+    }
+  }
+  return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
 
   if (isEldecoTerraSolPath(path)) {
-    const requestHeaders = new Headers(req.headers);
-    requestHeaders.set("x-mpf-hide-popular-promo", "1");
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return nextWithPathname(req, { "x-mpf-hide-popular-promo": "1" });
   }
 
   // Public registration removed — only Super Admin creates users from the dashboard
@@ -113,7 +122,7 @@ export async function middleware(req) {
     path === "/admin/forgot-password" ||
     path === "/admin/forgot-password/"
   ) {
-    return NextResponse.next();
+    return nextWithPathname(req);
   }
 
   // Special case: login page
@@ -128,13 +137,13 @@ export async function middleware(req) {
       }
       // Logged in but wrong role
       if (accessDenied === "true") {
-        return NextResponse.next(); // allow page to show toast
+        return nextWithPathname(req); // allow page to show toast
       }
       return NextResponse.redirect(
         new URL("/admin?accessDenied=true", req.url),
       );
     }
-    return NextResponse.next();
+    return nextWithPathname(req);
   }
 
   // Special case: portal root (signin page)
@@ -154,7 +163,7 @@ export async function middleware(req) {
       //   return NextResponse.redirect(new URL("/admin/dashboard", req.url));
       // }
     }
-    return NextResponse.next();
+    return nextWithPathname(req);
   }
   // Protect admin and portal routes (except /portal which is the signin page)
   if (
@@ -204,16 +213,13 @@ export async function middleware(req) {
       }
     }
     // All good → allow request
-    return NextResponse.next();
+    return nextWithPathname(req);
   }
-  return NextResponse.next();
+  return nextWithPathname(req);
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/portal/:path*",
-    "/Eldeco-terra&sol",
-    "/Eldeco-terra&sol/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?|ttf|map)$).*)",
   ],
 };

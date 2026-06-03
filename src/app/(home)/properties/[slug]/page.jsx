@@ -4,6 +4,7 @@ import {
   getPropertyIdFromSlug,
   projectSlugFromPropertyName,
 } from "./propertySlugUtils";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
 
 function apiRoot() {
   const u = process.env.NEXT_PUBLIC_API_URL || "";
@@ -144,8 +145,20 @@ export default async function PropertyDetailPage({ params }) {
     if (proj?.projectName) projectDetails = proj;
   }
 
+  const seoSummary = [
+    property?.metaDescription,
+    property?.title,
+    property?.projectName,
+    property?.locality,
+    property?.city,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
-    <PropertyDetailClient
+    <>
+      <SeoNarrative>{seoSummary}</SeoNarrative>
+      <PropertyDetailClient
       slug={slug}
       initialProperty={property}
       initialRelatedProperties={relatedList}
@@ -154,5 +167,6 @@ export default async function PropertyDetailPage({ params }) {
       initialAllNearbyBenefits={nearbyCatalogForProperty}
       initialProjectDetails={projectDetails}
     />
+    </>
   );
 }

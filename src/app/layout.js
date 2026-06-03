@@ -8,6 +8,7 @@ import SiteDataShell from "./_global_components/SiteDataShell";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
+import RouteSeoNarrative from "./_global_components/seo/RouteSeoNarrative";
 
 config.autoAddCss = false;
 
@@ -135,6 +136,7 @@ export default function RootLayout({ children }) {
           />
         </noscript>
 
+        <RouteSeoNarrative />
         <SiteDataShell>{children}</SiteDataShell>
         <WebsiteGateway />
         <Suspense fallback={null}>

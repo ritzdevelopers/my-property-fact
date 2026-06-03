@@ -110,6 +110,10 @@
 }
 
 /* Residential / Commercial text inside card */
+.project-location-icon {
+  color: #35a332;
+}
+
 .project-property-type-text {
   color: #00000099 !important;
 }

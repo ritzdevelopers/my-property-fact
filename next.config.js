@@ -211,6 +211,12 @@ const nextConfig = {
         destination: `${getPublicSiteOrigin()}/api/v1/web-story/:slug*`,
         permanent: true,
       },
+      {
+        source: "/web-story/:slug*",
+        has: [{ type: "host", value: "apis.mypropertyfact.in" }],
+        destination: `${getPublicSiteOrigin()}/api/v1/web-story/:slug*`,
+        permanent: true,
+      },
 
       // Legacy: /web-story/{slug} → /api/v1/web-story/{slug} (proxied to backend via rewrites)
       {

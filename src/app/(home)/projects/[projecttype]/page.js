@@ -3,6 +3,15 @@ import { fetchAllProjectsByProjectType } from "@/app/_global_components/masterFu
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
+
+function getProjectTypeSeoDescription(projecttype, projectTypeDetail) {
+  const lower = String(projecttype || "").toLowerCase();
+  if (lower === "commercial") return COMMERCIAL_META.description;
+  if (lower === "residential") return RESIDENTIAL_META.description;
+  if (lower === "new-launches") return NEW_LAUNCHES_META.description;
+  return projectTypeDetail?.metaDesc || projectTypeDetail?.metaDescription || "";
+}
 
 const COMMERCIAL_META = {
   title: "Top Commercial Real Estate Projects in India | MyPropertyFact",
@@ -103,8 +112,11 @@ export async function generateMetadata({ params }) {
 export default async function ProjectType({ params }) {
   const { projecttype } = await params;
   const projectTypeDetail = await fetchAllProjectsByProjectType(projecttype);
+  const seoSummary = getProjectTypeSeoDescription(projecttype, projectTypeDetail);
+
   return (
     <>
+      <SeoNarrative>{seoSummary}</SeoNarrative>
       <CommonHeaderBanner
         headerText={projectTypeDetail.projectTypeName}
         image={"realestate-bg.jpg"}

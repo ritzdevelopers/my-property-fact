@@ -9,6 +9,7 @@ import {
   buildFaqJsonLd,
   normalizeFaqItems,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
+import SeoNarrative from "@/app/_global_components/seo/SeoNarrative";
 
 export async function generateMetadata({ params }) {
     const { blogpage } = await params;
@@ -52,8 +53,13 @@ export default async function BlogPage({ params }) {
     blogDetail?.blogFaqList?.list ??
     [];
 
+  const seoSummary = [blogDetail?.blogMetaDescription, blogDetail?.blogTitle]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <>
+      <SeoNarrative>{seoSummary}</SeoNarrative>
       <JsonLdScript data={buildFaqJsonLd(normalizeFaqItems(rawFaqList))} />
       <BlogDetail
         blogDetail={blogDetail}

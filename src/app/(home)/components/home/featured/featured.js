@@ -294,13 +294,13 @@ export default function Featured({
     const statusRaw = item?.projectStatusName || item?.status || "";
     const status = String(statusRaw).toLowerCase();
     if (status.includes("ready")) {
-      return { label: "Ready to Move", className: "bg-warning" };
+      return { label: "Ready to Move", className: "property-badge--ready-to-move" };
     }
     if (status.includes("new")) {
       return { label: "New Launched", className: "bg-success" };
     }
     if (status.includes("luxury")) {
-      return { label: statusRaw || "Ultra Luxury", className: "bg-warning" };
+      return { label: statusRaw || "Ultra Luxury", className: "property-badge--ultra-luxury" };
     }
     if (status.includes("construction")) {
       return {
@@ -441,8 +441,8 @@ export default function Featured({
               </button>
             </div>
           )}
-          <div className="d-flex justify-content-between align-items-center">
-            <h2 className="text-left plus-jakarta-sans-semi-bold home-featured-section-title">
+          <div className="justify-content-between align-items-center">
+            <h2 className="text-center plus-jakarta-sans-semi-bold home-featured-section-title">
               {sectionTitle}
             </h2>
             {autoPlay && type !== "Similar" && (

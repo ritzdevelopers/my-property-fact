@@ -140,56 +140,55 @@ function ProjectCardImage({ primarySrc, fallbackSrc = NO_IMAGE, alt }) {
 function ProjectCard({ card }) {
   return (
     <article className="lp-card">
-      <div className="lp-card__grid">
-        <Link href={card.href} className="lp-card__thumb" title={`View ${card.title}`}>
-          <ProjectCardImage
-            primarySrc={card.primaryImage}
-            fallbackSrc={card.fallbackImage}
-            alt={card.title}
-            title={card.title}
-          />
-        </Link>
-
-        <Link href={card.href} className="lp-card__head" title={`View ${card.title}`}>
-          <h3 className="lp-card__title">{card.title}</h3>
-          <p className="lp-card__location">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/static/icon/map.png" alt="" aria-hidden className="lp-card__pin" />
-            <span>{card.location}</span>
-          </p>
-          <p className="lp-card__price">{card.price}</p>
-             <div className="lp-card__specs">
-          {card.type ? <p className="lp-card__bhk">{card.type}</p> : null}
-          {card.area ? <p className="lp-card__sqft">{card.area}</p> : null}
+      <div className="lp-card__inner">
+        <div className="lp-card__left">
+          <Link href={card.href} className="lp-card__thumb" title={`View ${card.title}`}>
+            <ProjectCardImage
+              primarySrc={card.primaryImage}
+              fallbackSrc={card.fallbackImage}
+              alt={card.title}
+            />
+          </Link>
+          <div className="lp-card__builder">
+            <p className="lp-card__builderName">{card.builderName}</p>
+            {card.builderHref ? (
+              <Link
+                href={card.builderHref}
+                className="lp-card__builderLink"
+                title={`View projects by ${card.builderName}`}
+              >
+                View Projects by {card.builderName}
+                <span className="lp-card__arrow" aria-hidden>
+                  ›
+                </span>
+              </Link>
+            ) : (
+              <span className="lp-card__builderLink">
+                View Projects by {card.builderName}
+                <span className="lp-card__arrow" aria-hidden>
+                  ›
+                </span>
+              </span>
+            )}
+          </div>
         </div>
-        </Link>
 
-
-     
+        <div className="lp-card__right">
+          <Link href={card.href} className="lp-card__head" title={`View ${card.title}`}>
+            <h3 className="lp-card__title">{card.title}</h3>
+            <p className="lp-card__location">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/static/icon/map.png" alt="" aria-hidden className="lp-card__pin" />
+              <span>{card.location}</span>
+            </p>
+            <p className="lp-card__price">{card.price}</p>
+            <div className="lp-card__specs">
+              {card.type ? <p className="lp-card__bhk">{card.type}</p> : null}
+              {card.area ? <p className="lp-card__sqft">{card.area}</p> : null}
+            </div>
+          </Link>
+        </div>
       </div>
-      
-        <div className="lp-card__builder">
-          <p className="lp-card__builderName">{card.builderName}</p>
-          {card.builderHref ? (
-            <Link
-              href={card.builderHref}
-              className="lp-card__builderLink"
-              title={`View projects by ${card.builderName}`}
-            >
-              View Projects by {card.builderName}
-              <span className="lp-card__arrow" aria-hidden>
-                ›
-              </span>
-            </Link>
-          ) : (
-            <span className="lp-card__builderLink">
-              View Projects by {card.builderName}
-              <span className="lp-card__arrow" aria-hidden>
-                ›
-              </span>
-            </span>
-          )}
-        </div>
     </article>
   );
 }

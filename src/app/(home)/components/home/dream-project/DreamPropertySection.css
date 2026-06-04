@@ -1,12 +1,18 @@
 .dream-property-section {
   position: relative;
   padding: 80px 0;
-  background: linear-gradient(
+  /* background: linear-gradient(
     180deg,
     rgba(245, 247, 250, 1) 0%,
     rgba(235, 238, 245, 1) 50%,
     rgba(230, 233, 242, 1) 100%
+  ); */
+  background: linear-gradient(
+    to bottom,
+    #FFFFFF 0%,
+    #DEDEF200 0%
   );
+
   overflow: hidden;
 }
 
@@ -312,7 +318,7 @@
 /* ── Infinite marquee ────────────────────────────────────── */
 .cities-marquee {
   width: 100%;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .cities-marquee-track {

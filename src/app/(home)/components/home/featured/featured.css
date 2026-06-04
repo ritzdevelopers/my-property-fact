@@ -121,8 +121,8 @@
 }
 
 .home-featured-section .home-featured-section-title {
-    margin-top: 25px !important;
-    margin-bottom: 25px !important;
+    margin-top: 40px !important;
+    margin-bottom: 40px !important;
 }
 
 @media (min-width: 1024px) {
@@ -446,6 +446,7 @@
   
   .property-image {
     width: 100%;
+    max-width: 510px;
     height: 232px;
     object-fit: fill;
     display: block;
@@ -472,8 +473,18 @@
   }
 
   .property-badge--under-construction {
-    background-color: #566bca !important;
+    background-color: #566BCA !important;
     color: #fffffe !important;
+  }
+
+  .property-badge--ultra-luxury {
+    background-color: #cc9848 !important;
+    color: #ffffff !important;
+  }
+
+  .property-badge--ready-to-move {
+    background-color: #0f766e !important;
+    color: #ffffff !important;
   }
   
   /* INFO CARD */

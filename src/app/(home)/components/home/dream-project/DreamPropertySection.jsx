@@ -126,8 +126,8 @@ const DreamPropertySection = () => {
           className="object-fit-cover"
           loading="lazy"
           style={{
-            position: "absolute", top: "40%", left: "0", width: "100%", height: "100%",
-            objectFit: "cover", opacity: 0.5
+            position: "absolute", top: "25%", left: "0", width: "100%", height: "100%",
+            objectFit: "cover", opacity: 0.6
           }}
         />
       </div>

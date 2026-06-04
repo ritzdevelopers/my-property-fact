@@ -1,4 +1,6 @@
-/* ── Marquee (Figma reference) ── */
+/* Figma frame: 514 × 250 — fixed layout, ditto spacing */
+
+/* ── Marquee ── */
 .lp-section {
   width: 100%;
   padding: 24px 0 32px;
@@ -13,7 +15,7 @@
 .lp-track {
   display: flex;
   width: max-content;
-  animation: lp-scroll 50s linear infinite;
+  animation: lp-scroll 150s linear infinite;
 }
 
 .lp-track__seg {
@@ -35,220 +37,213 @@
   }
 }
 
-/* ── Card: 402 × 196 (2×2 grid) ── */
-.lp-card {
-  flex: 0 0 auto;
+/* ── Card shell: 514 × 250, padding 20 ── */
+.lp-section .lp-card {
+  flex: 0 0 514px;
   width: 514px;
   height: 250px;
-  max-width: 92vw;
-  background: #fff;
+  box-sizing: border-box;
+  background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 16px;
   padding: 20px;
+  overflow: hidden;
+}
+
+/* Inner grid: 213 | 18 gap | 243 = 474 content width, height 210 */
+.lp-section .lp-card__inner {
+  display: grid;
+  grid-template-columns: 213px 243px;
+  column-gap: 18px;
+  width: 474px;
+  height: 210px;
   box-sizing: border-box;
 }
 
-.lp-card__grid {
-  display: grid;
-  grid-template-columns: 214px 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 18px;
-  row-gap: 5px;
-  align-items: start;
+/* ── Left column ── */
+.lp-section .lp-card__left {
+  display: flex;
+  flex-direction: column;
+  width: 213px;
+  min-width: 213px;
+  max-width: 213px;
 }
 
-.lp-card__thumb {
-  grid-column: 1;
-  grid-row: 1;
+.lp-section .lp-card__thumb {
   display: block;
-  /* width: 118px;
-  height: 132px; */
-  border-radius: 10px;
+  width: 213px;
+  height: 145px;
   overflow: hidden;
   background: #e8e8e8;
   text-decoration: none;
+  line-height: 0;
+  flex-shrink: 0;
 }
 
-.lp-card__img {
-  width: 213px;
-  height: 145px;
+.lp-section .lp-card__img {
+  width: 213px !important;
+  height: 145px !important;
+  max-width: 213px !important;
+  max-height: 145px !important;
   object-fit: cover;
   display: block;
+  border-radius: 0;
 }
 
-.lp-card__img--placeholder {
-  object-fit: cover;
+.lp-section .lp-card__img--placeholder {
   background: #f0f0f0;
 }
 
-.lp-card__head {
-  grid-column: 2;
-  grid-row: 1;
+.lp-section .lp-card__builder {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-  min-height: 132px;
+  /* max-width: 213px; */
+  width: 100%;
+  white-space: nowrap;
+  margin-top: 10%;
+  gap: 5px;
+}
+
+/* ── Right panel: 243 × 210, padding 20, top-aligned ── */
+.lp-section .lp-card__right {
+  /* width: 243px;
+  height: 210px; */
+  box-sizing: border-box;
+  background-color: #FDFCFF;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  align-items: center;
+  margin-top:-5%;
+  margin-right:-5%;
+  margin-bottom:-5%;
+}
+
+.lp-section .lp-card__head {
+  display: block;
   text-decoration: none;
   color: inherit;
-}
-
-.lp-card__title {
   margin: 0;
-  font-family: Inter, sans-serif;
-  font-weight: 600;
-  font-size: 21px;
-  line-height: 24px;
-  color: #000;
+  padding: 0;
 }
 
-.lp-card__location {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 0;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  color: rgba(0, 0, 0, 0.6);
+/* Title — 21 / 24 / 600 / #000 — 10px below */
+.lp-section .lp-card__title {
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 21px !important;
+  line-height: 24px !important;
+  letter-spacing: 0 !important;
+  color: #000000 !important;
 }
 
-.lp-card__pin {
-  width: 14px;
-  height: 14px;
+/* Location — 16 / 24 / 400 / 60% — 10px below */
+.lp-section .lp-card__location {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+  margin: 0 0 10px !important;
+  padding: 0 !important;
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 16px !important;
+  line-height: 24px !important;
+  letter-spacing: 0 !important;
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.lp-section .lp-card__pin {
+  width: 14px !important;
+  height: 14px !important;
   flex-shrink: 0;
-  margin-top: 4px;
+  margin: 5px 0 0 !important;
+  padding: 0 !important;
   object-fit: contain;
 }
 
-.lp-card__location span {
+.lp-section .lp-card__location span {
   min-width: 0;
 }
 
-.lp-card__price {
-  margin: 2px 0 0;
-  font-family: Inter, sans-serif;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 22px;
-  color: #c9a24d;
+/* Price — 18 / 22 / 500 / gold — 10px below */
+.lp-section .lp-card__price {
+  margin: 15px 0 15px !important;
+  padding: 0 !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 18px !important;
+  line-height: 22px !important;
+  letter-spacing: 0 !important;
+  color: #c9a24d !important;
 }
 
-.lp-card__builder {
-  grid-column: 1;
-  grid-row: 2;
+.lp-section .lp-card__specs {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.lp-card__builderName {
+  gap: 10px;
   margin: 0;
-  font-family: Inter, sans-serif;
-  font-weight: 600;
-  font-size: 15px;
-  line-height: 20px;
-  color: #000;
+  padding: 0;
 }
 
-.lp-card__builderLink {
+/* BHK — 15 / 20 / 500 */
+.lp-section .lp-card__bhk {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  letter-spacing: 0 !important;
+  color: rgba(0, 0, 0, 0.78) !important;
+}
+
+/* Area — 15 / 20 / 500 / teal */
+.lp-section .lp-card__sqft {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 500 !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  letter-spacing: 0 !important;
+  color: #438e82 !important;
+}
+
+/* Builder — 15 / 20 / 600 */
+.lp-section .lp-card__builderName {
+  margin: 0 0 2px !important;
+  padding: 0 !important;
+  font-family: Inter, sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  line-height: 20px !important;
+  letter-spacing: 0 !important;
+  color: #000000 !important;
+}
+
+/* Builder link — 13 / 18 / 400 */
+.lp-section .lp-card__builderLink {
   display: inline;
-  font-family: "Plus Jakarta Sans", sans-serif;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 18px;
-  color: rgba(0, 0, 0, 0.55);
+  font-family: "Plus Jakarta Sans", sans-serif !important;
+  font-weight: 400 !important;
+  font-size: 13px !important;
+  line-height: 18px !important;
+  letter-spacing: 0 !important;
+  color: rgba(0, 0, 0, 0.55) !important;
   text-decoration: none;
 }
 
-.lp-card__builderLink:hover {
-  color: #000;
+.lp-section .lp-card__builderLink:hover {
+  color: #000000 !important;
 }
 
-.lp-card__arrow {
+.lp-section .lp-card__arrow {
   margin-left: 2px;
-}
-
-.lp-card__specs {
-  grid-column: 2;
-  grid-row: 2;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  /* align-self: end; */
-}
-
-.lp-card__bhk {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 20px;
-  color: rgba(0, 0, 0, 0.78);
-}
-
-.lp-card__sqft {
-  margin: 0;
-  font-family: Inter, sans-serif;
-  font-weight: 500;
-  font-size: 15px;
-  line-height: 20px;
-  color: #438e82;
-}
-
-@media (max-width: 480px) {
-  .lp-card {
-    width: 340px;
-    padding: 16px;
-    height: auto;
-  }
-
-  .lp-card__grid {
-    grid-template-columns: 96px 1fr;
-    column-gap: 14px;
-    row-gap: 4px;
-  }
-
-  .lp-card__thumb {
-    width: 96px;
-    height: 112px;
-  }
-
-  .lp-card__head {
-    min-height: 112px;
-  }
-
-  .lp-card__title {
-    font-size: 17px;
-    line-height: 22px;
-  }
-
-  .lp-card__location {
-    font-size: 13px;
-    line-height: 20px;
-  }
-
-  .lp-card__price {
-    font-size: 15px;
-    line-height: 20px;
-  }
-
-  .lp-card__builderName {
-    font-size: 13px;
-  }
-
-  .lp-card__builderLink {
-    font-size: 11px;
-    line-height: 16px;
-  }
-
-  .lp-card__bhk,
-  .lp-card__sqft {
-    font-size: 13px;
-    line-height: 18px;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -180,34 +180,20 @@ export default function MasterBHKProjectList() {
 
   /** Filter key + URL segment for BHK pill links (`{floor}-{segment}-in-{city}`). */
   const resolveListingCategory = () => {
-    if (pathName.includes("/offices-and-shop-in-")) {
+    if (pathName.startsWith("/offices-and-shop-in-")) {
       return { cat: "commercial", urlCategorySegment: "offices-and-shop" };
     }
-    if (pathName.includes("/commercial-property-in-")) {
+    if (pathName.startsWith("/commercial-property-in-")) {
       return { cat: "commercial", urlCategorySegment: "commercial" };
     }
-    if (pathName.includes("/flats-in-")) {
+    if (pathName.startsWith("/flats-in-")) {
       return { cat: "flats", urlCategorySegment: "flats" };
     }
-    if (pathName.includes("/new-projects-in-")) {
+    if (pathName.startsWith("/new-projects-in-")) {
       return { cat: "new-projects", urlCategorySegment: "new-projects" };
     }
-    if (pathName.includes("/apartments-in-")) {
+    if (pathName.startsWith("/apartments-in-")) {
       return { cat: "apartments", urlCategorySegment: "apartments" };
-    }
-    if (
-      pathName.includes("commercial") ||
-      pathName.includes("offices-and-shop") ||
-      pathName.includes("offices") ||
-      pathName.includes("shop")
-    ) {
-      return { cat: "commercial", urlCategorySegment: "commercial" };
-    }
-    if (pathName.includes("flats")) {
-      return { cat: "flats", urlCategorySegment: "flats" };
-    }
-    if (pathName.includes("new-projects")) {
-      return { cat: "new-projects", urlCategorySegment: "new-projects" };
     }
     return { cat: "apartments", urlCategorySegment: "apartments" };
   };
@@ -269,11 +255,11 @@ export default function MasterBHKProjectList() {
   };
 
   const getSectionHeadingFromPath = () => {
-    if (pathName.includes("/commercial-property-in-")) return "Commercial Property";
-    if (pathName.includes("/new-projects-in-")) return "New Projects";
-    if (pathName.includes("/flats-in-")) return "Flats";
-    if (pathName.includes("/apartments-in-")) return "Apartments";
-    if (pathName.includes("/offices-and-shop-in-")) return "Offices and Shop";
+    if (pathName.startsWith("/commercial-property-in-")) return "Commercial Property";
+    if (pathName.startsWith("/new-projects-in-")) return "New Projects";
+    if (pathName.startsWith("/flats-in-")) return "Flats";
+    if (pathName.startsWith("/apartments-in-")) return "Apartments";
+    if (pathName.startsWith("/offices-and-shop-in-")) return "Offices and Shop";
     return "Projects";
   };
 
@@ -287,7 +273,7 @@ export default function MasterBHKProjectList() {
     ];
     let foundCity = "";
     slugPrefix.forEach((slug) => {
-      if (pathName.includes(slug)) {
+      if (pathName.startsWith(slug)) {
         foundCity = pathName.replace(slug, "").replace(/-/g, " ").trim();
       }
     });

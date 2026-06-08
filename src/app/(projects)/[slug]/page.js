@@ -9,6 +9,8 @@ import {
   fetchProjectDetailsBySlug,
   isCityTypeUrl,
   isFloorTypeUrl,
+  isMalformedListingSlug,
+  isValidCompoundFloorListing,
   parseCompoundFloorListingSlug,
 } from "@/app/_global_components/masterFunction";
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
@@ -93,22 +95,18 @@ export default async function PropertyPage({ params }) {
     typeof projectDetail === "object" &&
     !Array.isArray(projectDetail) &&
     typeof projectDetail.slugURL === "string";
+  const isProjectSlug = projectResolved && projectDetail.slugURL === slug;
 
-  let isCompoundFloorListing = false;
-  if (maybeCompoundListing) {
-    const cityOk = cityList.some(
-      (c) =>
-        c.cityName.toLowerCase().replace(/\s+/g, "-") ===
-        maybeCompoundListing.citySlug,
-    );
-    const baseFloorCitySlug = `${maybeCompoundListing.floorSlug}-in-${maybeCompoundListing.citySlug}`;
-    isCompoundFloorListing =
-      cityOk && (await isFloorTypeUrl(baseFloorCitySlug));
+  if (!isProjectSlug && isMalformedListingSlug(slug)) {
+    notFound();
   }
+
+  const isCompoundFloorListing = maybeCompoundListing
+    ? await isValidCompoundFloorListing(maybeCompoundListing)
+    : false;
 
   const isFloorTypeSlug =
     !isCompoundFloorListing && (await isFloorTypeUrl(slug));
-  const isProjectSlug = projectResolved && projectDetail.slugURL === slug;
   /** Compound `{floor}-{category}-in-{city}` must not be treated as city hub (`*-in-{city}`). */
   const isCitySlug =
     !maybeCompoundListing && (await isCityTypeUrl(slug));

@@ -234,7 +234,10 @@ module.exports = {
             Array.isArray(item?.webStories) &&
             item.webStories.length > 0
           ) {
-            pushLoc(`/stories/${slug}`, { priority: 0.68, changefreq: "weekly" });
+            pushLoc(`/api/v1/web-story/${slug}`, {
+              priority: 0.68,
+              changefreq: "weekly",
+            });
           }
         }
       }

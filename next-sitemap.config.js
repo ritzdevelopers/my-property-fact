@@ -62,19 +62,19 @@ function listingCitySlug(city) {
 
 /** Core public pages that App Router auto-discovery often omits from next-sitemap output. */
 const STATIC_PUBLIC_PAGES = [
-  { loc: "/", priority: 1.0, changefreq: "daily" },
-  { loc: "/about-us", priority: 0.8, changefreq: "weekly" },
-  { loc: "/contact-us", priority: 0.8, changefreq: "weekly" },
-  { loc: "/join-our-team", priority: 0.75, changefreq: "weekly" },
-  { loc: "/projects", priority: 0.85, changefreq: "weekly" },
-  { loc: "/blog", priority: 0.8, changefreq: "weekly" },
-  { loc: "/web-stories", priority: 0.72, changefreq: "weekly" },
-  { loc: "/properties", priority: 0.78, changefreq: "weekly" },
-  { loc: "/emi-calculator", priority: 0.7, changefreq: "weekly" },
-  { loc: "/market-analysis", priority: 0.7, changefreq: "weekly" },
+  { loc: "/", priority: 0.68, changefreq: "weekly" },
+  { loc: "/about-us", priority: 0.68, changefreq: "weekly" },
+  { loc: "/contact-us", priority: 0.68, changefreq: "weekly" },
+  { loc: "/join-our-team", priority: 0.68, changefreq: "weekly" },
+  { loc: "/projects", priority: 0.68, changefreq: "weekly" },
+  { loc: "/blog", priority: 0.68, changefreq: "weekly" },
+  { loc: "/web-stories", priority: 0.68, changefreq: "weekly" },
+  { loc: "/properties", priority: 0.68, changefreq: "weekly" },
+  { loc: "/emi-calculator", priority: 0.68, changefreq: "weekly" },
+  { loc: "/market-analysis", priority: 0.68, changefreq: "weekly" },
   { loc: "/clients-speak", priority: 0.68, changefreq: "weekly" },
-  { loc: "/property-rate-and-trend", priority: 0.72, changefreq: "weekly" },
-  { loc: "/locate-score", priority: 0.7, changefreq: "weekly" },
+  { loc: "/property-rate-and-trend", priority: 0.68, changefreq: "weekly" },
+  { loc: "/locate-score", priority: 0.68, changefreq: "weekly" },
   { loc: "/privacy-policy", priority: 0.5, changefreq: "yearly" },
 ];
 
@@ -286,7 +286,7 @@ module.exports = {
     const seen = new Set();
     const allPaths = [];
 
-    const pushLoc = (loc, { priority = 0.72, changefreq = "weekly" } = {}) => {
+    const pushLoc = (loc, { priority = 0.68, changefreq = "weekly" } = {}) => {
       const normalized = loc === "/" ? "/" : loc.startsWith("/") ? loc : `/${toPathSlug(loc)}`;
       if (!normalized || seen.has(normalized)) return;
       seen.add(normalized);
@@ -310,7 +310,7 @@ module.exports = {
         projectsData = coerceArray(await projectsRes.json());
         for (const p of projectsData) {
           const slug = toPathSlug(p?.slugURL || p?.slugUrl);
-          if (slug) pushLoc(`/${slug}`, { priority: 0.8, changefreq: "weekly" });
+          if (slug) pushLoc(`/${slug}`, { priority: 0.68, changefreq: "weekly" });
         }
       }
     } catch {
@@ -323,7 +323,7 @@ module.exports = {
         const blogs = coerceArray(await blogsRes.json());
         for (const b of blogs) {
           const slug = blogSlug(b);
-          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.6, changefreq: "weekly" });
+          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.68, changefreq: "weekly" });
         }
       }
     } catch {
@@ -362,7 +362,7 @@ module.exports = {
         const buildersObj = await buildersRes.json();
         for (const prop of buildersObj?.builders || []) {
           const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
-          if (slug) pushLoc(`/builder/${slug}`, { priority: 0.7, changefreq: "weekly" });
+          if (slug) pushLoc(`/builder/${slug}`, { priority: 0.68, changefreq: "weekly" });
         }
       }
     } catch {
@@ -375,7 +375,7 @@ module.exports = {
         cities = coerceArray(await citiesRes.json());
         for (const prop of cities) {
           const slug = toPathSlug(prop?.slugURL || prop?.slugUrl);
-          if (slug) pushLoc(`/city/${slug}`, { priority: 0.7, changefreq: "weekly" });
+          if (slug) pushLoc(`/city/${slug}`, { priority: 0.68, changefreq: "weekly" });
         }
       }
     } catch {
@@ -390,7 +390,7 @@ module.exports = {
         const projectTypes = coerceArray(await projectTypesRes.json());
         for (const prop of projectTypes) {
           const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
-          if (slug) pushLoc(`/projects/${slug}`, { priority: 0.7, changefreq: "weekly" });
+          if (slug) pushLoc(`/projects/${slug}`, { priority: 0.68, changefreq: "weekly" });
         }
       }
     } catch {
@@ -417,13 +417,13 @@ module.exports = {
         if (!citySlug) continue;
 
         pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, {
-          priority: 0.75,
+          priority: 0.68,
           changefreq: "weekly",
         });
 
         for (const prefix of LEGACY_CITY_HUB_PREFIXES) {
           pushLoc(`/${prefix}${citySlug}`, {
-            priority: 0.74,
+            priority: 0.68,
             changefreq: "weekly",
           });
         }
@@ -431,14 +431,14 @@ module.exports = {
         for (const floor of allFloorSlugs) {
           // Plain floor hub: `/showroom-in-noida`, `/plot-in-faridabad`, `/2-bhk-in-gurugram`.
           pushLoc(`/${floor}-in-${citySlug}`, {
-            priority: isBhkFloorSlug(floor) ? 0.735 : 0.72,
+            priority: isBhkFloorSlug(floor) ? 0.68 : 0.68,
             changefreq: "weekly",
           });
 
           if (isBhkFloorSlug(floor)) {
             for (const category of LISTING_BHK_CATEGORY_SLUGS) {
               pushLoc(`/${floor}-${category}-in-${citySlug}`, {
-                priority: 0.73,
+                priority: 0.68,
                 changefreq: "weekly",
               });
             }

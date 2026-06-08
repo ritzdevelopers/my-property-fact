@@ -98,24 +98,132 @@ const LEGACY_CITY_HUB_PREFIXES = [
   "commercial-property-in-",
 ];
 
-function extractBhkFloorSlugs(floorPlansPayload) {
+/** Mirrors `master-bhk-project-list` / `isFloorTypeUrl` slug normalization. */
+const EXCLUDED_FLOOR_SLUGS = new Set([
+  "1-br",
+  "2-br",
+  "1br",
+  "2br",
+  "bhk",
+  "offices-and-shop",
+  "office-and-shop",
+]);
+
+const FLOOR_TYPE_ALIASES = {
+  shop: "shops",
+  shops: "shops",
+  "food courts": "food-court",
+  plot: "plot",
+  plots: "plot",
+  office: "office",
+  offices: "office",
+  "1 rk studio apartment": "1-rk-studio",
+  "1 rk studio": "1-rk-studio",
+  restaurant: "restaurant",
+  restaurants: "restaurant",
+  showroom: "showroom",
+  showrooms: "showroom",
+};
+
+const COMBINED_FLOOR_TYPES = new Set([
+  "offices and shop",
+  "office and shop",
+  "shop and sco plots",
+  "shops and sco plots",
+]);
+
+function isBareNumberSlug(slug) {
+  return /^\d+$/.test(String(slug || "").replace(/-/g, ""));
+}
+
+function isBhkFloorSlug(slug) {
+  return /^\d+-bhk$/.test(String(slug || ""));
+}
+
+function extractIndividualBhkTypes(value) {
+  const out = [];
+  const source = String(value || "");
+  const bhkRegex = /(\d+)\s*bhk/gi;
+  let match;
+  while ((match = bhkRegex.exec(source)) !== null) {
+    out.push(`${match[1]} BHK`);
+  }
+  return out;
+}
+
+function normalizeFloorSlugFromPlanType(value = "") {
+  if (value == null || typeof value !== "string") return "";
+  const withoutSqft = value
+    .replace(/\s*-\s*\d+\s*(?:sq\.ft|sq\s*ft)\s*/gi, "")
+    .trim();
+  const normalized = withoutSqft.toLowerCase().trim().replace(/\s+/g, " ");
+  if (!normalized || COMBINED_FLOOR_TYPES.has(normalized)) return "";
+  if (FLOOR_TYPE_ALIASES[normalized]) return FLOOR_TYPE_ALIASES[normalized];
+
+  let slugType = normalized.replace(/\s+/g, "-");
+  if (/^\d+bhk$/.test(slugType)) {
+    slugType = slugType.replace(/^(\d+)(bhk)$/, "$1-$2");
+  }
+  return slugType;
+}
+
+function addFloorSlug(target, slug) {
+  const normalized = normalizeFloorSlugFromPlanType(slug);
+  if (
+    !normalized ||
+    EXCLUDED_FLOOR_SLUGS.has(normalized) ||
+    isBareNumberSlug(normalized)
+  ) {
+    return;
+  }
+  target.add(normalized);
+}
+
+/** All `{floor}-in-{city}` slugs from floor-plans API (BHK, plot, showroom, 1-rk-studio, etc.). */
+function extractAllFloorSlugs(floorPlansPayload) {
   const out = new Set();
   if (!Array.isArray(floorPlansPayload)) return out;
 
-  const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*bhk/gi;
   for (const project of floorPlansPayload) {
     if (!Array.isArray(project?.plans)) continue;
     for (const plan of project.plans) {
-      const source = String(plan?.planType || "").toLowerCase();
-      if (!source) continue;
-      let match;
-      while ((match = bhkRegex.exec(source)) !== null) {
-        if (match[1]) out.add(`${match[1]}-bhk`);
-        if (match[2]) out.add(`${match[2]}-bhk`);
+      const planType = String(plan?.planType || "").trim();
+      if (!planType) continue;
+
+      const bhkParts = extractIndividualBhkTypes(planType);
+      if (bhkParts.length > 0) {
+        for (const bhk of bhkParts) addFloorSlug(out, bhk);
+        continue;
+      }
+
+      addFloorSlug(out, planType);
+    }
+  }
+
+  for (const floor of LISTING_COMMERCIAL_FLOOR_SLUGS) {
+    out.add(floor);
+  }
+
+  return out;
+}
+
+/** Supplement floor slugs from project `projectConfiguration` (UI pill links). */
+function extractFloorSlugsFromProjectConfiguration(projectsPayload, target) {
+  if (!Array.isArray(projectsPayload)) return;
+  for (const project of projectsPayload) {
+    const config = String(project?.projectConfiguration || "");
+    if (!config) continue;
+    for (const raw of config.split(",")) {
+      const part = raw.trim();
+      if (!part) continue;
+      const bhkParts = extractIndividualBhkTypes(part);
+      if (bhkParts.length > 0) {
+        for (const bhk of bhkParts) addFloorSlug(target, bhk);
+      } else {
+        addFloorSlug(target, part);
       }
     }
   }
-  return out;
 }
 
 module.exports = {
@@ -192,14 +300,15 @@ module.exports = {
       });
     }
 
-    let bhkFloorSlugs = new Set();
+    let allFloorSlugs = new Set();
     let cities = [];
+    let projectsData = [];
 
     try {
       const projectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}projects`);
       if (projectsRes.ok) {
-        const data = coerceArray(await projectsRes.json());
-        for (const p of data) {
+        projectsData = coerceArray(await projectsRes.json());
+        for (const p of projectsData) {
           const slug = toPathSlug(p?.slugURL || p?.slugUrl);
           if (slug) pushLoc(`/${slug}`, { priority: 0.8, changefreq: "weekly" });
         }
@@ -294,11 +403,13 @@ module.exports = {
       );
       if (floorPlansRes.ok) {
         const floorPlans = await floorPlansRes.json();
-        bhkFloorSlugs = extractBhkFloorSlugs(floorPlans);
+        allFloorSlugs = extractAllFloorSlugs(floorPlans);
       }
     } catch {
-      bhkFloorSlugs = new Set();
+      allFloorSlugs = new Set();
     }
+
+    extractFloorSlugsFromProjectConfiguration(projectsData, allFloorSlugs);
 
     if (Array.isArray(cities) && cities.length > 0) {
       for (const city of cities) {
@@ -317,26 +428,21 @@ module.exports = {
           });
         }
 
-        for (const bhk of bhkFloorSlugs) {
-          // Plain floor hub: `/2-bhk-in-gurugram` (no category segment).
-          pushLoc(`/${bhk}-in-${citySlug}`, {
-            priority: 0.735,
-            changefreq: "weekly",
-          });
-
-          for (const category of LISTING_BHK_CATEGORY_SLUGS) {
-            pushLoc(`/${bhk}-${category}-in-${citySlug}`, {
-              priority: 0.73,
-              changefreq: "weekly",
-            });
-          }
-        }
-
-        for (const floor of LISTING_COMMERCIAL_FLOOR_SLUGS) {
+        for (const floor of allFloorSlugs) {
+          // Plain floor hub: `/showroom-in-noida`, `/plot-in-faridabad`, `/2-bhk-in-gurugram`.
           pushLoc(`/${floor}-in-${citySlug}`, {
-            priority: 0.72,
+            priority: isBhkFloorSlug(floor) ? 0.735 : 0.72,
             changefreq: "weekly",
           });
+
+          if (isBhkFloorSlug(floor)) {
+            for (const category of LISTING_BHK_CATEGORY_SLUGS) {
+              pushLoc(`/${floor}-${category}-in-${citySlug}`, {
+                priority: 0.73,
+                changefreq: "weekly",
+              });
+            }
+          }
         }
       }
     }

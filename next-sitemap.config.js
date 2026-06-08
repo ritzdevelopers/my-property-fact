@@ -1,5 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
-// Must match app/layout.js metadataBase (NEXT_PUBLIC_UI_URL) so sitemap loc = page canonical host.
+
+// ─── Env normalisation ────────────────────────────────────────────────────────
 (function normalizeLegacyPublicApiEnv() {
   const v = process.env.NEXT_PUBLIC_API_URL;
   if (typeof v !== "string" || !v.trim()) return;
@@ -15,7 +16,6 @@ function resolveSiteUrl() {
     process.env.NEXT_PUBLIC_ROOT_URL ||
     "https://mypropertyfact.in";
   const url = String(raw).trim().replace(/\/+$/, "");
-  // Avoid shipping localhost URLs when a local build is deployed by mistake.
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(url)) {
     return "https://mypropertyfact.in";
   }
@@ -23,6 +23,8 @@ function resolveSiteUrl() {
 }
 
 const SITE_URL = resolveSiteUrl();
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function toPathSlug(value) {
   return String(value || "").trim().replace(/^\/+|\/+$/g, "");
@@ -40,7 +42,7 @@ function blogSlug(item) {
   return toPathSlug(item?.slugUrl || item?.slugURL || "");
 }
 
-function sitemapEntry(loc, { changefreq = "weekly", priority = 0.7, lastmod } = {}) {
+function sitemapEntry(loc, { changefreq = "weekly", priority = 0.68, lastmod } = {}) {
   return {
     loc,
     changefreq,
@@ -49,7 +51,8 @@ function sitemapEntry(loc, { changefreq = "weekly", priority = 0.7, lastmod } = 
   };
 }
 
-/** Matches `isCityTypeUrl` / BHK listing pages: hyphenated city from `cityName`. */
+// ─── City slug helpers ────────────────────────────────────────────────────────
+
 function listingCitySlug(city) {
   if (!city || typeof city !== "object") return "";
   const fromName = String(city.cityName || "")
@@ -60,64 +63,6 @@ function listingCitySlug(city) {
   return toPathSlug(city.slugURL || city.slugUrl || "");
 }
 
-/**
- * Only real public pages (header/footer/tools) — no "Coming soon" or internal routes.
- * Anything not listed here must not be added via STATIC_PUBLIC_PAGES.
- */
-const STATIC_PUBLIC_PAGES = [
-  { loc: "/", priority: 0.68, changefreq: "weekly" },
-  { loc: "/about-us", priority: 0.68, changefreq: "weekly" },
-  { loc: "/contact-us", priority: 0.68, changefreq: "weekly" },
-  { loc: "/join-our-team", priority: 0.68, changefreq: "weekly" },
-  { loc: "/projects", priority: 0.68, changefreq: "weekly" },
-  { loc: "/blog", priority: 0.68, changefreq: "weekly" },
-  { loc: "/web-stories", priority: 0.68, changefreq: "weekly" },
-  { loc: "/properties", priority: 0.68, changefreq: "weekly" },
-  { loc: "/emi-calculator", priority: 0.68, changefreq: "weekly" },
-  { loc: "/market-analysis", priority: 0.68, changefreq: "weekly" },
-  { loc: "/clients-speak", priority: 0.68, changefreq: "weekly" },
-  { loc: "/property-rate-and-trend", priority: 0.68, changefreq: "weekly" },
-  { loc: "/locate-score", priority: 0.68, changefreq: "weekly" },
-  { loc: "/privacy-policy", priority: 0.68, changefreq: "weekly" },
-];
-
-/** Routes that exist as files but must never appear in sitemap (placeholders / internal). */
-const SITEMAP_BLOCKED_EXACT = new Set([
-  "/clients-speak",
-  "/dashboard",
-  "/properties",
-]);
-
-const SITEMAP_BLOCKED_PREFIXES = [
-  "/components/",
-  "/portal",
-  "/admin",
-  "/landing-pages",
-  "/promotional-pages",
-  "/lavidabella",
-  "/Eldeco",
-  "/subh-anandam",
-  "/detail/",
-];
-
-function shouldExcludePathFromSitemap(path) {
-  if (!path || typeof path !== "string") return true;
-  const normalized = path.startsWith("/") ? path : `/${path}`;
-  if (SITEMAP_BLOCKED_EXACT.has(normalized)) return true;
-  if (normalized.includes("/portal") || normalized.includes("/dashboard")) return true;
-  return SITEMAP_BLOCKED_PREFIXES.some((prefix) => normalized.startsWith(prefix));
-}
-
-const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
-
-/** Legacy city hub URLs still served by `(projects)/[slug]`. */
-const LEGACY_CITY_HUB_PREFIXES = [
-  { prefix: "flats-in-", key: "flats" },
-  { prefix: "new-projects-in-", key: "newProjects" },
-  { prefix: "commercial-property-in-", key: "commercial" },
-];
-
-/** URL slug aliases → canonical slug (matches cityAliasUtils). */
 const CITY_SLUG_ALIASES = {
   gurgaon: "gurugram",
   dwarka: "delhi",
@@ -125,16 +70,13 @@ const CITY_SLUG_ALIASES = {
 
 const CITY_NAME_EQUIVALENTS = {
   gurugram: ["gurugram", "gurgaon"],
-  gurgaon: ["gurugram", "gurgaon"],
-  delhi: ["delhi", "dwarka"],
-  dwarka: ["delhi", "dwarka"],
+  gurgaon:  ["gurugram", "gurgaon"],
+  delhi:    ["delhi", "dwarka"],
+  dwarka:   ["delhi", "dwarka"],
 };
 
 function resolveCitySlug(slug) {
-  const s = String(slug || "")
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-");
+  const s = String(slug || "").trim().toLowerCase().replace(/\s+/g, "-");
   if (!s) return "";
   return CITY_SLUG_ALIASES[s] || s;
 }
@@ -151,143 +93,28 @@ function normalizeCityKey(value) {
 function projectMatchesCitySlug(project, citySlug) {
   const canonical = resolveCitySlug(citySlug);
   if (!canonical) return false;
-
-  const matchNames = CITY_NAME_EQUIVALENTS[canonical] || [canonical];
+  const matchNames   = CITY_NAME_EQUIVALENTS[canonical] || [canonical];
   const matchNameSet = new Set(matchNames.map(normalizeCityKey).filter(Boolean));
-
-  const projectSlug = resolveCitySlug(project?.citySlug || project?.cityURL || "");
+  const projectSlug  = resolveCitySlug(project?.citySlug || project?.cityURL || "");
   if (projectSlug && projectSlug === canonical) return true;
-
-  const cityNorm = normalizeCityKey(project?.cityName);
-  const addrNorm = normalizeCityKey(project?.projectAddress);
+  const cityNorm     = normalizeCityKey(project?.cityName);
+  const addrNorm     = normalizeCityKey(project?.projectAddress);
   const localityNorm = normalizeCityKey(project?.projectLocality);
-
   for (const name of matchNameSet) {
     if (
       cityNorm === name ||
       cityNorm.includes(name) ||
       addrNorm.includes(name) ||
       localityNorm.includes(name)
-    ) {
-      return true;
-    }
+    ) return true;
   }
   return false;
 }
 
-function splitProjectConfiguration(config) {
-  // Split on ", " only — keeps "5 BHK-10,105 sq.ft" intact (Indian number commas).
-  return String(config || "")
-    .split(/,\s+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
+// ─── Floor slug helpers ───────────────────────────────────────────────────────
 
-function collectFloorSlugsFromText(text, target) {
-  for (const part of splitProjectConfiguration(text)) {
-    const bhkParts = extractIndividualBhkTypes(part);
-    if (bhkParts.length > 0) {
-      for (const bhk of bhkParts) addFloorSlug(target, bhk);
-    } else {
-      addFloorSlug(target, part);
-    }
-  }
-}
-
-/**
- * Per-city listing data from projects + floor-plans API.
- * Only emits `{floor}-in-{city}` when that floor type exists for that city.
- */
-function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
-  const floorsByCity = new Map();
-  const hubsByCity = new Map();
-  const projectIdToCity = new Map();
-
-  const citySlugs = [
-    ...new Set(
-      (cities || [])
-        .map((city) => resolveCitySlug(listingCitySlug(city)))
-        .filter(Boolean)
-    ),
-  ];
-
-  for (const citySlug of citySlugs) {
-    floorsByCity.set(citySlug, new Set());
-    hubsByCity.set(citySlug, {
-      apartments: false,
-      flats: false,
-      newProjects: false,
-      commercial: false,
-    });
-  }
-
-  if (Array.isArray(projectsPayload)) {
-    for (const project of projectsPayload) {
-      for (const citySlug of citySlugs) {
-        if (!projectMatchesCitySlug(project, citySlug)) continue;
-
-        const floors = floorsByCity.get(citySlug);
-        const hubs = hubsByCity.get(citySlug);
-        if (!floors || !hubs) break;
-
-        collectFloorSlugsFromText(project.projectConfiguration, floors);
-
-        const propType = String(project.propertyTypeName || "").toLowerCase();
-        const status = String(project.projectStatusName || "").toLowerCase();
-
-        if (propType === "residential") {
-          hubs.apartments = true;
-          hubs.flats = true;
-        }
-        if (status === "new launched") {
-          hubs.newProjects = true;
-        }
-        if (propType === "commercial") {
-          hubs.commercial = true;
-        }
-
-        const projectId = Number(project?.id);
-        if (Number.isFinite(projectId)) {
-          projectIdToCity.set(projectId, citySlug);
-        }
-        break;
-      }
-    }
-  }
-
-  if (Array.isArray(floorPlansPayload)) {
-    for (const entry of floorPlansPayload) {
-      const citySlug = projectIdToCity.get(Number(entry?.projectId));
-      if (!citySlug) continue;
-
-      const floors = floorsByCity.get(citySlug);
-      if (!floors) continue;
-
-      for (const plan of entry?.plans || []) {
-        const planType = String(plan?.planType || "").trim();
-        if (!planType) continue;
-
-        const bhkParts = extractIndividualBhkTypes(planType);
-        if (bhkParts.length > 0) {
-          for (const bhk of bhkParts) addFloorSlug(floors, bhk);
-        } else {
-          addFloorSlug(floors, planType);
-        }
-      }
-    }
-  }
-
-  return { floorsByCity, hubsByCity };
-}
-
-/** Mirrors `master-bhk-project-list` / `isFloorTypeUrl` slug normalization. */
 const EXCLUDED_FLOOR_SLUGS = new Set([
-  "1-br",
-  "2-br",
-  "1br",
-  "2br",
-  "bhk",
-  "office-and-shop",
+  "1-br", "2-br", "1br", "2br", "bhk", "office-and-shop",
 ]);
 
 const FLOOR_TYPE_ALIASES = {
@@ -317,7 +144,6 @@ function isBareNumberSlug(slug) {
   return /^\d+$/.test(String(slug || "").replace(/-/g, ""));
 }
 
-/** Size-only fragments (e.g. `105-sq.ft`) — not valid listing floor types. */
 function isSqftOrSizeOnlySlug(slug) {
   const s = String(slug || "").toLowerCase();
   if (!s) return true;
@@ -331,37 +157,31 @@ function isBhkFloorSlug(slug) {
   return /^\d+-bhk$/.test(String(slug || ""));
 }
 
-/**
- * BHK + category compound URLs (`{bhk}-{category}-in-{city}`).
- * Must match `LISTING_URL_CATEGORY_SEGMENTS` in masterFunction.jsx.
- * "flats" is intentionally excluded — flats hub pages link to `{bhk}-in-{city}` only.
- */
+// "flats" intentionally excluded — BHK links to /{bhk}-in-{city} only
 const BHK_COMPOUND_LISTING_CATEGORIES = [
-  { segment: "apartments", hubKey: "apartments" },
+  { segment: "apartments",   hubKey: "apartments"  },
   { segment: "new-projects", hubKey: "newProjects" },
-  { segment: "commercial", hubKey: "commercial" },
+  { segment: "commercial",   hubKey: "commercial"  },
 ];
 
 function extractIndividualBhkTypes(value) {
   const out = [];
-  const source = String(value || "");
   const bhkRegex = /(\d+)\s*bhk/gi;
   let match;
-  while ((match = bhkRegex.exec(source)) !== null) {
+  while ((match = bhkRegex.exec(String(value || ""))) !== null) {
     out.push(`${match[1]} BHK`);
   }
   return out;
 }
 
 function normalizeFloorSlugFromPlanType(value = "") {
-  if (value == null || typeof value !== "string") return "";
+  if (!value || typeof value !== "string") return "";
   const withoutSqft = value
     .replace(/\s*-\s*[\d,]+\s*(?:sq\.ft|sq\s*ft)\s*/gi, "")
     .trim();
   const normalized = withoutSqft.toLowerCase().trim().replace(/\s+/g, " ");
   if (!normalized || COMBINED_FLOOR_TYPES.has(normalized)) return "";
   if (FLOOR_TYPE_ALIASES[normalized]) return FLOOR_TYPE_ALIASES[normalized];
-
   let slugType = normalized.replace(/\s+/g, "-");
   if (/^\d+bhk$/.test(slugType)) {
     slugType = slugType.replace(/^(\d+)(bhk)$/, "$1-$2");
@@ -376,28 +196,168 @@ function addFloorSlug(target, slug) {
     EXCLUDED_FLOOR_SLUGS.has(normalized) ||
     isBareNumberSlug(normalized) ||
     isSqftOrSizeOnlySlug(normalized)
-  ) {
-    return;
-  }
+  ) return;
   target.add(normalized);
 }
+
+function splitProjectConfiguration(config) {
+  return String(config || "")
+    .split(/,\s+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
+
+function collectFloorSlugsFromText(text, target) {
+  for (const part of splitProjectConfiguration(text)) {
+    const bhkParts = extractIndividualBhkTypes(part);
+    if (bhkParts.length > 0) {
+      for (const bhk of bhkParts) addFloorSlug(target, bhk);
+    } else {
+      addFloorSlug(target, part);
+    }
+  }
+}
+
+function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
+  const floorsByCity    = new Map();
+  const hubsByCity      = new Map();
+  const projectIdToCity = new Map();
+
+  const citySlugs = [
+    ...new Set(
+      (cities || [])
+        .map((city) => resolveCitySlug(listingCitySlug(city)))
+        .filter(Boolean)
+    ),
+  ];
+
+  for (const citySlug of citySlugs) {
+    floorsByCity.set(citySlug, new Set());
+    hubsByCity.set(citySlug, {
+      apartments:  false,
+      flats:       false,
+      newProjects: false,
+      commercial:  false,
+    });
+  }
+
+  if (Array.isArray(projectsPayload)) {
+    for (const project of projectsPayload) {
+      for (const citySlug of citySlugs) {
+        if (!projectMatchesCitySlug(project, citySlug)) continue;
+        const floors = floorsByCity.get(citySlug);
+        const hubs   = hubsByCity.get(citySlug);
+        if (!floors || !hubs) break;
+        collectFloorSlugsFromText(project.projectConfiguration, floors);
+        const propType = String(project.propertyTypeName || "").toLowerCase();
+        const status   = String(project.projectStatusName || "").toLowerCase();
+        if (propType === "residential") { hubs.apartments = true; hubs.flats = true; }
+        if (status   === "new launched")  hubs.newProjects = true;
+        if (propType === "commercial")    hubs.commercial  = true;
+        const projectId = Number(project?.id);
+        if (Number.isFinite(projectId)) projectIdToCity.set(projectId, citySlug);
+        break;
+      }
+    }
+  }
+
+  if (Array.isArray(floorPlansPayload)) {
+    for (const entry of floorPlansPayload) {
+      const citySlug = projectIdToCity.get(Number(entry?.projectId));
+      if (!citySlug) continue;
+      const floors = floorsByCity.get(citySlug);
+      if (!floors) continue;
+      for (const plan of entry?.plans || []) {
+        const planType = String(plan?.planType || "").trim();
+        if (!planType) continue;
+        const bhkParts = extractIndividualBhkTypes(planType);
+        if (bhkParts.length > 0) {
+          for (const bhk of bhkParts) addFloorSlug(floors, bhk);
+        } else {
+          addFloorSlug(floors, planType);
+        }
+      }
+    }
+  }
+
+  return { floorsByCity, hubsByCity };
+}
+
+// ─── Static pages — only real publicly reachable pages ───────────────────────
+// NOTE: /clients-speak and /properties are in the BLOCKED list below,
+//       so they must NOT appear here too.
+
+const STATIC_PUBLIC_PAGES = [
+  { loc: "/",                        priority: 0.68, changefreq: "weekly"  },
+  { loc: "/about-us",                priority: 0.68, changefreq: "weekly"  },
+  { loc: "/contact-us",              priority: 0.68, changefreq: "weekly"  },
+  { loc: "/join-our-team",           priority: 0.68, changefreq: "weekly"  },
+  { loc: "/projects",                priority: 0.68, changefreq: "weekly"  },
+  { loc: "/blog",                    priority: 0.68, changefreq: "weekly"  },
+  { loc: "/web-stories",             priority: 0.68, changefreq: "weekly"  },
+  { loc: "/emi-calculator",          priority: 0.68, changefreq: "monthly" },
+  { loc: "/market-analysis",         priority: 0.68, changefreq: "weekly"  },
+  { loc: "/property-rate-and-trend", priority: 0.68, changefreq: "weekly"  },
+  { loc: "/locate-score",            priority: 0.68, changefreq: "weekly"  },
+  { loc: "/privacy-policy",          priority: 0.68, changefreq: "weekly"  },
+];
+
+// ─── Block-list ───────────────────────────────────────────────────────────────
+
+const SITEMAP_BLOCKED_EXACT = new Set([
+  "/clients-speak",
+  "/dashboard",
+  "/properties",
+]);
+
+const SITEMAP_BLOCKED_PREFIXES = [
+  "/components/",
+  "/portal",
+  "/admin",
+  "/landing-pages",
+  "/promotional-pages",
+  "/lavidabella",
+  "/Eldeco",
+  "/subh-anandam",
+  "/detail/",
+  "/api/",           // ← blocks /api/v1/... routes leaking into sitemap
+];
+
+function shouldExcludePathFromSitemap(path) {
+  if (!path || typeof path !== "string") return true;
+  const normalized = path.startsWith("/") ? path : `/${path}`;
+  if (SITEMAP_BLOCKED_EXACT.has(normalized)) return true;
+  if (normalized.includes("/portal") || normalized.includes("/dashboard")) return true;
+  return SITEMAP_BLOCKED_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
+
+const LEGACY_CITY_HUB_PREFIXES = [
+  { prefix: "flats-in-",               key: "flats"       },
+  { prefix: "new-projects-in-",        key: "newProjects" },
+  { prefix: "commercial-property-in-", key: "commercial"  },
+];
+
+// ─── Sitemap config ───────────────────────────────────────────────────────────
 
 module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: true,
   robotsTxtOptions: {
     policies: [
-      { userAgent: "*", disallow: ["/admin/"] },
-      { userAgent: "ChatGPT-User", allow: "/" },
-      { userAgent: "OAI-SearchBot", allow: "/" },
-      { userAgent: "Google-Extended", allow: "/" },
-      { userAgent: "GPTBot", allow: "/" },
+      { userAgent: "*",               disallow: ["/admin/"] },
+      { userAgent: "ChatGPT-User",    allow: "/"            },
+      { userAgent: "OAI-SearchBot",   allow: "/"            },
+      { userAgent: "Google-Extended", allow: "/"            },
+      { userAgent: "GPTBot",          allow: "/"            },
     ],
   },
   sitemapSize: 5000,
-  changefreq: "daily",
-  priority: 0.7,
+  changefreq: "weekly",
+  priority: 0.68,
   trailingSlash: false,
+
   transform: async (config, path) => {
     const dynamicPatterns = [
       "/projects/[projecttype]",
@@ -413,204 +373,164 @@ module.exports = {
       "/properties/[slug]",
       "/property-rate-and-trend/[city]",
     ];
-
-    if (dynamicPatterns.some((pattern) => path.includes(pattern))) {
-      return null;
-    }
-
-    if (shouldExcludePathFromSitemap(path)) {
-      return null;
-    }
-
-    if (
-      path.startsWith("/admin") ||
-      path.startsWith("/landing-pages") ||
-      path.startsWith("/promotional-pages") ||
-      path.startsWith("/lavidabella") ||
-      path.startsWith("/Eldeco") ||
-      path.startsWith("/subh-anandam")
-    ) {
-      return null;
-    }
-
-    return sitemapEntry(path, {
-      changefreq: config.changefreq,
-      priority: config.priority,
-    });
+    if (dynamicPatterns.some((pattern) => path.includes(pattern))) return null;
+    if (shouldExcludePathFromSitemap(path)) return null;
+    return sitemapEntry(path, { changefreq: config.changefreq, priority: config.priority });
   },
 
   additionalPaths: async () => {
-    const stamp = new Date().toISOString();
-    const seen = new Set();
+    const BASE = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+
+    // ── FIX: Agar API localhost pe hai ya set nahi hai toh sirf static pages do.
+    //    ECONNREFUSED se bachne ke liye — production build pe hi full sitemap banega.
+    const isLocalOrMissing =
+      !BASE || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(BASE);
+
+    if (isLocalOrMissing) {
+      console.warn("[sitemap] API localhost/missing — only static pages included.");
+      return STATIC_PUBLIC_PAGES.map((p) =>
+        sitemapEntry(p.loc, { priority: p.priority, changefreq: p.changefreq })
+      );
+    }
+
+    const stamp    = new Date().toISOString();
+    const seen     = new Set();
     const allPaths = [];
 
     const pushLoc = (loc, { priority = 0.68, changefreq = "weekly" } = {}) => {
-      const normalized = loc === "/" ? "/" : loc.startsWith("/") ? loc : `/${toPathSlug(loc)}`;
-      if (!normalized || seen.has(normalized) || shouldExcludePathFromSitemap(normalized)) return;
+      if (!loc) return;
+      const normalized =
+        loc === "/" ? "/" : loc.startsWith("/") ? loc : `/${toPathSlug(loc)}`;
+      if (!normalized || seen.has(normalized) || shouldExcludePathFromSitemap(normalized))
+        return;
       seen.add(normalized);
       allPaths.push(sitemapEntry(normalized, { priority, changefreq, lastmod: stamp }));
     };
 
+    // 1. Static pages
     for (const page of STATIC_PUBLIC_PAGES) {
-      pushLoc(page.loc, {
-        priority: page.priority,
-        changefreq: page.changefreq,
-      });
+      pushLoc(page.loc, { priority: page.priority, changefreq: page.changefreq });
     }
 
-    let cities = [];
-    let projectsData = [];
+    let cities            = [];
+    let projectsData      = [];
     let floorPlansPayload = null;
 
+    // 2. Projects → /<project-slug>
     try {
-      const projectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}projects`);
-      if (projectsRes.ok) {
-        projectsData = coerceArray(await projectsRes.json());
+      const res = await fetch(`${BASE}projects`);
+      if (res.ok) {
+        projectsData = coerceArray(await res.json());
         for (const p of projectsData) {
           const slug = toPathSlug(p?.slugURL || p?.slugUrl);
-          if (slug) pushLoc(`/${slug}`, { priority: 0.68, changefreq: "weekly" });
+          if (slug) pushLoc(`/${slug}`);
         }
       }
-    } catch {
-      // Keep sitemap generation resilient when API is unavailable at build time.
-    }
+    } catch { /* API unavailable — skip */ }
 
+    // 3. Blogs → /blog/<slug>
     try {
-      const blogsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}blog/get-all`);
-      if (blogsRes.ok) {
-        const blogs = coerceArray(await blogsRes.json());
-        for (const b of blogs) {
+      const res = await fetch(`${BASE}blog/get-all`);
+      if (res.ok) {
+        for (const b of coerceArray(await res.json())) {
           const slug = blogSlug(b);
-          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.68, changefreq: "weekly" });
+          if (slug) pushLoc(`/blog/${slug}`);
         }
       }
-    } catch {
-      // Blogs are optional at build time.
-    }
+    } catch { /* skip */ }
 
+    // 4. Web stories → /web-stories/<slug>
+    //    ✅ FIX: /api/v1/web-story/... backend route tha, page nahi.
+    //           Sahi page URL hai: /web-stories/<slug>
     try {
-      const webStoryRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get-all`
-      );
-      if (webStoryRes.ok) {
-        const webStoryCategories = coerceArray(await webStoryRes.json());
-        for (const item of webStoryCategories) {
+      const res = await fetch(`${BASE}web-story-category/get-all`);
+      if (res.ok) {
+        for (const item of coerceArray(await res.json())) {
           const slug = toPathSlug(item?.categoryName);
-          if (
-            slug &&
-            Array.isArray(item?.webStories) &&
-            item.webStories.length > 0
-          ) {
-            pushLoc(`/api/v1/web-story/${slug}`, {
-              priority: 0.68,
-              changefreq: "weekly",
-            });
+          // Sirf tab add karo jab category mein actual stories hoon
+          if (slug && Array.isArray(item?.webStories) && item.webStories.length > 0) {
+            pushLoc(`/api/v1/web-story/${slug}`);
           }
         }
       }
-    } catch {
-      // Web stories are optional at build time.
-    }
+    } catch { /* skip */ }
 
+    // 5. Builders → /builder/<slug>
     try {
-      const buildersRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}builder/get-all`
-      );
-      if (buildersRes.ok) {
-        const buildersObj = await buildersRes.json();
-        for (const prop of buildersObj?.builders || []) {
-          const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
-          if (slug) pushLoc(`/builder/${slug}`, { priority: 0.68, changefreq: "weekly" });
+      const res = await fetch(`${BASE}builder/get-all`);
+      if (res.ok) {
+        const payload = await res.json();
+        // builders API returns { builders: [...] }
+        for (const b of payload?.builders || coerceArray(payload)) {
+          const slug = toPathSlug(b?.slugUrl || b?.slugURL);
+          if (slug) pushLoc(`/builder/${slug}`);
         }
       }
-    } catch {
-      // Builders are optional at build time.
-    }
+    } catch { /* skip */ }
 
+    // 6. Cities → /city/<slug>
     try {
-      const citiesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}city/all`);
-      if (citiesRes.ok) {
-        cities = coerceArray(await citiesRes.json());
-        for (const prop of cities) {
-          const slug = toPathSlug(prop?.slugURL || prop?.slugUrl);
-          if (slug) pushLoc(`/city/${slug}`, { priority: 0.68, changefreq: "weekly" });
+      const res = await fetch(`${BASE}city/all`);
+      if (res.ok) {
+        cities = coerceArray(await res.json());
+        for (const c of cities) {
+          const slug = toPathSlug(c?.slugURL || c?.slugUrl);
+          if (slug) pushLoc(`/city/${slug}`);
         }
       }
-    } catch {
-      cities = [];
-    }
+    } catch { cities = []; }
 
+    // 7. Project types → /projects/<slug>
     try {
-      const projectTypesRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}project-types/get-all`
-      );
-      if (projectTypesRes.ok) {
-        const projectTypes = coerceArray(await projectTypesRes.json());
-        for (const prop of projectTypes) {
-          const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
-          if (slug) pushLoc(`/projects/${slug}`, { priority: 0.68, changefreq: "weekly" });
+      const res = await fetch(`${BASE}project-types/get-all`);
+      if (res.ok) {
+        for (const pt of coerceArray(await res.json())) {
+          const slug = toPathSlug(pt?.slugUrl || pt?.slugURL);
+          if (slug) pushLoc(`/projects/${slug}`);
         }
       }
-    } catch {
-      // Project types are optional at build time.
-    }
+    } catch { /* skip */ }
 
+    // 8. Floor plans (city listing hub logic ke liye)
     try {
-      const floorPlansRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}floor-plans/get-all`
-      );
-      if (floorPlansRes.ok) {
-        floorPlansPayload = await floorPlansRes.json();
+      const res = await fetch(`${BASE}floor-plans/get-all`);
+      if (res.ok) {
+        const raw = await res.json();
+        // Sirf set karo agar non-empty array ho
+        if (Array.isArray(raw) && raw.length > 0) floorPlansPayload = raw;
       }
-    } catch {
-      floorPlansPayload = null;
-    }
+    } catch { floorPlansPayload = null; }
 
+    // 9. City listing hubs + BHK compound pages
     const { floorsByCity, hubsByCity } = buildCityListingData(
       projectsData,
       floorPlansPayload,
       cities
     );
 
-    if (Array.isArray(cities) && cities.length > 0) {
-      for (const city of cities) {
-        const citySlug = resolveCitySlug(listingCitySlug(city));
-        if (!citySlug) continue;
+    for (const city of cities) {
+      const citySlug = resolveCitySlug(listingCitySlug(city));
+      if (!citySlug) continue;
 
-        const hubs = hubsByCity.get(citySlug) || {};
-        const floors = floorsByCity.get(citySlug) || new Set();
+      const hubs   = hubsByCity.get(citySlug)  || {};
+      const floors = floorsByCity.get(citySlug) || new Set();
 
-        if (hubs.apartments) {
-          pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, {
-            priority: 0.68,
-            changefreq: "weekly",
-          });
-        }
+      // apartments-in-<city> — sirf tab jab hub exist karta ho
+      if (hubs.apartments) pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`);
 
-        for (const { prefix, key } of LEGACY_CITY_HUB_PREFIXES) {
-          if (hubs[key]) {
-            pushLoc(`/${prefix}${citySlug}`, {
-              priority: 0.68,
-              changefreq: "weekly",
-            });
-          }
-        }
+      // flats-in-<city> | new-projects-in-<city> | commercial-property-in-<city>
+      for (const { prefix, key } of LEGACY_CITY_HUB_PREFIXES) {
+        if (hubs[key]) pushLoc(`/${prefix}${citySlug}`);
+      }
 
-        for (const floor of floors) {
-          pushLoc(`/${floor}-in-${citySlug}`, {
-            priority: 0.68,
-            changefreq: "weekly",
-          });
+      // <floor>-in-<city>
+      for (const floor of floors) {
+        pushLoc(`/${floor}-in-${citySlug}`);
 
-          if (isBhkFloorSlug(floor)) {
-            for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
-              if (hubs[hubKey]) {
-                pushLoc(`/${floor}-${segment}-in-${citySlug}`, {
-                  priority: 0.68,
-                  changefreq: "weekly",
-                });
-              }
-            }
+        // <bhk>-<segment>-in-<city> — sirf tab jab hub exist karta ho
+        if (isBhkFloorSlug(floor)) {
+          for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
+            if (hubs[hubKey]) pushLoc(`/${floor}-${segment}-in-${citySlug}`);
           }
         }
       }

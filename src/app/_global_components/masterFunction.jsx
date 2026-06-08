@@ -563,6 +563,7 @@ export const fetchTopPicksProject = cache(async () => {
       fetch(`${apiUrl}builder/get/${slug}`, { next: { revalidate: 60 } }),
     ),
   );
+  
   const byBuilder = new Map();
   for (let i = 0; i < results.length; i++) {
     const r = results[i];

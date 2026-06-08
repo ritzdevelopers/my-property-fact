@@ -23,14 +23,20 @@ export async function checkIfProjectSlug(slug) {
 export const fetchAllProjects = cache(async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return [];
   }
-  const res = await fetch(`${apiUrl}projects`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch projects");
-  const data = await res.json();
-  return data;
+  try {
+    const res = await fetch(`${apiUrl}projects`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Failed to fetch projects");
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error fetching projects:", error);
+    return [];
+  }
 });
 
 //Fetch all projects with cached
@@ -40,14 +46,20 @@ export const getAllProjects = fetchAllProjects;
 export const fetchCityData = cache(async () => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl) {
-    throw new Error("NEXT_PUBLIC_API_URL is not defined");
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return [];
   }
-  const res = await fetch(`${apiUrl}city/all`, {
-    next: { revalidate: 60 }, // revalidate every 60 seconds
-  });
-  if (!res.ok) throw new Error("Failed to fetch cities");
-  const data = await res.json();
-  return getDisplayCityList(data);
+  try {
+    const res = await fetch(`${apiUrl}city/all`, {
+      next: { revalidate: 60 }, // revalidate every 60 seconds
+    });
+    if (!res.ok) throw new Error("Failed to fetch cities");
+    const data = await res.json();
+    return getDisplayCityList(data);
+  } catch (error) {
+    console.error("Error fetching cities:", error);
+    return [];
+  }
 });
 
 // Fetching project types
@@ -73,11 +85,21 @@ export const fetchProjectTypes = cache(async () => {
 
 // Fetching builder data
 export const fetchBuilderData = cache(async () => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}builder/get-all-builders`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch builders");
-  return res.json();
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return { builders: [] };
+  }
+  try {
+    const res = await fetch(`${apiUrl}builder/get-all-builders`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) throw new Error("Failed to fetch builders");
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching builders:", error);
+    return { builders: [] };
+  }
 });
 
 export const fetchProjectDetailsBySlug = cache(async (slug) => {
@@ -190,6 +212,54 @@ export function parseCompoundFloorListingSlug(slug) {
     }
   }
   return null;
+}
+
+const CITY_HUB_PREFIXES = [
+  "apartments-in-",
+  "flats-in-",
+  "new-projects-in-",
+  "commercial-property-in-",
+  "offices-and-shop-in-",
+];
+
+/**
+ * Detects listing URLs that embed a valid hub segment without starting with it
+ * (e.g. `xyzcommercial-property-in-gurugram`, `23e2apartments-in-faridabad`).
+ */
+export function isMalformedListingSlug(slug) {
+  if (!slug || typeof slug !== "string") return false;
+  const lower = slug.toLowerCase();
+
+  for (const prefix of CITY_HUB_PREFIXES) {
+    const idx = lower.indexOf(prefix);
+    if (idx <= 0) continue;
+
+    const before = lower.slice(0, idx);
+    const catSlug = prefix.replace(/-in-$/, "");
+    if (LISTING_URL_CATEGORY_SEGMENTS.includes(catSlug)) {
+      const floorSegment = before.endsWith("-") ? before.slice(0, -1) : before;
+      if (isBhkFloorSlugSegment(floorSegment)) continue;
+    }
+    return true;
+  }
+  return false;
+}
+
+/** Validates `{bhk}-{category}-in-{city}` against known cities and floor types. */
+export async function isValidCompoundFloorListing(parsed) {
+  if (!parsed?.floorSlug || !parsed?.citySlug || !parsed?.categorySlug) {
+    return false;
+  }
+  const cities = await fetchCityData();
+  const cityOk = cities.some((c) => {
+    const itemSlug = c.slugURL
+      ? resolveCitySlug(c.slugURL)
+      : resolveCitySlug(c.cityName.toLowerCase().replace(/\s+/g, "-"));
+    return itemSlug === parsed.citySlug;
+  });
+  if (!cityOk) return false;
+  const baseFloorCitySlug = `${parsed.floorSlug}-in-${parsed.citySlug}`;
+  return isFloorTypeUrl(baseFloorCitySlug);
 }
 
 export function floorSlugToListingLabel(floorSlug) {

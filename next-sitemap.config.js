@@ -318,6 +318,12 @@ module.exports = {
         }
 
         for (const bhk of bhkFloorSlugs) {
+          // Plain floor hub: `/2-bhk-in-gurugram` (no category segment).
+          pushLoc(`/${bhk}-in-${citySlug}`, {
+            priority: 0.735,
+            changefreq: "weekly",
+          });
+
           for (const category of LISTING_BHK_CATEGORY_SLUGS) {
             pushLoc(`/${bhk}-${category}-in-${citySlug}`, {
               priority: 0.73,

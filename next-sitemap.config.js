@@ -63,18 +63,18 @@ function listingCitySlug(city) {
 /** Core public pages that App Router auto-discovery often omits from next-sitemap output. */
 const STATIC_PUBLIC_PAGES = [
   { loc: "/", priority: 1.0, changefreq: "daily" },
-  { loc: "/about-us", priority: 0.8, changefreq: "monthly" },
-  { loc: "/contact-us", priority: 0.8, changefreq: "monthly" },
-  { loc: "/join-our-team", priority: 0.75, changefreq: "monthly" },
+  { loc: "/about-us", priority: 0.8, changefreq: "weekly" },
+  { loc: "/contact-us", priority: 0.8, changefreq: "weekly" },
+  { loc: "/join-our-team", priority: 0.75, changefreq: "weekly" },
   { loc: "/projects", priority: 0.85, changefreq: "weekly" },
   { loc: "/blog", priority: 0.8, changefreq: "weekly" },
   { loc: "/web-stories", priority: 0.72, changefreq: "weekly" },
   { loc: "/properties", priority: 0.78, changefreq: "weekly" },
-  { loc: "/emi-calculator", priority: 0.7, changefreq: "monthly" },
-  { loc: "/market-analysis", priority: 0.7, changefreq: "monthly" },
-  { loc: "/clients-speak", priority: 0.68, changefreq: "monthly" },
+  { loc: "/emi-calculator", priority: 0.7, changefreq: "weekly" },
+  { loc: "/market-analysis", priority: 0.7, changefreq: "weekly" },
+  { loc: "/clients-speak", priority: 0.68, changefreq: "weekly" },
   { loc: "/property-rate-and-trend", priority: 0.72, changefreq: "weekly" },
-  { loc: "/locate-score", priority: 0.7, changefreq: "monthly" },
+  { loc: "/locate-score", priority: 0.7, changefreq: "weekly" },
   { loc: "/privacy-policy", priority: 0.5, changefreq: "yearly" },
 ];
 
@@ -323,7 +323,7 @@ module.exports = {
         const blogs = coerceArray(await blogsRes.json());
         for (const b of blogs) {
           const slug = blogSlug(b);
-          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.6, changefreq: "monthly" });
+          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.6, changefreq: "weekly" });
         }
       }
     } catch {

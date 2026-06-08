@@ -9,10 +9,44 @@
   }
 })();
 
-const SITE_URL = (process.env.NEXT_PUBLIC_UI_URL || process.env.NEXT_PUBLIC_ROOT_URL || "https://mypropertyfact.in").replace(/\/+$/, "");
+function resolveSiteUrl() {
+  const raw =
+    process.env.NEXT_PUBLIC_UI_URL ||
+    process.env.NEXT_PUBLIC_ROOT_URL ||
+    "https://mypropertyfact.in";
+  const url = String(raw).trim().replace(/\/+$/, "");
+  // Avoid shipping localhost URLs when a local build is deployed by mistake.
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(url)) {
+    return "https://mypropertyfact.in";
+  }
+  return url;
+}
+
+const SITE_URL = resolveSiteUrl();
 
 function toPathSlug(value) {
   return String(value || "").trim().replace(/^\/+|\/+$/g, "");
+}
+
+function coerceArray(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.content)) return payload.content;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  if (payload && Array.isArray(payload.blogs)) return payload.blogs;
+  return [];
+}
+
+function blogSlug(item) {
+  return toPathSlug(item?.slugUrl || item?.slugURL || "");
+}
+
+function sitemapEntry(loc, { changefreq = "weekly", priority = 0.7, lastmod } = {}) {
+  return {
+    loc,
+    changefreq,
+    priority,
+    lastmod: lastmod || new Date().toISOString(),
+  };
 }
 
 /** Matches `isCityTypeUrl` / BHK listing pages: hyphenated city from `cityName`. */
@@ -26,23 +60,43 @@ function listingCitySlug(city) {
   return toPathSlug(city.slugURL || city.slugUrl || "");
 }
 
-/**
- * Curated listing URLs only (see `master-bhk-project-list` slugType / hubs).
- * `{slug}-in-{city}` except apartments hub `apartments-in-{city}`.
- */
+/** Core public pages that App Router auto-discovery often omits from next-sitemap output. */
+const STATIC_PUBLIC_PAGES = [
+  { loc: "/", priority: 1.0, changefreq: "daily" },
+  { loc: "/about-us", priority: 0.8, changefreq: "monthly" },
+  { loc: "/contact-us", priority: 0.8, changefreq: "monthly" },
+  { loc: "/join-our-team", priority: 0.75, changefreq: "monthly" },
+  { loc: "/projects", priority: 0.85, changefreq: "weekly" },
+  { loc: "/blog", priority: 0.8, changefreq: "weekly" },
+  { loc: "/web-stories", priority: 0.72, changefreq: "weekly" },
+  { loc: "/properties", priority: 0.78, changefreq: "weekly" },
+  { loc: "/emi-calculator", priority: 0.7, changefreq: "monthly" },
+  { loc: "/market-analysis", priority: 0.7, changefreq: "monthly" },
+  { loc: "/clients-speak", priority: 0.68, changefreq: "monthly" },
+  { loc: "/property-rate-and-trend", priority: 0.72, changefreq: "weekly" },
+  { loc: "/locate-score", priority: 0.7, changefreq: "monthly" },
+  { loc: "/privacy-policy", priority: 0.5, changefreq: "yearly" },
+];
+
 const LISTING_COMMERCIAL_FLOOR_SLUGS = [
   "food-court",
   "office",
-
   "shop",
   "shops",
   "sco-plots",
   "kiosk",
-  "sco"
+  "sco",
 ];
 
 const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
 const LISTING_BHK_CATEGORY_SLUGS = ["apartments", "flats", "new-projects"];
+
+/** Legacy city hub URLs still served by `(projects)/[slug]`. */
+const LEGACY_CITY_HUB_PREFIXES = [
+  "flats-in-",
+  "new-projects-in-",
+  "commercial-property-in-",
+];
 
 function extractBhkFloorSlugs(floorPlansPayload) {
   const out = new Set();
@@ -89,152 +143,151 @@ module.exports = {
       "/new-projects/*",
       "/builder/[buildername]",
       "/blog/[blogpage]",
-      
+      "/city/[cityname]",
+      "/stories/[web-story]",
+      "/web-story/[slug]",
+      "/properties/[slug]",
+      "/property-rate-and-trend/[city]",
     ];
 
-    // Exclude dynamic patterns
     if (dynamicPatterns.some((pattern) => path.includes(pattern))) {
       return null;
     }
 
-    // Exclude portal and dashboard URLs
-    if (path.includes("/portal") || path.includes("/dashboard")) {
+    if (
+      path.includes("/portal") ||
+      path.includes("/dashboard") ||
+      path.startsWith("/admin") ||
+      path.startsWith("/landing-pages") ||
+      path.startsWith("/promotional-pages") ||
+      path.startsWith("/lavidabella") ||
+      path.startsWith("/Eldeco") ||
+      path.startsWith("/subh-anandam")
+    ) {
       return null;
     }
 
-    return {
-      loc: path, // URL to include
-      changefreq: config.changefreq, // how often it changes (daily/weekly)
-      priority: config.priority, // importance (0–1)
-      lastmod: new Date().toISOString(), // last modified date
-    };
+    return sitemapEntry(path, {
+      changefreq: config.changefreq,
+      priority: config.priority,
+    });
   },
 
-  additionalPaths: async (config) => {
-    let allPaths = [];
+  additionalPaths: async () => {
+    const stamp = new Date().toISOString();
+    const seen = new Set();
+    const allPaths = [];
+
+    const pushLoc = (loc, { priority = 0.72, changefreq = "weekly" } = {}) => {
+      const normalized = loc === "/" ? "/" : loc.startsWith("/") ? loc : `/${toPathSlug(loc)}`;
+      if (!normalized || seen.has(normalized)) return;
+      seen.add(normalized);
+      allPaths.push(sitemapEntry(normalized, { priority, changefreq, lastmod: stamp }));
+    };
+
+    for (const page of STATIC_PUBLIC_PAGES) {
+      pushLoc(page.loc, {
+        priority: page.priority,
+        changefreq: page.changefreq,
+      });
+    }
+
     let bhkFloorSlugs = new Set();
+    let cities = [];
 
-    // Projects
-    const projects = await fetch(`${process.env.NEXT_PUBLIC_API_URL}projects`);
-    if (!projects.ok) throw new Error("Failed to fetch projects");
-    const data = await projects.json();
-    allPaths = allPaths.concat(
-      data
-        .filter((p) => p?.slugURL)
-        .map((p) => ({
-        loc: `/${toPathSlug(p.slugURL)}`,
-        changefreq: "weekly",
-        priority: 0.8,
-        lastmod: new Date().toISOString(),
-      }))
-    );
+    try {
+      const projectsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}projects`);
+      if (projectsRes.ok) {
+        const data = coerceArray(await projectsRes.json());
+        for (const p of data) {
+          const slug = toPathSlug(p?.slugURL || p?.slugUrl);
+          if (slug) pushLoc(`/${slug}`, { priority: 0.8, changefreq: "weekly" });
+        }
+      }
+    } catch {
+      // Keep sitemap generation resilient when API is unavailable at build time.
+    }
 
-    // Blogs
-    const blogsRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}blog/get-all`
-    );
-    const blogs = await blogsRes.json();
+    try {
+      const blogsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}blog/get-all`);
+      if (blogsRes.ok) {
+        const blogs = coerceArray(await blogsRes.json());
+        for (const b of blogs) {
+          const slug = blogSlug(b);
+          if (slug) pushLoc(`/blog/${slug}`, { priority: 0.6, changefreq: "monthly" });
+        }
+      }
+    } catch {
+      // Blogs are optional at build time.
+    }
 
-    allPaths = allPaths.concat(
-      blogs
-        .filter((b) => b?.slugUrl)
-        .map((b) => ({
-        loc: `/blog/${toPathSlug(b.slugUrl)}`,
-        changefreq: "monthly",
-        priority: 0.6,
-        lastmod: new Date().toISOString(),
-      }))
-    );
-
-    // Web stories from API: include hub page and each story category slug.
-    allPaths.push({
-      loc: "/web-stories",
-      changefreq: "weekly",
-      priority: 0.72,
-      lastmod: new Date().toISOString(),
-    });
     try {
       const webStoryRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get-all`
       );
       if (webStoryRes.ok) {
-        const webStoryCategories = await webStoryRes.json();
-        const wsStamp = new Date().toISOString();
-        if (Array.isArray(webStoryCategories)) {
-          allPaths = allPaths.concat(
-            webStoryCategories
-              .filter(
-                (item) =>
-                  item?.categoryName &&
-                  Array.isArray(item?.webStories) &&
-                  item.webStories.length > 0
-              )
-              .map((item) => ({
-                // loc: `/web-story/${toPathSlug(item.categoryName)}`,
-                loc: `/api/v1/web-story/${toPathSlug(item.categoryName)}`,
-                changefreq: "weekly",
-                priority: 0.68,
-                lastmod: wsStamp,
-              }))
-          );
+        const webStoryCategories = coerceArray(await webStoryRes.json());
+        for (const item of webStoryCategories) {
+          const slug = toPathSlug(item?.categoryName);
+          if (
+            slug &&
+            Array.isArray(item?.webStories) &&
+            item.webStories.length > 0
+          ) {
+            pushLoc(`/api/v1/web-story/${slug}`, {
+              priority: 0.68,
+              changefreq: "weekly",
+            });
+          }
         }
       }
-    } catch (error) {
-      // Keep sitemap generation resilient when API is unavailable at build time.
+    } catch {
+      // Web stories are optional at build time.
     }
 
-    // Builders
-    const buildersRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}builder/get-all`
-    );
-    const buildersObj = await buildersRes.json();
+    try {
+      const buildersRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}builder/get-all`
+      );
+      if (buildersRes.ok) {
+        const buildersObj = await buildersRes.json();
+        for (const prop of buildersObj?.builders || []) {
+          const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
+          if (slug) pushLoc(`/builder/${slug}`, { priority: 0.7, changefreq: "weekly" });
+        }
+      }
+    } catch {
+      // Builders are optional at build time.
+    }
 
-    allPaths = allPaths.concat(
-      (buildersObj?.builders || [])
-        .filter((prop) => prop?.slugUrl)
-        .map((prop) => ({
-        loc: `/builder/${toPathSlug(prop.slugUrl)}`,
-        changefreq: "weekly",
-        priority: 0.7,
-        lastmod: new Date().toISOString(),
-      }))
-    );
+    try {
+      const citiesRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}city/all`);
+      if (citiesRes.ok) {
+        cities = coerceArray(await citiesRes.json());
+        for (const prop of cities) {
+          const slug = toPathSlug(prop?.slugURL || prop?.slugUrl);
+          if (slug) pushLoc(`/city/${slug}`, { priority: 0.7, changefreq: "weekly" });
+        }
+      }
+    } catch {
+      cities = [];
+    }
 
-    // Cities
-    const citiesRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}city/all`
-    );
-    const cities = await citiesRes.json();
+    try {
+      const projectTypesRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}project-types/get-all`
+      );
+      if (projectTypesRes.ok) {
+        const projectTypes = coerceArray(await projectTypesRes.json());
+        for (const prop of projectTypes) {
+          const slug = toPathSlug(prop?.slugUrl || prop?.slugURL);
+          if (slug) pushLoc(`/projects/${slug}`, { priority: 0.7, changefreq: "weekly" });
+        }
+      }
+    } catch {
+      // Project types are optional at build time.
+    }
 
-    allPaths = allPaths.concat(
-      cities
-        .filter((prop) => prop?.slugURL)
-        .map((prop) => ({
-        loc: `/city/${toPathSlug(prop.slugURL)}`,
-        changefreq: "weekly",
-        priority: 0.7,
-        lastmod: new Date().toISOString(),
-      }))
-    );
-
-    // Project types
-    const projectTypesRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}project-types/get-all`
-    );
-    const projectTypes = await projectTypesRes.json();
-
-    allPaths = allPaths.concat(
-      projectTypes
-        .filter((prop) => prop?.slugUrl)
-        .map((prop) => ({
-        loc: `/projects/${toPathSlug(prop.slugUrl)}`,
-        changefreq: "weekly",
-        priority: 0.7,
-        lastmod: new Date().toISOString(),
-      }))
-    );
-
-    // Floor plans -> discover BHK slugs (e.g. 2-bhk, 3-bhk) for listing URLs
     try {
       const floorPlansRes = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}floor-plans/get-all`
@@ -243,40 +296,41 @@ module.exports = {
         const floorPlans = await floorPlansRes.json();
         bhkFloorSlugs = extractBhkFloorSlugs(floorPlans);
       }
-    } catch (error) {
-      // Keep sitemap generation resilient; other URLs should still be emitted.
+    } catch {
       bhkFloorSlugs = new Set();
     }
 
-    // Apartments hub + selected commercial typology listings: `apartments-in-{city}`, `{type}-in-{city}`
     if (Array.isArray(cities) && cities.length > 0) {
-      const seen = new Set(allPaths.map((p) => p.loc));
-      const stamp = new Date().toISOString();
-      const pushLoc = (loc, priority = 0.72) => {
-        if (!loc || seen.has(loc)) return;
-        seen.add(loc);
-        allPaths.push({
-          loc,
-          changefreq: "weekly",
-          priority,
-          lastmod: stamp,
-        });
-      };
-
       for (const city of cities) {
         const citySlug = listingCitySlug(city);
         if (!citySlug) continue;
 
-        pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, 0.75);
+        pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`, {
+          priority: 0.75,
+          changefreq: "weekly",
+        });
+
+        for (const prefix of LEGACY_CITY_HUB_PREFIXES) {
+          pushLoc(`/${prefix}${citySlug}`, {
+            priority: 0.74,
+            changefreq: "weekly",
+          });
+        }
 
         for (const bhk of bhkFloorSlugs) {
           for (const category of LISTING_BHK_CATEGORY_SLUGS) {
-            pushLoc(`/${bhk}-${category}-in-${citySlug}`, 0.73);
+            pushLoc(`/${bhk}-${category}-in-${citySlug}`, {
+              priority: 0.73,
+              changefreq: "weekly",
+            });
           }
         }
 
         for (const floor of LISTING_COMMERCIAL_FLOOR_SLUGS) {
-          pushLoc(`/${floor}-in-${citySlug}`);
+          pushLoc(`/${floor}-in-${citySlug}`, {
+            priority: 0.72,
+            changefreq: "weekly",
+          });
         }
       }
     }

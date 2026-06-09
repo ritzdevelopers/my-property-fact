@@ -42,7 +42,15 @@ const extractTypesFromProjectConfiguration = (value = "") => {
       if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
     }
 
-    if (!foundBhk) {
+    const brVillaRegex = /(\d+)\s*br\s*villa/gi;
+    let brVillaMatch;
+    let foundBrVilla = false;
+    while ((brVillaMatch = brVillaRegex.exec(cleanedPart)) !== null) {
+      foundBrVilla = true;
+      if (brVillaMatch[1]) types.add(`${brVillaMatch[1]} br villa`);
+    }
+
+    if (!foundBhk && !foundBrVilla) {
       types.add(normalizeType(cleanedPart));
     }
   });
@@ -59,6 +67,15 @@ const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
   const bhkWanted = wanted.match(/(\d+)\s*bhk/i);
   if (bhkWanted?.[1]) {
     return configTypes.includes(`${bhkWanted[1]} bhk`);
+  }
+
+  const brVillaWanted = wanted.match(/(\d+)\s*br\s*villa/i);
+  if (brVillaWanted?.[1]) {
+    const brKey = `${brVillaWanted[1]} br villa`;
+    return configTypes.some(
+      (type) =>
+        type === brKey || type.includes(brKey) || brKey.includes(type),
+    );
   }
 
   return configTypes.some(

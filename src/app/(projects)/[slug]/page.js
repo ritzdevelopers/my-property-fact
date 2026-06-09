@@ -122,11 +122,15 @@ export default async function PropertyPage({ params }) {
 
     const isCompoundFloorListing = Boolean(maybeCompoundListing);
 
-    const isFloorTypeSlug =
-      !isCompoundFloorListing && (await isFloorTypeUrl(slug));
     /** Compound `{floor}-{category}-in-{city}` must not be treated as city hub (`*-in-{city}`). */
     const isCitySlug =
       !maybeCompoundListing && (await isCityTypeUrl(slug));
+
+    const isFloorTypeSlug =
+      !isCompoundFloorListing &&
+      !isCitySlug &&
+      slug.includes("-in-") &&
+      (await isFloorTypeUrl(slug));
 
     if (isCitySlug) {
       return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;

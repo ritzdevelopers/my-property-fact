@@ -20,13 +20,6 @@ export default function MasterBHKProjectList() {
   const [cityName, setCityName] = useState("");
   const [floorTypeList, setFloorTypeList] = useState([]);
 
-  // Extract individual BHK types from string (handles "3 BHK 4 BHK" -> ["3 BHK", "4 BHK"])
-  const extractIndividualBHKTypes = (value = "") => {
-    if (!value || typeof value !== "string") return [];
-    const matches = value.match(/\d+\s*BHK/gi);
-    return matches ? [...new Set(matches.map((m) => m.trim()))] : [];
-  };
-
   const normalizeType = (value = "") =>
     String(value)
       .toLowerCase()
@@ -49,6 +42,11 @@ export default function MasterBHKProjectList() {
         .trim();
       if (!cleanedPart) return;
 
+      // SCO-900 sq.ft style unit sizes are not "SCO Plots" property type.
+      if (/^sco$/i.test(cleanedPart)) return;
+
+      ingestScoPlotsType(cleanedPart, types);
+
       const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
       let bhkMatch;
       let foundBhk = false;
@@ -59,7 +57,22 @@ export default function MasterBHKProjectList() {
       }
 
       if (!foundBhk) {
-        types.add(normalizeType(cleanedPart));
+        const sqFtStandalone = cleanedPart.match(/^(\d+)\s*sq\.?\s*ft$/i);
+        if (sqFtStandalone?.[1]) {
+          types.add(`${sqFtStandalone[1]} sq ft`);
+          return;
+        }
+        const norm = normalizeType(cleanedPart);
+        if (
+          norm === "shop and sco plots" ||
+          norm === "shops and sco plots" ||
+          (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+        ) {
+          if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+          if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+          return;
+        }
+        types.add(norm);
       }
     });
 
@@ -77,9 +90,109 @@ export default function MasterBHKProjectList() {
       return configTypes.includes(`${bhkWanted[1]} bhk`);
     }
 
+    const sqFtWanted = wanted.match(/(\d+)\s*sq\.?\s*ft/i);
+    if (sqFtWanted?.[1]) {
+      return configTypes.includes(`${sqFtWanted[1]} sq ft`);
+    }
+
+    if (wanted === "sco plots" || wanted === "sco plot") {
+      return configTypes.includes("sco plots");
+    }
+
     return configTypes.some(
       (type) => type === wanted || type.includes(wanted) || wanted.includes(type)
     );
+  };
+
+  const isHubBhkSlug = (slugType) => /^\d+-bhk$/i.test(String(slugType || ""));
+
+  const isHubRkStudioSlug = (slugType) =>
+    /^\d+-rk-studio$/i.test(String(slugType || ""));
+
+  const isHubSqFtSlug = (slugType) =>
+    /^\d+-sq\.ft$/i.test(String(slugType || ""));
+
+  const isHubFlatFloorSlug = (slugType) =>
+    isHubBhkSlug(slugType) ||
+    isHubRkStudioSlug(slugType) ||
+    isHubSqFtSlug(slugType);
+
+  const HUB_COMMERCIAL_SLUGS = new Set([
+    "shops",
+    "office",
+    "kiosk",
+    "food-court",
+    "restaurant",
+    "showroom",
+    "sco-plots",
+  ]);
+
+  const ingestScoPlotsType = (cleanedPart, types) => {
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
+  };
+
+  const configTypeToHubSlug = (configType) => {
+    const normalized = normalizeType(configType);
+    if (!normalized) return "";
+    if (normalized === "shop" || normalized === "shops") return "shops";
+    if (normalized === "food courts" || normalized === "food court") {
+      return "food-court";
+    }
+    if (normalized === "plot" || normalized === "plots") return "plot";
+    if (normalized === "office" || normalized === "offices") return "office";
+    if (normalized === "kiosk" || normalized === "kiosks") return "kiosk";
+    if (normalized === "restaurant" || normalized === "restaurants") {
+      return "restaurant";
+    }
+    if (normalized === "showroom" || normalized === "showrooms") return "showroom";
+    if (normalized === "sco plots" || normalized === "sco plot") return "sco-plots";
+    const bhk = normalized.match(/^(\d+) bhk$/);
+    if (bhk) return `${bhk[1]}-bhk`;
+    return normalized.replace(/\s+/g, "-");
+  };
+
+  const projectHasBhkConfiguration = (projectConfiguration) =>
+    extractTypesFromProjectConfiguration(projectConfiguration).some((type) =>
+      /^\d+ bhk$/.test(type),
+    );
+
+  const projectHasRkStudioConfiguration = (projectConfiguration) =>
+    extractTypesFromProjectConfiguration(projectConfiguration).some((type) =>
+      /^(\d+) rk studio(?: apartment)?$/.test(type),
+    );
+
+  const projectHasSqFtConfiguration = (projectConfiguration) =>
+    extractTypesFromProjectConfiguration(projectConfiguration).some((type) =>
+      /^(\d+) sq ft$/.test(type),
+    );
+
+  const projectHasFlatHubConfiguration = (projectConfiguration) =>
+    projectHasBhkConfiguration(projectConfiguration) ||
+    projectHasRkStudioConfiguration(projectConfiguration) ||
+    projectHasSqFtConfiguration(projectConfiguration);
+
+  const projectHasCommercialFloorConfiguration = (projectConfiguration) =>
+    extractTypesFromProjectConfiguration(projectConfiguration).some((type) =>
+      HUB_COMMERCIAL_SLUGS.has(configTypeToHubSlug(type)),
+    );
+
+  const includeFloorTypeInHubCategory = (slugType, category) => {
+    const slug = String(slugType || "").toLowerCase();
+    if (category === "flats") {
+      return isHubFlatFloorSlug(slug);
+    }
+    if (category === "apartments") {
+      return isHubBhkSlug(slug);
+    }
+    if (category === "commercial") {
+      return HUB_COMMERCIAL_SLUGS.has(slug);
+    }
+    if (category === "new-projects") {
+      return true;
+    }
+    return true;
   };
 
   const normalizeFloorType = (value = "") => {
@@ -92,7 +205,7 @@ export default function MasterBHKProjectList() {
     if (normalized === "shop" || normalized === "shops") {
       return { label: "Shops", slugType: "shops" };
     }
-    if (normalized === "food courts") {
+    if (normalized === "food courts" || normalized === "food court") {
       return { label: "Food Court", slugType: "food-court" };
     }
     if (normalized === "plot" || normalized === "plots") {
@@ -101,9 +214,37 @@ export default function MasterBHKProjectList() {
     if (normalized === "office" || normalized === "offices") {
       return { label: "Office", slugType: "office" };
     }
-    // Normalize "1 RK Studio" and "1 RK Studio Apartment" to same slug (avoid duplicates)
+    if (normalized === "kiosk" || normalized === "kiosks") {
+      return { label: "Kiosk", slugType: "kiosk" };
+    }
+    if (normalized === "restaurant" || normalized === "restaurants") {
+      return { label: "Restaurant", slugType: "restaurant" };
+    }
+    if (normalized === "showroom" || normalized === "showrooms") {
+      return { label: "Showroom", slugType: "showroom" };
+    }
+    if (normalized === "sco plots" || normalized === "sco plot") {
+      return { label: "SCO Plots", slugType: "sco-plots" };
+    }
+    if (normalized === "sco") return null;
+    // Normalize "N RK Studio" variants → `1-rk-studio`, `2-rk-studio`, etc.
+    const rkStudio = normalized.match(/^(\d+)\s*rk\s*studio(?:\s*apartment)?$/);
+    if (rkStudio?.[1]) {
+      return {
+        label: `${rkStudio[1]} RK Studio`,
+        slugType: `${rkStudio[1]}-rk-studio`,
+      };
+    }
+    // Legacy: "1 rk studio apartment" / "1 rk studio"
     if (normalized === "1 rk studio apartment" || normalized === "1 rk studio") {
       return { label: "1 RK Studio", slugType: "1-rk-studio" };
+    }
+    const sqFtOnly = normalized.match(/^(\d+)\s*sq\.?\s*ft$/);
+    if (sqFtOnly?.[1]) {
+      return {
+        label: `${sqFtOnly[1]} Sq.ft`,
+        slugType: `${sqFtOnly[1]}-sq.ft`,
+      };
     }
     // Exclude combined types - we already have Office, Shops, SCO Plots separately
     if (
@@ -136,35 +277,18 @@ export default function MasterBHKProjectList() {
       .filter((item) => cityMatches(item, cityKey))
       .forEach((item) => {
         if (!item.projectConfiguration || typeof item.projectConfiguration !== "string") return;
-        item.projectConfiguration
-          .split(",")
-          .map((type) => type.trim())
-          .filter(Boolean)
-          .forEach((type) => {
-            // Split "3 BHK 4 BHK" into individual BHK types
-            const bhkMatches = extractIndividualBHKTypes(type);
-            if (bhkMatches.length > 0) {
-              bhkMatches.forEach((bhk) => {
-                const normalized = normalizeFloorType(bhk);
-                if (normalized && !floorTypesMap.has(normalized.slugType)) {
-                  floorTypesMap.set(normalized.slugType, {
-                    label: normalized.label,
-                    slugType: normalized.slugType,
-                    city: city,
-                  });
-                }
+        extractTypesFromProjectConfiguration(item.projectConfiguration).forEach(
+          (configType) => {
+            const normalized = normalizeFloorType(configType);
+            if (normalized && !floorTypesMap.has(normalized.slugType)) {
+              floorTypesMap.set(normalized.slugType, {
+                label: normalized.label,
+                slugType: normalized.slugType,
+                city: city,
               });
-            } else {
-              const normalized = normalizeFloorType(type);
-              if (normalized && !floorTypesMap.has(normalized.slugType)) {
-                floorTypesMap.set(normalized.slugType, {
-                  label: normalized.label,
-                  slugType: normalized.slugType,
-                  city: city,
-                });
-              }
             }
-          });
+          },
+        );
       });
 
     // Exclude 1 BHK, 2 BHK, 1 BR, 2 BR, bare numbers (3, 4, 5), standalone "BHK", "Offices and Shop"; exclude SCO Plots for new-projects and apartments/flats
@@ -174,7 +298,12 @@ export default function MasterBHKProjectList() {
     }
     const isBareNumber = (slug) => /^\d+$/.test(slug.replace(/-/g, ""));
     return Array.from(floorTypesMap.values())
-      .filter((ft) => !excludeSlugTypes.includes(ft.slugType.toLowerCase()) && !isBareNumber(ft.slugType))
+      .filter(
+        (ft) =>
+          includeFloorTypeInHubCategory(ft.slugType, category) &&
+          !excludeSlugTypes.includes(ft.slugType.toLowerCase()) &&
+          !isBareNumber(ft.slugType),
+      )
       .sort((a, b) => a.label.localeCompare(b.label));
   };
 
@@ -209,7 +338,8 @@ export default function MasterBHKProjectList() {
           filteredData = projects.filter(
             (item) =>
               item.propertyTypeName?.toLowerCase() === "residential" &&
-              cityMatches(item, cityKey)
+              cityMatches(item, cityKey) &&
+              projectHasBhkConfiguration(item.projectConfiguration),
           );
           setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
           break;
@@ -225,7 +355,8 @@ export default function MasterBHKProjectList() {
           filteredData = projects.filter(
             (item) =>
               cityMatches(item, cityKey) &&
-              item.propertyTypeName?.toLowerCase() === "residential"
+              item.propertyTypeName?.toLowerCase() === "residential" &&
+              projectHasFlatHubConfiguration(item.projectConfiguration),
           );
           setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
           break;
@@ -233,7 +364,8 @@ export default function MasterBHKProjectList() {
           filteredData = projects.filter(
             (item) =>
               item.propertyTypeName?.toLowerCase() === "commercial" &&
-              cityMatches(item, cityKey)
+              cityMatches(item, cityKey) &&
+              projectHasCommercialFloorConfiguration(item.projectConfiguration),
           );
           setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
           break;

@@ -118,11 +118,13 @@ function projectMatchesCitySlug(project, citySlug) {
 
 const EXCLUDED_FLOOR_SLUGS = new Set([
   "1-br", "2-br", "1br", "2br", "bhk", "office-and-shop",
-  "shop", "plots", "offices", "restaurants", "showrooms",
+  "shop", "plots", "offices", "restaurants", "showrooms", "sco",
 ]);
 
 const FLOOR_TYPE_ALIASES = {
   shops: "shops",
+  "sco plots": "sco-plots",
+  "sco plot": "sco-plots",
   "food courts": "food-court",
   plot: "plot",
   office: "office",
@@ -230,6 +232,12 @@ function extractTypesFromProjectConfiguration(value = "") {
       .trim();
     if (!cleanedPart) continue;
 
+    if (/^sco$/i.test(cleanedPart)) continue;
+
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
+
     const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
     let bhkMatch;
     let foundBhk = false;
@@ -248,7 +256,18 @@ function extractTypesFromProjectConfiguration(value = "") {
     }
 
     if (!foundBhk && !foundBrVilla) {
-      types.add(normalizeConfigType(cleanedPart));
+      const norm = normalizeConfigType(cleanedPart);
+      if (
+        norm === "shop and sco plots" ||
+        norm === "shops and sco plots" ||
+        (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+      ) {
+        if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+        if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+        continue;
+      }
+      if (norm === "sco") continue;
+      types.add(norm);
     }
   }
 
@@ -265,6 +284,7 @@ function configTypeToFloorSlug(configType) {
   if (norm === "plots") return "plot";
   if (norm === "restaurants") return "restaurant";
   if (norm === "showrooms") return "showroom";
+  if (/^sco\s*plots?$/.test(norm)) return "sco-plots";
   return normalizeFloorSlugFromPlanType(norm);
 }
 

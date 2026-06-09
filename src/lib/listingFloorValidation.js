@@ -33,6 +33,9 @@ export function floorSlugToListingLabel(floorSlug) {
   if (brVilla) return `${brVilla[1]} BR Villa`;
   const rkStudio = s.match(/^(\d+)-rk-studio$/);
   if (rkStudio) return `${rkStudio[1]} RK Studio`;
+  const sqFt = s.match(/^(\d+)-sq\.ft$/);
+  if (sqFt) return `${sqFt[1]} Sq.ft`;
+  if (s === "sco-plots") return "SCO Plots";
   return s
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -81,6 +84,7 @@ const FLOOR_URL_CONFIG_TYPES = {
   plot: ["plot", "plots"],
   restaurant: ["restaurant", "restaurants"],
   showroom: ["showroom", "showrooms"],
+  "sco-plots": ["sco plots", "sco plot"],
 };
 
 /**
@@ -128,6 +132,11 @@ export function configTypesForFloorSlug(floorSlug) {
     return aliases.map((value) => normalizeListingConfigType(value));
   }
 
+  const sqFt = normalized.match(/^(\d+)-sq\.ft$/);
+  if (sqFt?.[1]) {
+    return [normalizeListingConfigType(`${sqFt[1]} sq ft`)];
+  }
+
   const wanted = normalizeListingConfigType(
     floorSlugToListingLabel(normalized),
   );
@@ -146,6 +155,11 @@ export function configTypeToFloorSlug(configType) {
 
   const rkStudio = normalized.match(/^(\d+) rk studio(?: apartment)?$/);
   if (rkStudio) return `${rkStudio[1]}-rk-studio`;
+
+  const sqFt = normalized.match(/^(\d+)\s*sq\.?\s*ft$/);
+  if (sqFt) return `${sqFt[1]}-sq.ft`;
+
+  if (/^sco\s*plots?$/.test(normalized)) return "sco-plots";
 
   const slug = normalized.replace(/\s+/g, "-");
   return canonicalFloorSlugForUrl(slug);
@@ -175,6 +189,7 @@ const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "offices",
   "restaurants",
   "showrooms",
+  "sco",
 ]);
 
 export function resolveKnownFloorSlug(rawFloorSlug, knownSlugs) {
@@ -200,6 +215,13 @@ export function extractTypesFromProjectConfiguration(value = "") {
       .trim();
     if (!cleanedPart) continue;
 
+    // SCO-900 sq.ft style unit sizes are not "SCO Plots" property type.
+    if (/^sco$/i.test(cleanedPart)) continue;
+
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
+
     const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
     let bhkMatch;
     let foundBhk = false;
@@ -218,7 +240,22 @@ export function extractTypesFromProjectConfiguration(value = "") {
     }
 
     if (!foundBhk && !foundBrVilla) {
-      types.add(normalizeListingConfigType(cleanedPart));
+      const sqFtStandalone = cleanedPart.match(/^(\d+)\s*sq\.?\s*ft$/i);
+      if (sqFtStandalone?.[1]) {
+        types.add(`${sqFtStandalone[1]} sq ft`);
+        continue;
+      }
+      const norm = normalizeListingConfigType(cleanedPart);
+      if (
+        norm === "shop and sco plots" ||
+        norm === "shops and sco plots" ||
+        (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+      ) {
+        if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+        if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+        continue;
+      }
+      types.add(norm);
     }
   }
 
@@ -255,6 +292,17 @@ export function projectConfigurationIncludesFloorSlug(
       projectConfiguration,
     );
     return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
+  }
+
+  const sqFtSlug = normalizedFloor.match(/^(\d+)-sq\.ft$/);
+  if (sqFtSlug?.[1]) {
+    const wanted = normalizeListingConfigType(`${sqFtSlug[1]} sq ft`);
+    const configTypes = extractTypesFromProjectConfiguration(
+      projectConfiguration,
+    );
+    return configTypes.some(
+      (type) => normalizeListingConfigType(type) === wanted,
+    );
   }
 
   const wantedTypes = configTypesForFloorSlug(normalizedFloor);

@@ -1,5 +1,8 @@
 /** @type {import('next-sitemap').IConfig} */
 
+const path = require("path");
+const { pathToFileURL } = require("url");
+
 // ─── Env normalisation ────────────────────────────────────────────────────────
 (function normalizeLegacyPublicApiEnv() {
   const v = process.env.NEXT_PUBLIC_API_URL;
@@ -240,7 +243,15 @@ function extractTypesFromProjectConfiguration(value = "") {
       if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
     }
 
-    if (!foundBhk) {
+    const brVillaRegex = /(\d+)\s*br\s*villa/gi;
+    let brVillaMatch;
+    let foundBrVilla = false;
+    while ((brVillaMatch = brVillaRegex.exec(cleanedPart)) !== null) {
+      foundBrVilla = true;
+      if (brVillaMatch[1]) types.add(`${brVillaMatch[1]} br villa`);
+    }
+
+    if (!foundBhk && !foundBrVilla) {
       types.add(normalizeConfigType(cleanedPart));
     }
   }
@@ -632,6 +643,21 @@ module.exports = {
     const { floorsByCity, hubsByCity, compoundFloorsByCity } =
       buildCityListingData(projectsData, floorPlansPayload, cities);
 
+    let hasFloorListingDataInCity = null;
+    let hasCompoundListingDataInCity = null;
+    try {
+      const listingValidation = await import(
+        pathToFileURL(
+          path.join(__dirname, "src/lib/listingFloorValidation.js"),
+        ).href,
+      );
+      hasFloorListingDataInCity = listingValidation.hasFloorListingDataInCity;
+      hasCompoundListingDataInCity =
+        listingValidation.hasCompoundListingDataInCity;
+    } catch (err) {
+      console.warn("[sitemap] listing validation import failed:", err?.message);
+    }
+
     for (const city of cities) {
       const citySlug = resolveCitySlug(listingCitySlug(city));
       if (!citySlug) continue;
@@ -654,11 +680,23 @@ module.exports = {
       }
 
       for (const floor of floors) {
-        pushLoc(`/${floor}-in-${citySlug}`);
+        const includeFloor =
+          typeof hasFloorListingDataInCity === "function"
+            ? hasFloorListingDataInCity(projectsData, citySlug, floor)
+            : false;
+        if (includeFloor) pushLoc(`/${floor}-in-${citySlug}`);
       }
 
       for (const compoundKey of compounds) {
-        pushLoc(`/${compoundKey}-in-${citySlug}`);
+        const includeCompound =
+          typeof hasCompoundListingDataInCity === "function"
+            ? hasCompoundListingDataInCity(
+                projectsData,
+                citySlug,
+                compoundKey,
+              )
+            : false;
+        if (includeCompound) pushLoc(`/${compoundKey}-in-${citySlug}`);
       }
     }
 

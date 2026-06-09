@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import {
   fetchProjectDetailsBySlug,
+  isCityTypeUrl,
+  isFloorTypeUrl,
   isValidCompoundFloorListing,
   parseCompoundFloorListingSlug,
 } from "@/app/_global_components/masterFunction";
@@ -718,6 +720,15 @@ if (isStaticRootSlugTypo(slug) || !mayBeValidRootCatchAllSlug(slug)) {
 
 const compoundParsed = parseCompoundFloorListingSlug(slug);
 if (compoundParsed && !(await isValidCompoundFloorListing(compoundParsed))) {
+  notFound();
+}
+
+if (
+  !compoundParsed &&
+  slug.includes("-in-") &&
+  !(await isCityTypeUrl(slug)) &&
+  !(await isFloorTypeUrl(slug))
+) {
   notFound();
 }
 

@@ -1,10 +1,16 @@
 import axios from "axios";
 import { cache } from "react";
 import {
-  cityNameMatchesFilter,
   getDisplayCityList,
   resolveCitySlug,
 } from "./cityAliasUtils";
+import {
+  floorSlugToListingLabel,
+  hasCompoundListingDataInCity,
+  hasFloorListingDataInCity as hasFloorListingDataForProjects,
+} from "../../lib/listingFloorValidation";
+
+export { floorSlugToListingLabel } from "../../lib/listingFloorValidation";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 // Function to check if a given slug corresponds to a valid project
@@ -245,69 +251,10 @@ export function isMalformedListingSlug(slug) {
   return false;
 }
 
-function normalizeListingConfigType(value = "") {
-  return String(value)
-    .toLowerCase()
-    .replace(/%20/g, " ")
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function extractTypesFromProjectConfiguration(value = "") {
-  if (!value || typeof value !== "string") return [];
-  const types = new Set();
-  const parts = value
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  for (const part of parts) {
-    const cleanedPart = part
-      .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
-      .trim();
-    if (!cleanedPart) continue;
-
-    const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
-    let bhkMatch;
-    let foundBhk = false;
-    while ((bhkMatch = bhkRegex.exec(cleanedPart)) !== null) {
-      foundBhk = true;
-      if (bhkMatch[1]) types.add(`${bhkMatch[1]} bhk`);
-      if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
-    }
-
-    if (!foundBhk) {
-      types.add(normalizeListingConfigType(cleanedPart));
-    }
-  }
-
-  return Array.from(types);
-}
-
-function projectMatchesCompoundCategory(project, categorySlug) {
-  const propType = String(project?.propertyTypeName || "").toLowerCase();
-  const status = String(project?.projectStatusName || "").toLowerCase();
-  switch (categorySlug) {
-    case "new-projects":
-      return status === "new launched";
-    case "apartments":
-    case "flats":
-      return propType === "residential";
-    case "commercial":
-    case "offices-and-shop":
-      return propType === "commercial";
-    default:
-      return false;
-  }
-}
-
-function projectConfigurationIncludesBhk(projectConfiguration, bhkNumber) {
-  const wanted = `${String(bhkNumber).trim()} bhk`;
-  if (!wanted || wanted === " bhk") return false;
-  return extractTypesFromProjectConfiguration(projectConfiguration).includes(
-    wanted,
-  );
+async function hasFloorListingDataInCity(citySlug, floorSlug) {
+  if (!(await isKnownCitySlug(resolveCitySlug(citySlug)))) return false;
+  const projects = await fetchAllProjects();
+  return hasFloorListingDataForProjects(projects, citySlug, floorSlug);
 }
 
 /** Validates `{bhk}-{category}-in-{city}` — city + category + matching project data. */
@@ -316,30 +263,9 @@ export async function isValidCompoundFloorListing(parsed) {
     return false;
   }
   if (!(await isKnownCitySlug(parsed.citySlug))) return false;
-
-  const bhkNumber = String(parsed.floorSlug).match(/^(\d+)-bhk$/)?.[1];
-  if (!bhkNumber) return false;
-
   const projects = await fetchAllProjects();
-  if (!Array.isArray(projects) || projects.length === 0) return false;
-
-  return projects.some(
-    (project) =>
-      cityNameMatchesFilter(parsed.citySlug, project) &&
-      projectMatchesCompoundCategory(project, parsed.categorySlug) &&
-      projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
-  );
-}
-
-export function floorSlugToListingLabel(floorSlug) {
-  if (!floorSlug) return "";
-  const s = String(floorSlug).toLowerCase();
-  const bhk = s.match(/^(\d+)-bhk$/);
-  if (bhk) return `${bhk[1]} BHK`;
-  return s
-    .split("-")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
+  const compoundKey = `${parsed.floorSlug}-${parsed.categorySlug}`;
+  return hasCompoundListingDataInCity(projects, parsed.citySlug, compoundKey);
 }
 
 export function categorySlugToListingLabel(categorySlug) {
@@ -431,24 +357,23 @@ export async function isKnownCitySlug(citySlug) {
   }
 }
 
+/**
+ * Validates `{floor}-in-{city}` — floor type must exist in that city's project data.
+ * e.g. `/8-bhk-in-gurugram` → 404 unless a Gurugram project lists 8 BHK.
+ */
 export const isFloorTypeUrl = async (slug) => {
-  if (!slug || typeof slug !== "string") return false;
-  const slugParts = slug.split("-in-");
-  if (slugParts.length >= 2) {
-    const cityPart = slugParts.slice(1).join("-in-");
-    if (!(await isKnownCitySlug(cityPart))) return false;
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) {
+    return false;
   }
-  const uniqueUrls = await getFloorPlanUniqueUrls();
-  const floorType = slugParts[0];
-  const floorSlug = normalizeFloorSlugSegment(floorType);
-  const floorLower = floorType.toLowerCase();
-  return (
-    uniqueUrls.has(floorSlug) ||
-    uniqueUrls.has(floorLower) ||
-    KNOWN_FLOOR_SLUGS_FALLBACK.includes(floorSlug) ||
-    KNOWN_FLOOR_SLUGS_FALLBACK.includes(floorLower)
-  );
+  const slugParts = slug.split("-in-");
+  const cityPart = slugParts.slice(1).join("-in-");
+  const floorSlug = normalizeFloorSlugSegment(slugParts[0] || "");
+  if (!floorSlug || !cityPart) return false;
+  return hasFloorListingDataInCity(cityPart, floorSlug);
 };
+
+/** Exported alias used by metadata guards. */
+export const isValidFloorInCityListing = isFloorTypeUrl;
 
 /** Validates city hub URLs: `flats-in-gurugram`, `apartments-in-delhi`, etc. */
 export const isCityTypeUrl = async (slug) => {

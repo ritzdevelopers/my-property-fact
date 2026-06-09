@@ -121,19 +121,14 @@ const EXCLUDED_FLOOR_SLUGS = new Set([
 ]);
 
 const FLOOR_TYPE_ALIASES = {
-  shop: "shops",
   shops: "shops",
   "food courts": "food-court",
   plot: "plot",
-  plots: "plot",
   office: "office",
-  offices: "office",
   "1 rk studio apartment": "1-rk-studio",
   "1 rk studio": "1-rk-studio",
   restaurant: "restaurant",
-  restaurants: "restaurant",
   showroom: "showroom",
-  showrooms: "showroom",
 };
 
 const COMBINED_FLOOR_TYPES = new Set([

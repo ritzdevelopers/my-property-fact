@@ -12,11 +12,17 @@ import {
   fetchNearbyBenefitsAll,
   fetchProjectDetailsBySlug,
   isCityTypeUrl,
-  isFloorTypeUrl,
   isMalformedListingSlug,
+  isKnownCitySlug,
   isValidCompoundFloorListing,
   parseCompoundFloorListingSlug,
 } from "@/app/_global_components/masterFunction";
+import {
+  collectKnownFloorSlugs,
+  getCompoundListingProjectsInCity,
+  getFloorListingProjectsInCity,
+  parseFloorInCitySlug,
+} from "@/lib/listingFloorValidation";
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
@@ -86,14 +92,30 @@ export default async function PropertyPage({ params }) {
       redirect(`/${aliasResolvedSlug}`);
     }
     const maybeCompoundListing = parseCompoundFloorListingSlug(slug);
+    const allProjectsForSlug = await fetchAllProjects();
+    const knownFloorSlugs = collectKnownFloorSlugs(allProjectsForSlug);
+    const parsedFloorCity = parseFloorInCitySlug(slug, knownFloorSlugs);
     const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
     if (
       !maybeCompoundListing &&
       canonicalFloorCity &&
-      canonicalFloorCity !== slug &&
-      (await isFloorTypeUrl(canonicalFloorCity))
+      canonicalFloorCity !== slug
     ) {
-      redirect(`/${canonicalFloorCity}`);
+      const canonicalParsed = parseFloorInCitySlug(
+        canonicalFloorCity,
+        knownFloorSlugs,
+      );
+      if (canonicalParsed) {
+        const hasCanonicalData =
+          getFloorListingProjectsInCity(
+            allProjectsForSlug,
+            canonicalParsed.citySlug,
+            canonicalParsed.floorSlug,
+          ).length > 0;
+        if (hasCanonicalData) {
+          redirect(`/${canonicalFloorCity}`);
+        }
+      }
     }
     const [cityList, projectDetail] = await Promise.all([
       fetchCityData(),
@@ -126,24 +148,62 @@ export default async function PropertyPage({ params }) {
     const isCitySlug =
       !maybeCompoundListing && (await isCityTypeUrl(slug));
 
+    let floorListingProjects = null;
+    if (
+      !isCompoundFloorListing &&
+      !isCitySlug &&
+      parsedFloorCity &&
+      (await isKnownCitySlug(parsedFloorCity.citySlug))
+    ) {
+      floorListingProjects = getFloorListingProjectsInCity(
+        allProjectsForSlug,
+        parsedFloorCity.citySlug,
+        parsedFloorCity.floorSlug,
+      );
+    }
+
     const isFloorTypeSlug =
       !isCompoundFloorListing &&
       !isCitySlug &&
-      slug.includes("-in-") &&
-      (await isFloorTypeUrl(slug));
+      Boolean(parsedFloorCity) &&
+      Array.isArray(floorListingProjects) &&
+      floorListingProjects.length > 0;
 
     if (isCitySlug) {
       return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
     } else if (isCompoundFloorListing) {
+      const compoundKey = `${maybeCompoundListing.floorSlug}-${maybeCompoundListing.categorySlug}`;
+      const compoundProjects = getCompoundListingProjectsInCity(
+        allProjectsForSlug,
+        maybeCompoundListing.citySlug,
+        compoundKey,
+      );
+      if (compoundProjects.length === 0) {
+        notFound();
+      }
       return (
         <ProjectListByFloorType
           slug={slug}
           cityList={cityList}
           compoundListing={maybeCompoundListing}
+          initialProjects={compoundProjects.map(slimProjectCardForPayload)}
         />
       );
     } else if (isFloorTypeSlug) {
-      return <ProjectListByFloorType slug={slug} cityList={cityList} />;
+      return (
+        <ProjectListByFloorType
+          slug={slug}
+          cityList={cityList}
+          initialProjects={floorListingProjects.map(slimProjectCardForPayload)}
+        />
+      );
+    } else if (
+      !isProjectSlug &&
+      slug.includes("-in-") &&
+      !isCitySlug &&
+      !maybeCompoundListing
+    ) {
+      notFound();
     } else if (isProjectSlug) {
       /** Full project list only needed for “similar projects” cards — skip for city/floor routes. */
       const featuredProjects = await fetchAllProjects();

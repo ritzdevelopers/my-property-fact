@@ -14,6 +14,7 @@ export default function ProjectListByFloorType({
   slug,
   cityList = [],
   compoundListing = null,
+  initialProjects = [],
 }) {
   const title = compoundListing
     ? buildCompoundListingTitle(compoundListing)
@@ -48,6 +49,7 @@ export default function ProjectListByFloorType({
         floorType={floorType}
         cityName={cityName}
         categorySlug={compoundListing?.categorySlug ?? null}
+        initialProjects={initialProjects}
       />
       <NewFooterDesign cityList={cityList} compactTop={true} />
     </>

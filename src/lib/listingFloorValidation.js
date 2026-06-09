@@ -31,10 +31,98 @@ export function floorSlugToListingLabel(floorSlug) {
   if (bhk) return `${bhk[1]} BHK`;
   const brVilla = s.match(/^(\d+)-br-villa$/);
   if (brVilla) return `${brVilla[1]} BR Villa`;
+  const rkStudio = s.match(/^(\d+)-rk-studio$/);
+  if (rkStudio) return `${rkStudio[1]} RK Studio`;
   return s
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
+}
+
+export function parseFloorInCitySlug(slug, knownFloorSlugs = null) {
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
+  const segments = slug.split("-in-");
+  if (segments.length < 2) return null;
+  let floorSlug = normalizeFloorSlugSegment(segments[0] || "");
+  const citySlug = resolveCitySlug(
+    segments
+      .slice(1)
+      .join("-in-")
+      .trim()
+      .toLowerCase()
+      .replace(/%20/g, "-")
+      .replace(/\s+/g, "-"),
+  );
+  if (!floorSlug || !citySlug) return null;
+
+  if (knownFloorSlugs) {
+    const resolved = resolveKnownFloorSlug(floorSlug, knownFloorSlugs);
+    if (!resolved) return null;
+    floorSlug = resolved;
+  }
+
+  return { floorSlug, citySlug };
+}
+
+export function configTypeMatchesWanted(type, wanted) {
+  if (!type || !wanted) return false;
+  if (type === wanted) return true;
+
+  // Longer config label contains the wanted phrase (e.g. "1 rk studio apartment" → "1 rk studio").
+  if (type.startsWith(`${wanted} `)) return true;
+
+  return false;
+}
+
+export function configTypeToFloorSlug(configType) {
+  const normalized = normalizeListingConfigType(configType);
+  if (!normalized) return "";
+
+  const bhk = normalized.match(/^(\d+) bhk$/);
+  if (bhk) return `${bhk[1]}-bhk`;
+
+  const brVilla = normalized.match(/^(\d+) br villa$/);
+  if (brVilla) return `${brVilla[1]}-br-villa`;
+
+  const rkStudio = normalized.match(/^(\d+) rk studio(?: apartment)?$/);
+  if (rkStudio) return `${rkStudio[1]}-rk-studio`;
+
+  return normalized.replace(/\s+/g, "-");
+}
+
+/** All `{floor}` segments that exist in project configuration data. */
+export function collectKnownFloorSlugs(projects) {
+  const slugs = new Set();
+  if (!Array.isArray(projects)) return slugs;
+
+  for (const project of projects) {
+    for (const configType of extractTypesFromProjectConfiguration(
+      project?.projectConfiguration,
+    )) {
+      const slug = configTypeToFloorSlug(configType);
+      if (slug) slugs.add(slug);
+    }
+  }
+
+  return slugs;
+}
+
+/** Wrong URL keys — only the canonical slug should resolve (e.g. `shops` not `shop`). */
+const BLOCKED_FLOOR_URL_SLUGS = new Set([
+  "shop",
+  "plots",
+  "offices",
+  "restaurants",
+  "showrooms",
+]);
+
+/** Exact match only — no singular/plural aliasing in URLs. */
+export function resolveKnownFloorSlug(rawFloorSlug, knownSlugs) {
+  const normalized = normalizeFloorSlugSegment(rawFloorSlug);
+  if (!normalized || !knownSlugs?.size) return null;
+  if (BLOCKED_FLOOR_URL_SLUGS.has(normalized)) return null;
+  if (knownSlugs.has(normalized)) return normalized;
+  return null;
 }
 
 export function extractTypesFromProjectConfiguration(value = "") {
@@ -105,12 +193,7 @@ export function projectConfigurationIncludesFloorSlug(
     const configTypes = extractTypesFromProjectConfiguration(
       projectConfiguration,
     );
-    return configTypes.some(
-      (type) =>
-        type === wanted ||
-        type.includes(wanted) ||
-        wanted.includes(type),
-    );
+    return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
   }
 
   const wanted = normalizeListingConfigType(
@@ -121,9 +204,50 @@ export function projectConfigurationIncludesFloorSlug(
   const configTypes = extractTypesFromProjectConfiguration(
     projectConfiguration,
   );
-  return configTypes.some(
-    (type) =>
-      type === wanted || type.includes(wanted) || wanted.includes(type),
+  return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
+}
+
+export function projectMatchesFloorListing(project, citySlug, floorSlug) {
+  const canonicalCity = resolveCitySlug(citySlug);
+  const normalizedFloor = normalizeFloorSlugSegment(floorSlug || "");
+  if (!canonicalCity || !normalizedFloor || !project) return false;
+  return (
+    cityNameMatchesFilter(canonicalCity, project) &&
+    projectConfigurationIncludesFloorSlug(
+      project.projectConfiguration,
+      normalizedFloor,
+    )
+  );
+}
+
+export function getFloorListingProjectsInCity(projects, citySlug, floorSlug) {
+  if (!Array.isArray(projects)) return [];
+  return projects.filter((project) =>
+    projectMatchesFloorListing(project, citySlug, floorSlug),
+  );
+}
+
+export function getCompoundListingProjectsInCity(
+  projects,
+  citySlug,
+  compoundKey,
+) {
+  const parsed = parseCompoundListingKey(compoundKey);
+  if (!parsed?.floorSlug || !parsed?.categorySlug || !Array.isArray(projects)) {
+    return [];
+  }
+
+  const canonicalCity = resolveCitySlug(citySlug);
+  if (!canonicalCity) return [];
+
+  const bhkNumber = String(parsed.floorSlug).match(/^(\d+)-bhk$/)?.[1];
+  if (!bhkNumber) return [];
+
+  return projects.filter(
+    (project) =>
+      cityNameMatchesFilter(canonicalCity, project) &&
+      projectMatchesCompoundCategory(project, parsed.categorySlug) &&
+      projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
   );
 }
 
@@ -170,36 +294,11 @@ export function parseCompoundListingKey(compoundKey) {
 
 /** Sync check — used by sitemap and server page validation. */
 export function hasFloorListingDataInCity(projects, citySlug, floorSlug) {
-  const canonicalCity = resolveCitySlug(citySlug);
-  const normalizedFloor = normalizeFloorSlugSegment(floorSlug || "");
-  if (!canonicalCity || !normalizedFloor || !Array.isArray(projects)) {
-    return false;
-  }
-
-  return projects.some(
-    (project) =>
-      cityNameMatchesFilter(canonicalCity, project) &&
-      projectConfigurationIncludesFloorSlug(
-        project.projectConfiguration,
-        normalizedFloor,
-      ),
-  );
+  return getFloorListingProjectsInCity(projects, citySlug, floorSlug).length > 0;
 }
 
 export function hasCompoundListingDataInCity(projects, citySlug, compoundKey) {
-  const parsed = parseCompoundListingKey(compoundKey);
-  if (!parsed?.floorSlug || !parsed?.categorySlug) return false;
-
-  const canonicalCity = resolveCitySlug(citySlug);
-  if (!canonicalCity || !Array.isArray(projects)) return false;
-
-  const bhkNumber = String(parsed.floorSlug).match(/^(\d+)-bhk$/)?.[1];
-  if (!bhkNumber) return false;
-
-  return projects.some(
-    (project) =>
-      cityNameMatchesFilter(canonicalCity, project) &&
-      projectMatchesCompoundCategory(project, parsed.categorySlug) &&
-      projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
+  return (
+    getCompoundListingProjectsInCity(projects, citySlug, compoundKey).length > 0
   );
 }

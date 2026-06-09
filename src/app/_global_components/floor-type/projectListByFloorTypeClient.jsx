@@ -10,15 +10,29 @@ import { cityNameMatchesFilter } from "../cityAliasUtils";
 import { useSiteData } from "../contexts/SiteDataContext";
 import {
   configTypeMatchesWanted,
+  configTypesForFloorSlug,
   extractTypesFromProjectConfiguration,
+  normalizeFloorSlugSegment,
   normalizeListingConfigType,
 } from "@/lib/listingFloorValidation";
 
 const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
-  const wanted = normalizeListingConfigType(floorType);
-  if (!wanted) return true;
+  if (!floorType) return true;
   const configTypes = extractTypesFromProjectConfiguration(projectConfiguration);
   if (!configTypes.length) return false;
+
+  const floorSlug = normalizeFloorSlugSegment(
+    normalizeListingConfigType(floorType).replace(/\s+/g, "-"),
+  );
+  const wantedTypes = configTypesForFloorSlug(floorSlug);
+  if (wantedTypes.length) {
+    return configTypes.some((type) =>
+      wantedTypes.some((wanted) => configTypeMatchesWanted(type, wanted)),
+    );
+  }
+
+  const wanted = normalizeListingConfigType(floorType);
+  if (!wanted) return true;
 
   const bhkWanted = wanted.match(/(\d+)\s*bhk/i);
   if (bhkWanted?.[1]) {

@@ -5,6 +5,7 @@ import {
   resolveCitySlug,
 } from "./cityAliasUtils";
 import {
+  canonicalFloorSlugForUrl,
   floorSlugToListingLabel,
   hasCompoundListingDataInCity,
   hasFloorListingDataInCity as hasFloorListingDataForProjects,
@@ -156,7 +157,7 @@ export function canonicalizeFloorInCitySlug(slug) {
   if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
   const segments = slug.split("-in-");
   if (segments.length < 2) return null;
-  const floorNorm = normalizeFloorSlugSegment(segments[0]);
+  const floorNorm = canonicalFloorSlugForUrl(segments[0]);
   const cityPart = segments.slice(1).join("-in-");
   const cityNorm = resolveCitySlug(
     cityPart

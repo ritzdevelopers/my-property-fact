@@ -74,6 +74,66 @@ export function configTypeMatchesWanted(type, wanted) {
   return false;
 }
 
+/** Canonical URL slug → config types in project data that belong on that page. */
+const FLOOR_URL_CONFIG_TYPES = {
+  shops: ["shops", "shop"],
+  office: ["office", "offices"],
+  plot: ["plot", "plots"],
+  restaurant: ["restaurant", "restaurants"],
+  showroom: ["showroom", "showrooms"],
+};
+
+/**
+ * Non-canonical URL segments → canonical listing slug.
+ * shops-in-{city} | office-in-{city} | plot-in-{city} | restaurant-in-{city} | showroom-in-{city}
+ */
+const CANONICAL_FLOOR_URL_SLUG = {
+  shop: "shops",
+  offices: "office",
+  plots: "plot",
+  restaurants: "restaurant",
+  showrooms: "showroom",
+};
+
+export function canonicalFloorSlugForUrl(floorSegment) {
+  const normalized = normalizeFloorSlugSegment(floorSegment || "");
+  if (!normalized) return "";
+  return CANONICAL_FLOOR_URL_SLUG[normalized] || normalized;
+}
+
+export function buildCanonicalFloorInCitySlug(slug) {
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
+  const segments = slug.split("-in-");
+  if (segments.length < 2) return null;
+  const floorNorm = canonicalFloorSlugForUrl(segments[0] || "");
+  const citySlug = resolveCitySlug(
+    segments
+      .slice(1)
+      .join("-in-")
+      .trim()
+      .toLowerCase()
+      .replace(/%20/g, "-")
+      .replace(/\s+/g, "-"),
+  );
+  if (!floorNorm || !citySlug) return null;
+  return `${floorNorm}-in-${citySlug}`;
+}
+
+export function configTypesForFloorSlug(floorSlug) {
+  const normalized = normalizeFloorSlugSegment(floorSlug || "");
+  if (!normalized) return [];
+
+  const aliases = FLOOR_URL_CONFIG_TYPES[normalized];
+  if (aliases) {
+    return aliases.map((value) => normalizeListingConfigType(value));
+  }
+
+  const wanted = normalizeListingConfigType(
+    floorSlugToListingLabel(normalized),
+  );
+  return wanted ? [wanted] : [];
+}
+
 export function configTypeToFloorSlug(configType) {
   const normalized = normalizeListingConfigType(configType);
   if (!normalized) return "";
@@ -87,7 +147,8 @@ export function configTypeToFloorSlug(configType) {
   const rkStudio = normalized.match(/^(\d+) rk studio(?: apartment)?$/);
   if (rkStudio) return `${rkStudio[1]}-rk-studio`;
 
-  return normalized.replace(/\s+/g, "-");
+  const slug = normalized.replace(/\s+/g, "-");
+  return canonicalFloorSlugForUrl(slug);
 }
 
 /** All `{floor}` segments that exist in project configuration data. */
@@ -107,7 +168,7 @@ export function collectKnownFloorSlugs(projects) {
   return slugs;
 }
 
-/** Wrong URL keys — only the canonical slug should resolve (e.g. `shops` not `shop`). */
+/** Plural / alias URL keys — redirect to canonical slug in `CANONICAL_FLOOR_URL_SLUG`. */
 const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "shop",
   "plots",
@@ -116,12 +177,12 @@ const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "showrooms",
 ]);
 
-/** Exact match only — no singular/plural aliasing in URLs. */
 export function resolveKnownFloorSlug(rawFloorSlug, knownSlugs) {
   const normalized = normalizeFloorSlugSegment(rawFloorSlug);
   if (!normalized || !knownSlugs?.size) return null;
   if (BLOCKED_FLOOR_URL_SLUGS.has(normalized)) return null;
-  if (knownSlugs.has(normalized)) return normalized;
+  const canonical = canonicalFloorSlugForUrl(normalized);
+  if (knownSlugs.has(canonical)) return canonical;
   return null;
 }
 
@@ -196,15 +257,15 @@ export function projectConfigurationIncludesFloorSlug(
     return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
   }
 
-  const wanted = normalizeListingConfigType(
-    floorSlugToListingLabel(normalizedFloor),
-  );
-  if (!wanted) return false;
+  const wantedTypes = configTypesForFloorSlug(normalizedFloor);
+  if (!wantedTypes.length) return false;
 
   const configTypes = extractTypesFromProjectConfiguration(
     projectConfiguration,
   );
-  return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
+  return configTypes.some((type) =>
+    wantedTypes.some((wanted) => configTypeMatchesWanted(type, wanted)),
+  );
 }
 
 export function projectMatchesFloorListing(project, citySlug, floorSlug) {

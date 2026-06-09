@@ -118,6 +118,7 @@ function projectMatchesCitySlug(project, citySlug) {
 
 const EXCLUDED_FLOOR_SLUGS = new Set([
   "1-br", "2-br", "1br", "2br", "bhk", "office-and-shop",
+  "shop", "plots", "offices", "restaurants", "showrooms",
 ]);
 
 const FLOOR_TYPE_ALIASES = {
@@ -259,6 +260,11 @@ function configTypeToFloorSlug(configType) {
   if (!norm) return "";
   const bhk = norm.match(/^(\d+)\s*bhk$/);
   if (bhk) return `${bhk[1]}-bhk`;
+  if (norm === "shop") return "shops";
+  if (norm === "offices") return "office";
+  if (norm === "plots") return "plot";
+  if (norm === "restaurants") return "restaurant";
+  if (norm === "showrooms") return "showroom";
   return normalizeFloorSlugFromPlanType(norm);
 }
 

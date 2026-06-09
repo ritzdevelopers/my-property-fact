@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { canAccessAdminPath } from "./app/(adminside)/admin/adminPermissions";
 import { getPublicApiBase } from "./lib/publicApiBase";
 import { ELDECO_LANDING_BASE_PATH } from "./components/eldecoPaths";
+import {
+  isDefinitelyInvalidPublicPath,
+  NOT_FOUND_TRIGGER_PATH,
+} from "./lib/publicRouteValidation";
 
 const protectedRoutes = [
   "/admin",
@@ -115,6 +119,15 @@ export async function middleware(req) {
   const webStoryRedirect = legacyWebStoryRedirect(req);
   if (webStoryRedirect) {
     return webStoryRedirect;
+  }
+
+  if (
+    path !== NOT_FOUND_TRIGGER_PATH &&
+    isDefinitelyInvalidPublicPath(path)
+  ) {
+    const url = req.nextUrl.clone();
+    url.pathname = NOT_FOUND_TRIGGER_PATH;
+    return NextResponse.rewrite(url);
   }
 
   if (isEldecoTerraSolPath(path)) {
@@ -235,5 +248,6 @@ export const config = {
     "/portal/:path*",
     "/Eldeco-terra&sol",
     "/Eldeco-terra&sol/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|txt|xml|json|map)$).*)",
   ],
 };

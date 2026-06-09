@@ -1,7 +1,7 @@
 import axios from "axios";
 import { cache } from "react";
 import {
-  CITY_SLUG_ALIASES,
+  cityNameMatchesFilter,
   getDisplayCityList,
   resolveCitySlug,
 } from "./cityAliasUtils";
@@ -245,21 +245,90 @@ export function isMalformedListingSlug(slug) {
   return false;
 }
 
-/** Validates `{bhk}-{category}-in-{city}` against known cities and floor types. */
+function normalizeListingConfigType(value = "") {
+  return String(value)
+    .toLowerCase()
+    .replace(/%20/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractTypesFromProjectConfiguration(value = "") {
+  if (!value || typeof value !== "string") return [];
+  const types = new Set();
+  const parts = value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const part of parts) {
+    const cleanedPart = part
+      .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
+      .trim();
+    if (!cleanedPart) continue;
+
+    const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
+    let bhkMatch;
+    let foundBhk = false;
+    while ((bhkMatch = bhkRegex.exec(cleanedPart)) !== null) {
+      foundBhk = true;
+      if (bhkMatch[1]) types.add(`${bhkMatch[1]} bhk`);
+      if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
+    }
+
+    if (!foundBhk) {
+      types.add(normalizeListingConfigType(cleanedPart));
+    }
+  }
+
+  return Array.from(types);
+}
+
+function projectMatchesCompoundCategory(project, categorySlug) {
+  const propType = String(project?.propertyTypeName || "").toLowerCase();
+  const status = String(project?.projectStatusName || "").toLowerCase();
+  switch (categorySlug) {
+    case "new-projects":
+      return status === "new launched";
+    case "apartments":
+    case "flats":
+      return propType === "residential";
+    case "commercial":
+    case "offices-and-shop":
+      return propType === "commercial";
+    default:
+      return false;
+  }
+}
+
+function projectConfigurationIncludesBhk(projectConfiguration, bhkNumber) {
+  const wanted = `${String(bhkNumber).trim()} bhk`;
+  if (!wanted || wanted === " bhk") return false;
+  return extractTypesFromProjectConfiguration(projectConfiguration).includes(
+    wanted,
+  );
+}
+
+/** Validates `{bhk}-{category}-in-{city}` — city + category + matching project data. */
 export async function isValidCompoundFloorListing(parsed) {
   if (!parsed?.floorSlug || !parsed?.citySlug || !parsed?.categorySlug) {
     return false;
   }
-  const cities = await fetchCityData();
-  const cityOk = cities.some((c) => {
-    const itemSlug = c.slugURL
-      ? resolveCitySlug(c.slugURL)
-      : resolveCitySlug(c.cityName.toLowerCase().replace(/\s+/g, "-"));
-    return itemSlug === parsed.citySlug;
-  });
-  if (!cityOk) return false;
-  const baseFloorCitySlug = `${parsed.floorSlug}-in-${parsed.citySlug}`;
-  return isFloorTypeUrl(baseFloorCitySlug);
+  if (!(await isKnownCitySlug(parsed.citySlug))) return false;
+
+  const bhkNumber = String(parsed.floorSlug).match(/^(\d+)-bhk$/)?.[1];
+  if (!bhkNumber) return false;
+
+  const projects = await fetchAllProjects();
+  if (!Array.isArray(projects) || projects.length === 0) return false;
+
+  return projects.some(
+    (project) =>
+      cityNameMatchesFilter(parsed.citySlug, project) &&
+      projectMatchesCompoundCategory(project, parsed.categorySlug) &&
+      projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
+  );
 }
 
 export function floorSlugToListingLabel(floorSlug) {
@@ -340,10 +409,37 @@ const getFloorPlanUniqueUrls = cache(async () => {
   }
 });
 
+/** Whether a city segment (e.g. gurugram, gurgaon) maps to a known city. */
+export async function isKnownCitySlug(citySlug) {
+  try {
+    const canonical = resolveCitySlug(
+      String(citySlug || "")
+        .trim()
+        .toLowerCase()
+        .replace(/%20/g, "-"),
+    );
+    if (!canonical) return false;
+    const cities = await fetchCityData();
+    return cities.some((item) => {
+      const itemSlug = item.slugURL
+        ? resolveCitySlug(item.slugURL)
+        : resolveCitySlug(item.cityName.toLowerCase().replace(/\s+/g, "-"));
+      return itemSlug === canonical;
+    });
+  } catch {
+    return false;
+  }
+}
+
 export const isFloorTypeUrl = async (slug) => {
   if (!slug || typeof slug !== "string") return false;
+  const slugParts = slug.split("-in-");
+  if (slugParts.length >= 2) {
+    const cityPart = slugParts.slice(1).join("-in-");
+    if (!(await isKnownCitySlug(cityPart))) return false;
+  }
   const uniqueUrls = await getFloorPlanUniqueUrls();
-  const floorType = slug.split("-in-")[0];
+  const floorType = slugParts[0];
   const floorSlug = normalizeFloorSlugSegment(floorType);
   const floorLower = floorType.toLowerCase();
   return (
@@ -354,26 +450,71 @@ export const isFloorTypeUrl = async (slug) => {
   );
 };
 
-//Checking is ctiy slug
+/** Validates city hub URLs: `flats-in-gurugram`, `apartments-in-delhi`, etc. */
 export const isCityTypeUrl = async (slug) => {
-  const cities = await fetchCityData();
-  const slugParts = slug.split("-in-");
-  const isFloorUrl = await isFloorTypeUrl(slug);
-  const rawCitySlug = slugParts[slugParts.length - 1]
-    .replace("%20", "-")
-    .toLowerCase();
-  const citySlug = resolveCitySlug(rawCitySlug);
-  const exists = cities.some((item) => {
-    const itemSlug = item.slugURL
-      ? resolveCitySlug(item.slugURL)
-      : resolveCitySlug(item.cityName.toLowerCase().replace(/\s+/g, "-"));
-    return itemSlug === citySlug && !isFloorUrl;
-  });
-  return (
-    exists ||
-    (rawCitySlug !== citySlug && Boolean(CITY_SLUG_ALIASES[rawCitySlug]))
-  );
+  if (!slug || typeof slug !== "string") return false;
+  const lower = slug.toLowerCase();
+  for (const prefix of CITY_HUB_PREFIXES) {
+    if (!lower.startsWith(prefix)) continue;
+    const cityPart = lower.slice(prefix.length);
+    if (!cityPart) return false;
+    return isKnownCitySlug(cityPart);
+  }
+  return false;
 };
+
+const STATIC_PROJECT_TYPE_SLUGS = new Set([
+  "commercial",
+  "residential",
+  "new-launches",
+]);
+
+function normalizeProjectTypeSlug(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+/** Returns canonical slug when valid, otherwise null. */
+export async function resolveValidProjectTypeSlug(slug) {
+  try {
+    const norm = normalizeProjectTypeSlug(slug);
+    if (!norm) return null;
+    if (STATIC_PROJECT_TYPE_SLUGS.has(norm)) return norm;
+    const types = await fetchProjectTypes();
+    const list = Array.isArray(types) ? types : types?.data || [];
+    const match = list.find(
+      (item) =>
+        normalizeProjectTypeSlug(item?.slugUrl || item?.slugURL) === norm,
+    );
+    return match ? norm : null;
+  } catch {
+    return null;
+  }
+}
+
+export const fetchCityDetailsBySlug = cache(async (slug) => {
+  if (!apiUrl || slug == null || String(slug).trim() === "") return null;
+  const clean = String(slug).trim();
+  const canonical = resolveCitySlug(clean) || clean.toLowerCase();
+  if (!(await isKnownCitySlug(canonical))) return null;
+  try {
+    const res = await fetch(
+      `${apiUrl}city/get/${encodeURIComponent(canonical)}`,
+      { next: { revalidate: 60 } },
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || typeof data !== "object") return null;
+    const resolvedSlug = resolveCitySlug(
+      data.slugURL || data.slugUrl || canonical,
+    );
+    if (resolvedSlug !== canonical) return null;
+    return data;
+  } catch {
+    return null;
+  }
+});
 
 // fetching blogs list from api
 export const fetchBlogs = cache(async (page, size, search = "", fromSegment = "blog") => {
@@ -563,7 +704,6 @@ export const fetchTopPicksProject = cache(async () => {
       fetch(`${apiUrl}builder/get/${slug}`, { next: { revalidate: 60 } }),
     ),
   );
-  
   const byBuilder = new Map();
   for (let i = 0; i < results.length; i++) {
     const r = results[i];
@@ -625,14 +765,22 @@ export const fetchProjectStatus = cache(async () => {
   }
 });
 
-// Fetching all projects by project type
+// Fetching all projects by project type (returns null when slug is invalid)
 export const fetchAllProjectsByProjectType = cache(async (projectType) => {
-  const projects = await fetch(`${apiUrl}project-types/get/${projectType}`, {
-    next: { revalidate: 60 },
-  });
-  if (!projects.ok) throw new Error("Failed to fetch projects");
-  const projectsData = await projects.json();
-  return projectsData;
+  const validSlug = await resolveValidProjectTypeSlug(projectType);
+  if (!validSlug) return null;
+  try {
+    const projects = await fetch(
+      `${apiUrl}project-types/get/${encodeURIComponent(validSlug)}`,
+      { next: { revalidate: 60 } },
+    );
+    if (!projects.ok) return null;
+    const projectsData = await projects.json();
+    if (!projectsData || typeof projectsData !== "object") return null;
+    return projectsData;
+  } catch {
+    return null;
+  }
 });
 
 /** Master list of nearby benefit icons (location benefits). Cached for project pages. */
@@ -651,11 +799,24 @@ export const fetchNearbyBenefitsAll = cache(async () => {
   }
 });
 
-// fetching builder details by slug
+// fetching builder details by slug (returns null when slug is invalid)
 export const fetchBuilderDetails = cache(async (slug) => {
-  const response = await fetch(`${apiUrl}builder/get/${slug}`, {
-    next: { revalidate: 60 },
-  });
-  if (!response.ok) throw new Error("Failed to fetch builder details");
-  return response.json();
+  if (!apiUrl || slug == null || String(slug).trim() === "") return null;
+  const clean = String(slug).trim();
+  try {
+    const response = await fetch(
+      `${apiUrl}builder/get/${encodeURIComponent(clean)}`,
+      { next: { revalidate: 60 } },
+    );
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data || typeof data !== "object") return null;
+    const resolvedSlug = String(data.slugUrl || data.slugURL || "")
+      .trim()
+      .toLowerCase();
+    if (!resolvedSlug || resolvedSlug !== clean.toLowerCase()) return null;
+    return data;
+  } catch {
+    return null;
+  }
 });

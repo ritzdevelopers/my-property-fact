@@ -2,6 +2,10 @@ import { redirect, notFound } from "next/navigation";
 import Property from "./propertypage-server";
 import { resolveCitySlugInCompoundSlug } from "@/app/_global_components/cityAliasUtils";
 import {
+  isStaticRootSlugTypo,
+  mayBeValidRootCatchAllSlug,
+} from "@/lib/publicRouteValidation";
+import {
   canonicalizeFloorInCitySlug,
   fetchAllProjects,
   fetchCityData,
@@ -23,7 +27,7 @@ import {
   resolveProjectFaqRawList,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
 
-/** ISR-friendly cache; avoids force-dynamic so responses can be cached at the edge. */
+/** ISR-friendly cache for valid project/listing pages. */
 export const revalidate = 120;
 
 const SIMILAR_PROJECTS_MAX = 12;
@@ -70,107 +74,125 @@ function selectNearbyCatalogForProject(project, allNearby) {
 }
 
 export default async function PropertyPage({ params }) {
-  const { slug } = await params;
-  const aliasResolvedSlug = resolveCitySlugInCompoundSlug(slug);
-  if (aliasResolvedSlug && aliasResolvedSlug !== slug) {
-    redirect(`/${aliasResolvedSlug}`);
-  }
-  const maybeCompoundListing = parseCompoundFloorListingSlug(slug);
-  const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
-  if (
-    !maybeCompoundListing &&
-    canonicalFloorCity &&
-    canonicalFloorCity !== slug &&
-    (await isFloorTypeUrl(canonicalFloorCity))
-  ) {
-    redirect(`/${canonicalFloorCity}`);
-  }
-  const [cityList, projectDetail] = await Promise.all([
-    fetchCityData(),
-    fetchProjectDetailsBySlug(slug),
-  ]);
+  try {
+    const { slug } = await params;
 
-  const projectResolved =
-    projectDetail &&
-    typeof projectDetail === "object" &&
-    !Array.isArray(projectDetail) &&
-    typeof projectDetail.slugURL === "string";
-  const isProjectSlug = projectResolved && projectDetail.slugURL === slug;
+    if (isStaticRootSlugTypo(slug) || !mayBeValidRootCatchAllSlug(slug)) {
+      notFound();
+    }
 
-  if (!isProjectSlug && isMalformedListingSlug(slug)) {
-    notFound();
-  }
+    const aliasResolvedSlug = resolveCitySlugInCompoundSlug(slug);
+    if (aliasResolvedSlug && aliasResolvedSlug !== slug) {
+      redirect(`/${aliasResolvedSlug}`);
+    }
+    const maybeCompoundListing = parseCompoundFloorListingSlug(slug);
+    const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
+    if (
+      !maybeCompoundListing &&
+      canonicalFloorCity &&
+      canonicalFloorCity !== slug &&
+      (await isFloorTypeUrl(canonicalFloorCity))
+    ) {
+      redirect(`/${canonicalFloorCity}`);
+    }
+    const [cityList, projectDetail] = await Promise.all([
+      fetchCityData(),
+      fetchProjectDetailsBySlug(slug),
+    ]);
 
-  const isCompoundFloorListing = maybeCompoundListing
-    ? await isValidCompoundFloorListing(maybeCompoundListing)
-    : false;
+    const projectResolved =
+      projectDetail &&
+      typeof projectDetail === "object" &&
+      !Array.isArray(projectDetail) &&
+      typeof projectDetail.slugURL === "string";
+    const isProjectSlug = projectResolved && projectDetail.slugURL === slug;
 
-  const isFloorTypeSlug =
-    !isCompoundFloorListing && (await isFloorTypeUrl(slug));
-  /** Compound `{floor}-{category}-in-{city}` must not be treated as city hub (`*-in-{city}`). */
-  const isCitySlug =
-    !maybeCompoundListing && (await isCityTypeUrl(slug));
+    if (!isProjectSlug && isMalformedListingSlug(slug)) {
+      notFound();
+    }
 
-  if (isCitySlug) {
-    return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
-  } else if (isCompoundFloorListing) {
-    return (
-      <ProjectListByFloorType
-        slug={slug}
-        cityList={cityList}
-        compoundListing={maybeCompoundListing}
-      />
-    );
-  } else if (isFloorTypeSlug) {
-    return <ProjectListByFloorType slug={slug} cityList={cityList} />;
-  } else if (isProjectSlug) {
-    /** Full project list only needed for “similar projects” cards — skip for city/floor routes. */
-    const featuredProjects = await fetchAllProjects();
-    const similarProjectsSlim = featuredProjects
-      .filter(
-        (item) =>
-          item.cityName === projectDetail.city &&
-          item.propertyTypeName === projectDetail.propertyTypeName &&
-          item.id !== projectDetail.id,
-      )
-      .slice(0, SIMILAR_PROJECTS_MAX)
-      .map(slimProjectCardForPayload);
+    if (maybeCompoundListing) {
+      const compoundValid = await isValidCompoundFloorListing(
+        maybeCompoundListing,
+      );
+      if (!compoundValid) {
+        notFound();
+      }
+    }
 
-    const hasLocationBenefits =
-      Array.isArray(projectDetail.locationBenefits) &&
-      projectDetail.locationBenefits.length > 0;
-    const nearbyBenefitsList = hasLocationBenefits
-      ? selectNearbyCatalogForProject(
-          projectDetail,
-          await fetchNearbyBenefitsAll(),
+    const isCompoundFloorListing = Boolean(maybeCompoundListing);
+
+    const isFloorTypeSlug =
+      !isCompoundFloorListing && (await isFloorTypeUrl(slug));
+    /** Compound `{floor}-{category}-in-{city}` must not be treated as city hub (`*-in-{city}`). */
+    const isCitySlug =
+      !maybeCompoundListing && (await isCityTypeUrl(slug));
+
+    if (isCitySlug) {
+      return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
+    } else if (isCompoundFloorListing) {
+      return (
+        <ProjectListByFloorType
+          slug={slug}
+          cityList={cityList}
+          compoundListing={maybeCompoundListing}
+        />
+      );
+    } else if (isFloorTypeSlug) {
+      return <ProjectListByFloorType slug={slug} cityList={cityList} />;
+    } else if (isProjectSlug) {
+      /** Full project list only needed for “similar projects” cards — skip for city/floor routes. */
+      const featuredProjects = await fetchAllProjects();
+      const similarProjectsSlim = featuredProjects
+        .filter(
+          (item) =>
+            item.cityName === projectDetail.city &&
+            item.propertyTypeName === projectDetail.propertyTypeName &&
+            item.id !== projectDetail.id,
         )
-      : [];
-    const projectAddress =
-      projectDetail.projectAddress ||
-      [projectDetail.projectLocality, projectDetail.city]
-        .filter(Boolean)
-        .join(", ");
+        .slice(0, SIMILAR_PROJECTS_MAX)
+        .map(slimProjectCardForPayload);
 
-    const projectForJsonLd = {
-      ...projectDetail,
-      projectAddress,
-    };
+      const hasLocationBenefits =
+        Array.isArray(projectDetail.locationBenefits) &&
+        projectDetail.locationBenefits.length > 0;
+      const nearbyBenefitsList = hasLocationBenefits
+        ? selectNearbyCatalogForProject(
+            projectDetail,
+            await fetchNearbyBenefitsAll(),
+          )
+        : [];
+      const projectAddress =
+        projectDetail.projectAddress ||
+        [projectDetail.projectLocality, projectDetail.city]
+          .filter(Boolean)
+          .join(", ");
 
-    return (
-      <>
-        <JsonLdScript data={buildProductJsonLd(projectForJsonLd)} />
-        <JsonLdScript
-          data={buildFaqJsonLd(resolveProjectFaqRawList(projectDetail))}
-        />
-        <Property
-          projectDetail={projectDetail}
-          similarProjects={similarProjectsSlim}
-          nearbyBenefitsList={nearbyBenefitsList}
-        />
-        <NewFooterDesign compactTop={true} />
-      </>
-    );
-  } else {
+      const projectForJsonLd = {
+        ...projectDetail,
+        projectAddress,
+      };
+
+      return (
+        <>
+          <JsonLdScript data={buildProductJsonLd(projectForJsonLd)} />
+          <JsonLdScript
+            data={buildFaqJsonLd(resolveProjectFaqRawList(projectDetail))}
+          />
+          <Property
+            projectDetail={projectDetail}
+            similarProjects={similarProjectsSlim}
+            nearbyBenefitsList={nearbyBenefitsList}
+          />
+          <NewFooterDesign compactTop={true} />
+        </>
+      );
+    } else {
+      notFound();
+    }
+  } catch (error) {
+    if (error?.digest?.startsWith("NEXT_REDIRECT")) throw error;
+    if (error?.digest === "NEXT_NOT_FOUND") throw error;
     notFound();
   }
 }

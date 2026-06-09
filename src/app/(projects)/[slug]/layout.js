@@ -1,11 +1,17 @@
 import { notFound } from "next/navigation";
 import {
+  fetchAllProjects,
   fetchProjectDetailsBySlug,
   isCityTypeUrl,
-  isFloorTypeUrl,
+  isKnownCitySlug,
   isValidCompoundFloorListing,
   parseCompoundFloorListingSlug,
 } from "@/app/_global_components/masterFunction";
+import {
+  collectKnownFloorSlugs,
+  getFloorListingProjectsInCity,
+  parseFloorInCitySlug,
+} from "@/lib/listingFloorValidation";
 import {
   isStaticRootSlugTypo,
   mayBeValidRootCatchAllSlug,
@@ -726,10 +732,24 @@ if (compoundParsed && !(await isValidCompoundFloorListing(compoundParsed))) {
 if (
   !compoundParsed &&
   slug.includes("-in-") &&
-  !(await isCityTypeUrl(slug)) &&
-  !(await isFloorTypeUrl(slug))
+  !(await isCityTypeUrl(slug))
 ) {
-  notFound();
+  const projects = await fetchAllProjects();
+  if (projects.length > 0) {
+    const knownFloorSlugs = collectKnownFloorSlugs(projects);
+    const parsedFloor = parseFloorInCitySlug(slug, knownFloorSlugs);
+    if (
+      !parsedFloor ||
+      !(await isKnownCitySlug(parsedFloor.citySlug)) ||
+      getFloorListingProjectsInCity(
+        projects,
+        parsedFloor.citySlug,
+        parsedFloor.floorSlug,
+      ).length === 0
+    ) {
+      notFound();
+    }
+  }
 }
 
 let response;

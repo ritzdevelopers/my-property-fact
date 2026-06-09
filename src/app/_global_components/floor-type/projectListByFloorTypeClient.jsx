@@ -8,58 +8,14 @@ import {
 import { useEffect, useState } from "react";
 import { cityNameMatchesFilter } from "../cityAliasUtils";
 import { useSiteData } from "../contexts/SiteDataContext";
-
-const normalizeType = (value = "") =>
-  String(value)
-    .toLowerCase()
-    .replace(/%20/g, " ")
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-const extractTypesFromProjectConfiguration = (value = "") => {
-  if (!value || typeof value !== "string") return [];
-  const types = new Set();
-  const parts = value
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-
-  parts.forEach((part) => {
-    // Drop trailing area text: "3 BHK - 1450 sq.ft"
-    const cleanedPart = part
-      .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
-      .trim();
-    if (!cleanedPart) return;
-
-    // Pull all BHK types from mixed strings.
-    const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
-    let bhkMatch;
-    let foundBhk = false;
-    while ((bhkMatch = bhkRegex.exec(cleanedPart)) !== null) {
-      foundBhk = true;
-      if (bhkMatch[1]) types.add(`${bhkMatch[1]} bhk`);
-      if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
-    }
-
-    const brVillaRegex = /(\d+)\s*br\s*villa/gi;
-    let brVillaMatch;
-    let foundBrVilla = false;
-    while ((brVillaMatch = brVillaRegex.exec(cleanedPart)) !== null) {
-      foundBrVilla = true;
-      if (brVillaMatch[1]) types.add(`${brVillaMatch[1]} br villa`);
-    }
-
-    if (!foundBhk && !foundBrVilla) {
-      types.add(normalizeType(cleanedPart));
-    }
-  });
-
-  return Array.from(types);
-};
+import {
+  configTypeMatchesWanted,
+  extractTypesFromProjectConfiguration,
+  normalizeListingConfigType,
+} from "@/lib/listingFloorValidation";
 
 const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
-  const wanted = normalizeType(floorType);
+  const wanted = normalizeListingConfigType(floorType);
   if (!wanted) return true;
   const configTypes = extractTypesFromProjectConfiguration(projectConfiguration);
   if (!configTypes.length) return false;
@@ -71,16 +27,12 @@ const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
 
   const brVillaWanted = wanted.match(/(\d+)\s*br\s*villa/i);
   if (brVillaWanted?.[1]) {
-    const brKey = `${brVillaWanted[1]} br villa`;
-    return configTypes.some(
-      (type) =>
-        type === brKey || type.includes(brKey) || brKey.includes(type),
+    return configTypes.some((type) =>
+      configTypeMatchesWanted(type, `${brVillaWanted[1]} br villa`),
     );
   }
 
-  return configTypes.some(
-    (type) => type === wanted || type.includes(wanted) || wanted.includes(type)
-  );
+  return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
 };
 
 const cityMatches = (item, cityKey) => cityNameMatchesFilter(cityKey, item);
@@ -110,20 +62,22 @@ export default function ProjectListByFloorTypeClient({
   floorType: floorTypeProp,
   cityName: cityNameProp,
   categorySlug = null,
+  initialProjects = [],
 }) {
   const { projectList = [], loading: siteDataLoading } = useSiteData();
-  const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState([]);
+  const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState(
+    initialProjects,
+  );
   const [floorType, setFloorType] = useState(floorTypeProp || "");
   const [cityName, setCityName] = useState(cityNameProp || "");
+
   const getListOfProjectFromBkType = (projects, floorType, city) => {
     if (!projects.length) return [];
-    const cityNorm = normalizeType(city);
-    let filtered = projects.filter(
-      (item) => cityMatches(item, cityNorm)
-    );
+    const cityNorm = normalizeListingConfigType(city);
+    let filtered = projects.filter((item) => cityMatches(item, cityNorm));
     if (!floorType) return filtered;
     filtered = filtered.filter((item) =>
-      matchesProjectConfigurationType(item.projectConfiguration, floorType)
+      matchesProjectConfigurationType(item.projectConfiguration, floorType),
     );
     return filtered;
   };
@@ -142,28 +96,25 @@ export default function ProjectListByFloorTypeClient({
   }, [title, floorTypeProp, cityNameProp]);
 
   useEffect(() => {
-    let filteredData = getListOfProjectFromBkType(
-      projectList,
-      floorType,
-      cityName,
-    );
+    const source = projectList.length ? projectList : initialProjects;
+    let filteredData = getListOfProjectFromBkType(source, floorType, cityName);
     filteredData = applyListingCategoryFilter(filteredData, categorySlug);
     setFilteredProjectsByBrType(filteredData);
-  }, [projectList, floorType, cityName, categorySlug]);
+  }, [projectList, floorType, cityName, categorySlug, initialProjects]);
 
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
 
+  const showLoading = siteDataLoading && filteredProjectsByBrType.length === 0;
+
   return (
     <>
       <div className="container my-5">
-        <h2 className="master-bhk-section-heading mb-3 mb-md-4">
-          Projects
-        </h2>
+        <h2 className="master-bhk-section-heading mb-3 mb-md-4">Projects</h2>
         <div className="row g-3">
-          {siteDataLoading ? (
+          {showLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100">
-              <LoadingSpinner show={siteDataLoading} />
+              <LoadingSpinner show={showLoading} />
             </div>
           ) : pageItems.length > 0 ? (
             pageItems.map((project, index) => (
@@ -171,16 +122,9 @@ export default function ProjectListByFloorTypeClient({
                 <PropertyContainer data={project} />
               </div>
             ))
-          ) : (
-            !siteDataLoading && (
-              <p>
-                No projects found for the selected {cityName.toUpperCase()}{" "}
-                type.
-              </p>
-            )
-          )}
+          ) : null}
         </div>
-        {!siteDataLoading && filteredProjectsByBrType.length > 0 && (
+        {!showLoading && filteredProjectsByBrType.length > 0 && (
           <ProjectListingPaginationControls
             currentPage={currentPage}
             totalPages={totalPages}

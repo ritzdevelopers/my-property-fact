@@ -207,37 +207,136 @@ function splitProjectConfiguration(config) {
     .filter(Boolean);
 }
 
-function collectFloorSlugsFromText(text, target) {
-  for (const part of splitProjectConfiguration(text)) {
-    const bhkParts = extractIndividualBhkTypes(part);
-    if (bhkParts.length > 0) {
-      for (const bhk of bhkParts) addFloorSlug(target, bhk);
-    } else {
-      addFloorSlug(target, part);
+/** Mirrors listing-page config parsing — only types backed by a real project row. */
+function normalizeConfigType(value = "") {
+  return String(value)
+    .toLowerCase()
+    .replace(/%20/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function extractTypesFromProjectConfiguration(value = "") {
+  if (!value || typeof value !== "string") return [];
+  const types = new Set();
+  const parts = value
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  for (const part of parts) {
+    const cleanedPart = part
+      .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
+      .trim();
+    if (!cleanedPart) continue;
+
+    const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
+    let bhkMatch;
+    let foundBhk = false;
+    while ((bhkMatch = bhkRegex.exec(cleanedPart)) !== null) {
+      foundBhk = true;
+      if (bhkMatch[1]) types.add(`${bhkMatch[1]} bhk`);
+      if (bhkMatch[2]) types.add(`${bhkMatch[2]} bhk`);
     }
+
+    if (!foundBhk) {
+      types.add(normalizeConfigType(cleanedPart));
+    }
+  }
+
+  return Array.from(types);
+}
+
+function configTypeToFloorSlug(configType) {
+  const norm = normalizeConfigType(configType);
+  if (!norm) return "";
+  const bhk = norm.match(/^(\d+)\s*bhk$/);
+  if (bhk) return `${bhk[1]}-bhk`;
+  return normalizeFloorSlugFromPlanType(norm);
+}
+
+function addVerifiedFloorSlug(target, slug) {
+  const normalized = normalizeFloorSlugFromPlanType(slug);
+  if (
+    !normalized ||
+    EXCLUDED_FLOOR_SLUGS.has(normalized) ||
+    isBareNumberSlug(normalized) ||
+    isSqftOrSizeOnlySlug(normalized)
+  ) {
+    return "";
+  }
+  target.add(normalized);
+  return normalized;
+}
+
+function projectMatchesListingCategory(project, hubKey) {
+  const propType = String(project?.propertyTypeName || "").toLowerCase();
+  const status = String(project?.projectStatusName || "").toLowerCase();
+  switch (hubKey) {
+    case "apartments":
+    case "flats":
+      return propType === "residential";
+    case "newProjects":
+      return status === "new launched";
+    case "commercial":
+      return propType === "commercial";
+    default:
+      return false;
+  }
+}
+
+function ingestProjectListingSignals(project, citySlug, floors, compounds, hubs) {
+  const configTypes = extractTypesFromProjectConfiguration(
+    project?.projectConfiguration,
+  );
+
+  for (const configType of configTypes) {
+    const floorSlug = addVerifiedFloorSlug(
+      floors,
+      configTypeToFloorSlug(configType),
+    );
+    if (!floorSlug || !isBhkFloorSlug(floorSlug)) continue;
+
+    for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
+      if (projectMatchesListingCategory(project, hubKey)) {
+        compounds.add(`${floorSlug}-${segment}`);
+      }
+    }
+  }
+
+  if (projectMatchesListingCategory(project, "apartments")) hubs.apartments = true;
+  if (projectMatchesListingCategory(project, "flats")) hubs.flats = true;
+  if (projectMatchesListingCategory(project, "newProjects")) {
+    hubs.newProjects = true;
+  }
+  if (projectMatchesListingCategory(project, "commercial")) {
+    hubs.commercial = true;
   }
 }
 
 function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
-  const floorsByCity    = new Map();
-  const hubsByCity      = new Map();
+  const floorsByCity = new Map();
+  const hubsByCity = new Map();
+  const compoundFloorsByCity = new Map();
   const projectIdToCity = new Map();
 
   const citySlugs = [
     ...new Set(
       (cities || [])
         .map((city) => resolveCitySlug(listingCitySlug(city)))
-        .filter(Boolean)
+        .filter(Boolean),
     ),
   ];
 
   for (const citySlug of citySlugs) {
     floorsByCity.set(citySlug, new Set());
+    compoundFloorsByCity.set(citySlug, new Set());
     hubsByCity.set(citySlug, {
-      apartments:  false,
-      flats:       false,
+      apartments: false,
+      flats: false,
       newProjects: false,
-      commercial:  false,
+      commercial: false,
     });
   }
 
@@ -245,15 +344,14 @@ function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
     for (const project of projectsPayload) {
       for (const citySlug of citySlugs) {
         if (!projectMatchesCitySlug(project, citySlug)) continue;
+
         const floors = floorsByCity.get(citySlug);
-        const hubs   = hubsByCity.get(citySlug);
-        if (!floors || !hubs) break;
-        collectFloorSlugsFromText(project.projectConfiguration, floors);
-        const propType = String(project.propertyTypeName || "").toLowerCase();
-        const status   = String(project.projectStatusName || "").toLowerCase();
-        if (propType === "residential") { hubs.apartments = true; hubs.flats = true; }
-        if (status   === "new launched")  hubs.newProjects = true;
-        if (propType === "commercial")    hubs.commercial  = true;
+        const compounds = compoundFloorsByCity.get(citySlug);
+        const hubs = hubsByCity.get(citySlug);
+        if (!floors || !compounds || !hubs) break;
+
+        ingestProjectListingSignals(project, citySlug, floors, compounds, hubs);
+
         const projectId = Number(project?.id);
         if (Number.isFinite(projectId)) projectIdToCity.set(projectId, citySlug);
         break;
@@ -266,21 +364,50 @@ function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
       const citySlug = projectIdToCity.get(Number(entry?.projectId));
       if (!citySlug) continue;
       const floors = floorsByCity.get(citySlug);
-      if (!floors) continue;
+      const compounds = compoundFloorsByCity.get(citySlug);
+      if (!floors || !compounds) continue;
+
+      const project = Array.isArray(projectsPayload)
+        ? projectsPayload.find((p) => Number(p?.id) === Number(entry?.projectId))
+        : null;
+
       for (const plan of entry?.plans || []) {
         const planType = String(plan?.planType || "").trim();
         if (!planType) continue;
-        const bhkParts = extractIndividualBhkTypes(planType);
-        if (bhkParts.length > 0) {
-          for (const bhk of bhkParts) addFloorSlug(floors, bhk);
-        } else {
-          addFloorSlug(floors, planType);
+
+        const configTypes = extractTypesFromProjectConfiguration(planType);
+        if (configTypes.length === 0) {
+          const floorSlug = addVerifiedFloorSlug(
+            floors,
+            normalizeFloorSlugFromPlanType(planType),
+          );
+          if (floorSlug && isBhkFloorSlug(floorSlug) && project) {
+            for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
+              if (projectMatchesListingCategory(project, hubKey)) {
+                compounds.add(`${floorSlug}-${segment}`);
+              }
+            }
+          }
+          continue;
+        }
+
+        for (const configType of configTypes) {
+          const floorSlug = addVerifiedFloorSlug(
+            floors,
+            configTypeToFloorSlug(configType),
+          );
+          if (!floorSlug || !isBhkFloorSlug(floorSlug) || !project) continue;
+          for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
+            if (projectMatchesListingCategory(project, hubKey)) {
+              compounds.add(`${floorSlug}-${segment}`);
+            }
+          }
         }
       }
     }
   }
 
-  return { floorsByCity, hubsByCity };
+  return { floorsByCity, hubsByCity, compoundFloorsByCity };
 }
 
 // ─── Static pages — only real publicly reachable pages ───────────────────────
@@ -449,7 +576,7 @@ module.exports = {
           const slug = toPathSlug(item?.categoryName);
           // Sirf tab add karo jab category mein actual stories hoon
           if (slug && Array.isArray(item?.webStories) && item.webStories.length > 0) {
-            pushLoc(`/api/v1/web-story/${slug}`);
+            pushLoc(`/stories/${slug}`);
           }
         }
       }
@@ -501,38 +628,37 @@ module.exports = {
       }
     } catch { floorPlansPayload = null; }
 
-    // 9. City listing hubs + BHK compound pages
-    const { floorsByCity, hubsByCity } = buildCityListingData(
-      projectsData,
-      floorPlansPayload,
-      cities
-    );
+    // 9. City listing hubs + floor/BHK pages — sirf jahan API projects mein data ho
+    const { floorsByCity, hubsByCity, compoundFloorsByCity } =
+      buildCityListingData(projectsData, floorPlansPayload, cities);
 
     for (const city of cities) {
       const citySlug = resolveCitySlug(listingCitySlug(city));
       if (!citySlug) continue;
 
-      const hubs   = hubsByCity.get(citySlug)  || {};
+      const hubs = hubsByCity.get(citySlug) || {};
       const floors = floorsByCity.get(citySlug) || new Set();
+      const compounds = compoundFloorsByCity.get(citySlug) || new Set();
+      const hasCityProjects = Array.isArray(projectsData)
+        ? projectsData.some((p) => projectMatchesCitySlug(p, citySlug))
+        : false;
 
-      // apartments-in-<city> — sirf tab jab hub exist karta ho
-      if (hubs.apartments) pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`);
+      if (!hasCityProjects) continue;
 
-      // flats-in-<city> | new-projects-in-<city> | commercial-property-in-<city>
+      if (hubs.apartments) {
+        pushLoc(`/${APARTMENTS_LISTING_HUB_PREFIX}${citySlug}`);
+      }
+
       for (const { prefix, key } of LEGACY_CITY_HUB_PREFIXES) {
         if (hubs[key]) pushLoc(`/${prefix}${citySlug}`);
       }
 
-      // <floor>-in-<city>
       for (const floor of floors) {
         pushLoc(`/${floor}-in-${citySlug}`);
+      }
 
-        // <bhk>-<segment>-in-<city> — sirf tab jab hub exist karta ho
-        if (isBhkFloorSlug(floor)) {
-          for (const { segment, hubKey } of BHK_COMPOUND_LISTING_CATEGORIES) {
-            if (hubs[hubKey]) pushLoc(`/${floor}-${segment}-in-${citySlug}`);
-          }
-        }
+      for (const compoundKey of compounds) {
+        pushLoc(`/${compoundKey}-in-${citySlug}`);
       }
     }
 

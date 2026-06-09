@@ -1,4 +1,13 @@
-import { fetchProjectDetailsBySlug } from "@/app/_global_components/masterFunction";
+import { notFound } from "next/navigation";
+import {
+  fetchProjectDetailsBySlug,
+  isValidCompoundFloorListing,
+  parseCompoundFloorListingSlug,
+} from "@/app/_global_components/masterFunction";
+import {
+  isStaticRootSlugTypo,
+  mayBeValidRootCatchAllSlug,
+} from "@/lib/publicRouteValidation";
 import { APARTMENTS_CITY_KEYWORDS } from "./apartments-city-keywords";
 import { NEW_PROJECTS_CITY_KEYWORDS } from "./new-projects-city-keywords";
 import { COMMERCIAL_PROPERTY_CITY_KEYWORDS } from "./commercial-property-city-keywords";
@@ -702,6 +711,16 @@ function shouldAppendLegacyProjectTitleSuffix(project) {
 
 export async function generateMetadata({ params }) {
 const { slug } = await params;
+
+if (isStaticRootSlugTypo(slug) || !mayBeValidRootCatchAllSlug(slug)) {
+  notFound();
+}
+
+const compoundParsed = parseCompoundFloorListingSlug(slug);
+if (compoundParsed && !(await isValidCompoundFloorListing(compoundParsed))) {
+  notFound();
+}
+
 let response;
 try {
   response = await fetchProjectDetailsBySlug(slug);

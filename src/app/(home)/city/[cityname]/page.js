@@ -1,20 +1,31 @@
 import CityPage from "./citypage";
-import axios from "axios";
 import { cache } from "react";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   LEGACY_CITY_SLUGS_FOR_PAGE_MERGE,
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
+import { fetchCityDetailsBySlug, isKnownCitySlug } from "@/app/_global_components/masterFunction";
 
 export const dynamic = "force-dynamic";
 
+function resolvePageCitySlug(cityname) {
+  return resolveCitySlug(cityname) || String(cityname || "").toLowerCase().trim();
+}
+
+async function ensureKnownCityOrNotFound(cityname) {
+  const slugToCheck = resolvePageCitySlug(cityname);
+  if (!slugToCheck || !(await isKnownCitySlug(slugToCheck))) {
+    notFound();
+  }
+  return slugToCheck;
+}
+
 /** One upstream request per slug per render (shared by metadata + page). */
 const fetchCityDataBySlug = cache(async (slug) => {
-  const response = await axios.get(
-    `${process.env.NEXT_PUBLIC_API_URL}city/get/${slug}`,
-  );
-  return response.data;
+  const data = await fetchCityDetailsBySlug(slug);
+  if (!data) return null;
+  return data;
 });
 
 function mergeCityProjectLists(primary, secondary) {
@@ -40,16 +51,15 @@ function mergeCityProjectLists(primary, secondary) {
 
 async function fetchCityDataWithAliases(canonicalSlug) {
   const cityData = await fetchCityDataBySlug(canonicalSlug);
+  if (!cityData) return null;
   const legacySlugs = LEGACY_CITY_SLUGS_FOR_PAGE_MERGE[canonicalSlug];
   if (!legacySlugs?.length) return cityData;
 
   let merged = cityData;
   for (const legacySlug of legacySlugs) {
-    try {
-      const legacy = await fetchCityDataBySlug(legacySlug);
+    const legacy = await fetchCityDataBySlug(legacySlug);
+    if (legacy) {
       merged = mergeCityProjectLists(merged, legacy);
-    } catch {
-      // skip missing legacy city payload
     }
   }
   return merged;
@@ -58,8 +68,11 @@ async function fetchCityDataWithAliases(canonicalSlug) {
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
   const { cityname } = await params;
-  const canonicalSlug = resolveCitySlug(cityname) || cityname;
+  const canonicalSlug = await ensureKnownCityOrNotFound(cityname);
   const cityData = await fetchCityDataWithAliases(canonicalSlug);
+  if (!cityData) {
+    notFound();
+  }
   return {
     title: cityData.metaTitle,
     description: cityData.metaDescription,
@@ -76,7 +89,11 @@ export default async function AllCityProjects({ params }) {
   if (canonicalSlug && canonicalSlug !== String(cityname).toLowerCase().trim()) {
     redirect(`/city/${canonicalSlug}`);
   }
-  const cityData = await fetchCityDataWithAliases(canonicalSlug || cityname);
+  const slugToCheck = await ensureKnownCityOrNotFound(cityname);
+  const cityData = await fetchCityDataWithAliases(slugToCheck);
+  if (!cityData) {
+    notFound();
+  }
 
   return (
     <CityPage cityData={cityData} />

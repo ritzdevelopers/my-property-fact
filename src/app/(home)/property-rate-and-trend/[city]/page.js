@@ -1,16 +1,19 @@
-import axios from "axios";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import PropertyRateAndTrendByCity from "./propertyRateAndTrendByCity";
 import indiaInsight from "../../../_global_components/insight-india-data.json";
 import {
   getDisplayCityList,
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
+import { isKnownCitySlug } from "@/app/_global_components/masterFunction";
 export const dynamic = 'force-dynamic';
 // fetching all cities
 const fetchAllCities = async () => {
-    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}city/all`);
-    return response.data;
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}city/all`, {
+      next: { revalidate: 60 },
+    });
+    if (!response.ok) return [];
+    return response.json();
 }
 export default async function PropertyRateAndTrendByCityPage({ params }) {
     const allCities = getDisplayCityList(await fetchAllCities());
@@ -20,6 +23,9 @@ export default async function PropertyRateAndTrendByCityPage({ params }) {
         redirect(`/property-rate-and-trend/${canonicalCity}`);
     }
     const cityForPage = canonicalCity || city;
+    if (!(await isKnownCitySlug(cityForPage))) {
+        notFound();
+    }
     const capitalizeFirst = (str) => str.charAt(0).toUpperCase() + str.slice(1);
     const insightsArray = [
         {

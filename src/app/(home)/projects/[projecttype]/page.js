@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { fetchAllProjectsByProjectType } from "@/app/_global_components/masterFunction";
+import { notFound } from "next/navigation";
+import { fetchAllProjectsByProjectType, resolveValidProjectTypeSlug } from "@/app/_global_components/masterFunction";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
@@ -83,8 +84,16 @@ export async function generateMetadata({ params }) {
     };
   }
 
+  const validSlug = await resolveValidProjectTypeSlug(projecttype);
+  if (!validSlug) {
+    notFound();
+  }
+
   try {
-    const response = await fetchAllProjectsByProjectType(projecttype);
+    const response = await fetchAllProjectsByProjectType(validSlug);
+    if (!response) {
+      notFound();
+    }
     return {
       title: response.metaTitle || `Projects - ${projecttype}`,
       description: response.metaDesc || `Browse ${projecttype} projects`,
@@ -92,17 +101,21 @@ export async function generateMetadata({ params }) {
         canonical: `/projects/${projecttype}`,
       },
     };
-  } catch (error) {
-    return {
-      title: `Projects - ${projecttype}`,
-      description: `Browse ${projecttype} projects`,
-    };
+  } catch {
+    notFound();
   }
 }
 
 export default async function ProjectType({ params }) {
   const { projecttype } = await params;
-  const projectTypeDetail = await fetchAllProjectsByProjectType(projecttype);
+  const validSlug = await resolveValidProjectTypeSlug(projecttype);
+  if (!validSlug) {
+    notFound();
+  }
+  const projectTypeDetail = await fetchAllProjectsByProjectType(validSlug);
+  if (!projectTypeDetail) {
+    notFound();
+  }
   return (
     <>
       <CommonHeaderBanner

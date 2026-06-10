@@ -1,3 +1,4 @@
+# *
 User-agent: *
 Disallow: /admin/
 Disallow: /components/
@@ -25,3 +26,4 @@ Host: https://mypropertyfact.in
 
 # Sitemaps
 Sitemap: https://mypropertyfact.in/sitemap.xml
+Sitemap: https://mypropertyfact.in/sitemap-custom.xml

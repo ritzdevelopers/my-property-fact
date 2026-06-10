@@ -576,6 +576,7 @@ module.exports = {
   generateRobotsTxt: true,
   exclude: SITEMAP_EXCLUDE_PATTERNS,
   robotsTxtOptions: {
+    additionalSitemaps: [`${SITE_URL}/sitemap-custom.xml`],
     policies: [
       {
         userAgent: "*",

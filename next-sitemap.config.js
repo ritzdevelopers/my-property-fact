@@ -670,7 +670,7 @@ module.exports = {
       const listingValidation = await import(
         pathToFileURL(
           path.join(__dirname, "src/lib/listingFloorValidation.js"),
-        ).href,
+        ).href
       );
       hasFloorListingDataInCity = listingValidation.hasFloorListingDataInCity;
       hasCompoundListingDataInCity =

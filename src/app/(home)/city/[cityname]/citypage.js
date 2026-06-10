@@ -3,15 +3,50 @@ import "./citypage.css";
 import "../../components/home/home.css";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
-import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import Image from "next/image";
-import { useState ,useEffect, useRef} from "react";
+import { useState, useEffect, useRef } from "react";
+import {
+  LISTING_PAGE_SIZE,
+  ProjectListingPaginationControls,
+  useProjectListingPagination,
+} from "@/app/_global_components/projectListingPagination";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
-export default function CityPage({ cityData }) {
-  // Safely handle cases where API doesn't return a project list
-  const projects = Array.isArray(cityData?.projectList)
-    ? cityData.projectList
-    : [];
+export default function CityPage({ cityData, citySlug }) {
+  const [projects, setProjects] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(() => Boolean(citySlug));
+  const { pageItems, currentPage, totalPages, totalItems, setPage } =
+    useProjectListingPagination(projects, LISTING_PAGE_SIZE);
+
+  useEffect(() => {
+    const slug = String(citySlug || "").trim();
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+    if (!slug || !apiBase) {
+      setProjectsLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setProjectsLoading(true);
+
+    fetch(`${apiBase}city/get/${encodeURIComponent(slug)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        setProjects(slimProjectListForListing(data?.projectList || []));
+      })
+      .catch(() => {
+        if (!cancelled) setProjects([]);
+      })
+      .finally(() => {
+        if (!cancelled) setProjectsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [citySlug]);
 
   const cityName = cityData?.cityName?.trim() || "City";
   const aboutSectionLeftAlt = `${cityName} — city guide section, left illustration on My Property Fact`;
@@ -106,28 +141,47 @@ export default function CityPage({ cityData }) {
             />
           </div>
         </div>
-        {false ? (
-          <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "250px" }}>
-            <LoadingSpinner show={loading} />
-          </div>
-        ) : (
-          <div className="container my-3 pb-5">
-            <h2 className="city-projects-heading mb-4">
-              Projects in {cityData?.cityName || "this city"}
-            </h2>
-            <div className="row g-3">
-              {projects.length > 0 ? (
-                projects.map((item, index) => (
-                  <div key={`${index}`} className="col-12 col-sm-6 col-md-4">
-                    <PropertyContainer data={item} />
-                  </div>
-                ))
-              ) : (
-                <p className="text-center fs-4 fw-bold">No projects found</p>
-              )}
+        <div className="container my-3 pb-5">
+          <h2 className="city-projects-heading mb-4">
+            Projects in {cityData?.cityName || "this city"}
+          </h2>
+          {projectsLoading ? (
+            <div
+              className="d-flex justify-content-center align-items-center"
+              style={{ minHeight: "250px" }}
+            >
+              <LoadingSpinner show={true} />
             </div>
-          </div>
-        )}
+          ) : (
+            <>
+              <div className="row g-3">
+                {pageItems.length > 0 ? (
+                  pageItems.map((item, index) => (
+                    <div
+                      key={
+                        item?.id != null
+                          ? String(item.id)
+                          : `city-project-${index}`
+                      }
+                      className="col-12 col-sm-6 col-md-4"
+                    >
+                      <PropertyContainer data={item} />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-center fs-4 fw-bold">No projects found</p>
+                )}
+              </div>
+              <ProjectListingPaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={totalItems}
+                pageSize={LISTING_PAGE_SIZE}
+                onPageChange={setPage}
+              />
+            </>
+          )}
+        </div>
       </div>
     </>
   );

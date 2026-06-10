@@ -9,12 +9,42 @@ import {
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
 import { projectNameMatchesSearch } from "@/app/_global_components/projectSearchUtils";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
+import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 
-export default function PropertyPage({ projectTypeDetails }) {
-  const list = Array.isArray(projectTypeDetails?.projectList)
-    ? projectTypeDetails.projectList
-    : [];
+export default function PropertyPage({ projectTypeDetails, projectTypeSlug }) {
+  const [list, setList] = useState([]);
+  const [listLoading, setListLoading] = useState(() => Boolean(projectTypeSlug));
   const [projectSearchTerm, setProjectSearchTerm] = useState("");
+
+  useEffect(() => {
+    const slug = String(projectTypeSlug || "").trim();
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+    if (!slug || !apiBase) {
+      setListLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setListLoading(true);
+
+    fetch(`${apiBase}project-types/get/${encodeURIComponent(slug)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        setList(slimProjectListForListing(data?.projectList || []));
+      })
+      .catch(() => {
+        if (!cancelled) setList([]);
+      })
+      .finally(() => {
+        if (!cancelled) setListLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectTypeSlug]);
   const projectTypeName = String(projectTypeDetails?.projectTypeName || "")
     .trim()
     .toLowerCase();
@@ -99,20 +129,29 @@ export default function PropertyPage({ projectTypeDetails }) {
           Search project by name
         </div> */}
       </section>
-      <div className="row g-3">
-        {pageItems.length > 0 ? (
-          pageItems.map((item, index) => (
-            <div
-              key={item?.id != null ? String(item.id) : `project-${index}`}
-              className="col-12 col-sm-6 col-md-4"
-            >
-              <PropertyContainer data={item} />
-            </div>
-          ))
-        ) : (
-          <p className="text-center fs-4 fw-bold">No projects found</p>
-        )}
-      </div>
+      {listLoading ? (
+        <div
+          className="d-flex justify-content-center align-items-center my-5"
+          style={{ minHeight: "320px" }}
+        >
+          <LoadingSpinner show={true} />
+        </div>
+      ) : (
+        <div className="row g-3">
+          {pageItems.length > 0 ? (
+            pageItems.map((item, index) => (
+              <div
+                key={item?.id != null ? String(item.id) : `project-${index}`}
+                className="col-12 col-sm-6 col-md-4"
+              >
+                <PropertyContainer data={item} />
+              </div>
+            ))
+          ) : (
+            <p className="text-center fs-4 fw-bold">No projects found</p>
+          )}
+        </div>
+      )}
       <ProjectListingPaginationControls
         currentPage={currentPage}
         totalPages={totalPages}

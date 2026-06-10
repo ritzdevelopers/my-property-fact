@@ -22,6 +22,7 @@ import {
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
   loading: () => <section className="py-5" style={{ minHeight: 180 }} aria-busy="true" />,
@@ -172,10 +173,13 @@ export default async function HomePage() {
     limit: 8,
   });
 
-  const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(
-    buildersRes,
-    projects,
-  );
+  const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(buildersRes);
+
+  const slimFeatured = slimProjectListForListing(featuredProjects);
+  const slimResidential = slimProjectListForListing(residentialProjects);
+  const slimCommercial = slimProjectListForListing(commercialProjects);
+  const slimRecommendedProperties = slimProjectListForListing(recommendedProperties);
+  const slimRecommendedProjects = slimProjectListForListing(recommendedProjects);
 
   // Top Picks: projects from selected builders only, rotates every 30s (testing)
   const mpfTopPicProject = await fetchTopPicksProject();
@@ -288,7 +292,7 @@ export default async function HomePage() {
           2,
           <RecommendedProjectsWithGeolocation
             title="New Property Launches"
-            fallbackItems={recommendedProperties}
+            fallbackItems={slimRecommendedProperties}
             fallbackSubtitle={
               buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
               "Explore New Residential & Commercial Properties"
@@ -309,7 +313,7 @@ export default async function HomePage() {
           4,
           <RecommendedProjectsWithGeolocation
             title="Popular Projects"
-            fallbackItems={recommendedProjects}
+            fallbackItems={slimRecommendedProjects}
             fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${dailyCityLabel}`}
             kind="project"
             locationIntent="latest-projects"
@@ -326,7 +330,7 @@ export default async function HomePage() {
               title="Featured Projects"
               type="Featured"
               autoPlay={false}
-              allFeaturedProperties={featuredProjects}
+              allFeaturedProperties={slimFeatured}
             />,
           )}
 
@@ -339,8 +343,8 @@ export default async function HomePage() {
                 title="Explore Our Premier Residential Projects"
                 autoPlay={true}
                 allFeaturedProperties={[]}
-                residentialProjects={residentialProjects}
-                commercialProjects={commercialProjects}
+                residentialProjects={slimResidential}
+                commercialProjects={slimCommercial}
               />
             </div>,
           )}

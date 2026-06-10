@@ -134,7 +134,12 @@ export default async function ProjectType({ params }) {
           </div>
         }
       >
-        <PropertyPage projectTypeDetails={projectTypeDetail} />
+        <PropertyPage
+          projectTypeSlug={validSlug}
+          projectTypeDetails={{
+            projectTypeName: projectTypeDetail.projectTypeName,
+          }}
+        />
       </Suspense>
     </>
   );

@@ -64,8 +64,13 @@ let siteDataPromise = null;
 
 const SiteDataContext = createContext({});
 
+function hasProjectCatalog(data) {
+  return Array.isArray(data?.projectList) && data.projectList.length > 0;
+}
+
 export function SiteDataProvider({ children, initialData = null }) {
   const searchParams = useSearchParams();
+  const initialHasProjects = hasProjectCatalog(initialData);
 
   const [cityList, setCityList] = useState(() =>
     initialData ? initialData.cityList || [] : []
@@ -83,14 +88,16 @@ export function SiteDataProvider({ children, initialData = null }) {
     initialData ? initialData.projectStatuses || [] : []
   );
   const [projectList, setProjectList] = useState(() =>
-    initialData ? initialData.projectList || [] : []
+    initialHasProjects ? initialData.projectList : []
   );
 
   const [quickProjectFilter, setQuickProjectFilter] = useState("All");
   const [projectFilters, setProjectFiltersState] = useState(DEFAULT_PROJECT_FILTERS);
   const [queryFilters, setQueryFiltersState] = useState(DEFAULT_QUERY_FILTERS);
 
-  const [loading, setLoading] = useState(() => !initialData);
+  const [loading, setLoading] = useState(
+    () => !initialData || !initialHasProjects,
+  );
   const [error, setError] = useState(null);
 
   const citiesById = useMemo(() => createByIdMap(cityList), [cityList]);
@@ -103,7 +110,20 @@ export function SiteDataProvider({ children, initialData = null }) {
 
     async function loadData() {
       try {
-        if (initialData) {
+        if (siteDataCache?.projectList?.length) {
+          if (!cancelled) {
+            setCityList(siteDataCache.cityList);
+            setAllCityList(siteDataCache.allCityList || siteDataCache.cityList);
+            setBuilderList(siteDataCache.builderList);
+            setProjectTypes(siteDataCache.projectTypes);
+            setProjectStatuses(siteDataCache.projectStatuses);
+            setProjectList(siteDataCache.projectList);
+            setLoading(false);
+          }
+          return;
+        }
+
+        if (initialData && initialHasProjects) {
           const data = {
             cityList: initialData.cityList || [],
             allCityList: initialData.allCityList || initialData.cityList || [],
@@ -118,17 +138,6 @@ export function SiteDataProvider({ children, initialData = null }) {
           return;
         }
 
-        if (siteDataCache) {
-          setCityList(siteDataCache.cityList);
-          setAllCityList(siteDataCache.allCityList || siteDataCache.cityList);
-          setBuilderList(siteDataCache.builderList);
-          setProjectTypes(siteDataCache.projectTypes);
-          setProjectStatuses(siteDataCache.projectStatuses);
-          setProjectList(siteDataCache.projectList);
-          setLoading(false);
-          return;
-        }
-
         if (!siteDataPromise) {
           siteDataPromise = fetchSiteDataFromApi().then((data) => {
             siteDataCache = data;
@@ -139,11 +148,13 @@ export function SiteDataProvider({ children, initialData = null }) {
         const data = await siteDataPromise;
 
         if (!cancelled) {
-          setCityList(data.cityList);
-          setAllCityList(data.allCityList || data.cityList);
-          setBuilderList(data.builderList);
-          setProjectTypes(data.projectTypes);
-          setProjectStatuses(data.projectStatuses);
+          if (!initialData) {
+            setCityList(data.cityList);
+            setAllCityList(data.allCityList || data.cityList);
+            setBuilderList(data.builderList);
+            setProjectTypes(data.projectTypes);
+            setProjectStatuses(data.projectStatuses);
+          }
           setProjectList(data.projectList);
         }
       } catch (err) {

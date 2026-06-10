@@ -266,6 +266,11 @@ function extractTypesFromProjectConfiguration(value = "") {
         if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
         continue;
       }
+      if (norm === "offices and shop" || norm === "office and shop") {
+        types.add("office");
+        types.add("shop");
+        continue;
+      }
       if (norm === "sco") continue;
       types.add(norm);
     }
@@ -279,8 +284,8 @@ function configTypeToFloorSlug(configType) {
   if (!norm) return "";
   const bhk = norm.match(/^(\d+)\s*bhk$/);
   if (bhk) return `${bhk[1]}-bhk`;
-  if (norm === "shop") return "shops";
-  if (norm === "offices") return "office";
+  if (norm === "shop" || norm === "shops") return "shops";
+  if (norm === "office" || norm === "offices") return "office";
   if (norm === "plots") return "plot";
   if (norm === "restaurants") return "restaurant";
   if (norm === "showrooms") return "showroom";
@@ -467,28 +472,77 @@ const SITEMAP_BLOCKED_EXACT = new Set([
   "/clients-speak",
   "/dashboard",
   "/properties",
+  "/admin",
+  "/admin/forgot-password",
+  "/admin/register",
+  "/components/common",
+  "/components/footer",
+  "/components/home/dream-project",
+  "/components/home/insight",
+  "/components/home/social-feed",
+  "/components/home/new-views",
+  "/components/home/video-slider",
+  "/components/home",
 ]);
 
 const SITEMAP_BLOCKED_PREFIXES = [
   "/components/",
   "/portal",
-  "/admin",
+  "/admin/",
   "/landing-pages",
   "/promotional-pages",
   "/lavidabella",
   "/Eldeco",
   "/subh-anandam",
   "/detail/",
-  "/api/",           // ← blocks /api/v1/... routes leaking into sitemap
+  "/api/",
+  "/properties/",
 ];
 
 function shouldExcludePathFromSitemap(path) {
   if (!path || typeof path !== "string") return true;
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  if (SITEMAP_BLOCKED_EXACT.has(normalized)) return true;
-  if (normalized.includes("/portal") || normalized.includes("/dashboard")) return true;
-  return SITEMAP_BLOCKED_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+  const withoutTrailingSlash =
+    normalized.length > 1 ? normalized.replace(/\/+$/, "") : normalized;
+  if (SITEMAP_BLOCKED_EXACT.has(withoutTrailingSlash)) return true;
+  if (withoutTrailingSlash.includes("/portal") || withoutTrailingSlash.includes("/dashboard")) {
+    return true;
+  }
+  if (withoutTrailingSlash === "/admin" || withoutTrailingSlash.startsWith("/admin/")) {
+    return true;
+  }
+  return SITEMAP_BLOCKED_PREFIXES.some((prefix) =>
+    withoutTrailingSlash.startsWith(prefix),
+  );
 }
+
+/** next-sitemap built-in exclude (runs before transform). */
+const SITEMAP_EXCLUDE_PATTERNS = [
+  "/admin",
+  "/admin/*",
+  "/components",
+  "/components/*",
+  "/properties",
+  "/properties/*",
+  "/portal",
+  "/portal/*",
+  "/dashboard",
+  "/dashboard/*",
+  "/landing-pages",
+  "/landing-pages/*",
+  "/promotional-pages",
+  "/promotional-pages/*",
+  "/lavidabella",
+  "/lavidabella/*",
+  "/Eldeco*",
+  "/subh-anandam",
+  "/subh-anandam/*",
+  "/detail",
+  "/detail/*",
+  "/api",
+  "/api/*",
+  "/clients-speak",
+];
 
 const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
 
@@ -503,9 +557,13 @@ const LEGACY_CITY_HUB_PREFIXES = [
 module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: true,
+  exclude: SITEMAP_EXCLUDE_PATTERNS,
   robotsTxtOptions: {
     policies: [
-      { userAgent: "*",               disallow: ["/admin/"] },
+      {
+        userAgent: "*",
+        disallow: ["/admin/", "/components/", "/properties", "/portal/"],
+      },
       { userAgent: "ChatGPT-User",    allow: "/"            },
       { userAgent: "OAI-SearchBot",   allow: "/"            },
       { userAgent: "Google-Extended", allow: "/"            },

@@ -255,6 +255,11 @@ export function extractTypesFromProjectConfiguration(value = "") {
         if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
         continue;
       }
+      if (norm === "offices and shop" || norm === "office and shop") {
+        types.add("office");
+        types.add("shop");
+        continue;
+      }
       types.add(norm);
     }
   }
@@ -358,6 +363,41 @@ export function getCompoundListingProjectsInCity(
       projectMatchesCompoundCategory(project, parsed.categorySlug) &&
       projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
   );
+}
+
+export function projectHasOfficeOrShopConfiguration(projectConfiguration) {
+  return extractTypesFromProjectConfiguration(projectConfiguration).some((type) => {
+    const norm = normalizeListingConfigType(type);
+    return (
+      norm === "office" ||
+      norm === "offices" ||
+      norm === "shop" ||
+      norm === "shops"
+    );
+  });
+}
+
+/** Hub pages above the footer: category + city, not floor-plan shape. */
+export function projectMatchesListingHubCategory(project, hubKey) {
+  const propType = String(project?.propertyTypeName || "").toLowerCase();
+  const status = String(project?.projectStatusName || "").toLowerCase();
+  switch (hubKey) {
+    case "apartments":
+    case "flats":
+      return propType === "residential";
+    case "new-projects":
+    case "newProjects":
+      return status === "new launched";
+    case "commercial":
+      return propType === "commercial";
+    case "offices-and-shop":
+      return (
+        propType === "commercial" &&
+        projectHasOfficeOrShopConfiguration(project?.projectConfiguration)
+      );
+    default:
+      return false;
+  }
 }
 
 export function projectMatchesCompoundCategory(project, categorySlug) {

@@ -52,9 +52,6 @@ export const metadata = {
     "property investment tips" , 
     "real estate guide India", 
   ],
-  alternates: {
-    canonical: process.env.NEXT_PUBLIC_UI_URL + "/",
-  },
 };
 
 export default function RootLayout({ children }) {

@@ -41,6 +41,22 @@ function coerceArray(payload) {
   return [];
 }
 
+function resolveSitemapApiBase() {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+  const normalized = raw.replace(/\/+$/, "");
+  if (
+    raw &&
+    !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(normalized)
+  ) {
+    return raw.endsWith("/") ? raw : `${raw}/`;
+  }
+  return "https://apis.mypropertyfact.in/api/v1/";
+}
+
+function webStoryCategorySlug(item) {
+  return toPathSlug(item?.categoryName || item?.slugURL || item?.slugUrl);
+}
+
 function blogSlug(item) {
   return toPathSlug(item?.slugUrl || item?.slugURL || "");
 }
@@ -504,6 +520,7 @@ function shouldExcludePathFromSitemap(path) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   const withoutTrailingSlash =
     normalized.length > 1 ? normalized.replace(/\/+$/, "") : normalized;
+  if (withoutTrailingSlash.startsWith("/api/v1/web-story/")) return false;
   if (SITEMAP_BLOCKED_EXACT.has(withoutTrailingSlash)) return true;
   if (withoutTrailingSlash.includes("/portal") || withoutTrailingSlash.includes("/dashboard")) {
     return true;
@@ -596,19 +613,7 @@ module.exports = {
   },
 
   additionalPaths: async () => {
-    const BASE = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-
-    // ── FIX: Agar API localhost pe hai ya set nahi hai toh sirf static pages do.
-    //    ECONNREFUSED se bachne ke liye — production build pe hi full sitemap banega.
-    const isLocalOrMissing =
-      !BASE || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(BASE);
-
-    if (isLocalOrMissing) {
-      console.warn("[sitemap] API localhost/missing — only static pages included.");
-      return STATIC_PUBLIC_PAGES.map((p) =>
-        sitemapEntry(p.loc, { priority: p.priority, changefreq: p.changefreq })
-      );
-    }
+    const BASE = resolveSitemapApiBase();
 
     const stamp    = new Date().toISOString();
     const seen     = new Set();
@@ -656,18 +661,16 @@ module.exports = {
       }
     } catch { /* skip */ }
 
-    // 4. Web stories → /web-stories/<slug>
-    //    ✅ FIX: /api/v1/web-story/... backend route tha, page nahi.
-    //           Sahi page URL hai: /web-stories/<slug>
+    // 4. Web story categories — /api/v1/web-story/{slug} (public AMP story URLs)
     try {
       const res = await fetch(`${BASE}web-story-category/get-all`);
       if (res.ok) {
         for (const item of coerceArray(await res.json())) {
-          const slug = toPathSlug(item?.categoryName);
-          // Sirf tab add karo jab category mein actual stories hoon
-          if (slug && Array.isArray(item?.webStories) && item.webStories.length > 0) {
-            pushLoc(`/stories/${slug}`);
+          const slug = webStoryCategorySlug(item);
+          if (!slug || !Array.isArray(item?.webStories) || item.webStories.length === 0) {
+            continue;
           }
+          pushLoc(`/api/v1/web-story/${slug}`);
         }
       }
     } catch { /* skip */ }

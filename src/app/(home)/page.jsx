@@ -8,6 +8,7 @@ import { HOME_FAQ_ITEMS } from "./components/home/noida-projects/homeFaqItems";
 export default function Home() {
   return (
     <>
+      <link rel="canonical" href="https://mypropertyfact.in/" />
       <JsonLdScript data={buildFaqJsonLd(HOME_FAQ_ITEMS)} />
       {/* <h1 className="visually-hidden">Smart Real Estate Decisions Start Here</h1> */}
       <HeroLcpPreloads />

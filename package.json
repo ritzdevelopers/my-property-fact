@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postbuild": "next-sitemap"
+    "postbuild": "node scripts/copy-custom-sitemap.js && next-sitemap"
   },
   "dependencies": {
     "@coreui/coreui": "^5.2.0",

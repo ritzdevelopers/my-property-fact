@@ -6,6 +6,7 @@ import {
 } from "@/app/_global_components/masterFunction";
 import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
 import {
+  buildBlogArticleJsonLd,
   buildFaqJsonLd,
   normalizeFaqItems,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
@@ -54,6 +55,7 @@ export default async function BlogPage({ params }) {
 
   return (
     <>
+      <JsonLdScript data={buildBlogArticleJsonLd(blogDetail)} />
       <JsonLdScript data={buildFaqJsonLd(normalizeFaqItems(rawFaqList))} />
       <BlogDetail
         blogDetail={blogDetail}

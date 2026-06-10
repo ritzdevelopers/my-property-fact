@@ -126,7 +126,22 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
               {/* <ul> */}
                 <CityList
                   prefix={"Commercial Property in "}
-                  cityList={cityList.filter(item => !["Agra", "Bareilly", "Chennai", "Dehradun", "Kochi", "Thiruvananthapuram", "Vrindavan"].includes(item.cityName))}
+                  cityList={cityList.filter(
+                    (item) =>
+                      ![
+                        "Agra",
+                        "Bareilly",
+                        "Chennai",
+                        "Dehradun",
+                        "Kochi",
+                        "Thiruvananthapuram",
+                        "Vrindavan",
+                        "Sonipat",
+                        "Panipat",
+                        "Karnal",
+                        "Meerut",
+                      ].includes(item.cityName),
+                  )}
                   cat={"commercial"}
                 />
               {/* </ul> */}

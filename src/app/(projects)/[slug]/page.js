@@ -6,7 +6,6 @@ import {
   mayBeValidRootCatchAllSlug,
 } from "@/lib/publicRouteValidation";
 import {
-  canonicalizeFloorInCitySlug,
   fetchAllProjects,
   fetchCityData,
   fetchNearbyBenefitsAll,
@@ -18,6 +17,7 @@ import {
   parseCompoundFloorListingSlug,
 } from "@/app/_global_components/masterFunction";
 import {
+  buildCanonicalFloorInCitySlug,
   collectKnownFloorSlugs,
   getCompoundListingProjectsInCity,
   getFloorListingProjectsInCity,
@@ -95,7 +95,7 @@ export default async function PropertyPage({ params }) {
     const allProjectsForSlug = await fetchAllProjects();
     const knownFloorSlugs = collectKnownFloorSlugs(allProjectsForSlug);
     const parsedFloorCity = parseFloorInCitySlug(slug, knownFloorSlugs);
-    const canonicalFloorCity = canonicalizeFloorInCitySlug(slug);
+    const canonicalFloorCity = buildCanonicalFloorInCitySlug(slug);
     if (
       !maybeCompoundListing &&
       canonicalFloorCity &&

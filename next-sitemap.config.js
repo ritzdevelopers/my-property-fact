@@ -41,6 +41,22 @@ function coerceArray(payload) {
   return [];
 }
 
+function resolveSitemapApiBase() {
+  const raw = (process.env.NEXT_PUBLIC_API_URL || "").trim();
+  const normalized = raw.replace(/\/+$/, "");
+  if (
+    raw &&
+    !/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(normalized)
+  ) {
+    return raw.endsWith("/") ? raw : `${raw}/`;
+  }
+  return "https://apis.mypropertyfact.in/api/v1/";
+}
+
+function webStoryCategorySlug(item) {
+  return toPathSlug(item?.categoryName || item?.slugURL || item?.slugUrl);
+}
+
 function blogSlug(item) {
   return toPathSlug(item?.slugUrl || item?.slugURL || "");
 }
@@ -118,10 +134,13 @@ function projectMatchesCitySlug(project, citySlug) {
 
 const EXCLUDED_FLOOR_SLUGS = new Set([
   "1-br", "2-br", "1br", "2br", "bhk", "office-and-shop",
+  "shop", "plots", "offices", "restaurants", "showrooms", "sco",
 ]);
 
 const FLOOR_TYPE_ALIASES = {
   shops: "shops",
+  "sco plots": "sco-plots",
+  "sco plot": "sco-plots",
   "food courts": "food-court",
   plot: "plot",
   office: "office",
@@ -229,6 +248,12 @@ function extractTypesFromProjectConfiguration(value = "") {
       .trim();
     if (!cleanedPart) continue;
 
+    if (/^sco$/i.test(cleanedPart)) continue;
+
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
+
     const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
     let bhkMatch;
     let foundBhk = false;
@@ -247,7 +272,23 @@ function extractTypesFromProjectConfiguration(value = "") {
     }
 
     if (!foundBhk && !foundBrVilla) {
-      types.add(normalizeConfigType(cleanedPart));
+      const norm = normalizeConfigType(cleanedPart);
+      if (
+        norm === "shop and sco plots" ||
+        norm === "shops and sco plots" ||
+        (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+      ) {
+        if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+        if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+        continue;
+      }
+      if (norm === "offices and shop" || norm === "office and shop") {
+        types.add("office");
+        types.add("shop");
+        continue;
+      }
+      if (norm === "sco") continue;
+      types.add(norm);
     }
   }
 
@@ -259,6 +300,12 @@ function configTypeToFloorSlug(configType) {
   if (!norm) return "";
   const bhk = norm.match(/^(\d+)\s*bhk$/);
   if (bhk) return `${bhk[1]}-bhk`;
+  if (norm === "shop" || norm === "shops") return "shops";
+  if (norm === "office" || norm === "offices") return "office";
+  if (norm === "plots") return "plot";
+  if (norm === "restaurants") return "restaurant";
+  if (norm === "showrooms") return "showroom";
+  if (/^sco\s*plots?$/.test(norm)) return "sco-plots";
   return normalizeFloorSlugFromPlanType(norm);
 }
 
@@ -441,28 +488,78 @@ const SITEMAP_BLOCKED_EXACT = new Set([
   "/clients-speak",
   "/dashboard",
   "/properties",
+  "/admin",
+  "/admin/forgot-password",
+  "/admin/register",
+  "/components/common",
+  "/components/footer",
+  "/components/home/dream-project",
+  "/components/home/insight",
+  "/components/home/social-feed",
+  "/components/home/new-views",
+  "/components/home/video-slider",
+  "/components/home",
 ]);
 
 const SITEMAP_BLOCKED_PREFIXES = [
   "/components/",
   "/portal",
-  "/admin",
+  "/admin/",
   "/landing-pages",
   "/promotional-pages",
   "/lavidabella",
   "/Eldeco",
   "/subh-anandam",
   "/detail/",
-  "/api/",           // ← blocks /api/v1/... routes leaking into sitemap
+  "/api/",
+  "/properties/",
 ];
 
 function shouldExcludePathFromSitemap(path) {
   if (!path || typeof path !== "string") return true;
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  if (SITEMAP_BLOCKED_EXACT.has(normalized)) return true;
-  if (normalized.includes("/portal") || normalized.includes("/dashboard")) return true;
-  return SITEMAP_BLOCKED_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+  const withoutTrailingSlash =
+    normalized.length > 1 ? normalized.replace(/\/+$/, "") : normalized;
+  if (withoutTrailingSlash.startsWith("/api/v1/web-story/")) return false;
+  if (SITEMAP_BLOCKED_EXACT.has(withoutTrailingSlash)) return true;
+  if (withoutTrailingSlash.includes("/portal") || withoutTrailingSlash.includes("/dashboard")) {
+    return true;
+  }
+  if (withoutTrailingSlash === "/admin" || withoutTrailingSlash.startsWith("/admin/")) {
+    return true;
+  }
+  return SITEMAP_BLOCKED_PREFIXES.some((prefix) =>
+    withoutTrailingSlash.startsWith(prefix),
+  );
 }
+
+/** next-sitemap built-in exclude (runs before transform). */
+const SITEMAP_EXCLUDE_PATTERNS = [
+  "/admin",
+  "/admin/*",
+  "/components",
+  "/components/*",
+  "/properties",
+  "/properties/*",
+  "/portal",
+  "/portal/*",
+  "/dashboard",
+  "/dashboard/*",
+  "/landing-pages",
+  "/landing-pages/*",
+  "/promotional-pages",
+  "/promotional-pages/*",
+  "/lavidabella",
+  "/lavidabella/*",
+  "/Eldeco*",
+  "/subh-anandam",
+  "/subh-anandam/*",
+  "/detail",
+  "/detail/*",
+  "/api",
+  "/api/*",
+  "/clients-speak",
+];
 
 const APARTMENTS_LISTING_HUB_PREFIX = "apartments-in-";
 
@@ -477,9 +574,13 @@ const LEGACY_CITY_HUB_PREFIXES = [
 module.exports = {
   siteUrl: SITE_URL,
   generateRobotsTxt: true,
+  exclude: SITEMAP_EXCLUDE_PATTERNS,
   robotsTxtOptions: {
     policies: [
-      { userAgent: "*",               disallow: ["/admin/"] },
+      {
+        userAgent: "*",
+        disallow: ["/admin/", "/components/", "/properties", "/portal/"],
+      },
       { userAgent: "ChatGPT-User",    allow: "/"            },
       { userAgent: "OAI-SearchBot",   allow: "/"            },
       { userAgent: "Google-Extended", allow: "/"            },
@@ -512,19 +613,7 @@ module.exports = {
   },
 
   additionalPaths: async () => {
-    const BASE = (process.env.NEXT_PUBLIC_API_URL || "").trim();
-
-    // ── FIX: Agar API localhost pe hai ya set nahi hai toh sirf static pages do.
-    //    ECONNREFUSED se bachne ke liye — production build pe hi full sitemap banega.
-    const isLocalOrMissing =
-      !BASE || /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(BASE);
-
-    if (isLocalOrMissing) {
-      console.warn("[sitemap] API localhost/missing — only static pages included.");
-      return STATIC_PUBLIC_PAGES.map((p) =>
-        sitemapEntry(p.loc, { priority: p.priority, changefreq: p.changefreq })
-      );
-    }
+    const BASE = resolveSitemapApiBase();
 
     const stamp    = new Date().toISOString();
     const seen     = new Set();
@@ -572,18 +661,16 @@ module.exports = {
       }
     } catch { /* skip */ }
 
-    // 4. Web stories → /web-stories/<slug>
-    //    ✅ FIX: /api/v1/web-story/... backend route tha, page nahi.
-    //           Sahi page URL hai: /web-stories/<slug>
+    // 4. Web story categories — /api/v1/web-story/{slug} (public AMP story URLs)
     try {
       const res = await fetch(`${BASE}web-story-category/get-all`);
       if (res.ok) {
         for (const item of coerceArray(await res.json())) {
-          const slug = toPathSlug(item?.categoryName);
-          // Sirf tab add karo jab category mein actual stories hoon
-          if (slug && Array.isArray(item?.webStories) && item.webStories.length > 0) {
-            pushLoc(`/stories/${slug}`);
+          const slug = webStoryCategorySlug(item);
+          if (!slug || !Array.isArray(item?.webStories) || item.webStories.length === 0) {
+            continue;
           }
+          pushLoc(`/api/v1/web-story/${slug}`);
         }
       }
     } catch { /* skip */ }
@@ -644,7 +731,7 @@ module.exports = {
       const listingValidation = await import(
         pathToFileURL(
           path.join(__dirname, "src/lib/listingFloorValidation.js"),
-        ).href,
+        ).href
       );
       hasFloorListingDataInCity = listingValidation.hasFloorListingDataInCity;
       hasCompoundListingDataInCity =

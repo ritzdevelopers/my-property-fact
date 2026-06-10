@@ -1,6 +1,6 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import {
@@ -9,23 +9,57 @@ import {
 } from "@/app/_global_components/projectListingPagination";
 import { cityNameMatchesFilter } from "@/app/_global_components/cityAliasUtils";
 import { isBhkFloorSlugSegment } from "@/app/_global_components/masterFunction";
+import { projectMatchesListingHubCategory } from "@/lib/listingFloorValidation";
 import Link from "next/link";
 import { useSiteData } from "../contexts/SiteDataContext";
+
+const HUB_CITY_SLUG_PREFIXES = [
+  "/flats-in-",
+  "/apartments-in-",
+  "/commercial-property-in-",
+  "/new-projects-in-",
+  "/offices-and-shop-in-",
+];
+
+function parseHubCityName(pathName) {
+  if (!pathName) return "";
+  for (const slug of HUB_CITY_SLUG_PREFIXES) {
+    if (pathName.startsWith(slug)) {
+      return pathName.replace(slug, "").replace(/-/g, " ").trim();
+    }
+  }
+  return "";
+}
+
+function resolveListingCategory(pathName) {
+  if (pathName.startsWith("/offices-and-shop-in-")) {
+    return { cat: "offices-and-shop", urlCategorySegment: "offices-and-shop" };
+  }
+  if (pathName.startsWith("/commercial-property-in-")) {
+    return { cat: "commercial", urlCategorySegment: "commercial" };
+  }
+  if (pathName.startsWith("/flats-in-")) {
+    return { cat: "flats", urlCategorySegment: "flats" };
+  }
+  if (pathName.startsWith("/new-projects-in-")) {
+    return { cat: "new-projects", urlCategorySegment: "new-projects" };
+  }
+  if (pathName.startsWith("/apartments-in-")) {
+    return { cat: "apartments", urlCategorySegment: "apartments" };
+  }
+  return { cat: "apartments", urlCategorySegment: "apartments" };
+}
 
 export default function MasterBHKProjectList() {
   const pathName = usePathname();
   const searchParams = useSearchParams();
   const { projectList: projects = [], loading: siteDataLoading } = useSiteData();
-  const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState([]);
-  const [cityName, setCityName] = useState("");
-  const [floorTypeList, setFloorTypeList] = useState([]);
-
-  // Extract individual BHK types from string (handles "3 BHK 4 BHK" -> ["3 BHK", "4 BHK"])
-  const extractIndividualBHKTypes = (value = "") => {
-    if (!value || typeof value !== "string") return [];
-    const matches = value.match(/\d+\s*BHK/gi);
-    return matches ? [...new Set(matches.map((m) => m.trim()))] : [];
-  };
+  const cityName = useMemo(() => parseHubCityName(pathName), [pathName]);
+  const { cat, urlCategorySegment } = useMemo(
+    () => resolveListingCategory(pathName),
+    [pathName],
+  );
+  const bkType = searchParams.get("type");
 
   const normalizeType = (value = "") =>
     String(value)
@@ -49,6 +83,11 @@ export default function MasterBHKProjectList() {
         .trim();
       if (!cleanedPart) return;
 
+      // SCO-900 sq.ft style unit sizes are not "SCO Plots" property type.
+      if (/^sco$/i.test(cleanedPart)) return;
+
+      ingestScoPlotsType(cleanedPart, types);
+
       const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
       let bhkMatch;
       let foundBhk = false;
@@ -59,7 +98,27 @@ export default function MasterBHKProjectList() {
       }
 
       if (!foundBhk) {
-        types.add(normalizeType(cleanedPart));
+        const sqFtStandalone = cleanedPart.match(/^(\d+)\s*sq\.?\s*ft$/i);
+        if (sqFtStandalone?.[1]) {
+          types.add(`${sqFtStandalone[1]} sq ft`);
+          return;
+        }
+        const norm = normalizeType(cleanedPart);
+        if (
+          norm === "shop and sco plots" ||
+          norm === "shops and sco plots" ||
+          (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+        ) {
+          if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+          if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+          return;
+        }
+        if (norm === "offices and shop" || norm === "office and shop") {
+          types.add("office");
+          types.add("shop");
+          return;
+        }
+        types.add(norm);
       }
     });
 
@@ -77,9 +136,67 @@ export default function MasterBHKProjectList() {
       return configTypes.includes(`${bhkWanted[1]} bhk`);
     }
 
+    const sqFtWanted = wanted.match(/(\d+)\s*sq\.?\s*ft/i);
+    if (sqFtWanted?.[1]) {
+      return configTypes.includes(`${sqFtWanted[1]} sq ft`);
+    }
+
+    if (wanted === "sco plots" || wanted === "sco plot") {
+      return configTypes.includes("sco plots");
+    }
+
     return configTypes.some(
       (type) => type === wanted || type.includes(wanted) || wanted.includes(type)
     );
+  };
+
+  const isHubBhkSlug = (slugType) => /^\d+-bhk$/i.test(String(slugType || ""));
+
+  const isHubRkStudioSlug = (slugType) =>
+    /^\d+-rk-studio$/i.test(String(slugType || ""));
+
+  const isHubSqFtSlug = (slugType) =>
+    /^\d+-sq\.ft$/i.test(String(slugType || ""));
+
+  const isHubFlatFloorSlug = (slugType) =>
+    isHubBhkSlug(slugType) ||
+    isHubRkStudioSlug(slugType) ||
+    isHubSqFtSlug(slugType);
+
+  const HUB_COMMERCIAL_SLUGS = new Set([
+    "shops",
+    "office",
+    "kiosk",
+    "food-court",
+    "restaurant",
+    "showroom",
+    "sco-plots",
+  ]);
+
+  const ingestScoPlotsType = (cleanedPart, types) => {
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
+  };
+
+  const includeFloorTypeInHubCategory = (slugType, category) => {
+    const slug = String(slugType || "").toLowerCase();
+    if (category === "flats") {
+      return isHubFlatFloorSlug(slug);
+    }
+    if (category === "apartments") {
+      return isHubBhkSlug(slug);
+    }
+    if (category === "commercial") {
+      return HUB_COMMERCIAL_SLUGS.has(slug);
+    }
+    if (category === "offices-and-shop") {
+      return slug === "office" || slug === "shops";
+    }
+    if (category === "new-projects") {
+      return true;
+    }
+    return true;
   };
 
   const normalizeFloorType = (value = "") => {
@@ -92,7 +209,7 @@ export default function MasterBHKProjectList() {
     if (normalized === "shop" || normalized === "shops") {
       return { label: "Shops", slugType: "shops" };
     }
-    if (normalized === "food courts") {
+    if (normalized === "food courts" || normalized === "food court") {
       return { label: "Food Court", slugType: "food-court" };
     }
     if (normalized === "plot" || normalized === "plots") {
@@ -101,9 +218,37 @@ export default function MasterBHKProjectList() {
     if (normalized === "office" || normalized === "offices") {
       return { label: "Office", slugType: "office" };
     }
-    // Normalize "1 RK Studio" and "1 RK Studio Apartment" to same slug (avoid duplicates)
+    if (normalized === "kiosk" || normalized === "kiosks") {
+      return { label: "Kiosk", slugType: "kiosk" };
+    }
+    if (normalized === "restaurant" || normalized === "restaurants") {
+      return { label: "Restaurant", slugType: "restaurant" };
+    }
+    if (normalized === "showroom" || normalized === "showrooms") {
+      return { label: "Showroom", slugType: "showroom" };
+    }
+    if (normalized === "sco plots" || normalized === "sco plot") {
+      return { label: "SCO Plots", slugType: "sco-plots" };
+    }
+    if (normalized === "sco") return null;
+    // Normalize "N RK Studio" variants → `1-rk-studio`, `2-rk-studio`, etc.
+    const rkStudio = normalized.match(/^(\d+)\s*rk\s*studio(?:\s*apartment)?$/);
+    if (rkStudio?.[1]) {
+      return {
+        label: `${rkStudio[1]} RK Studio`,
+        slugType: `${rkStudio[1]}-rk-studio`,
+      };
+    }
+    // Legacy: "1 rk studio apartment" / "1 rk studio"
     if (normalized === "1 rk studio apartment" || normalized === "1 rk studio") {
       return { label: "1 RK Studio", slugType: "1-rk-studio" };
+    }
+    const sqFtOnly = normalized.match(/^(\d+)\s*sq\.?\s*ft$/);
+    if (sqFtOnly?.[1]) {
+      return {
+        label: `${sqFtOnly[1]} Sq.ft`,
+        slugType: `${sqFtOnly[1]}-sq.ft`,
+      };
     }
     // Exclude combined types - we already have Office, Shops, SCO Plots separately
     if (
@@ -136,35 +281,18 @@ export default function MasterBHKProjectList() {
       .filter((item) => cityMatches(item, cityKey))
       .forEach((item) => {
         if (!item.projectConfiguration || typeof item.projectConfiguration !== "string") return;
-        item.projectConfiguration
-          .split(",")
-          .map((type) => type.trim())
-          .filter(Boolean)
-          .forEach((type) => {
-            // Split "3 BHK 4 BHK" into individual BHK types
-            const bhkMatches = extractIndividualBHKTypes(type);
-            if (bhkMatches.length > 0) {
-              bhkMatches.forEach((bhk) => {
-                const normalized = normalizeFloorType(bhk);
-                if (normalized && !floorTypesMap.has(normalized.slugType)) {
-                  floorTypesMap.set(normalized.slugType, {
-                    label: normalized.label,
-                    slugType: normalized.slugType,
-                    city: city,
-                  });
-                }
+        extractTypesFromProjectConfiguration(item.projectConfiguration).forEach(
+          (configType) => {
+            const normalized = normalizeFloorType(configType);
+            if (normalized && !floorTypesMap.has(normalized.slugType)) {
+              floorTypesMap.set(normalized.slugType, {
+                label: normalized.label,
+                slugType: normalized.slugType,
+                city: city,
               });
-            } else {
-              const normalized = normalizeFloorType(type);
-              if (normalized && !floorTypesMap.has(normalized.slugType)) {
-                floorTypesMap.set(normalized.slugType, {
-                  label: normalized.label,
-                  slugType: normalized.slugType,
-                  city: city,
-                });
-              }
             }
-          });
+          },
+        );
       });
 
     // Exclude 1 BHK, 2 BHK, 1 BR, 2 BR, bare numbers (3, 4, 5), standalone "BHK", "Offices and Shop"; exclude SCO Plots for new-projects and apartments/flats
@@ -174,85 +302,40 @@ export default function MasterBHKProjectList() {
     }
     const isBareNumber = (slug) => /^\d+$/.test(slug.replace(/-/g, ""));
     return Array.from(floorTypesMap.values())
-      .filter((ft) => !excludeSlugTypes.includes(ft.slugType.toLowerCase()) && !isBareNumber(ft.slugType))
+      .filter(
+        (ft) =>
+          includeFloorTypeInHubCategory(ft.slugType, category) &&
+          !excludeSlugTypes.includes(ft.slugType.toLowerCase()) &&
+          !isBareNumber(ft.slugType),
+      )
       .sort((a, b) => a.label.localeCompare(b.label));
   };
 
   /** Filter key + URL segment for BHK pill links (`{floor}-{segment}-in-{city}`). */
-  const resolveListingCategory = () => {
-    if (pathName.startsWith("/offices-and-shop-in-")) {
-      return { cat: "commercial", urlCategorySegment: "offices-and-shop" };
+  const { filteredProjectsByBrType, floorTypeList } = useMemo(() => {
+    if (!projects.length || !cityName) {
+      return { filteredProjectsByBrType: [], floorTypeList: [] };
     }
-    if (pathName.startsWith("/commercial-property-in-")) {
-      return { cat: "commercial", urlCategorySegment: "commercial" };
-    }
-    if (pathName.startsWith("/flats-in-")) {
-      return { cat: "flats", urlCategorySegment: "flats" };
-    }
-    if (pathName.startsWith("/new-projects-in-")) {
-      return { cat: "new-projects", urlCategorySegment: "new-projects" };
-    }
-    if (pathName.startsWith("/apartments-in-")) {
-      return { cat: "apartments", urlCategorySegment: "apartments" };
-    }
-    return { cat: "apartments", urlCategorySegment: "apartments" };
-  };
 
-  const getListOfProjectFromBkType = () => {
-    const bkType = searchParams.get("type");
-    const { cat } = resolveListingCategory();
-    if (projects.length > 0) {
-      let filteredData = projects;
-      const cityKey = cityName.trim().toLowerCase();
-      switch (cat) {
-        case "apartments":
-          filteredData = projects.filter(
-            (item) =>
-              item.propertyTypeName?.toLowerCase() === "residential" &&
-              cityMatches(item, cityKey)
-          );
-          setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
-          break;
-        case "new-projects":
-          filteredData = projects.filter(
-            (item) =>
-              item.projectStatusName === "New Launched" &&
-              cityMatches(item, cityKey)
-          );
-          setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
-          break;
-        case "flats":
-          filteredData = projects.filter(
-            (item) =>
-              cityMatches(item, cityKey) &&
-              item.propertyTypeName?.toLowerCase() === "residential"
-          );
-          setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
-          break;
-        case "commercial":
-          filteredData = projects.filter(
-            (item) =>
-              item.propertyTypeName?.toLowerCase() === "commercial" &&
-              cityMatches(item, cityKey)
-          );
-          setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
-          break;
-        default:
-          filteredData = projects.filter((item) => cityMatches(item, cityKey));
-          setFloorTypeList(buildFloorTypeList(filteredData, cityName, cat));
-          break;
-      }
+    const cityKey = cityName.trim().toLowerCase();
+    const matchesHubCategory = (item) =>
+      projectMatchesListingHubCategory(item, cat);
 
-      if (bkType) {
-        filteredData = filteredData.filter((item) =>
-          matchesProjectConfigurationType(item.projectConfiguration, bkType)
-        );
-      }
+    let filteredData = projects.filter(
+      (item) => cityMatches(item, cityKey) && matchesHubCategory(item),
+    );
 
-      return filteredData;
+    if (bkType) {
+      filteredData = filteredData.filter((item) =>
+        matchesProjectConfigurationType(item.projectConfiguration, bkType),
+      );
     }
-    return [];
-  };
+
+    return {
+      filteredProjectsByBrType: filteredData,
+      floorTypeList: buildFloorTypeList(filteredData, cityName, cat),
+    };
+  }, [projects, cityName, cat, bkType]);
 
   const getSectionHeadingFromPath = () => {
     if (pathName.startsWith("/commercial-property-in-")) return "Commercial Property";
@@ -263,33 +346,8 @@ export default function MasterBHKProjectList() {
     return "Projects";
   };
 
-  useEffect(() => {
-    const slugPrefix = [
-      "/flats-in-",
-      "/apartments-in-",
-      "/commercial-property-in-",
-      "/new-projects-in-",
-      "/offices-and-shop-in-",
-    ];
-    let foundCity = "";
-    slugPrefix.forEach((slug) => {
-      if (pathName.startsWith(slug)) {
-        foundCity = pathName.replace(slug, "").replace(/-/g, " ").trim();
-      }
-    });
-    setCityName(foundCity);
-  }, [pathName]);
+  const showLoading = siteDataLoading;
 
-  useEffect(() => {
-    if (!projects.length || !cityName) {
-      setFilteredProjectsByBrType([]);
-      return;
-    }
-    const filteredData = getListOfProjectFromBkType();
-    setFilteredProjectsByBrType(filteredData);
-  }, [projects, cityName, pathName, searchParams]);
-
-  const { urlCategorySegment } = resolveListingCategory();
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
 
@@ -300,9 +358,9 @@ export default function MasterBHKProjectList() {
           {getSectionHeadingFromPath()}
         </h2>
         <div className="row g-3">
-          {siteDataLoading ? (
-            <div className="d-flex justify-content-center align-items-center w-100">
-              <LoadingSpinner show={siteDataLoading} />
+          {showLoading ? (
+            <div className="d-flex justify-content-center align-items-center w-100 py-5">
+              <LoadingSpinner show={showLoading} />
             </div>
           ) : pageItems.length > 0 ? (
             pageItems.map((project, index) => (
@@ -311,15 +369,12 @@ export default function MasterBHKProjectList() {
               </div>
             ))
           ) : (
-            !siteDataLoading && (
-              <p>
-                No projects found for the selected {cityName.toUpperCase()}{" "}
-                type.
-              </p>
-            )
+            <p>
+              No projects found for the selected {cityName.toUpperCase()} type.
+            </p>
           )}
         </div>
-        {!siteDataLoading && filteredProjectsByBrType.length > 0 && (
+        {!showLoading && filteredProjectsByBrType.length > 0 && (
           <ProjectListingPaginationControls
             currentPage={currentPage}
             totalPages={totalPages}
@@ -328,7 +383,7 @@ export default function MasterBHKProjectList() {
           />
         )}
       </div>
-      {floorTypeList.length > 0 && (
+      {!showLoading && floorTypeList.length > 0 && (
         <div
           className="bg-light py-5 mt-5 text-center font-gotham-medium fs-4 text-uppercase text-dark d-flex justify-content-center align-items-center
         gap-3 flex-wrap"

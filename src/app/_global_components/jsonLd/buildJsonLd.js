@@ -1,9 +1,25 @@
+import { getBlogAuthorDisplayName } from "@/app/(home)/components/common/blogAuthor";
+
 const DEFAULT_SITE_URL =
   process.env.NEXT_PUBLIC_UI_URL ?? "https://mypropertyfact.in";
 
 function stripHtml(value) {
   if (typeof value !== "string") return "";
   return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Blog detail APIs may expose FAQs under different keys. */
+export function resolveBlogFaqRawList(blog) {
+  if (!blog || typeof blog !== "object") return [];
+  const raw =
+    blog.blogFaqList ??
+    blog.faqs ??
+    blog.faqList ??
+    blog.data?.blogFaqList ??
+    blog.data?.faqs ??
+    blog.blogFaqList?.list ??
+    [];
+  return Array.isArray(raw) ? raw : [];
 }
 
 export function normalizeFaqItems(rawFaqs) {
@@ -177,4 +193,106 @@ export function buildProductJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
 /** @deprecated Use `buildProductJsonLd` + separate `buildFaqJsonLd` script tags on project pages. */
 export function buildProjectPageJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
   return buildProductJsonLd(project, siteUrl);
+}
+
+/** Spring {@code LocalDateTime} strings (no offset) are stored in IST — append +05:30. */
+function formatBlogSchemaDate(value) {
+  if (value == null || value === "") return undefined;
+  const raw = String(value).trim();
+  if (!raw) return undefined;
+
+  if (/[+-]\d{2}:\d{2}$/.test(raw) || raw.endsWith("Z")) {
+    return raw;
+  }
+
+  const match = raw.match(
+    /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})/,
+  );
+  if (match) {
+    const [, year, month, day, hour, minute, second] = match;
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}+05:30`;
+  }
+
+  const parsed = new Date(raw);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+  return parsed.toISOString();
+}
+
+function resolveBlogImageUrl(blog) {
+  const file = blog?.blogImage;
+  if (!file || typeof file !== "string") return undefined;
+  const trimmed = file.trim();
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+
+  const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+  if (imageBase) {
+    const base = imageBase.endsWith("/") ? imageBase : `${imageBase}/`;
+    return `${base}blog/${trimmed}`;
+  }
+
+  const apiBase = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/?$/, "/");
+  if (apiBase) {
+    return `${apiBase}get/images/blog/${trimmed}`;
+  }
+
+  return undefined;
+}
+
+/** Article JSON-LD for individual blog posts (`/blog/{slug}`). */
+export function buildBlogArticleJsonLd(blog, siteUrl = DEFAULT_SITE_URL) {
+  if (!blog || typeof blog !== "object") return null;
+
+  const slug = blog.slugUrl || blog.slugURL;
+  const headline = blog.blogTitle || blog.metaTitle;
+  if (!slug || !headline) return null;
+
+  const base = siteUrl.replace(/\/$/, "");
+  const canonicalUrl = `${base}/blog/${slug}`;
+  const description =
+    blog.blogMetaDescription || stripHtml(blog.blogDescription) || undefined;
+  const image = resolveBlogImageUrl(blog);
+  const datePublished = formatBlogSchemaDate(blog.createdAt);
+  const dateModified =
+    formatBlogSchemaDate(blog.updatedAt) || datePublished || undefined;
+  const authorName = getBlogAuthorDisplayName(blog, "My Property Fact");
+  const keywords = String(blog.blogKeywords || "")
+    .trim()
+    .replace(/,\s*$/, "");
+  const articleSection =
+    String(blog.blogCategory || "").trim() || "Real Estate";
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: String(headline).trim(),
+    ...(description ? { description: String(description).trim() } : {}),
+    ...(image ? { image } : {}),
+    author: {
+      "@type": "Person",
+      name: authorName,
+      url: `${base}/`,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "My Property Fact",
+      url: `${base}/`,
+      logo: {
+        "@type": "ImageObject",
+        url: `${base}/logo.webp`,
+        width: 200,
+        height: 60,
+      },
+    },
+    ...(datePublished ? { datePublished } : {}),
+    ...(dateModified ? { dateModified } : {}),
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": canonicalUrl,
+    },
+    url: canonicalUrl,
+    ...(keywords ? { keywords } : {}),
+    articleSection,
+    inLanguage: "en-IN",
+  };
 }

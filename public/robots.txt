@@ -1,0 +1,27 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /components/
+Disallow: /properties
+Disallow: /portal/
+
+# ChatGPT-User
+User-agent: ChatGPT-User
+Allow: /
+
+# OAI-SearchBot
+User-agent: OAI-SearchBot
+Allow: /
+
+# Google-Extended
+User-agent: Google-Extended
+Allow: /
+
+# GPTBot
+User-agent: GPTBot
+Allow: /
+
+# Host
+Host: https://mypropertyfact.in
+
+# Sitemaps
+Sitemap: https://mypropertyfact.in/sitemap.xml

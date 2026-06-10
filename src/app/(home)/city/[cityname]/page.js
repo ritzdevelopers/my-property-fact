@@ -95,7 +95,7 @@ export default async function AllCityProjects({ params }) {
     notFound();
   }
 
-  return (
-    <CityPage cityData={cityData} />
-  );
+  const { projectList: _projectList, ...cityMeta } = cityData;
+
+  return <CityPage citySlug={slugToCheck} cityData={cityMeta} />;
 }

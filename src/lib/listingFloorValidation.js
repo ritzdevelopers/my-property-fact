@@ -33,6 +33,9 @@ export function floorSlugToListingLabel(floorSlug) {
   if (brVilla) return `${brVilla[1]} BR Villa`;
   const rkStudio = s.match(/^(\d+)-rk-studio$/);
   if (rkStudio) return `${rkStudio[1]} RK Studio`;
+  const sqFt = s.match(/^(\d+)-sq\.ft$/);
+  if (sqFt) return `${sqFt[1]} Sq.ft`;
+  if (s === "sco-plots") return "SCO Plots";
   return s
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -74,6 +77,72 @@ export function configTypeMatchesWanted(type, wanted) {
   return false;
 }
 
+/** Canonical URL slug → config types in project data that belong on that page. */
+const FLOOR_URL_CONFIG_TYPES = {
+  shops: ["shops", "shop"],
+  office: ["office", "offices"],
+  plot: ["plot", "plots"],
+  restaurant: ["restaurant", "restaurants"],
+  showroom: ["showroom", "showrooms"],
+  "sco-plots": ["sco plots", "sco plot"],
+};
+
+/**
+ * Non-canonical URL segments → canonical listing slug.
+ * shops-in-{city} | office-in-{city} | plot-in-{city} | restaurant-in-{city} | showroom-in-{city}
+ */
+const CANONICAL_FLOOR_URL_SLUG = {
+  shop: "shops",
+  offices: "office",
+  plots: "plot",
+  restaurants: "restaurant",
+  showrooms: "showroom",
+};
+
+export function canonicalFloorSlugForUrl(floorSegment) {
+  const normalized = normalizeFloorSlugSegment(floorSegment || "");
+  if (!normalized) return "";
+  return CANONICAL_FLOOR_URL_SLUG[normalized] || normalized;
+}
+
+export function buildCanonicalFloorInCitySlug(slug) {
+  if (!slug || typeof slug !== "string" || !slug.includes("-in-")) return null;
+  const segments = slug.split("-in-");
+  if (segments.length < 2) return null;
+  const floorNorm = canonicalFloorSlugForUrl(segments[0] || "");
+  const citySlug = resolveCitySlug(
+    segments
+      .slice(1)
+      .join("-in-")
+      .trim()
+      .toLowerCase()
+      .replace(/%20/g, "-")
+      .replace(/\s+/g, "-"),
+  );
+  if (!floorNorm || !citySlug) return null;
+  return `${floorNorm}-in-${citySlug}`;
+}
+
+export function configTypesForFloorSlug(floorSlug) {
+  const normalized = normalizeFloorSlugSegment(floorSlug || "");
+  if (!normalized) return [];
+
+  const aliases = FLOOR_URL_CONFIG_TYPES[normalized];
+  if (aliases) {
+    return aliases.map((value) => normalizeListingConfigType(value));
+  }
+
+  const sqFt = normalized.match(/^(\d+)-sq\.ft$/);
+  if (sqFt?.[1]) {
+    return [normalizeListingConfigType(`${sqFt[1]} sq ft`)];
+  }
+
+  const wanted = normalizeListingConfigType(
+    floorSlugToListingLabel(normalized),
+  );
+  return wanted ? [wanted] : [];
+}
+
 export function configTypeToFloorSlug(configType) {
   const normalized = normalizeListingConfigType(configType);
   if (!normalized) return "";
@@ -87,7 +156,13 @@ export function configTypeToFloorSlug(configType) {
   const rkStudio = normalized.match(/^(\d+) rk studio(?: apartment)?$/);
   if (rkStudio) return `${rkStudio[1]}-rk-studio`;
 
-  return normalized.replace(/\s+/g, "-");
+  const sqFt = normalized.match(/^(\d+)\s*sq\.?\s*ft$/);
+  if (sqFt) return `${sqFt[1]}-sq.ft`;
+
+  if (/^sco\s*plots?$/.test(normalized)) return "sco-plots";
+
+  const slug = normalized.replace(/\s+/g, "-");
+  return canonicalFloorSlugForUrl(slug);
 }
 
 /** All `{floor}` segments that exist in project configuration data. */
@@ -107,21 +182,22 @@ export function collectKnownFloorSlugs(projects) {
   return slugs;
 }
 
-/** Wrong URL keys — only the canonical slug should resolve (e.g. `shops` not `shop`). */
+/** Plural / alias URL keys — redirect to canonical slug in `CANONICAL_FLOOR_URL_SLUG`. */
 const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "shop",
   "plots",
   "offices",
   "restaurants",
   "showrooms",
+  "sco",
 ]);
 
-/** Exact match only — no singular/plural aliasing in URLs. */
 export function resolveKnownFloorSlug(rawFloorSlug, knownSlugs) {
   const normalized = normalizeFloorSlugSegment(rawFloorSlug);
   if (!normalized || !knownSlugs?.size) return null;
   if (BLOCKED_FLOOR_URL_SLUGS.has(normalized)) return null;
-  if (knownSlugs.has(normalized)) return normalized;
+  const canonical = canonicalFloorSlugForUrl(normalized);
+  if (knownSlugs.has(canonical)) return canonical;
   return null;
 }
 
@@ -138,6 +214,13 @@ export function extractTypesFromProjectConfiguration(value = "") {
       .replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "")
       .trim();
     if (!cleanedPart) continue;
+
+    // SCO-900 sq.ft style unit sizes are not "SCO Plots" property type.
+    if (/^sco$/i.test(cleanedPart)) continue;
+
+    if (/\bsco\s*plots?\b/i.test(cleanedPart)) {
+      types.add("sco plots");
+    }
 
     const bhkRegex = /(\d+)\s*(?:\/|&|and|-)?\s*(\d+)?\s*BHK/gi;
     let bhkMatch;
@@ -157,7 +240,27 @@ export function extractTypesFromProjectConfiguration(value = "") {
     }
 
     if (!foundBhk && !foundBrVilla) {
-      types.add(normalizeListingConfigType(cleanedPart));
+      const sqFtStandalone = cleanedPart.match(/^(\d+)\s*sq\.?\s*ft$/i);
+      if (sqFtStandalone?.[1]) {
+        types.add(`${sqFtStandalone[1]} sq ft`);
+        continue;
+      }
+      const norm = normalizeListingConfigType(cleanedPart);
+      if (
+        norm === "shop and sco plots" ||
+        norm === "shops and sco plots" ||
+        (/\bshops?\b/i.test(cleanedPart) && /\bsco\s*plots?\b/i.test(cleanedPart))
+      ) {
+        if (/\bshops?\b/i.test(cleanedPart)) types.add("shop");
+        if (/\boffices?\b/i.test(cleanedPart)) types.add("office");
+        continue;
+      }
+      if (norm === "offices and shop" || norm === "office and shop") {
+        types.add("office");
+        types.add("shop");
+        continue;
+      }
+      types.add(norm);
     }
   }
 
@@ -196,15 +299,26 @@ export function projectConfigurationIncludesFloorSlug(
     return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
   }
 
-  const wanted = normalizeListingConfigType(
-    floorSlugToListingLabel(normalizedFloor),
-  );
-  if (!wanted) return false;
+  const sqFtSlug = normalizedFloor.match(/^(\d+)-sq\.ft$/);
+  if (sqFtSlug?.[1]) {
+    const wanted = normalizeListingConfigType(`${sqFtSlug[1]} sq ft`);
+    const configTypes = extractTypesFromProjectConfiguration(
+      projectConfiguration,
+    );
+    return configTypes.some(
+      (type) => normalizeListingConfigType(type) === wanted,
+    );
+  }
+
+  const wantedTypes = configTypesForFloorSlug(normalizedFloor);
+  if (!wantedTypes.length) return false;
 
   const configTypes = extractTypesFromProjectConfiguration(
     projectConfiguration,
   );
-  return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
+  return configTypes.some((type) =>
+    wantedTypes.some((wanted) => configTypeMatchesWanted(type, wanted)),
+  );
 }
 
 export function projectMatchesFloorListing(project, citySlug, floorSlug) {
@@ -249,6 +363,41 @@ export function getCompoundListingProjectsInCity(
       projectMatchesCompoundCategory(project, parsed.categorySlug) &&
       projectConfigurationIncludesBhk(project.projectConfiguration, bhkNumber),
   );
+}
+
+export function projectHasOfficeOrShopConfiguration(projectConfiguration) {
+  return extractTypesFromProjectConfiguration(projectConfiguration).some((type) => {
+    const norm = normalizeListingConfigType(type);
+    return (
+      norm === "office" ||
+      norm === "offices" ||
+      norm === "shop" ||
+      norm === "shops"
+    );
+  });
+}
+
+/** Hub pages above the footer: category + city, not floor-plan shape. */
+export function projectMatchesListingHubCategory(project, hubKey) {
+  const propType = String(project?.propertyTypeName || "").toLowerCase();
+  const status = String(project?.projectStatusName || "").toLowerCase();
+  switch (hubKey) {
+    case "apartments":
+    case "flats":
+      return propType === "residential";
+    case "new-projects":
+    case "newProjects":
+      return status === "new launched";
+    case "commercial":
+      return propType === "commercial";
+    case "offices-and-shop":
+      return (
+        propType === "commercial" &&
+        projectHasOfficeOrShopConfiguration(project?.projectConfiguration)
+      );
+    default:
+      return false;
+  }
 }
 
 export function projectMatchesCompoundCategory(project, categorySlug) {

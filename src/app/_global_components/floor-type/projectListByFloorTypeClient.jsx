@@ -5,20 +5,35 @@ import {
   ProjectListingPaginationControls,
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { cityNameMatchesFilter } from "../cityAliasUtils";
 import { useSiteData } from "../contexts/SiteDataContext";
 import {
   configTypeMatchesWanted,
+  configTypesForFloorSlug,
   extractTypesFromProjectConfiguration,
+  normalizeFloorSlugSegment,
   normalizeListingConfigType,
+  projectMatchesCompoundCategory,
 } from "@/lib/listingFloorValidation";
 
 const matchesProjectConfigurationType = (projectConfiguration, floorType) => {
-  const wanted = normalizeListingConfigType(floorType);
-  if (!wanted) return true;
+  if (!floorType) return true;
   const configTypes = extractTypesFromProjectConfiguration(projectConfiguration);
   if (!configTypes.length) return false;
+
+  const floorSlug = normalizeFloorSlugSegment(
+    normalizeListingConfigType(floorType).replace(/\s+/g, "-"),
+  );
+  const wantedTypes = configTypesForFloorSlug(floorSlug);
+  if (wantedTypes.length) {
+    return configTypes.some((type) =>
+      wantedTypes.some((wanted) => configTypeMatchesWanted(type, wanted)),
+    );
+  }
+
+  const wanted = normalizeListingConfigType(floorType);
+  if (!wanted) return true;
 
   const bhkWanted = wanted.match(/(\d+)\s*bhk/i);
   if (bhkWanted?.[1]) {
@@ -39,22 +54,20 @@ const cityMatches = (item, cityKey) => cityNameMatchesFilter(cityKey, item);
 
 function applyListingCategoryFilter(items, categorySlug) {
   if (!categorySlug || !items?.length) return items;
-  switch (categorySlug) {
-    case "new-projects":
-      return items.filter((item) => item.projectStatusName === "New Launched");
-    case "apartments":
-    case "flats":
-      return items.filter(
-        (item) => item.propertyTypeName?.toLowerCase() === "residential",
-      );
-    case "commercial":
-    case "offices-and-shop":
-      return items.filter(
-        (item) => item.propertyTypeName?.toLowerCase() === "commercial",
-      );
-    default:
-      return items;
+  return items.filter((item) =>
+    projectMatchesCompoundCategory(item, categorySlug),
+  );
+}
+
+function resolveFloorTypeAndCity({ title, floorTypeProp, cityNameProp }) {
+  if (floorTypeProp != null && floorTypeProp !== "" && cityNameProp != null) {
+    return { floorType: floorTypeProp, cityName: cityNameProp };
   }
+  const parts = (title || "").split(/\s+In\s+/);
+  return {
+    floorType: parts[0]?.trim() || "",
+    cityName: (parts[1] || "").replace(/%20/g, " ").trim(),
+  };
 }
 
 export default function ProjectListByFloorTypeClient({
@@ -65,47 +78,29 @@ export default function ProjectListByFloorTypeClient({
   initialProjects = [],
 }) {
   const { projectList = [], loading: siteDataLoading } = useSiteData();
-  const [filteredProjectsByBrType, setFilteredProjectsByBrType] = useState(
-    initialProjects,
+  const { floorType, cityName } = useMemo(
+    () => resolveFloorTypeAndCity({ title, floorTypeProp, cityNameProp }),
+    [title, floorTypeProp, cityNameProp],
   );
-  const [floorType, setFloorType] = useState(floorTypeProp || "");
-  const [cityName, setCityName] = useState(cityNameProp || "");
 
-  const getListOfProjectFromBkType = (projects, floorType, city) => {
-    if (!projects.length) return [];
-    const cityNorm = normalizeListingConfigType(city);
-    let filtered = projects.filter((item) => cityMatches(item, cityNorm));
-    if (!floorType) return filtered;
-    filtered = filtered.filter((item) =>
-      matchesProjectConfigurationType(item.projectConfiguration, floorType),
-    );
-    return filtered;
-  };
-
-  useEffect(() => {
-    if (floorTypeProp != null && floorTypeProp !== "" && cityNameProp != null) {
-      setFloorType(floorTypeProp);
-      setCityName(cityNameProp);
-      return;
-    }
-    const parts = (title || "").split(/\s+In\s+/);
-    const parsedFloorType = parts[0]?.trim() || "";
-    const city = (parts[1] || "").replace(/%20/g, " ").trim();
-    setFloorType(parsedFloorType);
-    setCityName(city);
-  }, [title, floorTypeProp, cityNameProp]);
-
-  useEffect(() => {
+  const filteredProjectsByBrType = useMemo(() => {
     const source = projectList.length ? projectList : initialProjects;
-    let filteredData = getListOfProjectFromBkType(source, floorType, cityName);
-    filteredData = applyListingCategoryFilter(filteredData, categorySlug);
-    setFilteredProjectsByBrType(filteredData);
-  }, [projectList, floorType, cityName, categorySlug, initialProjects]);
+    if (!source.length || !cityName) return [];
+
+    const cityNorm = normalizeListingConfigType(cityName);
+    let filtered = source.filter((item) => cityMatches(item, cityNorm));
+    if (floorType) {
+      filtered = filtered.filter((item) =>
+        matchesProjectConfigurationType(item.projectConfiguration, floorType),
+      );
+    }
+    return applyListingCategoryFilter(filtered, categorySlug);
+  }, [projectList, initialProjects, floorType, cityName, categorySlug]);
 
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
 
-  const showLoading = siteDataLoading && filteredProjectsByBrType.length === 0;
+  const showLoading = siteDataLoading;
 
   return (
     <>
@@ -113,7 +108,7 @@ export default function ProjectListByFloorTypeClient({
         <h2 className="master-bhk-section-heading mb-3 mb-md-4">Projects</h2>
         <div className="row g-3">
           {showLoading ? (
-            <div className="d-flex justify-content-center align-items-center w-100">
+            <div className="d-flex justify-content-center align-items-center w-100 py-5">
               <LoadingSpinner show={showLoading} />
             </div>
           ) : pageItems.length > 0 ? (

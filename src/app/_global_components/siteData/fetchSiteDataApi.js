@@ -1,31 +1,29 @@
 import { getDisplayCityList } from "../cityAliasUtils";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
+
+const fetchInit =
+  typeof window === "undefined" ? { next: { revalidate: 60 } } : {};
 
 /**
- * Shared site data fetch (cities, builders, types, statuses, projects).
- * Safe to call from Server Components and from the client fallback in SiteDataContext.
+ * Cities, builders, types, and statuses only — safe to embed in root layout HTML.
+ * Project catalog is loaded client-side to keep document size under 2MB.
  */
-export async function fetchSiteDataFromApi() {
+export async function fetchSiteMetaFromApi() {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
-  const init =
-    typeof window === "undefined" ? { next: { revalidate: 60 } } : {};
 
-  const [citiesRes, buildersRes, typesRes, statusesRes, projectsRes] =
-    await Promise.all([
-      fetch(`${apiBase}city/all`, init),
-      fetch(`${apiBase}builder/get-all`, init),
-      fetch(`${apiBase}project-types/get-all`, init),
-      fetch(`${apiBase}project-status`, init),
-      fetch(`${apiBase}projects`, init),
-    ]);
+  const [citiesRes, buildersRes, typesRes, statusesRes] = await Promise.all([
+    fetch(`${apiBase}city/all`, fetchInit),
+    fetch(`${apiBase}builder/get-all`, fetchInit),
+    fetch(`${apiBase}project-types/get-all`, fetchInit),
+    fetch(`${apiBase}project-status`, fetchInit),
+  ]);
 
-  const [cities, buildersData, typesData, statusesData, projectsData] =
-    await Promise.all([
-      citiesRes.json(),
-      buildersRes.json(),
-      typesRes.json(),
-      statusesRes.json(),
-      projectsRes.json(),
-    ]);
+  const [cities, buildersData, typesData, statusesData] = await Promise.all([
+    citiesRes.json(),
+    buildersRes.json(),
+    typesRes.json(),
+    statusesRes.json(),
+  ]);
 
   const allCities = cities || [];
   return {
@@ -34,6 +32,24 @@ export async function fetchSiteDataFromApi() {
     builderList: buildersData?.builders || [],
     projectTypes: typesData || [],
     projectStatuses: statusesData || [],
-    projectList: projectsData || [],
+  };
+}
+
+/**
+ * Full site data including slim project catalog.
+ * Used client-side by SiteDataContext (not embedded in SSR HTML).
+ */
+export async function fetchSiteDataFromApi() {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || "";
+  const meta = await fetchSiteMetaFromApi();
+
+  const projectsRes = await fetch(`${apiBase}projects`, fetchInit);
+  const projectsData = await projectsRes.json();
+
+  return {
+    ...meta,
+    projectList: slimProjectListForListing(
+      Array.isArray(projectsData) ? projectsData : [],
+    ),
   };
 }

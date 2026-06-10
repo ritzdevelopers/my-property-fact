@@ -66,13 +66,30 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     : isMounted && Array.isArray(cityList)
       ? cityList
       : [];
+  const COMMERCIAL_HIDDEN_CITY_NAMES = [
+    "Agra",
+    "Bareilly",
+    "Chennai",
+    "Dehradun",
+    "Kochi",
+    "Thiruvananthapuram",
+    "Vrindavan",
+    "Sonipat",
+    "Panipat",
+    "Karnal",
+    "Meerut",
+  ];
+
   const apartmentsCities = sortCitiesDelhiNCRFirst(safeCityList);
   const newProjectsCities = sortCitiesDelhiNCRFirst(
     safeCityList.filter((item) => item?.cityName && !["Agra"].includes(item.cityName))
   );
   const flatsCities = sortCitiesDelhiNCRFirst(safeCityList);
   const commercialCities = sortCitiesDelhiNCRFirst(
-    safeCityList.filter((item) => item?.cityName && !["Agra", "Bareilly", "Chennai", "Dehradun", "Kochi", "Thiruvananthapuram", "Vrindavan"].includes(item.cityName))
+    safeCityList.filter(
+      (item) =>
+        item?.cityName && !COMMERCIAL_HIDDEN_CITY_NAMES.includes(item.cityName),
+    ),
   );
   const SCROLL_HINT_MIN_CITIES = 4;
   // City lists: scrollable region + pulse hint (no Load More button)

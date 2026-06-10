@@ -8,6 +8,20 @@ function stripHtml(value) {
   return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+/** Blog detail APIs may expose FAQs under different keys. */
+export function resolveBlogFaqRawList(blog) {
+  if (!blog || typeof blog !== "object") return [];
+  const raw =
+    blog.blogFaqList ??
+    blog.faqs ??
+    blog.faqList ??
+    blog.data?.blogFaqList ??
+    blog.data?.faqs ??
+    blog.blogFaqList?.list ??
+    [];
+  return Array.isArray(raw) ? raw : [];
+}
+
 export function normalizeFaqItems(rawFaqs) {
   if (!Array.isArray(rawFaqs)) return [];
   return rawFaqs

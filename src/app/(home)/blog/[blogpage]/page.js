@@ -4,12 +4,6 @@ import {
   fetchBlogBySlug,
   fetchLatestBlogs,
 } from "@/app/_global_components/masterFunction";
-import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
-import {
-  buildBlogArticleJsonLd,
-  buildFaqJsonLd,
-  normalizeFaqItems,
-} from "@/app/_global_components/jsonLd/buildJsonLd";
 
 export async function generateMetadata({ params }) {
     const { blogpage } = await params;
@@ -44,23 +38,11 @@ export default async function BlogPage({ params }) {
   }
 
   const sidebarRecentPosts = await fetchLatestBlogs(3);
-  const rawFaqList =
-    blogDetail?.blogFaqList ??
-    blogDetail?.faqs ??
-    blogDetail?.faqList ??
-    blogDetail?.data?.blogFaqList ??
-    blogDetail?.data?.faqs ??
-    blogDetail?.blogFaqList?.list ??
-    [];
 
   return (
-    <>
-      <JsonLdScript data={buildBlogArticleJsonLd(blogDetail)} />
-      <JsonLdScript data={buildFaqJsonLd(normalizeFaqItems(rawFaqList))} />
-      <BlogDetail
-        blogDetail={blogDetail}
-        sidebarRecentPosts={sidebarRecentPosts}
-      />
-    </>
+    <BlogDetail
+      blogDetail={blogDetail}
+      sidebarRecentPosts={sidebarRecentPosts}
+    />
   );
 }

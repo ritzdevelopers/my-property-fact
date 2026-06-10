@@ -8,6 +8,7 @@ import SiteDataShell from "./_global_components/SiteDataShell";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
+import { serializeJsonLd } from "./_global_components/jsonLd/JsonLdScript";
 
 config.autoAddCss = false;
 
@@ -97,25 +98,29 @@ const textFont = Inter({
 });
 
 export default function RootLayout({ children }) {
+  const organizationJsonLdHtml = serializeJsonLd(organizationJsonLd);
+  const websiteJsonLdHtml = serializeJsonLd(websiteJsonLd);
+
   return (
     <html lang="en-IN">
+      <head>
+        {organizationJsonLdHtml ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: organizationJsonLdHtml }}
+          />
+        ) : null}
+        {websiteJsonLdHtml ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: websiteJsonLdHtml }}
+          />
+        ) : null}
+      </head>
       <body
         className={`${headingFont.variable} ${textFont.variable}`}
         suppressHydrationWarning={true}
       >
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([organizationJsonLd]),
-          }}
-        />
-           <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify([websiteJsonLd]),
-          }}
-        />
-
         <noscript>
           <iframe
             src="https://www.googletagmanager.com/ns.html?id=GTM-WL4BBZM8"

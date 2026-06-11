@@ -691,225 +691,300 @@
   animation: fadeInUp 0.6s ease-out;
 }
 
-/* Video Popup Modal Styles */
+/* ═══════════════════════════════════════════════════════
+   Reel lightbox — video on left, speech-bubble cloud on right
+   ═══════════════════════════════════════════════════════ */
 .video-popup-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.95);
-  backdrop-filter: blur(10px);
+  inset: 0;
+  background: rgba(8, 8, 8, 0.96);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: fadeIn 0.3s ease-out;
+  animation: reelsOverlayIn 0.18s ease-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes reelsOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+@keyframes reelsShellIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
+@keyframes cloudIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* outer centering box */
 .video-popup-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* horizontal row: frame | cloud */
+.video-popup-shell {
   position: relative;
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
   display: flex;
-  flex-direction: column;
-  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.video-popup-close {
-  position: absolute;
-  top: -50px;
-  right: 0;
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  width: 44px;
-  height: 44px;
-  display: flex;
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10000;
-  color: #fff;
-  backdrop-filter: blur(10px);
+  gap: 0;
+  animation: reelsShellIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.video-popup-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.1) rotate(90deg);
-}
-
-.video-popup-close:active {
-  transform: scale(0.95) rotate(90deg);
-}
-
-.video-popup-content {
+/* ── Reel frame (left) ── */
+.video-popup-frame {
+  position: relative;
+  flex-shrink: 0;
+  height: min(82vh, 680px);
+  width: calc(min(82vh, 680px) * 9 / 16);
   background: #000;
-  border-radius: 20px;
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 2px 0 rgba(255,255,255,0.04) inset,
+    0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
+/* thin brand bar inside frame */
+.video-popup-top-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px 30px;
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.65) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+.video-popup-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.85);
+  object-fit: cover;
+  background: #fff;
+}
+
+.video-popup-handle {
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* video fills the frame */
 .video-popup-player-slot {
-  width: 100%;
-  min-height: 200px;
-  background: #000;
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #000;
 }
 
 .video-popup-player-slot .video-popup-player,
 .video-popup-player {
   width: 100%;
-  height: auto;
-  max-height: 70vh;
+  height: 100%;
   display: block;
   background: #000;
   outline: none;
   object-fit: contain;
-  -webkit-object-fit: contain;
 }
 
-.video-popup-player::-webkit-media-controls-panel {
-  background: rgba(0, 0, 0, 0.8);
+/* ── Speech-bubble cloud (right) ── */
+.video-popup-cloud-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  animation: cloudIn 0.32s 0.12s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.video-popup-text {
-  padding: 24px;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.95) 100%);
-  color: #fff;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.video-popup-cloud {
+  position: relative;
+  width: 248px;
+  background: #1c1c1e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 18px 18px 20px;
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.45),
+    0 1px 0 rgba(255,255,255,0.04) inset;
 }
 
-.video-popup-text p {
+/* left-pointing tail using a rotated square */
+.video-popup-cloud__tail {
+  position: absolute;
+  left: -7px;
+  top: 36px;
+  width: 13px;
+  height: 13px;
+  background: #1c1c1e;
+  border-left: 1px solid rgba(255,255,255,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  transform: rotate(45deg);
+  border-radius: 0 0 0 3px;
+}
+
+.video-popup-cloud__label {
+  margin: 0 0 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+}
+
+.video-popup-cloud__text {
   margin: 0;
-  font-size: 16px;
+  font-size: 13.5px;
   line-height: 1.6;
-  text-align: center;
-  font-weight: 500;
+  font-weight: 400;
+  color: rgba(255,255,255,0.88);
 }
 
-/* Responsive Popup Styles */
-@media (max-width: 991px) {
-  .video-popup-overlay {
-    padding: 15px;
-  }
-  
-  .video-popup-container {
-    max-width: 100%;
-    max-height: 85vh;
-  }
-  
-  .video-popup-close {
-    top: -45px;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .video-popup-player {
-    max-height: 60vh;
-  }
-  
-  .video-popup-text {
-    padding: 20px;
-  }
-  
-  .video-popup-text p {
-    font-size: 15px;
-  }
+/* ── Close button — top-right corner of entire shell ── */
+.video-popup-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 50%;
+  background: #1c1c1e;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+.video-popup-close:hover {
+  background: #2c2c2e;
+  border-color: rgba(255,255,255,0.28);
+}
+
+/* ══ Mobile: full-screen reel, cloud slides up as bottom sheet ══ */
 @media (max-width: 767px) {
   .video-popup-overlay {
-    padding: 10px;
+    padding: 0;
+    background: #000;
+    align-items: flex-end;
   }
-  
-  .video-popup-container {
-    max-height: 80vh;
+
+  .video-popup-shell {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
   }
-  
+
+  /* reel takes most of screen */
+  .video-popup-frame {
+    width: 100%;
+    height: 72vh;
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+  }
+
+  /* cloud becomes bottom sheet strip */
+  .video-popup-cloud-wrap {
+    padding: 0;
+    animation: none;
+  }
+
+  .video-popup-cloud {
+    width: 100%;
+    border-radius: 0;
+    border: 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 14px 20px 18px;
+    box-shadow: none;
+  }
+
+  .video-popup-cloud__tail { display: none; }
+
+  .video-popup-cloud__text {
+    font-size: 13px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* close goes inside frame top-right */
   .video-popup-close {
-    top: -40px;
-    width: 36px;
-    height: 36px;
-    right: 10px;
-  }
-  
-  .video-popup-close svg {
-    width: 20px;
-    height: 20px;
-  }
-  
-  .video-popup-player {
-    max-height: 55vh;
-  }
-  
-  .video-popup-text {
-    padding: 16px;
-  }
-  
-  .video-popup-text p {
-    font-size: 14px;
-    line-height: 1.5;
+    position: absolute;
+    top: max(12px, env(safe-area-inset-top, 12px));
+    right: 14px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.55);
   }
 }
 
-@media (max-width: 575px) {
-  .video-popup-overlay {
-    padding: 5px;
+/* ══ Tablet: narrower frame, smaller cloud ══ */
+@media (min-width: 768px) and (max-width: 1100px) {
+  .video-popup-frame {
+    height: min(78vh, 580px);
+    width: calc(min(78vh, 580px) * 9 / 16);
   }
-  
-  .video-popup-container {
-    max-height: 75vh;
+
+  .video-popup-cloud {
+    width: 210px;
   }
-  
+
+  .video-popup-cloud__text {
+    font-size: 12.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-popup-overlay,
+  .video-popup-shell,
+  .video-popup-cloud-wrap {
+    animation: none;
+  }
   .video-popup-close {
-    top: -35px;
-    width: 32px;
-    height: 32px;
+    transition: none;
   }
-  
-  .video-popup-close svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .video-popup-player {
-    max-height: 50vh;
-  }
-  
-  .video-popup-text {
-    padding: 12px;
-  }
-  
-  .video-popup-text p {
-    font-size: 13px;
-  }
+}
+
+/* Hide floating promos & chat while reels lightbox is open */
+body.mpf-social-reels-open .popular-project-promo,
+body.mpf-social-reels-open [class*="launcher"],
+body.mpf-social-reels-open [class*="Chatbot_container"],
+body.mpf-social-reels-open [class*="Chatbot_backdrop"],
+body.mpf-social-reels-open .lead-form-popup-trigger,
+body.mpf-social-reels-open .lead-form-popup-trigger--home-beside-chat {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

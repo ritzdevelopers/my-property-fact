@@ -5,6 +5,7 @@ import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import "./SocialFeedsOfMPF.css";
 
 export default function SocialFeedsOfMPF() {
@@ -29,16 +30,19 @@ export default function SocialFeedsOfMPF() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Prevent body scroll when popup is open
+  // Prevent body scroll and hide floating UI while reels lightbox is open
   useEffect(() => {
     if (isPopupOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
+      document.body.classList.add(MPF_SOCIAL_REELS_OPEN_CLASS);
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
+      document.body.classList.remove(MPF_SOCIAL_REELS_OPEN_CLASS);
     }
 
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
+      document.body.classList.remove(MPF_SOCIAL_REELS_OPEN_CLASS);
     };
   }, [isPopupOpen]);
 
@@ -386,33 +390,63 @@ export default function SocialFeedsOfMPF() {
         </div>
       </div>
 
-      {/* Video Popup Modal */}
+      {/* Video Popup Modal — Reel + info cloud side-by-side */}
       {isPopupOpen && selectedVideo && (
         <div
           className="video-popup-overlay"
           onClick={handleBackdropClick}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Social reel viewer"
         >
           <div className="video-popup-container">
-            <button
-              className="video-popup-close"
-              onClick={closePopup}
-              aria-label="Close video popup"
+            <div
+              className="video-popup-shell"
+              onClick={(e) => e.stopPropagation()}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            <div className="video-popup-content">
-              <div
-                ref={popupVideoSlotRef}
-                className="video-popup-player-slot"
-                aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
-              />
+              {/* ── Left: reel frame ── */}
+              <div className="video-popup-frame">
+                {/* top bar inside frame */}
+                <div className="video-popup-top-bar">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/logo.webp"
+                    alt=""
+                    width={28}
+                    height={28}
+                    className="video-popup-avatar"
+                  />
+                  <span className="video-popup-handle">my.property.fact</span>
+                </div>
+                <div
+                  ref={popupVideoSlotRef}
+                  className="video-popup-player-slot"
+                  aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
+                />
+              </div>
+
+              {/* ── Right: speech-bubble cloud ── */}
               {selectedVideo.text && (
-                <div className="video-popup-text">
-                  <p>{selectedVideo.text}</p>
+                <div className="video-popup-cloud-wrap">
+                  <div className="video-popup-cloud">
+                    <div className="video-popup-cloud__tail" aria-hidden="true" />
+                    <p className="video-popup-cloud__label">About this reel</p>
+                    <p className="video-popup-cloud__text">{selectedVideo.text}</p>
+                  </div>
                 </div>
               )}
+
+              {/* ── Close button — outside frame, top-right of shell ── */}
+              <button
+                type="button"
+                className="video-popup-close"
+                onClick={closePopup}
+                aria-label="Close reel"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

@@ -1,6 +1,9 @@
 /** Fired on `window` when the home entry overlay is removed after reload. */
 export const MPF_GATEWAY_HIDDEN_EVENT = "mpf-gateway-hidden";
 
+/** Body class while social reels / IG video lightbox is open — hides floating promos & chat UI. */
+export const MPF_SOCIAL_REELS_OPEN_CLASS = "mpf-social-reels-open";
+
 /** `localStorage` key: set after the home gateway finishes once (per browser). Clear site data to see it again. */
 export const MPF_GATEWAY_STORAGE_KEY = "mpf_website_gateway_seen_v1";
 

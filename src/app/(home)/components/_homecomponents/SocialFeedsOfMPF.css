@@ -200,6 +200,13 @@
   transform: translateZ(0);
 }
 
+.post-video-placeholder {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 0;
+}
+
 .post-video {
   position: absolute;
   top: 0;
@@ -211,6 +218,7 @@
   display: block;
   transition: transform 0.4s ease;
   background: #000;
+  z-index: 1;
 }
 
 .instagram-post-card:hover .post-video {
@@ -768,6 +776,16 @@
   flex-direction: column;
 }
 
+.video-popup-player-slot {
+  width: 100%;
+  min-height: 200px;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-popup-player-slot .video-popup-player,
 .video-popup-player {
   width: 100%;
   height: auto;
@@ -775,6 +793,8 @@
   display: block;
   background: #000;
   outline: none;
+  object-fit: contain;
+  -webkit-object-fit: contain;
 }
 
 .video-popup-player::-webkit-media-controls-panel {

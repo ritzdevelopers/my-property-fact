@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, Zoom } from "swiper/modules";
 import "swiper/css";
@@ -527,12 +526,10 @@ export default function AdminPropertyDetailPage() {
                         height: "500px",
                       }}
                     >
-                      <Image
+                      <img
                         src={url}
                         alt={`Property image ${index + 1}`}
-                        fill
                         style={{ objectFit: "contain" }}
-                        unoptimized
                       />
                     </div>
                   </SwiperSlide>
@@ -818,13 +815,12 @@ export default function AdminPropertyDetailPage() {
                       <div key={amenity.id || index} className="amenity-item">
                         {imageUrl ? (
                           <div className="amenity-image-wrapper">
-                            <Image
+                            <img
                               src={imageUrl}
                               alt={amenity.altTag || amenity.title || "Amenity"}
                               width={60}
                               height={60}
                               className="amenity-image"
-                              unoptimized
                             />
                           </div>
                         ) : (
@@ -860,13 +856,12 @@ export default function AdminPropertyDetailPage() {
                       <div key={feature.id || index} className="amenity-item">
                         {imageUrl ? (
                           <div className="amenity-image-wrapper">
-                            <Image
+                            <img
                               src={imageUrl}
                               alt={feature.altTag || feature.title || "Feature"}
                               width={60}
                               height={60}
                               className="amenity-image"
-                              unoptimized
                             />
                           </div>
                         ) : (
@@ -917,7 +912,7 @@ export default function AdminPropertyDetailPage() {
                       <div key={benefit.id || index} className="amenity-item">
                         {imageUrl ? (
                           <div className="amenity-image-wrapper">
-                            <Image
+                            <img
                               src={imageUrl}
                               alt={
                                 benefit.altTag ||
@@ -927,7 +922,6 @@ export default function AdminPropertyDetailPage() {
                               width={60}
                               height={60}
                               className="amenity-image"
-                              unoptimized
                             />
                           </div>
                         ) : (
@@ -1144,14 +1138,13 @@ export default function AdminPropertyDetailPage() {
               <Card.Body>
                 <div className="d-flex align-items-center mb-3">
                   {property.userAvatar && (
-                    <Image
+                    <img
                       src={property.userAvatar}
                       alt={property.userName || "User"}
                       width={60}
                       height={60}
                       className="rounded-circle me-3"
                       style={{ objectFit: "cover" }}
-                      unoptimized
                     />
                   )}
                   <div>

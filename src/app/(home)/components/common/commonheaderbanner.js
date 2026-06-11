@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import './common.css';
 
@@ -42,16 +41,13 @@ export default function CommonHeaderBanner({ image, headerText, firstPage, pageN
   return (
     <div className="container-fluid p-0 position-relative">
       <div className="top-banner-each-pages">
-        <Image
+        <img loading="eager"
           src={`/static/realestate-bg.jpg`}
           // src={`/static/${image}`}
-          fill
           alt={bannerImageAlt}
           title={bannerImageAlt}
           className="banner-background-image"
-          sizes="100vw"
-          priority
-        />
+         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         {/* Dark Overlay */}
         <div className="banner-overlay"></div>
         

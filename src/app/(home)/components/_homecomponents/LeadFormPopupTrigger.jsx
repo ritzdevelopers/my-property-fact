@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import CommonPopUpform from "../common/popupform";
 import "./LeadFormPopupTrigger.css";
@@ -83,14 +82,13 @@ export default function LeadFormPopupTrigger({
           onClick={handleClick}
           aria-label="Enquire Now - Open lead form"
         >
-          <Image
+          <img
             src={ENQUIRE_TRIGGER_ICON}
             alt="Enquire now"
             title="Enquire now"
             width={30}
             height={30}
             className="lead-form-popup-trigger__icon-img"
-            sizes="30px"
           />
         </button>
       )}

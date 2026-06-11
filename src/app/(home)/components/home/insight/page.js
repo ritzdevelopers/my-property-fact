@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CommonHeaderBanner from "../../common/commonheaderbanner";
 import "./insight.css";
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import CommonPopUpform from "../../common/popupform";
 export default function InsightNew() {
@@ -88,14 +87,13 @@ export default function InsightNew() {
                     <h5 className="text-golden">{i.heading}</h5>
                     <p>{i.sub_heading}</p>
                     <div className="d-flex justify-content-center">
-                      <Image
+                      <img loading="eager"
                         className="img-fluid"
                         src={i.src}
                         alt={`${i.heading} — property tools illustration on My Property Fact`}
                         title={`${i.heading} — property tools illustration on My Property Fact`}
                         width={610}
                         height={340}
-                        priority
                       />
                     </div>
                   </div>

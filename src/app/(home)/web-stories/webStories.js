@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import CommonBreadCrum from "../components/common/breadcrum";
@@ -57,11 +56,9 @@ export default function WebStories({ webStoryList }) {
                                     title={`${item.categoryName} web story`}
                                 >
                                     <div style={imageWrapperStyle}>
-                                        <Image
+                                        <img
                                             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}web-story/${item.storyCategoryImage}`}
                                             alt={`${item.categoryName} web story`}
-                                            fill
-                                            sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 25vw"
                                             className="card-img-top"
                                             title={`${item.categoryName} web story`}
                                             style={{ objectFit: "cover" }}

@@ -54,7 +54,6 @@
 
 "use client";
 
-import Image from "next/image";
 import bgImage from "../assets/bg.webp"; // Adjust path as needed
 
 export default function AboutSection() {

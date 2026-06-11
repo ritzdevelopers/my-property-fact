@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import Image from "next/image";
 import {
   MPF_GATEWAY_HIDDEN_EVENT,
   MPF_GATEWAY_STORAGE_KEY,
@@ -151,12 +150,11 @@ export default function WebsiteGateway() {
           />
         </svg>
         <div className="mpf-gateway-loader__center">
-          <Image
+          <img loading="eager"
             src="/static/icon/mpf 1.png"
             alt=""
             width={88}
             height={88}
-            priority
             className="mpf-gateway-loader__logo"
           />
           <span className="mpf-gateway-loader__percent">{progress}%</span>

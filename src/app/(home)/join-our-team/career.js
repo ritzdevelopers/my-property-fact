@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import CommonBreadCrum from "../components/common/breadcrum";
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
@@ -185,7 +184,7 @@ export default function Career({ jobsArr }) {
                   className={`bg-white text-center job-post-container rounded-3 p-5 ${styles.jobPostContainer} p-4 mb-4`}
                 >
                   <div className="d-flex justify-content-center align-items-center mb-3">
-                    <Image
+                    <img
                       src={roleIconSrc}
                       alt={roleIconAlt}
                       title={roleIconAlt}
@@ -240,7 +239,7 @@ export default function Career({ jobsArr }) {
               </div>
             </div>
             <div className="col-12 col-md-12 col-lg-6 col-xl-6 my-3 order-1">
-              <Image
+              <img
                 src="/career.jpg"
                 alt="Career Opportunities — culture and outlook section on My Property Fact careers page"
                 title="Career Opportunities — culture and outlook section on My Property Fact careers page"
@@ -253,7 +252,7 @@ export default function Career({ jobsArr }) {
         </div>
       </section>
       <section className="d-none d-md-block container position-relative py-5">
-        <Image
+        <img
           src="/career_bottom_image.jpg"
           alt="Career Opportunities — join our team banner on My Property Fact careers page"
           title="Career Opportunities — join our team banner on My Property Fact careers page"

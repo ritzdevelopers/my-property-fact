@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import "./dreamcity.css";
 export default function DreamProject() {
@@ -69,7 +68,7 @@ export default function DreamProject() {
                       prefetch={false}
                       title={city.alt}
                     >
-                      <Image
+                      <img
                         src={city.image}
                         alt={city.alt}
                         title={city.alt}
@@ -85,7 +84,7 @@ export default function DreamProject() {
                       prefetch={false}
                       title={`${city.name} real estate on My Property Fact`}
                     >
-                      <Image
+                      <img
                         src={city.image} // Add backImage to your city object
                         alt={`${city.name} — flip card back, find properties on My Property Fact`}
                         title={`${city.name} — flip card back, find properties on My Property Fact`}

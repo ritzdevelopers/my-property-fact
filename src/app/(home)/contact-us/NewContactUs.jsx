@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import "./contact.css";
-import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-toastify";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
@@ -239,7 +238,7 @@ export default function NewContactUs() {
               <div className="contact-info-container border">
                 <div className="contact-info-container-child">
                   <div>
-                    <Image
+                    <img
                       src="/static/contact-us/location_pin.png"
                       alt="Location icon — My Property Fact contact page"
                       title="Location icon — My Property Fact contact page"
@@ -258,7 +257,7 @@ export default function NewContactUs() {
               <div className="contact-info-container border">
                 <div className="contact-info-container-child">
                   <div>
-                    <Image
+                    <img
                       src="/static/contact-us/phone.png"
                       alt="Phone icon — My Property Fact contact page"
                       title="Phone icon — My Property Fact contact page"
@@ -275,7 +274,7 @@ export default function NewContactUs() {
               <div className="contact-info-container border">
                 <div className="contact-info-container-child">
                   <div>
-                    <Image
+                    <img
                       src="/static/contact-us/email.png"
                       alt="Email icon — My Property Fact contact page"
                       title="Email icon — My Property Fact contact page"
@@ -310,13 +309,12 @@ export default function NewContactUs() {
                 <div className="contact-expert-address-card-wrap">
                   <div className="contact-expert-address-card">
                     <div className="contact-expert-address-icon">
-                      <Image
+                      <img
                         src="/icon/location.svg"
                         alt="Location pin — office address on My Property Fact contact page"
                         title="Location pin — office address"
                         width={16}
                         height={20}
-                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-address-body">
@@ -340,13 +338,12 @@ export default function NewContactUs() {
                     title="Call My Property Fact — +91 8920024793"
                   >
                     <div className="contact-expert-phone-icon">
-                      <Image
+                      <img
                         src="/static/icon/phone_call.svg"
                         alt="Phone call icon — My Property Fact contact page"
                         title="Phone call icon — tap to call"
                         width={18}
                         height={18}
-                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-phone-body">
@@ -369,13 +366,12 @@ export default function NewContactUs() {
                     title="Email My Property Fact — social@mypropertyfact.com"
                   >
                     <div className="contact-expert-email-icon">
-                      <Image
+                      <img
                         src="/static/icon/email.svg"
                         alt="Email icon — My Property Fact contact page"
                         title="Email icon — tap to compose email"
                         width={20}
                         height={16}
-                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-email-body">
@@ -389,15 +385,12 @@ export default function NewContactUs() {
 
                 <div className="contact-expert-image-card">
                   <div className="contact-expert-image-slide">
-                    <Image
+                    <img
                       src={CONTACT_SPOTLIGHT.imageSrc}
                       alt={CONTACT_SPOTLIGHT.imageAlt}
                       title={CONTACT_SPOTLIGHT.imageAlt}
-                      fill
                       className="contact-expert-image-cover"
-                      sizes="(max-width: 991px) 100vw, 420px"
-                      unoptimized
-                    />
+                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     <div
                       className="contact-expert-image-gradient"
                       aria-hidden
@@ -552,14 +545,13 @@ export default function NewContactUs() {
                     title="Submit your inquiry — sends this form to My Property Fact"
                   >
                     <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
-                    <Image
+                    <img
                       src="/static/icon/enquiry.svg"
                       alt="Enquiry icon — submits this form"
                       title="Enquiry icon — submits this form"
                       width={19}
                       height={16}
                       className="contact-expert-submit-icon"
-                      unoptimized
                       aria-hidden
                     />
                   </button>
@@ -684,7 +676,7 @@ export default function NewContactUs() {
       {/* Looking for a dream home section  */}
       <div className="container-fluid looking-for-dream-home-section">
         <div className="looking-for-dream-home-section-image1">
-          <Image
+          <img
             src="/static/contact-us/looking_for_Dream_home_bg.png"
             alt="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
             title="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
@@ -706,7 +698,7 @@ export default function NewContactUs() {
           </div>
         </div>
         <div className="looking-for-dream-home-section-image2">
-          <Image
+          <img
             src="/static/contact-us/looking_for_dream_home.png"
             alt="Dream home — illustration for Looking for a dream home on My Property Fact contact page"
             title="Dream home — illustration for Looking for a dream home on My Property Fact contact page"

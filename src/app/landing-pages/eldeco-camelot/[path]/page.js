@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter, notFound } from "next/navigation";
-import Image from "next/image";
 import ContactForm from "./_components/ContactForm";
 import ContactModal from "./_components/ContactModal";
 import Footer from "./_components/Footer";
@@ -323,7 +322,7 @@ export default function EldecoCamelotPage() {
           <div className="row align-items-center flex-row-reverse">
             <div className="col-lg-6">
               <div className="about-image-wrapper">
-                <Image
+                <img
                   src="/landing-pages/eldeco-camelot/img/s2nimg.jpg"
                   alt="Overview Image"
                   width={800}
@@ -439,7 +438,7 @@ export default function EldecoCamelotPage() {
             <div className="col-lg-6 order-lg-2">
               <div className="features-image-wrapper">
                 <div className="image-overlay-effect"></div>
-                <Image
+                <img
                   src="/landing-pages/eldeco-camelot/img/s3nimg.jpg"
                   alt="Project Features"
                   className="features-image"
@@ -536,7 +535,7 @@ export default function EldecoCamelotPage() {
             <div className="owl-carousel gallery-slider">
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-1.webp"
                     alt="Gallery Image 1"
                     className="gallery-img"
@@ -552,7 +551,7 @@ export default function EldecoCamelotPage() {
               </div>
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-2.webp"
                     alt="Gallery Image 2"
                     className="gallery-img"
@@ -568,7 +567,7 @@ export default function EldecoCamelotPage() {
               </div>
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-3.webp"
                     alt="Gallery Image 3"
                     className="gallery-img"
@@ -584,7 +583,7 @@ export default function EldecoCamelotPage() {
               </div>
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-4.webp"
                     alt="Gallery Image 4"
                     className="gallery-img"
@@ -600,7 +599,7 @@ export default function EldecoCamelotPage() {
               </div>
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-5.webp"
                     alt="Gallery Image 5"
                     className="gallery-img"
@@ -616,7 +615,7 @@ export default function EldecoCamelotPage() {
               </div>
               <div className="gallery-image-item">
                 <div className="gallery-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-6.webp"
                     alt="Gallery Image 6"
                     className="gallery-img"
@@ -648,7 +647,7 @@ export default function EldecoCamelotPage() {
             <div className="col-lg-6 order-lg-1">
               <div className="location-map-container">
                 <div className="map-image-wrapper">
-                  <Image
+                  <img
                     src="/landing-pages/eldeco-camelot/img/MAP.webp"
                     alt="Location Map"
                     className="location-map-img"

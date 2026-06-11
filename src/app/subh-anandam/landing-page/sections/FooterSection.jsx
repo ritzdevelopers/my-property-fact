@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import logo from "../assets/logo.png";
 import facebook from "../assets/Facebook.png";
 import twitter from "../assets/Twitter.png";
@@ -17,7 +16,7 @@ const FooterSection = () => {
     >
       {/* Logo on Top Center */}
       <div className="text-center mb-4">
-        <Image src={logo} alt="Logo" width={120} height={80} />
+        <img src={logo} alt="Logo" width={120} height={80} />
       </div>
 
       {/* Keywords */}

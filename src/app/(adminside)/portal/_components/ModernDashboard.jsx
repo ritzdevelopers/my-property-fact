@@ -27,7 +27,6 @@ import {
   cilCarAlt,
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useUser } from "../_contexts/UserContext";
 import { setDemoUserData } from "../_utils/setUserData";
@@ -382,12 +381,10 @@ export default function ModernDashboard() {
   const PropertyCard = ({ property }) => (
     <Card className="property-card h-100">
       <div className="property-image-container">
-        <Image
+        <img
           src={property.image}
           alt={property.title}
-          fill
           className="property-image"
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           style={{ objectFit: "cover" }}
         />
         <Badge

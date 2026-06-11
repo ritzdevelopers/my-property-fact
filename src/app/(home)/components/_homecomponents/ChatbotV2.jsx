@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import styles from "./Chatbot.module.css";
 import {
   createInitialChatSession,
@@ -332,13 +331,12 @@ export default function ChatbotV2() {
         <div className={styles.header}>
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
-              <Image
+              <img
                 src={CHATBOT_HEADER_LOGO}
                 alt="My Property Fact logo — chat widget header"
                 title="My Property Fact logo — chat widget header"
                 width={80}
                 height={74}
-                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

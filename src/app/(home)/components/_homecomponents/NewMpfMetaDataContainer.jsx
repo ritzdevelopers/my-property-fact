@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
 import "./newmpfmetadata.css";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function NewMpfMetaDataContainer({ propertyTypes, projects, builders, cities }) {
@@ -157,7 +156,7 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
       <div className="property-search-card">
         <div className="illustration-left">
           <div className="left-iilution-container">
-            <Image
+            <img
               src="/static/footer/leftillution.png"
               alt="Illustration for Find The Best Property — homes and city search on My Property Fact"
               title="Illustration for Find The Best Property — homes and city search on My Property Fact"
@@ -193,7 +192,7 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
         {/* Right: House with Figures Illustration */}
         <div className="illustration-right">
           <div className="right-illustration-container">
-            <Image
+            <img
               src="/static/footer/rightillution.png"
               alt="Illustration for Find The Best Property — family and suburban homes on My Property Fact"
               title="Illustration for Find The Best Property — family and suburban homes on My Property Fact"
@@ -209,7 +208,7 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
         {statistics.map((stat, index) => (
           <div key={index} className="statistics-card">
             <div className="statistics-icon">
-              <Image
+              <img
                 src={stat.image}
                 alt={stat.alt}
                 title={stat.alt}

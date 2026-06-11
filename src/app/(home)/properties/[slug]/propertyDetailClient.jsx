@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Zoom } from "swiper/modules";
@@ -746,13 +745,11 @@ export default function PropertyDetailClient({
                             }}
                             title="Click to view full size with zoom"
                           >
-                            <Image
+                            <img
                               src={imageUrl}
                               alt={`${property.title || "Property"} - Image ${index + 1}`}
-                              fill
                               className="property-main-image"
                               style={{ objectFit: "cover" }}
-                              unoptimized
                             />
                           </div>
                         </SwiperSlide>
@@ -1106,7 +1103,7 @@ export default function PropertyDetailClient({
                             >
                               {imageUrl ? (
                                 <div className="amenity-image-wrapper">
-                                  <Image
+                                  <img
                                     src={imageUrl}
                                     alt={
                                       amenity.altTag ||
@@ -1116,7 +1113,6 @@ export default function PropertyDetailClient({
                                     width={30}
                                     height={30}
                                     className="amenity-image"
-                                    unoptimized
                                   />
                                 </div>
                               ) : (
@@ -1185,7 +1181,7 @@ export default function PropertyDetailClient({
                             >
                               {imageUrl ? (
                                 <div className="amenity-image-wrapper">
-                                  <Image
+                                  <img
                                     src={imageUrl}
                                     alt={
                                       feature.altTag ||
@@ -1195,7 +1191,6 @@ export default function PropertyDetailClient({
                                     width={60}
                                     height={60}
                                     className="amenity-image"
-                                    unoptimized
                                   />
                                 </div>
                               ) : (
@@ -1276,13 +1271,12 @@ export default function PropertyDetailClient({
                         <div key={benefit.id || index} className="amenity-item">
                           {imageUrl ? (
                             <div className="amenity-image-wrapper">
-                              <Image
+                              <img
                                 src={imageUrl}
                                 alt={altTag}
                                 width={60}
                                 height={60}
                                 className="amenity-image"
-                                unoptimized
                               />
                             </div>
                           ) : (
@@ -1422,13 +1416,12 @@ export default function PropertyDetailClient({
                     return (
                       <div key={related.id} className="sponsored-property-card">
                         {relatedImageUrl && (
-                          <Image
+                          <img
                             src={relatedImageUrl}
                             alt={related.title || "Property"}
                             width={200}
                             height={150}
                             style={{ objectFit: "cover", borderRadius: "8px" }}
-                            unoptimized
                           />
                         )}
                         <div className="sponsored-property-info">
@@ -1573,12 +1566,10 @@ export default function PropertyDetailClient({
                           >
                             <div className="owner-property-image">
                               {relatedImageUrl ? (
-                                <Image
+                                <img
                                   src={relatedImageUrl}
                                   alt={related.title || "Property"}
-                                  fill
                                   style={{ objectFit: "cover" }}
-                                  unoptimized
                                 />
                               ) : (
                                 <div className="placeholder-image-small">

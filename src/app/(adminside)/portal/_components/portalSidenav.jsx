@@ -15,8 +15,6 @@ import {
   CDropdownItem,
 } from "@coreui/react";
 import "@coreui/coreui/dist/css/coreui.min.css";
-import Image from "next/image";
-
 export default function PortalSideNav() {
   //Function to handle user logout
   const handleLogout = () => {
@@ -29,7 +27,7 @@ export default function PortalSideNav() {
         <CSidebar className="border-end">
           <CSidebarHeader className="border-bottom">
             <CSidebarBrand>
-              <Image
+              <img
                 src="/logo.webp"
                 alt="portal-logo"
                 height={100}
@@ -82,7 +80,7 @@ export default function PortalSideNav() {
                 className="py-0"
                 caret={false}
               >
-                <Image
+                <img
                   src="/logo.webp"
                   alt="user-icon"
                   height={50}

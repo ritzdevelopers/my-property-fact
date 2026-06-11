@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import ModernPropertyListing from "../../../_components/ModernPropertyListing";
 import { Card, Button, Badge, Spinner, Alert, Row, Col } from "react-bootstrap";
-import NextImage from "next/image";
 import Cookies from "js-cookie";
 import axios from "axios";
 
@@ -290,12 +289,10 @@ export default function ListingDetailPage() {
                             borderRadius: "8px",
                           }}
                         >
-                          <NextImage
+                          <img
                             src={fullImageUrl}
                             alt={`Property image ${index + 1}`}
-                            fill
                             style={{ objectFit: "cover" }}
-                            unoptimized
                             onError={(e) => {
                               console.error("Image load error:", fullImageUrl);
                               e.target.style.display = "none";

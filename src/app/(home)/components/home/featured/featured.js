@@ -3,7 +3,6 @@ import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./featured.css";
-import Image from "next/image";
 import Link from "next/link";
 import PropertyContainer from "../../common/page";
 import { useMemo, useState, useEffect } from "react";
@@ -18,7 +17,7 @@ function NextArrow(props) {
       onClick={onClick}
       aria-label="Next slide"
     >
-      <Image
+      <img
         src="/icon/arrow-right-s-line.svg"
         alt="Next slide"
         title="Next slide"
@@ -40,7 +39,7 @@ function PrevArrow(props) {
       onClick={onClick}
       aria-label="Previous slide"
     >
-      <Image
+      <img
         src="/icon/arrow-left-s-line.svg"
         alt="Previous slide"
         title="Previous slide"
@@ -213,11 +212,12 @@ export default function Featured({
           ) : filteredProjects?.length > 0 ? (
             <div className={`featured-page-slider ${type === "Featured" && !autoPlay ? "featured-projects-mobile-arrows" : ""}`}>
               <Slider {...settings}>
-                {filteredProjects.map((item) => (
+                {filteredProjects.map((item, index) => (
                   <div key={item.id} className="px-2 pb-3">
                     <PropertyContainer
                       data={item}
                       badgeVariant={badgeVariant}
+                      imagePriority={index < 2}
                     />
                   </div>
                 ))}

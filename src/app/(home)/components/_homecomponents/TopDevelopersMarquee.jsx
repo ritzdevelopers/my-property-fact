@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import "../home/home.css";
 
@@ -16,14 +15,13 @@ function LogoCell({ item, suppressA11y }) {
   const logoMeta = `${safeName} — developer logo`;
   const alt = suppressA11y ? logoMeta : logoMeta;
   const img = (
-    <Image
+    <img
       src={item.src}
       alt={alt}
       title={logoMeta}
       width={176}
       height={56}
       className="transform-home-developers-logo"
-      sizes="(max-width: 576px) 140px, 176px"
       draggable={false}
     />
   );

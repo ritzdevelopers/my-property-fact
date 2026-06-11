@@ -4,30 +4,29 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faLocationDot
 } from "@fortawesome/free-solid-svg-icons";
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import {
+  buildProjectImageUrl,
+  DEFAULT_PROJECT_CARD_IMAGE,
+} from "@/lib/projectImageUrl";
 import "./common.css";
 
 export default function PropertyContainer({ data, badgeVariant = "default", imagePriority = false }) {
   const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Ensure data is defined before accessing its properties
   if (!data) {
     return <div>Loading...</div>; // or any fallback content
   }
 
-  // Default image path - use generic floorplan or realestate background as fallback
-  const DEFAULT_IMAGE = "/static/no_image.png";
+  const hasProjectImage =
+    Boolean(data.projectThumbnailImage || data.projectBannerImage) && !imageError;
 
-  // Get image URL - use project banner image, fallback to thumbnail; default if missing or failed
-  const bannerImage = data.projectBannerImage || data.projectThumbnailImage;
-  const getImageSrc = () => {
-    if (imageError || !bannerImage) {
-      return DEFAULT_IMAGE;
-    }
-    return `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${data.slugURL}/${bannerImage}`;
-  };
+  const imageSrc = hasProjectImage
+    ? buildProjectImageUrl(data, { preferThumbnail: true })
+    : DEFAULT_PROJECT_CARD_IMAGE;
 
   const formatProjectAddress = (address) => {
     const parts = String(address || "")
@@ -137,16 +136,21 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
         title={data.projectName ? `View ${data.projectName}` : "View project details"}
       >
         <div className="w-100 project-image-container">
-          <Image
-            src={getImageSrc()}
+          <img
+            src={imageSrc}
             alt={projectCardImageAlt}
             title={projectCardImageAlt}
-            className="img-fluid w-100 rounded-top-4 object-fit-cover"
-            priority={imagePriority}
+            className={`img-fluid w-100 rounded-top-4 object-fit-cover${imageLoaded ? " is-loaded" : ""}`}
             width={400}
-            height={400}
-            onError={() => setImageError(true)}
-            unoptimized={imageError || !bannerImage}
+            height={230}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority={imagePriority ? "high" : "auto"}
+            decoding="async"
+            onLoad={() => setImageLoaded(true)}
+            onError={() => {
+              setImageError(true);
+              setImageLoaded(true);
+            }}
           />
         </div>
         {renderStatusBadge()}

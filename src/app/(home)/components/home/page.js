@@ -1,5 +1,4 @@
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import Link from "next/link";
 import NewsViews from "./new-views/page";
 import SocialFeedPage from "./social-feed/page";
@@ -198,15 +197,12 @@ export default async function HomePage() {
           1,
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
-            <Image
+            <img
               src="/static/transform_new.png"
               alt="Transform your home visual section"
               title="Transform your home visual section"
-              fill
               className="transform-home-image"
-              sizes="(max-width: 991px) 100vw, 1140px"
-              priority={false}
-            />
+             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
                 <h1 className="headgradient">Find Flats & Property Across India | Buy & Invest</h1>
                 <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
@@ -215,14 +211,13 @@ export default async function HomePage() {
               <div className="transform-home-headline-stack">
                 <RotatingHeroHeadline />
                 <div className="transform-home-mpf-logo-wrap">
-                  <Image
+                  <img
                     src="/static/mpf_text.png"
                     alt="My Property Fact"
                     title="My Property Fact"
                     width={224}
                     height={30}
                     className="transform-home-mpf-logo"
-                    sizes="(max-width: 991px) 85vw, 520px"
                   />
                 </div>
                 <div className="transform-home-why">

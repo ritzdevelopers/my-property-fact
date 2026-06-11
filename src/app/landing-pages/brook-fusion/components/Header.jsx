@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import parentLogo from "../assets/fusion-logo.webp";
 import mainLogo from "../assets/BrookLogo.png";
 
@@ -50,7 +49,7 @@ export default function Header() {
           <div className="d-flex align-items-center">
             {/* Desktop Logo */}
             <div className="d-none d-md-block">
-              <Image
+              <img
                 src={isScrolled ? mainLogo : parentLogo}
                 alt="Logo"
                 height={isScrolled ? 80 : 40}
@@ -59,7 +58,7 @@ export default function Header() {
             </div>
             {/* Mobile Logo */}
             <div className="d-md-none d-flex align-items-center">
-              <Image
+              <img
                 src={isScrolled ? mainLogo : parentLogo}
                 alt="Mobile Logo"
                 height={isScrolled ? 60 : 40}

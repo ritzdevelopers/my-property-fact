@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import logo from "../assets/logo.webp";
 
@@ -56,7 +55,7 @@ export default function Header() {
         <div className="container-fluid d-flex justify-content-between align-items-center">
           {/* Logo */}
           <div className="fw-bold">
-            <Image
+            <img
               src={logo}
               alt="logo"
               width={150}

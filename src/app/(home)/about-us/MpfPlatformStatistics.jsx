@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import Image from "next/image";
 import "../components/_homecomponents/newmpfmetadata.css";
 
 const UNITS_DISPLAY = "10,030";
@@ -149,7 +148,7 @@ export default function MpfPlatformStatistics({
       {statistics.map((stat, index) => (
         <div key={stat.label} className="statistics-card">
           <div className="statistics-icon">
-            <Image
+            <img
               src={stat.image}
               alt={stat.alt}
               title={stat.alt}

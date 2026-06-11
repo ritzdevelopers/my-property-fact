@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import "./aboutus.css";
 import Link from "next/link";
 import MpfPlatformStatistics from "./MpfPlatformStatistics";
@@ -51,7 +50,7 @@ export default function WhyMyPropertyFact({ platformStats }) {
             </div>
             <div className="d-flex justify-content-between why-mpf-section-bottom-container">
               <div className="why-mpf-section-bottom-image-container">
-                <Image
+                <img
                   src="/static/about-us/image_shaped.png"
                   alt={whyMpfShapedAlt}
                   title={whyMpfShapedAlt}
@@ -69,7 +68,7 @@ export default function WhyMyPropertyFact({ platformStats }) {
                   {/* </div> */}
                 </div>
                 <div className="image-bottom-container">
-                  <Image
+                  <img
                     src="/static/about-us/why_mpf.png"
                     alt={whyMpfFeatureAlt}
                     title={whyMpfFeatureAlt}

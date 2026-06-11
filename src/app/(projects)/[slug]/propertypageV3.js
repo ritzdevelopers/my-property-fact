@@ -6,7 +6,6 @@
  */
 
 import Link from "next/link";
-import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import axios from "axios";
@@ -35,7 +34,7 @@ import {
   findBestProjectBySearch,
   scoreProjectSearchMatch,
 } from "../../_global_components/projectSearchUtils";
-import "./propertyV3.css";
+import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
 
@@ -364,15 +363,12 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
         onClick={() => onOpenAtIndex(0)}
         aria-label={`Open photo gallery. ${total} photos`}
       >
-        <Image
+        <img loading="eager"
           src={primary}
           alt="Project primary photo"
           title="Project primary photo"
-          fill
-          sizes="(max-width: 768px) 96vw, 820px"
           className="pd3-tile-img"
-          priority
-        />
+         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         <span className="pd3-hero-cover-chip">Cover Image</span>
       </button>
 
@@ -383,14 +379,12 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
           onClick={() => onOpenAtIndex(Math.min(1, list.length - 1))}
           aria-label="Open photo gallery"
         >
-          <Image
+          <img
             src={secondary}
             alt="Project secondary photo"
             title="Project secondary photo"
-            fill
-            sizes="(max-width: 768px) 46vw, 400px"
             className="pd3-tile-img"
-          />
+           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         </button>
         <button
           type="button"
@@ -398,14 +392,12 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
           onClick={() => onOpenAtIndex(Math.min(2, list.length - 1))}
           aria-label={`Open photo gallery${moreCount ? `, ${moreCount} more photos` : ""}`}
         >
-          <Image
+          <img
             src={tertiary}
             alt="Project additional photo"
             title="Project additional photo"
-            fill
-            sizes="(max-width: 768px) 46vw, 400px"
             className="pd3-tile-img"
-          />
+           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
           {moreCount > 0 ? (
             <span className="pd3-hero-more-overlay">
               <span className="pd3-hero-more-plus">+</span>
@@ -776,14 +768,13 @@ export default function PropertyV3({
             aria-label="My Property Fact — home"
           >
             <span className="pd3-topbar__logo-chip">
-              <Image
+              <img loading="eager"
                 src="/logo.webp"
                 alt="My Property Fact"
                 title="My Property Fact"
                 width={252}
                 height={100}
                 className="pd3-topbar__logo"
-                priority
               />
             </span>
           </Link>
@@ -799,7 +790,7 @@ export default function PropertyV3({
         aria-hidden={!mobileMenuOpen}
       >
         <div className="pd3-mobile-menu__head">
-          <Image
+          <img
             src="/images/admin/logo.svg"
             alt="My Property Fact"
             title="My Property Fact"
@@ -1042,7 +1033,7 @@ export default function PropertyV3({
                           style={{ transitionDelay: `${index * 35}ms` }}
                         >
                           <div className="amenity-modern-icon-wrap">
-                            <Image
+                            <img
                               src={`${amenityIconBase}${item.image}`}
                               height={32}
                               width={32}
@@ -1120,7 +1111,7 @@ export default function PropertyV3({
                         </span>
                       </div>
                       <div className="pd3-fp-card__img">
-                        <Image
+                        <img
                           src={
                             plan.floorPlanImage
                               ? projectImageSrc(plan.floorPlanImage)
@@ -1128,10 +1119,8 @@ export default function PropertyV3({
                           }
                           alt={`${plan.planType} floor plan`}
                           title={`${plan.planType} floor plan`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 280px"
                           className="pd3-tile-img"
-                        />
+                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                       </div>
                       <div className="pd3-fp-card__body">
                         <div className="pd3-fp-card__price">
@@ -1191,14 +1180,12 @@ export default function PropertyV3({
                         onClick={() => openLightboxAt(openIdx)}
                         aria-label={`Open gallery image ${i + 1}`}
                       >
-                        <Image
+                        <img
                           src={src}
                           alt={img.altTag || `Gallery image ${i + 1}`}
                           title={img.altTag || `Gallery image ${i + 1}`}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 25vw"
                           className="pd3-tile-img"
-                        />
+                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                       </button>
                     );
                   })}
@@ -1307,13 +1294,11 @@ export default function PropertyV3({
                       ) : null}
                     </div>
                     <div className="pd3-map">
-                      <Image
+                      <img
                         src={projectImageSrc(projectDetail.locationMap)}
                         alt="Project location map"
                         title="Project location map"
-                        fill
-                        sizes="(max-width: 768px) 100vw, 460px"
-                      />
+                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     </div>
                   </div>
                 ) : null}
@@ -1498,19 +1483,13 @@ export default function PropertyV3({
                       className="pd3-sim-card"
                     >
                       <div className="pd3-sim-card__img">
-                        <Image
-                          src={
-                            p.projectBannerImage
-                              ? `${imageBase}properties/${p.slugURL}/${p.projectBannerImage}`
-                              : p.projectThumbnailImage
-                                ? `${imageBase}properties/${p.slugURL}/${p.projectThumbnailImage}`
-                                : "/static/no_image.png"
-                          }
+                        <img
+                          src={buildProjectImageUrl(p, { preferThumbnail: true })}
                           alt={simImgMeta}
                           title={simImgMeta}
-                          fill
-                          sizes="(max-width: 768px) 50vw, 25vw"
-                        />
+                          loading="lazy"
+                          decoding="async"
+                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                         {p.projectStatusName ? (
                           <span className="pd3-sim-card__badge">
                             {p.projectStatusName}
@@ -1658,7 +1637,7 @@ export default function PropertyV3({
                     className="amenity-modern-card amenity-modern-card--compact amenity-modern-card--panel"
                   >
                     <div className="amenity-modern-icon-wrap">
-                      <Image
+                      <img
                         src={`${amenityIconBase}${item.image}`}
                         height={28}
                         width={28}
@@ -1706,7 +1685,7 @@ export default function PropertyV3({
                   onClick={() => setActiveGalleryIndex(idx)}
                   aria-label={`Open image ${idx + 1}`}
                 >
-                  <Image
+                  <img
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
                     width={88}
@@ -1740,7 +1719,7 @@ export default function PropertyV3({
               </>
             ) : null}
             {allImagesForHero[activeGalleryIndex] ? (
-              <Image
+              <img
                 key={`gallery-img-${activeGalleryIndex}`}
                 src={allImagesForHero[activeGalleryIndex]}
                 alt={`Gallery ${activeGalleryIndex + 1}`}

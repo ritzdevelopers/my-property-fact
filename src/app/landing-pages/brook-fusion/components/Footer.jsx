@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 import parentLogo from "../assets/fusion-logo.webp";
 import mainLogo from "../assets/BrookLogo.png";
 
@@ -16,7 +14,7 @@ export default function Footer() {
         <div className="row text-start g-4">
           {/* Left Column: Brook */}
           <div className="col-md-6">
-            <Image
+            <img
               src={mainLogo}
               alt="The Brook Logo"
               width={160}
@@ -43,7 +41,7 @@ export default function Footer() {
 
           {/* Right Column: Fusion */}
           <div className="col-md-6">
-            <Image
+            <img
               src={parentLogo}
               alt="Fusion Logo"
               width={180}

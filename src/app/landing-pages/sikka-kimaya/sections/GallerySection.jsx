@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, Keyboard } from "swiper/modules";
 
@@ -72,10 +71,9 @@ export default function GallerySection() {
                 }}
                 className="h-sm-600 h-md-700"
               >
-                <Image
+                <img
                   src={item.image}
                   alt="gallery image"
-                  fill
                   style={{ objectFit: "cover", borderRadius: "0.75rem" }}
                 />
               </div>

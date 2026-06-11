@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   faInstagram,
@@ -218,13 +217,12 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             <div className="new-design-footer-top-new-left"  >
               <div className="new-design-footer-top-left-content">
                 <div className="new-design-footer-top-left-logo">
-                  <Image
+                  <img
                     src="/logo.webp"
                     alt="My Property Fact logo — site footer"
                     title="My Property Fact logo — site footer"
                     width={113}
                     height={103}
-                    sizes="113px"
                   />
                 </div>
                 <p className="company-description">
@@ -239,7 +237,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                     title="My Property Fact on Facebook"
                     aria-label="My Property Fact on Facebook"
                   >
-                    <Image
+                    <img
                       src="/static/icon/facebook.png"
                       alt="Facebook"
                       title="Facebook"
@@ -255,7 +253,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                     title="My Property Fact on X"
                     aria-label="My Property Fact on X"
                   >
-                    <Image
+                    <img
                       src="/static/icon/twitter (1).png"
                       alt="X (Twitter)"
                       title="X (Twitter)"
@@ -271,7 +269,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                     title="My Property Fact on Instagram"
                     aria-label="My Property Fact on Instagram"
                   >
-                    <Image
+                    <img
                       src="/static/icon/instagram.png"
                       alt="Instagram"
                       title="Instagram"
@@ -287,7 +285,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                     title="My Property Fact on LinkedIn"
                     aria-label="My Property Fact on LinkedIn"
                   >
-                    <Image
+                    <img
                       src="/static/icon/linkedin.png"
                       alt="LinkedIn"
                       title="LinkedIn"
@@ -303,7 +301,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                     title="My Property Fact on YouTube"
                     aria-label="My Property Fact on YouTube"
                   >
-                    <Image
+                    <img
                       src="/static/icon/youtube.png"
                       alt="YouTube"
                       title="YouTube"

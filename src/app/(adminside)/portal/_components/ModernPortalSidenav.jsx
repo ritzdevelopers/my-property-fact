@@ -16,7 +16,6 @@ import {
   CDropdownItem,
 } from "@coreui/react";
 import "@coreui/coreui/dist/css/coreui.min.css";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import sidenavConfig from "./sidenav-config.json";
 import { useUser } from "../_contexts/UserContext";
@@ -117,7 +116,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
         <CSidebarHeader className="border-bottom sidebar-header-modern">
           <CSidebarBrand>
             <div className="brand-container">
-              <Image
+              <img
                 src="/logo.webp"
                 alt="portal-logo"
                 height={40}
@@ -154,7 +153,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
               caret={false}
             >
               <div className="user-profile">
-                <Image
+                <img
                   src="/logo.webp"
                   alt="user-avatar"
                   height={32}

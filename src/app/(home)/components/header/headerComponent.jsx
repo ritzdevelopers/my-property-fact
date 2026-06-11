@@ -2,7 +2,6 @@
 import Link from "next/link";
 import "./header.css";
 import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import LoginSignupModal from "../_homecomponents/loginSignupModal";
@@ -14,6 +13,10 @@ import {
   faChevronRight,
   faChevronLeft,
 } from "@fortawesome/free-solid-svg-icons";
+import {
+  buildProjectImageUrl,
+  DEFAULT_PROJECT_CARD_IMAGE,
+} from "@/lib/projectImageUrl";
 import { useRouter } from "next/navigation";
 import {
   faFacebook,
@@ -109,18 +112,11 @@ const HeaderComponent = () => {
 
   // Get image URL for a project (using project banner image)
   const getProjectImageSrc = (project) => {
-    const DEFAULT_IMAGE = "/static/no_image.png";
     const projectId = project.id || project.slugURL;
-    const bannerImage =
-      project.projectBannerImage || project.projectThumbnailImage;
-
-    // If image failed to load for this project, return default
-    if (imageErrors[projectId] || !bannerImage) {
-      return DEFAULT_IMAGE;
+    if (imageErrors[projectId]) {
+      return DEFAULT_PROJECT_CARD_IMAGE;
     }
-
-    // Construct full image URL
-    return `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${project.slugURL}/${bannerImage}`;
+    return buildProjectImageUrl(project, { preferThumbnail: true });
   };
 
   // Handle image error
@@ -437,16 +433,13 @@ const HeaderComponent = () => {
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
             >
-              <Image
+              <img loading="eager"
                 src="/logo.webp"
                 alt="My Property Fact logo — main site header"
                 title="My Property Fact logo — main site header"
                 height={74}
                 width={80}
-                priority
                 fetchPriority="high"
-                quality={45}
-                sizes="80px"
               />
             </Link>
           </div>
@@ -847,13 +840,14 @@ const HeaderComponent = () => {
                                                 aria-label={`View ${searchProjectLabel} (opens in new tab)`}
                                               >
                                                 <div className="project-search-card-image">
-                                                  <Image
+                                                  <img
                                                     src={getProjectImageSrc(project)}
                                                     alt={searchProjectImgMeta}
                                                     title={searchProjectImgMeta}
                                                     width={200}
                                                     height={140}
-                                                    unoptimized
+                                                    loading="lazy"
+                                                    decoding="async"
                                                     onError={() => handleImageError(projectId)}
                                                   />
                                                 </div>
@@ -1000,14 +994,12 @@ const HeaderComponent = () => {
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
             >
-              <Image
+              <img
                 src="/logo.webp"
                 alt="My Property Fact logo — site header mobile menu"
                 title="My Property Fact logo — site header mobile menu"
                 height={50}
                 width={55}
-                quality={45}
-                sizes="55px"
               />
             </Link>
             <button
@@ -1151,13 +1143,14 @@ const HeaderComponent = () => {
                                 aria-label={`View ${searchProjectLabel} (opens in new tab)`}
                               >
                                 <div className="mobile-project-search-card-image">
-                                  <Image
+                                  <img
                                     src={getProjectImageSrc(project)}
                                     alt={searchProjectImgMeta}
                                     title={searchProjectImgMeta}
                                     width={100}
                                     height={80}
-                                    unoptimized
+                                    loading="lazy"
+                                    decoding="async"
                                     onError={() => handleImageError(projectId)}
                                   />
                                 </div>

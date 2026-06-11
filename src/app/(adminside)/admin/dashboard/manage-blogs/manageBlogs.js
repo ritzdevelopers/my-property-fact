@@ -10,7 +10,6 @@ import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
 import CommonModal from "../common-model/common-model";
-import Image from "next/image";
 import ImageUrlPopup from "../common-model/imageiurl-popup";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
@@ -659,13 +658,12 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           />
           {imagePreview ? (
             <div className="admin-image-lightbox-inner">
-              <Image
+              <img
                 src={imagePreview.src}
                 alt={imagePreview.alt}
                 width={1200}
                 height={900}
                 className="admin-image-lightbox-img"
-                unoptimized
               />
             </div>
           ) : null}
@@ -779,7 +777,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
               <Form.Group as={Col} md="6" controlId="blogImage">
                 <Form.Label>Blog Image</Form.Label>
                 {previousBlogImage && (
-                  <Image
+                  <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${previousBlogImage}`}
                     alt={"blog_image"}
                     className="img-fluid rounded shadow-sm mb-4"

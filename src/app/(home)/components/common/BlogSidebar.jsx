@@ -2,7 +2,6 @@
 
 import "./common.css";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { FiSearch } from "react-icons/fi";
 import { searchBlogsAction } from "@/app/(home)/blog/actions";
@@ -111,7 +110,7 @@ export default function BlogSidebar({
                           >
                             <div className="blog-result-thumb">
                               {b.blogImage && (
-                                <Image
+                                <img
                                   src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${b.blogImage}`}
                                   alt={thumbAlt}
                                   title={thumbAlt}
@@ -166,7 +165,7 @@ export default function BlogSidebar({
                 >
                   <div className="recent-thumb">
                     {b.blogImage && (
-                      <Image
+                      <img
                         src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${b.blogImage}`}
                         alt={recentThumbAlt}
                         title={recentThumbAlt}
@@ -209,7 +208,7 @@ export default function BlogSidebar({
                     : "View latest property"
                 }
               >
-                <Image
+                <img
                   src={
                     latestProject.projectBannerImage && latestProject.slugURL
                       ? `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${latestProject.slugURL}/${latestProject.projectBannerImage}`
@@ -225,18 +224,14 @@ export default function BlogSidebar({
                       ? `${latestProject.projectName.trim()} — featured property on My Property Fact blog sidebar`
                       : "Featured property — My Property Fact blog sidebar"
                   }
-                  fill
-                  sizes="(max-width: 992px) 100vw, 100vw"
                   style={{ objectFit: "cover" }}
                 />
               </Link>
             ) : (
-              <Image
+              <img
                 src="/static/generic-floorplan.jpg"
                 alt="Latest property placeholder — My Property Fact blog sidebar"
                 title="Latest property placeholder — My Property Fact blog sidebar"
-                fill
-                sizes="(max-width: 992px) 100vw, 100vw"
                 style={{ objectFit: "cover" }}
               />
             )}

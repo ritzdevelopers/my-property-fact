@@ -1,7 +1,6 @@
 "use client";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { useState, useEffect, useRef, useMemo } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaYoutube } from "react-icons/fa";
 import { Button, Form } from "react-bootstrap";
@@ -398,7 +397,7 @@ export default function BlogDetail({
           >
             {blogDetail.blogImage && (
               <div className={detailStyles.articleImageWrap}>
-                <Image
+                <img
                   src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blogDetail.blogImage}`}
                   alt={blogHeroImageAlt}
                   title={blogHeroImageAlt}

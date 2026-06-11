@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 import { FaArrowRight } from "react-icons/fa";
@@ -72,16 +71,13 @@ const DreamPropertySection = () => {
   return (
     <section className="dream-property-section my-4 my-lg-5">
       <div className="dream-property-section-bg" aria-hidden>
-        <Image
+        <img
           src="/dream-cities/dream_City_bg.png"
           alt="Background artwork for Find Your Dream Property in your city"
           title="Background artwork for Find Your Dream Property in your city"
-          fill
-          sizes="100vw"
-          quality={75}
           className="object-fit-cover"
           loading="lazy"
-        />
+         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       </div>
       <div className="dream-property-container">
         {/* Header Section */}
@@ -115,14 +111,13 @@ const DreamPropertySection = () => {
           {cities.map((city, index) => (
             <div key={index} className="city-card">
               <div className="city-image-wrapper">
-                <Image
+                <img
                   src={city.image}
                   alt={city.alt}
                   title={city.alt}
                   height={90}
                   width={105}
                   loading="lazy"
-                  sizes="(max-width: 768px) 50vw, 105px"
                 />
               </div>
               <div className="city-content">

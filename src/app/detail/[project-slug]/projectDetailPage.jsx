@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -97,7 +96,7 @@ export default function ProjectDetailPage() {
           <div className="col-lg-8 mb-4">
             {/* Main Image */}
             <div className="main-image-container position-relative mb-3">
-              <Image
+              <img
                 src={property.image}
                 alt={property.title}
                 width={800}

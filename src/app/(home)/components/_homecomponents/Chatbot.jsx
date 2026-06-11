@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Image from "next/image";
 import styles from "./Chatbot.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faTimes } from "@fortawesome/free-solid-svg-icons";
@@ -184,13 +183,12 @@ export default function Chatbot() {
         aria-label="Open Chatbot"
       >
         {!isOpen ? (
-          <Image
+          <img
             src={CHATBOT_LOGO_SRC}
             alt="My Property Fact logo — open chat"
             title="Open My Property Fact chat"
             width={80}
             height={74}
-            sizes="48px"
             style={{ objectFit: "contain", width: "auto", height: "30px", maxWidth: "44px" }}
           />
         ) : (
@@ -203,13 +201,12 @@ export default function Chatbot() {
         <div className={styles.header}>
           <div className={styles.headerInfo}>
             <div className={styles.avatar}>
-              <Image
+              <img
                 src={CHATBOT_LOGO_SRC}
                 alt="My Property Fact logo — chat widget header"
                 title="My Property Fact logo — chat widget header"
                 width={80}
                 height={74}
-                sizes="48px"
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}
               />
             </div>

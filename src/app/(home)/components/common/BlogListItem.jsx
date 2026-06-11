@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getBlogAuthorDisplayName } from "./blogAuthor";
 import "./common.css";
@@ -29,7 +28,7 @@ export default function BlogListItem({ blog, openInNewTab = false }) {
           title={blog.blogTitle}
           {...linkProps}
         >
-          <Image
+          <img
             width={1200}
             height={628}
             src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import "./PopularCitiesSection.css";
 
@@ -39,13 +38,12 @@ function CityStrip({ list, idPrefix, ariaHidden = false }) {
             tabIndex={ariaHidden ? -1 : undefined}
           >
             <span className="pc__pill-icon" aria-hidden>
-              <Image
+              <img
                 src={city.image}
                 alt={`${city.name} — city image on My Property Fact`}
                 title={`Explore properties in ${city.name}`}
                 width={22}
                 height={22}
-                sizes="22px"
                 className="pc__pill-img"
               />
             </span>

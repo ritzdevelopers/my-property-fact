@@ -2,7 +2,6 @@
 
 import { useId, useState } from "react";
 import axios from "axios";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -185,7 +184,7 @@ export default function GetTouchEnquirySection({
         {GET_IN_TOUCH_POINTS.map((point) => (
           <span key={point} className={pointItemClass}>
             <span className="get-touch-point-icon">
-              <Image
+              <img
                 src="/icon/verify.svg"
                 alt="Verified point — Get in touch section"
                 title="Verified point — Get in touch section"

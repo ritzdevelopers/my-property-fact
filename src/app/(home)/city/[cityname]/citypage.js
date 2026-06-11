@@ -3,7 +3,6 @@ import "./citypage.css";
 import "../../components/home/home.css";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
-import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import {
   LISTING_PAGE_SIZE,
@@ -92,7 +91,7 @@ export default function CityPage({ cityData, citySlug }) {
         </div> */}
         <div className="about-us-container">
           <div>
-            <Image
+            <img
               src={"/static/about-us-bg-left.png"}
               alt={aboutSectionLeftAlt}
               title={aboutSectionLeftAlt}
@@ -132,7 +131,7 @@ export default function CityPage({ cityData, citySlug }) {
     </div>
           </div>
           <div>
-            <Image
+            <img
               src={"/static/about-us-bg-right.png"}
               alt={aboutSectionRightAlt}
               title={aboutSectionRightAlt}

@@ -13,7 +13,10 @@ export default function SocialFeedsOfMPF() {
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const videoRefs = useRef([]);
-  const popupVideoRef = useRef(null);
+  const wrapperRefs = useRef([]);
+  const popupVideoSlotRef = useRef(null);
+  const clickedVideoRef = useRef(null);
+  const clickedWrapperRef = useRef(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -62,15 +65,40 @@ export default function SocialFeedsOfMPF() {
     }
   ];
 
-  const handleVideoClick = (index) => {
+  const restoreExpandedVideo = useCallback((clearRefs = true) => {
+    const video = clickedVideoRef.current;
+    const wrapper = clickedWrapperRef.current;
+    if (!video || !wrapper) return;
+
+    video.className = "post-video";
+    video.controls = false;
+    video.muted = true;
+    video.loop = true;
+    video.pause();
+    wrapper.appendChild(video);
+
+    if (clearRefs) {
+      clickedVideoRef.current = null;
+      clickedWrapperRef.current = null;
+    }
+  }, []);
+
+  const handleVideoClick = (event, index) => {
+    const wrapper = event.currentTarget;
+    const video = wrapper.querySelector("video.post-video");
+    if (!video) return;
+
+    clickedVideoRef.current = video;
+    clickedWrapperRef.current = wrapper;
     setSelectedVideoIndex(index);
     setIsPopupOpen(true);
   };
 
   const closePopup = useCallback(() => {
+    restoreExpandedVideo();
     setIsPopupOpen(false);
     setSelectedVideoIndex(null);
-  }, []);
+  }, [restoreExpandedVideo]);
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -169,15 +197,40 @@ export default function SocialFeedsOfMPF() {
   }, [startInlinePreview]);
 
   useEffect(() => {
-    if (!isPopupOpen || !popupVideoRef.current) return;
+    if (!isPopupOpen || selectedVideoIndex === null || !popupVideoSlotRef.current) return;
 
-    const popupVideo = popupVideoRef.current;
-    popupVideo.load();
-    const playPromise = popupVideo.play();
+    const video = clickedVideoRef.current;
+    const slot = popupVideoSlotRef.current;
+    if (!video) return;
+
+    video.className = "video-popup-player";
+    video.controls = true;
+    video.muted = false;
+    video.loop = true;
+    slot.appendChild(video);
+
+    const playPromise = video.play();
     if (playPromise?.catch) {
       playPromise.catch(() => {});
     }
-  }, [isPopupOpen, selectedVideoIndex]);
+
+    return () => {
+      restoreExpandedVideo(false);
+    };
+  }, [isPopupOpen, selectedVideoIndex, restoreExpandedVideo]);
+
+  useEffect(() => {
+    const origin = "https://otherassets.blob.core.windows.net";
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = origin;
+    link.crossOrigin = "anonymous";
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
 
   const selectedVideo = selectedVideoIndex !== null ? socialPosts[selectedVideoIndex] : null;
 
@@ -265,7 +318,14 @@ export default function SocialFeedsOfMPF() {
                       }}
                     >
                       <div className="card-border-gradient"></div>
-                      <div className="post-video-wrapper" onClick={() => handleVideoClick(index)}>
+                      <div
+                        className="post-video-wrapper"
+                        ref={(el) => {
+                          wrapperRefs.current[index] = el;
+                        }}
+                        onClick={(event) => handleVideoClick(event, index)}
+                      >
+                        <div className="post-video-placeholder" aria-hidden="true" />
                         <video
                           ref={(el) => {
                             videoRefs.current[index] = el;
@@ -343,16 +403,9 @@ export default function SocialFeedsOfMPF() {
               </svg>
             </button>
             <div className="video-popup-content">
-              <video
-                ref={popupVideoRef}
-                className="video-popup-player"
-                src={selectedVideo.video}
-                controls
-                loop
-                playsInline
-                autoPlay
-                muted
-                preload="auto"
+              <div
+                ref={popupVideoSlotRef}
+                className="video-popup-player-slot"
                 aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
               />
               {selectedVideo.text && (

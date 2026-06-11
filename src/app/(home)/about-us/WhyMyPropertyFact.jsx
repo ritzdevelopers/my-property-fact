@@ -104,12 +104,12 @@ export default function WhyMyPropertyFact({ platformStats }) {
                 <p className="text-center">
                   Join Us At{" "}
                   <Link
-                    title="mypropertyfact.com"
-                    href="https://www.mypropertyfact.com"
+                    title="mypropertyfact.in"
+                    href="https://mypropertyfact.in"
                     target="_blank"
                     rel="noopener noreferrer"
                    className="our-commitment-link">
-                    mypropertyfact.com
+                    mypropertyfact.in
                   </Link>{" "}
                   And Discover A New Way To Explore Real Estate. Whether You Are
                   Buying, Renting, Or Investing, My Property Fact Is Here To

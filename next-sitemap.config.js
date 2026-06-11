@@ -573,7 +573,8 @@ const LEGACY_CITY_HUB_PREFIXES = [
 
 module.exports = {
   siteUrl: SITE_URL,
-  generateRobotsTxt: true,
+  // Keep robots.txt under source control (do not overwrite on build).
+  generateRobotsTxt: false,
   exclude: SITEMAP_EXCLUDE_PATTERNS,
   robotsTxtOptions: {
     additionalSitemaps: [`${SITE_URL}/sitemap-custom.xml`],

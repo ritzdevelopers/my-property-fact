@@ -50,5 +50,6 @@ public/location-benefit
 /public/sitemap-0.xml
 /public/sitemap.xml
 /public/sitemap-custom.xml
+/public/robots.txt
 
 .env

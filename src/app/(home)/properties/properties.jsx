@@ -1,6 +1,5 @@
 "use client";
 import { useState, useMemo, useEffect, useRef } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {
@@ -835,7 +834,7 @@ export default function Properties({
                   className="properties-mobile-filter-btn"
                   onClick={toggleMobileFilter}
                 >
-                  <Image
+                  <img
                     src="/icon/filter_icon.svg"
                     alt="Filter"
                     width={18}
@@ -926,7 +925,7 @@ export default function Properties({
                   {/* Modal Header */}
                   <div className="properties-mobile-filter-header">
                     <div className="properties-mobile-filter-title">
-                      <Image
+                      <img
                         src="/icon/filter_icon.svg"
                         alt="Filter"
                         width={20}
@@ -1359,7 +1358,7 @@ export default function Properties({
                 {/* Filters Header - Fixed */}
                 <div className="filters-header">
                   <div className="filters-title">
-                    <Image
+                    <img
                       src="/icon/filter_icon.svg"
                       alt="Filter"
                       width={20}
@@ -2048,13 +2047,13 @@ export default function Properties({
                               {property.allImageUrls.map((imageUrl, index) => (
                                 <SwiperSlide key={index}>
                                   <div className="property-card-image-wrapper">
-                                    <Image
+                                    <img
                                       src={imageUrl}
                                       alt={`${property.title} - Image ${index + 1}`}
-                                      fill
                                       className="property-card-img"
+                                      loading={index === 0 ? "eager" : "lazy"}
+                                      decoding="async"
                                       style={{ objectFit: "cover" }}
-                                      unoptimized
                                       onError={(e) => {
                                         console.error(
                                           "Image load error:",
@@ -2076,7 +2075,7 @@ export default function Properties({
                           {/* Image Overlays */}
                           {property.verified && (
                             <div className="new-verified-badge">
-                              <Image
+                              <img
                                 src="/icon/verify.svg"
                                 alt="Verified"
                                 width={16}
@@ -2132,7 +2131,7 @@ export default function Properties({
                         {/* Posted Date - Below Image */}
                         {property.postedDate && (
                           <div className="new-posted-date-below">
-                            <Image
+                            <img
                               src="/icon/calendar.svg"
                               alt="Posted"
                               width={14}
@@ -2155,7 +2154,7 @@ export default function Properties({
 
                         {/* Location */}
                         <div className="property-card-location">
-                          <Image
+                          <img
                             src="/icon/location.svg"
                             alt="Location"
                             width={14}
@@ -2167,7 +2166,7 @@ export default function Properties({
                         {/* Property Stats */}
                         <div className="property-stats">
                           <div className="property-stat-item">
-                            <Image
+                            <img
                               src="/icon/carpet_area.svg"
                               alt="Area"
                               width={18}
@@ -2184,7 +2183,7 @@ export default function Properties({
                           </div>
                           {property.bedrooms && (
                             <div className="property-stat-item">
-                              <Image
+                              <img
                                 src="/icon/bedroom.svg"
                                 alt="Bedrooms"
                                 width={18}
@@ -2200,7 +2199,7 @@ export default function Properties({
                           )}
 
                           <div className="property-stat-item">
-                            <Image
+                            <img
                               src="/icon/bathrooms.svg"
                               alt="Bathrooms"
                               width={18}

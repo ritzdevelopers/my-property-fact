@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-
 import bhk2 from "../assets/2BHK_Floor_Plan.jpg";
 import bhk3 from "../assets/3bhk_Floor_Plan.jpg";
 import bhk4 from "../assets/4bhk_Floor_plan.jpg";
@@ -66,10 +64,9 @@ export default function FloorPlanSection() {
             <div key={index} className="col-12 col-sm-6 col-lg-3">
               <div className="card h-100 shadow-sm border-0">
                 <div className="position-relative" style={{ height: "250px" }}>
-                  <Image
+                  <img
                     src={plan.image}
                     alt={plan.title}
-                    fill
                     className="object-fit-cover rounded-top"
                     style={{ filter: "blur(4px)" }}
                   />

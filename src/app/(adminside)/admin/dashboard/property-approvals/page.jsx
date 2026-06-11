@@ -10,7 +10,6 @@ import {
   Modal,
   Form,
 } from "react-bootstrap";
-import NextImage from "next/image";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
@@ -262,15 +261,13 @@ export default function PropertyApprovalsPage() {
               >
                 <article className="approval-card">
                   <div className="approval-card__image-container">
-                    <NextImage
+                    <img
                       src={
                         getImageUrl(property.imageUrls[0]) || "/placeholder.jpg"
                       }
                       alt={property.title || "Property"}
-                      fill
                       className="approval-card__image"
-                      unoptimized
-                    />
+                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     {property.listingType && (
                       <span className="approval-card__badge-type">
                         {property.listingType}

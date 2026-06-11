@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import {
   FaHome,
   FaRulerCombined,
@@ -30,13 +29,11 @@ export default function HeroSection() {
         className="w-100 w-md-50 position-relative"
         style={{ minHeight: "300px" }}
       >
-        <Image
+        <img loading="eager"
           src={heroImg}
           alt="Hero Image"
-          fill
           className="object-fit-cover"
-          priority
-        />
+         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       </div>
 
       {/* Right Content Section */}

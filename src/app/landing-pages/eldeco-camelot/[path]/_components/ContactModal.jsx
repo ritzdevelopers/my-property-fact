@@ -1,6 +1,5 @@
 'use client'
 import { useEffect } from 'react'
-import Image from 'next/image'
 import ContactForm from './ContactForm';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -52,7 +51,7 @@ export default function ContactModal({ isOpen, onClose, pathParam = '1' }) {
           <div className="row g-0">
             <div className="col-lg-5 d-none d-lg-block">
               <div className="modal-image-section">
-                <Image src="/landing-pages/eldeco-camelot/img/eldeco-g-3.webp" alt="Eldeco Camelot — project visual, My Property Fact" title="Eldeco Camelot — project visual, My Property Fact" className="modal-side-image" width={500} height={500} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
+                <img src="/landing-pages/eldeco-camelot/img/eldeco-g-3.webp" alt="Eldeco Camelot — project visual, My Property Fact" title="Eldeco Camelot — project visual, My Property Fact" className="modal-side-image" width={500} height={500} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
               </div>
             </div>
             <div className="col-lg-7 col-12">

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
 import "./admin-login.css";
-import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -149,18 +148,16 @@ function AdminPageContent() {
     <div className="mpf-admin-login">
       <div className="mpf-admin-login__inner">
         <div className="mpf-admin-login__panel mpf-admin-login__panel--left">
-          <Image
-            fill
-            priority
+          <img loading="eager"
             alt="Modern property background"
             src="/images/admin/admin-login-bg.png"
             className="mpf-admin-login__bg-image"
-          />
+           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
           <div className="mpf-admin-login__left-overlay">
             <div className="mpf-admin-login__left-top">
               <div className="mpf-admin-login__left-brand-center">
                 <div className="mpf-admin-login__left-logo-wrap">
-                  <Image
+                  <img
                     height={84}
                     width={101}
                     alt="My Property Fact"
@@ -370,7 +367,7 @@ export default function AdminPage() {
           <div className="mpf-admin-login__fallback">
             <div className="mpf-admin-login__fallback-card">
               <div className="mpf-admin-login__logo-wrap mx-auto mb-3">
-                <Image
+                <img
                   height={67.4}
                   width={101}
                   alt=""

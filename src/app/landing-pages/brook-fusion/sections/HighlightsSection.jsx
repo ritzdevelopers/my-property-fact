@@ -60,7 +60,7 @@
 //                 <div className="d-flex flex-column flex-md-row align-items-center gap-4">
 //                     {/* Image */}
 //                     <div className="w-100 w-md-50 mb-4 mb-md-0" style={{ border: '1px solid #D0B674', borderRadius: '10px' }}>
-//                         <Image
+//                         <img
 //                             src={highlightImg}
 //                             alt="Highlight"
 //                             className="img-fluid rounded shadow"
@@ -123,7 +123,6 @@
 
 "use client";
 
-import Image from "next/image";
 import {
   MdSecurity,
   MdOutlineElectricalServices,
@@ -196,7 +195,7 @@ export default function HighlightsSection() {
           {/* Image */}
           <div className="col-12 col-md-6">
             <div style={{ border: "1px solid #D0B674", borderRadius: "10px" }}>
-              <Image
+              <img
                 src={highlightImg}
                 alt="Highlight"
                 className="img-fluid rounded shadow"

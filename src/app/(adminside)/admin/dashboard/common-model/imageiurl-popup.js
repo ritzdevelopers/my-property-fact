@@ -7,7 +7,6 @@ import { adminExecutiveDataGridSx } from "./data-table";
 import axios from "axios";
 // import { Paper } from "@mui/material";
 // import { DataGrid } from "@mui/x-data-grid";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -104,7 +103,7 @@ export default function ImageUrlPopup({ confirmBox, setConfirmBox }) {
         {
             field: "image", headerName: "Image", width: 120,
             renderCell: (params) => (
-                <Image
+                <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/content-image/${params.row.image}`}
                     alt={`${params.row.altTag}`}
                     width={100}

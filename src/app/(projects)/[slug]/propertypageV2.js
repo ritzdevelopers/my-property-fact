@@ -17,7 +17,6 @@ import {
   faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import Modal from "react-bootstrap/Modal";
-import Image from "next/image";
 import NotFound from "../../not-found";
 import CommonPopUpform from "../../(home)/components/common/popupform";
 import GetTouchEnquirySection from "../../(home)/components/common/GetTouchEnquirySection";
@@ -209,7 +208,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Previous nearby benefits"
       >
-        <Image src="/icon/arrow-left-s-line.svg" alt="" width={24} height={24} />
+        <img src="/icon/arrow-left-s-line.svg" alt="" width={24} height={24} />
       </button>
     );
   };
@@ -223,7 +222,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Next nearby benefits"
       >
-        <Image src="/icon/arrow-right-s-line.svg" alt="" width={24} height={24} />
+        <img src="/icon/arrow-right-s-line.svg" alt="" width={24} height={24} />
       </button>
     );
   };
@@ -894,7 +893,7 @@ const addNearbyImageIcon = (benefit) => {
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
               >
-                <Image
+                <img
                   width={198}
                   height={50.75}
                   src={projectImageSrc(projectDetail.projectLogo)}
@@ -977,7 +976,7 @@ const addNearbyImageIcon = (benefit) => {
                     }}
                     aria-label="My Property Fact home (opens in a new tab)"
                   >
-                    <Image
+                    <img
                       src="/logo.webp"
                       alt="My Property Fact logo — project page mobile menu"
                       title="My Property Fact logo — project page mobile menu"
@@ -1080,7 +1079,7 @@ const addNearbyImageIcon = (benefit) => {
                 }}
                 aria-label="My Property Fact home (opens in a new tab)"
               >
-                <Image
+                <img
                   src="/logo.webp"
                   alt="My Property Fact logo — project page header"
                   title="My Property Fact logo — project page header"
@@ -1120,7 +1119,7 @@ const addNearbyImageIcon = (benefit) => {
                   )}
 
                   {/* Default fallback */}
-                  <Image
+                  <img
                     src={projectImageSrc(item.desktopImage)}
                     alt={getBannerAltText(item, index)}
                     width={2225}
@@ -1137,7 +1136,7 @@ const addNearbyImageIcon = (benefit) => {
               onClick={() => setShowPopUp(true)}
               type="button"
             >
-              <Image
+              <img
                 src="/icon/enquire_now.svg"
                 alt=""
                 width={32}
@@ -1204,7 +1203,7 @@ const addNearbyImageIcon = (benefit) => {
                     style={{ transitionDelay: `${index * 35}ms` }}
                   >
                     <div className="amenity-modern-icon-wrap">
-                      <Image
+                      <img
                         src={`${amenityIconBase}${item.image}`}
                         height={32}
                         width={32}
@@ -1265,7 +1264,7 @@ const addNearbyImageIcon = (benefit) => {
                         </div>
 
                         <div className="floorplan-image-wrap">
-                          <Image
+                          <img
                             width={500}
                             height={300}
                             className="img-fluid floorplan-image floorplan-image--blurred"
@@ -1307,7 +1306,7 @@ const addNearbyImageIcon = (benefit) => {
                     </div>
 
                     <div className="floorplan-image-wrap">
-                      <Image
+                      <img
                         width={500}
                         height={300}
                         className="img-fluid floorplan-image floorplan-image--blurred"
@@ -1345,12 +1344,11 @@ const addNearbyImageIcon = (benefit) => {
                         onClick={() => openGalleryModal(index)}
                         aria-label={`Open gallery image ${index + 1}`}
                       >
-                        <Image
+                        <img
                           src={projectImageSrc(item.imageName)}
                           alt={item.altTag || `Gallery image ${index + 1}`}
-                          fill
                           className="gallery-modern-image"
-                        />
+                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                       </button>
                     </div>
                   ))}
@@ -1366,12 +1364,11 @@ const addNearbyImageIcon = (benefit) => {
                     onClick={() => openGalleryModal(index)}
                     aria-label={`Open gallery image ${index + 1}`}
                   >
-                    <Image
+                    <img
                       src={projectImageSrc(item.imageName)}
                       alt={item.altTag || `Gallery image ${index + 1}`}
-                      fill
                       className="gallery-modern-image"
-                    />
+                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                   </button>
                 ))}
               </div>
@@ -1387,12 +1384,11 @@ const addNearbyImageIcon = (benefit) => {
           <div className="container location-modern-container">
             <div className="location-modern-map-column">
               <div className="location-modern-map">
-                <Image
+                <img
                   src={projectImageSrc(projectDetail.locationMap)}
                   alt="Project Location Map"
-                  fill
                   className="location-modern-map-image"
-                />
+                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               </div>
               <button
                 type="button"
@@ -1450,7 +1446,7 @@ const addNearbyImageIcon = (benefit) => {
                       <div key={slideKey}>
                         <article className="location-nearby-card">
                           <div className="location-nearby-card-icon">
-                            <Image
+                            <img
                               src={
                                 addNearbyImageIcon(benefit.benefitName) ||
                                 "/icon/fallback-icon.png"
@@ -1487,22 +1483,18 @@ const addNearbyImageIcon = (benefit) => {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <Image
+                <img
                   src={aboutBuilderImageSrc}
                   alt={projectDetail.builder?.builderName || "Builder"}
-                  fill
                   className="about-modern-image"
-                  sizes="(max-width: 991px) 100vw, 50vw"
-                />
+                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               </Link>
             ) : (
-              <Image
+              <img
                 src={aboutBuilderImageSrc}
                 alt={projectDetail.builder?.builderName || "Builder"}
-                fill
                 className="about-modern-image"
-                sizes="(max-width: 991px) 100vw, 50vw"
-              />
+               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             )}
           </div>
 
@@ -1634,7 +1626,7 @@ const addNearbyImageIcon = (benefit) => {
                     className="amenity-modern-card amenity-modern-card--compact amenity-modern-card--panel"
                   >
                     <div className="amenity-modern-icon-wrap">
-                      <Image
+                      <img
                         src={`${amenityIconBase}${item.image}`}
                         height={28}
                         width={28}
@@ -1698,7 +1690,7 @@ const addNearbyImageIcon = (benefit) => {
               </>
             )}
             {galleryImages[activeGalleryIndex] && (
-              <Image
+              <img
                 src={projectImageSrc(galleryImages[activeGalleryIndex].imageName)}
                 alt={galleryImages[activeGalleryIndex].altTag || "Gallery preview"}
                 width={1400}

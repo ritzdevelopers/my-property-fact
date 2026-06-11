@@ -1,5 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
+import {
+  buildProjectImageUrl,
+  DEFAULT_PROJECT_CARD_IMAGE,
+} from "@/lib/projectImageUrl";
 import "./common.css";
 import "./mpfTopPick.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,6 +22,7 @@ export default function MpfTopPicks({ topProject }) {
     projectConfiguration,
     projectPrice,
     projectLogo,
+    projectThumbnailImage,
     projectBannerImage,
     slugURL,
     projectStatusName,
@@ -47,12 +51,10 @@ export default function MpfTopPicks({ topProject }) {
     "";
   const canBuildImageUrl = imageBase && slugURL;
 
-  const bannerImageSrc =
-    projectBannerImage && canBuildImageUrl && !projectBannerImage.startsWith("http")
-      ? `${imageBase}properties/${slugURL}/${projectBannerImage}`
-      : projectBannerImage?.startsWith("http")
-        ? projectBannerImage
-        : "/static/no_image.png";
+  const bannerImageSrc = buildProjectImageUrl(
+    { slugURL, projectThumbnailImage, projectBannerImage },
+    { preferThumbnail: true, fallback: DEFAULT_PROJECT_CARD_IMAGE },
+  );
 
   const logoSrc =
     projectLogo && canBuildImageUrl && !projectLogo.startsWith("http")
@@ -90,15 +92,13 @@ export default function MpfTopPicks({ topProject }) {
             <div className="mpf-tp__main">
               <div className="mpf-tp__dev">
                 <div className="mpf-tp__logo">
-                  <Image
+                  <img
                     src={logoSrc}
                     alt={builderLogoAlt}
                     title={builderLogoAlt}
                     width={220}
                     height={110}
                     className="mpf-tp__logo-img img-fluid"
-                    quality={75}
-                    sizes="(max-width: 576px) 40vw, (max-width: 992px) 28vw, 220px"
                   />
                 </div>
                 <div className="mpf-tp__dev-txt">
@@ -133,7 +133,7 @@ export default function MpfTopPicks({ topProject }) {
 
               <div className="mpf-tp__chips">
                 <div className="mpf-tp__chip mpf-tp__chip--price">
-                  <Image
+                  <img
                     src="/static/icon/arrow.png"
                     alt="Starting price indicator — My Property Fact Top Picks"
                     title="Starting price indicator — My Property Fact Top Picks"
@@ -147,7 +147,7 @@ export default function MpfTopPicks({ topProject }) {
                   </div>
                 </div>
                 <div className="mpf-tp__chip mpf-tp__chip--config">
-                  <Image
+                  <img
                     src="/static/icon/home.png"
                     alt="Property configuration icon — My Property Fact Top Picks"
                     title="Property configuration icon — My Property Fact Top Picks"
@@ -176,15 +176,15 @@ export default function MpfTopPicks({ topProject }) {
               aria-label={`Open ${projectName} — view photos and full details`}
               title={topPicksBannerAlt}
             >
-              <Image
+              <img
                 src={bannerImageSrc}
                 alt={topPicksBannerAlt}
                 title={topPicksBannerAlt}
-                fill
-                sizes="(max-width: 992px) 100vw, (max-width: 1400px) 48vw, 600px"
-                quality={60}
                 className="mpf-tp__img"
-              />
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               <div className="mpf-tp__grad" aria-hidden="true" />
               <div className="mpf-tp__status" title={statusHoverLabel}>
                 <span className="mpf-tp__status-eyebrow">Status</span>

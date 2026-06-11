@@ -33,7 +33,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import Image from "next/image";
 import NotFound from "../../not-found";
 import Featured from "../../(home)/components/home/featured/featured";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -150,7 +149,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Previous slide"
       >
-        <Image
+        <img
           src="/icon/arrow-left-s-line.svg"
           alt="Previous"
           title="Previous"
@@ -170,7 +169,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Next slide"
       >
-        <Image
+        <img
           src="/icon/arrow-right-s-line.svg"
           alt="Next"
           title="Next"
@@ -663,14 +662,13 @@ const addNearbyImageIcon = (benefit) => {
                   ? { target: "_blank", rel: "noopener noreferrer" }
                   : {})}
               >
-                <Image
+                <img
                   width={198}
                   height={51}
                   src={projectImageSrc(projectDetail.projectLogo)}
                   alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   title={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
-                  sizes="(max-width: 768px) 50vw, 198px"
                 />
               </Link>
             </div>
@@ -748,7 +746,7 @@ const addNearbyImageIcon = (benefit) => {
                     }}
                     aria-label="My Property Fact home (opens in a new tab)"
                   >
-                    <Image
+                    <img
                       src="/logo.webp"
                       alt="My Property Fact logo — project page mobile menu"
                       title="My Property Fact logo — project page mobile menu"
@@ -854,7 +852,7 @@ const addNearbyImageIcon = (benefit) => {
                 }}
                 aria-label="My Property Fact home (opens in a new tab)"
               >
-                <Image
+                <img
                   src="/logo.webp"
                   alt="My Property Fact logo — project page header"
                   title="My Property Fact logo — project page header"
@@ -889,16 +887,13 @@ const addNearbyImageIcon = (benefit) => {
             {bannerImages.map((item, index) => (
               <SwiperSlide key={`${item.id}-${index}`}>
                 <div className="image-con">
-                  <Image
+                  <img loading="eager"
                     src={projectImageSrc(item.desktopImage)}
                     alt={getBannerAltText(item, index)}
                     title={getBannerAltText(item, index)}
-                    fill
-                    priority={index === 0}
                     fetchPriority={index === 0 ? "high" : "low"}
-                    sizes="100vw"
                     className="slick-banner-img"
-                  />
+                   style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                 </div>
               </SwiperSlide>
             ))}
@@ -1112,14 +1107,13 @@ const addNearbyImageIcon = (benefit) => {
             {amenities.map((item, index) => (
               <div key={index} className="amenity-detail-container">
                 <div className="bg-white mb-3 p-3 rounded-2">
-                  <Image
+                  <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}amenity/${item.image}`}
                     height={60}
                     width={60}
                     alt={item.altTag || item.title || "Amenity"}
                     title={item.altTag || item.title || "Amenity"}
                     className="mb-3 d-flex mx-auto"
-                    sizes="60px"
                   />
                 </div>
                 <p className="text-white text-center fs-6">{item.title}</p>
@@ -1172,7 +1166,7 @@ const addNearbyImageIcon = (benefit) => {
               <SwiperSlide key={`${item.planType}-${index}`}>
                 <div className="card">
                   <div className="p-3 rounded-sm d-flex mx-auto">
-                    <Image
+                    <img
                       width={300}
                       height={200}
                       className="img-fluid rounded-3"
@@ -1226,14 +1220,12 @@ const addNearbyImageIcon = (benefit) => {
                       key={`${index}-${item.id}`}
                       className="project-detail-gallery-container "
                     >
-                      <Image
+                      <img
                         src={projectImageSrc(item.imageName)}
                         alt={item.altTag || "Gallery Image"}
                         title={item.altTag || "Gallery Image"}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 50vw"
                         className="img-fluid rounded-5 object-fit-cover px-2 "
-                      />
+                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     </div>
                   ))}
                 </Slider>
@@ -1263,7 +1255,7 @@ const addNearbyImageIcon = (benefit) => {
                   <div key={index} className="col-6">
                     <div className="border rounded-4 p-3 h-100 d-flex align-items-center gap-3 bg-light shadow-sm">
                       {item.benefitName != null ? (
-                        <Image
+                        <img
                           src={addNearbyImageIcon(item.benefitName) || `/icon/fallback-icon.png`}
                           alt={item.benefitName || ""}
                           title={item.benefitName || ""}
@@ -1271,7 +1263,7 @@ const addNearbyImageIcon = (benefit) => {
                           height={40}
                         />
                       ) : (
-                        <Image
+                        <img
                           src={`/icon/fallback-icon.png`}
                           alt="fallback-icon"
                           title="fallback-icon"
@@ -1318,14 +1310,12 @@ const addNearbyImageIcon = (benefit) => {
                 className="position-relative border rounded-4 overflow-hidden shadow-sm"
                 style={{ height: "350px" }}
               >
-                <Image
+                <img
                   src={projectImageSrc(projectDetail.locationMap)}
                   alt="Project Location Map"
                   title="Project Location Map"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-fit-cover"
-                />
+                 style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
 
                 {/* Overlay text */}
                 <div className="position-absolute bottom-0 start-0 w-100 p-2 bg-dark bg-opacity-50 text-white text-center">

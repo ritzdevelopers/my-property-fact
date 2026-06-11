@@ -1,28 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "./NoidaProjectsSection.css";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import { HOME_FAQ_ITEMS } from "./homeFaqItems";
 
-const IMAGE_BASE =
-  (typeof process.env.NEXT_PUBLIC_IMAGE_URL === "string" &&
-    process.env.NEXT_PUBLIC_IMAGE_URL) ||
-  "";
-
 function getProjectImageUrl(project) {
-  if (!project?.slugURL) return null;
-  const file =
-    project.projectBannerImage || project.projectThumbnailImage || null;
-  if (!file) return null;
-  if (String(file).startsWith("http")) return file;
-  if (!IMAGE_BASE) return null;
-  return `${IMAGE_BASE}properties/${project.slugURL}/${file}`;
+  return buildProjectImageUrl(project, { preferThumbnail: true });
 }
 
 /** Prefer a project in this city with a banner, then higher indicative price. */
@@ -436,7 +425,6 @@ function CityCard({ city }) {
   const iconNavigateTitle = `View ${cityLabel} real estate on My Property Fact (opens city page)`;
   const iconArrowTitle = `See all ${cityLabel} properties for sale (opens city page)`;
   const heroSrc = city.displayImageSrc || city.imageSrc;
-  const isRemote = /^https?:\/\//.test(heroSrc);
 
   const cityLinkTitle = `Explore ${cityLabel} real estate, listings and price trends on My Property Fact`;
 
@@ -449,22 +437,21 @@ function CityCard({ city }) {
     >
       <div className="city-card-hero">
         <div className="city-card-hero__img">
-          <Image
+          <img
             src={heroSrc}
             alt={heroImgDescription}
             title={heroImgDescription}
-            fill
             className="city-card-hero__image"
-            sizes="(max-width: 576px) 92vw, (max-width: 992px) 45vw, 32vw"
-            unoptimized={isRemote}
-          />
+            loading="lazy"
+            decoding="async"
+           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         </div>
         <div className="city-card-hero__bar" aria-hidden="true" />
         <div className="city-card-hero__overlay">
           <div className="city-header-row">
             <h3 className="city-name city-name--on-image">{cityLabel}</h3>
             <span className="city-external-icon" aria-hidden="true">
-              <Image
+              <img
                 src="/icon/navigate.svg"
                 alt={iconNavigateTitle}
                 title={iconNavigateTitle}
@@ -496,7 +483,7 @@ function CityCard({ city }) {
             {city.totalProperties === 1
               ? "Property for Sale"
               : "Properties for Sale"}
-            <Image
+            <img
               src="/icon/arrow.svg"
               alt={iconArrowTitle}
               title={iconArrowTitle}

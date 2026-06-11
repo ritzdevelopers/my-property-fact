@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { getBlogAuthorDisplayName } from "./blogAuthor";
 import './common.css';
@@ -25,14 +24,15 @@ export default function BlogCard({ blog }) {
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
-                <Image
+                <img
                     width={1200}
                     height={628}
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`}
                     alt={featuredImageAlt}
                     title={featuredImageAlt}
                     className="img-fluid"
-                    
+                    loading="lazy"
+                    decoding="async"
                 />
                 <div className="card-body d-flex flex-column plus-jakarta-semi-bold">
                     <p className="blog-date m-0 mb-1 text-muted small">

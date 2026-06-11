@@ -1,6 +1,5 @@
 "use client";
 import { useState, useEffect, useMemo, useLayoutEffect, useRef } from "react";
-import Image from "next/image";
 import { IoIosArrowBack, IoIosArrowForward, IoIosArrowDown } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import "./aboutus.css";
@@ -253,7 +252,7 @@ export default function NewAboutUs({ platformStats }) {
             viewport={{ once: true, amount: 0.3 }}
             variants={slideInLeft}
           >
-            <Image
+            <img
               src="/static/about-us/about_us_section.jpg"
               alt={aboutUsIntroImageAlt}
               title={aboutUsIntroImageAlt}
@@ -386,7 +385,7 @@ export default function NewAboutUs({ platformStats }) {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
             ></motion.div> */}
-            {/* <Image
+            {/* <img
               src="/static/about-us/vision_and_mission.png"
               alt="Vision and Mission"
               width={1040}
@@ -412,7 +411,7 @@ export default function NewAboutUs({ platformStats }) {
           viewport={{ once: true }}
           transition={{ duration: 1 }}
         >
-          <Image
+          <img
             src="/static/about-us/about-us-background.png"
             alt={whatWeOfferBackgroundAlt}
             title={whatWeOfferBackgroundAlt}

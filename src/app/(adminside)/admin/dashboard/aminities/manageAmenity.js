@@ -10,7 +10,6 @@ import {
   Container,
 } from "react-bootstrap";
 import axios from "axios";
-import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -316,12 +315,11 @@ export default function ManageAminity({ list }) {
                 </Form.Group>
                 {previousImage ? (
                   <div className="mb-3">
-                    <Image
+                    <img
                       src={previousImage}
                       alt="Current amenity"
                       width={100}
                       height={100}
-                      unoptimized
                     />
                   </div>
                 ) : null}

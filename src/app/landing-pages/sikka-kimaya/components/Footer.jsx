@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import logo from "../assets/logo.png";
 
@@ -13,7 +12,7 @@ export default function Footer() {
         <div className="w-100 w-md-50">
           <Link title="Sikka Logo" href="/" className="text-decoration-none">
             <div className="d-inline-block mb-3">
-              <Image
+              <img
                 src={logo}
                 alt="Sikka Logo"
                 width={120}

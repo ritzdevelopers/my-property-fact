@@ -1,7 +1,6 @@
 "use client";
 
 import axios from "axios";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -122,18 +121,16 @@ export default function AdminForgotPasswordPage() {
     <div className="mpf-admin-login mpf-admin-login--register">
       <div className="mpf-admin-login__inner mpf-admin-login__inner--register">
         <div className="mpf-admin-login__panel mpf-admin-login__panel--left">
-          <Image
-            fill
-            priority
+          <img loading="eager"
             alt="Modern property background"
             src="/images/admin/admin-login-bg.png"
             className="mpf-admin-login__bg-image"
-          />
+           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
           <div className="mpf-admin-login__left-overlay">
             <div className="mpf-admin-login__left-top">
               <div className="mpf-admin-login__left-brand-center">
                 <div className="mpf-admin-login__left-logo-wrap">
-                  <Image
+                  <img
                     height={84}
                     width={101}
                     alt="My Property Fact"

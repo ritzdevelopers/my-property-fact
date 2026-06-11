@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import SearchFilter from "./searchFIlter";
@@ -194,7 +193,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
                 aria-hidden
               >
                 {typeKey === "commercial" ? (
-                  <Image
+                  <img
                     src="/icon/skyscrapers.png"
                     alt={railIconAlt}
                     title={railIconTitle}
@@ -202,7 +201,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
                     height={36}
                   />
                 ) : typeKey === "residential" ? (
-                  <Image
+                  <img
                     src="/icon/residential.png"
                     alt={railIconAlt}
                     title={railIconTitle}
@@ -210,7 +209,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
                     height={36}
                   />
                 ) : (
-                  <Image
+                  <img
                     src={NEW_LAUNCHES_RAIL_ICON}
                     alt={railIconAlt}
                     title={railIconTitle}

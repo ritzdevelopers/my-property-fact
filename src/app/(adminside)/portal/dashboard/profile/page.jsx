@@ -28,7 +28,6 @@ import {
   cilInfo,
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
-import Image from "next/image";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../_contexts/UserContext";
@@ -392,7 +391,7 @@ export default function Profile() {
                 <div className="profile-avatar">
                   <div className="avatar-border">
                     {profile.avatar && profile.avatar.trim() ? (
-                      <Image
+                      <img
                         src={profile.avatar}
                         alt="Profile"
                         width={140}

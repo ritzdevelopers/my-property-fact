@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 import { getLegacyWebStoryPath } from "@/lib/publicApiBase";
 import "../new-views/newviews.css";
@@ -39,7 +38,7 @@ export default function NewsAndViews({ webStoryList }) {
                 <div className="flip-card">
                   <div className="flip-card-inner">
                     <div className="flip-card-front">
-                      <Image
+                      <img
                         src={localStoryCover}
                         alt={storyCoverAlt}
                         title={storyCoverAlt}

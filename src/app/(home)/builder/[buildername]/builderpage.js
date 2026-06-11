@@ -2,7 +2,6 @@ import "./builderpage.css";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import Image from "next/image";
 export default function BuilderPage({ builderDetail, projectsList }) {
   const builderName = builderDetail?.builderName?.trim() || "Builder";
   const aboutBuilderLeftAlt = `${builderName} — about the builder section, left illustration on My Property Fact`;
@@ -34,7 +33,7 @@ export default function BuilderPage({ builderDetail, projectsList }) {
       </div> */}
       <div className="about-builder-container">
         <div>
-          <Image
+          <img
             src={"/static/about-us-bg-left.png"}
             alt={aboutBuilderLeftAlt}
             title={aboutBuilderLeftAlt}
@@ -46,7 +45,7 @@ export default function BuilderPage({ builderDetail, projectsList }) {
           <p>{builderDetail.builderDescription}</p>
         </div>
         <div>
-          <Image
+          <img
             src={"/static/about-us-bg-right.png"}
             alt={aboutBuilderRightAlt}
             title={aboutBuilderRightAlt}

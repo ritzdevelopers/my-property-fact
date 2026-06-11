@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
-
 // Image imports
 import gymImg from "../assets/AMTY/GYM.png";
 import Banquet_Hall from "../assets/AMTY/Banquet_Hall.png";
@@ -127,7 +125,7 @@ export default function AmenitiesSection() {
                   e.currentTarget.style.boxShadow = "0 .125rem .25rem rgba(0,0,0,.075)";
                 }}
               >
-                <Image
+                <img
                   src={item.image}
                   alt={item.title}
                   width={100}
@@ -162,7 +160,7 @@ export default function AmenitiesSection() {
                   e.currentTarget.style.boxShadow = "0 .125rem .25rem rgba(0,0,0,.075)";
                 }}
               >
-                <Image
+                <img
                   src={item.image}
                   alt={item.title}
                   width={100}

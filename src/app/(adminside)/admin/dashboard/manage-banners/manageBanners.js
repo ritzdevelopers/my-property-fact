@@ -5,7 +5,6 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Form, FormControl, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -334,7 +333,7 @@ export default function ManageBanners({ list, config = {} }) {
                 if (!name) return null;
                 const src = `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}home-banners/${name}`;
                 return (
-                    <Image
+                    <img
                         src={src}
                         alt={params.row.imageAlt || "Banner"}
                         width={params.row.deviceType === "desktop" ? 120 : 60}
@@ -409,7 +408,7 @@ export default function ManageBanners({ list, config = {} }) {
                 <>
                     {
                         params.row.projectMobileBannerDtoList?.map((item, index) => (
-                            <Image
+                            <img
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.mobileImage}`}
                                 alt={item.mobileAltTag || "Project Mobile Banner"}
@@ -430,7 +429,7 @@ export default function ManageBanners({ list, config = {} }) {
                 <>
                     {
                         params.row.projectDesktopBannerDtoList?.map((item, index) => (
-                            <Image
+                            <img
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.desktopImage}`}
                                 alt={item.desktopAltTag || "Project Desktop Banner"}
@@ -455,7 +454,7 @@ export default function ManageBanners({ list, config = {} }) {
                                 const imageName = item.tabletImage || item.image || item.bannerImage;
                                 if (!slug || !imageName) return null;
                                 return (
-                                    <Image
+                                    <img
                                         key={index}
                                         src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${slug}/${imageName}`}
                                         alt={item.tabletAltTag || item.altTag || "Home Tablet Banner"}
@@ -622,7 +621,7 @@ export default function ManageBanners({ list, config = {} }) {
                                     <div className="d-flex flex-wrap gap-3">
                                         {mobileBannerImages.map((img, index) => (
                                             <div key={index} style={{ position: "relative" }}>
-                                                <Image
+                                                <img
                                                     className="rounded-2 d-block my-2"
                                                     src={img.preview}
                                                     alt="preview"
@@ -684,7 +683,7 @@ export default function ManageBanners({ list, config = {} }) {
                                     <div className="d-flex flex-wrap gap-3">
                                         {desktopBannerImages.map((img, index) => (
                                             <div key={index} style={{ position: "relative" }}>
-                                                <Image
+                                                <img
                                                     className="rounded-2 d-block my-2"
                                                     src={img.preview}
                                                     alt="preview"
@@ -746,7 +745,7 @@ export default function ManageBanners({ list, config = {} }) {
                                         <div className="d-flex flex-wrap gap-3">
                                             {tabletBannerImages.map((img, index) => (
                                                 <div key={index} style={{ position: "relative" }}>
-                                                    <Image
+                                                    <img
                                                         className="rounded-2 d-block my-2"
                                                         src={img.preview}
                                                         alt="preview"
@@ -845,13 +844,12 @@ export default function ManageBanners({ list, config = {} }) {
             >
                 <Modal.Body>
                     {popUpImageSrc && (
-                        <Image
+                        <img
                             className="rounded-2"
                             src={popUpImageSrc}
                             alt="pop-up-image"
                             width={0}
                             height={0}
-                            sizes="100vw"
                             style={{
                                 height: "auto",
                                 width: "auto",

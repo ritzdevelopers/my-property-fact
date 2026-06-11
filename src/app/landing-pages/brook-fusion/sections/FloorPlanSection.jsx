@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import floorplan1 from "../assets/floor1.webp";
 import floorplan2 from "../assets/floor1.webp";
 import bgImage from "../assets/amenities.png";
@@ -80,7 +79,7 @@ const FloorPlansSection = () => {
                 key={openIndex} // forces re-render when openIndex changes
                 className="fade-image-wrapper position-relative rounded overflow-hidden shadow"
               >
-                <Image
+                <img
                   src={accordionData[openIndex].image}
                   alt={accordionData[openIndex].title}
                   className="img-fluid"

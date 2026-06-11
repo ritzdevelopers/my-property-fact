@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import { 
   Card, 
   Row, 
@@ -592,7 +591,7 @@ export default function ProjectDetailPage() {
                         <div className="amenity-card text-center p-3 border rounded h-100">
                           {amenity.image && (
                             <div className="mb-2 d-flex justify-content-center">
-                              <Image
+                              <img
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL || ""}amenity/${amenity.image}`}
                                 alt={amenity.title || amenity.mobileAltTag || amenity.desktopAltTag || `Amenity ${index + 1}`}
                                 width={50}
@@ -664,7 +663,7 @@ export default function ProjectDetailPage() {
                         <div className="text-center p-3 border rounded h-100">
                           {(benefit.iconImage || benefit.image) && (
                             <div className="mb-2 d-flex justify-content-center">
-                              <Image
+                              <img
                                 src={`${(() => {
                                   const baseUrl = process.env.NEXT_PUBLIC_IMAGE_URL || "";
                                   let cleanBase = baseUrl.replace(/\/+$/, '');
@@ -859,7 +858,7 @@ export default function ProjectDetailPage() {
             {project.locationMapImage && (
               <Card className="mb-4 shadow-sm">
                 <Card.Body className="p-0">
-                  <Image
+                  <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${project.slugURL}/${project.locationMapImage}`}
                     alt="Location Map"
                     width={400}

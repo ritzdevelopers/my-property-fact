@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { AdminTableDeleteIcon, AdminTableEditIcon } from "./admin-table-icons";
 
 /** Circular table thumbnail — preserves image display per design.
@@ -15,13 +14,12 @@ export function AdminGridImageThumb({ src, alt, onPreviewClick, fit = "cover" })
       : "admin-grid-thumb";
   const inner = (
     <div className={thumbClass}>
-      <Image
+      <img
         src={src}
         alt={alt || ""}
         width={40}
         height={40}
         className="admin-grid-thumb__img"
-        unoptimized
       />
     </div>
   );

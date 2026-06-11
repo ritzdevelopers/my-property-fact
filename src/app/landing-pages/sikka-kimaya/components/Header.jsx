@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState, useCallback } from "react";
 import logo from "../assets/logo.png";
@@ -29,34 +28,31 @@ export default function Header() {
           <div className="col-auto flex-grow-1 flex-sm-grow-0">
             <div className="d-flex align-items-center">
               <Link title="First Logo" href="/" className="me-1 me-sm-2">
-                <Image
+                <img loading="eager"
                   src={logo}
                   alt="Logo"
                   width={100}
                   height={32}
                   className="img-fluid d-none d-sm-block"
-                  priority
                 />
-                <Image
+                <img loading="eager"
                   src={logo}
                   alt="Logo"
                   width={80}
                   height={26}
                   className="img-fluid d-block d-sm-none"
-                  priority
                 />
               </Link>
 
               <div className="vr mx-1 mx-sm-2 d-none d-sm-block" />
 
               <Link title="Second Logo" href="/" className="d-none d-sm-block">
-                <Image
+                <img loading="eager"
                   src={kimayaLogo}
                   alt="Second Logo"
                   width={110}
                   height={42}
                   className="img-fluid"
-                  priority
                 />
               </Link>
             </div>

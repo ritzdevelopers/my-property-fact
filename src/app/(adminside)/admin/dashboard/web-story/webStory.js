@@ -8,7 +8,6 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import {
   AdminGridActions,
   AdminGridImageThumb,
@@ -219,13 +218,12 @@ export default function WebStory({ categoryList, list }) {
                     />
                     {imagePreview ? (
                         <div className="admin-image-lightbox-inner">
-                            <Image
+                            <img
                                 src={imagePreview.src}
                                 alt={imagePreview.alt}
                                 width={1200}
                                 height={900}
                                 className="admin-image-lightbox-img"
-                                unoptimized
                             />
                         </div>
                     ) : null}
@@ -273,7 +271,7 @@ export default function WebStory({ categoryList, list }) {
                                 Story Title is required!
                             </Form.Control.Feedback>
                         </Form.Group>
-                        {prevImage && <Image
+                        {prevImage && <img
                             src={prevImage}
                             height={150}
                             width={75}

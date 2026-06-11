@@ -1,5 +1,4 @@
 import "./newinsight.css";
-import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -40,7 +39,7 @@ export default function NewInsight() {
                 return (
                 <div className="insight-card" key={insight.id}>
                   <div className="insight-icon-wrapper">
-                    <Image
+                    <img
                       src={insight.iconSrc}
                       alt={insightIconAlt}
                       title={insightIconAlt}
@@ -79,19 +78,17 @@ export default function NewInsight() {
               rel="noopener noreferrer"
               title="Exotica-132"
             >
-            <Image
+            <img
               src="/static/expert_insights.jpg"
               alt="Exotica One32 — commercial project featured in Expert Insights & Resources"
               title="Exotica One32 — commercial project featured in Expert Insights & Resources"
               width={604}
               height={308}
               className="insight-main-image"
-              quality={65}
-              sizes="(max-width: 1199px) 100vw, min(1380px, 92vw)"
             />
               </Link>
             {/* <div className="insight-logo-wrapper">
-              <Image
+              <img
                 src="/static/icon/jacob.svg"
                 alt="Jacob & Co"
                 width={170}

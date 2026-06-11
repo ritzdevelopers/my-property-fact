@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import logo from "../assets/Kimaya_Greens_Hero_Image.jpg";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRouter } from "next/navigation";
@@ -141,7 +140,7 @@ export default function PopupForm() {
 
               {/* Image */}
               <div className="d-none d-md-block w-50 overflow-hidden">
-                <Image
+                <img
                   src={logo}
                   alt="Kimaya Greens"
                   width={600}

@@ -1,6 +1,5 @@
 import axios from "axios";
 import Multiselect from "multiselect-react-dropdown";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Row } from "react-bootstrap";
 
@@ -133,7 +132,7 @@ export function FileInput({ label, name, onChange, multiple }) {
           {previews.map((file, index) => (
             <div key={index} className="position-relative">
               {/* Image Preview */}
-              <Image
+              <img
                 src={URL.createObjectURL(file)}
                 alt={`preview-${index}`}
                 width={200}

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import overviewImg from "../assets/An_Icon_Image_ONYX.png";
 
 export default function Overview() {
@@ -27,7 +26,7 @@ export default function Overview() {
               maxWidth: "500px",
             }}
           >
-            <Image
+            <img
               src={overviewImg}
               alt="Overview Image"
               width={400}

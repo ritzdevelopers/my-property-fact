@@ -2,9 +2,12 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
+import {
+  buildProjectImageUrl,
+  DEFAULT_PROJECT_CARD_IMAGE,
+} from "@/lib/projectImageUrl";
 import "./popupform.css";
 
 /** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */
@@ -28,18 +31,18 @@ const ENQUIRY_JOURNEY_PAUSE_END_MS = 2200;
 const ENQUIRY_JOURNEY_GAP_MS = 380;
 
 function getProjectImageSrc(data) {
-  if (!data?.slugURL) return "/static/no_image.png";
-  const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
-  const slug = data.slugURL;
-  const filename =
-    data.desktopImages?.[0]?.desktopImage ||
-    data.projectThumbnail ||
-    data.projectBannerImage ||
-    data.projectLogo ||
-    "";
-  if (!filename) return "/static/no_image.png";
-  if (/^https?:\/\//i.test(filename) || filename.startsWith("/")) return filename;
-  return `${imageBase}properties/${slug}/${filename}`;
+  if (!data?.slugURL) return DEFAULT_PROJECT_CARD_IMAGE;
+
+  const desktopHero = data.desktopImages?.[0]?.desktopImage;
+  if (desktopHero) {
+    const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+    if (/^https?:\/\//i.test(desktopHero) || desktopHero.startsWith("/")) {
+      return desktopHero;
+    }
+    return `${imageBase}properties/${data.slugURL}/${desktopHero}`;
+  }
+
+  return buildProjectImageUrl(data, { preferThumbnail: true });
 }
 
 export default function CommonPopUpform({
@@ -316,13 +319,11 @@ export default function CommonPopUpform({
         />
           <div className={`enquiry-popup-split ${isHomeSplit ? "enquiry-popup-split--home" : ""}`}>
             <div className={`enquiry-popup-image ${isHomeSplit ? "enquiry-popup-image--home" : ""}`}>
-              <Image
+              <img
                 src={popupImageSrc}
                 alt={popupImageAlt}
-                fill
                 className={`enquiry-popup-image-img ${isHomeSplit ? "enquiry-popup-image-img--home" : ""}`}
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
+               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             </div>
             <div className="enquiry-popup-form-wrap">
               <p className="enquiry-popup-intro">

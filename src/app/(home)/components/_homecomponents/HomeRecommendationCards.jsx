@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
@@ -34,17 +34,7 @@ function getProjectHref(project) {
 }
 
 function getProjectImage(project) {
-  const imageBase =
-    (typeof process.env.NEXT_PUBLIC_IMAGE_URL === "string" &&
-      process.env.NEXT_PUBLIC_IMAGE_URL) ||
-    "";
-  const slug = project?.slugURL || project?.slugUrl;
-  const rawImage =
-    project?.projectBannerImage || project?.projectThumbnailImage || project?.bannerImage || "";
-
-  if (typeof rawImage === "string" && rawImage.startsWith("http")) return rawImage;
-  if (imageBase && slug && rawImage) return `${imageBase}properties/${slug}/${rawImage}`;
-  return "/static/no_image.png";
+  return buildProjectImageUrl(project, { preferThumbnail: true });
 }
 
 function getProjectLocation(project) {
@@ -219,7 +209,7 @@ export default function HomeRecommendationCards({
                 onClick={handlePrev}
                 aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
               >
-                <Image
+                <img
                   src="/icon/arrow-left-s-line.svg"
                   alt="Previous"
                   title="Previous"
@@ -234,7 +224,7 @@ export default function HomeRecommendationCards({
                 onClick={handleNext}
                 aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
               >
-                <Image
+                <img
                   src="/icon/arrow-right-s-line.svg"
                   alt="Next"
                   title="Next"
@@ -265,14 +255,14 @@ export default function HomeRecommendationCards({
                 >
                   <div className="home-project-card__media">
                     {/** Keep title/alt explicit for SEO audits; avoid "/" placeholders. */}
-                    <Image
+                    <img
                       src={card.image}
                       alt={`${card.title} — real estate listing card image on My Property Fact`}
                       title={`${card.title} — real estate listing card image on My Property Fact`}
-                      fill
-                      sizes="(max-width: 576px) 44vw, (max-width: 991px) 42vw, 22vw"
                       className="home-project-card__image"
-                    />
+                      loading="lazy"
+                      decoding="async"
+                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     <span className="home-project-card__badge">{card.badge}</span>
                   </div>
 

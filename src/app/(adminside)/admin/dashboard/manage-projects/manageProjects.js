@@ -6,7 +6,6 @@ import {
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -882,7 +881,7 @@ export default function ManageProjects({
                     <>
                       {field.previousImage && (
                         <div>
-                          <Image
+                          <img
                             src={field.previousImage}
                             alt="Current Project Logo"
                             width={field.width || 200}

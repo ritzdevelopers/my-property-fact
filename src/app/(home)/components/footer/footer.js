@@ -9,7 +9,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./footer.css";
 import Link from "next/link";
-import Image from "next/image";
 import CityList from "../common/citylistcard";
 
 export default function Footer({ cityList = [], projectTypes = [] }) {
@@ -216,7 +215,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       rel="noopener noreferrer"
                       title="facebook"
                     >
-                      <Image
+                      <img
                         src="/static/icon/facebook.png"
                         alt="Facebook"
                         title="Facebook"
@@ -233,7 +232,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       rel="noopener noreferrer"
                       title="instagram"
                     >
-                      <Image
+                      <img
                         src="/static/icon/instagram.png"
                         alt="Instagram"
                         title="Instagram"
@@ -250,7 +249,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       rel="noopener noreferrer"
                       title="linkedin"
                     >
-                      <Image
+                      <img
                         src="/static/icon/linkedin.png"
                         alt="LinkedIn"
                         title="LinkedIn"
@@ -267,7 +266,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       rel="noopener noreferrer"
                       title="youtube"
                     >
-                      <Image
+                      <img
                         src="/static/icon/youtube.png"
                         alt="YouTube"
                         title="YouTube"
@@ -284,7 +283,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
                       rel="noopener noreferrer"
                       title="X"
                     >
-                      <Image
+                      <img
                         src="/static/icon/twitter.png"
                         alt="X (Twitter)"
                         title="X (Twitter)"

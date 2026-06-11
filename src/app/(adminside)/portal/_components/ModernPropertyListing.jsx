@@ -44,8 +44,6 @@ import {
   fetchProjectTypes,
 } from "@/app/_global_components/masterFunction";
 import axios from "axios";
-import NextImage from "next/image";
-
 // Helper function to determine which fields should be shown based on property type, subtype, and status
 const getFieldVisibility = (listingType, subType, status) => {
   const isResidential = listingType === "Residential";
@@ -3968,7 +3966,7 @@ function FeaturesAmenitiesStep({
                       />
                       {iconUrl && (
                         <div className="item-icon" style={{ flexShrink: 0 }}>
-                          <NextImage
+                          <img
                             src={iconUrl}
                             alt={amenity.altTag || amenityName}
                             width={40}
@@ -4085,7 +4083,7 @@ function FeaturesAmenitiesStep({
                       />
                       {iconUrl && (
                         <div className="item-icon" style={{ flexShrink: 0 }}>
-                          <NextImage
+                          <img
                             src={iconUrl}
                             alt={feature.altTag || featureName}
                             width={40}
@@ -4198,7 +4196,7 @@ function FeaturesAmenitiesStep({
                       />
                       {iconUrl && (
                         <div className="item-icon" style={{ flexShrink: 0 }}>
-                          <NextImage
+                          <img
                             src={iconUrl}
                             alt={
                               benefit.altTag ||
@@ -4482,10 +4480,9 @@ function MediaContactStep({
                         overflow: "hidden",
                       }}
                     >
-                      <NextImage
+                      <img
                         src={imageData.preview}
                         alt={`Property image ${index + 1}`}
-                        fill
                         style={{
                           objectFit: "cover",
                         }}

@@ -6,7 +6,6 @@ import {
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
 import axios from "axios";
-import Image from "next/image";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -143,7 +142,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
       renderCell: (params) => (
         <>
           {params.row.galleryImage.map((item, index) => (
-            <Image
+            <img
               className="mx-2 rounded-2 cursor-pointer"
               key={index}
               src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${params.row.slugURL}/${item.image}`}
@@ -269,7 +268,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
                   <div className="d-flex flex-wrap gap-3">
                     {images.map((img, index) => (
                       <div key={index} style={{ position: "relative" }}>
-                        <Image
+                        <img
                           className="rounded-2 d-block my-2"
                           src={img.preview}
                           alt="preview"
@@ -349,13 +348,12 @@ export default function ManageGallery({ list, projectsList, newList }) {
       >
         <Modal.Body>
           {popUpImageSrc && (
-            <Image
+            <img
               className="rounded-2"
               src={popUpImageSrc}
               alt="pop-up-image"
               width={0}
               height={0}
-              sizes="100vw"
               style={{
                 height: "auto",
                 width: "auto",
@@ -383,7 +381,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
               <div>
                 <h6>{index + 1}</h6>
               </div>
-              <Image
+              <img
                 className="rounded-2 d-block my-2"
                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectSlug}/${item.image}`}
                 alt={projectSlug}

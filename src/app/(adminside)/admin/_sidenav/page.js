@@ -7,7 +7,6 @@ import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -172,7 +171,7 @@ export default function SideNav({ onLinkClick }) {
             theme === "dark" ? " admin-sidebar-logo-wrap--dark-asset" : ""
           }`}
         >
-          <Image
+          <img
             src={
               theme === "dark"
                 ? "/images/admin/login-register.svg"

@@ -214,6 +214,15 @@ const nextConfig = {
       return [];
     }
     return [
+      // Ensure crawlers and proxies don't cache robots.txt
+      {
+        source: "/robots.txt",
+        headers: [
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" },
+          { key: "Pragma", value: "no-cache" },
+          { key: "Expires", value: "0" },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

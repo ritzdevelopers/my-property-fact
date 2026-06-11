@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -12,6 +12,8 @@ export default function SocialFeedsOfMPF() {
   const [isMobile, setIsMobile] = useState(false);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const videoRefs = useRef([]);
+  const popupVideoRef = useRef(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -89,6 +91,94 @@ export default function SocialFeedsOfMPF() {
     }
   }, [isPopupOpen, handleKeyDown]);
 
+  const primeVideoPreview = useCallback((videoEl) => {
+    if (!videoEl || videoEl.dataset.primed === "true") return;
+
+    const showFrame = () => {
+      videoEl.dataset.primed = "true";
+      const seekTime = Number.isFinite(videoEl.duration) && videoEl.duration > 0
+        ? Math.min(0.1, videoEl.duration / 2)
+        : 0.001;
+      videoEl.currentTime = seekTime;
+    };
+
+    if (videoEl.readyState >= 1) {
+      showFrame();
+      return;
+    }
+
+    videoEl.addEventListener("loadeddata", showFrame, { once: true });
+    if (videoEl.readyState === 0) {
+      videoEl.load();
+    }
+  }, []);
+
+  const startInlinePreview = useCallback((videoEl) => {
+    if (!videoEl) return;
+
+    primeVideoPreview(videoEl);
+
+    const playPromise = videoEl.play();
+    if (playPromise?.catch) {
+      playPromise.catch(() => {
+        primeVideoPreview(videoEl);
+      });
+    }
+  }, [primeVideoPreview]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(({ target, isIntersecting }) => {
+          const video = target;
+          if (isIntersecting) {
+            startInlinePreview(video);
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.2, rootMargin: "40px" }
+    );
+
+    const observeVideos = () => {
+      videoRefs.current.forEach((video) => {
+        if (video) observer.observe(video);
+      });
+    };
+
+    observeVideos();
+
+    const primeTimer = window.setTimeout(() => {
+      videoRefs.current.forEach((video) => {
+        if (video) primeVideoPreview(video);
+      });
+    }, 150);
+
+    return () => {
+      window.clearTimeout(primeTimer);
+      observer.disconnect();
+    };
+  }, [startInlinePreview, primeVideoPreview, socialPosts.length]);
+
+  const handleSwiperSlideChange = useCallback((swiper) => {
+    const activeVideo = videoRefs.current[swiper.realIndex];
+    if (activeVideo) {
+      startInlinePreview(activeVideo);
+    }
+  }, [startInlinePreview]);
+
+  useEffect(() => {
+    if (!isPopupOpen || !popupVideoRef.current) return;
+
+    const popupVideo = popupVideoRef.current;
+    popupVideo.load();
+    const playPromise = popupVideo.play();
+    if (playPromise?.catch) {
+      playPromise.catch(() => {});
+    }
+  }, [isPopupOpen, selectedVideoIndex]);
+
   const selectedVideo = selectedVideoIndex !== null ? socialPosts[selectedVideoIndex] : null;
 
   return (
@@ -120,6 +210,8 @@ export default function SocialFeedsOfMPF() {
                 loop={socialPosts.length > 1}
                 grabCursor={true}
                 speed={600}
+                watchSlidesProgress={true}
+                onSlideChangeTransitionEnd={handleSwiperSlideChange}
                 breakpoints={{
                   320: {
                     slidesPerView: 1,
@@ -175,17 +267,18 @@ export default function SocialFeedsOfMPF() {
                       <div className="card-border-gradient"></div>
                       <div className="post-video-wrapper" onClick={() => handleVideoClick(index)}>
                         <video
+                          ref={(el) => {
+                            videoRefs.current[index] = el;
+                          }}
                           id={`social-video-${index}`}
                           className="post-video"
+                          src={post.video}
                           loop
                           muted
                           playsInline
-                          preload="metadata"
+                          preload="auto"
                           aria-label={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
-                        >
-                          <source src={post.video} type="video/mp4" />
-                          Your browser does not support the video tag.
-                        </video>
+                        />
                         {/* Play Icon Overlay - Always show on hover */}
                         {hoveredIndex === index && (
                           <div className="play-icon-overlay show-on-hover">
@@ -251,15 +344,17 @@ export default function SocialFeedsOfMPF() {
             </button>
             <div className="video-popup-content">
               <video
+                ref={popupVideoRef}
                 className="video-popup-player"
+                src={selectedVideo.video}
                 controls
                 loop
                 playsInline
+                autoPlay
+                muted
+                preload="auto"
                 aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
-              >
-                <source src={selectedVideo.video} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+              />
               {selectedVideo.text && (
                 <div className="video-popup-text">
                   <p>{selectedVideo.text}</p>

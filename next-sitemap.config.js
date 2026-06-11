@@ -487,6 +487,7 @@ const STATIC_PUBLIC_PAGES = [
 const SITEMAP_BLOCKED_EXACT = new Set([
   "/clients-speak",
   "/dashboard",
+  "/portal",
   "/properties",
   "/admin",
   "/admin/forgot-password",
@@ -503,7 +504,7 @@ const SITEMAP_BLOCKED_EXACT = new Set([
 
 const SITEMAP_BLOCKED_PREFIXES = [
   "/components/",
-  "/portal",
+  "/portal/",
   "/admin/",
   "/landing-pages",
   "/promotional-pages",
@@ -515,6 +516,10 @@ const SITEMAP_BLOCKED_PREFIXES = [
   "/properties/",
 ];
 
+function pathHasSegment(path, segment) {
+  return path.split("/").filter(Boolean).includes(segment);
+}
+
 function shouldExcludePathFromSitemap(path) {
   if (!path || typeof path !== "string") return true;
   const normalized = path.startsWith("/") ? path : `/${path}`;
@@ -522,7 +527,10 @@ function shouldExcludePathFromSitemap(path) {
     normalized.length > 1 ? normalized.replace(/\/+$/, "") : normalized;
   if (withoutTrailingSlash.startsWith("/api/v1/web-story/")) return false;
   if (SITEMAP_BLOCKED_EXACT.has(withoutTrailingSlash)) return true;
-  if (withoutTrailingSlash.includes("/portal") || withoutTrailingSlash.includes("/dashboard")) {
+  if (
+    pathHasSegment(withoutTrailingSlash, "portal") ||
+    pathHasSegment(withoutTrailingSlash, "dashboard")
+  ) {
     return true;
   }
   if (withoutTrailingSlash === "/admin" || withoutTrailingSlash.startsWith("/admin/")) {

@@ -14,7 +14,6 @@ import "./common.css";
 
 export default function PropertyContainer({ data, badgeVariant = "default", imagePriority = false }) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Ensure data is defined before accessing its properties
   if (!data) {
@@ -140,17 +139,13 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
             src={imageSrc}
             alt={projectCardImageAlt}
             title={projectCardImageAlt}
-            className={`img-fluid w-100 rounded-top-4 object-fit-cover${imageLoaded ? " is-loaded" : ""}`}
+            className="img-fluid w-100 rounded-top-4 object-fit-cover"
             width={400}
             height={230}
             loading={imagePriority ? "eager" : "lazy"}
             fetchPriority={imagePriority ? "high" : "auto"}
             decoding="async"
-            onLoad={() => setImageLoaded(true)}
-            onError={() => {
-              setImageError(true);
-              setImageLoaded(true);
-            }}
+            onError={() => setImageError(true)}
           />
         </div>
         {renderStatusBadge()}

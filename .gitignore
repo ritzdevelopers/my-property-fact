@@ -44,12 +44,12 @@ public/blog
 public/amenity
 public/web-story
 # public/icon
-# /public/**
+# /public/** 
 public/location-benefit
 # Ignore generated sitemap and robots files
 /public/sitemap-0.xml
 /public/sitemap.xml
 /public/sitemap-custom.xml
-/public/robots.txt
+
 
 .env

@@ -5,7 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { toast } from "react-toastify";
@@ -19,6 +19,27 @@ import {
 } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 import exportOverlayStyles from "./manageBlogsExportOverlay.module.css";
+import {
+  AdminFilterCount,
+  AdminSummaryFilterCards,
+  AdminStatusToggle,
+} from "../common-model/admin-summary-filter-cards";
+import {
+  BLOG_STATUS_FILTERS,
+  countBlogs,
+  filterBlogs,
+  getBlogRowClassName,
+  isBlogActive,
+} from "../common-model/adminContentFilters";
+
+const apiWithAuth = () => ({
+  withCredentials: true,
+  headers: {
+    ...(typeof window !== "undefined" && Cookies.get("token")
+      ? { Authorization: `Bearer ${Cookies.get("token")}` }
+      : {}),
+  },
+});
 // 🔥 This prevents SSR errors
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -127,6 +148,66 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [excelExportUi, setExcelExportUi] = useState(EXCEL_EXPORT_UI_INITIAL);
   const excelExportInProgressRef = useRef(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [blogs, setBlogs] = useState(list || []);
+  const [togglingBlogIds, setTogglingBlogIds] = useState(() => new Set());
+
+  useEffect(() => {
+    setBlogs(Array.isArray(list) ? list : []);
+  }, [list]);
+
+  const blogCounts = useMemo(() => countBlogs(blogs), [blogs]);
+  const filteredBlogList = useMemo(
+    () => filterBlogs(blogs, statusFilter),
+    [blogs, statusFilter],
+  );
+  const activeBlogFilter = BLOG_STATUS_FILTERS.find((item) => item.id === statusFilter);
+
+  const handleToggleBlogStatus = async (blog, makeActive) => {
+    const blogId = blog?.id;
+    if (!blogId || togglingBlogIds.has(blogId)) return;
+
+    setTogglingBlogIds((prev) => new Set(prev).add(blogId));
+    const nextStatus = makeActive ? 1 : 0;
+
+    try {
+      const apiBase = getPublicApiBase();
+      const response = await axios.post(
+        `${apiBase}blog/update-status?id=${blogId}&status=${nextStatus}`,
+        {},
+        apiWithAuth(),
+      );
+
+      if (response.data?.isSuccess !== 1) {
+        toast.error(response.data?.message || "Could not update blog status");
+        return;
+      }
+
+      setBlogs((prev) =>
+        prev.map((item) =>
+          item.id === blogId ? { ...item, status: nextStatus } : item,
+        ),
+      );
+      toast.success(
+        makeActive
+          ? "Blog is active and visible on the website"
+          : "Blog is inactive and hidden from the website",
+      );
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to update blog status",
+      );
+    } finally {
+      setTogglingBlogIds((prev) => {
+        const next = new Set(prev);
+        next.delete(blogId);
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     if (excelExportUi.phase !== "success" || !excelExportUi.open) return;
@@ -180,6 +261,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       data.append("blogCategory", formData.blogCategory);
       data.append("id", formData.id);
       data.append("cityId", formData.cityId);
+      data.append("status", String(formData.status ?? 1));
 
       try {
         const apiBase = getPublicApiBase();
@@ -265,6 +347,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       slugUrl: item.slugUrl,
       authorName: item.authorName || "",
       blogCategory: item.categoryId,
+      status: item.status !== undefined ? item.status : 1,
       id: item.id,
       cityId: item.cityId,
     });
@@ -401,7 +484,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           b.authorName ?? "",
           b.blogCategory ?? "",
           b.cityName ?? "",
-          b.status === 1 ? "Published" : "Draft",
+          b.status === 1 ? "Active" : "Inactive",
           b.categoryId ?? "",
           b.cityId ?? "",
           publishedStr,
@@ -527,8 +610,28 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       renderCell: (p) => truncCell(p.value, 20),
     },
     {
+      field: "status",
+      headerName: "Status",
+      width: 150,
+      sortable: false,
+      renderCell: (params) => {
+        const active = isBlogActive(params.row);
+        const busy = togglingBlogIds.has(params.row.id);
+        return (
+          <AdminStatusToggle
+            id={`blog-status-${params.row.id}`}
+            checked={active}
+            disabled={busy}
+            onChange={(checked) => handleToggleBlogStatus(params.row, checked)}
+            activeLabel="Active"
+            inactiveLabel="Inactive"
+          />
+        );
+      },
+    },
+    {
       field: "createdAt",
-      headerName: "Published",
+      headerName: "Created",
       width: 160,
       renderCell: (params) => formatPublishedDateTime(params.row.createdAt),
     },
@@ -680,8 +783,44 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           excelExportUi.open && excelExportUi.phase === "loading"
         }
       />
+      <div className="manage-users-page">
+        <AdminSummaryFilterCards
+          filters={BLOG_STATUS_FILTERS}
+          activeFilter={statusFilter}
+          onFilterChange={setStatusFilter}
+          counts={blogCounts}
+          ariaLabel="Filter blogs by status"
+        />
+        <div className="manage-users-toolbar mb-2">
+          <AdminFilterCount
+            filteredCount={filteredBlogList.length}
+            totalCount={blogs.length}
+            activeFilter={statusFilter}
+            activeFilterLabel={activeBlogFilter?.shortLabel}
+            onClear={() => setStatusFilter("all")}
+          />
+        </div>
+      </div>
       <div className="table-container">
-        <DataTable columns={columns} list={list} />
+        <DataTable
+          columns={columns}
+          list={filteredBlogList}
+          getRowClassName={getBlogRowClassName}
+          dataGridSx={{
+            "& .MuiDataGrid-row.mu-row--disabled .MuiDataGrid-cell": {
+              color: "#6b7280",
+            },
+            "& .MuiDataGrid-row.mu-row--disabled .MuiDataGrid-cell:first-of-type": {
+              boxShadow: "inset 3px 0 0 #ef4444",
+            },
+            "& .MuiDataGrid-row.mu-row--unverified .MuiDataGrid-cell:first-of-type": {
+              boxShadow: "inset 3px 0 0 #3b82f6",
+            },
+            "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
+              boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
+            },
+          }}
+        />
       </div>
       {/* Blog form */}
       <Modal

@@ -5,7 +5,20 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck, faTimes, faMagnifyingGlass, faFilter, faCircleCheck, faCopy, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCheck,
+  faTimes,
+  faMagnifyingGlass,
+  faFilter,
+  faCircleCheck,
+  faCopy,
+  faTrash,
+  faUsers,
+  faUserCheck,
+  faUserSlash,
+  faClock,
+  faCircleExclamation,
+} from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -37,6 +50,98 @@ function normalizeUserCategory(value) {
   return USER_CATEGORY_LABELS[v] ? v : "APP_USER";
 }
 
+function getUserRowMeta(user, isSuperAdmin) {
+  const roleNamesUpper = (user.roles || []).map((r) =>
+    String(r?.roleName || "").toUpperCase(),
+  );
+  const waitingPortalActivation =
+    typeof user.portalActivationPending === "boolean"
+      ? user.portalActivationPending
+      : user.adminStaffApproved === false &&
+        !roleNamesUpper.includes("SUPERADMIN");
+  const enabled = user.enabled !== undefined ? user.enabled : true;
+  const verified = user.verified !== undefined ? user.verified : false;
+  const pendingPortalApproval = isSuperAdmin && waitingPortalActivation;
+
+  return {
+    roleNamesUpper,
+    enabled,
+    verified,
+    waitingPortalActivation,
+    pendingPortalApproval,
+  };
+}
+
+const USER_STATUS_FILTERS = [
+  { id: "all", label: "All users", shortLabel: "All", icon: faUsers, tone: "neutral" },
+  { id: "active", label: "Active users", shortLabel: "Active", icon: faUserCheck, tone: "success" },
+  { id: "disabled", label: "Disabled users", shortLabel: "Disabled", icon: faUserSlash, tone: "danger" },
+  { id: "pending", label: "Pending approval", shortLabel: "Pending", icon: faClock, tone: "warning" },
+  {
+    id: "unverified",
+    label: "Unverified users",
+    shortLabel: "Unverified",
+    icon: faCircleExclamation,
+    tone: "info",
+  },
+];
+
+function UserStatusBadge({ pendingPortalApproval, enabled }) {
+  if (pendingPortalApproval) {
+    return (
+      <span className="mu-status-pill mu-status-pill--pending">
+        <FontAwesomeIcon icon={faClock} className="mu-status-pill__icon" aria-hidden />
+        Pending approval
+      </span>
+    );
+  }
+
+  if (!enabled) {
+    return (
+      <span className="mu-status-pill mu-status-pill--disabled">
+        <FontAwesomeIcon icon={faUserSlash} className="mu-status-pill__icon" aria-hidden />
+        Disabled
+      </span>
+    );
+  }
+
+  return (
+    <span className="mu-status-pill mu-status-pill--active">
+      <span className="mu-status-pill__dot" aria-hidden />
+      Active
+    </span>
+  );
+}
+
+function UserVerifiedBadge({ verified }) {
+  if (verified) {
+    return <span className="mu-status-pill mu-status-pill--verified">Verified</span>;
+  }
+
+  return (
+    <span className="mu-status-pill mu-status-pill--unverified">
+      <FontAwesomeIcon icon={faCircleExclamation} className="mu-status-pill__icon" aria-hidden />
+      Unverified
+    </span>
+  );
+}
+
+function UserTypeBadge({ userCategory }) {
+  const category = normalizeUserCategory(userCategory);
+  const toneClass =
+    category === "TEST_USER"
+      ? "mu-user-type-badge--test"
+      : category === "ADMIN_USER"
+        ? "mu-user-type-badge--admin"
+        : "mu-user-type-badge--app";
+
+  return (
+    <span className={`mu-user-type-badge ${toneClass}`}>
+      {USER_CATEGORY_LABELS[category]}
+    </span>
+  );
+}
+
 export default function ManageUsers({ users: initialUsers }) {
   const router = useRouter();
   const { isSuperAdmin, currentUserId } = useAdminRole();
@@ -61,6 +166,7 @@ export default function ManageUsers({ users: initialUsers }) {
   const [rejectStaffSubmitting, setRejectStaffSubmitting] = useState(false);
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [formData, setFormData] = useState({
     id: null,
     fullName: "",
@@ -691,9 +797,43 @@ export default function ManageUsers({ users: initialUsers }) {
     return Array.from(set).sort();
   }, [users]);
 
+  const userStats = useMemo(() => {
+    const stats = {
+      total: users.length,
+      active: 0,
+      disabled: 0,
+      pending: 0,
+      unverified: 0,
+    };
+
+    users.forEach((user) => {
+      const { enabled, verified, pendingPortalApproval } = getUserRowMeta(
+        user,
+        isSuperAdmin,
+      );
+
+      if (pendingPortalApproval) stats.pending += 1;
+      if (enabled) stats.active += 1;
+      else stats.disabled += 1;
+      if (!verified && enabled) stats.unverified += 1;
+    });
+
+    return stats;
+  }, [users, isSuperAdmin]);
+
   const filteredUsers = useMemo(() => {
     const q = userSearch.trim().toLowerCase();
     return users.filter((user) => {
+      const { enabled, verified, pendingPortalApproval } = getUserRowMeta(
+        user,
+        isSuperAdmin,
+      );
+
+      if (statusFilter === "active" && !enabled) return false;
+      if (statusFilter === "disabled" && enabled) return false;
+      if (statusFilter === "pending" && !pendingPortalApproval) return false;
+      if (statusFilter === "unverified" && (verified || !enabled)) return false;
+
       if (roleFilter) {
         const hasRole = (user.roles || []).some(
           (r) => String(r?.roleName ?? "").toUpperCase() === roleFilter.toUpperCase()
@@ -715,13 +855,51 @@ export default function ManageUsers({ users: initialUsers }) {
         .toLowerCase();
       return blob.includes(q);
     });
-  }, [users, userSearch, roleFilter]);
+  }, [users, userSearch, roleFilter, statusFilter, isSuperAdmin]);
+
+  const activeStatusFilter = USER_STATUS_FILTERS.find((item) => item.id === statusFilter);
+  const statusFilterCounts = {
+    all: userStats.total,
+    active: userStats.active,
+    disabled: userStats.disabled,
+    pending: userStats.pending,
+    unverified: userStats.unverified,
+  };
 
   return (
     <div className="container-fluid px-0">
       <DashboardHeader heading="Manage Users" pageStyle="executivePlain" />
 
-      <div className="mt-2">
+      <div className="mt-2 manage-users-page">
+        <div
+          className="mu-summary-cards admin-horizontal-scroll"
+          role="group"
+          aria-label="Filter users by account status"
+        >
+          {USER_STATUS_FILTERS.filter(
+            (item) => item.id !== "pending" || isSuperAdmin,
+          ).map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`mu-summary-card mu-summary-card--${item.tone}${
+                statusFilter === item.id ? " is-active" : ""
+              }`}
+              onClick={() => setStatusFilter(item.id)}
+              aria-pressed={statusFilter === item.id}
+              title={`Show ${item.label.toLowerCase()}`}
+            >
+              <span className="mu-summary-card__icon" aria-hidden>
+                <FontAwesomeIcon icon={item.icon} />
+              </span>
+              <span className="mu-summary-card__count">
+                {statusFilterCounts[item.id] ?? 0}
+              </span>
+              <span className="mu-summary-card__label">{item.shortLabel}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="manage-users-toolbar">
           <InputGroup className="manage-users-search">
             <InputGroup.Text
@@ -758,6 +936,19 @@ export default function ManageUsers({ users: initialUsers }) {
           </InputGroup>
           <span className="manage-users-count">
             Showing {filteredUsers.length} of {users.length} users
+            {statusFilter !== "all" && activeStatusFilter ? (
+              <>
+                {" "}
+                ·{" "}
+                <button
+                  type="button"
+                  className="mu-clear-filter-btn"
+                  onClick={() => setStatusFilter("all")}
+                >
+                  Clear {activeStatusFilter.shortLabel.toLowerCase()} filter
+                </button>
+              </>
+            ) : null}
           </span>
           {isSuperAdmin ? (
             <Button
@@ -800,30 +991,33 @@ export default function ManageUsers({ users: initialUsers }) {
                     colSpan={isSuperAdmin ? 13 : 10}
                     className="text-center text-muted py-4"
                   >
-                    No users match your search.
+                    {statusFilter !== "all" || roleFilter || userSearch.trim()
+                      ? "No users match your filters."
+                      : "No users found."}
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => {
-                  const roleNamesUpper = (user.roles || []).map((r) =>
-                    String(r?.roleName || "").toUpperCase(),
-                  );
-                  const waitingPortalActivation =
-                    typeof user.portalActivationPending === "boolean"
-                      ? user.portalActivationPending
-                      : user.adminStaffApproved === false &&
-                          !roleNamesUpper.includes("SUPERADMIN");
-                  const pendingPortalApproval =
-                    isSuperAdmin && waitingPortalActivation;
+                  const {
+                    roleNamesUpper,
+                    enabled,
+                    verified,
+                    pendingPortalApproval,
+                  } = getUserRowMeta(user, isSuperAdmin);
                   const roleLabel = getRoleNames(user.roles);
                   const roleParts = roleLabel.split(", ");
-                  const enabled =
-                    user.enabled !== undefined ? user.enabled : true;
+                  const rowStateClass = pendingPortalApproval
+                    ? "mu-row--pending"
+                    : !enabled
+                      ? "mu-row--disabled"
+                      : !verified
+                        ? "mu-row--unverified"
+                        : "mu-row--active";
 
                   return (
-                    <tr key={user.id}>
+                    <tr key={user.id} className={rowStateClass}>
                       <td>{user.id}</td>
-                      <td className="fw-medium">{user.fullName || "—"}</td>
+                      <td className="fw-medium mu-cell-name">{user.fullName || "—"}</td>
                       <td style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }} title={user.email}>
                         {user.email || "—"}
                       </td>
@@ -841,14 +1035,12 @@ export default function ManageUsers({ users: initialUsers }) {
                         )}
                       </td>
                       <td>
-                        <span className="admin-chip-user-type">
-                          {USER_CATEGORY_LABELS[normalizeUserCategory(user.userCategory)]}
-                        </span>
+                        <UserTypeBadge userCategory={user.userCategory} />
                       </td>
                       {isSuperAdmin ? (
                         <>
                           <td>
-                            {waitingPortalActivation ? (
+                            {pendingPortalApproval ? (
                               <span className="admin-chip-warn">Pending</span>
                             ) : !roleNamesUpper.includes("ADMIN") ? (
                               <span className="text-muted small">—</span>
@@ -919,18 +1111,13 @@ export default function ManageUsers({ users: initialUsers }) {
                         </>
                       ) : null}
                       <td>
-                        {enabled ? (
-                          <span className="admin-chip-ok">Active</span>
-                        ) : (
-                          <span className="admin-chip-role-muted">Off</span>
-                        )}
+                        <UserStatusBadge
+                          pendingPortalApproval={pendingPortalApproval}
+                          enabled={enabled}
+                        />
                       </td>
                       <td>
-                        {user.verified ? (
-                          <span className="admin-chip-ok">Yes</span>
-                        ) : (
-                          <span className="admin-chip-role-muted">No</span>
-                        )}
+                        <UserVerifiedBadge verified={verified} />
                       </td>
                       <td>
                         <div className="manage-users-actions-grid" style={{ display: "flex", alignItems: "center", gap: "5px", flexWrap: "wrap" }}>

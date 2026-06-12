@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
@@ -8,6 +8,18 @@ import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import GenerateForm from "../common-model/generateForm";
+import {
+  AdminFilterCount,
+  AdminSummaryFilterCards,
+  ContentStatusPill,
+} from "../common-model/admin-summary-filter-cards";
+import {
+  BLOG_CATEGORY_FILTERS,
+  countBlogCategories,
+  filterBlogCategories,
+  getBlogCategoryRowClassName,
+  hasText,
+} from "../common-model/adminContentFilters";
 
 export default function ManageBlogCategory({ list }) {
     //Defining form fields for blog category
@@ -30,6 +42,14 @@ export default function ManageBlogCategory({ list }) {
     const [formData, setFormData] = useState(getInitialFormData);
     const [confirmBox, setConfirmBox] = useState(false);
     const [catId, setCatId] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const categoryCounts = useMemo(() => countBlogCategories(list), [list]);
+    const filteredCategoryList = useMemo(
+        () => filterBlogCategories(list, statusFilter),
+        [list, statusFilter],
+    );
+    const activeCategoryFilter = BLOG_CATEGORY_FILTERS.find((item) => item.id === statusFilter);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -72,7 +92,24 @@ export default function ManageBlogCategory({ list }) {
     const columns = [
         { field: "index", headerName: "S.no", width: 80, cellClassName: "centered-cell" },
         { field: "categoryName", headerName: "Category Name", width: 200 },
-        { field: "categoryDescription", headerName: "Category Description", flex: 1, minWidth: 200, renderCell: (p) => truncCell(p.value) },
+        {
+            field: "categoryDescription",
+            headerName: "Category Description",
+            flex: 1,
+            minWidth: 200,
+            renderCell: (p) => truncCell(p.value),
+        },
+        {
+            field: "contentStatus",
+            headerName: "Status",
+            width: 130,
+            sortable: false,
+            renderCell: (params) => (
+                <ContentStatusPill variant={hasText(params.row.categoryDescription) ? "active" : "pending"}>
+                    {hasText(params.row.categoryDescription) ? "Complete" : "Needs desc."}
+                </ContentStatusPill>
+            ),
+        },
         {
             field: "action",
             headerName: "Action",
@@ -102,11 +139,38 @@ export default function ManageBlogCategory({ list }) {
     ];
 
     return (
-        <div>
+        <div className="manage-users-page">
             <DashboardHeader buttonName={'+ Add New Category'} functionName={openAddModel} heading={'Manage Blog Categories'} />
-            {/* Table containing all the blog categories */}
+            <AdminSummaryFilterCards
+                filters={BLOG_CATEGORY_FILTERS}
+                activeFilter={statusFilter}
+                onFilterChange={setStatusFilter}
+                counts={categoryCounts}
+                ariaLabel="Filter blog categories"
+            />
+            <div className="manage-users-toolbar mb-2">
+                <AdminFilterCount
+                    filteredCount={filteredCategoryList.length}
+                    totalCount={Array.isArray(list) ? list.length : 0}
+                    activeFilter={statusFilter}
+                    activeFilterLabel={activeCategoryFilter?.shortLabel}
+                    onClear={() => setStatusFilter("all")}
+                />
+            </div>
             <div>
-                <DataTable columns={columns} list={list} />
+                <DataTable
+                    columns={columns}
+                    list={filteredCategoryList}
+                    getRowClassName={getBlogCategoryRowClassName}
+                    dataGridSx={{
+                        "& .MuiDataGrid-row.mu-row--unverified .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 #3b82f6",
+                        },
+                        "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
+                        },
+                    }}
+                />
             </div>
             {/* Generating from for blog category  */}
             <GenerateForm

@@ -55,7 +55,7 @@ export default function SocialFeedsOfMPF() {
     {
       text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
       position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social22.mp4"
+      video: "https://otherassets.blob.core.windows.net/mpf/social-media/V1 40MB .mp4"
     },
     {
       text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,

@@ -18,6 +18,7 @@ export async function searchBlogsAction(query) {
     const allBlogs = await fetchBlogGetAll();
     const list = normalizeBlogListPayload(allBlogs);
     return list
+      .filter((b) => Number(b?.status) === 1)
       .filter((b) => {
         const t = (b.blogTitle || "").toLowerCase();
         const d = (b.blogMetaDescription || "").toLowerCase();

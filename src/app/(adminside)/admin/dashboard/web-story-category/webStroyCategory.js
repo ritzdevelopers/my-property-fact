@@ -5,13 +5,24 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import CommonModal from "../common-model/common-model";
+import {
+  AdminFilterCount,
+  AdminSummaryFilterCards,
+  ContentStatusPill,
+} from "../common-model/admin-summary-filter-cards";
+import {
+  WEB_STORY_CATEGORY_FILTERS,
+  countWebStoryCategories,
+  filterWebStoryCategories,
+  getWebStoryCategoryRowClassName,
+} from "../common-model/adminContentFilters";
 
 export default function WebStroyCategory({ list }) {
 
@@ -27,6 +38,14 @@ export default function WebStroyCategory({ list }) {
     const [categoryId, setCategoryId] = useState(0);
     const router = useRouter();
     const [confirmBox, setConfirmBox] = useState(false);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const categoryCounts = useMemo(() => countWebStoryCategories(list), [list]);
+    const filteredCategoryList = useMemo(
+        () => filterWebStoryCategories(list, statusFilter),
+        [list, statusFilter],
+    );
+    const activeCategoryFilter = WEB_STORY_CATEGORY_FILTERS.find((item) => item.id === statusFilter);
     //Handling opening of add model
     const openAddModel = () => {
         setButtonName("Add Category");
@@ -108,6 +127,20 @@ export default function WebStroyCategory({ list }) {
         { field: "metaDescription", headerName: "Meta description", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
         { field: "metaKeywords", headerName: "Meta keywords", flex: 1, minWidth: 160, renderCell: (p) => truncCell(p.value) },
         { field: "noOfStories", headerName: "No of Stories", width: 110 },
+        {
+            field: "contentStatus",
+            headerName: "Status",
+            width: 130,
+            sortable: false,
+            renderCell: (params) => {
+                const count = Number(params.row.noOfStories ?? 0);
+                return (
+                    <ContentStatusPill variant={count > 0 ? "active" : "pending"}>
+                        {count > 0 ? `${count} stories` : "Empty"}
+                    </ContentStatusPill>
+                );
+            },
+        },
         { field: "storyUrl", headerName: "Story URL", flex: 1, minWidth: 140, renderCell: (p) => truncCell(p.value) },
         {
             field: "action",
@@ -143,8 +176,38 @@ export default function WebStroyCategory({ list }) {
                 functionName={openAddModel}
                 heading={"Manage web story category"}
             />
+            <div className="manage-users-page">
+                <AdminSummaryFilterCards
+                    filters={WEB_STORY_CATEGORY_FILTERS}
+                    activeFilter={statusFilter}
+                    onFilterChange={setStatusFilter}
+                    counts={categoryCounts}
+                    ariaLabel="Filter web story categories"
+                />
+                <div className="manage-users-toolbar mb-2">
+                    <AdminFilterCount
+                        filteredCount={filteredCategoryList.length}
+                        totalCount={Array.isArray(list) ? list.length : 0}
+                        activeFilter={statusFilter}
+                        activeFilterLabel={activeCategoryFilter?.shortLabel}
+                        onClear={() => setStatusFilter("all")}
+                    />
+                </div>
+            </div>
             <div>
-                <DataTable columns={columns} list={list} />
+                <DataTable
+                    columns={columns}
+                    list={filteredCategoryList}
+                    getRowClassName={getWebStoryCategoryRowClassName}
+                    dataGridSx={{
+                        "& .MuiDataGrid-row.mu-row--pending .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 #f59e0b",
+                        },
+                        "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
+                        },
+                    }}
+                />
             </div>
 
             {/* Model for adding walkthrough */}

@@ -100,6 +100,7 @@ export default function DataTable({
   dataGridSx,
   checkboxSelection = true,
   showToolbar = true,
+  getRowClassName,
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -146,6 +147,11 @@ export default function DataTable({
           columnHeaderHeight={headerH}
           disableRowSelectionOnClick
           checkboxSelection={checkboxSelection}
+          getRowClassName={
+            getRowClassName
+              ? (params) => getRowClassName(params.row) || ""
+              : undefined
+          }
           slots={showToolbar ? { toolbar: GridToolbar } : undefined}
           slotProps={
             showToolbar

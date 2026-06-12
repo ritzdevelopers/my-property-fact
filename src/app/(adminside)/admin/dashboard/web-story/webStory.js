@@ -2,7 +2,7 @@
 import { Button, Form, Modal } from "react-bootstrap";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import CommonModal from "../common-model/common-model";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,19 @@ import {
   AdminGridActions,
   AdminGridImageThumb,
 } from "../common-model/admin-grid-cells";
+import {
+  AdminFilterCount,
+  AdminSummaryFilterCards,
+  ContentStatusPill,
+} from "../common-model/admin-summary-filter-cards";
+import {
+  WEB_STORY_STATUS_FILTERS,
+  countWebStories,
+  filterWebStories,
+  getWebStoryRowClassName,
+  getWebStoryRowMeta,
+} from "../common-model/adminContentFilters";
+import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
 
 export default function WebStory({ categoryList, list }) {
 
@@ -32,6 +45,14 @@ export default function WebStory({ categoryList, list }) {
     const [imageFile, setImageFile] = useState(null);
     const [prevImage, setPrevImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
+    const [statusFilter, setStatusFilter] = useState("all");
+
+    const storyCounts = useMemo(() => countWebStories(list), [list]);
+    const filteredStoryList = useMemo(
+        () => filterWebStories(list, statusFilter),
+        [list, statusFilter],
+    );
+    const activeStoryFilter = WEB_STORY_STATUS_FILTERS.find((item) => item.id === statusFilter);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -170,6 +191,25 @@ export default function WebStory({ categoryList, list }) {
             renderCell: (params) => truncateDesc(params.row.storyDescription),
         },
         {
+            field: "contentStatus",
+            headerName: "Status",
+            width: 140,
+            sortable: false,
+            renderCell: (params) => {
+                const { hasImage, hasDescription } = getWebStoryRowMeta(params.row);
+                return (
+                    <div className="d-flex flex-column gap-1 py-1">
+                        <ContentStatusPill variant={hasImage ? "active" : "disabled"} icon={hasImage ? undefined : faCircleExclamation}>
+                            {hasImage ? "Has image" : "No image"}
+                        </ContentStatusPill>
+                        {!hasDescription ? (
+                            <ContentStatusPill variant="pending">No text</ContentStatusPill>
+                        ) : null}
+                    </div>
+                );
+            },
+        },
+        {
             field: "role",
             headerName: "Role",
             width: 120,
@@ -198,8 +238,44 @@ export default function WebStory({ categoryList, list }) {
                 heading={"Manage web story"}
                 pageStyle="executive"
             />
+            <div className="manage-users-page">
+                <AdminSummaryFilterCards
+                    filters={WEB_STORY_STATUS_FILTERS}
+                    activeFilter={statusFilter}
+                    onFilterChange={setStatusFilter}
+                    counts={storyCounts}
+                    ariaLabel="Filter web stories"
+                />
+                <div className="manage-users-toolbar mb-2">
+                    <AdminFilterCount
+                        filteredCount={filteredStoryList.length}
+                        totalCount={Array.isArray(list) ? list.length : 0}
+                        activeFilter={statusFilter}
+                        activeFilterLabel={activeStoryFilter?.shortLabel}
+                        onClear={() => setStatusFilter("all")}
+                    />
+                </div>
+            </div>
             <div>
-                <DataTable columns={columns} list={list} />
+                <DataTable
+                    columns={columns}
+                    list={filteredStoryList}
+                    getRowClassName={getWebStoryRowClassName}
+                    dataGridSx={{
+                        "& .MuiDataGrid-row.mu-row--disabled .MuiDataGrid-cell": {
+                            color: "#6b7280",
+                        },
+                        "& .MuiDataGrid-row.mu-row--disabled .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 #ef4444",
+                        },
+                        "& .MuiDataGrid-row.mu-row--unverified .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 #3b82f6",
+                        },
+                        "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
+                            boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
+                        },
+                    }}
+                />
             </div>
 
             <Modal

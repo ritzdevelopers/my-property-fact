@@ -245,7 +245,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self';media-src 'self' https://otherassets.blob.core.windows.net; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; img-src 'self' https: data: blob:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https:; form-action 'self' https:; upgrade-insecure-requests",
+              "default-src 'self';media-src 'self' https://otherassets.blob.core.windows.net; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; frame-src 'self' https://www.google.com https://*.google.com https://www.googletagmanager.com; img-src 'self' https: data: blob:; font-src 'self' https: data:; style-src 'self' 'unsafe-inline' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; connect-src 'self' https:; form-action 'self' https:; upgrade-insecure-requests",
           },
         ],
       },

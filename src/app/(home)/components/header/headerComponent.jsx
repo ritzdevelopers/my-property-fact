@@ -82,6 +82,8 @@ const HeaderComponent = () => {
   const isProjectTypeRoute = pathname.startsWith("/projects");
   const isBlogTypeRoute = pathname.startsWith("/blog");
   const isPropertiesRoute = pathname === "/properties";
+  const isHomePage = pathname === "/";
+  const logoOpensInNewTab = !isHomePage;
   //Defining scroll variable
   const [isScrolled, setIsScrolled] = useState(false);
   const [isConditionalHeader, setIsConditionalHeader] = useState(false);
@@ -432,6 +434,9 @@ const HeaderComponent = () => {
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
+              {...(logoOpensInNewTab
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
             >
               <img loading="eager"
                 src="/logo.webp"
@@ -993,6 +998,9 @@ const HeaderComponent = () => {
               className="mobile-menu-logo"
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
+              {...(logoOpensInNewTab
+                ? { target: "_blank", rel: "noopener noreferrer" }
+                : {})}
             >
               <img
                 src="/logo.webp"

@@ -539,6 +539,20 @@ button.header-nav-dropdown-trigger {
   will-change: transform, opacity;
 }
 
+.menu ul li.hasChild.nav-dropdown-dismissed:hover .dropdown,
+.menu ul li.hasChild.nav-dropdown-dismissed .dropdown:hover,
+.menu ul li.hasChild.nav-dropdown-dismissed:hover .dropdown.dropdown-lg,
+.menu ul li.hasChild.nav-dropdown-dismissed .dropdown.dropdown-lg:hover {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.menu ul li.hasChild.nav-dropdown-dismissed:hover .dropdown.dropdown-lg,
+.menu ul li.hasChild.nav-dropdown-dismissed .dropdown.dropdown-lg:hover {
+  transform: translateX(-50%) translateY(-10px);
+}
+
 .menu ul li.hasChild .dropdown.dropdown-lg:hover {
   opacity: 1;
   visibility: visible;

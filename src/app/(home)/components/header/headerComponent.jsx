@@ -67,6 +67,7 @@ const HeaderComponent = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
+  const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showLoginModal, setShowModal] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -128,6 +129,21 @@ const HeaderComponent = () => {
   const openMenuMobile = (dropdown) => {
     setActiveDropdown(activeDropdown === dropdown ? null : dropdown);
   };
+
+  const handleNavDropdownLinkClick = () => {
+    setIsNavDropdownDismissed(true);
+    setIsDropdownHovered(false);
+  };
+
+  const handleNavDropdownMouseLeave = () => {
+    setIsNavDropdownDismissed(false);
+    setIsDropdownHovered(false);
+  };
+
+  useEffect(() => {
+    setIsNavDropdownDismissed(true);
+    setIsDropdownHovered(false);
+  }, [pathname]);
 
   //Hadling header fixed - only when mobile menu is not open
   useEffect(() => {
@@ -452,9 +468,12 @@ const HeaderComponent = () => {
             <div className="menu position-relative">
               <ul className="d-flex gap-5 m-0 align-items-center header-links list-unstyled fw-bold">
                 <li
-                  className="hasChild"
-                  onMouseEnter={() => setIsDropdownHovered(true)}
-                  onMouseLeave={() => setIsDropdownHovered(false)}
+                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  onMouseEnter={() => {
+                    setIsDropdownHovered(true);
+                    setIsNavDropdownDismissed(false);
+                  }}
+                  onMouseLeave={handleNavDropdownMouseLeave}
                 >
                   <button
                     type="button"
@@ -512,6 +531,7 @@ const HeaderComponent = () => {
                                 <Link
                                   href={`/city/${city.slugURL}`}
                                   prefetch={false}
+                                  onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/city/" + city.slugURL
                                       ? "header-link-active"
                                       : ""
@@ -544,9 +564,12 @@ const HeaderComponent = () => {
                   </div>
                 </li>
                 <li
-                  className="hasChild"
-                  onMouseEnter={() => setIsDropdownHovered(true)}
-                  onMouseLeave={() => setIsDropdownHovered(false)}
+                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  onMouseEnter={() => {
+                    setIsDropdownHovered(true);
+                    setIsNavDropdownDismissed(false);
+                  }}
+                  onMouseLeave={handleNavDropdownMouseLeave}
                 >
                   <button
                     type="button"
@@ -606,6 +629,7 @@ const HeaderComponent = () => {
                               <li key={builder.id}>
                                 <Link
                                   href={`/builder/${builder.slugUrl}`}
+                                  onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/builder/" + builder.slugUrl
                                       ? "header-link-active"
                                       : ""

@@ -2274,3 +2274,520 @@ body.admin-theme-wave-transition--run::after {
     transform: translateY(-4%);
   }
 }
+
+/* ============================================================
+   ADMIN TOAST NOTIFICATION SYSTEM - Modern, Elegant, Non-intrusive
+   ============================================================ */
+
+.admin-toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2147483100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 420px;
+  width: calc(100vw - 2rem);
+  pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .admin-toast-container {
+    top: 1.5rem;
+    right: 1.5rem;
+  }
+}
+
+.admin-toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.08),
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 20px 25px -5px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+  overflow: hidden;
+  animation: adminToastSlideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  transform-origin: top right;
+  will-change: transform, opacity;
+}
+
+.admin-toast--exiting {
+  animation: adminToastSlideOut 0.32s cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
+@keyframes adminToastSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes adminToastSlideOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(30%) scale(0.92);
+  }
+}
+
+.admin-toast__icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-toast__icon {
+  font-size: 1.1rem;
+}
+
+.admin-toast__content {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.admin-toast__title {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #111827;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+
+.admin-toast__message {
+  font-size: 0.84rem;
+  color: #4b5563;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.admin-toast__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.8rem;
+}
+
+.admin-toast__close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #374151;
+}
+
+.admin-toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.admin-toast__progress-bar {
+  height: 100%;
+  transition: width 0.1s linear;
+  border-radius: 0 3px 3px 0;
+}
+
+/* Toast variants */
+.admin-toast--success .admin-toast__icon-wrap {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+.admin-toast--success .admin-toast__progress-bar {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.admin-toast--error .admin-toast__icon-wrap {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+.admin-toast--error .admin-toast__progress-bar {
+  background: linear-gradient(90deg, #ef4444, #dc2626);
+}
+
+.admin-toast--warning .admin-toast__icon-wrap {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+.admin-toast--warning .admin-toast__progress-bar {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+}
+
+.admin-toast--info .admin-toast__icon-wrap {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+.admin-toast--info .admin-toast__progress-bar {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+/* Dark mode toast styles */
+html[data-admin-theme="dark"] .admin-toast {
+  background: #1a1a1a;
+  border-color: #333333;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.25),
+    0 10px 15px -3px rgba(0, 0, 0, 0.35),
+    0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+html[data-admin-theme="dark"] .admin-toast__title {
+  color: #f9fafb;
+}
+
+html[data-admin-theme="dark"] .admin-toast__message {
+  color: #d1d5db;
+}
+
+html[data-admin-theme="dark"] .admin-toast__close {
+  color: #6b7280;
+}
+
+html[data-admin-theme="dark"] .admin-toast__close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e5e7eb;
+}
+
+html[data-admin-theme="dark"] .admin-toast__progress {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+html[data-admin-theme="dark"] .admin-toast--success .admin-toast__icon-wrap {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+}
+
+html[data-admin-theme="dark"] .admin-toast--error .admin-toast__icon-wrap {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+}
+
+html[data-admin-theme="dark"] .admin-toast--warning .admin-toast__icon-wrap {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+}
+
+html[data-admin-theme="dark"] .admin-toast--info .admin-toast__icon-wrap {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+}
+
+/* ============================================================
+   VERSION 2.0 BADGE & UPGRADE MODAL
+   ============================================================ */
+
+.admin-version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  background: linear-gradient(135deg, rgba(0, 80, 50, 0.12), rgba(34, 197, 94, 0.15));
+  border: 1px solid rgba(0, 80, 50, 0.2);
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #065f46;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: default;
+  transition: all 0.2s ease;
+}
+
+.admin-version-badge:hover {
+  background: linear-gradient(135deg, rgba(0, 80, 50, 0.16), rgba(34, 197, 94, 0.2));
+  transform: translateY(-1px);
+}
+
+.admin-version-badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+  animation: adminVersionPulse 2s ease-in-out infinite;
+}
+
+@keyframes adminVersionPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.15); }
+}
+
+html[data-admin-theme="dark"] .admin-version-badge {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.18));
+  border-color: rgba(34, 197, 94, 0.3);
+  color: #86efac;
+}
+
+html[data-admin-theme="dark"] .admin-version-badge__dot {
+  background: #4ade80;
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.25);
+}
+
+/* Version Upgrade Modal */
+.admin-upgrade-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 2147483200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: adminModalFadeIn 0.3s ease forwards;
+}
+
+@keyframes adminModalFadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.admin-upgrade-modal {
+  width: 100%;
+  max-width: 480px;
+  background: #ffffff;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: adminModalSlideUp 0.4s cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+@keyframes adminModalSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.admin-upgrade-modal__header {
+  position: relative;
+  padding: 2.5rem 2rem 1.5rem;
+  background: linear-gradient(145deg, #005032 0%, #003d26 50%, #002a1a 100%);
+  text-align: center;
+  overflow: hidden;
+}
+
+.admin-upgrade-modal__header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 30% 20%, rgba(34, 197, 94, 0.2) 0%, transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.15) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.admin-upgrade-modal__version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(4px);
+  position: relative;
+}
+
+.admin-upgrade-modal__version-tag svg {
+  font-size: 0.9rem;
+  color: #4ade80;
+}
+
+.admin-upgrade-modal__title {
+  position: relative;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.02em;
+}
+
+.admin-upgrade-modal__subtitle {
+  position: relative;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.admin-upgrade-modal__body {
+  padding: 1.75rem 2rem;
+}
+
+.admin-upgrade-modal__message {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+  text-align: center;
+}
+
+.admin-upgrade-modal__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-upgrade-modal__feature {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #f9fafb;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  color: #374151;
+  transition: all 0.2s ease;
+}
+
+.admin-upgrade-modal__feature:hover {
+  background: #f3f4f6;
+  transform: translateX(4px);
+}
+
+.admin-upgrade-modal__feature-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(0, 80, 50, 0.1);
+  color: #005032;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.admin-upgrade-modal__footer {
+  padding: 1.25rem 2rem 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.admin-upgrade-modal__btn {
+  width: 100%;
+  padding: 0.9rem 1.5rem;
+  background: linear-gradient(145deg, #005032, #003d26);
+  border: none;
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 80, 50, 0.2),
+    0 10px 15px -3px rgba(0, 80, 50, 0.15);
+}
+
+.admin-upgrade-modal__btn:hover {
+  background: linear-gradient(145deg, #004229, #00301f);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 10px -1px rgba(0, 80, 50, 0.25),
+    0 14px 20px -3px rgba(0, 80, 50, 0.2);
+}
+
+.admin-upgrade-modal__btn:active {
+  transform: translateY(0);
+}
+
+/* Dark mode upgrade modal */
+html[data-admin-theme="dark"] .admin-upgrade-modal-backdrop {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal {
+  background: #1a1a1a;
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__header {
+  background: linear-gradient(145deg, #003d26 0%, #002a1a 50%, #001a10 100%);
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__body {
+  background: #1a1a1a;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__message {
+  color: #d1d5db;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__feature {
+  background: #262626;
+  color: #f3f4f6;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__feature:hover {
+  background: #333333;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__feature-icon {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__footer {
+  background: #1a1a1a;
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__btn {
+  background: linear-gradient(145deg, #16a34a, #15803d);
+}
+
+html[data-admin-theme="dark"] .admin-upgrade-modal__btn:hover {
+  background: linear-gradient(145deg, #22c55e, #16a34a);
+}

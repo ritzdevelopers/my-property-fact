@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import { useRouter } from "next/navigation";
 import CommonModal from "../common-model/common-model";
 import {

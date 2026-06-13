@@ -2,14 +2,13 @@
 :root {
     --theme-color: #005032;
     --theme-volor: #005032;
+    --sidebar-bg: linear-gradient(180deg, #003d26 0%, #002a1a 50%, #001a10 100%);
+    --sidebar-item-hover: rgba(255, 255, 255, 0.08);
+    --sidebar-item-active: rgba(255, 255, 255, 0.12);
+    --sidebar-text: rgba(255, 255, 255, 0.88);
+    --sidebar-text-hover: #ffffff;
+    --sidebar-accent: #4ade80;
 }
-/* p {
-    font-family: 'Lexend', sans-serif;
-    font-size: 1.1em;
-    font-weight: 300;
-    line-height: 1.7em;
-    color: #999;
-} */
 
 .sidebar-header a,
 .sidebar-header a:hover,
@@ -42,7 +41,7 @@
 }
 
 /* ---------------------------------------------------
-    SIDEBAR STYLE
+    SIDEBAR STYLE - Modern Premium Design
 ----------------------------------------------------- */
 .list-unstyled{
     padding: 0;
@@ -54,9 +53,9 @@
 }
 
 #sidebar {
-    background: transparent;
+    background: var(--sidebar-bg);
     color: #fff;
-    transition: all 0.3s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -67,22 +66,35 @@
     flex-direction: column;
 }
 
+/* Subtle decorative gradient overlay */
+#sidebar::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: radial-gradient(ellipse at 30% 0%, rgba(74, 222, 128, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* Custom scrollbar for sidebar */
 #sidebar::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 
 #sidebar::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 #sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
 }
 
 #sidebar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 #sidebar.active {
@@ -90,20 +102,35 @@
 }
 
 #sidebar .sidebar-header {
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
+    padding: 1.25rem 1.25rem 1rem;
+    background: transparent;
     position: sticky;
     top: 0;
     z-index: 10;
     flex-shrink: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Logo wrapper styling */
+.admin-sidebar-logo-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.admin-sidebar-logo-wrap img {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    filter: brightness(1.1);
 }
 
 #sidebar ul.components {
-    padding: 20px 0;
+    padding: 1rem 0.5rem;
     flex: 1;
     overflow-y: auto;
+    position: relative;
+    z-index: 1;
 }
 
 #sidebar ul p {
@@ -111,40 +138,77 @@
     padding: 10px;
 }
 
+/* Navigation section labels */
+.admin-nav-section-label {
+    padding: 0.75rem 1rem 0.4rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 0.5rem;
+}
+
 #sidebar ul li a {
-    padding: 12px 16px;
-    font-size: 0.95em;
+    padding: 0.7rem 0.85rem;
+    font-size: 0.875rem;
     display: flex;
     align-items: center;
-    gap: 0.7rem;
-    color: rgba(255, 255, 255, 0.92);
+    gap: 0.65rem;
+    color: var(--sidebar-text);
     text-decoration: none;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    margin: 2px 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    margin: 2px 6px;
+    position: relative;
 }
 
 #sidebar ul li a:hover {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.15);
-    transform: translateX(4px);
+    color: var(--sidebar-text-hover);
+    background: var(--sidebar-item-hover);
+    transform: translateX(2px);
 }
 
 /* Active state for regular navigation links (exclude dropdown toggles) */
 #sidebar ul li.active > a:not(.dropdown-toggle) {
     color: #fff;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--sidebar-item-active);
     font-weight: 600;
-    border-left: 4px solid rgba(255, 255, 255, 0.95);
-    padding-left: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 
+        inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Active indicator bar */
+#sidebar ul li.active > a:not(.dropdown-toggle)::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: var(--sidebar-accent);
+    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
 }
 
 .admin-nav-ico {
     width: 1.1rem !important;
     flex-shrink: 0;
-    opacity: 0.92;
-    font-size: 0.9rem;
+    opacity: 0.85;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+#sidebar ul li a:hover .admin-nav-ico {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+#sidebar ul li.active > a:not(.dropdown-toggle) .admin-nav-ico {
+    opacity: 1;
+    color: var(--sidebar-accent);
 }
 
 #sidebar ul li a.logout-link .admin-nav-ico {
@@ -153,10 +217,22 @@
 
 /* Active state for nested dropdown items */
 #sidebar ul li.active ul li.active > a {
-    background: rgba(255, 255, 255, 0.3);
-    border-left: 3px solid #fff;
-    padding-left: 29px;
+    background: rgba(255, 255, 255, 0.12);
     font-weight: 600;
+    color: #fff;
+}
+
+#sidebar ul li.active ul li.active > a::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--sidebar-accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.5);
 }
 
 /* Dropdown toggle links - no background, just normal styling */
@@ -165,25 +241,33 @@
     color: #fff;
     background: transparent !important;
     border-left: none;
-    padding-left: 10px;
+    padding-left: 0.85rem;
     font-weight: normal;
 }
 
 /* Dropdown toggle when expanded - subtle indication */
 a.dropdown-toggle[aria-expanded="true"] {
     color: #fff;
-    background: transparent;
+    background: rgba(255, 255, 255, 0.04) !important;
 }
 
 /* Logout link styling */
 #sidebar ul li a.logout-link {
-    color: red !important;
+    color: #f87171 !important;
     font-weight: 600;
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 1rem;
+    border-radius: 0 0 10px 10px;
 }
 
 #sidebar ul li a.logout-link:hover {
-    color: red !important;
-    /* background: rgba(255, 107, 107, 0.15); */
+    color: #fca5a5 !important;
+    background: rgba(248, 113, 113, 0.1) !important;
+}
+
+#sidebar ul li a.logout-link .admin-nav-ico {
+    color: #f87171;
 }
 
 a[data-toggle="collapse"],
@@ -202,15 +286,33 @@ button.dropdown-toggle .admin-nav-label {
     display: block;
     position: absolute;
     top: 50%;
-    right: 20px;
+    right: 16px;
     transform: translateY(-50%);
     pointer-events: none;
+    border-top-color: rgba(255, 255, 255, 0.5) !important;
+    transition: transform 0.2s ease;
 }
 
-.sidebar-header ul ul a {
-    font-size: 0.9em !important;
-    padding-left: 30px !important;
-    background: var(--theme-volor);
+.dropdown-toggle[aria-expanded="true"]::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+/* Nested navigation items */
+#sidebar ul li ul {
+    margin-left: 0.5rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+#sidebar ul li ul a {
+    font-size: 0.82rem;
+    padding: 0.55rem 0.75rem 0.55rem 1rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+#sidebar ul li ul a:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .sidebar-header ul.CTAs {
@@ -221,13 +323,20 @@ button.dropdown-toggle .admin-nav-label {
     text-align: center;
     font-size: 0.9em !important;
     display: block;
-    border-radius: 5px;
+    border-radius: 8px;
     margin-bottom: 5px;
 }
 
 .sidebar-header a.download {
-    background: #fff;
-    color: var(--theme-volor);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.2s ease;
+}
+
+.sidebar-header a.download:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .sidebar-header a.article,

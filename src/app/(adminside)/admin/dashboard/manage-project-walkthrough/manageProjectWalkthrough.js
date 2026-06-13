@@ -3,7 +3,7 @@ import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";

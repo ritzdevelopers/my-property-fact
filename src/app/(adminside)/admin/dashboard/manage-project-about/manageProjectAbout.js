@@ -7,7 +7,7 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";

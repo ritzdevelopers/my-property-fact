@@ -1,6 +1,6 @@
 "use client";
 import { exportTOExcel } from "../common-model/exporttoexcel";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CommonModal from "../common-model/common-model";

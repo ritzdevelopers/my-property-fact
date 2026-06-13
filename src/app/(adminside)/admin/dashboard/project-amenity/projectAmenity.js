@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import Multiselect from "multiselect-react-dropdown";
 import { AdminTableEditIcon } from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";

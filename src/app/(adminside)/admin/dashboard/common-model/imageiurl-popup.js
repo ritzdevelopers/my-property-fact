@@ -9,7 +9,7 @@ import axios from "axios";
 // import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 // import { Button, Form, Modal } from "react-bootstrap";
 // import CommonModal from "./common-model";
 

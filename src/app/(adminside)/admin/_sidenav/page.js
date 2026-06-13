@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { useAdminTheme } from "../_contexts/AdminThemeContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
-import { toast } from "react-toastify";
+import { toast } from "../_lib/adminToast";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

@@ -1,0 +1,311 @@
+/* ============================================================
+   MPF Admin v2.0 — Global Buttons + Modals
+   Applies to Bootstrap / react-bootstrap elements used across the
+   management pages. react-bootstrap renders modals into a portal on
+   <body>, so modal rules are intentionally NOT scoped to .admin-v2-shell.
+   These files only load on /admin/dashboard routes.
+   ============================================================ */
+
+/* ----------------------------------------------------------
+   BUTTONS — drop the heavy Bootstrap look, adopt v2.0
+   ---------------------------------------------------------- */
+.admin-v2-shell .btn,
+.modal .btn,
+.admin-auth-page .btn {
+  --bs-btn-box-shadow: none;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.01em;
+  padding: 0.55rem 1.15rem !important;
+  border: 1px solid transparent;
+  box-shadow: none !important;
+  text-transform: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease, border-color 0.15s ease, color 0.15s ease !important;
+}
+
+.admin-v2-shell .btn:hover:not(:disabled),
+.modal .btn:hover:not(:disabled),
+.admin-auth-page .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.admin-v2-shell .btn:active:not(:disabled),
+.modal .btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.admin-v2-shell .btn:disabled,
+.modal .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-v2-shell .btn:focus-visible,
+.modal .btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(34, 150, 94, 0.28) !important;
+}
+
+/* Primary / success — brand green gradient */
+.admin-v2-shell .btn-success,
+.admin-v2-shell .btn-primary,
+.modal .btn-success,
+.modal .btn-primary,
+.admin-auth-page .btn-success,
+.admin-auth-page .btn-primary {
+  background: linear-gradient(135deg, hsl(152 69% 30%) 0%, hsl(152 69% 22%) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(0, 80, 50, 0.2) !important;
+}
+
+.admin-v2-shell .btn-success:hover:not(:disabled),
+.admin-v2-shell .btn-primary:hover:not(:disabled),
+.modal .btn-success:hover:not(:disabled),
+.modal .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, hsl(152 69% 26%) 0%, hsl(152 69% 18%) 100%) !important;
+  box-shadow: 0 6px 18px rgba(0, 80, 50, 0.28) !important;
+}
+
+/* Secondary — soft neutral */
+.admin-v2-shell .btn-secondary,
+.modal .btn-secondary {
+  background: #fff !important;
+  border: 1px solid hsl(150 14% 84%) !important;
+  color: hsl(152 25% 28%) !important;
+}
+
+.admin-v2-shell .btn-secondary:hover:not(:disabled),
+.modal .btn-secondary:hover:not(:disabled) {
+  background: hsl(150 25% 97%) !important;
+  border-color: hsl(150 20% 76%) !important;
+  color: hsl(152 40% 20%) !important;
+}
+
+/* Danger — refined red gradient */
+.admin-v2-shell .btn-danger,
+.modal .btn-danger {
+  background: linear-gradient(135deg, hsl(0 72% 52%) 0%, hsl(0 70% 44%) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: 0 2px 10px rgba(150, 20, 20, 0.18) !important;
+}
+
+.admin-v2-shell .btn-danger:hover:not(:disabled),
+.modal .btn-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, hsl(0 72% 47%) 0%, hsl(0 70% 39%) 100%) !important;
+  box-shadow: 0 6px 18px rgba(150, 20, 20, 0.26) !important;
+}
+
+/* Warning / info — keep them flat & modern */
+.admin-v2-shell .btn-warning,
+.modal .btn-warning {
+  background: linear-gradient(135deg, hsl(38 92% 52%) 0%, hsl(32 90% 46%) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.admin-v2-shell .btn-info,
+.modal .btn-info {
+  background: linear-gradient(135deg, hsl(208 80% 50%) 0%, hsl(214 80% 42%) 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.admin-v2-shell .btn-light,
+.modal .btn-light {
+  background: hsl(150 20% 97%) !important;
+  border: 1px solid hsl(150 14% 88%) !important;
+  color: hsl(152 25% 28%) !important;
+}
+
+/* Outline variants */
+.admin-v2-shell .btn-outline-success,
+.admin-v2-shell .btn-outline-primary,
+.modal .btn-outline-success,
+.modal .btn-outline-primary {
+  background: #fff !important;
+  border: 1px solid hsl(152 40% 66%) !important;
+  color: hsl(152 55% 28%) !important;
+}
+
+.admin-v2-shell .btn-outline-success:hover:not(:disabled),
+.admin-v2-shell .btn-outline-primary:hover:not(:disabled),
+.modal .btn-outline-success:hover:not(:disabled),
+.modal .btn-outline-primary:hover:not(:disabled) {
+  background: hsl(152 50% 96%) !important;
+  border-color: hsl(152 50% 50%) !important;
+}
+
+.admin-v2-shell .btn-outline-danger,
+.modal .btn-outline-danger {
+  background: #fff !important;
+  border: 1px solid hsl(0 60% 72%) !important;
+  color: hsl(0 65% 48%) !important;
+}
+
+.admin-v2-shell .btn-outline-danger:hover:not(:disabled),
+.modal .btn-outline-danger:hover:not(:disabled) {
+  background: hsl(0 80% 97%) !important;
+  border-color: hsl(0 65% 60%) !important;
+}
+
+.admin-v2-shell .btn-outline-secondary,
+.modal .btn-outline-secondary {
+  background: #fff !important;
+  border: 1px solid hsl(150 14% 82%) !important;
+  color: hsl(152 20% 32%) !important;
+}
+
+.admin-v2-shell .btn-outline-secondary:hover:not(:disabled),
+.modal .btn-outline-secondary:hover:not(:disabled) {
+  background: hsl(150 22% 96%) !important;
+}
+
+/* Size variants */
+.admin-v2-shell .btn-sm,
+.modal .btn-sm {
+  padding: 0.35rem 0.75rem !important;
+  font-size: 0.8rem !important;
+  border-radius: 8px !important;
+}
+
+.admin-v2-shell .btn-lg,
+.modal .btn-lg {
+  padding: 0.7rem 1.5rem !important;
+  font-size: 0.95rem !important;
+  border-radius: 12px !important;
+}
+
+/* ----------------------------------------------------------
+   MODALS — v2.0 surface
+   ---------------------------------------------------------- */
+.modal-backdrop,
+.modal-backdrop.show {
+  background-color: rgba(8, 30, 22, 0.5) !important;
+}
+
+.modal-backdrop.show {
+  opacity: 1 !important;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  border: none !important;
+  border-radius: 18px !important;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(8, 30, 22, 0.26) !important;
+  background: #fff !important;
+}
+
+/* Large edit modals — cap height and let the body scroll */
+.modal-dialog {
+  margin-top: 1.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.modal-header {
+  position: relative;
+  align-items: center;
+  padding: 1.2rem 1.5rem !important;
+  border-bottom: 1px solid hsl(150 14% 92%) !important;
+  background: linear-gradient(180deg, hsl(150 32% 97%) 0%, #fff 100%);
+}
+
+.modal-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, hsl(152 69% 34%), hsl(142 70% 44%));
+}
+
+.modal-title {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em;
+  color: hsl(152 40% 14%) !important;
+}
+
+.modal-body {
+  padding: 1.5rem !important;
+  max-height: calc(100vh - 11rem);
+  overflow-y: auto;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: hsl(150 14% 84%);
+  border-radius: 999px;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem !important;
+  border-top: 1px solid hsl(150 14% 92%) !important;
+  gap: 0.6rem;
+}
+
+/* Tidy spacing for form rows inside modals */
+.modal-body .form-group,
+.modal-body .mb-3 {
+  margin-bottom: 1rem !important;
+}
+
+/* react-bootstrap close button — clean circular control */
+.modal .btn-close {
+  width: 2.1rem;
+  height: 2.1rem;
+  margin: 0;
+  border-radius: 50%;
+  background-color: hsl(150 18% 95%);
+  background-size: 0.7rem;
+  opacity: 0.75;
+  transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+}
+
+.modal .btn-close:hover {
+  opacity: 1;
+  background-color: hsl(0 75% 94%);
+  transform: rotate(90deg);
+}
+
+.modal .btn-close:focus {
+  box-shadow: 0 0 0 3px rgba(34, 150, 94, 0.22);
+}
+
+/* ----------------------------------------------------------
+   FORM CONTROLS inside modals & admin pages
+   ---------------------------------------------------------- */
+.modal .form-control,
+.modal .form-select,
+.admin-v2-shell .form-control,
+.admin-v2-shell .form-select {
+  border-radius: 10px !important;
+  border: 1px solid hsl(150 14% 84%) !important;
+  padding: 0.55rem 0.8rem !important;
+  font-size: 0.9rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.modal .form-control:focus,
+.modal .form-select:focus,
+.admin-v2-shell .form-control:focus,
+.admin-v2-shell .form-select:focus {
+  border-color: hsl(152 55% 42%) !important;
+  box-shadow: 0 0 0 3px rgba(34, 150, 94, 0.16) !important;
+}
+
+.modal .form-label,
+.admin-v2-shell .form-label {
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+  color: hsl(152 30% 24%) !important;
+  margin-bottom: 0.35rem !important;
+}

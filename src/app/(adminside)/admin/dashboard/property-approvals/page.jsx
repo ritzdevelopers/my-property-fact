@@ -14,6 +14,8 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import DashboardHeader from "../common-model/dashboardHeader";
+import { useAdminConfirm } from "../../_contexts/AdminConfirmContext";
+import { toast } from "../../_lib/adminToast";
 import "./property-approvals.css";
 
 function adminFetchHeaders() {
@@ -37,6 +39,7 @@ function adminAxiosConfig() {
 
 export default function PropertyApprovalsPage() {
   const router = useRouter();
+  const { confirm, alert } = useAdminConfirm();
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -87,13 +90,18 @@ export default function PropertyApprovalsPage() {
   };
 
   const handleApprove = async (propertyId) => {
-    if (
-      !window.confirm("Are you sure you want to approve this property listing?")
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Approve this listing?",
+      description:
+        "The property will go live on the public website. Make sure details, images, and pricing are correct before approving.",
+      confirmText: "Approve listing",
+      cancelText: "Review again",
+      variant: "default",
+    });
+    if (!ok) return;
 
     try {
+      setProcessing(propertyId);
       const response = await axios.post(
         `${getPublicApiBase()}admin/property-listings/${propertyId}/approve`,
         {},
@@ -101,15 +109,15 @@ export default function PropertyApprovalsPage() {
       );
 
       if (response.status === 200) {
-        alert("Property approved successfully!");
-        fetchPendingProperties(); // Refresh the list
+        toast.success("Property approved and published successfully.");
+        fetchPendingProperties();
       }
     } catch (err) {
       console.error("Error approving property:", err);
-      alert(
+      toast.error(
         err.response?.data?.message ||
         err.message ||
-        "Failed to approve property. Please try again.",
+        "Could not approve this property. Please try again.",
       );
     } finally {
       setProcessing(null);
@@ -120,7 +128,12 @@ export default function PropertyApprovalsPage() {
     if (!selectedProperty) return;
 
     if (!rejectReason.trim()) {
-      alert("Please provide a reason for rejection");
+      await alert({
+        title: "Rejection reason required",
+        description: "Please tell the listing owner why this property was rejected so they can fix and resubmit.",
+        confirmText: "Understood",
+        variant: "warning",
+      });
       return;
     }
 
@@ -133,18 +146,18 @@ export default function PropertyApprovalsPage() {
       );
 
       if (response.status === 200) {
-        alert("Property rejected successfully!");
+        toast.success("Property rejected. The owner will be notified.");
         setShowRejectModal(false);
         setRejectReason("");
         setSelectedProperty(null);
-        fetchPendingProperties(); // Refresh the list
+        fetchPendingProperties();
       }
     } catch (err) {
       console.error("Error rejecting property:", err);
-      alert(
+      toast.error(
         err.response?.data?.message ||
         err.message ||
-        "Failed to reject property. Please try again.",
+        "Could not reject this property. Please try again.",
       );
     } finally {
       setProcessing(null);

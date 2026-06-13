@@ -19,7 +19,7 @@ import {
   AdminGridImageThumb,
 } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import Cookies from "js-cookie";
 export default function ManageAminity({ list }) {
   const [showModal, setShowModal] = useState(false);

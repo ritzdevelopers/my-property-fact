@@ -5,7 +5,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 
 export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHeadersList }) {
   const router = useRouter();

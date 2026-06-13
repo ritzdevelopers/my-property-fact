@@ -6,7 +6,7 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
-import { toast } from "react-toastify";
+import { toast } from "../../../_lib/adminToast";
 export default function AddNewProperty() {
   const [validated, setValidated] = useState(false);
   const [builderList, setBuilderList] = useState([]);

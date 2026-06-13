@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,

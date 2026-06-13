@@ -1,4 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./admin-globals.css";
+import "./admin-auth.css";
+import "./dashboard/admin-buttons-v2.css";
 import { Poppins } from "next/font/google";
 
 const poppins = Poppins({

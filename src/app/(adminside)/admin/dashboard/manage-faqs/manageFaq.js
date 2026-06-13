@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
 import { Accordion, Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";

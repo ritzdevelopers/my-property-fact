@@ -3,7 +3,7 @@ import { Button, Form, FormControl, Modal } from "react-bootstrap";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import DataTable from "../common-model/data-table";
 
 export default function ManageScoreEvalution({ localityList, list }) {

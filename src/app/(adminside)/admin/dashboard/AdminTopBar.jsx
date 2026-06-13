@@ -9,6 +9,7 @@ import Link from "next/link";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import { ADMIN_VERSION } from "../_components/VersionUpgradeModal";
 
 /** All searchable admin pages / nav items */
 const NAV_INDEX = [
@@ -224,6 +225,11 @@ export default function AdminTopBar() {
       </div>
 
       <div className="admin-app-topbar__actions">
+        <div className="admin-version-badge" title={`Admin Panel Version ${ADMIN_VERSION}`}>
+          <span className="admin-version-badge__dot" aria-hidden />
+          <span>v{ADMIN_VERSION}</span>
+        </div>
+        <div className="admin-app-topbar__divider" aria-hidden />
         <div className="admin-topbar-notify-wrap" ref={notifyWrapRef}>
           <button
             type="button"

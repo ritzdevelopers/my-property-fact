@@ -7,7 +7,7 @@ import CommonModal from "../common-model/common-model";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import {
   AdminGridActions,
   AdminGridImageThumb,

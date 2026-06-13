@@ -8,7 +8,7 @@ import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useState } from "react";
 import CommonModal from "../common-model/common-model";
 import { exportTOExcel } from "../common-model/exporttoexcel";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 
 export default function ManageCareerApplications({ list = [] }) {
     const [applicationId, setApplicationId] = useState(0);

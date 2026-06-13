@@ -9,7 +9,7 @@ import { adminExecutiveDataGridSx } from "../common-model/data-table";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Col, Form, Modal, Row, Table } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 
 export default function TopDevelopers() {
   const [topDevelopersList, setTopDevelopersList] = useState([]);

@@ -16,7 +16,7 @@ import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import Cookies from "js-cookie";
 
 export default function ManageFeatures({ list }) {

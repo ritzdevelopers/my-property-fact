@@ -6,7 +6,7 @@ import {
 } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";

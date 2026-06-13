@@ -31,7 +31,8 @@ import {
 } from "react-bootstrap";
 import Cookies from "js-cookie";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "../../../_lib/adminToast";
+import { useAdminConfirm } from "../../../_contexts/AdminConfirmContext";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import "../property-approvals.css";
 
@@ -50,6 +51,7 @@ function adminAxiosConfig(extra = {}) {
 export default function AdminPropertyDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { confirm } = useAdminConfirm();
   const propertyId = params.id;
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -139,11 +141,14 @@ export default function AdminPropertyDetailPage() {
   };
 
   const handleApprove = async () => {
-    if (
-      !window.confirm("Are you sure you want to approve this property listing?")
-    ) {
-      return;
-    }
+    const ok = await confirm({
+      title: "Approve this listing?",
+      description:
+        "This property will be published on the public website. Confirm that all details, media, and pricing are accurate.",
+      confirmText: "Approve & publish",
+      cancelText: "Keep reviewing",
+    });
+    if (!ok) return;
 
     try {
       setProcessing(true);

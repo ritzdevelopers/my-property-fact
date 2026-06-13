@@ -4,8 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import DashboardHeader from "../common-model/dashboardHeader";
+import { useAdminConfirm } from "../../_contexts/AdminConfirmContext";
 import { useRouter } from "next/navigation";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
@@ -33,6 +34,7 @@ function formatWhen(iso) {
 
 export default function PendingPermissionsClient() {
   const router = useRouter();
+  const { confirm } = useAdminConfirm();
   const [adminRows, setAdminRows] = useState([]);
   const [passwordRows, setPasswordRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -181,7 +183,15 @@ export default function PendingPermissionsClient() {
   };
 
   const rejectPassword = async (id) => {
-    if (!window.confirm("Reject this password change request?")) return;
+    const ok = await confirm({
+      title: "Reject password change?",
+      description:
+        "The user will keep their current password. They can submit a new request from the forgot-password screen if needed.",
+      confirmText: "Reject request",
+      cancelText: "Cancel",
+      variant: "destructive",
+    });
+    if (!ok) return;
     const base = getPublicApiBase();
     try {
       await axios.put(

@@ -1,6 +1,15 @@
-import { redirect } from "next/navigation";
+import { RegisterForm } from "@/components/admin/auth/register-form";
+import { Toaster } from "@/components/ui/toaster";
 
-/** Public self-registration is disabled; Super Admin creates users from Manage Users. */
+export const metadata = {
+  title: "Create account | MPF Admin",
+};
+
 export default function AdminRegisterPage() {
-  redirect("/admin");
+  return (
+    <>
+      <RegisterForm />
+      <Toaster />
+    </>
+  );
 }

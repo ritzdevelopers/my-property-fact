@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Cookies from "js-cookie";
-import { toast } from "react-toastify";
+import { toast } from "../_lib/adminToast";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import "./backup-banner.css";

@@ -3,7 +3,7 @@ import { useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "../../_lib/adminToast";
 import { Button, Form, Modal } from "react-bootstrap";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import {

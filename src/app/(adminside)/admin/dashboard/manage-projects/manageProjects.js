@@ -928,20 +928,22 @@ export default function ManageProjects({
             </Row>
             {/* <Row> */}
 
-            <button
-              className="mt-3 admin-header-btn admin-header-btn--primary"
-              type="submit"
-              disabled={showLoading}
-            >
-              {buttonName} <LoadingSpinner show={showLoading} />
-            </button>
-            <Button
-              className="mt-3 ms-3 btn btn-secondary"
-              onClick={() => setShowModal(false)}
-            >
-              Cancel
-            </Button>
-            {/* </Row> */}
+            <div className="mpf-modal-actions">
+              <Button
+                variant="secondary"
+                onClick={() => setShowModal(false)}
+                disabled={showLoading}
+              >
+                Cancel
+              </Button>
+              <button
+                className="admin-header-btn admin-header-btn--primary"
+                type="submit"
+                disabled={showLoading}
+              >
+                {buttonName} <LoadingSpinner show={showLoading} />
+              </button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

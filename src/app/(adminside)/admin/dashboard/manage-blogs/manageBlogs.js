@@ -31,6 +31,7 @@ import {
   getBlogRowClassName,
   isBlogActive,
 } from "../common-model/adminContentFilters";
+import BlogPreviewModal from "./BlogPreviewModal";
 
 const apiWithAuth = () => ({
   withCredentials: true,
@@ -151,6 +152,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [blogs, setBlogs] = useState(list || []);
   const [togglingBlogIds, setTogglingBlogIds] = useState(() => new Set());
+  const [previewBlog, setPreviewBlog] = useState(null);
 
   useEffect(() => {
     setBlogs(Array.isArray(list) ? list : []);
@@ -645,22 +647,36 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     {
       field: "action",
       headerName: "Action",
-      width: 100,
+      width: 130,
       sortable: false,
       renderCell: (params) => (
         <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+          {/* Preview */}
           <button
             type="button"
-            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
+            title="Preview blog"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#0d9488", cursor: "pointer" }}
+            onClick={(e) => { e.stopPropagation(); setPreviewBlog(params.row); }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: "none" }}>
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+          {/* Delete */}
+          <button
+            type="button"
             title="Delete"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
             onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
           >
             <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
           </button>
+          {/* Edit */}
           <button
             type="button"
-            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
             title="Edit"
+            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
             onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
           >
             <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
@@ -1001,6 +1017,14 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         api={`${getPublicApiBase()}blog/${blogId}`}
       />
       <ImageUrlPopup confirmBox={urlPopUp} setConfirmBox={setUrlPopUp} />
+
+      {/* Blog preview drawer */}
+      {previewBlog && (
+        <BlogPreviewModal
+          blog={previewBlog}
+          onClose={() => setPreviewBlog(null)}
+        />
+      )}
     </>
   );
 }

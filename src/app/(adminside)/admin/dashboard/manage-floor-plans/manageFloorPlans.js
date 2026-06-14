@@ -232,13 +232,23 @@ export default function ManageFloorPlans({ list, projectsList }) {
                 Area is required !
               </Form.Control.Feedback>
             </Form.Group>
-            <button
-              className="mt-3 admin-header-btn admin-header-btn--primary"
-              type="submit"
-              disabled={showLoading}
-            >
-              {buttonName} <LoadingSpinner show={showLoading} />
-            </button>
+            <div className="mpf-modal-actions">
+              <button
+                type="button"
+                className="admin-header-btn admin-header-btn--secondary btn"
+                onClick={handleClose}
+                disabled={showLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className="admin-header-btn admin-header-btn--primary"
+                type="submit"
+                disabled={showLoading}
+              >
+                {buttonName} <LoadingSpinner show={showLoading} />
+              </button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

@@ -98,6 +98,19 @@
   display: block;
 }
 
+.home-featured-builder-logo--whispers {
+  width: 84px;
+  height: 72px;
+  overflow: hidden;
+}
+
+.home-featured-builder-logo--whispers img {
+  width: 84px;
+  height: 72px;
+  transform: scale(1.15);
+  transform-origin: center center;
+}
+
 .home-featured-builder-info {
   display: flex;
   flex-direction: column;
@@ -440,6 +453,17 @@
     .home-featured-builder-logo {
         width: 60px;
         height: 60px;
+    }
+
+    .home-featured-builder-logo--whispers {
+        width: 72px;
+        height: 60px;
+    }
+
+    .home-featured-builder-logo--whispers img {
+        width: 72px;
+        height: 60px;
+        transform: scale(1.1);
     }
 
     .home-featured-builder-name {

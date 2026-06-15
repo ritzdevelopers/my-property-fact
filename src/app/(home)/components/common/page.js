@@ -100,14 +100,8 @@ export default function PropertyContainer({
   };
 
   const buildFeaturedSubtitle = () => {
-    const parts = [];
-    if (data.projectConfiguration) parts.push(data.projectConfiguration);
-    if (data.propertyTypeName) parts.push(data.propertyTypeName);
-
-    const location = data.projectLocality || data.cityName;
-    if (location) parts.push(location);
-
-    if (parts.length) return parts.join(", ");
+    const config = String(data.projectConfiguration || "").trim();
+    if (config) return config;
     return addressSummary;
   };
 
@@ -189,13 +183,23 @@ export default function PropertyContainer({
         </div>
 
         <div className="home-featured-builder-card">
-          <div className="home-featured-builder-logo">
+          <div
+            className={`home-featured-builder-logo${
+              data.slugURL === "eldeco-whispers-of-wonder"
+                ? " home-featured-builder-logo--whispers"
+                : ""
+            }`}
+          >
             <img
               src={buildProjectLogoUrl()}
               alt={logoAlt}
               title={logoAlt}
-              width={72}
-              height={72}
+              width={
+                data.slugURL === "eldeco-whispers-of-wonder" ? 84 : 72
+              }
+              height={
+                data.slugURL === "eldeco-whispers-of-wonder" ? 72 : 72
+              }
               loading="lazy"
             />
           </div>

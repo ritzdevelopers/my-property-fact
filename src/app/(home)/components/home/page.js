@@ -98,6 +98,7 @@ export default async function HomePage() {
   const FEATURED_PROJECT_LOGOS = {
     "eldeco-camelot": "/icon/eldeco_camelot.png",
     "eldeco-7-peaks-residences": "/icon/logo%20(1).png",
+    "eldeco-whispers-of-wonder": "/icon/eldeco-banner-ai.png",
   };
 
   // Residential project slugs for "Explore Our Premier Residential Projects"

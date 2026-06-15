@@ -16,6 +16,7 @@ export function slimProjectForListing(project) {
     projectThumbnailImage: project.projectThumbnailImage,
     projectStatusName: project.projectStatusName,
     projectConfiguration: project.projectConfiguration,
+    projectLogo: project.projectLogo,
     cityName: project.cityName,
     projectLocality: project.projectLocality,
     builderName: project.builderName,

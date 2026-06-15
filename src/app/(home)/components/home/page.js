@@ -28,7 +28,7 @@ const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
 });
 const NewInsight = dynamic(() => import("../_homecomponents/NewInsight"), {
   ssr: true,
-  loading: () => <section className="py-4" style={{ minHeight: 120 }} aria-busy="true" />,
+  loading: () => <section className="py-4" style={{ minHeight: 668 }} aria-busy="true" />,
 });
 
 const DreamPropertySection = dynamic(

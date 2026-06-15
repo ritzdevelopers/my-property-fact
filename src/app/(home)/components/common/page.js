@@ -9,10 +9,16 @@ import { useState } from "react";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
+  getProjectImageBaseUrl,
 } from "@/lib/projectImageUrl";
 import "./common.css";
 
-export default function PropertyContainer({ data, badgeVariant = "default", imagePriority = false }) {
+export default function PropertyContainer({
+  data,
+  badgeVariant = "default",
+  layoutVariant = "default",
+  imagePriority = false,
+}) {
   const [imageError, setImageError] = useState(false);
 
   // Ensure data is defined before accessing its properties
@@ -82,6 +88,29 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
 
   const addressSummary = formatProjectAddress(data.projectAddress);
 
+  const buildProjectLogoUrl = () => {
+    const imageBase = getProjectImageBaseUrl();
+    const slug = data.slugURL;
+    const logo = data.projectLogo;
+
+    if (!logo) return "/logo.webp";
+    if (/^https?:\/\//i.test(logo) || logo.startsWith("/")) return logo;
+    if (!imageBase || !slug) return "/logo.webp";
+    return `${imageBase}properties/${slug}/${logo}`;
+  };
+
+  const buildFeaturedSubtitle = () => {
+    const parts = [];
+    if (data.projectConfiguration) parts.push(data.projectConfiguration);
+    if (data.propertyTypeName) parts.push(data.propertyTypeName);
+
+    const location = data.projectLocality || data.cityName;
+    if (location) parts.push(location);
+
+    if (parts.length) return parts.join(", ");
+    return addressSummary;
+  };
+
   const projectCardImageAlt =
     data.projectName
       ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
@@ -97,7 +126,11 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
 
       return (
         <div
-          className="home-featured-status-badge plus-jakarta-sans-semi-bold"
+          className={
+            layoutVariant === "overlap"
+              ? "home-featured-project-tag plus-jakarta-sans-semi-bold"
+              : "home-featured-status-badge plus-jakarta-sans-semi-bold"
+          }
           style={{
             "--badge-color": backgroundColor,
             "--badge-text-color": textColor,
@@ -124,6 +157,64 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
       </div>
     );
   };
+
+  if (layoutVariant === "overlap") {
+    const logoAlt = data.builderName
+      ? `${data.builderName} — builder logo`
+      : `${data.projectName} — project logo`;
+
+    return (
+      <Link
+        href={`/${data.slugURL}`}
+        className="home-featured-project-card text-decoration-none text-dark"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View details about ${data.projectName}`}
+        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+      >
+        <div className="home-featured-image-card">
+          <img
+            src={imageSrc}
+            alt={projectCardImageAlt}
+            title={projectCardImageAlt}
+            className="home-featured-image"
+            width={510}
+            height={232}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority={imagePriority ? "high" : "auto"}
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
+          {renderStatusBadge()}
+        </div>
+
+        <div className="home-featured-builder-card">
+          <div className="home-featured-builder-logo">
+            <img
+              src={buildProjectLogoUrl()}
+              alt={logoAlt}
+              title={logoAlt}
+              width={72}
+              height={72}
+              loading="lazy"
+            />
+          </div>
+          <div className="home-featured-builder-info">
+            <h3 className="home-featured-builder-name plus-jakarta-sans-semi-bold">
+              {data.projectName}
+            </h3>
+            <p className="home-featured-builder-meta plus-jakarta-sans-semi-bold">
+              {buildFeaturedSubtitle()}
+            </p>
+            <p className="home-featured-builder-price plus-jakarta-sans-semi-bold">
+              {generatePrice(data.projectPrice)}
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <>
       <Link

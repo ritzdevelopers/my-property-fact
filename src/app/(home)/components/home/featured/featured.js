@@ -217,6 +217,7 @@ export default function Featured({
                     <PropertyContainer
                       data={item}
                       badgeVariant={badgeVariant}
+                      layoutVariant={type === "Featured" ? "overlap" : "default"}
                       imagePriority={index < 2}
                     />
                   </div>

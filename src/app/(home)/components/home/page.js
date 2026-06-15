@@ -95,6 +95,11 @@ export default async function HomePage() {
     "eldeco-whispers-of-wonder",
   ];
 
+  const FEATURED_PROJECT_LOGOS = {
+    "eldeco-camelot": "/icon/eldeco_camelot.png",
+    "eldeco-7-peaks-residences": "/icon/logo%20(1).png",
+  };
+
   // Residential project slugs for "Explore Our Premier Residential Projects"
   const residentialSlugs = [
     "eldeco-camelot",
@@ -119,7 +124,12 @@ export default async function HomePage() {
 
   // Featured: slug-ordered first
   const featuredProjects = allowedSlugs
-    .map((slug) => projects.find((project) => project.slugURL === slug))
+    .map((slug) => {
+      const project = projects.find((p) => p.slugURL === slug);
+      if (!project) return null;
+      const logoOverride = FEATURED_PROJECT_LOGOS[slug];
+      return logoOverride ? { ...project, projectLogo: logoOverride } : project;
+    })
     .filter(Boolean);
   // top cities
   const topCities = ["Noida", "Delhi", "Ghaziabad"];

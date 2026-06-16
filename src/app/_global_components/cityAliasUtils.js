@@ -27,6 +27,14 @@ export const LEGACY_CITY_SLUGS_FOR_PAGE_MERGE = {
   delhi: ["dwarka"],
 };
 
+/**
+ * Normalized city names that must not match a shorter slug via substring checks
+ * (e.g. "noida" must not swallow "noida extension" or "greater noida").
+ */
+const SUBSTRING_MATCH_BLOCKLIST = {
+  noida: ["noida extension", "greater noida"],
+};
+
 function normalizeKey(value) {
   return String(value || "")
     .toLowerCase()
@@ -94,6 +102,58 @@ export function getEquivalentCityNames(cityOrSlugOrName) {
   return new Set(names.map((n) => normalizeKey(n)).filter(Boolean));
 }
 
+function isBlockedSubstringCityField(fieldNorm, canonicalSlug) {
+  const blocked = SUBSTRING_MATCH_BLOCKLIST[canonicalSlug];
+  if (!blocked?.length || !fieldNorm) return false;
+  return blocked.some(
+    (name) =>
+      fieldNorm === name ||
+      fieldNorm.startsWith(`${name} `) ||
+      fieldNorm.includes(` ${name}`),
+  );
+}
+
+function fieldMatchesCityFilter(fieldNorm, matchName, canonicalSlug) {
+  if (!fieldNorm || !matchName) return false;
+  if (fieldNorm === matchName) return true;
+  if (isBlockedSubstringCityField(fieldNorm, canonicalSlug)) return false;
+  return fieldNorm.includes(matchName);
+}
+
+/** Sort city slugs so longer names (e.g. noida-extension) win over shorter ones (noida). */
+export function sortCitySlugsBySpecificity(citySlugs) {
+  return [...citySlugs].sort((a, b) => {
+    const lenDiff = normalizeKey(b).length - normalizeKey(a).length;
+    if (lenDiff !== 0) return lenDiff;
+    return String(a).localeCompare(String(b));
+  });
+}
+
+/** Whether a project row belongs to a city slug (sitemap + listing validation). */
+export function projectMatchesCitySlug(project, citySlug) {
+  const canonical = resolveCitySlug(citySlug);
+  if (!canonical) return false;
+
+  const matchNames = getEquivalentCityNames(canonical);
+  const projectSlug = resolveCitySlug(project?.citySlug || project?.cityURL || "");
+  if (projectSlug && projectSlug === canonical) return true;
+
+  const cityNorm = normalizeKey(project?.cityName);
+  const addrNorm = normalizeKey(project?.projectAddress);
+  const localityNorm = normalizeKey(project?.projectLocality);
+
+  for (const name of matchNames) {
+    if (
+      fieldMatchesCityFilter(cityNorm, name, canonical) ||
+      fieldMatchesCityFilter(addrNorm, name, canonical) ||
+      fieldMatchesCityFilter(localityNorm, name, canonical)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /** All API city ids that map to the same canonical slug (e.g. Gurgaon + Gurugram). */
 export function getEquivalentCityIds(city, allCities) {
   const ids = new Set();
@@ -133,10 +193,12 @@ export function projectMatchesCityFilter(
     localityNorm,
   ].filter(Boolean);
 
+  const canonical = canonicalSlugFromCity(city);
+
   for (const name of matchNames) {
     if (!name) continue;
     for (const field of fields) {
-      if (field === name || field.includes(name)) return true;
+      if (fieldMatchesCityFilter(field, name, canonical)) return true;
     }
   }
   return false;
@@ -147,6 +209,7 @@ export function cityNameMatchesFilter(cityFilterName, item) {
   const ck = normalizeKey(cityFilterName);
   if (!ck) return false;
 
+  const canonical = resolveCitySlug(cityFilterName);
   const matchNames = getEquivalentCityNames(cityFilterName);
   const cityNorm = normalizeKey(item?.cityName || "");
   const addrNorm = normalizeKey(item?.projectAddress || "");
@@ -154,10 +217,9 @@ export function cityNameMatchesFilter(cityFilterName, item) {
 
   for (const name of matchNames) {
     if (
-      cityNorm === name ||
-      cityNorm.includes(name) ||
-      addrNorm.includes(name) ||
-      localityNorm.includes(name)
+      fieldMatchesCityFilter(cityNorm, name, canonical) ||
+      fieldMatchesCityFilter(addrNorm, name, canonical) ||
+      fieldMatchesCityFilter(localityNorm, name, canonical)
     ) {
       return true;
     }

@@ -36,18 +36,28 @@ const toCitySlug = (name) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
-const getIconPath = (index) =>
-  `/static/icon/icons-${String(index + 1).padStart(2, "0")}.png`;
+const getIconPaths = (index) => {
+  const n = String(index + 1).padStart(2, "0");
+  return {
+    // Preferred filenames (with "(1)") — encode the space for safe URLs
+    primary: `/static/icon/icons-${n}%20(1).png`,
+    fallback: `/static/icon/icons-${n}.png`,
+  };
+};
 
 const FLOAT_BASE_PATTERN = [-22, 18, -14, 26, -18, 14];
 
-const cities = CITY_ORDER.map((name, index) => ({
-  name,
-  link: `/city/${toCitySlug(name)}`,
-  image: getIconPath(index),
-  floatBase: FLOAT_BASE_PATTERN[index % FLOAT_BASE_PATTERN.length],
-  floatDelay: `${(index * 0.18).toFixed(2)}s`,
-}));
+const cities = CITY_ORDER.map((name, index) => {
+  const icons = getIconPaths(index);
+  return {
+    name,
+    link: `/city/${toCitySlug(name)}`,
+    image: icons.primary,
+    imageFallback: icons.fallback,
+    floatBase: FLOAT_BASE_PATTERN[index % FLOAT_BASE_PATTERN.length],
+    floatDelay: `${(index * 0.18).toFixed(2)}s`,
+  };
+});
 
 const DreamPropertySection = () => {
   return (
@@ -86,11 +96,18 @@ const DreamPropertySection = () => {
                 <div className="dream-city-icon-circle">
                   <img
                     src={city.image}
+                    data-fallback={city.imageFallback}
                     alt={city.name}
                     title={city.name}
                     width={72}
                     height={72}
                     loading="lazy"
+                    onError={(e) => {
+                      const fallback = e.currentTarget.dataset.fallback;
+                      if (!fallback) return;
+                      e.currentTarget.src = fallback;
+                      delete e.currentTarget.dataset.fallback;
+                    }}
                   />
                 </div>
                 <span className="dream-city-label plus-jakarta-sans-semi-bold">

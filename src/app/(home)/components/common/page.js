@@ -179,10 +179,10 @@ export default function PropertyContainer({
             decoding="async"
             onError={() => setImageError(true)}
           />
-          {renderStatusBadge()}
         </div>
 
         <div className="home-featured-builder-card">
+          {renderStatusBadge()}
           <div
             className={`home-featured-builder-logo${
               data.slugURL === "eldeco-whispers-of-wonder"

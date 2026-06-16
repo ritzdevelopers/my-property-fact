@@ -220,7 +220,7 @@ export default async function HomePage() {
                   </span>
                 </p>
                 <Link
-                  href="/properties"
+                  href="/projects"
                   title="Explore more - Post your property on MyPropertyFact"
                   className="transform-home-post-property-card__cta"
                 >

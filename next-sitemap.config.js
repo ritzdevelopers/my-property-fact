@@ -87,47 +87,10 @@ const CITY_SLUG_ALIASES = {
   dwarka: "delhi",
 };
 
-const CITY_NAME_EQUIVALENTS = {
-  gurugram: ["gurugram", "gurgaon"],
-  gurgaon:  ["gurugram", "gurgaon"],
-  delhi:    ["delhi", "dwarka"],
-  dwarka:   ["delhi", "dwarka"],
-};
-
 function resolveCitySlug(slug) {
   const s = String(slug || "").trim().toLowerCase().replace(/\s+/g, "-");
   if (!s) return "";
   return CITY_SLUG_ALIASES[s] || s;
-}
-
-function normalizeCityKey(value) {
-  return String(value || "")
-    .toLowerCase()
-    .trim()
-    .replace(/%20/g, " ")
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ");
-}
-
-function projectMatchesCitySlug(project, citySlug) {
-  const canonical = resolveCitySlug(citySlug);
-  if (!canonical) return false;
-  const matchNames   = CITY_NAME_EQUIVALENTS[canonical] || [canonical];
-  const matchNameSet = new Set(matchNames.map(normalizeCityKey).filter(Boolean));
-  const projectSlug  = resolveCitySlug(project?.citySlug || project?.cityURL || "");
-  if (projectSlug && projectSlug === canonical) return true;
-  const cityNorm     = normalizeCityKey(project?.cityName);
-  const addrNorm     = normalizeCityKey(project?.projectAddress);
-  const localityNorm = normalizeCityKey(project?.projectLocality);
-  for (const name of matchNameSet) {
-    if (
-      cityNorm === name ||
-      cityNorm.includes(name) ||
-      addrNorm.includes(name) ||
-      localityNorm.includes(name)
-    ) return true;
-  }
-  return false;
 }
 
 // ─── Floor slug helpers ───────────────────────────────────────────────────────
@@ -368,19 +331,25 @@ function ingestProjectListingSignals(project, citySlug, floors, compounds, hubs)
   }
 }
 
-function buildCityListingData(projectsPayload, floorPlansPayload, cities) {
+function buildCityListingData(
+  projectsPayload,
+  floorPlansPayload,
+  cities,
+  projectMatchesCitySlug,
+  sortCitySlugsBySpecificity,
+) {
   const floorsByCity = new Map();
   const hubsByCity = new Map();
   const compoundFloorsByCity = new Map();
   const projectIdToCity = new Map();
 
-  const citySlugs = [
+  const citySlugs = sortCitySlugsBySpecificity([
     ...new Set(
       (cities || [])
         .map((city) => resolveCitySlug(listingCitySlug(city)))
         .filter(Boolean),
     ),
-  ];
+  ]);
 
   for (const citySlug of citySlugs) {
     floorsByCity.set(citySlug, new Set());
@@ -731,9 +700,38 @@ module.exports = {
       }
     } catch { floorPlansPayload = null; }
 
+    let projectMatchesCitySlug = null;
+    let sortCitySlugsBySpecificity = null;
+    try {
+      const cityUtils = await import(
+        pathToFileURL(
+          path.join(__dirname, "src/app/_global_components/cityAliasUtils.js"),
+        ).href
+      );
+      projectMatchesCitySlug = cityUtils.projectMatchesCitySlug;
+      sortCitySlugsBySpecificity = cityUtils.sortCitySlugsBySpecificity;
+    } catch (err) {
+      console.warn("[sitemap] city alias import failed:", err?.message);
+    }
+
     // 9. City listing hubs + floor/BHK pages — sirf jahan API projects mein data ho
     const { floorsByCity, hubsByCity, compoundFloorsByCity } =
-      buildCityListingData(projectsData, floorPlansPayload, cities);
+      typeof projectMatchesCitySlug === "function" &&
+      typeof sortCitySlugsBySpecificity === "function"
+        ? buildCityListingData(
+            projectsData,
+            floorPlansPayload,
+            cities,
+            projectMatchesCitySlug,
+            sortCitySlugsBySpecificity,
+          )
+        : buildCityListingData(
+            projectsData,
+            floorPlansPayload,
+            cities,
+            () => false,
+            (slugs) => slugs,
+          );
 
     let hasFloorListingDataInCity = null;
     let hasCompoundListingDataInCity = null;
@@ -757,9 +755,10 @@ module.exports = {
       const hubs = hubsByCity.get(citySlug) || {};
       const floors = floorsByCity.get(citySlug) || new Set();
       const compounds = compoundFloorsByCity.get(citySlug) || new Set();
-      const hasCityProjects = Array.isArray(projectsData)
-        ? projectsData.some((p) => projectMatchesCitySlug(p, citySlug))
-        : false;
+      const hasCityProjects =
+        typeof projectMatchesCitySlug === "function" && Array.isArray(projectsData)
+          ? projectsData.some((p) => projectMatchesCitySlug(p, citySlug))
+          : false;
 
       if (!hasCityProjects) continue;
 

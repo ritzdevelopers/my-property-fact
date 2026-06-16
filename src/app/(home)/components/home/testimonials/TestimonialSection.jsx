@@ -203,7 +203,7 @@ export default function TestimonialSection() {
             <div className="home-testimonial-heading-block">
               <div className="home-testimonials-quote-wrap">
                 <img
-                  src="/static/icon/image%201013.png"
+                  src="/static/icon/image 1013 (1).png"
                   alt="Opening quotation mark"
                   title="Opening quotation mark"
                   className="home-testimonials-quote-img"

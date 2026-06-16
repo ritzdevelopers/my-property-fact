@@ -71,7 +71,8 @@
 
 .dream-city-wave {
   display: flex;
-  justify-content: center;
+  /* Start marquee from the left to avoid blank space on the right edge */
+  justify-content: flex-start;
   align-items: flex-end;
   flex-wrap: nowrap;
   width: 100%;
@@ -80,9 +81,13 @@
   min-height: 180px;
   overflow-x: hidden;
   overflow-y: visible;
-  padding: 26px 0 14px;
-  mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+  /*
+    Avoid clipping/fading marquee items (icons + labels) inside the container.
+    `mask-image` intentionally hides edges, which made the circles/text look "cut".
+  */
+  /* No extra left/right padding to avoid visible side gaps */
+  padding: 40px 0 14px;
+
 }
 
 .dream-city-track {
@@ -90,7 +95,8 @@
   align-items: flex-end;
   gap: clamp(20px, 3.5vw, 48px);
   width: max-content;
-  animation: dream-city-marquee 55s linear infinite;
+  /* Slower horizontal marquee */
+  animation: dream-city-marquee 95s linear infinite;
   will-change: transform;
 }
 
@@ -110,7 +116,8 @@
   gap: 10px;
   text-decoration: none;
   color: #333;
-  animation: dream-city-float 4s ease-in-out infinite;
+  /* Slower vertical float */
+  animation: dream-city-float 7s ease-in-out infinite;
   animation-delay: var(--float-delay, 0s);
   will-change: transform;
   flex: 0 0 auto;
@@ -119,13 +126,17 @@
 @keyframes dream-city-float {
   0%,
   100% {
-    transform: translateY(clamp(var(--float-min, -26px), var(--float-base, 0px), var(--float-max, 26px)));
+    /*
+      Important: keep float translation <= 0 so labels never get pushed down
+      (transforms don't affect layout, and overflow-x hidden can clip vertically).
+    */
+    transform: translateY(clamp(var(--float-min, -26px), var(--float-base, 0px), 0px));
   }
 
   50% {
     transform: translateY(
       calc(
-        clamp(var(--float-min, -26px), var(--float-base, 0px), var(--float-max, 26px)) - 16px
+        clamp(var(--float-min, -26px), var(--float-base, 0px), 0px) - 16px
       )
     );
   }
@@ -222,11 +233,11 @@
   .dream-city-wave {
     margin-top: 28px;
     min-height: unset;
-    padding: 8px 0 12px;
+    padding: 8px 14px 12px;
   }
 
   .dream-city-item {
-    animation-duration: 3.6s;
+    animation-duration: 6.2s;
     --float-min: -10px;
     --float-max: 10px;
   }

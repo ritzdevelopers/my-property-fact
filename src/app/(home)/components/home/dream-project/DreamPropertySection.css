@@ -2,7 +2,8 @@
   position: relative;
   padding: 64px 0 80px;
   background: #f8f9fb;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .dream-property-section-bg {
@@ -25,9 +26,9 @@
 .dream-property-container {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
+ 
   margin: 0 auto;
-  padding: 0 24px;
+  
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -72,12 +73,34 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  flex-wrap: wrap;
-  gap: clamp(20px, 3.5vw, 48px);
+  flex-wrap: nowrap;
   width: 100%;
   margin-top: 48px;
   margin-bottom: 32px;
   min-height: 180px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding: 26px 0 14px;
+  mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18px, #000 calc(100% - 18px), transparent);
+}
+
+.dream-city-track {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(20px, 3.5vw, 48px);
+  width: max-content;
+  animation: dream-city-marquee 55s linear infinite;
+  will-change: transform;
+}
+
+@keyframes dream-city-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .dream-city-item {
@@ -88,52 +111,23 @@
   text-decoration: none;
   color: #333;
   animation: dream-city-float 4s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
   will-change: transform;
-}
-
-.dream-city-item--1 {
-  --float-base: -22px;
-  animation-delay: 0s;
-}
-
-.dream-city-item--2 {
-  --float-base: 18px;
-  animation-delay: 0.45s;
-}
-
-.dream-city-item--3 {
-  --float-base: -14px;
-  animation-delay: 0.9s;
-}
-
-.dream-city-item--4 {
-  --float-base: 26px;
-  animation-delay: 1.35s;
-}
-
-.dream-city-item--5 {
-  --float-base: -18px;
-  animation-delay: 1.8s;
-}
-
-.dream-city-item--6 {
-  --float-base: 14px;
-  animation-delay: 2.25s;
-}
-
-.dream-city-item--7 {
-  --float-base: -22px;
-  animation-delay: 2.7s;
+  flex: 0 0 auto;
 }
 
 @keyframes dream-city-float {
   0%,
   100% {
-    transform: translateY(var(--float-base, 0));
+    transform: translateY(clamp(var(--float-min, -26px), var(--float-base, 0px), var(--float-max, 26px)));
   }
 
   50% {
-    transform: translateY(calc(var(--float-base, 0) - 16px));
+    transform: translateY(
+      calc(
+        clamp(var(--float-min, -26px), var(--float-base, 0px), var(--float-max, 26px)) - 16px
+      )
+    );
   }
 }
 
@@ -146,9 +140,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px;
+  padding: 22px;
   box-sizing: border-box;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
 }
 
 .dream-city-icon-circle img {
@@ -184,27 +179,18 @@
 
 @media (max-width: 992px) {
   .dream-city-wave {
-    gap: 28px 36px;
     min-height: 160px;
   }
 
   .dream-city-icon-circle {
     width: 100px;
     height: 100px;
-    padding: 22px;
+    padding: 18px;
   }
 
-  .dream-city-item--1,
-  .dream-city-item--3,
-  .dream-city-item--5,
-  .dream-city-item--7 {
-    --float-base: -12px;
-  }
-
-  .dream-city-item--2,
-  .dream-city-item--4,
-  .dream-city-item--6 {
-    --float-base: 10px;
+  .dream-city-item {
+    --float-min: -12px;
+    --float-max: 12px;
   }
 }
 
@@ -219,13 +205,12 @@
 
   .dream-city-wave {
     margin-top: 36px;
-    gap: 24px 28px;
   }
 
   .dream-city-icon-circle {
     width: 88px;
     height: 88px;
-    padding: 18px;
+    padding: 16px;
   }
 
   .dream-city-label {
@@ -235,39 +220,15 @@
 
 @media (max-width: 576px) {
   .dream-city-wave {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    justify-items: center;
-    align-items: end;
-    gap: 28px 20px;
+    margin-top: 28px;
     min-height: unset;
+    padding: 8px 0 12px;
   }
 
   .dream-city-item {
-    animation: dream-city-float-mobile 3.5s ease-in-out infinite;
-  }
-
-  .dream-city-item--1 { --float-base: -8px; animation-delay: 0s; }
-  .dream-city-item--2 { --float-base: 6px; animation-delay: 0.4s; }
-  .dream-city-item--3 { --float-base: -6px; animation-delay: 0.8s; }
-  .dream-city-item--4 { --float-base: 8px; animation-delay: 1.2s; }
-  .dream-city-item--5 { --float-base: -8px; animation-delay: 1.6s; }
-  .dream-city-item--6 { --float-base: 6px; animation-delay: 2s; }
-  .dream-city-item--7 {
-    grid-column: 1 / -1;
-    --float-base: 0;
-    animation-delay: 2.4s;
-  }
-
-  @keyframes dream-city-float-mobile {
-    0%,
-    100% {
-      transform: translateY(var(--float-base, 0));
-    }
-
-    50% {
-      transform: translateY(calc(var(--float-base, 0) - 10px));
-    }
+    animation-duration: 3.6s;
+    --float-min: -10px;
+    --float-max: 10px;
   }
 
   .dream-see-all-button {
@@ -277,6 +238,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .dream-city-track {
+    animation: none;
+  }
+
   .dream-city-item {
     animation: none;
     transform: translateY(var(--float-base, 0));

@@ -205,6 +205,40 @@ export default async function HomePage() {
         )}
 
         {row(
+          0.5,
+          <section className="container home-post-property-strip">
+            <div
+              className="transform-home-post-property-card"
+              role="note"
+              aria-label="Post your property on MyPropertyFact"
+            >
+              <div className="transform-home-post-property-card__content">
+                <p className="transform-home-post-property-card__title">
+                  For Post Your Property Register On{" "}
+                  <span className="transform-home-post-property-card__brand">
+                    Mypropertyfact
+                  </span>
+                </p>
+                <Link
+                  href="/properties"
+                  title="Explore more - Post your property on MyPropertyFact"
+                  className="transform-home-post-property-card__cta"
+                >
+                  Explore More
+                </Link>
+              </div>
+              <img
+                src="/static/home-meta-data/image 46.png"
+                alt="Post your property on MyPropertyFact"
+                title="Post your property on MyPropertyFact"
+                className="transform-home-post-property-card__image"
+                loading="lazy"
+              />
+            </div>
+          </section>,
+        )}
+
+        {row(
           1,
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
@@ -215,7 +249,14 @@ export default async function HomePage() {
               className="transform-home-image"
              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
-                <h1 className="headgradient">Find Flats & Property Across India | Buy & Invest</h1>
+                <h1 className="headgradient headgradient--sparkle">
+                  <span className="headgradient__base">
+                    Find Flats & Property Across India | Buy & Invest
+                  </span>
+                  <span className="headgradient__shine" aria-hidden="true">
+                    Find Flats & Property Across India | Buy & Invest
+                  </span>
+                </h1>
                 <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
             </div>
             <div className="transform-home-content">

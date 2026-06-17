@@ -16,28 +16,28 @@ const INSTAGRAM_REELS = [
 
 const MEDIA_CARDS = [
   {
-    id: "vaastu-compass",
+    id: "vaastu-business-growth",
     reelId: "DZg62TblKL-",
-    imageSrc: "/static/vaastu-strip/image%201039.png",
-    alt: "Vaastu insights thumbnail: compass and direction wheel",
-    title: "Vaastu insights: compass and direction wheel",
-    hoverText: "Decode directions & find your lucky zone",
+    imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_002.jpeg",
+    alt: "Vaastu insights thumbnail: business growth secret tips",
+    title: "Vaastu insights: business growth secret tips",
+    hoverText: "Unlock business growth with Vaastu wisdom",
   },
   {
-    id: "vaastu-perfect-home",
+    id: "vaastu-ambani-house",
     reelId: "DZOyVGPiaPw",
-    imageSrc: "/static/vaastu-strip/image%201040.png",
-    alt: "Vaastu insights thumbnail: Vastu perfect home",
-    title: "Vaastu insights: Vastu perfect home",
-    hoverText: "Design a home filled with harmony & balance",
+    imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_003.jpeg",
+    alt: "Vaastu insights thumbnail: Ambani house powerful Vastu",
+    title: "Vaastu insights: Ambani house powerful Vastu",
+    hoverText: "Discover the powerful Vastu behind iconic homes",
   },
   {
-    id: "vaastu-directions",
+    id: "vaastu-simple-solution",
     reelId: "DY9kSk2THeq",
-    imageSrc: "/static/vaastu-strip/image%201039%20(1).png",
-    alt: "Vaastu insights thumbnail: home layout with direction grid",
-    title: "Vaastu insights: direction grid layout",
-    hoverText: "Master room placement with Vastu wisdom",
+    imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_004.jpeg",
+    alt: "Vaastu insights thumbnail: one simple solution for your problems",
+    title: "Vaastu insights: one simple solution for your problems",
+    hoverText: "One simple Vaastu solution for everyday challenges",
   },
 ];
 

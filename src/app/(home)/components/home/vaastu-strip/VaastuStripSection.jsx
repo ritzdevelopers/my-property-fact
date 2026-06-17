@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import "./VaastuStripSection.css";
 
 const INSTAGRAM_REELS = [
@@ -99,9 +100,11 @@ export default function VaastuStripSection() {
     if (!isOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.classList.add(MPF_SOCIAL_REELS_OPEN_CLASS);
     window.addEventListener("keydown", handleKeyDown);
     return () => {
       document.body.style.overflow = prev || "unset";
+      document.body.classList.remove(MPF_SOCIAL_REELS_OPEN_CLASS);
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, handleKeyDown]);
@@ -245,16 +248,18 @@ export default function VaastuStripSection() {
           }}
         >
           <div className="vaastu-reels-layout" onClick={(e) => e.stopPropagation()}>
-            <button
-              type="button"
-              className="vaastu-reels-close"
-              aria-label="Close reels"
-              onClick={closeReels}
-            >
-              ×
-            </button>
+            <div className="vaastu-reels-stage">
+              <div className="vaastu-reels-shell-wrap">
+                <button
+                  type="button"
+                  className="vaastu-reels-close"
+                  aria-label="Close reels"
+                  onClick={closeReels}
+                >
+                  ×
+                </button>
 
-            <div className="vaastu-reels-shell">
+                <div className="vaastu-reels-shell">
               <p className="vaastu-reels-hint" aria-hidden="true">
                 Scroll for next reel
               </p>
@@ -309,16 +314,45 @@ export default function VaastuStripSection() {
                   );
                 })}
               </div>
+                </div>
+              </div>
 
-              <div className="vaastu-reels-dots" aria-hidden="true">
-                {INSTAGRAM_REELS.map((reel, index) => (
-                  <span
-                    key={reel.id}
-                    className={`vaastu-reels-dot${
-                      index === activeIndex ? " is-active" : ""
-                    }`}
-                  />
-                ))}
+              <div className="vaastu-reels-nav-rail" aria-label="Reel navigation">
+                <button
+                  type="button"
+                  className="vaastu-reels-nav-btn"
+                  aria-label="Previous reel"
+                  disabled={activeIndex === 0}
+                  onClick={() => scrollToReel(activeIndex - 1)}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 15L12 9L18 15"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  className="vaastu-reels-nav-btn"
+                  aria-label="Next reel"
+                  disabled={activeIndex === INSTAGRAM_REELS.length - 1}
+                  onClick={() => scrollToReel(activeIndex + 1)}
+                >
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 9L12 15L18 9"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>

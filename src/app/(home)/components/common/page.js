@@ -110,6 +110,17 @@ export default function PropertyContainer({
       ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
       : "Real estate project thumbnail — My Property Fact";
 
+  const getFeaturedPillBadgeModifier = (status) => {
+    const normalized = status?.trim().toLowerCase();
+    if (normalized === "new launched" || normalized === "new launch") {
+      return "home-featured-project-tag--new-launched";
+    }
+    if (normalized === "ultra luxury") {
+      return "home-featured-project-tag--ultra-luxury";
+    }
+    return "";
+  };
+
   const renderStatusBadge = () => {
     if (!data.projectStatusName) {
       return null;
@@ -117,18 +128,25 @@ export default function PropertyContainer({
 
     if (badgeVariant === "home-featured") {
       const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
+      const pillBadgeModifier = getFeaturedPillBadgeModifier(data.projectStatusName);
 
       return (
         <div
           className={
             layoutVariant === "overlap"
-              ? "home-featured-project-tag plus-jakarta-sans-semi-bold"
+              ? `home-featured-project-tag plus-jakarta-sans-semi-bold${
+                  pillBadgeModifier ? ` ${pillBadgeModifier}` : ""
+                }`
               : "home-featured-status-badge plus-jakarta-sans-semi-bold"
           }
-          style={{
-            "--badge-color": backgroundColor,
-            "--badge-text-color": textColor,
-          }}
+          style={
+            pillBadgeModifier
+              ? undefined
+              : {
+                  "--badge-color": backgroundColor,
+                  "--badge-text-color": textColor,
+                }
+          }
         >
           {data.projectStatusName}
         </div>

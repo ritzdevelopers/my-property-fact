@@ -122,6 +122,13 @@
 }
 
 /* Featured (home) two-up: keep the 2 cards visually centered */
+.featured-page-slider--two-up {
+  /* Make arrows position relative to the centered 2-up viewport */
+  max-width: 1120px;
+  margin: 0 auto;
+  position: relative;
+}
+
 .featured-page-slider--two-up .slick-track {
   display: flex !important;
   align-items: stretch;
@@ -133,9 +140,8 @@
   height: 100%;
 }
 
-/* Reduce the big gap by constraining the slick viewport to ~2 cards */
+/* Keep slick viewport within the 2-up wrapper */
 .featured-page-slider--two-up .slick-list {
-  max-width: 1120px;
   margin: 0 auto;
 }
 
@@ -153,11 +159,11 @@
 }
 
 .featured-page-slider--two-up .slick-prev {
-  left: 10px;
+  left: -14px;
 }
 
 .featured-page-slider--two-up .slick-next {
-  right: 10px;
+  right: -14px;
 }
 
 .home-featured-builder-info {

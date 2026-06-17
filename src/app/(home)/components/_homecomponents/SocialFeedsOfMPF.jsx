@@ -8,6 +8,14 @@ import "swiper/css/pagination";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import "./SocialFeedsOfMPF.css";
 
+const getInstagramEmbedUrl = (reelId, { captioned = false } = {}) => {
+  const base = `https://www.instagram.com/reel/${reelId}/embed`;
+  return captioned ? `${base}/captioned/` : `${base}/`;
+};
+
+const getInstagramThumbnailUrl = (reelId) =>
+  `https://www.instagram.com/reel/${reelId}/media/?size=l`;
+
 const getYoutubeEmbedUrl = (videoId, options = {}) => {
   const {
     autoplay = false,
@@ -42,13 +50,13 @@ export default function SocialFeedsOfMPF() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);
+  const [popupActiveIndex, setPopupActiveIndex] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [activeYoutubeIndices, setActiveYoutubeIndices] = useState(() => new Set([0]));
-  const videoRefs = useRef([]);
+  const [activeInstagramPopupIndices, setActiveInstagramPopupIndices] = useState(() => new Set());
   const wrapperRefs = useRef([]);
-  const popupVideoSlotRef = useRef(null);
-  const clickedVideoRef = useRef(null);
-  const clickedWrapperRef = useRef(null);
+  const popupScrollRef = useRef(null);
+  const popupItemRefs = useRef([]);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -81,23 +89,23 @@ export default function SocialFeedsOfMPF() {
     {
       text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
       position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social11.mp4"
+      reelId: "DZcQalCE9HT",
     },
     {
       text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
       position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/V1 40MB .mp4"
+      reelId: "DZg62TblKL-",
     },
     {
       text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
       position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social33.mp4"
+      reelId: "DZXpBeQTQj7",
     },
     {
-      text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
+      text: `Watch the latest reel from My Property Fact.`,
       position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social44.mp4"
-    }
+      reelId: "DYjaKn5nEKg",
+    },
   ];
 
   const youtubePosts = [
@@ -148,47 +156,27 @@ export default function SocialFeedsOfMPF() {
 
   const socialPosts = platformConfig[activePlatform].posts;
   const isYoutubeFeed = activePlatform === "youtube";
-
-  const restoreExpandedVideo = useCallback((clearRefs = true) => {
-    const video = clickedVideoRef.current;
-    const wrapper = clickedWrapperRef.current;
-    if (!video || !wrapper) return;
-
-    video.className = "post-video";
-    video.controls = false;
-    video.muted = true;
-    video.loop = true;
-    video.pause();
-    wrapper.appendChild(video);
-
-    if (clearRefs) {
-      clickedVideoRef.current = null;
-      clickedWrapperRef.current = null;
-    }
-  }, []);
+  const isInstagramFeed = activePlatform === "instagram";
 
   const handleVideoClick = (event, index) => {
-    if (isYoutubeFeed) {
+    if (isYoutubeFeed || isInstagramFeed) {
+      setPopupActiveIndex(index);
       setSelectedVideoIndex(index);
       setIsPopupOpen(true);
       return;
     }
 
-    const wrapper = event.currentTarget;
-    const video = wrapper.querySelector("video.post-video");
-    if (!video) return;
-
-    clickedVideoRef.current = video;
-    clickedWrapperRef.current = wrapper;
+    // Fallback: keep behavior safe for any future non-embed post types
     setSelectedVideoIndex(index);
     setIsPopupOpen(true);
   };
 
   const closePopup = useCallback(() => {
-    restoreExpandedVideo();
     setIsPopupOpen(false);
     setSelectedVideoIndex(null);
-  }, [restoreExpandedVideo]);
+    setPopupActiveIndex(null);
+    setActiveInstagramPopupIndices(new Set());
+  }, []);
 
   const handlePlatformChange = (platform) => {
     if (platform === activePlatform) return;
@@ -216,41 +204,6 @@ export default function SocialFeedsOfMPF() {
       return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [isPopupOpen, handleKeyDown]);
-
-  const primeVideoPreview = useCallback((videoEl) => {
-    if (!videoEl || videoEl.dataset.primed === "true") return;
-
-    const showFrame = () => {
-      videoEl.dataset.primed = "true";
-      const seekTime = Number.isFinite(videoEl.duration) && videoEl.duration > 0
-        ? Math.min(0.1, videoEl.duration / 2)
-        : 0.001;
-      videoEl.currentTime = seekTime;
-    };
-
-    if (videoEl.readyState >= 1) {
-      showFrame();
-      return;
-    }
-
-    videoEl.addEventListener("loadeddata", showFrame, { once: true });
-    if (videoEl.readyState === 0) {
-      videoEl.load();
-    }
-  }, []);
-
-  const startInlinePreview = useCallback((videoEl) => {
-    if (!videoEl) return;
-
-    primeVideoPreview(videoEl);
-
-    const playPromise = videoEl.play();
-    if (playPromise?.catch) {
-      playPromise.catch(() => {
-        primeVideoPreview(videoEl);
-      });
-    }
-  }, [primeVideoPreview]);
 
   useEffect(() => {
     if (!isYoutubeFeed) return;
@@ -280,41 +233,8 @@ export default function SocialFeedsOfMPF() {
   }, [isYoutubeFeed, socialPosts.length, activePlatform]);
 
   useEffect(() => {
-    if (isYoutubeFeed) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(({ target, isIntersecting }) => {
-          const video = target;
-          if (isIntersecting) {
-            startInlinePreview(video);
-          } else {
-            video.pause();
-          }
-        });
-      },
-      { threshold: 0.2, rootMargin: "40px" }
-    );
-
-    const observeVideos = () => {
-      videoRefs.current.forEach((video) => {
-        if (video) observer.observe(video);
-      });
-    };
-
-    observeVideos();
-
-    const primeTimer = window.setTimeout(() => {
-      videoRefs.current.forEach((video) => {
-        if (video) primeVideoPreview(video);
-      });
-    }, 150);
-
-    return () => {
-      window.clearTimeout(primeTimer);
-      observer.disconnect();
-    };
-  }, [startInlinePreview, primeVideoPreview, socialPosts.length, activePlatform, isYoutubeFeed]);
+    // (Instagram cards render thumbnails only — no iframe lazy-load needed.)
+  }, [isInstagramFeed, socialPosts.length, activePlatform]);
 
   const handleSwiperSlideChange = useCallback((swiper) => {
     if (isYoutubeFeed) {
@@ -328,35 +248,51 @@ export default function SocialFeedsOfMPF() {
       setActiveYoutubeIndices(visible);
       return;
     }
+  }, [isYoutubeFeed, socialPosts.length]);
 
-    const activeVideo = videoRefs.current[swiper.realIndex];
-    if (activeVideo) {
-      startInlinePreview(activeVideo);
+  // Instagram popup: snap-scroll through embeds, lazy-load as user scrolls
+  useEffect(() => {
+    if (!isPopupOpen || !isInstagramFeed || selectedVideoIndex === null) return;
+    setPopupActiveIndex(selectedVideoIndex);
+    setActiveInstagramPopupIndices(new Set([selectedVideoIndex]));
+
+    const scrollEl = popupScrollRef.current;
+    const target = popupItemRefs.current[selectedVideoIndex];
+    if (scrollEl && target) {
+      requestAnimationFrame(() => {
+        target.scrollIntoView({ block: "start", behavior: "instant" });
+      });
     }
-  }, [startInlinePreview, isYoutubeFeed, socialPosts.length]);
+  }, [isPopupOpen, isInstagramFeed, selectedVideoIndex]);
 
   useEffect(() => {
-    if (isYoutubeFeed || !isPopupOpen || selectedVideoIndex === null || !popupVideoSlotRef.current) return;
+    if (!isPopupOpen || !isInstagramFeed) return;
+    const root = popupScrollRef.current;
+    if (!root) return;
 
-    const video = clickedVideoRef.current;
-    const slot = popupVideoSlotRef.current;
-    if (!video) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(({ target, isIntersecting, intersectionRatio }) => {
+          if (!isIntersecting || intersectionRatio < 0.6) return;
+          const idx = Number(target.dataset.instagramPopupIndex);
+          if (Number.isNaN(idx)) return;
+          setPopupActiveIndex(idx);
+          setActiveInstagramPopupIndices((prev) => {
+            const next = new Set(prev);
+            next.add(idx);
+            return next;
+          });
+        });
+      },
+      { root, threshold: [0.6, 0.75, 0.9] }
+    );
 
-    video.className = "video-popup-player";
-    video.controls = true;
-    video.muted = false;
-    video.loop = true;
-    slot.appendChild(video);
+    popupItemRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
 
-    const playPromise = video.play();
-    if (playPromise?.catch) {
-      playPromise.catch(() => {});
-    }
-
-    return () => {
-      restoreExpandedVideo(false);
-    };
-  }, [isPopupOpen, selectedVideoIndex, restoreExpandedVideo, isYoutubeFeed]);
+    return () => observer.disconnect();
+  }, [isPopupOpen, isInstagramFeed, socialPosts.length]);
 
   useEffect(() => {
     const origin = "https://otherassets.blob.core.windows.net";
@@ -371,7 +307,10 @@ export default function SocialFeedsOfMPF() {
     };
   }, []);
 
-  const selectedVideo = selectedVideoIndex !== null ? socialPosts[selectedVideoIndex] : null;
+  const effectivePopupIndex = isInstagramFeed
+    ? (popupActiveIndex ?? selectedVideoIndex)
+    : selectedVideoIndex;
+  const selectedVideo = effectivePopupIndex !== null ? socialPosts[effectivePopupIndex] : null;
 
   return (
     <>
@@ -471,7 +410,7 @@ export default function SocialFeedsOfMPF() {
                 className={`social-feeds-swiper${isYoutubeFeed ? " social-feeds-swiper--youtube" : ""}`}
               >
                 {socialPosts.map((post, index) => (
-                  <SwiperSlide key={`${activePlatform}-${post.youtubeId || post.video}-${index}`}>
+                  <SwiperSlide key={`${activePlatform}-${post.youtubeId || post.reelId || post.video}-${index}`}>
                     <div
                       className={`instagram-post-card${isYoutubeFeed ? " youtube-post-card" : ""}`}
                       onMouseEnter={() => !isMobile && setHoveredIndex(index)}
@@ -515,21 +454,15 @@ export default function SocialFeedsOfMPF() {
                               loading="lazy"
                             />
                           )
-                        ) : (
-                          <video
-                            ref={(el) => {
-                              videoRefs.current[index] = el;
-                            }}
-                            id={`social-video-${index}`}
-                            className="post-video"
-                            src={post.video}
-                            loop
-                            muted
-                            playsInline
-                            preload="auto"
-                            aria-label={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                        ) : post.reelId ? (
+                          <img
+                            src={post.thumbnail || getInstagramThumbnailUrl(post.reelId)}
+                            alt={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                            className="post-video instagram-thumbnail"
+                            loading="lazy"
+                            draggable="false"
                           />
-                        )}
+                        ) : null}
                         {/* Play Icon Overlay - Always show on hover */}
                         {!isYoutubeFeed && hoveredIndex === index && (
                           <div className="play-icon-overlay show-on-hover">
@@ -592,7 +525,7 @@ export default function SocialFeedsOfMPF() {
       {/* Video Popup Modal — Reel + info cloud side-by-side */}
       {isPopupOpen && selectedVideo && (
         <div
-          className="video-popup-overlay"
+          className={`video-popup-overlay${isInstagramFeed ? " video-popup-overlay--instagram" : ""}`}
           onClick={handleBackdropClick}
           role="dialog"
           aria-modal="true"
@@ -600,7 +533,7 @@ export default function SocialFeedsOfMPF() {
         >
           <div className="video-popup-container">
             <div
-              className="video-popup-shell"
+              className={`video-popup-shell${isInstagramFeed ? " video-popup-shell--solo" : ""}`}
               onClick={(e) => e.stopPropagation()}
             >
               {/* ── Left: reel frame ── */}
@@ -617,6 +550,14 @@ export default function SocialFeedsOfMPF() {
                   />
                   <span className="video-popup-handle">my.property.fact</span>
                 </div>
+
+                {isInstagramFeed && (
+                  <>
+                    <div className="video-popup-instagram-hint" aria-hidden="true">
+                      Scroll to next reel
+                    </div>
+                  </>
+                )}
                 <div
                   className="video-popup-player-slot"
                   aria-label={selectedVideo.text.replace(/\s+/g, " ").trim().slice(0, 200)}
@@ -633,14 +574,39 @@ export default function SocialFeedsOfMPF() {
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                       allowFullScreen
                     />
+                  ) : isInstagramFeed ? (
+                    <div ref={popupScrollRef} className="video-popup-instagram-scroll">
+                      {socialPosts.map((post, idx) => (
+                        <div
+                          key={`ig-popup-${post.reelId}-${idx}`}
+                          ref={(el) => {
+                            popupItemRefs.current[idx] = el;
+                          }}
+                          className="video-popup-instagram-item"
+                          data-instagram-popup-index={idx}
+                        >
+                          {activeInstagramPopupIndices.has(idx) ? (
+                            <iframe
+                              src={getInstagramEmbedUrl(post.reelId, { captioned: false })}
+                              title={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                              className="video-popup-instagram-embed"
+                              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="video-popup-instagram-fallback" aria-label="Instagram reel loading" />
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <div ref={popupVideoSlotRef} className="video-popup-player-slot-inner" />
+                    <div className="video-popup-player-slot-inner" />
                   )}
                 </div>
               </div>
 
               {/* ── Right: speech-bubble cloud ── */}
-              {selectedVideo.text && (
+              {selectedVideo.text && !isInstagramFeed && (
                 <div className="video-popup-cloud-wrap">
                   <div className="video-popup-cloud">
                     <div className="video-popup-cloud__tail" aria-hidden="true" />

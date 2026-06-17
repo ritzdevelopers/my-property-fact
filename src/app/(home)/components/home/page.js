@@ -47,6 +47,11 @@ const NoidaProjectsSection = dynamic(
   () => import("./noida-projects/NoidaProjectsSection"),
   { loading: () => <div className="py-4" /> }
 );
+
+const VaastuStripSection = dynamic(
+  () => import("./vaastu-strip/VaastuStripSection"),
+  { loading: () => <div className="py-3" /> }
+);
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
 /** Alternates by calendar day (IST): e.g. one day Delhi, next Noida — SSR fallback before geolocation. */
@@ -404,9 +409,11 @@ export default async function HomePage() {
 
           {row(12, <TestimonialSection testimonials={testimonials} />)}
 
-          {row(13, <SocialFeedsOfMPF />)}
+          {row(13.5, <VaastuStripSection />)}
 
           {row(14, <PopularCitiesSection />)}
+
+          {row(15, <SocialFeedsOfMPF />)}
         </div>
       </>
     );

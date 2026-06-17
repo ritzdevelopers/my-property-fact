@@ -21,7 +21,6 @@ const MEDIA_CARDS = [
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_002.jpeg",
     alt: "Vaastu insights thumbnail: business growth secret tips",
     title: "Vaastu insights: business growth secret tips",
-    hoverText: "Unlock business growth with Vaastu wisdom",
   },
   {
     id: "vaastu-ambani-house",
@@ -29,7 +28,6 @@ const MEDIA_CARDS = [
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_003.jpeg",
     alt: "Vaastu insights thumbnail: Ambani house powerful Vastu",
     title: "Vaastu insights: Ambani house powerful Vastu",
-    hoverText: "Discover the powerful Vastu behind iconic homes",
   },
   {
     id: "vaastu-simple-solution",
@@ -37,7 +35,6 @@ const MEDIA_CARDS = [
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-164319_004.jpeg",
     alt: "Vaastu insights thumbnail: one simple solution for your problems",
     title: "Vaastu insights: one simple solution for your problems",
-    hoverText: "One simple Vaastu solution for everyday challenges",
   },
 ];
 
@@ -207,7 +204,7 @@ export default function VaastuStripSection() {
             <button
               key={card.id}
               type="button"
-              className="vaastu-strip-card vaastu-strip-card--media"
+              className={`vaastu-strip-card vaastu-strip-card--media vaastu-strip-card--media-${index + 1}`}
               role="listitem"
               aria-label={card.title}
               title={card.title}
@@ -222,10 +219,6 @@ export default function VaastuStripSection() {
                   height={34}
                   decoding="async"
                 />
-              </span>
-              <span className="vaastu-strip-media__hover" aria-hidden="true">
-                <span className="vaastu-strip-media__hover-text">{card.hoverText}</span>
-                <span className="vaastu-strip-media__hover-cta">Watch reel →</span>
               </span>
               <img
                 src={card.imageSrc}

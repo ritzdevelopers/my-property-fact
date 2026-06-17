@@ -10,6 +10,7 @@
 
 .vaastu-strip-card {
   display: block;
+  box-sizing: border-box;
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
@@ -23,8 +24,8 @@
 
 .vaastu-strip-card--explore {
   display: flex;
-  width: 272px;
-  height: 246px;
+  width: 302px;
+  height: 244px;
   padding: 0 16px 0 24px;
   align-items: center;
   border-radius: 8px;
@@ -70,54 +71,48 @@
   background: #000;
 }
 
-.vaastu-strip-media__hover {
+.vaastu-strip-card--media::after {
+  content: "";
   position: absolute;
   inset: 0;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 18px 16px;
-  background: linear-gradient(
-    to top,
-    rgba(8, 20, 40, 0.88) 0%,
-    rgba(8, 20, 40, 0.35) 45%,
-    transparent 100%
-  );
+  z-index: 1;
   opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 220ms ease, transform 220ms ease;
   pointer-events: none;
+  transition: opacity 220ms ease;
 }
 
-.vaastu-strip-media__hover-text {
-  color: #fff;
-  font-family: "Lato", var(--heaing-font), sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.35;
-  letter-spacing: 0.01em;
-  text-align: left;
+.vaastu-strip-card--media-1::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(82, 149, 225, 0.71) 105.61%
+  );
 }
 
-.vaastu-strip-media__hover-cta {
-  color: rgba(255, 255, 255, 0.82);
-  font-family: "Lato", var(--heaing-font), sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+.vaastu-strip-card--media-2::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(122, 225, 82, 0.71) 105.61%
+  );
 }
 
-.vaastu-strip-card--media:hover .vaastu-strip-media__hover,
-.vaastu-strip-card--media:focus-visible .vaastu-strip-media__hover {
+.vaastu-strip-card--media-3::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(225, 91, 82, 0.71) 105.61%
+  );
+}
+
+.vaastu-strip-card--media:hover::after,
+.vaastu-strip-card--media:focus-visible::after {
   opacity: 1;
-  transform: translateY(0);
 }
 
-.vaastu-strip-card--media:hover .vaastu-strip-media__img {
-  transform: scale(1.05);
+.vaastu-strip-card--media:hover .vaastu-strip-media__img,
+.vaastu-strip-card--media:focus-visible .vaastu-strip-media__img {
+  transform: scale(1.03);
 }
 
 .vaastu-strip-card--media:hover .vaastu-strip-media__play {
@@ -472,17 +467,38 @@ body.mpf-social-reels-open .lead-form-popup-trigger--home-beside-chat {
   pointer-events: none !important;
 }
 
-/* Responsive: allow horizontal scroll on small screens */
-@media (max-width: 768px) {
+/* Responsive: use a compact two-column layout on tablets. */
+@media (max-width: 991px) {
   .vaastu-strip {
-    overflow-x: auto;
-    padding-bottom: 6px;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
 
   .vaastu-strip-card {
-    scroll-snap-align: start;
+    width: 100%;
+  }
+
+  .vaastu-strip-card--explore,
+  .vaastu-strip-card--media {
+    width: 100%;
+    height: 220px;
+  }
+}
+
+/* Phones: stack cards vertically. */
+@media (max-width: 575px) {
+  .vaastu-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .vaastu-strip-card--explore,
+  .vaastu-strip-card--media {
+    height: 220px;
+  }
+
+  .vaastu-strip-card--explore {
+    padding: 0 20px;
   }
 }
 

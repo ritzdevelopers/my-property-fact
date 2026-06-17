@@ -409,11 +409,11 @@ export default async function HomePage() {
 
           {row(12, <TestimonialSection testimonials={testimonials} />)}
 
+          {row(13, <SocialFeedsOfMPF />)}
+
           {row(13.5, <VaastuStripSection />)}
 
           {row(14, <PopularCitiesSection />)}
-
-          {row(15, <SocialFeedsOfMPF />)}
         </div>
       </>
     );

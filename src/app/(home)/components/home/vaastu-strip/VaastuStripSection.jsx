@@ -47,6 +47,8 @@ const getInstagramEmbedUrl = (reelId) =>
 const getInstagramThumbnailUrl = (reelId) =>
   `https://www.instagram.com/reel/${reelId}/media/?size=l`;
 
+const getPlayIconLabel = (label) => `Play reel: ${label}`;
+
 export default function VaastuStripSection() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -214,7 +216,8 @@ export default function VaastuStripSection() {
               <span className="vaastu-strip-media__play" aria-hidden="true">
                 <img
                   src="/static/vaastu-strip/play-circle-line.svg"
-                  alt=""
+                  alt={getPlayIconLabel(card.title)}
+                  title={getPlayIconLabel(card.title)}
                   width={34}
                   height={34}
                   decoding="async"
@@ -293,7 +296,8 @@ export default function VaastuStripSection() {
                         <div className="vaastu-reels-slide-idle" aria-hidden="true">
                           <img
                             src={getInstagramThumbnailUrl(reel.id)}
-                            alt=""
+                            alt={reel.title}
+                            title={reel.title}
                             className="vaastu-reels-thumb"
                             loading="lazy"
                             decoding="async"
@@ -302,7 +306,8 @@ export default function VaastuStripSection() {
                           <span className="vaastu-reels-thumb-play">
                             <img
                               src="/static/vaastu-strip/play-circle-line.svg"
-                              alt=""
+                              alt={getPlayIconLabel(reel.title)}
+                              title={getPlayIconLabel(reel.title)}
                               width={52}
                               height={52}
                               decoding="async"

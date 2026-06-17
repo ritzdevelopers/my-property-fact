@@ -45,6 +45,8 @@ const getYoutubeEmbedUrl = (videoId, options = {}) => {
 const getYoutubeThumbnail = (videoId) =>
   `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
+const getPostMediaLabel = (text) => text.replace(/\s+/g, " ").trim().slice(0, 160);
+
 export default function SocialFeedsOfMPF() {
   const [activePlatform, setActivePlatform] = useState("instagram");
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -409,7 +411,10 @@ export default function SocialFeedsOfMPF() {
                 }}
                 className={`social-feeds-swiper${isYoutubeFeed ? " social-feeds-swiper--youtube" : ""}`}
               >
-                {socialPosts.map((post, index) => (
+                {socialPosts.map((post, index) => {
+                  const mediaLabel = getPostMediaLabel(post.text);
+
+                  return (
                   <SwiperSlide key={`${activePlatform}-${post.youtubeId || post.reelId || post.video}-${index}`}>
                     <div
                       className={`instagram-post-card${isYoutubeFeed ? " youtube-post-card" : ""}`}
@@ -441,7 +446,7 @@ export default function SocialFeedsOfMPF() {
                                 controls: false,
                                 loop: true,
                               })}
-                              title={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                              title={mediaLabel}
                               className="youtube-card-embed"
                               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                               loading="lazy"
@@ -449,7 +454,8 @@ export default function SocialFeedsOfMPF() {
                           ) : (
                             <img
                               src={getYoutubeThumbnail(post.youtubeId)}
-                              alt={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                              alt={mediaLabel}
+                              title={mediaLabel}
                               className="post-video youtube-thumbnail"
                               loading="lazy"
                             />
@@ -457,7 +463,8 @@ export default function SocialFeedsOfMPF() {
                         ) : post.reelId ? (
                           <img
                             src={post.thumbnail || getInstagramThumbnailUrl(post.reelId)}
-                            alt={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
+                            alt={mediaLabel}
+                            title={mediaLabel}
                             className="post-video instagram-thumbnail"
                             loading="lazy"
                             draggable="false"
@@ -515,7 +522,8 @@ export default function SocialFeedsOfMPF() {
                       </div>
                     </div>
                   </SwiperSlide>
-                ))}
+                  );
+                })}
               </Swiper>
             </div>
           </div>

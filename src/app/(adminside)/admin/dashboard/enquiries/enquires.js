@@ -11,13 +11,13 @@ import {
   InputGroup,
   Spinner,
 } from "react-bootstrap";
-import Link from "next/link";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faLock, faMagnifyingGlass, faFilter, faEnvelope, faPhone, faLocationDot, faArrowUpRightFromSquare, faInbox } from "@fortawesome/free-solid-svg-icons";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
+import { parsePriceToCrore } from "@/app/_global_components/projectFilterUtils";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
@@ -57,9 +57,6 @@ function truncate(text, max) {
   return `${s.slice(0, max)}…`;
 }
 
-function sourceBadgeClass(source) {
-  return source === "App" ? "admin-chip-role" : "admin-chip-ok";
-}
 
 function getSourcePageLink(row) {
   const direct = String(row?.projectLink || "").trim();
@@ -77,7 +74,196 @@ function getSourcePageLink(row) {
   return "";
 }
 
+function extractSlugFromProjectLink(link) {
+  const direct = String(link || "").trim();
+  if (!direct) return "";
+  try {
+    const uri = direct.includes("://")
+      ? new URL(direct)
+      : new URL(direct.replace(/^\//, ""), "https://placeholder.local/");
+    const parts = String(uri.pathname || "")
+      .split("/")
+      .filter(Boolean);
+    return parts.length ? parts[parts.length - 1] : "";
+  } catch {
+    const fallback = direct.replace(/^\/+/, "");
+    const slash = fallback.lastIndexOf("/");
+    return slash >= 0 ? fallback.slice(slash + 1) : fallback;
+  }
+}
+
+function buildProjectLookups(projects) {
+  const bySlug = new Map();
+  const byId = new Map();
+  (projects || []).forEach((project) => {
+    const slug = String(project?.slugURL || "").trim().toLowerCase();
+    if (slug) bySlug.set(slug, project);
+    const id = Number(project?.id);
+    if (Number.isFinite(id)) byId.set(id, project);
+  });
+  return { bySlug, byId };
+}
+
+function buildCityStateMap(cities) {
+  const map = new Map();
+  (cities || []).forEach((city) => {
+    const cityName = String(city?.cityName || city?.name || "").trim();
+    const stateName = String(city?.stateName || "").trim();
+    if (cityName && stateName) map.set(cityName, stateName);
+  });
+  return map;
+}
+
+function resolveProjectForEnquiry(row, lookups) {
+  if (!lookups) return null;
+  const propertyId = Number(row?.propertyId);
+  if (Number.isFinite(propertyId) && lookups.byId.has(propertyId)) {
+    return lookups.byId.get(propertyId);
+  }
+  const slug = extractSlugFromProjectLink(row?.projectLink).toLowerCase();
+  if (slug && lookups.bySlug.has(slug)) {
+    return lookups.bySlug.get(slug);
+  }
+  return null;
+}
+
+function enrichEnquiryWithProject(row, lookups, cityStateMap) {
+  const project = resolveProjectForEnquiry(row, lookups);
+  if (!project) {
+    return {
+      ...row,
+      projectLocation: row.projectLocation || "",
+      projectPrice: row.projectPrice || "",
+      projectCity: row.projectCity || "",
+      projectState: row.projectState || "",
+    };
+  }
+
+  const cityName = String(project.cityName || "").trim();
+  return {
+    ...row,
+    projectLocation:
+      project.projectLocality ||
+      project.projectAddress ||
+      project.projectName ||
+      "",
+    projectPrice: project.projectPrice || "",
+    projectCity: cityName,
+    projectState: cityName ? cityStateMap.get(cityName) || "" : "",
+  };
+}
+
 const PAGE_SIZE = 10;
+
+const PRICE_FILTER_OPTIONS = [
+  { value: "", label: "All prices" },
+  { value: "0-5000000", label: "Under 50L", min: 0, max: 5000000 },
+  { value: "5000000-10000000", label: "50L - 1Cr", min: 5000000, max: 10000000 },
+  { value: "10000000-20000000", label: "1Cr - 2Cr", min: 10000000, max: 20000000 },
+  { value: "20000000-50000000", label: "2Cr - 5Cr", min: 20000000, max: 50000000 },
+  { value: "50000000+", label: "5Cr+", min: 50000000, max: Infinity },
+];
+
+function trimTrailingZeros(numStr) {
+  return String(numStr).replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
+}
+
+/** MPF price display: .53 → 53 Lakhs, 1.23 → 1.23 Crore */
+function formatMpfProjectPrice(rawPrice) {
+  if (rawPrice == null || String(rawPrice).trim() === "") return "—";
+
+  const priceInCr = parsePriceToCrore(rawPrice);
+  if (!Number.isFinite(priceInCr) || priceInCr <= 0) {
+    return String(rawPrice).trim();
+  }
+
+  if (priceInCr < 1) {
+    const lakhs = Math.round(priceInCr * 100);
+    if (lakhs <= 0) return "—";
+    return `${lakhs} Lakh${lakhs === 1 ? "" : "s"}`;
+  }
+
+  return `${trimTrailingZeros(priceInCr.toFixed(2))} Crore`;
+}
+
+function matchesPriceFilter(row, filterValue) {
+  if (!filterValue) return true;
+  const option = PRICE_FILTER_OPTIONS.find((opt) => opt.value === filterValue);
+  if (!option || option.min == null) return true;
+  const priceInCr = parsePriceToCrore(row.projectPrice);
+  if (!Number.isFinite(priceInCr) || priceInCr <= 0) return false;
+  const priceInRupees = priceInCr * 10000000;
+  return priceInRupees >= option.min && priceInRupees < option.max;
+}
+
+function FilterDropdown({ label, value, options, onChange, ariaLabel }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((opt) => opt.value === value);
+  const displayLabel = selectedOption?.label || label;
+
+  return (
+    <div className="enquiries-filter-dropdown" ref={dropdownRef}>
+      <button
+        type="button"
+        className={`enquiries-filter-dropdown__trigger${value ? " has-value" : ""}`}
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label={ariaLabel}
+        aria-expanded={isOpen}
+        aria-haspopup="listbox"
+      >
+        <span className="enquiries-filter-dropdown__label">{displayLabel}</span>
+        <svg
+          width="10"
+          height="6"
+          viewBox="0 0 10 6"
+          fill="none"
+          className={`enquiries-filter-dropdown__arrow${isOpen ? " is-open" : ""}`}
+          aria-hidden
+        >
+          <path
+            d="M1 1L5 5L9 1"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <div className="enquiries-filter-dropdown__menu" role="listbox" aria-label={ariaLabel}>
+          {options.map((opt) => (
+            <button
+              key={opt.value || "all"}
+              type="button"
+              role="option"
+              aria-selected={opt.value === value}
+              className={`enquiries-filter-dropdown__item${opt.value === value ? " is-active" : ""}`}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function StatusDropdown({ currentStatus, options, onSelect, getStatusColor, getStatusTextColor }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -148,10 +334,15 @@ export default function Enquiries() {
     isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
 
   const [list, setList] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [confirmBox, setConfirmBox] = useState(false);
   const [id, setId] = useState(0);
   const [search, setSearch] = useState("");
+  const [filterCity, setFilterCity] = useState("");
+  const [filterState, setFilterState] = useState("");
+  const [filterPrice, setFilterPrice] = useState("");
   const [page, setPage] = useState(0);
   const [accessStatus, setAccessStatus] = useState(null);
   const [unlockCells, setUnlockCells] = useState(["", "", "", ""]);
@@ -182,29 +373,44 @@ export default function Enquiries() {
     }
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}enquiry/get-all`, {
-        credentials: "include",
-      });
-      if (res.status === 403) {
+      const [enquiryRes, projectsRes, citiesRes] = await Promise.all([
+        fetch(`${apiBase}enquiry/get-all`, { credentials: "include" }),
+        fetch(`${apiBase}projects`),
+        fetch(`${apiBase}city/all`),
+      ]);
+
+      if (enquiryRes.status === 403) {
         toast.error(
           "Enquiries access denied. Enter your 4-digit code or contact a Super Admin.",
         );
         setList([]);
+        setProjects([]);
+        setCities([]);
         return;
       }
-      if (!res.ok) {
+      if (!enquiryRes.ok) {
         toast.error("Failed to load enquiries.");
         setList([]);
+        setProjects([]);
+        setCities([]);
         return;
       }
-      const data = await res.json();
+
+      const data = await enquiryRes.json();
       const rows = Array.isArray(data) ? data : [];
+      const projectsData = projectsRes.ok ? await projectsRes.json() : [];
+      const citiesData = citiesRes.ok ? await citiesRes.json() : [];
+
       setList(rows);
+      setProjects(Array.isArray(projectsData) ? projectsData : []);
+      setCities(Array.isArray(citiesData) ? citiesData : []);
       setPage(0);
     } catch (e) {
       console.error(e);
       toast.error("Failed to load enquiries.");
       setList([]);
+      setProjects([]);
+      setCities([]);
     } finally {
       setLoading(false);
     }
@@ -331,37 +537,69 @@ export default function Enquiries() {
     requestAnimationFrame(() => unlockInputRefs[focusAt].current?.focus());
   };
 
+  const projectLookups = useMemo(() => buildProjectLookups(projects), [projects]);
+  const cityStateMap = useMemo(() => buildCityStateMap(cities), [cities]);
+
+  const enrichedList = useMemo(
+    () => list.map((row) => enrichEnquiryWithProject(row, projectLookups, cityStateMap)),
+    [list, projectLookups, cityStateMap],
+  );
+
+  const filterOptions = useMemo(() => {
+    const citySet = new Set();
+    const stateSet = new Set();
+    enrichedList.forEach((row) => {
+      if (row.projectCity) citySet.add(String(row.projectCity).trim());
+      if (row.projectState) stateSet.add(String(row.projectState).trim());
+    });
+    return {
+      cities: Array.from(citySet).sort((a, b) => a.localeCompare(b)),
+      states: Array.from(stateSet).sort((a, b) => a.localeCompare(b)),
+    };
+  }, [enrichedList]);
+
   const filteredList = useMemo(() => {
     const q = search.trim().toLowerCase();
-    const matched =
-      !q
-        ? list
-        : list.filter((row) => {
-            const blob = [
-              row.name,
-              row.email,
-              row.phone,
-              row.message,
-              row.enquiryFrom,
-              row.pageName,
-              row.projectLink,
-              row.status,
-              enquirySource(row),
-              String(row.id ?? ""),
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase();
-            return blob.includes(q);
-          });
+    const matched = enrichedList.filter((row) => {
+      if (filterCity && String(row.projectCity || "").trim() !== filterCity) {
+        return false;
+      }
+      if (filterState && String(row.projectState || "").trim() !== filterState) {
+        return false;
+      }
+      if (!matchesPriceFilter(row, filterPrice)) {
+        return false;
+      }
+      if (!q) return true;
+      const blob = [
+        row.name,
+        row.email,
+        row.phone,
+        row.message,
+        row.enquiryFrom,
+        row.pageName,
+        row.projectLink,
+        row.projectLocation,
+        row.projectPrice,
+        row.projectCity,
+        row.projectState,
+        row.status,
+        enquirySource(row),
+        String(row.id ?? ""),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return blob.includes(q);
+    });
     return [...matched].sort(
       (a, b) => enquirySortTimeMs(b) - enquirySortTimeMs(a),
     );
-  }, [list, search]);
+  }, [enrichedList, search, filterCity, filterState, filterPrice]);
 
   useEffect(() => {
     setPage(0);
-  }, [search]);
+  }, [search, filterCity, filterState, filterPrice]);
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -369,6 +607,18 @@ export default function Enquiries() {
     const start = safePage * PAGE_SIZE;
     return filteredList.slice(start, start + PAGE_SIZE);
   }, [filteredList, safePage]);
+
+  const activeFilterCount = [filterCity, filterState, filterPrice, search.trim()].filter(Boolean).length;
+
+  const enquiryStats = useMemo(() => {
+    const withProject = enrichedList.filter((row) => row.projectLocation || row.projectCity).length;
+    return {
+      total: list.length,
+      filtered: filteredList.length,
+      withProject,
+      cities: filterOptions.cities.length,
+    };
+  }, [list.length, filteredList.length, enrichedList, filterOptions.cities.length]);
 
   const openConfirmationDialog = (rowId) => {
     setConfirmBox(true);
@@ -383,6 +633,10 @@ export default function Enquiries() {
       phone: row.phone,
       message: row.message,
       enquiryFrom: enquirySource(row),
+      projectLocation: row.projectLocation,
+      projectPrice: formatMpfProjectPrice(row.projectPrice),
+      projectCity: row.projectCity,
+      projectState: row.projectState,
       projectLink: row.projectLink,
       pageName: row.pageName,
       date: formatEnquiryDate(row),
@@ -570,52 +824,122 @@ export default function Enquiries() {
       ) : null}
 
       {!loading && showTable ? (
-        <div className="mt-2">
-          <div className="manage-users-toolbar">
-            <InputGroup className="manage-users-search">
-              <InputGroup.Text
-                className="bg-white border-end-0"
-                style={{ borderColor: "rgba(27, 46, 36, 0.12)" }}
-              >
-                <FontAwesomeIcon icon={faMagnifyingGlass} className="text-muted" />
-              </InputGroup.Text>
-              <Form.Control
-                type="search"
-                placeholder="Search name, email, phone, message, source, page, link, status…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                aria-label="Search enquiries"
-                style={{ borderLeft: "none" }}
-              />
-            </InputGroup>
-            <span className="manage-users-count">
-              Showing {filteredList.length} of {list.length} enquiries
-              {filteredList.length > PAGE_SIZE
-                ? ` · Page ${safePage + 1} of ${pageCount}`
-                : ""}
-            </span>
+        <div className="enquiries-content mt-2">
+          <div className="enquiries-stats">
+            <div className="enquiries-stat-card">
+              <span className="enquiries-stat-card__label">Total enquiries</span>
+              <strong className="enquiries-stat-card__value">{enquiryStats.total}</strong>
+            </div>
+            <div className="enquiries-stat-card">
+              <span className="enquiries-stat-card__label">Matching filters</span>
+              <strong className="enquiries-stat-card__value">{enquiryStats.filtered}</strong>
+            </div>
+            <div className="enquiries-stat-card">
+              <span className="enquiries-stat-card__label">With project data</span>
+              <strong className="enquiries-stat-card__value">{enquiryStats.withProject}</strong>
+            </div>
+            <div className="enquiries-stat-card">
+              <span className="enquiries-stat-card__label">Cities covered</span>
+              <strong className="enquiries-stat-card__value">{enquiryStats.cities}</strong>
+            </div>
           </div>
 
-          <div className="manage-users-table-scroll">
-            <table className="table manage-users-compact-table mb-0">
+          <div className="enquiries-filter-panel">
+            <div className="enquiries-filter-panel__top">
+              <InputGroup className="enquiries-search">
+                <InputGroup.Text className="enquiries-search__icon">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} />
+                </InputGroup.Text>
+                <Form.Control
+                  type="search"
+                  placeholder="Search name, email, phone, location, city, state, price…"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  aria-label="Search enquiries"
+                  className="enquiries-search__input"
+                />
+              </InputGroup>
+              <div className="enquiries-filter-panel__meta">
+                <span className="enquiries-result-count">
+                  Showing <strong>{filteredList.length}</strong> of <strong>{list.length}</strong>
+                  {filteredList.length > PAGE_SIZE ? (
+                    <> · Page <strong>{safePage + 1}</strong> of <strong>{pageCount}</strong></>
+                  ) : null}
+                </span>
+              </div>
+            </div>
+
+            <div className="enquiries-filter-panel__filters">
+              <div className="enquiries-filter-chip-group">
+                <span className="enquiries-filter-chip-group__label">
+                  <FontAwesomeIcon icon={faFilter} /> Filters
+                </span>
+                <FilterDropdown
+                  label="All cities"
+                  value={filterCity}
+                  onChange={setFilterCity}
+                  ariaLabel="Filter by city"
+                  options={[
+                    { value: "", label: "All cities" },
+                    ...filterOptions.cities.map((city) => ({ value: city, label: city })),
+                  ]}
+                />
+                <FilterDropdown
+                  label="All states"
+                  value={filterState}
+                  onChange={setFilterState}
+                  ariaLabel="Filter by state"
+                  options={[
+                    { value: "", label: "All states" },
+                    ...filterOptions.states.map((state) => ({ value: state, label: state })),
+                  ]}
+                />
+                <FilterDropdown
+                  label="All prices"
+                  value={filterPrice}
+                  onChange={setFilterPrice}
+                  ariaLabel="Filter by price"
+                  options={PRICE_FILTER_OPTIONS}
+                />
+                {activeFilterCount > 0 && (
+                  <button
+                    type="button"
+                    className="enquiries-clear-filters"
+                    onClick={() => {
+                      setFilterCity("");
+                      setFilterState("");
+                      setFilterPrice("");
+                      setSearch("");
+                    }}
+                  >
+                    Clear {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="manage-users-table-scroll enquiries-table-wrap">
+            <table className="table manage-users-compact-table enquiries-table mb-0">
               <thead>
                 <tr>
-                  <th style={{ width: 50 }}>#</th>
-                  <th>Name</th>
-                  <th>Contact Info</th>
-                  <th>Message</th>
-                  <th>Device Source</th>
-                  <th>Source Page</th>
-                  <th>When</th>
-                  <th style={{ width: 140 }}>Status</th>
-                  <th style={{ width: 60 }} className="text-center">Action</th>
+                  <th style={{ width: 44 }}>#</th>
+                  <th style={{ minWidth: 160 }}>Lead</th>
+                  <th style={{ minWidth: 220 }}>Property</th>
+                  <th style={{ minWidth: 140 }}>Message</th>
+                  <th style={{ width: 90 }}>Source</th>
+                  <th style={{ minWidth: 180 }}>Source Page</th>
+                  <th style={{ width: 120 }}>When</th>
+                  <th style={{ width: 130 }}>Status</th>
+                  <th style={{ width: 52 }} className="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {pageSlice.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="text-center text-muted py-5">
-                      No enquiries match your search.
+                    <td colSpan={9} className="enquiries-empty">
+                      <FontAwesomeIcon icon={faInbox} className="enquiries-empty__icon" />
+                      <p>No enquiries match your search.</p>
                     </td>
                   </tr>
                 ) : (
@@ -625,49 +949,76 @@ export default function Enquiries() {
                     const st = row.status || "New";
                     const rowNum = safePage * PAGE_SIZE + idx + 1;
                     const sourcePageLink = getSourcePageLink(row);
+                    const priceLabel = formatMpfProjectPrice(row.projectPrice);
+                    const locationLine = [row.projectCity, row.projectState].filter(Boolean).join(" · ");
                     return (
-                      <tr key={row.id}>
-                        <td>{rowNum}</td>
+                      <tr key={row.id} className="enquiries-row">
+                        <td className="enquiries-row__num">{rowNum}</td>
                         <td>
-                          <div className="fw-700 text-dark">{row.name || "—"}</div>
-                        </td>
-                        <td>
-                          <div className="small text-dark mb-1">{row.email || "—"}</div>
-                          <div className="small text-muted">{row.phone || "—"}</div>
-                        </td>
-                        <td>
-                          <div
-                            className="text-dark small"
-                            style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis" }}
-                            title={row.message || ""}
-                          >
-                            {truncate(row.message, 120)}
+                          <div className="enquiries-lead">
+                            <div className="enquiries-lead__name">{row.name || "—"}</div>
+                            {row.email ? (
+                              <a href={`mailto:${row.email}`} className="enquiries-lead__line">
+                                <FontAwesomeIcon icon={faEnvelope} />
+                                <span>{row.email}</span>
+                              </a>
+                            ) : null}
+                            {row.phone ? (
+                              <a href={`tel:${row.phone}`} className="enquiries-lead__line enquiries-lead__line--phone">
+                                <FontAwesomeIcon icon={faPhone} />
+                                <span>{row.phone}</span>
+                              </a>
+                            ) : null}
                           </div>
                         </td>
                         <td>
-                          <div className="small mb-1">
-                            <span className={sourceBadgeClass(src)}>{src}</span>
+                          <div className="enquiries-property">
+                            <div className="enquiries-property__location" title={row.projectLocation || ""}>
+                              <FontAwesomeIcon icon={faLocationDot} />
+                              <span>{row.projectLocation || "—"}</span>
+                            </div>
+                            {locationLine ? (
+                              <div className="enquiries-property__meta">{locationLine}</div>
+                            ) : null}
+                            {priceLabel !== "—" ? (
+                              <span className="enquiries-price-badge">{priceLabel}</span>
+                            ) : null}
                           </div>
+                        </td>
+                        <td>
+                          <div className="enquiries-message" title={row.message || ""}>
+                            {row.message ? truncate(row.message, 90) : "—"}
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`enquiries-source-pill ${src === "App" ? "is-app" : "is-web"}`}>
+                            {src}
+                          </span>
                         </td>
                         <td>
                           {sourcePageLink ? (
-                            <Link
+                            <a
                               href={sourcePageLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="small text-decoration-none"
+                              className="enquiries-page-url"
                               title={sourcePageLink}
                             >
-                              {truncate(sourcePageLink, 42)}
-                            </Link>
+                              <span className="enquiries-page-url__text">
+                                {truncate(sourcePageLink.replace(/^https?:\/\//i, ""), 42)}
+                              </span>
+                              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+                            </a>
+                          ) : row.pageName ? (
+                            <span className="enquiries-source-page" title={row.pageName}>
+                              {truncate(row.pageName, 28)}
+                            </span>
                           ) : (
-                            <div className="small text-muted" title={row.pageName}>
-                              {truncate(row.pageName, 25)}
-                            </div>
+                            "—"
                           )}
                         </td>
                         <td>
-                          <div className="text-nowrap small text-dark fw-500">{when}</div>
+                          <div className="enquiries-when">{when}</div>
                         </td>
                         <td>
                           <StatusDropdown
@@ -681,9 +1032,9 @@ export default function Enquiries() {
                         <td className="text-center">
                           <button
                             type="button"
-                            className="admin-grid-action admin-grid-action--delete"
+                            className="admin-grid-action admin-grid-action--delete enquiries-delete-btn"
                             onClick={() => openConfirmationDialog(row.id)}
-                            style={{ padding: '6px 10px' }}
+                            aria-label="Delete enquiry"
                           >
                             <img src="/images/admin/delete.svg" alt="" width={12} height={14} style={{ filter: "brightness(10)" }} />
                           </button>
@@ -697,7 +1048,7 @@ export default function Enquiries() {
           </div>
 
           {filteredList.length > PAGE_SIZE ? (
-            <div className="d-flex justify-content-between align-items-center mt-2 px-1 flex-wrap gap-2">
+            <div className="enquiries-pagination">
               <Button
                 variant="outline-secondary"
                 size="sm"
@@ -706,16 +1057,14 @@ export default function Enquiries() {
               >
                 Previous
               </Button>
-              <span className="text-muted small">
+              <span className="enquiries-pagination__label">
                 Page {safePage + 1} of {pageCount}
               </span>
               <Button
                 variant="outline-secondary"
                 size="sm"
                 disabled={safePage >= pageCount - 1}
-                onClick={() =>
-                  setPage((p) => Math.min(pageCount - 1, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
               >
                 Next
               </Button>

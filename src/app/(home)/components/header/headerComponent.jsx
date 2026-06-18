@@ -441,7 +441,7 @@ const HeaderComponent = () => {
     <>
       <div
         className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isScrolled ? "fixed-header" : ""
-          } ${isPropertiesRoute ? "properties-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
+          } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute ? "projects-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
         <div className="container d-flex justify-content-between align-items-center">
           <div className="mpf-logo d-flex align-items-center gap-4">

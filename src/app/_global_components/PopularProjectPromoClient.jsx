@@ -9,7 +9,7 @@ import {
 } from "./mpfGatewayEvents";
 import "./PopularProjectPromo.css";
 
-const HIDE_PREFIXES = ["/admin", "/portal"];
+const HIDE_PREFIXES = ["/admin", "/portal", "/projects"];
 /* Slower full-card out/in; must stay in sync with PopularProjectPromo.css */
 const AUTO_ROTATE_MS = 10000;
 /* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */

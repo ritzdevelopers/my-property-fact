@@ -928,6 +928,7 @@ export default function Enquiries() {
                   <th style={{ minWidth: 220 }}>Property</th>
                   <th style={{ minWidth: 140 }}>Message</th>
                   <th style={{ width: 90 }}>Source</th>
+                  <th style={{ minWidth: 180 }}>Source Page</th>
                   <th style={{ width: 120 }}>When</th>
                   <th style={{ width: 130 }}>Status</th>
                   <th style={{ width: 52 }} className="text-center">Action</th>
@@ -936,7 +937,7 @@ export default function Enquiries() {
               <tbody>
                 {pageSlice.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="enquiries-empty">
+                    <td colSpan={9} className="enquiries-empty">
                       <FontAwesomeIcon icon={faInbox} className="enquiries-empty__icon" />
                       <p>No enquiries match your search.</p>
                     </td>
@@ -990,27 +991,31 @@ export default function Enquiries() {
                           </div>
                         </td>
                         <td>
-                          <div className="enquiries-source-stack">
-                            <span className={`enquiries-source-pill ${src === "App" ? "is-app" : "is-web"}`}>
-                              {src}
-                            </span>
-                            {sourcePageLink ? (
-                              <a
-                                href={sourcePageLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="enquiries-source-link"
-                                title={sourcePageLink}
-                              >
-                                View page
-                                <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-                              </a>
-                            ) : row.pageName ? (
-                              <span className="enquiries-source-page" title={row.pageName}>
-                                {truncate(row.pageName, 18)}
+                          <span className={`enquiries-source-pill ${src === "App" ? "is-app" : "is-web"}`}>
+                            {src}
+                          </span>
+                        </td>
+                        <td>
+                          {sourcePageLink ? (
+                            <a
+                              href={sourcePageLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="enquiries-page-url"
+                              title={sourcePageLink}
+                            >
+                              <span className="enquiries-page-url__text">
+                                {truncate(sourcePageLink.replace(/^https?:\/\//i, ""), 42)}
                               </span>
-                            ) : null}
-                          </div>
+                              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+                            </a>
+                          ) : row.pageName ? (
+                            <span className="enquiries-source-page" title={row.pageName}>
+                              {truncate(row.pageName, 28)}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td>
                           <div className="enquiries-when">{when}</div>

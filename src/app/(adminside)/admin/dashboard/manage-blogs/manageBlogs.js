@@ -87,6 +87,19 @@ function extractImgSrcsFromHtml(html) {
   return [...new Set(urls)].join("; ");
 }
 
+function getPublicUiOrigin() {
+  const raw = process.env.NEXT_PUBLIC_UI_URL;
+  const base = raw && String(raw).trim() ? String(raw).trim() : "https://mypropertyfact.in";
+  return base.replace(/\/+$/, "");
+}
+
+function buildPublicUiUrl(pathname) {
+  const p = String(pathname || "").trim();
+  if (!p) return "";
+  const base = getPublicUiOrigin();
+  return `${base}${p.startsWith("/") ? "" : "/"}${p}`;
+}
+
 async function fetchImageAsBase64(url) {
   const res = await fetch(url, { mode: "cors" });
   if (!res.ok) throw new Error(`Image fetch ${res.status}`);
@@ -426,6 +439,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       "Meta description",
       "Description (HTML)",
       "Slug URL",
+      "Full Blog URL",
       "Author Name",
       "Category",
       "City",
@@ -467,6 +481,8 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         const featuredUrl = featuredFile
           ? `${imageBase}blog/${featuredFile}`
           : "";
+        const slug = String(b.slugUrl ?? "").trim();
+        const fullBlogUrl = slug ? buildPublicUiUrl(`/blog/${slug}`) : "";
         const published = parseBlogDate(b.createdAt);
         const publishedStr = published
           ? published.toLocaleString(undefined, {
@@ -482,7 +498,8 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           b.blogKeywords ?? "",
           b.blogMetaDescription ?? "",
           b.blogDescription ?? "",
-          b.slugUrl ?? "",
+          slug,
+          fullBlogUrl,
           b.authorName ?? "",
           b.blogCategory ?? "",
           b.cityName ?? "",

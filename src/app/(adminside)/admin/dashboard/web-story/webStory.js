@@ -12,6 +12,7 @@ import {
   AdminGridActions,
   AdminGridImageThumb,
 } from "../common-model/admin-grid-cells";
+import { exportTOExcel } from "../common-model/exporttoexcel";
 import {
   AdminFilterCount,
   AdminSummaryFilterCards,
@@ -25,6 +26,19 @@ import {
   getWebStoryRowMeta,
 } from "../common-model/adminContentFilters";
 import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+
+function getPublicUiOrigin() {
+    const raw = process.env.NEXT_PUBLIC_UI_URL;
+    const base = raw && String(raw).trim() ? String(raw).trim() : "https://mypropertyfact.in";
+    return base.replace(/\/+$/, "");
+}
+
+function buildPublicUiUrl(pathname) {
+    const p = String(pathname || "").trim();
+    if (!p) return "";
+    const base = getPublicUiOrigin();
+    return `${base}${p.startsWith("/") ? "" : "/"}${p}`;
+}
 
 export default function WebStory({ categoryList, list }) {
 
@@ -53,6 +67,37 @@ export default function WebStory({ categoryList, list }) {
         [list, statusFilter],
     );
     const activeStoryFilter = WEB_STORY_STATUS_FILTERS.find((item) => item.id === statusFilter);
+
+    const exportWebStoriesToExcel = async () => {
+        const rows = Array.isArray(list) ? list : [];
+        if (!rows.length) {
+            toast.warning("No web stories to export.");
+            return;
+        }
+
+        const uiOrigin = getPublicUiOrigin();
+        const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
+
+        const dataToExport = rows.map((s, idx) => {
+            const categorySlug = String(s.categoryName ?? "").trim();
+            const publicUrl = categorySlug ? `${uiOrigin}/stories/${categorySlug}` : "";
+            const imageFile = String(s.storyImage ?? "").trim();
+            const imageUrl = imageFile ? `${imageBase}web-story/${imageFile}` : "";
+
+            return {
+                "S.no": s.index ?? idx + 1,
+                ID: s.id ?? "",
+                Category: s.categoryName ?? "",
+                "Story title": s.storyTitle ?? "",
+                Description: s.storyDescription ?? "",
+                "Story image filename": imageFile,
+                "Story image URL": imageUrl,
+                "Full Story URL": publicUrl,
+            };
+        });
+
+        await exportTOExcel(dataToExport, `web_stories_export_${new Date().toISOString().slice(0, 10)}`);
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -237,6 +282,8 @@ export default function WebStory({ categoryList, list }) {
                 functionName={openAddModel}
                 heading={"Manage web story"}
                 pageStyle="executive"
+                exportExcel={"Export to Excel"}
+                exportFunction={exportWebStoriesToExcel}
             />
             <div className="manage-users-page">
                 <AdminSummaryFilterCards

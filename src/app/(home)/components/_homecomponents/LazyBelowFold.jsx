@@ -71,6 +71,8 @@ export default function LazyBelowFold() {
     return () => window.removeEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
   }, [isHome]);
 
+  if (shouldHideGlobalFloatingUi(pathname)) return null;
+
   if (!isIdle || !gatewayRevealDone) {
     return null;
   }

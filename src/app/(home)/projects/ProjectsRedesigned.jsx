@@ -13,12 +13,18 @@ import {
   faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import { cityNameMatchesFilter } from "@/app/_global_components/cityAliasUtils";
+import { usePathname, useRouter } from "next/navigation";
 import {
   PROJECT_BUDGET_OPTIONS,
   matchesBudgetRangeForProject,
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
 import { projectNameMatchesSearch } from "@/app/_global_components/projectSearchUtils";
+import {
+  extractTypesFromProjectConfiguration,
+  projectMatchesListingHubCategory,
+} from "@/lib/listingFloorValidation";
 
 import ProjectCard from "./components/ProjectCard";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
@@ -30,6 +36,7 @@ const EMPTY_FILTERS = {
   budget: "",
   projectStatus: "",
   bhkType: "",
+  configType: "",
 };
 
 const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "5+ BHK"];
@@ -56,7 +63,16 @@ const FilterSection = ({ title, children, defaultOpen = true }) => {
   );
 };
 
-export default function ProjectsRedesigned() {
+export default function ProjectsRedesigned({
+  initialCity = "",
+  initialActiveTab = "all",
+  initialQuickFilter = "",
+  initialBhkType = "",
+  initialConfigType = "",
+  breadcrumbLabel = "Projects in India",
+  showBreadcrumb = true,
+  hubCategory = "",
+} = {}) {
   const {
     cityList: cities,
     projectTypes: propertyTypes,
@@ -67,19 +83,28 @@ export default function ProjectsRedesigned() {
     clearQueryFilters,
   } = useSiteData();
 
-  const [activeTab, setActiveTab] = useState("all");
-  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [activeTab, setActiveTab] = useState(initialActiveTab);
+  const [filters, setFilters] = useState(() => ({
+    ...EMPTY_FILTERS,
+    city: initialCity || "",
+    bhkType: initialBhkType || "",
+    configType: initialConfigType || "",
+  }));
   const [sortBy, setSortBy] = useState("relevance");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
-  const [activeQuickFilter, setActiveQuickFilter] = useState("");
+  const [activeQuickFilter, setActiveQuickFilter] = useState(initialQuickFilter);
   const [isSortPending, startSortTransition] = useTransition();
   const [sortLoaderVisible, setSortLoaderVisible] = useState(false);
   const sortLoaderHideAtRef = useRef(0);
   const sortLoaderTimerRef = useRef(null);
-  const SORT_LOADER_MIN_MS = 1900;
+  const SORT_LOADER_MIN_MS = 2300;
+  const [relatedExpanded, setRelatedExpanded] = useState(false);
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   const budgetOptions = PROJECT_BUDGET_OPTIONS;
 
@@ -148,6 +173,25 @@ export default function ProjectsRedesigned() {
   }, [queryFilters, propertyTypes, cities, clearQueryFilters]);
 
   const handleFilterChange = (key, value) => {
+    const willToggleTo = filters[key] === value ? "" : value;
+
+    // Listing pages: selecting BHK or Commercial Type should show loader and sync URL
+    if (isListingPage && (key === "bhkType" || key === "configType")) {
+      showOverlayLoader();
+      if (key === "bhkType") {
+        setFilters((prev) => ({ ...prev, bhkType: willToggleTo, configType: "" }));
+      } else {
+        setFilters((prev) => ({ ...prev, configType: willToggleTo, bhkType: "" }));
+      }
+      if (key === "bhkType") {
+        pushHubTypeToPath({ nextBhkType: willToggleTo, nextConfigType: "" });
+      } else {
+        pushHubTypeToPath({ nextBhkType: "", nextConfigType: willToggleTo });
+      }
+      setCurrentPage(1);
+      return;
+    }
+
     setFilters((prev) => ({ ...prev, [key]: prev[key] === value ? "" : value }));
     setCurrentPage(1);
   };
@@ -165,45 +209,84 @@ export default function ProjectsRedesigned() {
     setCurrentPage(1);
   };
 
-  const filteredProjects = useMemo(() => {
+  const QUICK_FILTERS_ALL = useMemo(
+    () => [
+      { key: "ready", label: "Ready to Move" },
+      { key: "new", label: "New Launch" },
+      { key: "under-construction", label: "Under Construction" },
+      { key: "ultra-luxury", label: "Ultra Luxury" },
+    ],
+    [],
+  );
+
+  const matchesQuickFilter = useCallback((statusNorm, key) => {
+    if (!key) return true;
+    if (key === "ready") return statusNorm.includes("ready");
+    if (key === "new") {
+      return statusNorm.includes("new launch") || statusNorm.includes("new launched");
+    }
+    if (key === "under-construction") return statusNorm.includes("under construction");
+    if (key === "ultra-luxury") return statusNorm.includes("ultra luxury");
+    return true;
+  }, []);
+
+  const hubUrlCategorySegment = useMemo(() => {
+    const key = String(hubCategory || "").toLowerCase().trim();
+    if (key === "newprojects" || key === "new-projects") return "new-projects";
+    if (key === "commercial") return "commercial";
+    if (key === "offices-and-shop") return "offices-and-shop";
+    if (key === "flats") return "flats";
+    if (key === "apartments") return "apartments";
+    return "";
+  }, [hubCategory]);
+
+  const isHubPage = Boolean(hubUrlCategorySegment);
+  const isListingPage = isHubPage || Boolean(pathname && pathname.includes("-in-"));
+
+  const relatedCityLabel = useMemo(() => {
+    const c = String(filters.city || initialCity || "").trim();
+    if (!c) return "";
+    return c.replace(/\b\w/g, (ch) => ch.toUpperCase());
+  }, [filters.city, initialCity]);
+
+  const isCommercialContext = useMemo(() => {
+    const hub = String(hubUrlCategorySegment || "");
+    if (hub === "commercial" || hub === "offices-and-shop") return true;
+    if (filters.configType) return true;
+    return activeTab === "commercial";
+  }, [activeTab, hubUrlCategorySegment, filters.configType]);
+
+  // If user switches to Commercial, clear Bedroom filter (not applicable)
+  useEffect(() => {
+    if (!isCommercialContext) return;
+    setFilters((prev) => (prev.bhkType ? { ...prev, bhkType: "" } : prev));
+  }, [isCommercialContext]);
+
+  const baseProjectsBeforeQuickFilter = useMemo(() => {
     const source = Array.isArray(allProjectsList) ? allProjectsList : [];
     const searchNorm = normalizeText(searchTerm);
+    const hubKey = String(hubCategory || "").trim();
 
     return source.filter((item) => {
       const typeNorm = normalizeText(item?.propertyTypeName);
-      const cityNorm = normalizeText(item?.cityName);
-      const addressNorm = normalizeText(item?.projectAddress);
       const statusNorm = normalizeText(item?.projectStatusName);
-      const configNorm = normalizeText(item?.projectConfiguration);
+
+      // Internal hub pages (apartments-in-*, flats-in-*, new-projects-in-*, commercial-property-in-*)
+      if (hubKey) {
+        if (!projectMatchesListingHubCategory(item, hubKey)) return false;
+      }
 
       // Tab filter
       if (activeTab === "residential" && !typeNorm.includes("residential")) return false;
       if (activeTab === "commercial" && !typeNorm.includes("commercial")) return false;
 
-      // Quick filters
-      if (activeQuickFilter) {
-        if (activeQuickFilter === "ready" && !statusNorm.includes("ready")) return false;
-        if (
-          activeQuickFilter === "new" &&
-          !(statusNorm.includes("new launch") || statusNorm.includes("new launched"))
-        ) {
-          return false;
-        }
-        if (activeQuickFilter === "under-construction" && !statusNorm.includes("under construction")) return false;
-        if (activeQuickFilter === "ultra-luxury" && !statusNorm.includes("ultra luxury")) return false;
-      }
-
       // City filter
       if (filters.city) {
-        const filterCity = normalizeText(filters.city);
-        if (!cityNorm.includes(filterCity) && !addressNorm.includes(filterCity)) return false;
+        if (!cityNameMatchesFilter(filters.city, item)) return false;
       }
 
       // Budget filter
       if (filters.budget && !matchesBudgetRangeForProject(item, filters.budget)) return false;
-
-      // BHK filter
-      if (filters.bhkType && !configNorm.includes(normalizeText(filters.bhkType))) return false;
 
       // Status filter
       if (filters.projectStatus && !statusNorm.includes(normalizeText(filters.projectStatus))) return false;
@@ -213,7 +296,263 @@ export default function ProjectsRedesigned() {
 
       return true;
     });
-  }, [allProjectsList, activeTab, activeQuickFilter, filters, searchTerm]);
+  }, [allProjectsList, activeTab, filters, searchTerm, hubCategory]);
+
+  const projectsAfterQuickFilter = useMemo(() => {
+    if (!activeQuickFilter) return baseProjectsBeforeQuickFilter;
+    return baseProjectsBeforeQuickFilter.filter((item) => {
+      const statusNorm = normalizeText(item?.projectStatusName);
+      return matchesQuickFilter(statusNorm, activeQuickFilter);
+    });
+  }, [activeQuickFilter, baseProjectsBeforeQuickFilter, matchesQuickFilter]);
+
+  const matchesBhkFilter = useCallback((projectConfiguration, selected) => {
+    const wanted = String(selected || "").trim();
+    if (!wanted) return true;
+    const config = String(projectConfiguration || "");
+    if (!config) return false;
+
+    // 1 RK / Studio
+    if (/\brk\b/i.test(wanted)) {
+      return /\brk\b/i.test(config) || /\bstudio\b/i.test(config);
+    }
+
+    const bhk = wanted.match(/^(\d+)\s*BHK/i);
+    if (bhk?.[1]) {
+      const types = extractTypesFromProjectConfiguration(config);
+      return types.includes(`${bhk[1]} bhk`);
+    }
+
+    if (/^5\+\s*BHK/i.test(wanted)) {
+      const types = extractTypesFromProjectConfiguration(config);
+      return types.some((t) => {
+        const m = String(t || "").match(/^(\d+)\s+bhk$/i);
+        return Number(m?.[1] || 0) >= 5;
+      });
+    }
+
+    // Fallback: substring match
+    return normalizeText(config).includes(normalizeText(wanted));
+  }, []);
+
+  const normalizeConfigType = useCallback((rawType) => {
+    const t = String(rawType || "").toLowerCase().trim().replace(/\s+/g, " ");
+    if (!t) return null;
+
+    if (t === "shop" || t === "shops") return { key: "shops", label: "Shops" };
+    if (t === "office" || t === "offices") return { key: "office", label: "Office" };
+    if (t === "kiosk" || t === "kiosks") return { key: "kiosk", label: "Kiosk" };
+    if (t === "food court" || t === "food courts") return { key: "food-court", label: "Food Court" };
+    if (t === "restaurant" || t === "restaurants") return { key: "restaurant", label: "Restaurant" };
+    if (t === "showroom" || t === "showrooms") return { key: "showroom", label: "Showroom" };
+    if (t === "sco plots" || t === "sco plot") return { key: "sco-plots", label: "SCO Plots" };
+
+    return null;
+  }, []);
+
+  const matchesConfigTypeFilter = useCallback((projectConfiguration, selectedKey) => {
+    const wanted = String(selectedKey || "").trim();
+    if (!wanted) return true;
+    const config = String(projectConfiguration || "");
+    if (!config) return false;
+
+    const types = extractTypesFromProjectConfiguration(config);
+    const keys = new Set();
+    for (const type of types) {
+      const norm = normalizeConfigType(type);
+      if (norm?.key) keys.add(norm.key);
+    }
+    return keys.has(wanted);
+  }, [normalizeConfigType]);
+
+  const visibleQuickFilters = useMemo(() => {
+    // Only hide “empty” quick filters on internal listing pages.
+    if (!isListingPage) return QUICK_FILTERS_ALL;
+
+    // For internal pages, the quick-filter bar should only reflect the actually-visible
+    // dataset AFTER configType/BHK (but before the quick-filter itself).
+    const sourceForCounts = baseProjectsBeforeQuickFilter.filter((item) => {
+      if (!matchesBhkFilter(item?.projectConfiguration, filters.bhkType)) return false;
+      if (!matchesConfigTypeFilter(item?.projectConfiguration, filters.configType)) return false;
+      return true;
+    });
+
+    const counts = new Map();
+    for (const qf of QUICK_FILTERS_ALL) counts.set(qf.key, 0);
+
+    for (const item of sourceForCounts) {
+      const statusNorm = normalizeText(item?.projectStatusName);
+      for (const qf of QUICK_FILTERS_ALL) {
+        if (matchesQuickFilter(statusNorm, qf.key)) {
+          counts.set(qf.key, (counts.get(qf.key) || 0) + 1);
+        }
+      }
+    }
+
+    return QUICK_FILTERS_ALL.filter((qf) => (counts.get(qf.key) || 0) > 0);
+  }, [
+    QUICK_FILTERS_ALL,
+    baseProjectsBeforeQuickFilter,
+    filters.bhkType,
+    filters.configType,
+    isListingPage,
+    matchesBhkFilter,
+    matchesConfigTypeFilter,
+    matchesQuickFilter,
+  ]);
+
+  useEffect(() => {
+    if (!isListingPage) return;
+    if (!activeQuickFilter) return;
+    const stillVisible = visibleQuickFilters.some((qf) => qf.key === activeQuickFilter);
+    if (!stillVisible) setActiveQuickFilter("");
+  }, [activeQuickFilter, isListingPage, visibleQuickFilters]);
+
+  const availableBhkOptions = useMemo(() => {
+    const set = new Set();
+    let hasRk = false;
+
+    for (const item of projectsAfterQuickFilter) {
+      const config = String(item?.projectConfiguration || "");
+      if (!config) continue;
+      if (/\brk\b/i.test(config) || /\bstudio\b/i.test(config)) hasRk = true;
+      const types = extractTypesFromProjectConfiguration(config);
+      for (const t of types) {
+        const m = String(t || "").match(/^(\d+)\s+bhk$/i);
+        if (m?.[1]) set.add(Number(m[1]));
+      }
+    }
+
+    const list = Array.from(set).sort((a, b) => a - b).map((n) => `${n} BHK`);
+    const withRk = hasRk ? ["1 RK", ...list] : list;
+    // Extra safety: no duplicates
+    return Array.from(new Set(withRk));
+  }, [projectsAfterQuickFilter]);
+
+  const availableConfigTypeOptions = useMemo(() => {
+    if (!isHubPage) return [];
+    const map = new Map();
+    for (const item of projectsAfterQuickFilter) {
+      const config = String(item?.projectConfiguration || "");
+      if (!config) continue;
+      const types = extractTypesFromProjectConfiguration(config);
+      for (const t of types) {
+        const norm = normalizeConfigType(t);
+        if (norm?.key && !map.has(norm.key)) {
+          map.set(norm.key, norm);
+        }
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [isHubPage, normalizeConfigType, projectsAfterQuickFilter]);
+
+  const citySlugForUrl = useMemo(() => {
+    const c = String(filters.city || initialCity || "").trim();
+    return c ? c.replace(/\s+/g, "-").toLowerCase() : "";
+  }, [filters.city, initialCity]);
+
+  const relatedGroups = useMemo(() => {
+    if (!isListingPage || !citySlugForUrl || !relatedCityLabel) return [];
+
+    const cap = relatedExpanded ? 14 : 6;
+    const dedupe = (arr) => Array.from(new Map(arr.map((x) => [x.href, x])).values());
+
+    const buildBhkHref = (bhkLabel) => {
+      const m = String(bhkLabel).match(/^(\d+)\s*BHK/i);
+      const n = m?.[1];
+      if (!n) return null;
+      const floorSlug = `${n}-bhk`;
+      return hubUrlCategorySegment && hubUrlCategorySegment !== "flats"
+        ? `/${floorSlug}-${hubUrlCategorySegment}-in-${citySlugForUrl}`
+        : `/${floorSlug}-in-${citySlugForUrl}`;
+    };
+
+    const otherBhkLinks = (isCommercialContext ? [] : availableBhkOptions)
+      .filter((b) => b && b !== filters.bhkType)
+      .map((b) => {
+        const href = buildBhkHref(b);
+        return href ? { href, label: `${b} in ${relatedCityLabel}` } : null;
+      })
+      .filter(Boolean)
+      .slice(0, cap);
+
+    const otherCommercialTypeLinks = availableConfigTypeOptions
+      .filter((o) => o?.key && o.key !== filters.configType)
+      .map((o) => ({ href: `/${o.key}-in-${citySlugForUrl}`, label: `${o.label} in ${relatedCityLabel}` }))
+      .slice(0, cap);
+
+    const exploreLinks = dedupe([
+      { href: `/flats-in-${citySlugForUrl}`, label: `Flats in ${relatedCityLabel}` },
+      { href: `/apartments-in-${citySlugForUrl}`, label: `Apartments in ${relatedCityLabel}` },
+      { href: `/new-projects-in-${citySlugForUrl}`, label: `New Projects in ${relatedCityLabel}` },
+      { href: `/commercial-property-in-${citySlugForUrl}`, label: `Commercial Property in ${relatedCityLabel}` },
+    ])
+      .filter((l) => l.href !== pathname)
+      .slice(0, cap);
+
+    const groups = [];
+    if (otherBhkLinks.length) groups.push({ title: `Other BHKs in ${relatedCityLabel}`, links: otherBhkLinks });
+    if (otherCommercialTypeLinks.length) groups.push({ title: `Commercial options in ${relatedCityLabel}`, links: otherCommercialTypeLinks });
+    if (exploreLinks.length) groups.push({ title: `Explore ${relatedCityLabel}`, links: exploreLinks });
+    return groups;
+  }, [
+    availableBhkOptions,
+    availableConfigTypeOptions,
+    citySlugForUrl,
+    filters.bhkType,
+    filters.configType,
+    hubUrlCategorySegment,
+    isCommercialContext,
+    isListingPage,
+    pathname,
+    relatedCityLabel,
+    relatedExpanded,
+  ]);
+
+  const pushHubTypeToPath = useCallback(
+    ({ nextBhkType = "", nextConfigType = "" }) => {
+      if (!isListingPage || !citySlugForUrl) return;
+
+      // config types (food-court, kiosk...) -> /food-court-in-delhi
+      if (nextConfigType) {
+        router.push(`/${nextConfigType}-in-${citySlugForUrl}`, { scroll: false });
+        return;
+      }
+
+      // bhk -> /3-bhk-new-projects-in-delhi OR /3-bhk-in-delhi for flats
+      if (nextBhkType) {
+        // RK should navigate to /1-rk-studio-in-city (live behavior)
+        if (/\brk\b/i.test(String(nextBhkType))) {
+          router.push(`/1-rk-studio-in-${citySlugForUrl}`, { scroll: false });
+          return;
+        }
+        const m = String(nextBhkType).match(/^(\d+)\s*BHK/i);
+        const n = m?.[1];
+        if (!n) return;
+        const floorSlug = `${n}-bhk`;
+        const path =
+          hubUrlCategorySegment && hubUrlCategorySegment !== "flats"
+            ? `/${floorSlug}-${hubUrlCategorySegment}-in-${citySlugForUrl}`
+            : `/${floorSlug}-in-${citySlugForUrl}`;
+        router.push(path, { scroll: false });
+      }
+    },
+    [citySlugForUrl, hubUrlCategorySegment, isListingPage, router],
+  );
+
+  const filteredProjects = useMemo(() => {
+    return projectsAfterQuickFilter.filter((item) => {
+      if (!matchesBhkFilter(item?.projectConfiguration, filters.bhkType)) return false;
+      if (!matchesConfigTypeFilter(item?.projectConfiguration, filters.configType)) return false;
+      return true;
+    });
+  }, [
+    filters.bhkType,
+    filters.configType,
+    matchesBhkFilter,
+    matchesConfigTypeFilter,
+    projectsAfterQuickFilter,
+  ]);
 
   const sortedProjects = useMemo(() => {
     const projects = [...filteredProjects];
@@ -235,19 +574,42 @@ export default function ProjectsRedesigned() {
     return sortedProjects.slice(start, start + PROJECTS_PER_PAGE);
   }, [sortedProjects, currentPage]);
 
+  const paginationItems = useMemo(() => {
+    if (totalPages <= 1) return [];
+
+    // Live-style: 1 ... (window around current) ... last
+    const windowSize = 2;
+    const pages = new Set([1, totalPages]);
+    for (let p = currentPage - windowSize; p <= currentPage + windowSize; p += 1) {
+      if (p >= 1 && p <= totalPages) pages.add(p);
+    }
+
+    // If close to start/end, show a few more
+    for (let p = 2; p <= Math.min(4, totalPages - 1); p += 1) pages.add(p);
+    for (let p = Math.max(totalPages - 3, 2); p <= totalPages - 1; p += 1) pages.add(p);
+
+    const sorted = Array.from(pages).sort((a, b) => a - b);
+    const items = [];
+    let prev = 0;
+    for (const p of sorted) {
+      if (prev && p - prev > 1) items.push("ellipsis");
+      items.push(p);
+      prev = p;
+    }
+    return items;
+  }, [currentPage, totalPages]);
+
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const isLoading = siteDataLoading;
-
-  const quickFilters = [
-    { key: "ready", label: "Ready to Move" },
-    { key: "new", label: "New Launch" },
-    { key: "under-construction", label: "Under Construction" },
-    { key: "ultra-luxury", label: "Ultra Luxury" },
-  ];
+  const hasAnyAppliedFilter =
+    activeFiltersCount > 0 ||
+    Boolean(activeQuickFilter) ||
+    Boolean(searchTerm) ||
+    activeTab !== "all";
 
   const sortDropdownRef = useRef(null);
 
-  const showSortLoader = useCallback(() => {
+  const showOverlayLoader = useCallback(() => {
     const now = Date.now();
     sortLoaderHideAtRef.current = Math.max(sortLoaderHideAtRef.current, now + SORT_LOADER_MIN_MS);
     setSortLoaderVisible(true);
@@ -259,21 +621,21 @@ export default function ProjectsRedesigned() {
 
   const applyPropertyTypeFromDropdown = useCallback((nextTab) => {
     setShowSortDropdown(false);
-    showSortLoader();
+    showOverlayLoader();
     startSortTransition(() => {
       setActiveTab(nextTab);
       setCurrentPage(1);
     });
-  }, [showSortLoader]);
+  }, [showOverlayLoader]);
 
   const applySortFromDropdown = useCallback((nextSort) => {
     setShowSortDropdown(false);
-    showSortLoader();
+    showOverlayLoader();
     startSortTransition(() => {
       setSortBy(nextSort);
       setCurrentPage(1);
     });
-  }, [showSortLoader]);
+  }, [showOverlayLoader]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -339,19 +701,19 @@ export default function ProjectsRedesigned() {
       <div className="mpf-container">
         {/* Breadcrumb & Title */}
         <div className="mpf-page-header">
-          <nav className="mpf-breadcrumb">
-            <Link href="/">Home</Link>
-            <span>›</span>
-            <span>Projects in India</span>
-          </nav>
-          <h1 className="mpf-page-title">
-            {sortedProjects.length} Projects | Projects for Sale
-          </h1>
+          {showBreadcrumb && (
+            <nav className="mpf-breadcrumb">
+              <Link href="/">Home</Link>
+              <span>›</span>
+              <span>{breadcrumbLabel}</span>
+            </nav>
+          )}
+          <h1 className="mpf-page-title">{sortedProjects.length} Projects</h1>
         </div>
 
         {/* Quick Filters */}
         <div className="mpf-quick-filters">
-          {quickFilters.map((qf) => (
+          {visibleQuickFilters.map((qf) => (
             <button
               key={qf.key}
               type="button"
@@ -364,52 +726,63 @@ export default function ProjectsRedesigned() {
               {qf.label}
             </button>
           ))}
-          <div className="mpf-sort-wrapper" ref={sortDropdownRef}>
+          <div className="mpf-quick-actions">
             <button
-              className="mpf-sort-btn"
-              onClick={() => setShowSortDropdown(!showSortDropdown)}
+              type="button"
+              className="mpf-quick-clear"
+              disabled={!hasAnyAppliedFilter}
+              onClick={hasAnyAppliedFilter ? handleClearFilters : undefined}
+              title={hasAnyAppliedFilter ? "Clear applied filters" : "No filters applied"}
             >
-              Sort By
-              <FontAwesomeIcon icon={showSortDropdown ? faChevronUp : faChevronDown} />
+              Clear
             </button>
-            {showSortDropdown && (
-              <div className="mpf-sort-dropdown">
-                <div className="mpf-dropdown-section">
-                  <span className="mpf-dropdown-label">Property Type</span>
-                  {[
-                    { value: "all", label: "All Projects" },
-                    { value: "residential", label: "Residential" },
-                    { value: "commercial", label: "Commercial" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      className={activeTab === opt.value ? "active" : ""}
-                      onClick={() => applyPropertyTypeFromDropdown(opt.value)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
+            <div className="mpf-sort-wrapper" ref={sortDropdownRef}>
+              <button
+                className="mpf-sort-btn"
+                onClick={() => setShowSortDropdown(!showSortDropdown)}
+              >
+                Sort By
+                <FontAwesomeIcon icon={showSortDropdown ? faChevronUp : faChevronDown} />
+              </button>
+              {showSortDropdown && (
+                <div className="mpf-sort-dropdown">
+                  <div className="mpf-dropdown-section">
+                    <span className="mpf-dropdown-label">Property Type</span>
+                    {[
+                      { value: "all", label: "All Projects" },
+                      { value: "residential", label: "Residential" },
+                      { value: "commercial", label: "Commercial" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={activeTab === opt.value ? "active" : ""}
+                        onClick={() => applyPropertyTypeFromDropdown(opt.value)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mpf-dropdown-divider"></div>
+                  <div className="mpf-dropdown-section">
+                    <span className="mpf-dropdown-label">Sort By</span>
+                    {[
+                      { value: "relevance", label: "Relevance" },
+                      { value: "price-low", label: "Price: Low to High" },
+                      { value: "price-high", label: "Price: High to Low" },
+                      { value: "newest", label: "Newest First" },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        className={sortBy === opt.value ? "active" : ""}
+                        onClick={() => applySortFromDropdown(opt.value)}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="mpf-dropdown-divider"></div>
-                <div className="mpf-dropdown-section">
-                  <span className="mpf-dropdown-label">Sort By</span>
-                  {[
-                    { value: "relevance", label: "Relevance" },
-                    { value: "price-low", label: "Price: Low to High" },
-                    { value: "price-high", label: "Price: High to Low" },
-                    { value: "newest", label: "Newest First" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.value}
-                      className={sortBy === opt.value ? "active" : ""}
-                      onClick={() => applySortFromDropdown(opt.value)}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
@@ -445,35 +818,39 @@ export default function ProjectsRedesigned() {
               </div>
             </FilterSection>
 
-            <FilterSection title="Bedroom">
-              <div className="mpf-checkbox-list">
-                {BHK_OPTIONS.map((bhk, idx) => (
-                  <label key={idx} className="mpf-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={filters.bhkType === bhk}
-                      onChange={() => handleFilterChange("bhkType", bhk)}
-                    />
-                    <span className="mpf-checkbox-label">{bhk}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
+            {!isCommercialContext && (
+              <FilterSection title="Bedroom">
+                <div className="mpf-checkbox-list">
+                  {(isHubPage ? availableBhkOptions : BHK_OPTIONS).map((bhk, idx) => (
+                    <label key={idx} className="mpf-checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={filters.bhkType === bhk}
+                        onChange={() => handleFilterChange("bhkType", bhk)}
+                      />
+                      <span className="mpf-checkbox-label">{bhk}</span>
+                    </label>
+                  ))}
+                </div>
+              </FilterSection>
+            )}
 
-            <FilterSection title="Possession In">
-              <div className="mpf-checkbox-list">
-                {["Ready to move", "New Launch", "2030", "2029", "2028", "2027"].map((opt, idx) => (
-                  <label key={idx} className="mpf-checkbox-item">
-                    <input
-                      type="checkbox"
-                      checked={filters.projectStatus === opt}
-                      onChange={() => handleFilterChange("projectStatus", opt)}
-                    />
-                    <span className="mpf-checkbox-label">{opt}</span>
-                  </label>
-                ))}
-              </div>
-            </FilterSection>
+            {isHubPage && availableConfigTypeOptions.length > 0 && (
+              <FilterSection title="Commercial Type">
+                <div className="mpf-checkbox-list">
+                  {availableConfigTypeOptions.map((opt) => (
+                    <label key={opt.key} className="mpf-checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={filters.configType === opt.key}
+                        onChange={() => handleFilterChange("configType", opt.key)}
+                      />
+                      <span className="mpf-checkbox-label">{opt.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </FilterSection>
+            )}
 
             <FilterSection title="Location" defaultOpen={false}>
               <div className="mpf-checkbox-list mpf-checkbox-scrollable">
@@ -554,32 +931,72 @@ export default function ProjectsRedesigned() {
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage((p) => p - 1)}
                 >
-                  Previous
+                  Prev
                 </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const page = i + 1;
+                {paginationItems.map((it, idx) => {
+                  if (it === "ellipsis") return <span key={`e-${idx}`}>...</span>;
+                  const page = it;
                   return (
                     <button
                       key={page}
                       className={currentPage === page ? "active" : ""}
+                      aria-current={currentPage === page ? "page" : undefined}
                       onClick={() => setCurrentPage(page)}
                     >
                       {page}
                     </button>
                   );
                 })}
-                {totalPages > 5 && <span>...</span>}
                 <button
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage((p) => p + 1)}
                 >
-                  Next
+                  Next »
                 </button>
               </div>
             )}
           </main>
         </div>
       </div>
+
+      {relatedGroups.length > 0 && (
+        <section className="mpf-related-search" aria-label="Related to your search">
+          <div className="mpf-related-search__inner">
+            <div className="mpf-related-search__header">
+              <div>
+                <div className="mpf-related-search__title">Related to your search</div>
+                <div className="mpf-related-search__subtitle">
+                  Nearby options based on what you selected
+                </div>
+              </div>
+              <button
+                type="button"
+                className="mpf-related-search__toggle"
+                onClick={() => setRelatedExpanded((v) => !v)}
+              >
+                {relatedExpanded ? "View less" : "View more"}
+              </button>
+            </div>
+
+            <div className="mpf-related-search__grid">
+              {relatedGroups.map((g) => (
+                <div key={g.title} className="mpf-related-search__col">
+                  <div className="mpf-related-search__colTitle">{g.title}</div>
+                  <ul className="mpf-related-search__list">
+                    {g.links.map((l) => (
+                      <li key={l.href} className="mpf-related-search__item">
+                        <Link href={l.href} prefetch={false} className="mpf-related-search__link">
+                          {l.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Mobile Filter Drawer */}
       <MobileFilterDrawer
@@ -593,7 +1010,9 @@ export default function ProjectsRedesigned() {
         propertyTypes={propertyTypes || []}
         projectStatuses={projectStatuses || []}
         budgetOptions={budgetOptions}
-        bhkOptions={BHK_OPTIONS}
+        bhkOptions={isHubPage ? availableBhkOptions : BHK_OPTIONS}
+        configTypeOptions={availableConfigTypeOptions}
+        hideBedroom={isCommercialContext}
         activeFiltersCount={activeFiltersCount}
       />
     </div>

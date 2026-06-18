@@ -42,6 +42,8 @@ export default function MobileFilterDrawer({
   projectStatuses = [],
   budgetOptions = [],
   bhkOptions = [],
+  configTypeOptions = [],
+  hideBedroom = false,
   activeFiltersCount = 0,
 }) {
   useEffect(() => {
@@ -137,46 +139,47 @@ export default function MobileFilterDrawer({
             </div>
           </FilterSection>
 
-          <FilterSection title="BHK Type">
-            <div className="mpf-mobile-bhk-grid">
-              {bhkOptions.map((bhk, idx) => {
-                const isSelected = filters.bhkType === bhk;
-                return (
-                  <button
-                    key={`m-bhk-${idx}`}
-                    type="button"
-                    className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
-                    onClick={() =>
-                      onFilterChange("bhkType", isSelected ? "" : bhk)
-                    }
-                  >
-                    {bhk}
-                  </button>
-                );
-              })}
-            </div>
-          </FilterSection>
+          {!hideBedroom && (
+            <FilterSection title="BHK Type">
+              <div className="mpf-mobile-bhk-grid">
+                {bhkOptions.map((bhk, idx) => {
+                  const isSelected = filters.bhkType === bhk;
+                  return (
+                    <button
+                      key={`m-bhk-${idx}`}
+                      type="button"
+                      className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
+                      onClick={() =>
+                        onFilterChange("bhkType", isSelected ? "" : bhk)
+                      }
+                    >
+                      {bhk}
+                    </button>
+                  );
+                })}
+              </div>
+            </FilterSection>
+          )}
 
-          <FilterSection title="Project Status">
-            <div className="mpf-mobile-status-list">
-              {[{ statusName: "All" }, ...projectStatuses].map((status, idx) => {
-                const value = status.statusName === "All" ? "" : status.statusName;
-                const isSelected = filters.projectStatus === value;
-                return (
-                  <label key={`m-status-${idx}`} className="mpf-mobile-radio-item">
-                    <input
-                      type="radio"
-                      name="mobile-status"
-                      checked={isSelected}
-                      onChange={() => onFilterChange("projectStatus", value)}
-                    />
-                    <span className={`mpf-mobile-radio-custom ${isSelected ? "selected" : ""}`} />
-                    <span>{status.statusName}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </FilterSection>
+          {configTypeOptions.length > 0 && (
+            <FilterSection title="Commercial Type">
+              <div className="mpf-mobile-bhk-grid">
+                {configTypeOptions.map((opt) => {
+                  const isSelected = filters.configType === opt.key;
+                  return (
+                    <button
+                      key={`m-ctype-${opt.key}`}
+                      type="button"
+                      className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
+                      onClick={() => onFilterChange("configType", isSelected ? "" : opt.key)}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </FilterSection>
+          )}
         </div>
 
         <div className="mpf-mobile-drawer-footer">

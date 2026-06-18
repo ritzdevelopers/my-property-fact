@@ -80,7 +80,15 @@ const HeaderComponent = () => {
   // Check if the pathname starts with /city/
   const isCityRoute = pathname.startsWith("/city");
   const isBuilderRoute = pathname.startsWith("/builder");
-  const isProjectTypeRoute = pathname.startsWith("/projects");
+  const isProjectTypeRoute =
+    pathname.startsWith("/projects") ||
+    // Any internal listing URL like /food-court-in-delhi, /3-bhk-in-noida, etc.
+    pathname.includes("-in-") ||
+    pathname.startsWith("/apartments-in-") ||
+    pathname.startsWith("/flats-in-") ||
+    pathname.startsWith("/new-projects-in-") ||
+    pathname.startsWith("/commercial-property-in-") ||
+    pathname.startsWith("/offices-and-shop-in-");
   const isBlogTypeRoute = pathname.startsWith("/blog");
   const isPropertiesRoute = pathname === "/properties";
   const isHomePage = pathname === "/";

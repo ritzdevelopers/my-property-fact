@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   faInstagram,
   faLinkedin,
@@ -12,6 +13,12 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import "./newfooter.css";
 
 export default function NewFooterDesign({ compactTop = false, cityList: cityListProp }) {
+  const pathname = usePathname();
+  const isProjectsPage =
+    pathname === "/projects" || (typeof pathname === "string" && pathname.startsWith("/projects/"));
+  const isInternalListingPage =
+    typeof pathname === "string" && pathname !== "/" && pathname.includes("-in-");
+
   const { cityList: contextCityList = [] } = useSiteData();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -188,26 +195,26 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             </div>
           </div>
         </div>
-        <div className="new-design-footer-bottom container " style={{ paddingBottom: "40px" }}>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">Apartments in India</div>
-            {renderCityList(apartmentsCities, "apartments", "Apartments in ", generateSlug)}
-          </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">New Projects in India</div>
-            {renderCityList(newProjectsCities, "newProjects", "New Projects in ", generateSlug)}
-          </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">
-              Commercial Property in India
+        {!isProjectsPage && !isInternalListingPage && (
+          <div className="new-design-footer-bottom container " style={{ paddingBottom: "40px" }}>
+            <div className="footer-bottom-column">
+              <div className="footer-new-heading">Apartments in India</div>
+              {renderCityList(apartmentsCities, "apartments", "Apartments in ", generateSlug)}
             </div>
-            {renderCityList(commercialCities, "commercial", "Commercial Property in ", generateSlug)}
+            <div className="footer-bottom-column">
+              <div className="footer-new-heading">New Projects in India</div>
+              {renderCityList(newProjectsCities, "newProjects", "New Projects in ", generateSlug)}
+            </div>
+            <div className="footer-bottom-column">
+              <div className="footer-new-heading">Commercial Property in India</div>
+              {renderCityList(commercialCities, "commercial", "Commercial Property in ", generateSlug)}
+            </div>
+            <div className="footer-bottom-column">
+              <div className="footer-new-heading">Flats in India</div>
+              {renderCityList(flatsCities, "flats", "Flats in ", generateSlug)}
+            </div>
           </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">Flats in India</div>
-            {renderCityList(flatsCities, "flats", "Flats in ", generateSlug)}
-          </div>
-        </div>
+        )}
       </div>
       <div className={`new-footer-design-container-fluid${compactTop ? " compact-top" : ""}`}>
         <div className="new-design-container">

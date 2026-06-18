@@ -180,9 +180,55 @@
 }
 
 .mpf-sort-wrapper {
-  margin-left: auto;
   position: relative;
   z-index: 200;
+}
+
+.mpf-quick-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.mpf-quick-clear {
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(13, 88, 52, 0.22);
+  background: rgba(13, 88, 52, 0.07);
+  color: var(--mpf-green-dark);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+  white-space: nowrap;
+}
+
+.mpf-quick-clear:hover {
+  background: rgba(13, 88, 52, 0.12);
+  border-color: rgba(13, 88, 52, 0.3);
+  transform: translateY(-1px);
+}
+
+.mpf-quick-clear:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  background: rgba(17, 24, 39, 0.04);
+  border-color: rgba(17, 24, 39, 0.12);
+  color: rgba(17, 24, 39, 0.55);
+}
+
+.mpf-quick-clear:disabled:hover {
+  background: rgba(17, 24, 39, 0.04);
+  border-color: rgba(17, 24, 39, 0.12);
+  transform: none;
+}
+
+.mpf-quick-clear:active {
+  transform: translateY(0);
 }
 
 .mpf-sort-btn {
@@ -288,6 +334,45 @@
   .mpf-main-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   Hub floor-type chips (old internal pages)
+   ========================================================================== */
+.mpf-hub-floorchips {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 16px 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: var(--mpf-gray-50);
+  border-top: 1px solid var(--mpf-gray-200);
+}
+
+.mpf-hub-floorchip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--mpf-gray-300);
+  color: var(--mpf-gray-800);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.mpf-hub-floorchip:hover {
+  border-color: rgba(13, 88, 52, 0.45);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.10);
+  transform: translateY(-1px);
 }
 
 /* ==========================================================================
@@ -1243,13 +1328,13 @@
 }
 
 .mpf-pagination button {
-  min-width: 40px;
-  height: 40px;
+  min-width: 36px;
+  height: 36px;
   padding: 0 12px;
   background: #ffffff;
   border: 1px solid var(--mpf-gray-300);
-  border-radius: 4px;
-  font-size: 14px;
+  border-radius: 6px;
+  font-size: 13px;
   color: var(--mpf-gray-700);
   cursor: pointer;
   transition: all 0.2s;
@@ -1258,6 +1343,8 @@
 .mpf-pagination button:hover:not(:disabled) {
   border-color: var(--mpf-green);
   color: var(--mpf-green);
+  box-shadow: 0 8px 18px rgba(17, 24, 39, 0.08);
+  transform: translateY(-1px);
 }
 
 .mpf-pagination button.active {
@@ -1274,6 +1361,156 @@
 .mpf-pagination span {
   color: var(--mpf-gray-400);
   padding: 0 8px;
+}
+
+/* ==========================================================================
+   Related to your search (internal listing pages)
+   ========================================================================== */
+.mpf-related-search {
+  background: linear-gradient(180deg, #ffffff 0%, var(--mpf-gray-50) 100%);
+  border-top: 1px solid var(--mpf-gray-200);
+  border-bottom: 1px solid var(--mpf-gray-200);
+  padding: 22px 0 22px;
+}
+
+.mpf-related-search__inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  border-radius: 16px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.06);
+}
+
+.mpf-related-search__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 12px;
+}
+
+.mpf-related-search__title {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--mpf-gray-900);
+  letter-spacing: -0.2px;
+}
+
+.mpf-related-search__subtitle {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--mpf-gray-500);
+}
+
+.mpf-related-search__toggle {
+  border: 1px solid rgba(13, 88, 52, 0.18);
+  background: rgba(13, 88, 52, 0.08);
+  color: var(--mpf-green-dark);
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+
+.mpf-related-search__toggle:hover {
+  background: rgba(13, 88, 52, 0.12);
+  border-color: rgba(13, 88, 52, 0.28);
+  transform: translateY(-1px);
+}
+
+.mpf-related-search__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  padding: 0 12px;
+}
+
+.mpf-related-search__col {
+  background: #ffffff;
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
+}
+
+.mpf-related-search__colTitle {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mpf-gray-800);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed rgba(17, 24, 39, 0.12);
+  position: relative;
+}
+
+.mpf-related-search__colTitle::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 34px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--mpf-green) 0%, rgba(13, 88, 52, 0.1) 100%);
+  border-radius: 999px;
+}
+
+.mpf-related-search__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mpf-related-search__item {
+  min-width: 0;
+}
+
+.mpf-related-search__link {
+  color: var(--mpf-gray-700);
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 6px 8px;
+  border-radius: 10px;
+  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
+}
+
+.mpf-related-search__link::before {
+  content: "•";
+  color: rgba(13, 88, 52, 0.7);
+  flex: 0 0 auto;
+}
+
+.mpf-related-search__link:hover {
+  color: var(--mpf-green);
+  background: rgba(13, 88, 52, 0.06);
+  transform: translateX(2px);
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .mpf-related-search__grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
 }
 
 /* ==========================================================================

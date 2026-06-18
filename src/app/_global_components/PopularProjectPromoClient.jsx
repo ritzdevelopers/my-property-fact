@@ -9,7 +9,17 @@ import {
 } from "./mpfGatewayEvents";
 import "./PopularProjectPromo.css";
 
-const HIDE_PREFIXES = ["/admin", "/portal", "/projects"];
+const HIDE_PREFIXES = [
+  "/admin",
+  "/portal",
+  "/projects",
+  // Internal listing hub pages (footer links)
+  "/apartments-in-",
+  "/flats-in-",
+  "/new-projects-in-",
+  "/commercial-property-in-",
+  "/offices-and-shop-in-",
+];
 /* Slower full-card out/in; must stay in sync with PopularProjectPromo.css */
 const AUTO_ROTATE_MS = 10000;
 /* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */
@@ -80,9 +90,15 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
       ? items
       : [];
 
-  const hideByRoute = HIDE_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  const isInternalListingPage = pathname.includes("-in-");
+
+  const hideByRoute = isInternalListingPage || HIDE_PREFIXES.some((p) => {
+    // "/projects" style routes
+    if (pathname === p || pathname.startsWith(`${p}/`)) return true;
+    // "/new-projects-in-delhi" style routes (prefix contains trailing '-')
+    if (p.endsWith("-") && pathname.startsWith(p)) return true;
+    return false;
+  });
 
   useEffect(() => {
     if (!isHome) {

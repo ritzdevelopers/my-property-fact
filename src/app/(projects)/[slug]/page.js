@@ -181,22 +181,11 @@ export default async function PropertyPage({ params }) {
       if (compoundProjects.length === 0) {
         notFound();
       }
-      return (
-        <ProjectListByFloorType
-          slug={slug}
-          cityList={cityList}
-          compoundListing={maybeCompoundListing}
-          initialProjects={compoundProjects.map(slimProjectCardForPayload)}
-        />
-      );
+      // Use the redesigned projects UI for compound listing pages too.
+      return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
     } else if (isFloorTypeSlug) {
-      return (
-        <ProjectListByFloorType
-          slug={slug}
-          cityList={cityList}
-          initialProjects={floorListingProjects.map(slimProjectCardForPayload)}
-        />
-      );
+      // Use the redesigned projects UI for floor-type pages too (e.g. /food-court-in-delhi).
+      return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
     } else if (
       !isProjectSlug &&
       slug.includes("-in-") &&

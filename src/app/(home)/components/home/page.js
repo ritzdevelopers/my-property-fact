@@ -21,6 +21,7 @@ import {
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
+import VaastuStripSection from "./vaastu-strip/VaastuStripSection";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
@@ -358,7 +359,7 @@ export default async function HomePage() {
             viewAllHref="/projects"
             className="recommended-properties-section"
           />,
-        )}
+        )}  
 
         {row(
           3,
@@ -415,9 +416,9 @@ export default async function HomePage() {
 
           {row(13, <VaastuStripSection />)}
 
-          {row(14, <PopularCitiesSection />)}
+          {row(14, <SocialFeedsOfMPF />)}
 
-          {row(15, <SocialFeedsOfMPF />)}
+          {row(15, <PopularCitiesSection />)}
         </div>
       </>
     );

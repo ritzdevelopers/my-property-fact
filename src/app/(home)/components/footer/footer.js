@@ -107,7 +107,7 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
           <div className="row">
             <div className="col-12 col-md-6 col-lg-3 col-xl-3">
               {/* <ul> */}
-                <CityList prefix={"Apartments in "} cityList={cityList} cat={"apartments"}/>
+                <CityList prefix={"Apartments in "} cityList={cityList.filter((item) => !["Karnal"].includes(item.cityName))} cat={"apartments"}/>
               {/* </ul> */}
             </div>
             <div className="col-12 col-md-6 col-lg-3 col-xl-3">

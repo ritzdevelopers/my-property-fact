@@ -220,9 +220,13 @@ export default async function HomePage() {
               <div className="transform-home-post-property-card__content">
                 <p className="transform-home-post-property-card__title">
                   For Post Your Property Register On{" "}
-                  <span className="transform-home-post-property-card__brand">
+                  <Link
+                    href="/"
+                    title="My Property Fact — home"
+                    className="transform-home-post-property-card__brand"
+                  >
                     Mypropertyfact
-                  </span>
+                  </Link>
                 </p>
                 <Link
                   href="/projects"
@@ -233,7 +237,7 @@ export default async function HomePage() {
                 </Link>
               </div>
               <img
-                src="/static/home-meta-data/image 46.png"
+                src="/static/home-meta-data/home.gif"
                 alt="Post your property on MyPropertyFact"
                 title="Post your property on MyPropertyFact"
                 className="transform-home-post-property-card__image"

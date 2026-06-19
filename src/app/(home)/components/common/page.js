@@ -128,7 +128,11 @@ export default function PropertyContainer({
 
     if (badgeVariant === "home-featured") {
       const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
-      const pillBadgeModifier = getFeaturedPillBadgeModifier(data.projectStatusName);
+      const pillBadgeModifier =
+        layoutVariant === "overlap"
+          ? getFeaturedPillBadgeModifier(data.projectStatusName)
+          : "";
+      const usePillStyles = layoutVariant === "overlap" && Boolean(pillBadgeModifier);
 
       return (
         <div
@@ -140,7 +144,7 @@ export default function PropertyContainer({
               : "home-featured-status-badge plus-jakarta-sans-semi-bold"
           }
           style={
-            pillBadgeModifier
+            usePillStyles
               ? undefined
               : {
                   "--badge-color": backgroundColor,

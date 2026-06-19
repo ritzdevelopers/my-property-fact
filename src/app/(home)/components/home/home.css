@@ -467,6 +467,15 @@
   font-weight: 700;
   line-height: normal;
   text-transform: capitalize;
+  text-decoration: none;
+}
+
+.transform-home-post-property-card__brand:hover,
+.transform-home-post-property-card__brand:focus,
+.transform-home-post-property-card__brand:active,
+.transform-home-post-property-card__brand:visited {
+  color: #A4823B;
+  text-decoration: none;
 }
 
 .transform-home-post-property-card__cta {

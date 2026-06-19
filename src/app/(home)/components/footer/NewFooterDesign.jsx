@@ -79,7 +79,14 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     "Meerut",
   ];
 
-  const apartmentsCities = sortCitiesDelhiNCRFirst(safeCityList);
+  const APARTMENTS_HIDDEN_CITY_NAMES = ["Karnal"];
+
+  const apartmentsCities = sortCitiesDelhiNCRFirst(
+    safeCityList.filter(
+      (item) =>
+        item?.cityName && !APARTMENTS_HIDDEN_CITY_NAMES.includes(item.cityName),
+    ),
+  );
   const newProjectsCities = sortCitiesDelhiNCRFirst(
     safeCityList.filter((item) => item?.cityName && !["Agra"].includes(item.cityName))
   );

@@ -164,6 +164,16 @@ const PRICE_FILTER_OPTIONS = [
   { value: "50000000+", label: "5Cr+", min: 50000000, max: Infinity },
 ];
 
+const LEAD_TYPE_FILTER_OPTIONS = [
+  { value: "exclude_test", label: "Hide test leads" },
+  { value: "all", label: "All leads" },
+  { value: "test_only", label: "Test leads only" },
+];
+
+function isTestLead(row) {
+  return String(row?.status || "").trim().toLowerCase() === "test";
+}
+
 function trimTrailingZeros(numStr) {
   return String(numStr).replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
 }
@@ -343,6 +353,7 @@ export default function Enquiries() {
   const [filterCity, setFilterCity] = useState("");
   const [filterState, setFilterState] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
+  const [filterLeadType, setFilterLeadType] = useState("exclude_test");
   const [page, setPage] = useState(0);
   const [accessStatus, setAccessStatus] = useState(null);
   const [unlockCells, setUnlockCells] = useState(["", "", "", ""]);
@@ -570,6 +581,12 @@ export default function Enquiries() {
       if (!matchesPriceFilter(row, filterPrice)) {
         return false;
       }
+      if (filterLeadType === "exclude_test" && isTestLead(row)) {
+        return false;
+      }
+      if (filterLeadType === "test_only" && !isTestLead(row)) {
+        return false;
+      }
       if (!q) return true;
       const blob = [
         row.name,
@@ -595,11 +612,11 @@ export default function Enquiries() {
     return [...matched].sort(
       (a, b) => enquirySortTimeMs(b) - enquirySortTimeMs(a),
     );
-  }, [enrichedList, search, filterCity, filterState, filterPrice]);
+  }, [enrichedList, search, filterCity, filterState, filterPrice, filterLeadType]);
 
   useEffect(() => {
     setPage(0);
-  }, [search, filterCity, filterState, filterPrice]);
+  }, [search, filterCity, filterState, filterPrice, filterLeadType]);
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -608,15 +625,23 @@ export default function Enquiries() {
     return filteredList.slice(start, start + PAGE_SIZE);
   }, [filteredList, safePage]);
 
-  const activeFilterCount = [filterCity, filterState, filterPrice, search.trim()].filter(Boolean).length;
+  const activeFilterCount = [
+    filterCity,
+    filterState,
+    filterPrice,
+    search.trim(),
+    filterLeadType !== "exclude_test" ? filterLeadType : "",
+  ].filter(Boolean).length;
 
   const enquiryStats = useMemo(() => {
     const withProject = enrichedList.filter((row) => row.projectLocation || row.projectCity).length;
+    const testLeads = enrichedList.filter(isTestLead).length;
     return {
       total: list.length,
       filtered: filteredList.length,
       withProject,
       cities: filterOptions.cities.length,
+      testLeads,
     };
   }, [list.length, filteredList.length, enrichedList, filterOptions.cities.length]);
 
@@ -839,8 +864,8 @@ export default function Enquiries() {
               <strong className="enquiries-stat-card__value">{enquiryStats.withProject}</strong>
             </div>
             <div className="enquiries-stat-card">
-              <span className="enquiries-stat-card__label">Cities covered</span>
-              <strong className="enquiries-stat-card__value">{enquiryStats.cities}</strong>
+              <span className="enquiries-stat-card__label">Test leads</span>
+              <strong className="enquiries-stat-card__value">{enquiryStats.testLeads}</strong>
             </div>
           </div>
 
@@ -901,6 +926,13 @@ export default function Enquiries() {
                   ariaLabel="Filter by price"
                   options={PRICE_FILTER_OPTIONS}
                 />
+                <FilterDropdown
+                  label="Hide test leads"
+                  value={filterLeadType}
+                  onChange={setFilterLeadType}
+                  ariaLabel="Filter test leads"
+                  options={LEAD_TYPE_FILTER_OPTIONS}
+                />
                 {activeFilterCount > 0 && (
                   <button
                     type="button"
@@ -909,6 +941,7 @@ export default function Enquiries() {
                       setFilterCity("");
                       setFilterState("");
                       setFilterPrice("");
+                      setFilterLeadType("exclude_test");
                       setSearch("");
                     }}
                   >
@@ -1082,3 +1115,4 @@ export default function Enquiries() {
     </div>
   );
 }
+

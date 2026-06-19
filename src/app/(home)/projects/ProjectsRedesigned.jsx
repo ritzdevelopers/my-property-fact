@@ -20,7 +20,10 @@ import {
   matchesBudgetRangeForProject,
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
-import { projectNameMatchesSearch } from "@/app/_global_components/projectSearchUtils";
+import {
+  findBestProjectBySearch,
+  scoreProjectSearchMatch,
+} from "@/app/_global_components/projectSearchUtils";
 import {
   extractTypesFromProjectConfiguration,
   projectMatchesListingHubCategory,
@@ -41,9 +44,18 @@ const EMPTY_FILTERS = {
 
 const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "5+ BHK"];
 const PROJECTS_PER_PAGE = 10;
+const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_SUGGESTION_LIMIT = 8;
 
 function normalizeText(value) {
   return String(value || "").toLowerCase().trim().replace(/\s+/g, " ");
+}
+
+function getProjectKey(project) {
+  if (project?.id != null) return `id:${project.id}`;
+  const slug = String(project?.slugURL || project?.slug || "").trim();
+  if (slug) return `slug:${slug}`;
+  return `name:${String(project?.projectName || "").trim()}`;
 }
 
 const FilterSection = ({ title, children, defaultOpen = true }) => {
@@ -70,6 +82,8 @@ export default function ProjectsRedesigned({
   initialBhkType = "",
   initialConfigType = "",
   breadcrumbLabel = "Projects in India",
+  breadcrumbParent = null,
+  pageIntro = "",
   showBreadcrumb = true,
   hubCategory = "",
 } = {}) {
@@ -92,16 +106,49 @@ export default function ProjectsRedesigned({
   }));
   const [sortBy, setSortBy] = useState("relevance");
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
+  const [selectedSearchProjectKey, setSelectedSearchProjectKey] = useState("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [activeQuickFilter, setActiveQuickFilter] = useState(initialQuickFilter);
   const [isSortPending, startSortTransition] = useTransition();
+  const [isListingsPinPending, startListingsPinTransition] = useTransition();
   const [sortLoaderVisible, setSortLoaderVisible] = useState(false);
+  const [listingsLoaderVisible, setListingsLoaderVisible] = useState(false);
   const sortLoaderHideAtRef = useRef(0);
   const sortLoaderTimerRef = useRef(null);
+  const listingsLoaderHideAtRef = useRef(0);
+  const listingsLoaderTimerRef = useRef(null);
   const SORT_LOADER_MIN_MS = 2300;
+  const LISTINGS_LOADER_MIN_MS = 1200;
+
+  const showOverlayLoader = useCallback(() => {
+    const now = Date.now();
+    sortLoaderHideAtRef.current = Math.max(sortLoaderHideAtRef.current, now + SORT_LOADER_MIN_MS);
+    setSortLoaderVisible(true);
+    if (sortLoaderTimerRef.current) {
+      window.clearTimeout(sortLoaderTimerRef.current);
+      sortLoaderTimerRef.current = null;
+    }
+  }, []);
+
+  const showListingsLoader = useCallback(() => {
+    const now = Date.now();
+    listingsLoaderHideAtRef.current = Math.max(
+      listingsLoaderHideAtRef.current,
+      now + LISTINGS_LOADER_MIN_MS,
+    );
+    setListingsLoaderVisible(true);
+    if (listingsLoaderTimerRef.current) {
+      window.clearTimeout(listingsLoaderTimerRef.current);
+      listingsLoaderTimerRef.current = null;
+    }
+  }, []);
+
   const [relatedExpanded, setRelatedExpanded] = useState(false);
+  const searchWrapRef = useRef(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -199,15 +246,30 @@ export default function ProjectsRedesigned({
   const handleClearFilters = () => {
     setFilters(EMPTY_FILTERS);
     setActiveTab("all");
-    setSearchTerm("");
+    setSearchInput("");
+    setDebouncedSearch("");
+    setSelectedSearchProjectKey("");
+    setSearchDropdownOpen(false);
     setActiveQuickFilter("");
     setCurrentPage(1);
   };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-  };
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchInput.trim());
+    }, SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!searchWrapRef.current?.contains(e.target)) {
+        setSearchDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   const QUICK_FILTERS_ALL = useMemo(
     () => [
@@ -262,41 +324,29 @@ export default function ProjectsRedesigned({
     setFilters((prev) => (prev.bhkType ? { ...prev, bhkType: "" } : prev));
   }, [isCommercialContext]);
 
-  const baseProjectsBeforeQuickFilter = useMemo(() => {
-    const source = Array.isArray(allProjectsList) ? allProjectsList : [];
-    const searchNorm = normalizeText(searchTerm);
-    const hubKey = String(hubCategory || "").trim();
-
-    return source.filter((item) => {
+  const matchesListingContext = useCallback(
+    (item) => {
       const typeNorm = normalizeText(item?.propertyTypeName);
       const statusNorm = normalizeText(item?.projectStatusName);
+      const hubKey = String(hubCategory || "").trim();
 
-      // Internal hub pages (apartments-in-*, flats-in-*, new-projects-in-*, commercial-property-in-*)
-      if (hubKey) {
-        if (!projectMatchesListingHubCategory(item, hubKey)) return false;
-      }
-
-      // Tab filter
+      if (hubKey && !projectMatchesListingHubCategory(item, hubKey)) return false;
       if (activeTab === "residential" && !typeNorm.includes("residential")) return false;
       if (activeTab === "commercial" && !typeNorm.includes("commercial")) return false;
-
-      // City filter
-      if (filters.city) {
-        if (!cityNameMatchesFilter(filters.city, item)) return false;
-      }
-
-      // Budget filter
+      if (filters.city && !cityNameMatchesFilter(filters.city, item)) return false;
       if (filters.budget && !matchesBudgetRangeForProject(item, filters.budget)) return false;
-
-      // Status filter
-      if (filters.projectStatus && !statusNorm.includes(normalizeText(filters.projectStatus))) return false;
-
-      // Search filter
-      if (searchNorm && !projectNameMatchesSearch(item?.projectName, searchNorm)) return false;
-
+      if (filters.projectStatus && !statusNorm.includes(normalizeText(filters.projectStatus))) {
+        return false;
+      }
       return true;
-    });
-  }, [allProjectsList, activeTab, filters, searchTerm, hubCategory]);
+    },
+    [activeTab, filters, hubCategory],
+  );
+
+  const baseProjectsBeforeQuickFilter = useMemo(() => {
+    const source = Array.isArray(allProjectsList) ? allProjectsList : [];
+    return source.filter((item) => matchesListingContext(item));
+  }, [allProjectsList, matchesListingContext]);
 
   const projectsAfterQuickFilter = useMemo(() => {
     if (!activeQuickFilter) return baseProjectsBeforeQuickFilter;
@@ -305,6 +355,74 @@ export default function ProjectsRedesigned({
       return matchesQuickFilter(statusNorm, activeQuickFilter);
     });
   }, [activeQuickFilter, baseProjectsBeforeQuickFilter, matchesQuickFilter]);
+
+  const searchSuggestionPool = useMemo(() => {
+    if (!activeQuickFilter) return baseProjectsBeforeQuickFilter;
+    return baseProjectsBeforeQuickFilter.filter((item) => {
+      const statusNorm = normalizeText(item?.projectStatusName);
+      return matchesQuickFilter(statusNorm, activeQuickFilter);
+    });
+  }, [activeQuickFilter, baseProjectsBeforeQuickFilter, matchesQuickFilter]);
+
+  const searchSuggestions = useMemo(() => {
+    const q = debouncedSearch.trim();
+    if (q.length < 2) return [];
+
+    const ranked = [];
+    for (const item of searchSuggestionPool) {
+      const name = String(item?.projectName || "").trim();
+      if (!name) continue;
+      const score = scoreProjectSearchMatch(name, q);
+      if (score < 0) continue;
+      ranked.push({ item, score });
+    }
+
+    ranked.sort(
+      (a, b) =>
+        a.score - b.score ||
+        String(a.item?.projectName || "").localeCompare(String(b.item?.projectName || "")),
+    );
+
+    return ranked.slice(0, SEARCH_SUGGESTION_LIMIT).map(({ item }) => item);
+  }, [debouncedSearch, searchSuggestionPool]);
+
+  const pinSearchProject = useCallback(
+    (project) => {
+      if (!project) return;
+      showListingsLoader();
+      startListingsPinTransition(() => {
+        const name = String(project?.projectName || "").trim();
+        setSelectedSearchProjectKey(getProjectKey(project));
+        if (name) {
+          setSearchInput(name);
+          setDebouncedSearch(name);
+        }
+        setSearchDropdownOpen(false);
+        setCurrentPage(1);
+      });
+    },
+    [showListingsLoader],
+  );
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const q = searchInput.trim();
+    setDebouncedSearch(q);
+    if (!q) {
+      setSelectedSearchProjectKey("");
+      setSearchDropdownOpen(false);
+      return;
+    }
+
+    const match =
+      searchSuggestions[0] || findBestProjectBySearch(q, searchSuggestionPool);
+    if (match) {
+      pinSearchProject(match);
+      return;
+    }
+
+    if (q.length >= 2) setSearchDropdownOpen(true);
+  };
 
   const matchesBhkFilter = useCallback((projectConfiguration, selected) => {
     const wanted = String(selected || "").trim();
@@ -541,17 +659,21 @@ export default function ProjectsRedesigned({
   );
 
   const filteredProjects = useMemo(() => {
-    return projectsAfterQuickFilter.filter((item) => {
+    const list = projectsAfterQuickFilter.filter((item) => {
       if (!matchesBhkFilter(item?.projectConfiguration, filters.bhkType)) return false;
       if (!matchesConfigTypeFilter(item?.projectConfiguration, filters.configType)) return false;
       return true;
     });
+
+    if (!selectedSearchProjectKey) return list;
+    return list.filter((item) => getProjectKey(item) === selectedSearchProjectKey);
   }, [
     filters.bhkType,
     filters.configType,
     matchesBhkFilter,
     matchesConfigTypeFilter,
     projectsAfterQuickFilter,
+    selectedSearchProjectKey,
   ]);
 
   const sortedProjects = useMemo(() => {
@@ -604,19 +726,23 @@ export default function ProjectsRedesigned({
   const hasAnyAppliedFilter =
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
-    Boolean(searchTerm) ||
+    Boolean(selectedSearchProjectKey) ||
     activeTab !== "all";
 
   const sortDropdownRef = useRef(null);
 
-  const showOverlayLoader = useCallback(() => {
-    const now = Date.now();
-    sortLoaderHideAtRef.current = Math.max(sortLoaderHideAtRef.current, now + SORT_LOADER_MIN_MS);
-    setSortLoaderVisible(true);
-    if (sortLoaderTimerRef.current) {
-      window.clearTimeout(sortLoaderTimerRef.current);
-      sortLoaderTimerRef.current = null;
-    }
+  const handleSuggestionSelect = useCallback(
+    (project) => {
+      pinSearchProject(project);
+    },
+    [pinSearchProject],
+  );
+
+  const formatSuggestionLocation = useCallback((project) => {
+    const parts = [project?.projectLocality, project?.cityName || project?.city]
+      .map((part) => String(part || "").trim())
+      .filter(Boolean);
+    return parts.join(", ") || "India";
   }, []);
 
   const applyPropertyTypeFromDropdown = useCallback((nextTab) => {
@@ -684,6 +810,31 @@ export default function ProjectsRedesigned({
     };
   }, [isSortPending, sortLoaderVisible]);
 
+  // Keep listings-area loader visible for a minimum duration
+  useEffect(() => {
+    if (!listingsLoaderVisible) return undefined;
+
+    if (isListingsPinPending) return undefined;
+
+    const now = Date.now();
+    const remaining = Math.max(0, listingsLoaderHideAtRef.current - now);
+
+    if (listingsLoaderTimerRef.current) window.clearTimeout(listingsLoaderTimerRef.current);
+    listingsLoaderTimerRef.current = window.setTimeout(() => {
+      setListingsLoaderVisible(false);
+      listingsLoaderTimerRef.current = null;
+    }, remaining);
+
+    return () => {
+      if (listingsLoaderTimerRef.current) {
+        window.clearTimeout(listingsLoaderTimerRef.current);
+        listingsLoaderTimerRef.current = null;
+      }
+    };
+  }, [isListingsPinPending, listingsLoaderVisible]);
+
+  const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending;
+
   return (
     <div className="mpf-projects-page">
       {sortLoaderVisible && (
@@ -705,11 +856,103 @@ export default function ProjectsRedesigned({
             <nav className="mpf-breadcrumb">
               <Link href="/">Home</Link>
               <span>›</span>
+              {breadcrumbParent?.href && breadcrumbParent?.label ? (
+                <>
+                  <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
+                  <span>›</span>
+                </>
+              ) : null}
               <span>{breadcrumbLabel}</span>
             </nav>
           )}
-          <h1 className="mpf-page-title">{sortedProjects.length} Projects</h1>
+          <h1 className="mpf-page-title" id="mpf-page-heading">
+            {sortedProjects.length} {sortedProjects.length === 1 ? "Project" : "Projects"}
+          </h1>
+          {pageIntro ? (
+            <h2 className="mpf-page-intro">{pageIntro}</h2>
+          ) : null}
         </div>
+
+        <section className="mpf-page-top-search" aria-label="Search projects">
+          <div className="mpf-page-top-search__wrap" ref={searchWrapRef}>
+            <form className="mpf-page-top-search__form" onSubmit={handleSearch}>
+              <FontAwesomeIcon icon={faSearch} className="mpf-page-top-search__icon" aria-hidden />
+              <input
+                type="search"
+                placeholder='Search "Eldeco, M3M, Godrej..."'
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setSelectedSearchProjectKey("");
+                  setSearchDropdownOpen(true);
+                }}
+                onFocus={() => {
+                  if (searchInput.trim().length >= 2) setSearchDropdownOpen(true);
+                }}
+                className="mpf-page-top-search__input"
+                aria-label="Search projects by name"
+                aria-expanded={searchDropdownOpen}
+                aria-controls="mpf-project-search-dropdown"
+                aria-autocomplete="list"
+                autoComplete="off"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  className="mpf-page-top-search__clear"
+                  onClick={() => {
+                    setSearchInput("");
+                    setDebouncedSearch("");
+                    setSelectedSearchProjectKey("");
+                    setSearchDropdownOpen(false);
+                  }}
+                  aria-label="Clear project search"
+                >
+                  ×
+                </button>
+              ) : (
+                <span className="mpf-page-top-search__count" aria-hidden>
+                  {sortedProjects.length}
+                </span>
+              )}
+            </form>
+
+            {searchDropdownOpen && !selectedSearchProjectKey && debouncedSearch.trim().length >= 2 ? (
+              <div
+                id="mpf-project-search-dropdown"
+                className="mpf-page-top-search__dropdown"
+                role="listbox"
+                aria-label="Matching projects"
+              >
+                {searchSuggestions.length > 0 ? (
+                  searchSuggestions.map((project) => {
+                    const key = project?.id ?? project?.slugURL ?? project?.projectName;
+                    const location = formatSuggestionLocation(project);
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="option"
+                        className="mpf-page-top-search__option"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSuggestionSelect(project)}
+                      >
+                        <span className="mpf-page-top-search__option-name">
+                          {project?.projectName}
+                        </span>
+                        <span className="mpf-page-top-search__option-meta">{location}</span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="mpf-page-top-search__empty" role="status">
+                    No matching projects found
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </section>
 
         {/* Quick Filters */}
         <div className="mpf-quick-filters">
@@ -879,18 +1122,6 @@ export default function ProjectsRedesigned({
               Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
             </button>
 
-            {/* Search Bar */}
-            <form className="mpf-search-form" onSubmit={handleSearch}>
-              <FontAwesomeIcon icon={faSearch} className="mpf-search-icon" />
-              <input
-                type="text"
-                placeholder="Search Project"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="mpf-search-input"
-              />
-            </form>
-
             {/* Loading */}
             {isLoading && (
               <div className="mpf-loading">
@@ -899,8 +1130,15 @@ export default function ProjectsRedesigned({
               </div>
             )}
 
+            {!isLoading && showListingsAreaLoader && (
+              <div className="mpf-listings-loader" aria-live="polite" aria-busy="true" role="status">
+                <div className="mpf-spinner"></div>
+                <p>Loading project...</p>
+              </div>
+            )}
+
             {/* No Results */}
-            {!isLoading && sortedProjects.length === 0 && (
+            {!isLoading && !showListingsAreaLoader && sortedProjects.length === 0 && (
               <div className="mpf-no-results">
                 <FontAwesomeIcon icon={faHome} className="mpf-no-results-icon" />
                 <h3>No Projects Found</h3>
@@ -912,7 +1150,7 @@ export default function ProjectsRedesigned({
             )}
 
             {/* Project Listings */}
-            {!isLoading && sortedProjects.length > 0 && (
+            {!isLoading && !showListingsAreaLoader && sortedProjects.length > 0 && (
               <div className="mpf-listings-list">
                 {paginatedProjects.map((project, idx) => (
                   <ProjectCard
@@ -925,7 +1163,7 @@ export default function ProjectsRedesigned({
             )}
 
             {/* Pagination */}
-            {!isLoading && totalPages > 1 && (
+            {!isLoading && !showListingsAreaLoader && totalPages > 1 && (
               <div className="mpf-pagination">
                 <button
                   disabled={currentPage === 1}
@@ -939,9 +1177,13 @@ export default function ProjectsRedesigned({
                   return (
                     <button
                       key={page}
+                      type="button"
                       className={currentPage === page ? "active" : ""}
                       aria-current={currentPage === page ? "page" : undefined}
-                      onClick={() => setCurrentPage(page)}
+                      aria-disabled={currentPage === page ? true : undefined}
+                      onClick={() => {
+                        if (currentPage !== page) setCurrentPage(page);
+                      }}
                     >
                       {page}
                     </button>

@@ -28,6 +28,7 @@
 .mpf-projects-page {
   background: #ffffff;
   min-height: 100vh;
+  overflow-x: visible;
   /* Header is fixed; ensure first row isn't hidden behind it */
   padding-top: var(--mpf-site-header-height);
 }
@@ -103,11 +104,15 @@
 /* Top Navigation Tabs - REMOVED (now in Sort By dropdown) */
 
 /* ==========================================================================
-   Page Header
+   Page Header & Search Hero
    ========================================================================== */
-.mpf-page-header {
-  padding: 20px 0 16px;
+.mpf-page-hero {
   border-bottom: 1px solid var(--mpf-gray-200);
+}
+
+.mpf-page-header {
+  padding: 20px 0 8px;
+  border-bottom: none;
 }
 
 .mpf-breadcrumb {
@@ -152,13 +157,13 @@
 .mpf-page-top-search {
   display: flex;
   justify-content: center;
-  padding: 0 0 18px;
-  border-bottom: 1px solid var(--mpf-gray-200);
+  padding: 0px 0 22px;
+  border-bottom: none;
 }
 
 .mpf-page-top-search__wrap {
   position: relative;
-  width: min(100%, 460px);
+  width: min(100%, 520px);
   margin: 0 auto;
 }
 
@@ -197,6 +202,20 @@
 
 .mpf-page-top-search__input::placeholder {
   color: var(--mpf-gray-400);
+}
+
+/* Hide browser-native clear on type="search" — we use .mpf-page-top-search__clear */
+.mpf-page-top-search__input::-webkit-search-cancel-button,
+.mpf-page-top-search__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.mpf-page-top-search__input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .mpf-page-top-search__count {
@@ -295,16 +314,27 @@
    ========================================================================== */
 .mpf-quick-filters {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 12px;
-  padding: 12px 0;
+  padding: 14px 0;
   border-bottom: 1px solid var(--mpf-gray-200);
   position: relative;
   z-index: 100;
 }
 
-/* Quick filter buttons wrap on smaller screens */
-.mpf-quick-filters {
+.mpf-quick-filters__pills {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mpf-quick-filters__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
@@ -334,14 +364,6 @@
 .mpf-sort-wrapper {
   position: relative;
   z-index: 200;
-}
-
-.mpf-quick-actions {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 0 0 auto;
 }
 
 .mpf-quick-clear {
@@ -480,6 +502,7 @@
   grid-template-columns: 240px 1fr;
   gap: 24px;
   padding: 20px 0 40px;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
@@ -532,9 +555,10 @@
    ========================================================================== */
 .mpf-filters-sidebar {
   position: sticky;
-  top: 20px;
+  top: calc(var(--mpf-site-header-height, 92px) + 16px);
+  align-self: start;
   height: fit-content;
-  max-height: calc(100vh - 40px);
+  max-height: calc(100vh - var(--mpf-site-header-height, 92px) - 32px);
   overflow-y: auto;
   overflow-x: hidden;
   background: #ffffff;
@@ -542,6 +566,7 @@
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  z-index: 10;
 }
 
 /* Green scrollbar (hidden by default) */
@@ -575,6 +600,12 @@
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
+}
+
+@media (max-width: 767px) {
+  .mpf-projects-page {
+    overflow-x: hidden;
+  }
 }
 
 @media (max-width: 900px) {
@@ -770,20 +801,23 @@
 .mpf-mobile-filter-btn {
   display: none;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 10px 16px;
   background: var(--mpf-gray-100);
   border: 1px solid var(--mpf-gray-300);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--mpf-gray-700);
   cursor: pointer;
-  margin-bottom: 16px;
+  white-space: nowrap;
+  margin-right: auto;
 }
 
 @media (max-width: 900px) {
   .mpf-mobile-filter-btn {
-    display: flex;
+    display: inline-flex;
   }
 }
 
@@ -831,13 +865,6 @@
   padding: 20px 0;
   text-decoration: none;
   color: inherit;
-}
-
-@media (max-width: 900px) {
-  .mpf-listing-card-link {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
 }
 
 /* Image Section */
@@ -891,11 +918,6 @@
   border-radius: 8px;
 }
 
-@media (max-width: 900px) {
-  .mpf-listing-image {
-    height: 220px;
-  }
-}
 
 /* RERA Shield Badge */
 .mpf-rera-badge {
@@ -1323,12 +1345,6 @@
   padding-top: 4px;
 }
 
-@media (max-width: 900px) {
-  .mpf-listing-actions {
-    flex-direction: row;
-    justify-content: flex-start;
-  }
-}
 
 .mpf-listing-wishlist {
   width: 36px;
@@ -1860,4 +1876,626 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+}
+
+/* ==========================================================================
+   Responsive — Tablet & Mobile
+   ========================================================================== */
+
+/* Desktop: single-row toolbar when space allows */
+@media (min-width: 1025px) {
+  .mpf-quick-filters {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .mpf-quick-filters__pills {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .mpf-quick-filters__actions {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+}
+
+/* Narrow desktop with sidebar (1025px–1200px): horizontal list card */
+@media (min-width: 1025px) and (max-width: 1200px) {
+  .mpf-listing-card-link {
+    grid-template-columns: minmax(200px, 260px) 1fr;
+    grid-template-areas:
+      "image content"
+      "actions actions";
+    gap: 16px;
+    padding: 16px 0;
+  }
+
+  .mpf-listing-image {
+    grid-area: image;
+    height: 190px;
+  }
+
+  .mpf-listing-content {
+    grid-area: content;
+  }
+
+  .mpf-listing-actions {
+    grid-area: actions;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 12px;
+    margin-top: 4px;
+    border-top: 1px solid var(--mpf-gray-100);
+  }
+}
+
+/* Tablet & mobile shared */
+@media (max-width: 1024px) {
+  .mpf-main-layout {
+    gap: 16px;
+    padding: 16px 0 32px;
+  }
+
+  .mpf-page-header {
+    padding: 16px 0 6px;
+  }
+
+  .mpf-page-title {
+    font-size: 17px;
+  }
+
+  .mpf-page-top-search {
+    padding: 18px 0 20px;
+  }
+
+  .mpf-page-top-search__wrap {
+    width: 100%;
+  }
+
+  .mpf-quick-filters__pills {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .mpf-quick-filters__pills::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mpf-quick-filter-btn {
+    flex-shrink: 0;
+  }
+
+  .mpf-quick-filters__actions {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid var(--mpf-gray-100);
+  }
+
+  .mpf-sort-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 16px 16px 0 0;
+    min-width: unset;
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: 12px 0 24px;
+    animation: slideUp 0.25s ease;
+  }
+}
+
+/* Tablet: 2-column compact card grid */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .mpf-listings-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .mpf-listing-card {
+    display: flex;
+    flex-direction: column;
+    border-bottom: none;
+    border: 1px solid var(--mpf-gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 100%;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .mpf-listing-card:hover {
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  }
+
+  .mpf-listing-card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
+    height: 100%;
+    gap: 0;
+    padding: 0;
+    grid-template-columns: unset;
+  }
+
+  .mpf-listing-image {
+    order: 1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+
+  .mpf-listing-image img {
+    border-radius: 0;
+  }
+
+  .mpf-listing-content {
+    order: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 6px;
+    min-width: 0;
+  }
+
+  .mpf-listing-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mpf-listing-header {
+    margin-bottom: 6px;
+  }
+
+  .mpf-listing-title {
+    font-size: 14px;
+    line-height: 1.35;
+    min-height: 2.7em;
+    -webkit-line-clamp: 2;
+  }
+
+  .mpf-listing-location {
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-listing-config,
+  .mpf-listing-desc,
+  .mpf-listing-usps {
+    display: none;
+  }
+
+  .mpf-listing-price-row {
+    margin-bottom: 6px;
+  }
+
+  .mpf-listing-price {
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-listing-meta {
+    margin-bottom: 0;
+    margin-top: auto;
+    min-height: 24px;
+  }
+
+  .mpf-status-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .mpf-status-icon,
+  .mpf-status-sparkle,
+  .mpf-status-check,
+  .mpf-status-dots {
+    display: none;
+  }
+
+  .mpf-listing-actions {
+    order: 3;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 8px 12px 12px;
+    margin-top: auto;
+    border-top: 1px solid var(--mpf-gray-100);
+    gap: 0;
+  }
+
+  .mpf-listing-wishlist {
+    display: none;
+  }
+
+  .mpf-btn-contact {
+    width: 100%;
+    max-width: none;
+    padding: 9px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .mpf-rera-badge {
+    top: 6px;
+    left: 6px;
+    padding: 4px 8px;
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .mpf-rera-shield {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mpf-photo-badge {
+    bottom: 6px;
+    left: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .mpf-photo-badge svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .mpf-ribbon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mpf-ribbon {
+    top: 12px;
+    right: -22px;
+    width: 88px;
+    padding: 4px 0;
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mpf-container {
+    padding: 0 12px;
+  }
+
+  .mpf-page-header {
+    padding: 14px 0 4px;
+  }
+
+  .mpf-breadcrumb {
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mpf-page-title {
+    font-size: 16px;
+  }
+
+  .mpf-page-intro {
+    font-size: 0.95rem;
+    margin-top: 10px;
+    padding: 0;
+  }
+
+  .mpf-page-top-search {
+    padding: 16px 0 18px;
+  }
+
+  .mpf-page-top-search__input {
+    height: 44px;
+    font-size: 16px;
+  }
+
+  .mpf-quick-filters {
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .mpf-quick-filter-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .mpf-mobile-filter-btn {
+    padding: 9px 14px;
+    font-size: 12px;
+  }
+
+  .mpf-sort-btn,
+  .mpf-quick-clear {
+    height: 36px;
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
+  .mpf-main-layout {
+    padding: 12px 0 28px;
+    gap: 0;
+  }
+
+  .mpf-pagination {
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 20px 0;
+  }
+
+  .mpf-pagination button {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  .mpf-related-search__inner {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .mpf-related-search__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .mpf-related-search__link {
+    white-space: normal;
+  }
+}
+
+/* Mobile phones: single-column compact cards (767px and below) */
+@media (max-width: 767px) {
+  .mpf-listings-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .mpf-listing-card {
+    display: flex;
+    flex-direction: column;
+    border-bottom: none;
+    border: 1px solid var(--mpf-gray-200);
+    border-radius: 12px;
+    overflow: hidden;
+    min-height: 100%;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+  }
+
+  .mpf-listing-card:hover {
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  }
+
+  .mpf-listing-card-link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 100%;
+    height: 100%;
+    gap: 0;
+    padding: 0;
+    grid-template-columns: unset;
+  }
+
+  .mpf-listing-image {
+    order: 1;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+
+  .mpf-listing-image img {
+    border-radius: 0;
+  }
+
+  .mpf-listing-content {
+    order: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 6px;
+    min-width: 0;
+  }
+
+  .mpf-listing-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mpf-listing-header {
+    margin-bottom: 6px;
+  }
+
+  .mpf-listing-title {
+    font-size: 15px;
+    line-height: 1.35;
+    min-height: auto;
+    -webkit-line-clamp: 2;
+  }
+
+  .mpf-listing-location {
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-listing-config,
+  .mpf-listing-desc,
+  .mpf-listing-usps {
+    display: none;
+  }
+
+  .mpf-listing-price-row {
+    margin-bottom: 6px;
+  }
+
+  .mpf-listing-price {
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-listing-meta {
+    margin-bottom: 0;
+    margin-top: auto;
+    min-height: 24px;
+  }
+
+  .mpf-status-badge {
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .mpf-status-icon,
+  .mpf-status-sparkle,
+  .mpf-status-check,
+  .mpf-status-dots {
+    display: none;
+  }
+
+  .mpf-listing-actions {
+    order: 3;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 8px 12px 12px;
+    margin-top: auto;
+    border-top: 1px solid var(--mpf-gray-100);
+    gap: 0;
+  }
+
+  .mpf-listing-wishlist {
+    display: none;
+  }
+
+  .mpf-btn-contact {
+    width: 100%;
+    max-width: none;
+    padding: 9px 12px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .mpf-rera-badge {
+    top: 6px;
+    left: 6px;
+    padding: 4px 8px;
+    font-size: 9px;
+    gap: 3px;
+  }
+
+  .mpf-rera-shield {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mpf-photo-badge {
+    bottom: 6px;
+    left: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    gap: 4px;
+  }
+
+  .mpf-photo-badge svg {
+    width: 11px;
+    height: 11px;
+  }
+
+  .mpf-ribbon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .mpf-ribbon {
+    top: 12px;
+    right: -22px;
+    width: 88px;
+    padding: 4px 0;
+    font-size: 7px;
+    letter-spacing: 0.5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mpf-container {
+    padding: 0 10px;
+  }
+
+  .mpf-page-top-search {
+    padding: 14px 0 16px;
+  }
+
+  .mpf-quick-filters {
+    gap: 8px;
+  }
+
+  .mpf-quick-filters__actions {
+    flex-wrap: wrap;
+  }
+
+  .mpf-mobile-filter-btn {
+    flex: 1 1 100%;
+    margin-right: 0;
+  }
+
+  .mpf-listings-list {
+    gap: 10px;
+  }
+
+  .mpf-listing-content {
+    padding: 10px 12px 6px;
+  }
+
+  .mpf-listing-title {
+    font-size: 14px;
+  }
+
+  .mpf-no-results {
+    padding: 40px 16px;
+  }
+
+  .mpf-no-results-icon {
+    font-size: 36px;
+  }
+
+  .mpf-screen-loader__card {
+    min-width: unset;
+    width: calc(100% - 32px);
+    max-width: 320px;
+  }
 }

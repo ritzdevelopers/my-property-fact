@@ -61,7 +61,7 @@ const cities = CITY_ORDER.map((name, index) => {
 
 const DreamPropertySection = () => {
   return (
-    <section className="dream-property-section my-4 my-lg-5">
+    <section className="dream-property-section mb-4 mb-lg-5">
       <div className="dream-property-section-bg" aria-hidden="true">
         <img
           src="/dream-cities/image 1009.png"

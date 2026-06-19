@@ -850,126 +850,138 @@ export default function ProjectsRedesigned({
         </div>
       )}
       <div className="mpf-container">
-        {/* Breadcrumb & Title */}
-        <div className="mpf-page-header">
-          {showBreadcrumb && (
-            <nav className="mpf-breadcrumb">
-              <Link href="/">Home</Link>
-              <span>›</span>
-              {breadcrumbParent?.href && breadcrumbParent?.label ? (
-                <>
-                  <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
-                  <span>›</span>
-                </>
-              ) : null}
-              <span>{breadcrumbLabel}</span>
-            </nav>
-          )}
-          <h1 className="mpf-page-title" id="mpf-page-heading">
-            {sortedProjects.length} {sortedProjects.length === 1 ? "Project" : "Projects"}
-          </h1>
-          {pageIntro ? (
-            <h2 className="mpf-page-intro">{pageIntro}</h2>
-          ) : null}
-        </div>
-
-        <section className="mpf-page-top-search" aria-label="Search projects">
-          <div className="mpf-page-top-search__wrap" ref={searchWrapRef}>
-            <form className="mpf-page-top-search__form" onSubmit={handleSearch}>
-              <FontAwesomeIcon icon={faSearch} className="mpf-page-top-search__icon" aria-hidden />
-              <input
-                type="search"
-                placeholder='Search "Eldeco, M3M, Godrej..."'
-                value={searchInput}
-                onChange={(e) => {
-                  setSearchInput(e.target.value);
-                  setSelectedSearchProjectKey("");
-                  setSearchDropdownOpen(true);
-                }}
-                onFocus={() => {
-                  if (searchInput.trim().length >= 2) setSearchDropdownOpen(true);
-                }}
-                className="mpf-page-top-search__input"
-                aria-label="Search projects by name"
-                aria-expanded={searchDropdownOpen}
-                aria-controls="mpf-project-search-dropdown"
-                aria-autocomplete="list"
-                autoComplete="off"
-              />
-              {searchInput ? (
-                <button
-                  type="button"
-                  className="mpf-page-top-search__clear"
-                  onClick={() => {
-                    setSearchInput("");
-                    setDebouncedSearch("");
-                    setSelectedSearchProjectKey("");
-                    setSearchDropdownOpen(false);
-                  }}
-                  aria-label="Clear project search"
-                >
-                  ×
-                </button>
-              ) : (
-                <span className="mpf-page-top-search__count" aria-hidden>
-                  {sortedProjects.length}
-                </span>
-              )}
-            </form>
-
-            {searchDropdownOpen && !selectedSearchProjectKey && debouncedSearch.trim().length >= 2 ? (
-              <div
-                id="mpf-project-search-dropdown"
-                className="mpf-page-top-search__dropdown"
-                role="listbox"
-                aria-label="Matching projects"
-              >
-                {searchSuggestions.length > 0 ? (
-                  searchSuggestions.map((project) => {
-                    const key = project?.id ?? project?.slugURL ?? project?.projectName;
-                    const location = formatSuggestionLocation(project);
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        role="option"
-                        className="mpf-page-top-search__option"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSuggestionSelect(project)}
-                      >
-                        <span className="mpf-page-top-search__option-name">
-                          {project?.projectName}
-                        </span>
-                        <span className="mpf-page-top-search__option-meta">{location}</span>
-                      </button>
-                    );
-                  })
-                ) : (
-                  <div className="mpf-page-top-search__empty" role="status">
-                    No matching projects found
-                  </div>
-                )}
-              </div>
+        <div className="mpf-page-hero">
+          {/* Breadcrumb & Title */}
+          <div className="mpf-page-header">
+            {showBreadcrumb && (
+              <nav className="mpf-breadcrumb">
+                <Link href="/">Home</Link>
+                <span>›</span>
+                {breadcrumbParent?.href && breadcrumbParent?.label ? (
+                  <>
+                    <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
+                    <span>›</span>
+                  </>
+                ) : null}
+                <span>{breadcrumbLabel}</span>
+              </nav>
+            )}
+            <h1 className="mpf-page-title" id="mpf-page-heading">
+              {sortedProjects.length} {sortedProjects.length === 1 ? "Project" : "Projects"}
+            </h1>
+            {pageIntro ? (
+              <h2 className="mpf-page-intro">{pageIntro}</h2>
             ) : null}
           </div>
-        </section>
+
+          <section className="mpf-page-top-search" aria-label="Search projects">
+            <div className="mpf-page-top-search__wrap" ref={searchWrapRef}>
+              <form className="mpf-page-top-search__form" onSubmit={handleSearch}>
+                <FontAwesomeIcon icon={faSearch} className="mpf-page-top-search__icon" aria-hidden />
+                <input
+                  type="search"
+                  placeholder='Search "Eldeco, M3M, Godrej..."'
+                  value={searchInput}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setSelectedSearchProjectKey("");
+                    setSearchDropdownOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (searchInput.trim().length >= 2) setSearchDropdownOpen(true);
+                  }}
+                  className="mpf-page-top-search__input"
+                  aria-label="Search projects by name"
+                  aria-expanded={searchDropdownOpen}
+                  aria-controls="mpf-project-search-dropdown"
+                  aria-autocomplete="list"
+                  autoComplete="off"
+                />
+                {searchInput ? (
+                  <button
+                    type="button"
+                    className="mpf-page-top-search__clear"
+                    onClick={() => {
+                      setSearchInput("");
+                      setDebouncedSearch("");
+                      setSelectedSearchProjectKey("");
+                      setSearchDropdownOpen(false);
+                    }}
+                    aria-label="Clear project search"
+                  >
+                    ×
+                  </button>
+                ) : (
+                  <span className="mpf-page-top-search__count" aria-hidden>
+                    {sortedProjects.length}
+                  </span>
+                )}
+              </form>
+
+              {searchDropdownOpen && !selectedSearchProjectKey && debouncedSearch.trim().length >= 2 ? (
+                <div
+                  id="mpf-project-search-dropdown"
+                  className="mpf-page-top-search__dropdown"
+                  role="listbox"
+                  aria-label="Matching projects"
+                >
+                  {searchSuggestions.length > 0 ? (
+                    searchSuggestions.map((project) => {
+                      const key = project?.id ?? project?.slugURL ?? project?.projectName;
+                      const location = formatSuggestionLocation(project);
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          role="option"
+                          className="mpf-page-top-search__option"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => handleSuggestionSelect(project)}
+                        >
+                          <span className="mpf-page-top-search__option-name">
+                            {project?.projectName}
+                          </span>
+                          <span className="mpf-page-top-search__option-meta">{location}</span>
+                        </button>
+                      );
+                    })
+                  ) : (
+                    <div className="mpf-page-top-search__empty" role="status">
+                      No matching projects found
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </div>
 
         {/* Quick Filters */}
         <div className="mpf-quick-filters">
-          {visibleQuickFilters.map((qf) => (
+          <div className="mpf-quick-filters__pills">
+            {visibleQuickFilters.map((qf) => (
+              <button
+                key={qf.key}
+                type="button"
+                className={`mpf-quick-filter-btn ${activeQuickFilter === qf.key ? "active" : ""}`}
+                onClick={() => {
+                  setActiveQuickFilter((prev) => (prev === qf.key ? "" : qf.key));
+                  setCurrentPage(1);
+                }}
+              >
+                {qf.label}
+              </button>
+            ))}
+          </div>
+          <div className="mpf-quick-filters__actions">
             <button
-              key={qf.key}
               type="button"
-              className={`mpf-quick-filter-btn ${activeQuickFilter === qf.key ? "active" : ""}`}
-              onClick={() => {
-                setActiveQuickFilter((prev) => (prev === qf.key ? "" : qf.key));
-                setCurrentPage(1);
-              }}
+              className="mpf-mobile-filter-btn"
+              onClick={() => setIsMobileFilterOpen(true)}
             >
-              {qf.label}
+              <FontAwesomeIcon icon={faFilter} />
+              Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
             </button>
-          ))}
-          <div className="mpf-quick-actions">
             <button
               type="button"
               className="mpf-quick-clear"
@@ -1113,15 +1125,6 @@ export default function ProjectsRedesigned({
 
           {/* Listings */}
           <main className="mpf-listings">
-            {/* Mobile Filter Button */}
-            <button
-              className="mpf-mobile-filter-btn"
-              onClick={() => setIsMobileFilterOpen(true)}
-            >
-              <FontAwesomeIcon icon={faFilter} />
-              Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-            </button>
-
             {/* Loading */}
             {isLoading && (
               <div className="mpf-loading">

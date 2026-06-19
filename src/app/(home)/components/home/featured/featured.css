@@ -153,6 +153,9 @@
 /* Featured (home) two-up: keep the 2 cards visually centered */
 .featured-page-slider--two-up {
   /* Make arrows position relative to the centered 2-up viewport */
+  --featured-image-height: 232px;
+  --featured-card-bottom-space: 58px;
+    --featured-arrow-top: 110px;
   max-width: 1120px;
   margin: 0 auto;
   position: relative;
@@ -183,8 +186,13 @@
 .featured-page-slider--two-up .slick-prev,
 .featured-page-slider--two-up .slick-next {
   display: flex !important;
-  top: 44%;
+  top: var(--featured-arrow-top);
   transform: translateY(-50%);
+  margin-top: 0;
+}
+
+.featured-page-slider--two-up .slick-slide > div:has(.home-featured-project-card) {
+  padding-bottom: 0;
 }
 
 .featured-page-slider--two-up .slick-prev {
@@ -374,6 +382,27 @@
     margin-bottom: 25px !important;
 }
 
+.home-featured-section--spotlight {
+    padding-top: 48px;
+    padding-bottom: 48px;
+}
+
+.home-featured-section--spotlight .home-featured-section-title {
+    margin-top: 0 !important;
+    margin-bottom: 24px !important;
+}
+
+@media (max-width: 768px) {
+    .home-featured-section--spotlight {
+        padding-top: 32px;
+        padding-bottom: 32px;
+    }
+
+    .home-featured-section--spotlight .home-featured-section-title {
+        margin-bottom: 20px !important;
+    }
+}
+
 @media (min-width: 1024px) {
     .featured-filter-buttons {
         justify-content: flex-start;
@@ -419,6 +448,13 @@
 }
 
 /* Positioning the previous button */
+.featured-page-slider .slick-prev,
+.featured-page-slider .slick-next {
+  
+
+  margin-top: 0;
+}
+
 .slick-prev {
     z-index: 5;
 }
@@ -471,6 +507,11 @@
 
 /* Tablet: 2 cards */
 @media (max-width: 1024px) {
+    .featured-page-slider--two-up {
+        --featured-image-height: 220px;
+        --featured-card-bottom-space: 68px;
+    }
+
     .home-featured-project-card {
         width: 100%;
         max-width: 510px;
@@ -611,6 +652,11 @@
 
     .home-featured-image-card {
         height: 180px;
+    }
+
+    .featured-page-slider--two-up {
+        --featured-image-height: 180px;
+        --featured-card-bottom-space: 64px;
     }
 
     .home-featured-project-card {

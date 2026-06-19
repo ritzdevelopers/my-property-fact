@@ -170,7 +170,11 @@ export default function Featured({
   return (
     <>
       {type !== "Similar" && (
-        <div className="container home-featured-section">
+        <div
+          className={`container home-featured-section${
+            type === "Featured" ? " home-featured-section--spotlight" : ""
+          }`}
+        >
           {autoPlay && type !== "Similar" && (
             <div
               className="d-flex featured-filter-buttons home-featured-filter-buttons gap-3"

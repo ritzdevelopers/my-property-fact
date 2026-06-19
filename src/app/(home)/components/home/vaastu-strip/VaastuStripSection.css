@@ -30,6 +30,8 @@
   align-items: center;
   border-radius: 8px;
   background: #DFECF9;
+  text-align: left;
+  font: inherit;
 }
 
 .vaastu-strip-explore__eyebrow {

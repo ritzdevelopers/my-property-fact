@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import "./VaastuStripSection.css";
@@ -184,13 +183,13 @@ export default function VaastuStripSection() {
     <section className="vaastu-strip-section">
       <div className="container">
         <div className="vaastu-strip" role="list" aria-label="Explore insights">
-          <Link
-            href="/blog"
-            prefetch={false}
+          <button
+            type="button"
             className="vaastu-strip-card vaastu-strip-card--explore"
             role="listitem"
             aria-label="Explore Vaastu Insights for Your Property"
             title="Explore Vaastu Insights for Your Property"
+            onClick={() => openReels(0)}
           >
             <div className="vaastu-strip-explore__inner">
               <p className="vaastu-strip-explore__eyebrow">Explore</p>
@@ -198,7 +197,7 @@ export default function VaastuStripSection() {
                 Vaastu Insights for Your Property
               </h3>
             </div>
-          </Link>
+          </button>
 
           {MEDIA_CARDS.map((card, index) => (
             <button

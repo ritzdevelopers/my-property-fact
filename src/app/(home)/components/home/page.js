@@ -21,6 +21,7 @@ import {
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
+import VaastuStripSection from "./vaastu-strip/VaastuStripSection";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
@@ -352,9 +353,11 @@ export default async function HomePage() {
 
           {row(12, <TestimonialSection testimonials={testimonials} />)}
 
-          {row(13, <SocialFeedsOfMPF />)}
+          {row(13, <VaastuStripSection />)}
 
-          {row(14, <PopularCitiesSection />)}
+          {row(14, <SocialFeedsOfMPF />)}
+
+          {row(15, <PopularCitiesSection />)}
         </div>
       </>
     );

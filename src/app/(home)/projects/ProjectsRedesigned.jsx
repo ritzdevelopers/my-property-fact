@@ -83,6 +83,7 @@ export default function ProjectsRedesigned({
   initialConfigType = "",
   breadcrumbLabel = "Projects in India",
   breadcrumbParent = null,
+  pageHeading = "",
   pageIntro = "",
   showBreadcrumb = true,
   hubCategory = "",
@@ -835,6 +836,11 @@ export default function ProjectsRedesigned({
 
   const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending;
 
+  const displayHeading = pageHeading || breadcrumbLabel;
+  const projectCountLabel = `${sortedProjects.length} ${
+    sortedProjects.length === 1 ? "Project" : "Projects"
+  }`;
+
   return (
     <div className="mpf-projects-page">
       {sortLoaderVisible && (
@@ -866,9 +872,15 @@ export default function ProjectsRedesigned({
                 <span>{breadcrumbLabel}</span>
               </nav>
             )}
-            <h1 className="mpf-page-title" id="mpf-page-heading">
-              {sortedProjects.length} {sortedProjects.length === 1 ? "Project" : "Projects"}
+            <h1
+              className={`mpf-page-title${pageHeading ? " mpf-page-title--landing" : ""}`}
+              id="mpf-page-heading"
+            >
+              {displayHeading || projectCountLabel}
             </h1>
+            {displayHeading ? (
+              <p className="mpf-page-count">{projectCountLabel}</p>
+            ) : null}
             {pageIntro ? (
               <h2 className="mpf-page-intro">{pageIntro}</h2>
             ) : null}
@@ -1045,14 +1057,13 @@ export default function ProjectsRedesigned({
         <div className="mpf-main-layout">
           {/* Sidebar Filters */}
           <aside className="mpf-filters-sidebar">
-            <div className="mpf-sidebar-header">
-              <h2>Filters</h2>
-              {activeFiltersCount > 0 && (
+            {activeFiltersCount > 0 && (
+              <div className="mpf-sidebar-header">
                 <button className="mpf-clear-btn" onClick={handleClearFilters}>
                   Clear All
                 </button>
-              )}
-            </div>
+              </div>
+            )}
 
             <FilterSection title="Budget">
               <div className="mpf-budget-inputs">

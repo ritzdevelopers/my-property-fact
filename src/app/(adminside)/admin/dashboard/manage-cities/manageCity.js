@@ -60,6 +60,7 @@ export default function City({ list, stateList }) {
   const [formData, setFormData] = useState(getInitialFormData);
   const [monumentImageFile, setMonumentImageFile] = useState(null);
   const [monumentImagePreview, setMonumentImagePreview] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
 
   const openEditPopUp = (data) => {
     setTitle("Edit City");
@@ -198,6 +199,7 @@ export default function City({ list, stateList }) {
               : null
           }
           alt={params.row.monumentName || `${params.row.cityName || "City"} monument`}
+          onPreviewClick={(src, alt) => setImagePreview({ src, alt })}
         />
       ),
     },
@@ -435,6 +437,34 @@ export default function City({ list, stateList }) {
         confirmBox={confirmBox}
         setConfirmBox={setConfirmBox}
       />
+
+      <Modal
+        show={!!imagePreview}
+        onHide={() => setImagePreview(null)}
+        centered
+        contentClassName="admin-image-lightbox-modal"
+        dialogClassName="admin-image-lightbox-dialog"
+      >
+        <Modal.Body className="admin-image-lightbox-body border-0 position-relative">
+          <button
+            type="button"
+            className="btn-close admin-image-lightbox-close"
+            aria-label="Close"
+            onClick={() => setImagePreview(null)}
+          />
+          {imagePreview ? (
+            <div className="admin-image-lightbox-inner">
+              <img
+                src={imagePreview.src}
+                alt={imagePreview.alt}
+                width={1200}
+                height={900}
+                className="admin-image-lightbox-img"
+              />
+            </div>
+          ) : null}
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }

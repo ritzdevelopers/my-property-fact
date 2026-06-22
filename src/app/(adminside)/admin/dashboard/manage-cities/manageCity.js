@@ -15,6 +15,7 @@ import {
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
+import { AdminGridImageThumb } from "../common-model/admin-grid-cells";
 
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -184,7 +185,22 @@ export default function City({ list, stateList }) {
     { field: "index", headerName: "S.no", width: 80, cellClassName: "centered-cell" },
     { field: "cityName", headerName: "City Name", flex: 1, minWidth: 140 },
     { field: "slugURL", headerName: "Slug", flex: 1, minWidth: 120 },
-    { field: "monumentName", headerName: "Monument", flex: 1, minWidth: 140 },
+    {
+      field: "monumentImage",
+      headerName: "Monument",
+      width: 110,
+      sortable: false,
+      renderCell: (params) => (
+        <AdminGridImageThumb
+          src={
+            params.row.monumentImage
+              ? `${process.env.NEXT_PUBLIC_IMAGE_URL}cities/${params.row.monumentImage}`
+              : null
+          }
+          alt={params.row.monumentName || `${params.row.cityName || "City"} monument`}
+        />
+      ),
+    },
     { field: "stateName", headerName: "State", flex: 1, minWidth: 120 },
     {
       field: "isActive",
@@ -422,4 +438,5 @@ export default function City({ list, stateList }) {
     </div>
   );
 }
+
 

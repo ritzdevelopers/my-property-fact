@@ -21,7 +21,6 @@ import {
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
-import VaastuStripSection from "./vaastu-strip/VaastuStripSection";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {

@@ -673,6 +673,7 @@ module.exports = {
       if (res.ok) {
         cities = coerceArray(await res.json());
         for (const c of cities) {
+          if (c?.isActive === false) continue;
           const slug = toPathSlug(c?.slugURL || c?.slugUrl);
           if (slug) pushLoc(`/city/${slug}`);
         }

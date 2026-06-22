@@ -13,6 +13,8 @@ const HIDE_PREFIXES = [
   "/admin",
   "/portal",
   "/projects",
+  "/city",
+  "/builder",
   // Internal listing hub pages (footer links)
   "/apartments-in-",
   "/flats-in-",

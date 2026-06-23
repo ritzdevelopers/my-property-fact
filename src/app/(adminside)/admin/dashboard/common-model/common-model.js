@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 
-export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHeadersList }) {
+export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHeadersList, onSuccess }) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -41,6 +41,10 @@ export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHe
         // Call optional callback if provided
         if (fetchAllHeadersList && typeof fetchAllHeadersList === 'function') {
           fetchAllHeadersList();
+        }
+
+        if (onSuccess && typeof onSuccess === "function") {
+          await onSuccess();
         }
         
         router.refresh();

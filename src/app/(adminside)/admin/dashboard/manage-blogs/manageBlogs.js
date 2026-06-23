@@ -100,6 +100,30 @@ function buildPublicUiUrl(pathname) {
   return `${base}${p.startsWith("/") ? "" : "/"}${p}`;
 }
 
+async function refreshBlogSitemap() {
+  try {
+    const token =
+      typeof window !== "undefined" ? Cookies.get("token") : undefined;
+    const response = await fetch("/api/admin/regenerate-blog-sitemaps", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      console.error(
+        "Blog sitemap refresh failed:",
+        payload?.error || response.statusText,
+      );
+    }
+  } catch (error) {
+    console.error("Blog sitemap refresh failed:", error);
+  }
+}
+
 async function fetchImageAsBase64(url) {
   const res = await fetch(url, { mode: "cors" });
   if (!res.ok) throw new Error(`Image fetch ${res.status}`);
@@ -208,6 +232,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           ? "Blog is active and visible on the website"
           : "Blog is inactive and hidden from the website",
       );
+      await refreshBlogSitemap();
       router.refresh();
     } catch (error) {
       toast.error(
@@ -295,6 +320,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         );
 
         if (response.data.isSuccess === 1) {
+          await refreshBlogSitemap();
           router.refresh();
           toast.success(response.data.message);
           setShowModal(false);
@@ -1032,6 +1058,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         confirmBox={confirmBox}
         setConfirmBox={setConfirmBox}
         api={`${getPublicApiBase()}blog/${blogId}`}
+        onSuccess={refreshBlogSitemap}
       />
       <ImageUrlPopup confirmBox={urlPopUp} setConfirmBox={setUrlPopUp} />
 

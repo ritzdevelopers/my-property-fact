@@ -96,6 +96,7 @@ export default function DataTable({
   list,
   columns,
   rowHeight,
+  getRowHeight,
   columnHeaderHeight,
   dataGridSx,
   checkboxSelection = true,
@@ -128,7 +129,7 @@ export default function DataTable({
     );
   }
 
-  const gridRowHeight = rowHeight ?? 56;
+  const gridRowHeight = getRowHeight ? undefined : (rowHeight ?? 56);
   const headerH = columnHeaderHeight ?? 48;
 
   return (
@@ -144,6 +145,7 @@ export default function DataTable({
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[10, 15, 20, 50]}
           rowHeight={gridRowHeight}
+          getRowHeight={getRowHeight}
           columnHeaderHeight={headerH}
           disableRowSelectionOnClick
           checkboxSelection={checkboxSelection}

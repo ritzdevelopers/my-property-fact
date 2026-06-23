@@ -19,17 +19,22 @@ import {
 } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 import exportOverlayStyles from "./manageBlogsExportOverlay.module.css";
+import gridStyles from "./manageBlogsGrid.module.css";
 import {
   AdminFilterCount,
   AdminSummaryFilterCards,
   AdminStatusToggle,
+  ContentStatusPill,
 } from "../common-model/admin-summary-filter-cards";
 import {
   BLOG_STATUS_FILTERS,
   countBlogs,
   filterBlogs,
   getBlogRowClassName,
+  getBlogPublicationState,
+  getBlogStatusLabel,
   isBlogActive,
+  BLOG_STATUS,
 } from "../common-model/adminContentFilters";
 import BlogPreviewModal from "./BlogPreviewModal";
 
@@ -124,6 +129,175 @@ async function refreshBlogSitemap() {
   }
 }
 
+function parseScheduledFields(value) {
+  const d = parseBlogDate(value);
+  if (!d) {
+    return { scheduleDate: "", scheduleHour: "9", scheduleMinute: "00", scheduleAmPm: "AM" };
+  }
+  const hours24 = d.getHours();
+  const ampm = hours24 >= 12 ? "PM" : "AM";
+  let hours12 = hours24 % 12;
+  if (hours12 === 0) hours12 = 12;
+  const pad = (n) => String(n).padStart(2, "0");
+  return {
+    scheduleDate: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+    scheduleHour: String(hours12),
+    scheduleMinute: pad(d.getMinutes()),
+    scheduleAmPm: ampm,
+  };
+}
+
+function buildScheduledIso(date, hour, minute, ampm) {
+  if (!date || hour === "" || minute === "") return "";
+  const rawHour = Number(hour);
+  const rawMinute = Number(minute);
+  if (Number.isNaN(rawHour) || Number.isNaN(rawMinute)) return "";
+  let hours24 = rawHour % 12;
+  if (ampm === "PM") hours24 += 12;
+  if (ampm === "AM" && rawHour === 12) hours24 = 0;
+  if (ampm === "PM" && rawHour === 12) hours24 = 12;
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = `${date}T${pad(hours24)}:${pad(rawMinute)}:00`;
+  const scheduled = new Date(iso);
+  if (Number.isNaN(scheduled.getTime())) return "";
+  if (scheduled.getTime() <= Date.now()) return null;
+  return iso;
+}
+
+function collectBlogFormErrors({
+  mode,
+  formData,
+  scheduleDate,
+  scheduleHour,
+  scheduleMinute,
+  scheduleAmPm,
+}) {
+  const errors = [];
+  const title = String(formData.blogTitle || "").trim();
+  const keywords = String(formData.blogKeywords || "").trim();
+  const meta = String(formData.blogMetaDescription || "").trim();
+  const slug = String(formData.slugUrl || "").trim();
+  const category = formData.blogCategory;
+  const author = String(formData.authorName || "").trim();
+
+  if (!title) errors.push("Meta title is required");
+
+  if (mode === "draft") {
+    if (!slug) errors.push("Slug URL is required");
+  } else {
+    if (!keywords) errors.push("Blog keywords are required");
+    if (!meta) errors.push("Blog meta description is required");
+    if (!category) errors.push("Blog category is required");
+    if (!author) errors.push("Author name is required");
+    if (!slug) errors.push("Slug URL is required");
+    if (String(category) === "5" && !Number(formData.cityId)) {
+      errors.push("City is required for the City category");
+    }
+  }
+
+  if (mode === "schedule") {
+    if (!scheduleDate) {
+      errors.push("Schedule date is required");
+    } else {
+      const scheduledPublishAt = buildScheduledIso(
+        scheduleDate,
+        scheduleHour,
+        scheduleMinute,
+        scheduleAmPm,
+      );
+      if (scheduledPublishAt === null) {
+        errors.push("Scheduled time must be in the future");
+      } else if (!scheduledPublishAt) {
+        errors.push("Invalid schedule date or time");
+      }
+    }
+  }
+
+  return errors;
+}
+
+function stripHtmlText(html) {
+  return String(html || "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hasDraftableBlogContent(formData, blogDescription) {
+  if (formData?.blogImage) return true;
+  return [
+    formData?.blogTitle,
+    formData?.blogKeywords,
+    formData?.blogMetaDescription,
+    formData?.slugUrl,
+    formData?.authorName,
+    formData?.blogCategory,
+    stripHtmlText(blogDescription),
+  ].some((value) => String(value ?? "").trim());
+}
+
+function slugifyForAutoDraft(title) {
+  const base = String(title || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  return base || "untitled-draft";
+}
+
+function prepareAutoDraftFields(formData, blogId) {
+  const title = String(formData.blogTitle || "").trim() || "Untitled draft";
+  let slug = String(formData.slugUrl || "").trim();
+  if (!slug) {
+    slug = `${slugifyForAutoDraft(title)}-${Date.now()}`;
+  }
+  return {
+    ...formData,
+    blogTitle: title,
+    blogKeywords: String(formData.blogKeywords || "").trim(),
+    blogMetaDescription: String(formData.blogMetaDescription || "").trim(),
+    slugUrl: slug,
+    id: blogId > 0 ? blogId : 0,
+  };
+}
+
+function createBlogFormSnapshot(formData, blogDescription, currentBlogId) {
+  return JSON.stringify({
+    blogId: currentBlogId,
+    blogTitle: formData.blogTitle || "",
+    blogKeywords: formData.blogKeywords || "",
+    blogMetaDescription: formData.blogMetaDescription || "",
+    slugUrl: formData.slugUrl || "",
+    authorName: formData.authorName || "",
+    blogCategory: formData.blogCategory || "",
+    cityId: formData.cityId || 0,
+    blogDescription: blogDescription || "",
+  });
+}
+
+function buildBlogFormData(payload, blogDescription, status, scheduledPublishAt = "") {
+  const data = new FormData();
+  data.append("blogTitle", payload.blogTitle);
+  data.append("blogKeywords", payload.blogKeywords);
+  data.append("blogMetaDescription", payload.blogMetaDescription);
+  data.append("blogDescription", blogDescription || "");
+  data.append("slugUrl", payload.slugUrl);
+  if (payload.blogImage) {
+    data.append("image", payload.blogImage);
+  }
+  data.append("authorName", payload.authorName || "");
+  data.append("blogCategory", payload.blogCategory);
+  data.append("id", payload.id);
+  data.append("cityId", payload.cityId);
+  data.append("status", String(status));
+  if (scheduledPublishAt) {
+    data.append("scheduledPublishAt", scheduledPublishAt);
+  }
+  return data;
+}
+
 async function fetchImageAsBase64(url) {
   const res = await fetch(url, { mode: "cors" });
   if (!res.ok) throw new Error(`Image fetch ${res.status}`);
@@ -187,9 +361,20 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const excelExportInProgressRef = useRef(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [publishMode, setPublishMode] = useState("publish");
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleHour, setScheduleHour] = useState("9");
+  const [scheduleMinute, setScheduleMinute] = useState("00");
+  const [scheduleAmPm, setScheduleAmPm] = useState("AM");
+  const [publishingBlogIds, setPublishingBlogIds] = useState(() => new Set());
+  const [submittingMode, setSubmittingMode] = useState(null);
   const [blogs, setBlogs] = useState(list || []);
   const [togglingBlogIds, setTogglingBlogIds] = useState(() => new Set());
   const [previewBlog, setPreviewBlog] = useState(null);
+  const blogFormRef = useRef(null);
+  const modalFormSnapshotRef = useRef(null);
+  const skipDraftOnCloseRef = useRef(false);
+  const autoDraftSavingRef = useRef(false);
 
   useEffect(() => {
     setBlogs(Array.isArray(list) ? list : []);
@@ -207,7 +392,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     if (!blogId || togglingBlogIds.has(blogId)) return;
 
     setTogglingBlogIds((prev) => new Set(prev).add(blogId));
-    const nextStatus = makeActive ? 1 : 0;
+    const nextStatus = makeActive ? BLOG_STATUS.PUBLISHED : BLOG_STATUS.INACTIVE;
 
     try {
       const apiBase = getPublicApiBase();
@@ -232,7 +417,9 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           ? "Blog is active and visible on the website"
           : "Blog is inactive and hidden from the website",
       );
-      await refreshBlogSitemap();
+      if (makeActive) {
+        await refreshBlogSitemap();
+      }
       router.refresh();
     } catch (error) {
       toast.error(
@@ -274,91 +461,243 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   };
 
   const [formData, setFormData] = useState(inputFields);
-
-  //Handle submitting blog form
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    if (form.checkValidity() === false) {
-      e.stopPropagation();
-      setValidated(true);
-      return;
+  const authorOptions = useMemo(() => {
+    const currentAuthor = String(formData.authorName || "").trim();
+    if (currentAuthor && !BLOG_AUTHORS.includes(currentAuthor)) {
+      return [currentAuthor, ...BLOG_AUTHORS];
     }
-    if (form.checkValidity() === true) {
-      setShowLoading(true);
-      setButtonName("");
-      if (blogId > 0) {
-        formData.id = blogId;
-      }
-      const data = new FormData();
-      data.append("blogTitle", formData.blogTitle);
-      data.append("blogKeywords", formData.blogKeywords);
-      data.append("blogMetaDescription", formData.blogMetaDescription);
-      data.append("blogDescription", blogDescription);
-      data.append("slugUrl", formData.slugUrl);
-      data.append("image", formData.blogImage);
-      data.append("authorName", formData.authorName || "");
-      data.append("blogCategory", formData.blogCategory);
-      data.append("id", formData.id);
-      data.append("cityId", formData.cityId);
-      data.append("status", String(formData.status ?? 1));
+    return BLOG_AUTHORS;
+  }, [formData.authorName]);
 
+  const resetScheduleFields = () => {
+    setPublishMode("publish");
+    setScheduleDate("");
+    setScheduleHour("9");
+    setScheduleMinute("00");
+    setScheduleAmPm("AM");
+  };
+
+  const resetModalForm = () => {
+    setShowModal(false);
+    setValidated(false);
+    setIsShowCityDropDown(false);
+    setFormData(inputFields);
+    setBlogDescription("");
+    setPreviousBlogImage(null);
+    setBlogId(0);
+    resetScheduleFields();
+    modalFormSnapshotRef.current = null;
+    skipDraftOnCloseRef.current = false;
+  };
+
+  const rememberModalSnapshot = (snapshotFormData, snapshotDescription, snapshotBlogId) => {
+    modalFormSnapshotRef.current = createBlogFormSnapshot(
+      snapshotFormData,
+      snapshotDescription,
+      snapshotBlogId,
+    );
+    skipDraftOnCloseRef.current = false;
+  };
+
+  const isBlogFormDirty = () => {
+    if (formData.blogImage) return true;
+    if (!modalFormSnapshotRef.current) return true;
+    const currentSnapshot = createBlogFormSnapshot(formData, blogDescription, blogId);
+    return currentSnapshot !== modalFormSnapshotRef.current;
+  };
+
+  const shouldAutoSaveDraftOnClose = () => {
+    if (skipDraftOnCloseRef.current || showLoading || autoDraftSavingRef.current) {
+      return false;
+    }
+    if (!hasDraftableBlogContent(formData, blogDescription)) return false;
+    if (!isBlogFormDirty()) return false;
+
+    if (blogId === 0) return true;
+
+    const existing = blogs.find((item) => item.id === blogId);
+    const state = existing ? getBlogPublicationState(existing) : "draft";
+    return state === "draft" || state === "scheduled";
+  };
+
+  const persistBlogRequest = async (data, status) => {
+    const apiBase = getPublicApiBase();
+    const token =
+      typeof window !== "undefined" ? Cookies.get("token") : undefined;
+    const response = await axios.post(`${apiBase}blog/add-update`, data, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    return { response, status };
+  };
+
+  const saveDraftOnClose = async () => {
+    const draftFields = prepareAutoDraftFields(formData, blogId);
+    if (!draftFields.blogCategory && Array.isArray(categoryList) && categoryList.length) {
+      draftFields.blogCategory = categoryList[0].id;
+    }
+    if (!draftFields.blogCategory) {
+      return false;
+    }
+    const data = buildBlogFormData(
+      draftFields,
+      blogDescription,
+      BLOG_STATUS.DRAFT,
+    );
+    const { response } = await persistBlogRequest(data, BLOG_STATUS.DRAFT);
+    return response.data?.isSuccess === 1;
+  };
+
+  const handleModalClose = async () => {
+    if (shouldAutoSaveDraftOnClose()) {
+      autoDraftSavingRef.current = true;
       try {
-        const apiBase = getPublicApiBase();
-        const token =
-          typeof window !== "undefined" ? Cookies.get("token") : undefined;
-        const response = await axios.post(
-          `${apiBase}blog/add-update`,
-          data,
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "multipart/form-data",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-          }
-        );
-
-        if (response.data.isSuccess === 1) {
-          await refreshBlogSitemap();
+        const saved = await saveDraftOnClose();
+        if (saved) {
+          toast.info("Your work was saved as a draft.");
           router.refresh();
-          toast.success(response.data.message);
-          setShowModal(false);
-          setFormData(inputFields);
-          setBlogDescription("");
         } else {
-          toast.error(response.data.message);
+          toast.warning("Could not save draft automatically. Use Save draft before closing.");
         }
       } catch (error) {
-        // Handle error response from backend
-        if (error.response && error.response.data) {
-          const errorData = error.response.data;
-          
-          // Check if it's a validation error with multiple fields
-          if (errorData.errors && typeof errorData.errors === 'object') {
-            // Multiple validation errors
-            const errorMessages = Object.values(errorData.errors).join(', ');
-            toast.error(errorMessages);
-          } else if (errorData.message) {
-            // Single error message
-            toast.error(errorData.message);
-          } else if (errorData.error) {
-            // Error object with 'error' field
-            toast.error(errorData.error);
-          } else {
-            // Fallback to status text or generic message
-            toast.error(error.response.statusText || "An error occurred");
-          }
-        } else if (error.message) {
-          // Network or other axios errors
-          toast.error(error.message);
-        } else {
-          toast.error("An unexpected error occurred");
-        }
+        toast.warning(
+          error.response?.data?.message ||
+            error.response?.data?.error ||
+            "Could not save draft automatically.",
+        );
       } finally {
-        setShowLoading(false);
-        setButtonName("Add Blog");
+        autoDraftSavingRef.current = false;
       }
+    }
+    resetModalForm();
+  };
+
+  const handlePublishNow = async (blog) => {
+    const blogIdToPublish = blog?.id;
+    if (!blogIdToPublish || publishingBlogIds.has(blogIdToPublish)) return;
+
+    setPublishingBlogIds((prev) => new Set(prev).add(blogIdToPublish));
+    try {
+      const apiBase = getPublicApiBase();
+      const response = await axios.post(
+        `${apiBase}blog/publish?id=${blogIdToPublish}`,
+        {},
+        apiWithAuth(),
+      );
+
+      if (response.data?.isSuccess !== 1) {
+        toast.error(response.data?.message || "Could not publish blog");
+        return;
+      }
+
+      setBlogs((prev) =>
+        prev.map((item) =>
+          item.id === blogIdToPublish
+            ? { ...item, status: BLOG_STATUS.PUBLISHED, scheduledPublishAt: null }
+            : item,
+        ),
+      );
+      toast.success(response.data?.message || "Blog published successfully.");
+      await refreshBlogSitemap();
+      router.refresh();
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to publish blog",
+      );
+    } finally {
+      setPublishingBlogIds((prev) => {
+        const next = new Set(prev);
+        next.delete(blogIdToPublish);
+        return next;
+      });
+    }
+  };
+
+  const submitBlog = async (mode = "publish") => {
+    const errors = collectBlogFormErrors({
+      mode,
+      formData,
+      scheduleDate,
+      scheduleHour,
+      scheduleMinute,
+      scheduleAmPm,
+    });
+
+    if (errors.length > 0) {
+      setValidated(true);
+      toast.error(errors[0]);
+      blogFormRef.current?.querySelector(":invalid")?.focus?.();
+      return;
+    }
+
+    setPublishMode(mode);
+    setSubmittingMode(mode);
+    setShowLoading(true);
+    setButtonName("");
+
+    let status = BLOG_STATUS.PUBLISHED;
+    let scheduledPublishAt = "";
+
+    if (mode === "draft") {
+      status = BLOG_STATUS.DRAFT;
+    } else if (mode === "schedule") {
+      status = BLOG_STATUS.SCHEDULED;
+      scheduledPublishAt = buildScheduledIso(
+        scheduleDate,
+        scheduleHour,
+        scheduleMinute,
+        scheduleAmPm,
+      );
+    }
+
+    const payload = { ...formData, id: blogId > 0 ? blogId : formData.id };
+    const data = buildBlogFormData(
+      payload,
+      blogDescription,
+      status,
+      scheduledPublishAt,
+    );
+
+    try {
+      const { response } = await persistBlogRequest(data, status);
+
+      if (response.data.isSuccess === 1) {
+        if (status === BLOG_STATUS.PUBLISHED) {
+          await refreshBlogSitemap();
+        }
+        router.refresh();
+        toast.success(response.data.message);
+        skipDraftOnCloseRef.current = true;
+        resetModalForm();
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        const errorData = error.response.data;
+        if (errorData.errors && typeof errorData.errors === "object") {
+          toast.error(Object.values(errorData.errors).join(", "));
+        } else if (errorData.message) {
+          toast.error(errorData.message);
+        } else if (errorData.error) {
+          toast.error(errorData.error);
+        } else {
+          toast.error(error.response.statusText || "An error occurred");
+        }
+      } else if (error.message) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unexpected error occurred");
+      }
+    } finally {
+      setShowLoading(false);
+      setSubmittingMode(null);
+      setButtonName("Add Blog");
     }
   };
 
@@ -388,10 +727,43 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       slugUrl: item.slugUrl,
       authorName: item.authorName || "",
       blogCategory: item.categoryId,
-      status: item.status !== undefined ? item.status : 1,
+      status: item.status !== undefined ? item.status : BLOG_STATUS.PUBLISHED,
       id: item.id,
       cityId: item.cityId,
     });
+
+    const publicationState = getBlogPublicationState(item);
+    if (publicationState === "scheduled") {
+      setPublishMode("schedule");
+      const scheduleFields = parseScheduledFields(item.scheduledPublishAt);
+      setScheduleDate(scheduleFields.scheduleDate);
+      setScheduleHour(scheduleFields.scheduleHour);
+      setScheduleMinute(scheduleFields.scheduleMinute);
+      setScheduleAmPm(scheduleFields.scheduleAmPm);
+    } else if (publicationState === "draft") {
+      setPublishMode("draft");
+      setScheduleDate("");
+      setScheduleHour("9");
+      setScheduleMinute("00");
+      setScheduleAmPm("AM");
+    } else {
+      setPublishMode("publish");
+      resetScheduleFields();
+    }
+
+    rememberModalSnapshot(
+      {
+        blogTitle: item.blogTitle,
+        blogKeywords: item.blogKeywords,
+        blogMetaDescription: item.blogMetaDescription,
+        slugUrl: item.slugUrl,
+        authorName: item.authorName || "",
+        blogCategory: item.categoryId,
+        cityId: item.cityId,
+      },
+      item.blogDescription,
+      item.id,
+    );
   };
 
   //Handle setting input fields values
@@ -428,6 +800,9 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     setBlogDescription("");
     setPreviousBlogImage(null);
     setBlogId(0);
+    setIsShowCityDropDown(false);
+    resetScheduleFields();
+    rememberModalSnapshot(inputFields, "", 0);
   };
 
   //handling opening of image urls popup
@@ -529,7 +904,13 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           b.authorName ?? "",
           b.blogCategory ?? "",
           b.cityName ?? "",
-          b.status === 1 ? "Active" : "Inactive",
+          b.status === BLOG_STATUS.PUBLISHED
+            ? "Published"
+            : b.status === BLOG_STATUS.DRAFT
+              ? "Draft"
+              : b.status === BLOG_STATUS.SCHEDULED
+                ? "Scheduled"
+                : "Inactive",
           b.categoryId ?? "",
           b.cityId ?? "",
           publishedStr,
@@ -657,16 +1038,49 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     {
       field: "status",
       headerName: "Status",
-      width: 150,
+      width: 240,
       sortable: false,
+      cellClassName: "blog-status-cell",
       renderCell: (params) => {
+        const state = getBlogPublicationState(params.row);
+        const busyToggle = togglingBlogIds.has(params.row.id);
+        const busyPublish = publishingBlogIds.has(params.row.id);
+
+        if (state === "draft" || state === "scheduled") {
+          return (
+            <div className={gridStyles.blogGridStatus}>
+              <ContentStatusPill
+                variant={state === "scheduled" ? "pending" : "unverified"}
+              >
+                {getBlogStatusLabel(params.row)}
+              </ContentStatusPill>
+              {state === "scheduled" && params.row.scheduledPublishAt ? (
+                <span className={gridStyles.blogGridStatusWhen}>
+                  {formatPublishedDateTime(params.row.scheduledPublishAt)}
+                </span>
+              ) : null}
+              <Button
+                size="sm"
+                variant="success"
+                className={gridStyles.blogGridPublishBtn}
+                disabled={busyPublish}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePublishNow(params.row);
+                }}
+              >
+                {busyPublish ? "Publishing..." : "Publish now"}
+              </Button>
+            </div>
+          );
+        }
+
         const active = isBlogActive(params.row);
-        const busy = togglingBlogIds.has(params.row.id);
         return (
           <AdminStatusToggle
             id={`blog-status-${params.row.id}`}
             checked={active}
-            disabled={busy}
+            disabled={busyToggle}
             onChange={(checked) => handleToggleBlogStatus(params.row, checked)}
             activeLabel="Active"
             inactiveLabel="Inactive"
@@ -865,7 +1279,23 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           columns={columns}
           list={filteredBlogList}
           getRowClassName={getBlogRowClassName}
+          getRowHeight={(params) => {
+            const state = getBlogPublicationState(params.model);
+            return state === "draft" || state === "scheduled" ? 96 : 56;
+          }}
           dataGridSx={{
+            "& .blog-status-cell": {
+              whiteSpace: "normal",
+              overflow: "visible",
+              alignItems: "flex-start",
+              py: 0.75,
+            },
+            "& .MuiDataGrid-row.mu-row--pending .MuiDataGrid-cell": {
+              alignItems: "flex-start",
+            },
+            "& .MuiDataGrid-row.mu-row--unverified .MuiDataGrid-cell": {
+              alignItems: "flex-start",
+            },
             "& .MuiDataGrid-row.mu-row--disabled .MuiDataGrid-cell": {
               color: "#6b7280",
             },
@@ -874,6 +1304,9 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
             },
             "& .MuiDataGrid-row.mu-row--unverified .MuiDataGrid-cell:first-of-type": {
               boxShadow: "inset 3px 0 0 #3b82f6",
+            },
+            "& .MuiDataGrid-row.mu-row--pending .MuiDataGrid-cell:first-of-type": {
+              boxShadow: "inset 3px 0 0 #f59e0b",
             },
             "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
               boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
@@ -885,7 +1318,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       <Modal
         size="xl"
         show={showModal}
-        onHide={() => setShowModal(false)}
+        onHide={handleModalClose}
         centered
         enforceFocus={false}
       >
@@ -893,7 +1326,13 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
+          <Form
+            ref={blogFormRef}
+            id="blog-admin-form"
+            noValidate
+            validated={validated}
+            onSubmit={(e) => e.preventDefault()}
+          >
             <Row className="mb-3">
               <Form.Group as={Col} md="6" controlId="blogTitle">
                 <Form.Label>Meta Title</Form.Label>
@@ -959,10 +1398,9 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                   name="authorName"
                   value={formData.authorName || ""}
                   onChange={handleChange}
-                  required
                 >
                   <option value="">Select author</option>
-                  {BLOG_AUTHORS.map((name) => (
+                  {authorOptions.map((name) => (
                     <option key={name} value={name}>
                       {name}
                     </option>
@@ -1001,7 +1439,6 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                     name="cityId"
                     value={formData.cityId || ""}
                     onChange={handleChange}
-                    required
                   >
                     <option value="">Select city</option>
                     {cityList.map((item, index) => (
@@ -1027,30 +1464,133 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                 />
                 <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
               </Form.Group>
-              <Form.Group as={Col} md="6" controlId="blogImage">
+              <Form.Group as={Col} md="6" controlId="blogImageUrls">
                 <Form.Label>Blog Image</Form.Label>
                 <br />
                 <Button onClick={openImageUrlPopup}>Open Image urls</Button>
               </Form.Group>
             </Row>
             <Row className="mb-3">
-              {/* <Form.Group className="mb-3" controlId="writeBlogDescription"> */}
               <Form.Label>Write blog description</Form.Label>
-              {/* <JoditEditor
-                                    ref={editor}
-                                    value={blogDescription}
-                                    onChange={(newcontent) => setBlogDescription(newcontent)}
-                                /> */}
               <Editor value={blogDescription} onChange={setBlogDescription} />
-              {/* </Form.Group> */}
             </Row>
-            <Button
-              className="btn btn-success"
-              type="submit"
-              disabled={showLoading}
-            >
-              {buttonName} <LoadingSpinner show={showLoading} />
-            </Button>
+
+            <Row className="mb-3">
+              <Form.Group as={Col} md="12">
+                <Form.Label>Publication</Form.Label>
+                <div className={gridStyles.publicationPanel}>
+                  <div className={gridStyles.publicationRadios}>
+                    <Form.Check
+                      type="radio"
+                      id="publish-mode-now"
+                      name="publishMode"
+                      label="Publish now"
+                      checked={publishMode === "publish"}
+                      onChange={() => setPublishMode("publish")}
+                    />
+                    <Form.Check
+                      type="radio"
+                      id="publish-mode-draft"
+                      name="publishMode"
+                      label="Save as draft"
+                      checked={publishMode === "draft"}
+                      onChange={() => setPublishMode("draft")}
+                    />
+                    <Form.Check
+                      type="radio"
+                      id="publish-mode-schedule"
+                      name="publishMode"
+                      label="Schedule post"
+                      checked={publishMode === "schedule"}
+                      onChange={() => setPublishMode("schedule")}
+                    />
+                  </div>
+
+                  {publishMode === "schedule" && (
+                    <Row className={`mb-0 ${gridStyles.scheduleFields}`}>
+                      <Form.Group as={Col} md="3">
+                        <Form.Label>Schedule date</Form.Label>
+                        <Form.Control
+                          type="date"
+                          value={scheduleDate}
+                          min={new Date().toISOString().slice(0, 10)}
+                          onChange={(e) => setScheduleDate(e.target.value)}
+                        />
+                      </Form.Group>
+                      <Form.Group as={Col} md="3">
+                        <Form.Label>Hour</Form.Label>
+                        <Form.Select
+                          value={scheduleHour}
+                          onChange={(e) => setScheduleHour(e.target.value)}
+                        >
+                          {Array.from({ length: 12 }, (_, index) => {
+                            const hour = String(index + 1);
+                            return (
+                              <option key={hour} value={hour}>
+                                {hour}
+                              </option>
+                            );
+                          })}
+                        </Form.Select>
+                      </Form.Group>
+                      <Form.Group as={Col} md="3">
+                        <Form.Label>Minute</Form.Label>
+                        <Form.Select
+                          value={scheduleMinute}
+                          onChange={(e) => setScheduleMinute(e.target.value)}
+                        >
+                          {["00", "15", "30", "45"].map((minute) => (
+                            <option key={minute} value={minute}>
+                              {minute}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </Form.Group>
+                      <Form.Group as={Col} md="3">
+                        <Form.Label>AM / PM</Form.Label>
+                        <Form.Select
+                          value={scheduleAmPm}
+                          onChange={(e) => setScheduleAmPm(e.target.value)}
+                        >
+                          <option value="AM">AM</option>
+                          <option value="PM">PM</option>
+                        </Form.Select>
+                      </Form.Group>
+                    </Row>
+                  )}
+
+                  <div className={gridStyles.publicationActions}>
+                    <Button
+                      className="btn btn-success"
+                      type="button"
+                      disabled={showLoading}
+                      onClick={() => submitBlog("publish")}
+                    >
+                      Publish now{" "}
+                      <LoadingSpinner show={showLoading && submittingMode === "publish"} />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      disabled={showLoading}
+                      onClick={() => submitBlog("draft")}
+                    >
+                      Save draft{" "}
+                      <LoadingSpinner show={showLoading && submittingMode === "draft"} />
+                    </Button>
+                    <Button
+                      variant="outline-primary"
+                      type="button"
+                      disabled={showLoading}
+                      onClick={() => submitBlog("schedule")}
+                    >
+                      Schedule post{" "}
+                      <LoadingSpinner show={showLoading && submittingMode === "schedule"} />
+                    </Button>
+                  </div>
+                </div>
+              </Form.Group>
+            </Row>
           </Form>
         </Modal.Body>
       </Modal>

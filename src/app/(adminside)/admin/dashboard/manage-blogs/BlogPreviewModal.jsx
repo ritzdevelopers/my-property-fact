@@ -18,6 +18,11 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import styles from "./BlogPreviewModal.module.css";
+import {
+  getBlogPublicationState,
+  getBlogStatusLabel,
+  isBlogActive,
+} from "../common-model/adminContentFilters";
 
 /* ─── helpers (same logic as the live blogpage.js) ─── */
 function demoteH1(html) {
@@ -109,7 +114,9 @@ export default function BlogPreviewModal({ blog, onClose }) {
   const rawHtml = demoteH1(blog?.blogDescription || "");
   const { html: processedHtml, toc } = buildToc(rawHtml);
   const mins = readingTime(rawHtml);
-  const isActive = blog?.status === 1 || blog?.status === "1";
+  const publicationState = getBlogPublicationState(blog);
+  const isActive = isBlogActive(blog);
+  const statusLabel = getBlogStatusLabel(blog);
   const liveUrl = blog?.slugUrl ? `/blog/${blog.slugUrl}` : null;
   const heroSrc = blog?.blogImage ? `${imageBase}blog/${blog.blogImage}` : null;
 
@@ -158,9 +165,11 @@ export default function BlogPreviewModal({ blog, onClose }) {
             </span>
             <span className={`${styles.barBadge} ${isActive ? styles.barBadgeActive : styles.barBadgeDraft}`}>
               {isActive ? (
-                <><CheckCircle2 size={11} /> Published</>
+                <><CheckCircle2 size={11} /> {statusLabel}</>
+              ) : publicationState === "scheduled" ? (
+                <><Clock size={11} /> {statusLabel}{blog?.scheduledPublishAt ? ` · ${formatDate(blog.scheduledPublishAt)}` : ""}</>
               ) : (
-                <><AlertCircle size={11} /> Draft / Inactive</>
+                <><AlertCircle size={11} /> {statusLabel}</>
               )}
             </span>
           </div>

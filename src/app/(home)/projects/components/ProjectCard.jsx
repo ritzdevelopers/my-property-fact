@@ -114,15 +114,14 @@ export default function ProjectCard({ project, imagePriority = false }) {
   const hasProjectImage = Boolean(project.projectThumbnailImage || project.projectBannerImage) && !imageError;
   const imageSrc = hasProjectImage ? buildProjectImageUrl(project, { preferThumbnail: true }) : DEFAULT_PROJECT_CARD_IMAGE;
 
-  const formatPriceRange = (price) => {
-    if (!price) return "Price on Request";
-    if (/[a-zA-Z]/.test(price)) return price;
-    const numPrice = parseFloat(price);
-    if (numPrice < 1) {
-      const lakh = Math.round(numPrice * 100);
-      return `₹ ${lakh} Lakh - ${lakh + 50} Lakh`;
-    }
-    return `₹ ${numPrice} - ${(numPrice + 2).toFixed(2)} Cr`;
+  const formatProjectPrice = (price) => {
+    if (price == null || price === "") return "Price on Request";
+    if (/[a-zA-Z]/.test(String(price))) return String(price);
+    const num = parseFloat(price);
+    if (!Number.isFinite(num)) return "Price on Request";
+    return num < 1
+      ? `₹ ${Math.round(num * 100)} Lakh* Onwards`
+      : `₹ ${num} Cr* Onwards`;
   };
 
   const formatAddress = (address, city) => {
@@ -200,7 +199,7 @@ export default function ProjectCard({ project, imagePriority = false }) {
             
             <div className="mpf-listing-price-row">
               <span className="mpf-listing-price">
-                {formatPriceRange(project.projectPrice)}
+                {formatProjectPrice(project.projectPrice)}
               </span>
             </div>
 

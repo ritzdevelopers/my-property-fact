@@ -145,10 +145,10 @@ export default function City({ list, stateList }) {
       width: 110,
       cellClassName: "centered-cell",
       renderCell: (params) => {
-        const src = buildCityMonumentImageUrl(params.row.monumentImage);
-        if (!params.row.monumentImage || src.includes("realestate-bg")) {
+        if (!params.row.monumentImage) {
           return <span className="text-muted small">—</span>;
         }
+        const src = buildCityMonumentImageUrl(params.row.monumentImage);
         return (
           // eslint-disable-next-line @next/next/no-img-element
           <img

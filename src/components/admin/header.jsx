@@ -18,7 +18,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import {
   Search,
-  Bell,
   Sun,
   Moon,
   Menu,
@@ -29,6 +28,7 @@ import {
   ChevronDown,
   Sparkles,
 } from "lucide-react";
+import { AdminNotifications } from "./admin-notifications";
 
 export function AdminHeader({
   user,
@@ -145,68 +145,13 @@ export function AdminHeader({
           <span className="sr-only">Toggle theme</span>
         </Button>
 
-        {/* Notifications */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
-                3
-              </span>
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel className="flex items-center justify-between">
-              Notifications
-              <Badge variant="secondary" className="text-xs">
-                3 new
-              </Badge>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <div className="max-h-[300px] overflow-auto">
-              <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="font-medium text-sm">New property pending</span>
-                </div>
-                <p className="text-xs text-muted-foreground pl-4">
-                  DLF Camellias requires approval
-                </p>
-                <span className="text-xs text-muted-foreground pl-4">2 min ago</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
-                  <span className="font-medium text-sm">New enquiry received</span>
-                </div>
-                <p className="text-xs text-muted-foreground pl-4">
-                  3 new enquiries for Sobha Forest Edge
-                </p>
-                <span className="text-xs text-muted-foreground pl-4">15 min ago</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex flex-col items-start gap-1 p-3 cursor-pointer">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-success" />
-                  <span className="font-medium text-sm">Blog published</span>
-                </div>
-                <p className="text-xs text-muted-foreground pl-4">
-                  &quot;Top 10 Properties in Gurgaon&quot; is now live
-                </p>
-                <span className="text-xs text-muted-foreground pl-4">1 hour ago</span>
-              </DropdownMenuItem>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="justify-center text-primary cursor-pointer">
-              View all notifications
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Notifications (Super Admin — live feed) */}
+        <AdminNotifications />
 
         <Separator orientation="vertical" className="h-6 hidden sm:block" />
 
         {/* User menu */}
-        <DropdownMenu>
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
@@ -229,7 +174,7 @@ export function AdminHeader({
               <ChevronDown className="h-4 w-4 text-muted-foreground hidden md:block" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56" sideOffset={8} collisionPadding={12}>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">

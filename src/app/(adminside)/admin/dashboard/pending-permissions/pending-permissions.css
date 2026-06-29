@@ -1,0 +1,95 @@
+.pending-permissions-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.pending-permissions-page__intro {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: hsl(152 10% 38%);
+}
+
+.pending-permissions-section {
+  border: 1px solid rgba(15, 81, 50, 0.08);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 81, 50, 0.04);
+  overflow: hidden;
+}
+
+.pending-permissions-section__head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(15, 81, 50, 0.08);
+  background: hsl(150 20% 98%);
+}
+
+.pending-permissions-section__title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: hsl(152 40% 12%);
+}
+
+.pending-permissions-section__desc {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: hsl(152 10% 38%);
+}
+
+.pending-permissions-section__body {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.pending-permissions-empty {
+  margin: 0;
+  font-size: 0.875rem;
+  color: hsl(152 10% 42%);
+}
+
+.pending-permissions-table-wrap {
+  overflow-x: auto;
+}
+
+.pending-permissions-table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.pending-permissions-table th,
+.pending-permissions-table td {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid hsl(150 12% 90%);
+  text-align: left;
+  vertical-align: middle;
+  color: hsl(152 30% 18%);
+}
+
+.pending-permissions-table th {
+  background: hsl(150 20% 97%);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: hsl(152 15% 35%);
+}
+
+.pending-permissions-table tbody tr:hover {
+  background: hsl(150 25% 98%);
+}
+
+.pending-permissions-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.pending-permissions-loading {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+}

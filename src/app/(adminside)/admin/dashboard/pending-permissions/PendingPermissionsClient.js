@@ -9,6 +9,7 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import { useAdminConfirm } from "../../_contexts/AdminConfirmContext";
 import { useRouter } from "next/navigation";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import "./pending-permissions.css";
 
 function apiWithAuth() {
   return {
@@ -209,127 +210,142 @@ export default function PendingPermissionsClient() {
 
   if (loading) {
     return (
-      <div className="container-fluid py-5 text-center">
+      <div className="pending-permissions-loading">
         <Spinner animation="border" role="status" variant="success" />
       </div>
     );
   }
 
   return (
-    <div className="container-fluid">
-      <DashboardHeader heading="Pending permissions" />
-      <p className="text-muted mb-4">
+    <div className="pending-permissions-page">
+      <DashboardHeader heading="Pending permissions" pageStyle="executivePlain" />
+      <p className="pending-permissions-page__intro">
         Review portal registrations awaiting Super Administrator activation,
         staff who requested Admin from registration, and password change requests from the admin
         login screen. You can approve, edit, or reject.
       </p>
 
-      <h5 className="mb-3">Portal registrations</h5>
-      <p className="text-muted small mb-3">
-        Accounts created via the admin signup page that still need activation (User-only or Admin).
-      </p>
-      {adminRows.length === 0 ? (
-        <p className="text-muted mb-5">No pending portal registrations.</p>
-      ) : (
-        <div className="table-responsive mb-5">
-          <table className="table table-bordered align-middle bg-white">
-            <thead className="table-light">
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Dashboard username</th>
-                <th style={{ width: 220 }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {adminRows.map((u) => (
-                <tr key={u.id}>
-                  <td>{u.fullName || "—"}</td>
-                  <td>{u.email || "—"}</td>
-                  <td>{u.dashboardUsername || "—"}</td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant="success"
-                      className="me-2"
-                      onClick={() => approveAdmin(u.id)}
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline-danger"
-                      onClick={() => openRejectPortalModal(u)}
-                    >
-                      Reject
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="pending-permissions-section" aria-labelledby="portal-registrations-heading">
+        <div className="pending-permissions-section__head">
+          <h2 id="portal-registrations-heading" className="pending-permissions-section__title">
+            Portal registrations
+          </h2>
+          <p className="pending-permissions-section__desc">
+            Accounts created via the admin signup page that still need activation (User-only or Admin).
+          </p>
         </div>
-      )}
+        <div className="pending-permissions-section__body">
+          {adminRows.length === 0 ? (
+            <p className="pending-permissions-empty">No pending portal registrations.</p>
+          ) : (
+            <div className="pending-permissions-table-wrap">
+              <table className="pending-permissions-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Dashboard username</th>
+                    <th style={{ width: 220 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminRows.map((u) => (
+                    <tr key={u.id}>
+                      <td>{u.fullName || "—"}</td>
+                      <td>{u.email || "—"}</td>
+                      <td>{u.dashboardUsername || "—"}</td>
+                      <td>
+                        <div className="pending-permissions-actions">
+                          <Button
+                            size="sm"
+                            variant="success"
+                            onClick={() => approveAdmin(u.id)}
+                          >
+                            Approve
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => openRejectPortalModal(u)}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
 
-      <h5 className="mb-3">Password change request</h5>
-      <p className="text-muted small mb-3">
-        An existing admin proposed a new password from &ldquo;Forgot
-        password&rdquo; on the login page. Approve to apply their hash, use
-        &ldquo;Edit &amp; apply&rdquo; to set a different password, or reject.
-      </p>
-      {passwordRows.length === 0 ? (
-        <p className="text-muted">No pending password change requests.</p>
-      ) : (
-        <div className="table-responsive">
-          <table className="table table-bordered align-middle bg-white">
-            <thead className="table-light">
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Dashboard username</th>
-                <th>Requested</th>
-                <th style={{ minWidth: 280 }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {passwordRows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.fullName || "—"}</td>
-                  <td>{row.email || "—"}</td>
-                  <td>{row.dashboardUsername || "—"}</td>
-                  <td>{formatWhen(row.requestedAt)}</td>
-                  <td>
-                    <Button
-                      size="sm"
-                      variant="success"
-                      className="me-1 mb-1"
-                      onClick={() => approvePasswordAsSubmitted(row.id)}
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      className="me-1 mb-1"
-                      onClick={() => openEditModal(row.id)}
-                    >
-                      Edit &amp; apply
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline-danger"
-                      className="mb-1"
-                      onClick={() => rejectPassword(row.id)}
-                    >
-                      Reject
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <section className="pending-permissions-section" aria-labelledby="password-requests-heading">
+        <div className="pending-permissions-section__head">
+          <h2 id="password-requests-heading" className="pending-permissions-section__title">
+            Password change requests
+          </h2>
+          <p className="pending-permissions-section__desc">
+            An existing admin proposed a new password from &ldquo;Forgot password&rdquo; on the login page.
+            Approve to apply their hash, use &ldquo;Edit &amp; apply&rdquo; to set a different password, or reject.
+          </p>
         </div>
-      )}
+        <div className="pending-permissions-section__body">
+          {passwordRows.length === 0 ? (
+            <p className="pending-permissions-empty">No pending password change requests.</p>
+          ) : (
+            <div className="pending-permissions-table-wrap">
+              <table className="pending-permissions-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Dashboard username</th>
+                    <th>Requested</th>
+                    <th style={{ minWidth: 280 }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {passwordRows.map((row) => (
+                    <tr key={row.id}>
+                      <td>{row.fullName || "—"}</td>
+                      <td>{row.email || "—"}</td>
+                      <td>{row.dashboardUsername || "—"}</td>
+                      <td>{formatWhen(row.requestedAt)}</td>
+                      <td>
+                        <div className="pending-permissions-actions">
+                          <Button
+                            size="sm"
+                            variant="success"
+                            onClick={() => approvePasswordAsSubmitted(row.id)}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="primary"
+                            onClick={() => openEditModal(row.id)}
+                          >
+                            Edit &amp; apply
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline-danger"
+                            onClick={() => rejectPassword(row.id)}
+                          >
+                            Reject
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </section>
 
       <Modal
         show={!!rejectPortalUser}
@@ -359,7 +375,7 @@ export default function PendingPermissionsClient() {
                   {rejectPortalUser.fullName || "—"}
                 </div>
                 <div className="text-break">{rejectPortalUser.email || "—"}</div>
-                <div className="text-muted mt-1">
+                <div className="pending-permissions-section__desc mt-1">
                   Dashboard user: {rejectPortalUser.dashboardUsername || "—"}
                 </div>
               </div>
@@ -389,7 +405,7 @@ export default function PendingPermissionsClient() {
           <Modal.Title>Set password for this account</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="small text-muted">
+          <p className="pending-permissions-section__desc">
             This replaces the proposed password from the request. Minimum 8 characters.
           </p>
           <label className="form-label" htmlFor="superadmin-edit-pw">

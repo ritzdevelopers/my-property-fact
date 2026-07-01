@@ -377,6 +377,30 @@ export function projectHasOfficeOrShopConfiguration(projectConfiguration) {
   });
 }
 
+function projectHasCommercialConfiguration(projectConfiguration) {
+  return extractTypesFromProjectConfiguration(projectConfiguration).some((type) => {
+    const norm = normalizeListingConfigType(type);
+    return (
+      norm === "office" ||
+      norm === "offices" ||
+      norm === "shop" ||
+      norm === "shops" ||
+      norm === "kiosk" ||
+      norm === "kiosks" ||
+      norm === "food court" ||
+      norm === "food courts" ||
+      norm === "restaurant" ||
+      norm === "restaurants" ||
+      norm === "showroom" ||
+      norm === "showrooms" ||
+      norm === "plot" ||
+      norm === "plots" ||
+      norm === "sco plots" ||
+      norm === "sco plot"
+    );
+  });
+}
+
 /** Hub pages above the footer: category + city, not floor-plan shape. */
 export function projectMatchesListingHubCategory(project, hubKey) {
   const propType = String(project?.propertyTypeName || "").toLowerCase();
@@ -389,11 +413,13 @@ export function projectMatchesListingHubCategory(project, hubKey) {
     case "newProjects":
       return status === "new launched";
     case "commercial":
-      return propType === "commercial";
+      // The listing API sometimes has inconsistent propertyTypeName values for
+      // clearly-commercial configurations (e.g. Offices/Shops marked Residential).
+      return propType === "commercial" || projectHasCommercialConfiguration(project?.projectConfiguration);
     case "offices-and-shop":
       return (
-        propType === "commercial" &&
-        projectHasOfficeOrShopConfiguration(project?.projectConfiguration)
+        projectHasOfficeOrShopConfiguration(project?.projectConfiguration) ||
+        (propType === "commercial" && projectHasCommercialConfiguration(project?.projectConfiguration))
       );
     default:
       return false;

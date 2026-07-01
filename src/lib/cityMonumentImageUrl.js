@@ -13,3 +13,22 @@ export function buildCityMonumentImageUrl(filename) {
 
   return `${base}cities/${encodeURIComponent(name)}`;
 }
+
+export function sanitizeCityDescriptionHtml(html, cityName = "") {
+  if (!html) return html;
+
+  let out = String(html);
+  const city = String(cityName || "").trim();
+
+  if (city) {
+    const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    out = out.replace(
+      new RegExp(`<h[12][^>]*>\\s*About\\s+${escapedCity}\\s*<\\/h[12]>`, "gi"),
+      "",
+    );
+  }
+
+  out = out.replace(/<h[12][^>]*>\s*About\s+[^<]+\s*<\/h[12]>/gi, "");
+
+  return out.trim();
+}

@@ -25,6 +25,11 @@
   background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%);
 }
 
+.header.projects-header {
+  background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 .conditional-header {
   background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%) !important;
 }
@@ -38,6 +43,10 @@
 }
 
 .fixed-header.properties-header {
+  background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%);
+}
+
+.fixed-header.projects-header {
   background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%);
 }
 
@@ -75,7 +84,15 @@
   color: #fff !important;
 }
 
+.fixed-header.projects-header .header-links a {
+  color: #fff !important;
+}
+
 .fixed-header.properties-header .header-links .header-nav-dropdown-trigger {
+  color: #fff !important;
+}
+
+.fixed-header.projects-header .header-links .header-nav-dropdown-trigger {
   color: #fff !important;
 }
 

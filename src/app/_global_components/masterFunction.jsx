@@ -348,6 +348,7 @@ export async function isKnownCitySlug(citySlug) {
     if (!canonical) return false;
     const cities = await fetchCityData();
     return cities.some((item) => {
+      if (item.isActive === false) return false;
       const itemSlug = item.slugURL
         ? resolveCitySlug(item.slugURL)
         : resolveCitySlug(item.cityName.toLowerCase().replace(/\s+/g, "-"));

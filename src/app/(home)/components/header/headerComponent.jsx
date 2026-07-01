@@ -80,7 +80,15 @@ const HeaderComponent = () => {
   // Check if the pathname starts with /city/
   const isCityRoute = pathname.startsWith("/city");
   const isBuilderRoute = pathname.startsWith("/builder");
-  const isProjectTypeRoute = pathname.startsWith("/projects");
+  const isProjectTypeRoute =
+    pathname.startsWith("/projects") ||
+    // Any internal listing URL like /food-court-in-delhi, /3-bhk-in-noida, etc.
+    pathname.includes("-in-") ||
+    pathname.startsWith("/apartments-in-") ||
+    pathname.startsWith("/flats-in-") ||
+    pathname.startsWith("/new-projects-in-") ||
+    pathname.startsWith("/commercial-property-in-") ||
+    pathname.startsWith("/offices-and-shop-in-");
   const isBlogTypeRoute = pathname.startsWith("/blog");
   const isPropertiesRoute = pathname === "/properties";
   const isHomePage = pathname === "/";
@@ -441,7 +449,7 @@ const HeaderComponent = () => {
     <>
       <div
         className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isScrolled ? "fixed-header" : ""
-          } ${isPropertiesRoute ? "properties-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
+          } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
         <div className="container d-flex justify-content-between align-items-center">
           <div className="mpf-logo d-flex align-items-center gap-4">

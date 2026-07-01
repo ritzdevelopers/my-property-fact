@@ -386,6 +386,11 @@
 
   .city-showcase {
     position: static;
+    order: -1;
+  }
+
+  .city-projects-panel {
+    order: 1;
   }
 
   .city-showcase__panel {

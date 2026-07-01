@@ -48,10 +48,16 @@
 }
 
 .city-page-redesign__split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  display: flex;
+  flex-wrap: nowrap;
   gap: 24px;
-  align-items: start;
+  align-items: flex-start;
+}
+
+.city-page-redesign__split > .city-projects-panel,
+.city-page-redesign__split > .city-showcase {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 /* Left — Projects */
@@ -82,12 +88,15 @@
 }
 
 .city-projects-panel__grid {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
+  align-items: stretch;
 }
 
 .city-projects-panel__grid .mpf-listing-card {
+  flex: 1 1 100%;
+  max-width: 100%;
   height: 100%;
 }
 
@@ -138,8 +147,8 @@
 
 /* Top card — image left, city name right */
 .city-showcase__hero-card {
-  display: grid;
-  grid-template-columns: minmax(120px, 42%) 1fr;
+  display: flex;
+  align-items: stretch;
   gap: 12px;
   min-height: 140px;
   padding: 14px 14px 0;
@@ -148,6 +157,8 @@
 
 .city-showcase__hero-image {
   position: relative;
+  flex: 0 0 42%;
+  max-width: 42%;
   min-height: 140px;
   overflow: hidden;
   background: #e8eef0;
@@ -180,9 +191,11 @@
 
 .city-showcase__hero-info {
   display: flex;
+  flex: 1;
   flex-direction: column;
   justify-content: center;
   gap: 4px;
+  min-width: 0;
   padding: 4px 4px 4px 0;
   background: #ffffff;
 }
@@ -379,9 +392,24 @@
 
 /* Tablet */
 @media (max-width: 1100px) {
+  .city-page-redesign__body {
+    padding-top: 12px;
+  }
+
+  .city-page-redesign__header {
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+  }
+
   .city-page-redesign__split {
-    grid-template-columns: 1fr;
-    gap: 28px;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .city-page-redesign__split > .city-projects-panel,
+  .city-page-redesign__split > .city-showcase {
+    flex: 1 1 auto;
+    width: 100%;
   }
 
   .city-showcase {
@@ -395,11 +423,98 @@
 
   .city-showcase__panel {
     max-height: none;
+    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.07);
+  }
+
+  .city-showcase__hero-card {
+    min-height: 108px;
+    padding: 10px 10px 0;
+    gap: 10px;
+  }
+
+  .city-showcase__hero-image {
+    flex: 0 0 34%;
+    max-width: 34%;
+    min-height: 108px;
+  }
+
+  .city-showcase__image {
+    min-height: 108px;
+  }
+
+  .city-showcase__city-name {
+    font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  }
+
+  .city-showcase__landmark,
+  .city-showcase__state {
+    font-size: 0.75rem;
+  }
+
+  .city-showcase__stats {
+    margin-top: 4px;
+    gap: 4px;
+  }
+
+  .city-showcase__stat {
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+
+  .city-showcase__connector {
+    padding: 2px 0;
+  }
+
+  .city-showcase__connector-line {
+    height: 6px;
+  }
+
+  .city-showcase__connector-arrow {
+    width: 22px;
+    height: 22px;
+  }
+
+  .city-showcase__details {
+    padding: 10px 12px 0;
+  }
+
+  .city-showcase__description-wrap {
+    max-height: 100px;
+    margin-bottom: 8px;
+  }
+
+  .city-showcase__description {
+    font-size: 0.8rem;
+    line-height: 1.55;
+  }
+
+  .city-showcase__cta {
+    padding: 10px 0 12px;
+    margin: 0 -12px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .city-showcase__cta-text {
+    margin-bottom: 8px;
+    font-size: 0.78rem;
+  }
+
+  .city-showcase__cta-btn {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1100px) {
+  .city-projects-panel__grid .mpf-listing-card {
+    flex: 1 1 calc(50% - 7px);
+    max-width: calc(50% - 7px);
   }
 }
 
 /* Mobile */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
   .city-page-redesign__body {
     padding: 16px 14px 36px;
   }
@@ -410,15 +525,19 @@
   }
 
   .city-showcase__hero-card {
-    grid-template-columns: minmax(110px, 38%) 1fr;
-    min-height: 120px;
-    padding: 12px 12px 0;
-    gap: 10px;
+    min-height: 100px;
+    padding: 10px 10px 0;
+    gap: 8px;
   }
 
-  .city-showcase__hero-image,
+  .city-showcase__hero-image {
+    flex: 0 0 32%;
+    max-width: 32%;
+    min-height: 100px;
+  }
+
   .city-showcase__image {
-    min-height: 120px;
+    min-height: 100px;
   }
 
   .city-showcase__hero-info {
@@ -437,5 +556,9 @@
 
   .city-projects-panel__header {
     margin-bottom: 12px;
+  }
+
+  .city-projects-panel__grid {
+    gap: 10px;
   }
 }

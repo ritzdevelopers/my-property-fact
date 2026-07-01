@@ -258,13 +258,11 @@ export default async function HomePage() {
               className="transform-home-image"
              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
-                <h1 className="headgradient headgradient--sparkle">
-                  <span className="headgradient__base">
-                    Find Flats & Property Across India | Buy & Invest
-                  </span>
-                  <span className="headgradient__shine" aria-hidden="true">
-                    Find Flats & Property Across India | Buy & Invest
-                  </span>
+                <h1
+                  className="headgradient headgradient--sparkle"
+                  data-text="Find Flats & Property Across India | Buy & Invest"
+                >
+                  Find Flats & Property Across India | Buy & Invest
                 </h1>
                 <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
             </div>

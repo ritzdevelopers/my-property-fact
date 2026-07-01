@@ -355,13 +355,11 @@
   margin: 0;
   padding: 0;
   line-height: 1.15;
-}
-
-.headgradient__base {
   color: #111;
 }
 
-.headgradient__shine {
+.headgradient--sparkle::after {
+  content: attr(data-text);
   position: absolute;
   inset: 0;
   color: transparent;
@@ -397,7 +395,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .headgradient__shine {
+  .headgradient--sparkle::after {
     animation: none;
     opacity: 0.55;
     background-position: 50% 0;

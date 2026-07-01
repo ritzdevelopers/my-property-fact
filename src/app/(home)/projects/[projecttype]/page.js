@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchAllProjectsByProjectType, resolveValidProjectTypeSlug } from "@/app/_global_components/masterFunction";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
-import ProjectsRedesigned from "../ProjectsRedesigned";
+import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 
 const COMMERCIAL_META = {
   title: "Top Commercial Real Estate Projects in India | MyPropertyFact",
@@ -55,39 +55,6 @@ const NEW_LAUNCHES_META = {
     "investment property new launch India",
   ],
 };
-
-const REDESIGNED_PROJECT_TYPE_PAGES = {
-  commercial: {
-    initialActiveTab: "commercial",
-    hubCategory: "commercial",
-    breadcrumbLabel: "Commercial Projects",
-    breadcrumbParent: { href: "/projects", label: "Projects" },
-    pageIntro:
-      "Explore Premium Commercial Properties in India with Prime Locations & High ROI.",
-  },
-  residential: {
-    initialActiveTab: "residential",
-    breadcrumbLabel: "Residential Projects",
-    breadcrumbParent: { href: "/projects", label: "Projects" },
-    pageIntro:
-      "Explore Top Residential Properties in India with Luxury Apartments, & Amenities",
-  },
-  "new-launches": {
-    hubCategory: "new-projects",
-    breadcrumbLabel: "New Launch Projects",
-    breadcrumbParent: { href: "/projects", label: "Projects" },
-    pageIntro:
-      "Explore New Real Estate Projects in India, Top Locations, & Investment Deals.",
-  },
-};
-
-function RedesignedProjectTypePage({ config }) {
-  return (
-    <main id="primary-content" aria-labelledby="mpf-page-heading">
-      <ProjectsRedesigned {...config} />
-    </main>
-  );
-}
 
 //Generating metatitle and meta description
 export async function generateMetadata({ params }) {
@@ -141,13 +108,6 @@ export async function generateMetadata({ params }) {
 
 export default async function ProjectType({ params }) {
   const { projecttype } = await params;
-  const norm = String(projecttype || "").trim().toLowerCase();
-  const redesignedConfig = REDESIGNED_PROJECT_TYPE_PAGES[norm];
-
-  if (redesignedConfig) {
-    return <RedesignedProjectTypePage config={redesignedConfig} />;
-  }
-
   const validSlug = await resolveValidProjectTypeSlug(projecttype);
   if (!validSlug) {
     notFound();
@@ -156,9 +116,14 @@ export default async function ProjectType({ params }) {
   if (!projectTypeDetail) {
     notFound();
   }
-
   return (
-    <main id="primary-content" aria-labelledby="mpf-page-heading">
+    <>
+      <CommonHeaderBanner
+        headerText={projectTypeDetail.projectTypeName}
+        image={"realestate-bg.jpg"}
+        firstPage={"projects"}
+        pageName={projectTypeDetail.projectTypeName}
+      />
       <Suspense
         fallback={
           <div
@@ -176,6 +141,6 @@ export default async function ProjectType({ params }) {
           }}
         />
       </Suspense>
-    </main>
+    </>
   );
 }

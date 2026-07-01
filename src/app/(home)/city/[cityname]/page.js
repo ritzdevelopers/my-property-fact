@@ -6,7 +6,6 @@ import {
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
 import { fetchCityDetailsBySlug, isKnownCitySlug } from "@/app/_global_components/masterFunction";
-import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 export const dynamic = "force-dynamic";
 
@@ -97,13 +96,6 @@ export default async function AllCityProjects({ params }) {
   }
 
   const { projectList: _projectList, ...cityMeta } = cityData;
-  const projectList = slimProjectListForListing(cityData.projectList || []);
 
-  return (
-    <CityPage
-      citySlug={slugToCheck}
-      cityData={cityMeta}
-      initialProjects={projectList}
-    />
-  );
+  return <CityPage citySlug={slugToCheck} cityData={cityMeta} />;
 }

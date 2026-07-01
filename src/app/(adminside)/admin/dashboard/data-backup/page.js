@@ -344,7 +344,7 @@ export default function DataBackupPage() {
       ) : history.length === 0 ? (
         <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>No backup runs yet.</p>
       ) : (
-        <div style={{ overflowX: "auto" }}>
+        <div className="admin-responsive-table" style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", fontSize: "0.8125rem", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ textAlign: "left", borderBottom: "1px solid #e5e7eb" }}>
@@ -358,15 +358,15 @@ export default function DataBackupPage() {
             <tbody>
               {history.map((row) => (
                 <tr key={row.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
-                  <td style={{ padding: "0.5rem" }}>{row.createdAt || "—"}</td>
-                  <td style={{ padding: "0.5rem" }}>{row.backupKind || "EXCEL"}</td>
-                  <td style={{ padding: "0.5rem" }}>{row.status}</td>
-                  <td style={{ padding: "0.5rem" }}>
+                  <td data-label="When" style={{ padding: "0.5rem" }}>{row.createdAt || "—"}</td>
+                  <td data-label="Type" style={{ padding: "0.5rem" }}>{row.backupKind || "EXCEL"}</td>
+                  <td data-label="Status" style={{ padding: "0.5rem" }}>{row.status}</td>
+                  <td data-label="Size" style={{ padding: "0.5rem" }}>
                     {row.fileSizeBytes
                       ? `${(row.fileSizeBytes / (1024 * 1024)).toFixed(1)} MB`
                       : "—"}
                   </td>
-                  <td style={{ padding: "0.5rem" }}>
+                  <td data-label="Download" style={{ padding: "0.5rem" }}>
                     {row.status === "READY" ? (
                       <button
                         type="button"

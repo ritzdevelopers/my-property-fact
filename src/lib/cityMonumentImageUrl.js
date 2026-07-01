@@ -14,6 +14,47 @@ export function buildCityMonumentImageUrl(filename) {
   return `${base}cities/${encodeURIComponent(name)}`;
 }
 
+/** Strip redundant "About {city}" headings from CMS city description HTML. */
+export function sanitizeCityDescriptionHtml(html, cityName = "") {
+  if (!html) return html;
+
+  let out = String(html);
+  const city = String(cityName || "").trim();
+
+  if (city) {
+    const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    out = out.replace(
+      new RegExp(`<h[12][^>]*>\\s*About\\s+${escapedCity}\\s*<\\/h[12]>`, "gi"),
+      "",
+    );
+  }
+
+  out = out.replace(/<h[12][^>]*>\s*About\s+[^<]+\s*<\/h[12]>/gi, "");
+
+  out = out.replace(/<img\b([^>]*?)(\/?)>/gi, (match, attrs, slash) => {
+    if (/\btitle\s*=/i.test(attrs)) return match;
+    const altMatch =
+      attrs.match(/\balt=(["'])(.*?)\1/i) || attrs.match(/\balt=([^\s>]+)/i);
+    const alt = (altMatch?.[2] || altMatch?.[1] || "").trim();
+    if (!alt) return match;
+    const safeTitle = alt.replace(/"/g, "&quot;");
+    return `<img${attrs} title="${safeTitle}"${slash}>`;
+  });
+
+  out = out.replace(
+    /<a\b([^>]*?)>([\s\S]*?)<\/a>/gi,
+    (match, attrs, inner) => {
+      if (/\btitle\s*=/i.test(attrs)) return match;
+      const text = inner.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+      if (!text) return match;
+      const safeTitle = text.replace(/"/g, "&quot;");
+      return `<a${attrs} title="${safeTitle}">${inner}</a>`;
+    },
+  );
+
+  return out.trim();
+}
+
 export function parseCityHighlights(raw) {
   if (!raw) return [];
   const text = String(raw).trim();

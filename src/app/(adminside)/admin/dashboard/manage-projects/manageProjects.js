@@ -198,40 +198,84 @@ export default function ManageProjects({
     setStates([]);
   };
 
-  // Fetching project details
-  const fetchProjectDetails = async (slugURL) => {
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}projects/get/${slugURL}`,
-    );
-    const item = response.data;
-    // Dynamically update the form data with the values from the item
+  // Fetching project details (admin — includes drafts / unpublished)
+  const fetchProjectDetails = async (item) => {
+    const token =
+      typeof window !== "undefined" ? Cookies.get("token") : undefined;
+    const authConfig = {
+      withCredentials: true,
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    };
+
+    const slugURL = String(item?.slugURL || "").trim();
+    let response;
+
+    if (slugURL) {
+      response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}projects/admin/get/${encodeURIComponent(slugURL)}`,
+        authConfig,
+      );
+    } else if (item?.id) {
+      response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}projects/admin/get-by-id/${item.id}`,
+        authConfig,
+      );
+    } else {
+      throw new Error("Project slug or id is missing.");
+    }
+
+    const project = response.data;
+    const imageBase = project.slugURL
+      ? `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${project.slugURL}/`
+      : null;
+
     setFormData({
-      ...initialFormData, // You can retain the initial values if needed
-      ...item, // Overwrite with item data
-      amenityDescription: item.amenityDesc,
-      locationDescription: item.locationDesc,
-      floorPlanDescription: item.floorPlanDesc,
+      ...initialFormData,
+      ...project,
+      amenityDescription: project.amenityDesc,
+      locationDescription: project.locationDesc,
+      floorPlanDescription: project.floorPlanDesc,
       locationMap: null,
       projectLogo: null,
       projectThumbnail: null,
-      builderId: item.builder.id,
-      locationMapPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.locationMap}`,
-      projectLogoPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.projectLogo}`,
-      projectThumbnailPreview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.projectThumbnailImage}`,
+      builderId: project.builder?.id ?? 0,
+      locationMapPreview: project.locationMap && imageBase
+        ? `${imageBase}${project.locationMap}`
+        : null,
+      projectLogoPreview: project.projectLogo && imageBase
+        ? `${imageBase}${project.projectLogo}`
+        : null,
+      projectThumbnailPreview: project.projectThumbnailImage && imageBase
+        ? `${imageBase}${project.projectThumbnailImage}`
+        : null,
     });
-    const country = countryData?.find((c) => c.id === item.countryId);
+    const country = countryData?.find((c) => c.id === project.countryId);
     setStates(country ? country?.stateList : []);
-    const state = country?.stateList?.find((s) => s.id === item.stateId);
+    const state = country?.stateList?.find((s) => s.id === project.stateId);
     setCities(state ? state.cityList : []);
-    return response.data;
+    return project;
   };
 
   //Handling opening of edit model
   const openEditModel = async (item) => {
-    await fetchProjectDetails(item.slugURL);
-    setTitle("Edit Project Details");
-    setShowModal(true);
-    setButtonName("Update Project");
+    try {
+      setShowLoading(true);
+      await fetchProjectDetails(item);
+      setValidated(false);
+      setTitle("Edit Project Details");
+      setShowModal(true);
+      setButtonName("Update Project");
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+          error.message ||
+          "Could not load project details.",
+      );
+    } finally {
+      setShowLoading(false);
+    }
   };
 
   //Opening delete confirmation box

@@ -11,7 +11,7 @@ export function buildCityMonumentImageUrl(filename) {
   const base = String(process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
   if (!base) return DEFAULT_CITY_MONUMENT_IMAGE;
 
-  return `${base}cities/${name}`;
+  return `${base}cities/${encodeURIComponent(name)}`;
 }
 
 export function parseCityHighlights(raw) {

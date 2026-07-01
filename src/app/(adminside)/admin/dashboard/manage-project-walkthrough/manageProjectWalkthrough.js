@@ -11,7 +11,6 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
 import { useRouter } from "next/navigation";
 
-// Dynamically import JoditEditor with SSR disabled
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 export default function ManageProjectWalkthrough({ list, projectList, projectWithWalkthrough }) {
@@ -30,75 +29,113 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
     const [isDisabled, setIsDisabled] = useState(false);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-    //Handling submition of from
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = {
-            walkthroughDesc: walkthroughDesc,
-            projectId: projectId,
-            id: 0
-        };
         const form = e.currentTarget;
         if (form.checkValidity() === false) {
             e.stopPropagation();
             setValidated(true);
             return;
         }
-        if (form.checkValidity() === true) {
-            if (walkthroughId > 0) {
-                data.id = walkthroughId;
+
+        const data = {
+            walkthroughDesc: walkthroughDesc || "",
+            projectId: Number(projectId),
+            id: walkthroughId > 0 ? walkthroughId : 0,
+        };
+
+        try {
+            setShowLoading(true);
+            setButtonName("");
+            const response = await axios.post(
+                `${apiUrl}project-walkthrough/add-update`,
+                data
+            );
+            if (response.data.isSuccess === 1) {
+                toast.success(response.data.message);
+                setShowModal(false);
+                router.refresh();
+            } else {
+                toast.error(response.data.message || "Failed to save walkthrough.");
             }
-            try {
-                setShowLoading(true);
-                setButtonName("");
-                const response = await axios.post(
-                    `${apiUrl}project-walkthrough/add-update`,
-                    data
-                );
-                if (response.data.isSuccess === 1) {
-                    router.refresh();
-                    toast.success(response.data.message);
-                    setShowModal(false);
-                    fetchProjects();
-                }
-            } catch (error) {
-                toast.error(error);
-            } finally {
-                setShowLoading(false);
-                setButtonName("Add");
-            }
+        } catch (error) {
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Failed to save walkthrough.";
+            toast.error(message);
+        } finally {
+            setShowLoading(false);
+            setButtonName(walkthroughId > 0 ? "Update" : "Add");
         }
     };
 
-    //Handle open model
     const openAddModal = () => {
         setValidated(false);
         setShowModal(true);
         setTitle("Add Walkthrough");
         setButtonName("Add");
-        setWalkthroughDesc(null);
-        setProjectId(0);
-        setProjectListOptions(projectList.filter((project) => !projectWithWalkthrough.includes(project.id)));
+        setWalkthroughDesc("");
+        setProjectId("");
+        setWalkthroughId(0);
+        setProjectListOptions(
+            projectList.filter((project) => !projectWithWalkthrough.includes(project.id))
+        );
         setIsDisabled(false);
     };
 
-    //Handle deleting walkthrough
     const openConfirmationBox = (id) => {
         setConfirmBox(true);
         setWalkthroughId(id);
     };
 
-    const openEditPopUp = (item) => {        
+    const openEditPopUp = async (item) => {
+        setValidated(false);
         setShowModal(true);
         setTitle("Update Walkthrough");
         setButtonName("Update");
-        setWalkthroughDesc(item.walkthroughDesc);
-        setProjectId(item.projectId);
         setWalkthroughId(item.id);
-        setProjectListOptions(projectList.filter((project) => projectWithWalkthrough.includes(project.id)));
+        setProjectId(String(item.projectId));
+        setProjectListOptions(
+            projectList.filter((project) => projectWithWalkthrough.includes(project.id))
+        );
         setIsDisabled(true);
+        setWalkthroughDesc("");
+        setShowLoading(true);
+
+        try {
+            const response = await axios.get(`${apiUrl}project-walkthrough/get/${item.id}`);
+            setWalkthroughDesc(response.data?.walkthroughDesc || "");
+        } catch (error) {
+            if (error?.response?.status === 404) {
+                try {
+                    const fallbackResponse = await axios.get(`${apiUrl}project-walkthrough/get`);
+                    const fullItem = (fallbackResponse.data || []).find(
+                        (walkthrough) => walkthrough.id === item.id
+                    );
+                    setWalkthroughDesc(fullItem?.walkthroughDesc || "");
+                    return;
+                } catch (fallbackError) {
+                    const message =
+                        fallbackError?.response?.data?.message ||
+                        fallbackError?.message ||
+                        "Failed to load walkthrough details.";
+                    toast.error(message);
+                    setShowModal(false);
+                    return;
+                }
+            }
+            const message =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Failed to load walkthrough details.";
+            toast.error(message);
+            setShowModal(false);
+        } finally {
+            setShowLoading(false);
+        }
     };
-    //Defining table columns
+
     const columns = [
         { field: "index", headerName: "S.no", width: 100 },
         { field: "projectName", headerName: "Project Name", flex: 1 },
@@ -121,14 +158,13 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
             ),
         },
     ];
+
     return (
         <div className="container-fluid">
             <DashboardHeader buttonName={'+ Add Walkthrough'} functionName={openAddModal} heading={'Manage Project Walkthrough'} />
-            {/* Show All data in tabular form */}
             <div>
                 <DataTable columns={columns} list={list} />
             </div>
-            {/* Model for adding walkthrough */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>{title}</Modal.Title>
@@ -161,11 +197,15 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
                         </Form.Group>
                         <Form.Group className="mb-3 mt-4" controlId="formCityName">
                             <Form.Label>Walkthrough description</Form.Label>
-                            <JoditEditor
-                                ref={editor}
-                                value={walkthroughDesc}
-                                onChange={(newcontent) => setWalkthroughDesc(newcontent)}
-                            />
+                            {showLoading && walkthroughId > 0 && !walkthroughDesc ? (
+                                <div className="py-4 text-center text-muted">Loading walkthrough...</div>
+                            ) : (
+                                <JoditEditor
+                                    ref={editor}
+                                    value={walkthroughDesc}
+                                    onChange={(newcontent) => setWalkthroughDesc(newcontent)}
+                                />
+                            )}
                         </Form.Group>
                         <Button className="btn btn-success" type="submit" disabled={showLoading}>
                             {buttonName} <LoadingSpinner show={showLoading} />

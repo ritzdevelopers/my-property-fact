@@ -861,11 +861,6 @@
 .mpf-listing-card {
   border-bottom: 1px solid var(--mpf-gray-200);
   background: #ffffff;
-  transition: background 0.2s;
-}
-
-.mpf-listing-card:hover {
-  background: var(--mpf-gray-50);
 }
 
 .mpf-listing-card-link {
@@ -913,11 +908,11 @@
   transition: transform 160ms ease;
 }
 
-.mpf-listing-card-link:hover .mpf-image-hover-overlay {
+.mpf-listing-image:hover .mpf-image-hover-overlay {
   opacity: 1;
 }
 
-.mpf-listing-card-link:hover .mpf-image-hover-overlay__text {
+.mpf-listing-image:hover .mpf-image-hover-overlay__text {
   transform: translateY(0);
 }
 
@@ -1062,6 +1057,7 @@
   flex-direction: column;
   justify-content: space-between;
   min-width: 0;
+  padding-right: 12px;
 }
 
 .mpf-listing-header {
@@ -1107,6 +1103,7 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--mpf-gray-900);
+  white-space: nowrap;
 }
 
 .mpf-listing-sqft {
@@ -2025,11 +2022,6 @@
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
   }
 
-  .mpf-listing-card:hover {
-    background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
-  }
-
   .mpf-listing-card-link {
     display: flex;
     flex-direction: column;
@@ -2296,11 +2288,6 @@
     overflow: hidden;
     min-height: 100%;
     box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
-  }
-
-  .mpf-listing-card:hover {
-    background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
   }
 
   .mpf-listing-card-link {

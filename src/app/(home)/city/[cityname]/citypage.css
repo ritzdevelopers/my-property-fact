@@ -50,7 +50,7 @@
 .city-page-redesign__split {
   display: flex;
   flex-wrap: nowrap;
-  gap: 24px;
+  gap: 44px;
   align-items: flex-start;
 }
 
@@ -98,6 +98,32 @@
   flex: 1 1 100%;
   max-width: 100%;
   height: 100%;
+}
+
+/* Desktop city split: slimmer card columns so price stays on one line */
+@media (min-width: 1101px) {
+  .city-projects-panel__grid .mpf-listing-card-link {
+    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr) 128px;
+    gap: 12px;
+    padding: 14px 10px;
+  }
+
+  .city-projects-panel__grid .mpf-listing-image {
+    height: 168px;
+  }
+
+  .city-projects-panel__grid .mpf-listing-content {
+    padding-right: 10px;
+  }
+
+  .city-projects-panel__grid .mpf-listing-price {
+    font-size: 14px;
+  }
+
+  .city-projects-panel__grid .mpf-btn-contact {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
 }
 
 .city-projects-panel__loading,

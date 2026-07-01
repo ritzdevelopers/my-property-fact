@@ -39,7 +39,10 @@ export default function CityPage({ cityData, initialProjects = [] }) {
             projects={projects}
             projectsLoading={false}
           />
-          <CityMonumentShowcase cityData={cityData} />
+          <CityMonumentShowcase
+            cityData={cityData}
+            projectCount={projects.length}
+          />
         </div>
       </div>
     </div>

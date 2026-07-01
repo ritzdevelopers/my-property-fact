@@ -112,14 +112,14 @@ export default function CityMonumentShowcase({ cityData, projectCount = 0 }) {
             )}
           </div>
 
-          <ul
+          <div
             className="city-showcase__highlights"
             aria-label={`${cityName} highlights`}
           >
-            <li>Residential &amp; commercial projects</li>
-            <li>Trusted builders &amp; developers</li>
-            <li>Expert guidance for buyers</li>
-          </ul>
+            <p>Residential &amp; commercial projects</p>
+            <p>Trusted builders &amp; developers</p>
+            <p>Expert guidance for buyers</p>
+          </div>
 
           <div className="city-showcase__cta">
             <p className="city-showcase__cta-text">

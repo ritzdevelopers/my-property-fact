@@ -113,7 +113,7 @@
 .city-showcase__panel {
   display: flex;
   flex-direction: column;
-  border: 1px solid #e8dfd0;
+  border: none;
   border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 10px 28px rgba(17, 24, 39, 0.08);
@@ -121,12 +121,19 @@
   max-height: calc(100vh - var(--mpf-site-header-height, 92px) - 32px);
   opacity: 0;
   transform: translateY(14px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    box-shadow 0.3s ease;
 }
 
 .city-showcase__panel.is-visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+.city-showcase__panel:has(.city-showcase__hero-card:hover) {
+  box-shadow: 0 14px 36px rgba(17, 24, 39, 0.12);
 }
 
 /* Top card — image left, city name right */
@@ -135,6 +142,7 @@
   grid-template-columns: minmax(120px, 42%) 1fr;
   gap: 0;
   min-height: 140px;
+  cursor: default;
 }
 
 .city-showcase__hero-image {
@@ -164,7 +172,7 @@
   transition: transform 0.45s ease;
 }
 
-.city-showcase__panel:hover .city-showcase__image {
+.city-showcase__hero-card:hover .city-showcase__image {
   transform: scale(1.04);
 }
 
@@ -239,8 +247,6 @@
   align-items: center;
   padding: 4px 0;
   background: #ffffff;
-  border-top: 1px solid #efe7da;
-  border-bottom: 1px solid #efe7da;
 }
 
 .city-showcase__connector-line {
@@ -260,8 +266,9 @@
   margin-top: -1px;
   color: #0d5834;
   background: #f9faf8;
-  border: 2px solid rgba(13, 88, 52, 0.15);
+  border: none;
   border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(13, 88, 52, 0.1);
   animation: cityConnectorBounce 1.8s ease-in-out infinite;
 }
 
@@ -341,24 +348,12 @@
   gap: 6px;
 }
 
-.city-showcase__highlights li {
-  position: relative;
-  padding-left: 18px;
+.city-showcase__highlights p {
+  margin: 0;
   font-size: 0.8rem;
   font-weight: 500;
   color: #4b5563;
   line-height: 1.4;
-}
-
-.city-showcase__highlights li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.45em;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #0d5834;
 }
 
 .city-showcase__cta {
@@ -367,7 +362,6 @@
   margin: 0 -18px;
   padding-left: 18px;
   padding-right: 18px;
-  border-top: 1px solid #efe7da;
   background: #f9faf8;
 }
 

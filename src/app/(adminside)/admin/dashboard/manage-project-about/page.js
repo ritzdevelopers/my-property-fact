@@ -5,13 +5,7 @@ export const dynamic = "force-dynamic";
 //Fetching all projects list
 const fetchProjects = async () => {
   const projectResponse = await fetchAllProjects();
-  const projectAbout = await fetchProjectsAbout();
-  const aboutProjectIds = projectAbout.map((item) => item.projectId);
-  const projectsWithoutAbout = projectResponse.filter(
-    (project) => !aboutProjectIds.includes(project.id)
-  );
-
-  return projectsWithoutAbout;
+  return projectResponse;
 };
 
 //Fetching all project's about list

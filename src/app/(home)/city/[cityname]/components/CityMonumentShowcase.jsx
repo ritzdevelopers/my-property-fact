@@ -8,19 +8,15 @@ import {
 
 export default function CityMonumentShowcase({ cityData }) {
   const cityName = cityData?.cityName?.trim() || "City";
-  const monumentName = cityData?.monumentName?.trim() || `${cityName} Landmark`;
   const description = sanitizeCityDescriptionHtml(
     cityData?.cityDescription || "",
     cityName,
   );
   const imageSrc = buildCityMonumentImageUrl(cityData?.monumentImage);
-  const monumentImageTitle = `${monumentName} — iconic landmark in ${cityName}`;
-  const locationLabel = cityData?.stateName
-    ? `${cityName}, ${cityData.stateName}`
-    : cityName;
+  const monumentImageTitle = `${cityName} — city overview`;
 
   return (
-    <aside className="city-showcase" aria-label={`${cityName} landmark and overview`}>
+    <aside className="city-showcase" aria-label={`${cityName} overview`}>
       <div className="city-showcase__panel">
         <article className="city-showcase__card">
           <div className="city-showcase__image-wrap">
@@ -36,9 +32,7 @@ export default function CityMonumentShowcase({ cityData }) {
             />
           </div>
           <div className="city-showcase__card-body">
-            <p className="city-showcase__card-eyebrow">Landmark</p>
-            <p className="city-showcase__card-title">{monumentName}</p>
-            <p className="city-showcase__card-location">{locationLabel}</p>
+            <p className="city-showcase__card-title">{cityName}</p>
           </div>
         </article>
 

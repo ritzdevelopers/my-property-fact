@@ -112,15 +112,6 @@ export default function CityMonumentShowcase({ cityData, projectCount = 0 }) {
             )}
           </div>
 
-          <div
-            className="city-showcase__highlights"
-            aria-label={`${cityName} highlights`}
-          >
-            <p>Residential &amp; commercial projects</p>
-            <p>Trusted builders &amp; developers</p>
-            <p>Expert guidance for buyers</p>
-          </div>
-
           <div className="city-showcase__cta">
             <p className="city-showcase__cta-text">
               Need help choosing a project in {cityName}?

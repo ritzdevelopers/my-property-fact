@@ -140,8 +140,9 @@
 .city-showcase__hero-card {
   display: grid;
   grid-template-columns: minmax(120px, 42%) 1fr;
-  gap: 0;
+  gap: 12px;
   min-height: 140px;
+  padding: 14px 14px 0;
   cursor: default;
 }
 
@@ -150,6 +151,7 @@
   min-height: 140px;
   overflow: hidden;
   background: #e8eef0;
+  border-radius: 10px;
 }
 
 .city-showcase__accent {
@@ -181,7 +183,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 4px;
-  padding: 16px 18px;
+  padding: 4px 4px 4px 0;
   background: #ffffff;
 }
 
@@ -338,24 +340,6 @@
   border-radius: 999px;
 }
 
-.city-showcase__highlights {
-  flex-shrink: 0;
-  list-style: none;
-  margin: 0 0 0;
-  padding: 0 0 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.city-showcase__highlights p {
-  margin: 0;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #4b5563;
-  line-height: 1.4;
-}
-
 .city-showcase__cta {
   flex-shrink: 0;
   padding: 14px 0 16px;
@@ -423,6 +407,8 @@
   .city-showcase__hero-card {
     grid-template-columns: minmax(110px, 38%) 1fr;
     min-height: 120px;
+    padding: 12px 12px 0;
+    gap: 10px;
   }
 
   .city-showcase__hero-image,
@@ -431,7 +417,7 @@
   }
 
   .city-showcase__hero-info {
-    padding: 12px 14px;
+    padding: 2px 2px 2px 0;
   }
 
   .city-showcase__details {

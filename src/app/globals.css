@@ -488,6 +488,12 @@ body.menu-open {
   width: 100%;
 }
 
+body.menu-open #primary-content,
+body.menu-open footer {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 body.gateway-open {
   overflow: hidden;
 }

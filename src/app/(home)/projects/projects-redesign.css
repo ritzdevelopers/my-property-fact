@@ -378,6 +378,44 @@
   color: #ffffff;
 }
 
+.mpf-applied-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #ffffff;
+  border: 1px solid var(--mpf-gray-300);
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mpf-gray-700);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.mpf-applied-filter-tag:hover {
+  border-color: var(--mpf-green);
+  color: var(--mpf-green);
+}
+
+.mpf-applied-filter-tag--residential {
+  background: rgba(22, 163, 74, 0.1);
+  border-color: #16a34a;
+  color: #166534;
+}
+
+.mpf-applied-filter-tag--commercial {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: #4f46e5;
+  color: #3730a3;
+}
+
+.mpf-applied-filter-tag__icon {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
 .mpf-sort-wrapper {
   position: relative;
   z-index: 200;

@@ -66,6 +66,18 @@ const PROJECTS_PER_PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
 const SEARCH_SUGGESTION_LIMIT = 8;
 
+const PROPERTY_TYPE_TAG_LABELS = {
+  residential: "Residential",
+  commercial: "Commercial",
+};
+
+const SORT_TAG_LABELS = {
+  relevance: "Relevance",
+  "price-low": "Price: Low to High",
+  "price-high": "Price: High to Low",
+  newest: "Newest First",
+};
+
 function normalizeText(value) {
   return String(value || "").toLowerCase().trim().replace(/\s+/g, " ");
 }
@@ -278,6 +290,7 @@ export default function ProjectsRedesigned({
   const handleClearFilters = () => {
     setFilters(EMPTY_FILTERS);
     setActiveTab("all");
+    setSortBy("relevance");
     setSearchInput("");
     setDebouncedSearch("");
     setSelectedSearchProjectKey("");
@@ -790,13 +803,72 @@ export default function ProjectsRedesigned({
     return items;
   }, [currentPage, totalPages]);
 
+  const appliedFilterTags = useMemo(() => {
+    const tags = [];
+
+    if (activeTab === "residential" || activeTab === "commercial") {
+      tags.push({
+        key: `property-type:${activeTab}`,
+        label: PROPERTY_TYPE_TAG_LABELS[activeTab],
+        kind: "propertyType",
+      });
+    }
+
+    if (sortBy !== "relevance") {
+      tags.push({
+        key: `sort:${sortBy}`,
+        label: SORT_TAG_LABELS[sortBy] || sortBy,
+        kind: "sort",
+      });
+    }
+
+    if (filters.budget) {
+      tags.push({ key: "budget", label: filters.budget, kind: "budget" });
+    }
+
+    if (filters.bhkType) {
+      tags.push({ key: "bhkType", label: filters.bhkType, kind: "bhkType" });
+    }
+
+    if (filters.configType) {
+      const configLabel =
+        configurationFilterOptions.find(
+          (opt) => opt.kind === "config" && opt.value === filters.configType,
+        )?.label || filters.configType;
+      tags.push({ key: "configType", label: configLabel, kind: "configType" });
+    }
+
+    if (filters.city) {
+      tags.push({ key: "city", label: filters.city, kind: "city" });
+    }
+
+    if (filters.propertyType) {
+      tags.push({
+        key: "sidebarPropertyType",
+        label: filters.propertyType,
+        kind: "sidebarPropertyType",
+      });
+    }
+
+    if (filters.projectStatus) {
+      tags.push({
+        key: "projectStatus",
+        label: filters.projectStatus,
+        kind: "projectStatus",
+      });
+    }
+
+    return tags;
+  }, [activeTab, configurationFilterOptions, filters, sortBy]);
+
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const isLoading = siteDataLoading;
   const hasAnyAppliedFilter =
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
     Boolean(selectedSearchProjectKey) ||
-    activeTab !== "all";
+    activeTab !== "all" ||
+    sortBy !== "relevance";
 
   const sortDropdownRef = useRef(null);
 
@@ -831,6 +903,40 @@ export default function ProjectsRedesigned({
       setCurrentPage(1);
     });
   }, [showOverlayLoader]);
+
+  const clearAppliedFilterTag = useCallback(
+    (tag) => {
+      switch (tag.kind) {
+        case "propertyType":
+          applyPropertyTypeFromDropdown("all");
+          break;
+        case "sort":
+          applySortFromDropdown("relevance");
+          break;
+        case "budget":
+          handleFilterChange("budget", filters.budget);
+          break;
+        case "bhkType":
+          handleFilterChange("bhkType", filters.bhkType);
+          break;
+        case "configType":
+          handleFilterChange("configType", filters.configType);
+          break;
+        case "city":
+          handleFilterChange("city", filters.city);
+          break;
+        case "sidebarPropertyType":
+          handleFilterChange("propertyType", filters.propertyType);
+          break;
+        case "projectStatus":
+          handleFilterChange("projectStatus", filters.projectStatus);
+          break;
+        default:
+          break;
+      }
+    },
+    [applyPropertyTypeFromDropdown, applySortFromDropdown, filters, handleFilterChange],
+  );
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -1039,6 +1145,26 @@ export default function ProjectsRedesigned({
         {/* Quick Filters */}
         <div className="mpf-quick-filters">
           <div className="mpf-quick-filters__pills">
+            {appliedFilterTags.map((tag) => (
+              <button
+                key={tag.key}
+                type="button"
+                className={`mpf-applied-filter-tag${
+                  tag.kind === "propertyType" && activeTab === "residential"
+                    ? " mpf-applied-filter-tag--residential"
+                    : ""
+                }${
+                  tag.kind === "propertyType" && activeTab === "commercial"
+                    ? " mpf-applied-filter-tag--commercial"
+                    : ""
+                }`}
+                onClick={() => clearAppliedFilterTag(tag)}
+                aria-label={`Remove ${tag.label} filter`}
+              >
+                <span>{tag.label}</span>
+                <FontAwesomeIcon icon={faTimes} className="mpf-applied-filter-tag__icon" />
+              </button>
+            ))}
             {visibleQuickFilters.map((qf) => (
               <button
                 key={qf.key}

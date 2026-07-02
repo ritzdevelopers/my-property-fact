@@ -643,8 +643,10 @@ export default function ProjectsRedesigned({
       label: opt.label,
     }));
 
+    if (activeTab === "residential") return residential;
+    if (activeTab === "commercial") return commercial;
     return [...residential, ...commercial];
-  }, [availableBhkOptions, availableConfigTypeOptions, isHubPage]);
+  }, [activeTab, availableBhkOptions, availableConfigTypeOptions, isHubPage]);
 
   const citySlugForUrl = useMemo(() => {
     const c = String(filters.city || initialCity || "").trim();
@@ -891,6 +893,11 @@ export default function ProjectsRedesigned({
     showOverlayLoader();
     startSortTransition(() => {
       setActiveTab(nextTab);
+      setFilters((prev) => ({
+        ...prev,
+        bhkType: nextTab === "commercial" ? "" : prev.bhkType,
+        configType: nextTab === "residential" ? "" : prev.configType,
+      }));
       setCurrentPage(1);
     });
   }, [showOverlayLoader]);

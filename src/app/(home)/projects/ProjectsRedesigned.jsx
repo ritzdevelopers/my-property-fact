@@ -537,11 +537,8 @@ export default function ProjectsRedesigned({
   }, [normalizeConfigType]);
 
   const visibleQuickFilters = useMemo(() => {
-    // Only hide “empty” quick filters on internal listing pages.
-    if (!isListingPage) return QUICK_FILTERS_ALL;
-
-    // For internal pages, the quick-filter bar should only reflect the actually-visible
-    // dataset AFTER configType/BHK (but before the quick-filter itself).
+    // Hide quick filters with no matching projects in the current context
+    // (e.g. Ultra Luxury when Commercial is selected and none exist).
     const sourceForCounts = baseProjectsBeforeQuickFilter.filter((item) => {
       if (!matchesBhkFilter(item?.projectConfiguration, filters.bhkType)) return false;
       if (!matchesConfigTypeFilter(item?.projectConfiguration, filters.configType)) return false;
@@ -566,18 +563,16 @@ export default function ProjectsRedesigned({
     baseProjectsBeforeQuickFilter,
     filters.bhkType,
     filters.configType,
-    isListingPage,
     matchesBhkFilter,
     matchesConfigTypeFilter,
     matchesQuickFilter,
   ]);
 
   useEffect(() => {
-    if (!isListingPage) return;
     if (!activeQuickFilter) return;
     const stillVisible = visibleQuickFilters.some((qf) => qf.key === activeQuickFilter);
     if (!stillVisible) setActiveQuickFilter("");
-  }, [activeQuickFilter, isListingPage, visibleQuickFilters]);
+  }, [activeQuickFilter, visibleQuickFilters]);
 
   const availableBhkOptions = useMemo(() => {
     const set = new Set();

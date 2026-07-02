@@ -6,7 +6,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCamera,
   faPhone,
-  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   buildProjectImageUrl,
@@ -223,14 +222,6 @@ export default function ProjectCard({ project, imagePriority = false }) {
 
         {/* Actions Section */}
         <div className="mpf-listing-actions">
-          <button
-            type="button"
-            className="mpf-listing-wishlist"
-            aria-label="Add to wishlist"
-          >
-            <FontAwesomeIcon icon={faHeart} />
-          </button>
-
           <button
             type="button"
             className="mpf-btn-contact mpf-btn-contact--secondary"

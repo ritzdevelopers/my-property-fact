@@ -6,12 +6,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCamera,
   faPhone,
-  faHeart,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import CommonPopUpform from "@/app/(home)/components/common/popupform";
 
 const API_BASE = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
 
@@ -80,6 +80,7 @@ const PropertyTypeRibbon = ({ type }) => {
 export default function ProjectCard({ project, imagePriority = false }) {
   const [imageError, setImageError] = useState(false);
   const [projectMeta, setProjectMeta] = useState({ reraNo: "", photoCount: 0 });
+  const [showLeadForm, setShowLeadForm] = useState(false);
 
   useEffect(() => {
     const slug = project?.slugURL;
@@ -143,92 +144,109 @@ export default function ProjectCard({ project, imagePriority = false }) {
 
   return (
     <article className="mpf-listing-card">
-      <Link
-        href={`/${project.slugURL}`}
-        className="mpf-listing-card-link"
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`View details about ${projectName}`}
-        title={projectLinkTitle}
-      >
-        {/* Image Section */}
-        <div className="mpf-listing-image">
-          <img
-            src={imageSrc}
-            alt={projectImageTitle}
-            title={projectImageTitle}
-            loading={imagePriority ? "eager" : "lazy"}
-            onError={() => setImageError(true)}
-          />
+      <div className="mpf-listing-card-link">
+        <Link
+          href={`/${project.slugURL}`}
+          className="mpf-listing-card-main"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View details about ${projectName}`}
+          title={projectLinkTitle}
+        >
+          {/* Image Section */}
+          <div className="mpf-listing-image">
+            <img
+              src={imageSrc}
+              alt={projectImageTitle}
+              title={projectImageTitle}
+              loading={imagePriority ? "eager" : "lazy"}
+              onError={() => setImageError(true)}
+            />
 
-          <div className="mpf-image-hover-overlay" aria-hidden="true">
-            <div className="mpf-image-hover-overlay__text">Click to Explore</div>
-          </div>
-          
-          {/* Property Type Ribbon */}
-          {project.propertyTypeName && (
-            <PropertyTypeRibbon type={project.propertyTypeName} />
-          )}
-          
-          {/* RERA Badge */}
-          {isReraApproved && (
-            <span className="mpf-rera-badge" title={`RERA: ${projectMeta.reraNo}`}>
-              <svg className="mpf-rera-shield" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
-              </svg>
-              RERA
-            </span>
-          )}
-          
-          {/* Photo Count */}
-          <span className="mpf-photo-badge">
-            <FontAwesomeIcon icon={faCamera} />
-            <span>{photoCount}</span>
-          </span>
-        </div>
+            <div className="mpf-image-hover-overlay" aria-hidden="true">
+              <div className="mpf-image-hover-overlay__text">Click to Explore</div>
+            </div>
 
-        {/* Content Section */}
-        <div className="mpf-listing-content">
-          <div className="mpf-listing-header">
-            <h3 className="mpf-listing-title">{project.projectName}</h3>
-            <p className="mpf-listing-location">
-              {formatAddress(project.projectAddress, project.cityName)}
-            </p>
-          </div>
+            {/* Property Type Ribbon */}
+            {project.propertyTypeName && (
+              <PropertyTypeRibbon type={project.propertyTypeName} />
+            )}
 
-          <div className="mpf-listing-details">
-            {project.projectConfiguration && (
-              <span className="mpf-listing-config">
-                {project.projectConfiguration}
+            {/* RERA Badge */}
+            {isReraApproved && (
+              <span className="mpf-rera-badge" title={`RERA: ${projectMeta.reraNo}`}>
+                <svg className="mpf-rera-shield" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+                </svg>
+                RERA
               </span>
             )}
-            
-            <div className="mpf-listing-price-row">
-              <span className="mpf-listing-price">
-                {formatProjectPrice(project.projectPrice)}
-              </span>
+
+            {/* Photo Count */}
+            <span className="mpf-photo-badge">
+              <FontAwesomeIcon icon={faCamera} />
+              <span>{photoCount}</span>
+            </span>
+          </div>
+
+          {/* Content Section */}
+          <div className="mpf-listing-content">
+            <div className="mpf-listing-header">
+              <h2 className="mpf-listing-title">{project.projectName}</h2>
+              <p className="mpf-listing-location">
+                {formatAddress(project.projectAddress, project.cityName)}
+              </p>
             </div>
 
-            <div className="mpf-listing-meta">
-              {project.projectStatusName && (
-                <StatusBadge status={project.projectStatusName} />
+            <div className="mpf-listing-details">
+              {project.projectConfiguration && (
+                <span className="mpf-listing-config">
+                  {project.projectConfiguration}
+                </span>
               )}
+
+              <div className="mpf-listing-price-row">
+                <span className="mpf-listing-price">
+                  {formatProjectPrice(project.projectPrice)}
+                </span>
+              </div>
+
+              <div className="mpf-listing-meta">
+                {project.projectStatusName && (
+                  <StatusBadge status={project.projectStatusName} />
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
 
         {/* Actions Section */}
         <div className="mpf-listing-actions">
-          <button className="mpf-listing-wishlist" aria-label="Add to wishlist">
-            <FontAwesomeIcon icon={faHeart} />
-          </button>
-          
-          <button className="mpf-btn-contact">
+          <button
+            type="button"
+            className="mpf-btn-contact mpf-btn-contact--secondary"
+            onClick={() => setShowLeadForm(true)}
+          >
             <FontAwesomeIcon icon={faPhone} />
-            View Number
+            Get Details
           </button>
+          <Link
+            href={`/${project.slugURL}`}
+            className="mpf-btn-contact"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={projectLinkTitle}
+          >
+            Click to Explore
+          </Link>
         </div>
-      </Link>
+      </div>
+      <CommonPopUpform
+        show={showLeadForm}
+        handleClose={setShowLeadForm}
+        from="Project Detail"
+        data={project}
+      />
     </article>
   );
 }

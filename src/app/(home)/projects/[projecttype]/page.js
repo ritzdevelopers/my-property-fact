@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { fetchAllProjectsByProjectType, resolveValidProjectTypeSlug } from "@/app/_global_components/masterFunction";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
+import ProjectsRedesigned from "../ProjectsRedesigned";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 
 const COMMERCIAL_META = {
@@ -56,6 +57,24 @@ const NEW_LAUNCHES_META = {
   ],
 };
 
+const REDESIGNED_PROJECT_TYPE_PAGES = {
+  "new-launches": {
+    hubCategory: "new-projects",
+    breadcrumbLabel: "New Launch Projects",
+    breadcrumbParent: { href: "/projects", label: "Projects" },
+    pageIntro:
+      "Explore New Real Estate Projects in India, Top Locations, & Investment Deals.",
+  },
+};
+
+function RedesignedProjectTypePage({ config }) {
+  return (
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
+      <ProjectsRedesigned {...config} />
+    </main>
+  );
+}
+
 //Generating metatitle and meta description
 export async function generateMetadata({ params }) {
   const { projecttype } = await params;
@@ -108,6 +127,13 @@ export async function generateMetadata({ params }) {
 
 export default async function ProjectType({ params }) {
   const { projecttype } = await params;
+  const norm = String(projecttype || "").trim().toLowerCase();
+  const redesignedConfig = REDESIGNED_PROJECT_TYPE_PAGES[norm];
+
+  if (redesignedConfig) {
+    return <RedesignedProjectTypePage config={redesignedConfig} />;
+  }
+
   const validSlug = await resolveValidProjectTypeSlug(projecttype);
   if (!validSlug) {
     notFound();
@@ -116,31 +142,38 @@ export default async function ProjectType({ params }) {
   if (!projectTypeDetail) {
     notFound();
   }
+
+  const bannerTitle =
+    String(projectTypeDetail.projectTypeName || "").trim() ||
+    validSlug.charAt(0).toUpperCase() + validSlug.slice(1);
+
   return (
     <>
       <CommonHeaderBanner
-        headerText={projectTypeDetail.projectTypeName}
-        image={"realestate-bg.jpg"}
-        firstPage={"projects"}
-        pageName={projectTypeDetail.projectTypeName}
+        headerText={bannerTitle}
+        image="realestate-bg.jpg"
+        firstPage="projects"
+        pageName={bannerTitle}
       />
-      <Suspense
-        fallback={
-          <div
-            className="d-flex justify-content-center align-items-center my-5"
-            style={{ minHeight: "320px" }}
-          >
-            <LoadingSpinner show={true} />
-          </div>
-        }
-      >
-        <PropertyPage
-          projectTypeSlug={validSlug}
-          projectTypeDetails={{
-            projectTypeName: projectTypeDetail.projectTypeName,
-          }}
-        />
-      </Suspense>
+      <main id="primary-content" aria-labelledby="mpf-page-heading">
+        <Suspense
+          fallback={
+            <div
+              className="d-flex justify-content-center align-items-center my-5"
+              style={{ minHeight: "320px" }}
+            >
+              <LoadingSpinner show={true} />
+            </div>
+          }
+        >
+          <PropertyPage
+            projectTypeSlug={validSlug}
+            projectTypeDetails={{
+              projectTypeName: projectTypeDetail.projectTypeName || bannerTitle,
+            }}
+          />
+        </Suspense>
+      </main>
     </>
   );
 }

@@ -235,6 +235,7 @@ const HeaderComponent = () => {
           }
           menu.style.display = "none";
           menu.classList.remove("active");
+          document.body.classList.remove("menu-open");
 
           // Remove notfixed class from header
           const header = document.querySelector(".header");
@@ -287,6 +288,7 @@ const HeaderComponent = () => {
       }
       menu.style.display = "none";
       menu.classList.remove("active");
+      document.body.classList.remove("menu-open");
 
       // Toggle className for .header
       const header = document.querySelector(".header");
@@ -312,6 +314,7 @@ const HeaderComponent = () => {
       }
       menu.style.display = "block";
       menu.classList.add("active");
+      document.body.classList.add("menu-open");
 
       // Toggle className for .header
       const header = document.querySelector(".header");
@@ -1362,22 +1365,32 @@ const HeaderComponent = () => {
                   className={`mb-hasChild ${activeDropdown === "projects" ? "active" : ""
                     }`}
                 >
-                  <button
-                    type="button"
-                    className="text-decoration-none mobile-menu-item"
-                    onClick={() => openMenuMobile("projects")}
-                    title="Browse projects — expand menu"
-                    aria-expanded={activeDropdown === "projects"}
-                    aria-controls="mobile-projects-submenu"
-                  >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
-                      Projects
-                    </span>
-                    <FontAwesomeIcon
-                      icon={faChevronDown}
-                      className={`mobile-dropdown-icon ${activeDropdown === "projects" ? "rotate" : ""}`}
-                    />
-                  </button>
+                  <div className="mobile-menu-item mobile-menu-item--split">
+                    <Link
+                      href="/projects"
+                      onClick={openMenu}
+                      className={`text-decoration-none mobile-menu-item__label${isProjectTypeRoute ? " header-link-active" : ""}`}
+                      title="Browse all projects"
+                    >
+                      <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
+                        Projects
+                      </span>
+                    </Link>
+                    <button
+                      type="button"
+                      className="mobile-menu-item__toggle"
+                      onClick={() => openMenuMobile("projects")}
+                      aria-expanded={activeDropdown === "projects"}
+                      aria-controls="mobile-projects-submenu"
+                      aria-label="Show project types"
+                      title="Show project types"
+                    >
+                      <FontAwesomeIcon
+                        icon={faChevronDown}
+                        className={`mobile-dropdown-icon ${activeDropdown === "projects" ? "rotate" : ""}`}
+                      />
+                    </button>
+                  </div>
                   <div
                     id="mobile-projects-submenu"
                     className={`dropdown mobile-dropdown ${activeDropdown === "projects" ? "activeHeader" : ""

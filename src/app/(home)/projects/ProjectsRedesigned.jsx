@@ -259,6 +259,18 @@ export default function ProjectsRedesigned({
       return;
     }
 
+    if (key === "bhkType") {
+      setFilters((prev) => ({ ...prev, bhkType: willToggleTo, configType: "" }));
+      setCurrentPage(1);
+      return;
+    }
+
+    if (key === "configType") {
+      setFilters((prev) => ({ ...prev, configType: willToggleTo, bhkType: "" }));
+      setCurrentPage(1);
+      return;
+    }
+
     setFilters((prev) => ({ ...prev, [key]: prev[key] === value ? "" : value }));
     setCurrentPage(1);
   };
@@ -598,6 +610,28 @@ export default function ProjectsRedesigned({
     if (dynamic.length > 0) return dynamic;
     return DEFAULT_COMMERCIAL_FILTER_OPTIONS;
   }, [normalizeConfigType, projectsAfterQuickFilter]);
+
+  const configurationFilterOptions = useMemo(() => {
+    const residential = (isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS).map(
+      (value) => ({
+        kind: "bhk",
+        value,
+        label: value,
+      }),
+    );
+
+    const commercialSource = isHubPage
+      ? availableConfigTypeOptions
+      : DEFAULT_COMMERCIAL_FILTER_OPTIONS;
+
+    const commercial = commercialSource.map((opt) => ({
+      kind: "config",
+      value: opt.key,
+      label: opt.label,
+    }));
+
+    return [...residential, ...commercial];
+  }, [availableBhkOptions, availableConfigTypeOptions, isHubPage]);
 
   const citySlugForUrl = useMemo(() => {
     const c = String(filters.city || initialCity || "").trim();
@@ -1118,39 +1152,31 @@ export default function ProjectsRedesigned({
               </div>
             </FilterSection>
 
-            {!isCommercialContext && (
-              <FilterSection title="Configurations">
-                <div className="mpf-checkbox-list">
-                  {(isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS).map((bhk, idx) => (
-                    <label key={idx} className="mpf-checkbox-item">
+            <FilterSection title="Configurations">
+              <div className="mpf-checkbox-list">
+                {configurationFilterOptions.map((opt) => {
+                  const isSelected =
+                    opt.kind === "bhk"
+                      ? filters.bhkType === opt.value
+                      : filters.configType === opt.value;
+                  return (
+                    <label key={`${opt.kind}-${opt.value}`} className="mpf-checkbox-item">
                       <input
                         type="checkbox"
-                        checked={filters.bhkType === bhk}
-                        onChange={() => handleFilterChange("bhkType", bhk)}
-                      />
-                      <span className="mpf-checkbox-label">{bhk}</span>
-                    </label>
-                  ))}
-                </div>
-              </FilterSection>
-            )}
-
-            {isHubPage && availableConfigTypeOptions.length > 0 && (
-              <FilterSection title="Commercial Type">
-                <div className="mpf-checkbox-list">
-                  {availableConfigTypeOptions.map((opt) => (
-                    <label key={opt.key} className="mpf-checkbox-item">
-                      <input
-                        type="checkbox"
-                        checked={filters.configType === opt.key}
-                        onChange={() => handleFilterChange("configType", opt.key)}
+                        checked={isSelected}
+                        onChange={() =>
+                          handleFilterChange(
+                            opt.kind === "bhk" ? "bhkType" : "configType",
+                            opt.value,
+                          )
+                        }
                       />
                       <span className="mpf-checkbox-label">{opt.label}</span>
                     </label>
-                  ))}
-                </div>
-              </FilterSection>
-            )}
+                  );
+                })}
+              </div>
+            </FilterSection>
 
             <FilterSection title="Location" defaultOpen={false}>
               <div className="mpf-checkbox-list mpf-checkbox-scrollable">
@@ -1300,9 +1326,7 @@ export default function ProjectsRedesigned({
         propertyTypes={propertyTypes || []}
         projectStatuses={projectStatuses || []}
         budgetOptions={budgetOptions}
-        bhkOptions={isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS}
-        configTypeOptions={availableConfigTypeOptions}
-        hideBedroom={isCommercialContext}
+        configurationOptions={configurationFilterOptions}
         activeFiltersCount={activeFiltersCount}
       />
     </div>

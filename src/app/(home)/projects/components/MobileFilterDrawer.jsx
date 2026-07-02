@@ -41,9 +41,7 @@ export default function MobileFilterDrawer({
   propertyTypes = [],
   projectStatuses = [],
   budgetOptions = [],
-  bhkOptions = [],
-  configTypeOptions = [],
-  hideBedroom = false,
+  configurationOptions = [],
   activeFiltersCount = 0,
 }) {
   useEffect(() => {
@@ -139,47 +137,31 @@ export default function MobileFilterDrawer({
             </div>
           </FilterSection>
 
-          {!hideBedroom && (
-            <FilterSection title="Configurations">
-              <div className="mpf-mobile-bhk-grid">
-                {bhkOptions.map((bhk, idx) => {
-                  const isSelected = filters.bhkType === bhk;
-                  return (
-                    <button
-                      key={`m-bhk-${idx}`}
-                      type="button"
-                      className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
-                      onClick={() =>
-                        onFilterChange("bhkType", isSelected ? "" : bhk)
-                      }
-                    >
-                      {bhk}
-                    </button>
-                  );
-                })}
-              </div>
-            </FilterSection>
-          )}
-
-          {configTypeOptions.length > 0 && (
-            <FilterSection title="Commercial Type">
-              <div className="mpf-mobile-bhk-grid">
-                {configTypeOptions.map((opt) => {
-                  const isSelected = filters.configType === opt.key;
-                  return (
-                    <button
-                      key={`m-ctype-${opt.key}`}
-                      type="button"
-                      className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
-                      onClick={() => onFilterChange("configType", isSelected ? "" : opt.key)}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </FilterSection>
-          )}
+          <FilterSection title="Configurations">
+            <div className="mpf-mobile-bhk-grid">
+              {configurationOptions.map((opt) => {
+                const isSelected =
+                  opt.kind === "bhk"
+                    ? filters.bhkType === opt.value
+                    : filters.configType === opt.value;
+                return (
+                  <button
+                    key={`m-config-${opt.kind}-${opt.value}`}
+                    type="button"
+                    className={`mpf-mobile-bhk-btn ${isSelected ? "selected" : ""}`}
+                    onClick={() =>
+                      onFilterChange(
+                        opt.kind === "bhk" ? "bhkType" : "configType",
+                        isSelected ? "" : opt.value,
+                      )
+                    }
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+          </FilterSection>
         </div>
 
         <div className="mpf-mobile-drawer-footer">

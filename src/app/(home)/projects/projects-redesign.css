@@ -910,6 +910,12 @@
   color: inherit;
 }
 
+.mpf-listing-card-main {
+  display: contents;
+  text-decoration: none;
+  color: inherit;
+}
+
 /* Image Section */
 .mpf-listing-image {
   position: relative;
@@ -1422,6 +1428,7 @@
   cursor: pointer;
   transition: background 0.2s;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .mpf-btn-contact:hover {

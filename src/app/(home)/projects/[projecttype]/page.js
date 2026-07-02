@@ -4,6 +4,7 @@ import { fetchAllProjectsByProjectType, resolveValidProjectTypeSlug } from "@/ap
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
 import ProjectsRedesigned from "../ProjectsRedesigned";
+import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 
 const COMMERCIAL_META = {
   title: "Top Commercial Real Estate Projects in India | MyPropertyFact",
@@ -57,21 +58,6 @@ const NEW_LAUNCHES_META = {
 };
 
 const REDESIGNED_PROJECT_TYPE_PAGES = {
-  commercial: {
-    initialActiveTab: "commercial",
-    hubCategory: "commercial",
-    breadcrumbLabel: "Commercial Projects",
-    breadcrumbParent: { href: "/projects", label: "Projects" },
-    pageIntro:
-      "Explore Premium Commercial Properties in India with Prime Locations & High ROI.",
-  },
-  residential: {
-    initialActiveTab: "residential",
-    breadcrumbLabel: "Residential Projects",
-    breadcrumbParent: { href: "/projects", label: "Projects" },
-    pageIntro:
-      "Explore Top Residential Properties in India with Luxury Apartments, & Amenities",
-  },
   "new-launches": {
     hubCategory: "new-projects",
     breadcrumbLabel: "New Launch Projects",
@@ -157,25 +143,37 @@ export default async function ProjectType({ params }) {
     notFound();
   }
 
+  const bannerTitle =
+    String(projectTypeDetail.projectTypeName || "").trim() ||
+    validSlug.charAt(0).toUpperCase() + validSlug.slice(1);
+
   return (
-    <main id="primary-content" aria-labelledby="mpf-page-heading">
-      <Suspense
-        fallback={
-          <div
-            className="d-flex justify-content-center align-items-center my-5"
-            style={{ minHeight: "320px" }}
-          >
-            <LoadingSpinner show={true} />
-          </div>
-        }
-      >
-        <PropertyPage
-          projectTypeSlug={validSlug}
-          projectTypeDetails={{
-            projectTypeName: projectTypeDetail.projectTypeName,
-          }}
-        />
-      </Suspense>
-    </main>
+    <>
+      <CommonHeaderBanner
+        headerText={bannerTitle}
+        image="realestate-bg.jpg"
+        firstPage="projects"
+        pageName={bannerTitle}
+      />
+      <main id="primary-content" aria-labelledby="mpf-page-heading">
+        <Suspense
+          fallback={
+            <div
+              className="d-flex justify-content-center align-items-center my-5"
+              style={{ minHeight: "320px" }}
+            >
+              <LoadingSpinner show={true} />
+            </div>
+          }
+        >
+          <PropertyPage
+            projectTypeSlug={validSlug}
+            projectTypeDetails={{
+              projectTypeName: projectTypeDetail.projectTypeName || bannerTitle,
+            }}
+          />
+        </Suspense>
+      </main>
+    </>
   );
 }

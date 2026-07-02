@@ -1444,13 +1444,18 @@
   font-weight: 600;
   color: #ffffff;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, color 0.2s;
   white-space: nowrap;
   text-decoration: none;
 }
 
-.mpf-btn-contact:hover {
+.mpf-btn-contact:hover,
+.mpf-btn-contact:focus,
+.mpf-btn-contact:active,
+.mpf-btn-contact:visited {
   background: var(--mpf-green-dark);
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .mpf-btn-contact--secondary {
@@ -1460,9 +1465,13 @@
   font-weight: 700;
 }
 
-.mpf-btn-contact--secondary:hover {
+.mpf-btn-contact--secondary:hover,
+.mpf-btn-contact--secondary:focus,
+.mpf-btn-contact--secondary:active,
+.mpf-btn-contact--secondary:visited {
   background: rgba(13, 88, 52, 0.08);
   color: var(--mpf-green-dark);
+  text-decoration: none;
 }
 
 .mpf-btn-brochure {

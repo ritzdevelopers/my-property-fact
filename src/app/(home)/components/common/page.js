@@ -76,8 +76,8 @@ export default function PropertyContainer({
       "new launch": { backgroundColor: "#EC191C", textColor: "#1f2937" },
       "ultra luxury": { backgroundColor: "#CC9848", textColor: "#ffffff" },
       luxury: { backgroundColor: "#d32f2f", textColor: "#ffffff" },
-      "ready to move": { backgroundColor: "#0f766e", textColor: "#ffffff" },
-      "under construction": { backgroundColor: "#566BCA", textColor: "#fffffe" },
+      "ready to move": { backgroundColor: "#c1e3e9", textColor: "#0c3d48" },
+      "under construction": { backgroundColor: "#e9e2ef", textColor: "#3d2f52" },
       "possession soon": { backgroundColor: "#2563eb", textColor: "#ffffff" },
       affordable: { backgroundColor: "#22c55e", textColor: "#ffffff" },
     };

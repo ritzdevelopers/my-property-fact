@@ -140,7 +140,7 @@ export default function MobileFilterDrawer({
           </FilterSection>
 
           {!hideBedroom && (
-            <FilterSection title="BHK Type">
+            <FilterSection title="Configurations">
               <div className="mpf-mobile-bhk-grid">
                 {bhkOptions.map((bhk, idx) => {
                   const isSelected = filters.bhkType === bhk;

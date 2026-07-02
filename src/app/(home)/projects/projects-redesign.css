@@ -1390,6 +1390,17 @@
   background: var(--mpf-green-dark);
 }
 
+.mpf-btn-contact--secondary {
+  background: #ffffff;
+  border: 1px solid var(--mpf-green);
+  color: var(--mpf-green);
+}
+
+.mpf-btn-contact--secondary:hover {
+  background: rgba(13, 88, 52, 0.08);
+  color: var(--mpf-green-dark);
+}
+
 .mpf-btn-brochure {
   display: flex;
   align-items: center;

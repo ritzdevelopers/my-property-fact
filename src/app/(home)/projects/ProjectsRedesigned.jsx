@@ -42,7 +42,26 @@ const EMPTY_FILTERS = {
   configType: "",
 };
 
-const BHK_OPTIONS = ["1 RK", "1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "5+ BHK"];
+const RESIDENTIAL_CONFIG_OPTIONS = [
+  "1 RK",
+  "1 BHK",
+  "2 BHK",
+  "3 BHK",
+  "4 BHK",
+  "5 BHK",
+  "5+ BHK",
+  "Villa",
+  "Plots",
+];
+const DEFAULT_COMMERCIAL_FILTER_OPTIONS = [
+  { key: "office", label: "Office" },
+  { key: "shops", label: "Shops" },
+  { key: "showroom", label: "Showroom" },
+  { key: "food-court", label: "Food Court" },
+  { key: "kiosk", label: "Kiosk" },
+  { key: "restaurant", label: "Restaurant" },
+  { key: "sco-plots", label: "SCO Plots" },
+];
 const PROJECTS_PER_PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 300;
 const SEARCH_SUGGESTION_LIMIT = 8;
@@ -436,6 +455,14 @@ export default function ProjectsRedesigned({
       return /\brk\b/i.test(config) || /\bstudio\b/i.test(config);
     }
 
+    if (/^villa$/i.test(wanted)) {
+      return /\bvilla\b/i.test(config);
+    }
+
+    if (/^plots?$/i.test(wanted)) {
+      return /\bplot(s)?\b/i.test(config);
+    }
+
     const bhk = wanted.match(/^(\d+)\s*BHK/i);
     if (bhk?.[1]) {
       const types = extractTypesFromProjectConfiguration(config);
@@ -450,7 +477,7 @@ export default function ProjectsRedesigned({
       });
     }
 
-    // Fallback: substring match
+    // Fallback: substring match for custom configuration values
     return normalizeText(config).includes(normalizeText(wanted));
   }, []);
 
@@ -530,11 +557,15 @@ export default function ProjectsRedesigned({
   const availableBhkOptions = useMemo(() => {
     const set = new Set();
     let hasRk = false;
+    let hasVilla = false;
+    let hasPlots = false;
 
     for (const item of projectsAfterQuickFilter) {
       const config = String(item?.projectConfiguration || "");
       if (!config) continue;
       if (/\brk\b/i.test(config) || /\bstudio\b/i.test(config)) hasRk = true;
+      if (/\bvilla\b/i.test(config)) hasVilla = true;
+      if (/\bplot(s)?\b/i.test(config)) hasPlots = true;
       const types = extractTypesFromProjectConfiguration(config);
       for (const t of types) {
         const m = String(t || "").match(/^(\d+)\s+bhk$/i);
@@ -544,12 +575,13 @@ export default function ProjectsRedesigned({
 
     const list = Array.from(set).sort((a, b) => a - b).map((n) => `${n} BHK`);
     const withRk = hasRk ? ["1 RK", ...list] : list;
+    if (hasVilla) withRk.push("Villa");
+    if (hasPlots) withRk.push("Plots");
     // Extra safety: no duplicates
     return Array.from(new Set(withRk));
   }, [projectsAfterQuickFilter]);
 
   const availableConfigTypeOptions = useMemo(() => {
-    if (!isHubPage) return [];
     const map = new Map();
     for (const item of projectsAfterQuickFilter) {
       const config = String(item?.projectConfiguration || "");
@@ -562,8 +594,10 @@ export default function ProjectsRedesigned({
         }
       }
     }
-    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
-  }, [isHubPage, normalizeConfigType, projectsAfterQuickFilter]);
+    const dynamic = Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+    if (dynamic.length > 0) return dynamic;
+    return DEFAULT_COMMERCIAL_FILTER_OPTIONS;
+  }, [normalizeConfigType, projectsAfterQuickFilter]);
 
   const citySlugForUrl = useMemo(() => {
     const c = String(filters.city || initialCity || "").trim();
@@ -1085,9 +1119,9 @@ export default function ProjectsRedesigned({
             </FilterSection>
 
             {!isCommercialContext && (
-              <FilterSection title="Bedroom">
+              <FilterSection title="Configurations">
                 <div className="mpf-checkbox-list">
-                  {(isHubPage ? availableBhkOptions : BHK_OPTIONS).map((bhk, idx) => (
+                  {(isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS).map((bhk, idx) => (
                     <label key={idx} className="mpf-checkbox-item">
                       <input
                         type="checkbox"
@@ -1120,7 +1154,7 @@ export default function ProjectsRedesigned({
 
             <FilterSection title="Location" defaultOpen={false}>
               <div className="mpf-checkbox-list mpf-checkbox-scrollable">
-                {(cities || []).slice(0, 15).map((city, idx) => (
+                {(cities || []).map((city, idx) => (
                   <label key={idx} className="mpf-checkbox-item">
                     <input
                       type="checkbox"
@@ -1266,7 +1300,7 @@ export default function ProjectsRedesigned({
         propertyTypes={propertyTypes || []}
         projectStatuses={projectStatuses || []}
         budgetOptions={budgetOptions}
-        bhkOptions={isHubPage ? availableBhkOptions : BHK_OPTIONS}
+        bhkOptions={isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS}
         configTypeOptions={availableConfigTypeOptions}
         hideBedroom={isCommercialContext}
         activeFiltersCount={activeFiltersCount}

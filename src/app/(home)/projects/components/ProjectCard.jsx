@@ -12,6 +12,7 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import CommonPopUpform from "@/app/(home)/components/common/popupform";
 
 const API_BASE = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
 
@@ -80,6 +81,7 @@ const PropertyTypeRibbon = ({ type }) => {
 export default function ProjectCard({ project, imagePriority = false }) {
   const [imageError, setImageError] = useState(false);
   const [projectMeta, setProjectMeta] = useState({ reraNo: "", photoCount: 0 });
+  const [showLeadForm, setShowLeadForm] = useState(false);
 
   useEffect(() => {
     const slug = project?.slugURL;
@@ -190,7 +192,7 @@ export default function ProjectCard({ project, imagePriority = false }) {
         {/* Content Section */}
         <div className="mpf-listing-content">
           <div className="mpf-listing-header">
-            <h3 className="mpf-listing-title">{project.projectName}</h3>
+            <h2 className="mpf-listing-title">{project.projectName}</h2>
             <p className="mpf-listing-location">
               {formatAddress(project.projectAddress, project.cityName)}
             </p>
@@ -222,13 +224,30 @@ export default function ProjectCard({ project, imagePriority = false }) {
           <button className="mpf-listing-wishlist" aria-label="Add to wishlist">
             <FontAwesomeIcon icon={faHeart} />
           </button>
-          
-          <button className="mpf-btn-contact">
+
+          <button
+            type="button"
+            className="mpf-btn-contact mpf-btn-contact--secondary"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowLeadForm(true);
+            }}
+          >
             <FontAwesomeIcon icon={faPhone} />
-            View Number
+            Get Details
+          </button>
+          <button className="mpf-btn-contact">
+            Click to Explore
           </button>
         </div>
       </Link>
+      <CommonPopUpform
+        show={showLeadForm}
+        handleClose={setShowLeadForm}
+        from="Project Detail"
+        data={project}
+      />
     </article>
   );
 }

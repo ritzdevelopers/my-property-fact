@@ -7,6 +7,21 @@ import styles from "./projectListingPagination.module.css";
 
 export const LISTING_PAGE_SIZE = 12;
 
+/** Smooth-scroll to a listings anchor, accounting for the sticky site header. */
+export function scrollToProjectListings(targetRef) {
+  if (typeof window === "undefined") return;
+  const el = targetRef?.current;
+  if (!el) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+  const root = document.documentElement;
+  const headerOffset =
+    parseFloat(getComputedStyle(root).getPropertyValue("--mpf-site-header-height")) || 92;
+  const top = el.getBoundingClientRect().top + window.scrollY - headerOffset - 16;
+  window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+}
+
 /**
  * Page indices to show: numbers and 'ellipsis' for gaps.
  */
@@ -76,7 +91,9 @@ export function ProjectListingPaginationControls({
   totalItems,
   pageSize = LISTING_PAGE_SIZE,
   onPageChange,
-  /** When true (default), scroll to top after changing page. Set false if the parent scrolls (e.g. to a grid). */
+  /** Ref to the project listings container; scrolls here instead of page top when set. */
+  scrollTargetRef = null,
+  /** When true (default), scroll after changing page. Set false if the parent handles scroll. */
   scrollAfterPageChange = true,
 }) {
   const visiblePages = useMemo(
@@ -90,7 +107,7 @@ export function ProjectListingPaginationControls({
     if (typeof onPageChange !== "function") return;
     onPageChange(p);
     if (scrollAfterPageChange && typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      requestAnimationFrame(() => scrollToProjectListings(scrollTargetRef));
     }
   };
 

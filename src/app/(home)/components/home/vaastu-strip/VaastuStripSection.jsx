@@ -5,6 +5,9 @@ import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGateway
 import "./VaastuStripSection.css";
 
 const INSTAGRAM_REELS = [
+  { id: "DaXEro5gddT", title: "My Property Fact — Instagram reel" },
+  { id: "DaFC1n1grCs", title: "My Property Fact — Instagram reel" },
+  { id: "DZy2IFyk2Mp", title: "My Property Fact — Instagram reel" },
   { id: "DZg62TblKL-", title: "My Property Fact — Instagram reel" },
   { id: "DZOyVGPiaPw", title: "My Property Fact — Instagram reel" },
   { id: "DY9kSk2THeq", title: "My Property Fact — Instagram reel" },
@@ -14,6 +17,27 @@ const INSTAGRAM_REELS = [
 ];
 
 const MEDIA_CARDS = [
+  {
+    id: "vaastu-reel-daxero5gddt",
+    reelId: "DaXEro5gddT",
+    imageSrc: "https://www.instagram.com/reel/DaXEro5gddT/media/?size=l",
+    alt: "Vaastu insights thumbnail from My Property Fact",
+    title: "Vaastu insights from My Property Fact",
+  },
+  {
+    id: "vaastu-reel-dafc1n1grcs",
+    reelId: "DaFC1n1grCs",
+    imageSrc: "https://www.instagram.com/reel/DaFC1n1grCs/media/?size=l",
+    alt: "Vaastu insights thumbnail from My Property Fact",
+    title: "Vaastu insights from My Property Fact",
+  },
+  {
+    id: "vaastu-reel-dzy2ifyk2mp",
+    reelId: "DZy2IFyk2Mp",
+    imageSrc: "https://www.instagram.com/reel/DZy2IFyk2Mp/media/?size=l",
+    alt: "Vaastu insights thumbnail from My Property Fact",
+    title: "Vaastu insights from My Property Fact",
+  },
   {
     id: "vaastu-business-growth",
     reelId: "DZg62TblKL-",
@@ -45,11 +69,20 @@ const getInstagramThumbnailUrl = (reelId) =>
 
 const getPlayIconLabel = (label) => `Play reel: ${label}`;
 
+const STRIP_CARD_WIDTH = 302;
+const STRIP_GAP = 18;
+const STRIP_SCROLL_STEP = STRIP_CARD_WIDTH + STRIP_GAP;
+const DESKTOP_BREAKPOINT = 992;
+
 export default function VaastuStripSection() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isDesktop, setIsDesktop] = useState(false);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
   const itemRefs = useRef([]);
-  const scrollerRef = useRef(null);
+  const reelsScrollerRef = useRef(null);
+  const stripRef = useRef(null);
   const openIndexRef = useRef(0);
   const isScrollingRef = useRef(false);
 
@@ -74,6 +107,96 @@ export default function VaastuStripSection() {
       isScrollingRef.current = false;
     }, behavior === "smooth" ? 420 : 0);
   }, []);
+
+  const updateStripScrollState = useCallback(() => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    const maxScrollLeft = strip.scrollWidth - strip.clientWidth;
+    setCanScrollPrev(strip.scrollLeft > 8);
+    setCanScrollNext(strip.scrollLeft < maxScrollLeft - 8);
+  }, []);
+
+  const scrollStrip = useCallback((direction) => {
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    strip.scrollBy({
+      left: direction * STRIP_SCROLL_STEP,
+      behavior: "smooth",
+    });
+  }, []);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);
+    const syncViewport = () => setIsDesktop(mediaQuery.matches);
+
+    syncViewport();
+    mediaQuery.addEventListener("change", syncViewport);
+    return () => mediaQuery.removeEventListener("change", syncViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!isDesktop) return;
+
+    const strip = stripRef.current;
+    if (!strip) return;
+
+    updateStripScrollState();
+
+    strip.addEventListener("scroll", updateStripScrollState, { passive: true });
+    window.addEventListener("resize", updateStripScrollState);
+
+    const onWheel = (event) => {
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+
+      event.preventDefault();
+      strip.scrollBy({ left: event.deltaY, behavior: "auto" });
+    };
+
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragScrollLeft = 0;
+
+    const onMouseDown = (event) => {
+      if (event.button !== 0) return;
+
+      isDragging = true;
+      dragStartX = event.pageX;
+      dragScrollLeft = strip.scrollLeft;
+      strip.classList.add("is-dragging");
+    };
+
+    const onMouseMove = (event) => {
+      if (!isDragging) return;
+
+      event.preventDefault();
+      strip.scrollLeft = dragScrollLeft - (event.pageX - dragStartX);
+    };
+
+    const endDrag = () => {
+      if (!isDragging) return;
+
+      isDragging = false;
+      strip.classList.remove("is-dragging");
+    };
+
+    strip.addEventListener("wheel", onWheel, { passive: false });
+    strip.addEventListener("mousedown", onMouseDown);
+    strip.addEventListener("mousemove", onMouseMove);
+    strip.addEventListener("mouseup", endDrag);
+    strip.addEventListener("mouseleave", endDrag);
+
+    return () => {
+      strip.removeEventListener("scroll", updateStripScrollState);
+      window.removeEventListener("resize", updateStripScrollState);
+      strip.removeEventListener("wheel", onWheel);
+      strip.removeEventListener("mousedown", onMouseDown);
+      strip.removeEventListener("mousemove", onMouseMove);
+      strip.removeEventListener("mouseup", endDrag);
+      strip.removeEventListener("mouseleave", endDrag);
+    };
+  }, [isDesktop, updateStripScrollState]);
 
   const handleKeyDown = useCallback(
     (e) => {
@@ -116,9 +239,9 @@ export default function VaastuStripSection() {
   }, [isOpen, scrollToReel]);
 
   useEffect(() => {
-    if (!isOpen || !scrollerRef.current) return;
+    if (!isOpen || !reelsScrollerRef.current) return;
 
-    const root = scrollerRef.current;
+    const root = reelsScrollerRef.current;
 
     const updateActiveFromScroll = () => {
       if (isScrollingRef.current) return;
@@ -182,7 +305,65 @@ export default function VaastuStripSection() {
   return (
     <section className="vaastu-strip-section">
       <div className="container">
-        <div className="vaastu-strip" role="list" aria-label="Explore insights">
+        <div className="vaastu-strip-carousel">
+          {isDesktop && (
+            <div className="vaastu-strip-carousel__controls">
+              <p className="vaastu-strip-carousel__hint">
+                Drag, scroll, or use arrows to browse reels
+              </p>
+              <div className="vaastu-strip-carousel__nav" aria-label="Browse Vaastu reels">
+                <button
+                  type="button"
+                  className="vaastu-strip-nav-btn"
+                  aria-label="Previous reel"
+                  disabled={!canScrollPrev}
+                  onClick={() => scrollStrip(-1)}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M14 6L8 12L14 18"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  className="vaastu-strip-nav-btn"
+                  aria-label="Next reel"
+                  disabled={!canScrollNext}
+                  onClick={() => scrollStrip(1)}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M10 6L16 12L10 18"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="vaastu-strip-carousel__viewport">
+            {isDesktop && canScrollPrev && (
+              <div className="vaastu-strip-fade vaastu-strip-fade--left" aria-hidden="true" />
+            )}
+            {isDesktop && canScrollNext && (
+              <div className="vaastu-strip-fade vaastu-strip-fade--right" aria-hidden="true" />
+            )}
+
+            <div
+              ref={stripRef}
+              className="vaastu-strip"
+              role="list"
+              aria-label="Explore insights"
+            >
           <button
             type="button"
             className="vaastu-strip-card vaastu-strip-card--explore"
@@ -229,6 +410,8 @@ export default function VaastuStripSection() {
               />
             </button>
           ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -260,7 +443,7 @@ export default function VaastuStripSection() {
               </p>
 
               <div
-                ref={scrollerRef}
+                ref={reelsScrollerRef}
                 className="vaastu-reels-scroller"
                 aria-label="Instagram reels"
               >

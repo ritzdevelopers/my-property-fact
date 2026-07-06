@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import PropertyContainer from "@/app/(home)/components/common/page";
 import "../project.css";
 import {
@@ -16,6 +16,7 @@ export default function PropertyPage({ projectTypeDetails, projectTypeSlug }) {
   const [list, setList] = useState([]);
   const [listLoading, setListLoading] = useState(() => Boolean(projectTypeSlug));
   const [projectSearchTerm, setProjectSearchTerm] = useState("");
+  const listingsRef = useRef(null);
 
   useEffect(() => {
     const slug = String(projectTypeSlug || "").trim();
@@ -137,7 +138,7 @@ export default function PropertyPage({ projectTypeDetails, projectTypeSlug }) {
           <LoadingSpinner show={true} />
         </div>
       ) : (
-        <div className="row g-3">
+        <div className="row g-3" ref={listingsRef}>
           {pageItems.length > 0 ? (
             pageItems.map((item, index) => (
               <div
@@ -158,6 +159,7 @@ export default function PropertyPage({ projectTypeDetails, projectTypeSlug }) {
         totalItems={totalItems}
         pageSize={LISTING_PAGE_SIZE}
         onPageChange={setPage}
+        scrollTargetRef={listingsRef}
       />
     </div>
   );

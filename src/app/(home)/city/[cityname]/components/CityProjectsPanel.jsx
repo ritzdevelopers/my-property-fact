@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import ProjectCard from "@/app/(home)/projects/components/ProjectCard";
 import {
   LISTING_PAGE_SIZE,
@@ -15,6 +16,7 @@ export default function CityProjectsPanel({
   projectsLoading,
 }) {
   const cityName = cityData?.cityName?.trim() || "this city";
+  const listingsRef = useRef(null);
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(projects, LISTING_PAGE_SIZE);
 
@@ -37,7 +39,7 @@ export default function CityProjectsPanel({
         </div>
       ) : (
         <>
-          <div className="city-projects-panel__grid">
+          <div className="city-projects-panel__grid" ref={listingsRef}>
             {pageItems.length > 0 ? (
               pageItems.map((item, index) => (
                 <ProjectCard
@@ -63,6 +65,7 @@ export default function CityProjectsPanel({
             totalItems={totalItems}
             pageSize={LISTING_PAGE_SIZE}
             onPageChange={setPage}
+            scrollTargetRef={listingsRef}
           />
         </>
       )}

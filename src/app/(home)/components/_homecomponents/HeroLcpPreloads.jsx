@@ -1,7 +1,7 @@
 // Preload links must mirror the <picture> breakpoints in heroSection.jsx exactly.
-const BANNER_DESKTOP = "/static/banners/mpf_generic_banner.jpg";
-const BANNER_TABLET  = "/static/banners/mpf_generic_banner_tab.jpg";
-const BANNER_MOBILE  = "/static/banners/mpf_generic_mobile.jpg";
+const BANNER_DESKTOP = "/static/banners/mpf%20banner-02%20(3).jpg";
+const BANNER_TABLET  = "/static/banners/mpf%20banner-02%20(3).jpg";
+const BANNER_MOBILE  = "/static/banners/mpf%20banner-02%20(3).jpg";
 
 export default function HeroLcpPreloads() {
   return (

@@ -29,6 +29,9 @@ import {
   projectMatchesListingHubCategory,
 } from "@/lib/listingFloorValidation";
 
+import {
+  scrollToProjectListings,
+} from "@/app/_global_components/projectListingPagination";
 import ProjectCard from "./components/ProjectCard";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
 import "./projects-redesign.css";
@@ -184,6 +187,7 @@ export default function ProjectsRedesigned({
 
   const [relatedExpanded, setRelatedExpanded] = useState(false);
   const searchWrapRef = useRef(null);
+  const listingsRef = useRef(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -803,6 +807,22 @@ export default function ProjectsRedesigned({
     return items;
   }, [currentPage, totalPages]);
 
+  const goToPage = useCallback(
+    (nextPage) => {
+      let didChange = false;
+      setCurrentPage((prev) => {
+        const resolved = typeof nextPage === "function" ? nextPage(prev) : nextPage;
+        const page = Math.max(1, Math.min(resolved, totalPages));
+        didChange = page !== prev;
+        return page;
+      });
+      if (didChange) {
+        requestAnimationFrame(() => scrollToProjectListings(listingsRef));
+      }
+    },
+    [totalPages],
+  );
+
   const appliedFilterTags = useMemo(() => {
     const tags = [];
 
@@ -1330,7 +1350,7 @@ export default function ProjectsRedesigned({
           </aside>
 
           {/* Listings */}
-          <main className="mpf-listings">
+          <main className="mpf-listings" ref={listingsRef}>
             {/* Loading */}
             {isLoading && (
               <div className="mpf-loading">
@@ -1376,7 +1396,7 @@ export default function ProjectsRedesigned({
               <div className="mpf-pagination">
                 <button
                   disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
+                  onClick={() => goToPage((p) => p - 1)}
                 >
                   Prev
                 </button>
@@ -1390,9 +1410,7 @@ export default function ProjectsRedesigned({
                       className={currentPage === page ? "active" : ""}
                       aria-current={currentPage === page ? "page" : undefined}
                       aria-disabled={currentPage === page ? true : undefined}
-                      onClick={() => {
-                        if (currentPage !== page) setCurrentPage(page);
-                      }}
+                      onClick={() => goToPage(page)}
                     >
                       {page}
                     </button>
@@ -1400,7 +1418,7 @@ export default function ProjectsRedesigned({
                 })}
                 <button
                   disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
+                  onClick={() => goToPage((p) => p + 1)}
                 >
                   Next »
                 </button>

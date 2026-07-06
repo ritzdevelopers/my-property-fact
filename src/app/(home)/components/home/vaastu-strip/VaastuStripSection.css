@@ -2,10 +2,120 @@
   padding: 10px 0 30px;
 }
 
+.vaastu-strip-carousel {
+  position: relative;
+}
+
+.vaastu-strip-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.vaastu-strip-carousel__hint {
+  margin: 0;
+  color: #6b7280;
+  font-family: "Lato", var(--heaing-font), sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.vaastu-strip-carousel__nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.vaastu-strip-nav-btn {
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 999px;
+  background: #fff;
+  color: #111827;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(17, 24, 39, 0.1);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    opacity 180ms ease;
+}
+
+.vaastu-strip-nav-btn:hover:not(:disabled) {
+  transform: scale(1.06) translateY(-1px);
+  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.14);
+}
+
+.vaastu-strip-nav-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.vaastu-strip-nav-btn:focus-visible {
+  outline: 3px solid rgba(13, 88, 52, 0.35);
+  outline-offset: 2px;
+}
+
+.vaastu-strip-nav-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.vaastu-strip-carousel__viewport {
+  position: relative;
+}
+
+.vaastu-strip-fade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 56px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vaastu-strip-fade--left {
+  left: 0;
+  background: linear-gradient(90deg, #fff 10%, rgba(255, 255, 255, 0));
+}
+
+.vaastu-strip-fade--right {
+  right: 0;
+  background: linear-gradient(270deg, #fff 10%, rgba(255, 255, 255, 0));
+}
+
 .vaastu-strip {
   display: flex;
   gap: 18px;
   align-items: stretch;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.vaastu-strip::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .vaastu-strip {
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    cursor: grab;
+  }
+
+  .vaastu-strip.is-dragging {
+    cursor: grabbing;
+    scroll-snap-type: none;
+  }
+
+  .vaastu-strip-card {
+    scroll-snap-align: start;
+  }
 }
 
 .vaastu-strip-card {
@@ -104,6 +214,30 @@
     180deg,
     rgba(0, 0, 0, 0) 0%,
     rgba(225, 91, 82, 0.71) 105.61%
+  );
+}
+
+.vaastu-strip-card--media-4::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(225, 178, 82, 0.71) 105.61%
+  );
+}
+
+.vaastu-strip-card--media-5::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(168, 82, 225, 0.71) 105.61%
+  );
+}
+
+.vaastu-strip-card--media-6::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(82, 198, 225, 0.71) 105.61%
   );
 }
 
@@ -471,10 +605,16 @@ body.mpf-social-reels-open .lead-form-popup-trigger--home-beside-chat {
 
 /* Responsive: use a compact two-column layout on tablets. */
 @media (max-width: 991px) {
+  .vaastu-strip-carousel__controls {
+    display: none;
+  }
+
   .vaastu-strip {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
+    overflow-x: visible;
+    cursor: default;
   }
 
   .vaastu-strip-card {

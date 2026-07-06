@@ -383,14 +383,14 @@
 }
 
 .mpf-quick-filter-btn--residential.active {
-  background: #16a34a;
-  border-color: #16a34a;
+  background: var(--mpf-green);
+  border-color: var(--mpf-green);
   color: #ffffff;
 }
 
 .mpf-quick-filter-btn--commercial.active {
-  background: #4f46e5;
-  border-color: #4f46e5;
+  background: var(--mpf-green);
+  border-color: var(--mpf-green);
   color: #ffffff;
 }
 

@@ -62,18 +62,21 @@ const REDESIGNED_PROJECT_TYPE_PAGES = {
     initialActiveTab: "commercial",
     hubCategory: "commercial",
     breadcrumbParent: { href: "/projects", label: "Projects" },
+    breadcrumbLabel: "Commercial",
     pageHeading:
       "Explore Premium Commercial Properties in India with Prime Locations & High ROI.",
   },
   residential: {
     initialActiveTab: "residential",
     breadcrumbParent: { href: "/projects", label: "Projects" },
+    breadcrumbLabel: "Residential",
     pageHeading:
       "Explore Top Residential Properties in India with Luxury Apartments, & Amenities",
   },
   "new-launches": {
     hubCategory: "new-projects",
     breadcrumbParent: { href: "/projects", label: "Projects" },
+    breadcrumbLabel: "New Launches",
     pageHeading:
       "Explore New Real Estate Projects in India, Top Locations, & Investment Deals.",
   },

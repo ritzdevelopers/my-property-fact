@@ -81,7 +81,7 @@ export default function PropertyPage({ projectTypeDetails, projectTypeSlug }) {
       {projectsPageH2 ? (
         <section className="mb-4 mb-md-5">
           <div className="mx-auto px-2 text-center" style={{ maxWidth: "980px" }}>
-            <h2 className="fw-semibold lh-base mb-0">{projectsPageH2}</h2>
+            <h1 className="fw-semibold lh-base mb-0">{projectsPageH2}</h1>
           </div>
         </section>
       ) : null}

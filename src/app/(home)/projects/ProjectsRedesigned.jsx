@@ -357,6 +357,7 @@ export default function ProjectsRedesigned({
   }, [hubCategory]);
 
   const isHubPage = Boolean(hubUrlCategorySegment);
+  const isNewLaunchHubPage = hubUrlCategorySegment === "new-projects";
   const isListingPage = isHubPage || Boolean(pathname && pathname.includes("-in-"));
 
   const relatedCityLabel = useMemo(() => {
@@ -566,12 +567,16 @@ export default function ProjectsRedesigned({
       }
     }
 
-    return QUICK_FILTERS_ALL.filter((qf) => (counts.get(qf.key) || 0) > 0);
+    return QUICK_FILTERS_ALL.filter((qf) => {
+      if (isNewLaunchHubPage && qf.key === "new") return false;
+      return (counts.get(qf.key) || 0) > 0;
+    });
   }, [
     QUICK_FILTERS_ALL,
     baseProjectsBeforeQuickFilter,
     filters.bhkType,
     filters.configType,
+    isNewLaunchHubPage,
     matchesBhkFilter,
     matchesConfigTypeFilter,
     matchesQuickFilter,
@@ -828,7 +833,11 @@ export default function ProjectsRedesigned({
   const appliedFilterTags = useMemo(() => {
     const tags = [];
 
-    if (!isPropertyTypeLocked && (activeTab === "residential" || activeTab === "commercial")) {
+    if (
+      !isPropertyTypeLocked &&
+      !isNewLaunchHubPage &&
+      (activeTab === "residential" || activeTab === "commercial")
+    ) {
       tags.push({
         key: `property-type:${activeTab}`,
         label: PROPERTY_TYPE_TAG_LABELS[activeTab],
@@ -881,7 +890,7 @@ export default function ProjectsRedesigned({
     }
 
     return tags;
-  }, [activeTab, configurationFilterOptions, filters, isPropertyTypeLocked, sortBy]);
+  }, [activeTab, configurationFilterOptions, filters, isNewLaunchHubPage, isPropertyTypeLocked, sortBy]);
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const isLoading = siteDataLoading;
@@ -921,6 +930,17 @@ export default function ProjectsRedesigned({
       setCurrentPage(1);
     });
   }, [showOverlayLoader]);
+
+  const handlePropertyTypePill = useCallback((type) => {
+    const nextTab = activeTab === type ? "all" : type;
+    setActiveTab(nextTab);
+    setFilters((prev) => ({
+      ...prev,
+      bhkType: nextTab === "commercial" ? "" : prev.bhkType,
+      configType: nextTab === "residential" ? "" : prev.configType,
+    }));
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const applySortFromDropdown = useCallback((nextSort) => {
     setShowSortDropdown(false);
@@ -1067,10 +1087,10 @@ export default function ProjectsRedesigned({
                 {breadcrumbParent?.href && breadcrumbParent?.label ? (
                   <>
                     <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
-                    <span>›</span>
+                    {breadcrumbLabel ? <span>›</span> : null}
                   </>
                 ) : null}
-                <span>{breadcrumbLabel}</span>
+                {breadcrumbLabel ? <span>{breadcrumbLabel}</span> : null}
               </nav>
             )}
             <h1
@@ -1192,6 +1212,28 @@ export default function ProjectsRedesigned({
                 <FontAwesomeIcon icon={faTimes} className="mpf-applied-filter-tag__icon" />
               </button>
             ))}
+            {isNewLaunchHubPage ? (
+              <>
+                <button
+                  type="button"
+                  className={`mpf-quick-filter-btn mpf-quick-filter-btn--residential${
+                    activeTab === "residential" ? " active" : ""
+                  }`}
+                  onClick={() => handlePropertyTypePill("residential")}
+                >
+                  Residential
+                </button>
+                <button
+                  type="button"
+                  className={`mpf-quick-filter-btn mpf-quick-filter-btn--commercial${
+                    activeTab === "commercial" ? " active" : ""
+                  }`}
+                  onClick={() => handlePropertyTypePill("commercial")}
+                >
+                  Commercial
+                </button>
+              </>
+            ) : null}
             {visibleQuickFilters.map((qf) => (
               <button
                 key={qf.key}
@@ -1234,7 +1276,7 @@ export default function ProjectsRedesigned({
               </button>
               {showSortDropdown && (
                 <div className="mpf-sort-dropdown">
-                  {!isPropertyTypeLocked && (
+                  {!isPropertyTypeLocked && !isNewLaunchHubPage && (
                     <>
                       <div className="mpf-dropdown-section">
                         <span className="mpf-dropdown-label">Property Type</span>

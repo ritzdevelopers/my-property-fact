@@ -8,9 +8,9 @@ import "./newmpfmetadata.css";
 
 // ─── Static banner assets ─────────────────────────────────────────────────────
 const BANNER_ALT     = "My Property Fact";
-const BANNER_DESKTOP = "/static/banners/mpf_new_banner_generic.jpg";     // ≥ 992 px
-const BANNER_TABLET  = "/static/banners/mpf_generic_banner_tab.jpg"; // 768 – 991 px
-const BANNER_MOBILE  = "/static/banners/MPF-BANNER-458X810.jpg";     // < 768 px
+const BANNER_DESKTOP = "/static/banners/mpf%20banner-01%20(5).jpg"; // ≥ 992 px
+const BANNER_TABLET  = "/static/banners/mpf%20banner-03%20(2).jpg"; // 768 – 991 px
+const BANNER_MOBILE  = "/static/banners/mpf%20banner-05%20(2).jpg"; // < 768 px
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
 // ─────────────────────────────────────────────────────────────────────────────
 

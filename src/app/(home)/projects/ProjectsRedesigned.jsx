@@ -29,6 +29,9 @@ import {
   projectMatchesListingHubCategory,
 } from "@/lib/listingFloorValidation";
 
+import {
+  scrollToProjectListings,
+} from "@/app/_global_components/projectListingPagination";
 import ProjectCard from "./components/ProjectCard";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
 import "./projects-redesign.css";
@@ -119,6 +122,9 @@ export default function ProjectsRedesigned({
   showBreadcrumb = true,
   hubCategory = "",
 } = {}) {
+  const isPropertyTypeLocked =
+    initialActiveTab === "commercial" || initialActiveTab === "residential";
+
   const {
     cityList: cities,
     projectTypes: propertyTypes,
@@ -181,6 +187,7 @@ export default function ProjectsRedesigned({
 
   const [relatedExpanded, setRelatedExpanded] = useState(false);
   const searchWrapRef = useRef(null);
+  const listingsRef = useRef(null);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -289,7 +296,7 @@ export default function ProjectsRedesigned({
 
   const handleClearFilters = () => {
     setFilters(EMPTY_FILTERS);
-    setActiveTab("all");
+    setActiveTab(isPropertyTypeLocked ? initialActiveTab : "all");
     setSortBy("relevance");
     setSearchInput("");
     setDebouncedSearch("");
@@ -328,7 +335,9 @@ export default function ProjectsRedesigned({
 
   const matchesQuickFilter = useCallback((statusNorm, key) => {
     if (!key) return true;
-    if (key === "ready") return statusNorm.includes("ready");
+    if (key === "ready") {
+      return statusNorm.includes("ready") || statusNorm.includes("completed");
+    }
     if (key === "new") {
       return statusNorm.includes("new launch") || statusNorm.includes("new launched");
     }
@@ -348,6 +357,7 @@ export default function ProjectsRedesigned({
   }, [hubCategory]);
 
   const isHubPage = Boolean(hubUrlCategorySegment);
+  const isNewLaunchHubPage = hubUrlCategorySegment === "new-projects";
   const isListingPage = isHubPage || Boolean(pathname && pathname.includes("-in-"));
 
   const relatedCityLabel = useMemo(() => {
@@ -557,12 +567,16 @@ export default function ProjectsRedesigned({
       }
     }
 
-    return QUICK_FILTERS_ALL.filter((qf) => (counts.get(qf.key) || 0) > 0);
+    return QUICK_FILTERS_ALL.filter((qf) => {
+      if (isNewLaunchHubPage && qf.key === "new") return false;
+      return (counts.get(qf.key) || 0) > 0;
+    });
   }, [
     QUICK_FILTERS_ALL,
     baseProjectsBeforeQuickFilter,
     filters.bhkType,
     filters.configType,
+    isNewLaunchHubPage,
     matchesBhkFilter,
     matchesConfigTypeFilter,
     matchesQuickFilter,
@@ -800,10 +814,30 @@ export default function ProjectsRedesigned({
     return items;
   }, [currentPage, totalPages]);
 
+  const goToPage = useCallback(
+    (nextPage) => {
+      let didChange = false;
+      setCurrentPage((prev) => {
+        const resolved = typeof nextPage === "function" ? nextPage(prev) : nextPage;
+        const page = Math.max(1, Math.min(resolved, totalPages));
+        didChange = page !== prev;
+        return page;
+      });
+      if (didChange) {
+        requestAnimationFrame(() => scrollToProjectListings(listingsRef));
+      }
+    },
+    [totalPages],
+  );
+
   const appliedFilterTags = useMemo(() => {
     const tags = [];
 
-    if (activeTab === "residential" || activeTab === "commercial") {
+    if (
+      !isPropertyTypeLocked &&
+      !isNewLaunchHubPage &&
+      (activeTab === "residential" || activeTab === "commercial")
+    ) {
       tags.push({
         key: `property-type:${activeTab}`,
         label: PROPERTY_TYPE_TAG_LABELS[activeTab],
@@ -856,7 +890,7 @@ export default function ProjectsRedesigned({
     }
 
     return tags;
-  }, [activeTab, configurationFilterOptions, filters, sortBy]);
+  }, [activeTab, configurationFilterOptions, filters, isNewLaunchHubPage, isPropertyTypeLocked, sortBy]);
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const isLoading = siteDataLoading;
@@ -864,7 +898,7 @@ export default function ProjectsRedesigned({
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
     Boolean(selectedSearchProjectKey) ||
-    activeTab !== "all" ||
+    (!isPropertyTypeLocked && activeTab !== "all") ||
     sortBy !== "relevance";
 
   const sortDropdownRef = useRef(null);
@@ -896,6 +930,17 @@ export default function ProjectsRedesigned({
       setCurrentPage(1);
     });
   }, [showOverlayLoader]);
+
+  const handlePropertyTypePill = useCallback((type) => {
+    const nextTab = activeTab === type ? "all" : type;
+    setActiveTab(nextTab);
+    setFilters((prev) => ({
+      ...prev,
+      bhkType: nextTab === "commercial" ? "" : prev.bhkType,
+      configType: nextTab === "residential" ? "" : prev.configType,
+    }));
+    setCurrentPage(1);
+  }, [activeTab]);
 
   const applySortFromDropdown = useCallback((nextSort) => {
     setShowSortDropdown(false);
@@ -1042,10 +1087,10 @@ export default function ProjectsRedesigned({
                 {breadcrumbParent?.href && breadcrumbParent?.label ? (
                   <>
                     <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
-                    <span>›</span>
+                    {breadcrumbLabel ? <span>›</span> : null}
                   </>
                 ) : null}
-                <span>{breadcrumbLabel}</span>
+                {breadcrumbLabel ? <span>{breadcrumbLabel}</span> : null}
               </nav>
             )}
             <h1
@@ -1167,6 +1212,28 @@ export default function ProjectsRedesigned({
                 <FontAwesomeIcon icon={faTimes} className="mpf-applied-filter-tag__icon" />
               </button>
             ))}
+            {isNewLaunchHubPage ? (
+              <>
+                <button
+                  type="button"
+                  className={`mpf-quick-filter-btn mpf-quick-filter-btn--residential${
+                    activeTab === "residential" ? " active" : ""
+                  }`}
+                  onClick={() => handlePropertyTypePill("residential")}
+                >
+                  Residential
+                </button>
+                <button
+                  type="button"
+                  className={`mpf-quick-filter-btn mpf-quick-filter-btn--commercial${
+                    activeTab === "commercial" ? " active" : ""
+                  }`}
+                  onClick={() => handlePropertyTypePill("commercial")}
+                >
+                  Commercial
+                </button>
+              </>
+            ) : null}
             {visibleQuickFilters.map((qf) => (
               <button
                 key={qf.key}
@@ -1209,23 +1276,27 @@ export default function ProjectsRedesigned({
               </button>
               {showSortDropdown && (
                 <div className="mpf-sort-dropdown">
-                  <div className="mpf-dropdown-section">
-                    <span className="mpf-dropdown-label">Property Type</span>
-                    {[
-                      { value: "all", label: "All Projects" },
-                      { value: "residential", label: "Residential" },
-                      { value: "commercial", label: "Commercial" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.value}
-                        className={activeTab === opt.value ? "active" : ""}
-                        onClick={() => applyPropertyTypeFromDropdown(opt.value)}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mpf-dropdown-divider"></div>
+                  {!isPropertyTypeLocked && !isNewLaunchHubPage && (
+                    <>
+                      <div className="mpf-dropdown-section">
+                        <span className="mpf-dropdown-label">Property Type</span>
+                        {[
+                          { value: "all", label: "All Projects" },
+                          { value: "residential", label: "Residential" },
+                          { value: "commercial", label: "Commercial" },
+                        ].map((opt) => (
+                          <button
+                            key={opt.value}
+                            className={activeTab === opt.value ? "active" : ""}
+                            onClick={() => applyPropertyTypeFromDropdown(opt.value)}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mpf-dropdown-divider"></div>
+                    </>
+                  )}
                   <div className="mpf-dropdown-section">
                     <span className="mpf-dropdown-label">Sort By</span>
                     {[
@@ -1323,7 +1394,7 @@ export default function ProjectsRedesigned({
           </aside>
 
           {/* Listings */}
-          <main className="mpf-listings">
+          <main className="mpf-listings" ref={listingsRef}>
             {/* Loading */}
             {isLoading && (
               <div className="mpf-loading">
@@ -1369,7 +1440,7 @@ export default function ProjectsRedesigned({
               <div className="mpf-pagination">
                 <button
                   disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((p) => p - 1)}
+                  onClick={() => goToPage((p) => p - 1)}
                 >
                   Prev
                 </button>
@@ -1383,9 +1454,7 @@ export default function ProjectsRedesigned({
                       className={currentPage === page ? "active" : ""}
                       aria-current={currentPage === page ? "page" : undefined}
                       aria-disabled={currentPage === page ? true : undefined}
-                      onClick={() => {
-                        if (currentPage !== page) setCurrentPage(page);
-                      }}
+                      onClick={() => goToPage(page)}
                     >
                       {page}
                     </button>
@@ -1393,7 +1462,7 @@ export default function ProjectsRedesigned({
                 })}
                 <button
                   disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage((p) => p + 1)}
+                  onClick={() => goToPage((p) => p + 1)}
                 >
                   Next »
                 </button>

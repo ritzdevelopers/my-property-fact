@@ -103,13 +103,13 @@
 /* Desktop city split: slimmer card columns so price stays on one line */
 @media (min-width: 1101px) {
   .city-projects-panel__grid .mpf-listing-card-link {
-    grid-template-columns: minmax(150px, 190px) minmax(0, 1fr) 128px;
-    gap: 12px;
-    padding: 14px 10px;
+    grid-template-columns: minmax(280px, 36%) minmax(0, 1fr) 150px;
+    gap: 16px;
+    padding: 16px 0;
   }
 
   .city-projects-panel__grid .mpf-listing-image {
-    height: 168px;
+    height: 220px;
   }
 
   .city-projects-panel__grid .mpf-listing-content {

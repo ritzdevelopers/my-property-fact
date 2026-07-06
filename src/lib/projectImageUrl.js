@@ -25,6 +25,21 @@ export function getProjectImageBaseUrl() {
   return typeof raw === "string" ? raw : "";
 }
 
+export function buildGalleryImageUrl(slug, imageName, { fallback = "" } = {}) {
+  const filename = String(imageName || "").trim();
+  if (!filename) return fallback;
+
+  if (/^https?:\/\//i.test(filename) || filename.startsWith("/")) {
+    return filename;
+  }
+
+  const projectSlug = String(slug || "").trim();
+  const base = getProjectImageBaseUrl();
+  if (!base || !projectSlug) return fallback;
+
+  return `${base}properties/${projectSlug}/${filename}`;
+}
+
 /**
  * Card/listing URLs should prefer thumbnails — full banner files are much larger.
  */

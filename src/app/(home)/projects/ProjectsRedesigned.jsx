@@ -335,7 +335,9 @@ export default function ProjectsRedesigned({
 
   const matchesQuickFilter = useCallback((statusNorm, key) => {
     if (!key) return true;
-    if (key === "ready") return statusNorm.includes("ready");
+    if (key === "ready") {
+      return statusNorm.includes("ready") || statusNorm.includes("completed");
+    }
     if (key === "new") {
       return statusNorm.includes("new launch") || statusNorm.includes("new launched");
     }

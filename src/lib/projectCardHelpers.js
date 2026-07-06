@@ -9,7 +9,7 @@ export function formatListingStatusLabel(status) {
   if (normalized.includes("new launch") || normalized.includes("new launched")) {
     return "New Launch";
   }
-  if (normalized.includes("ready")) return "Ready To Move";
+  if (normalized.includes("ready") || normalized.includes("completed")) return "Ready To Move";
   return String(status || "").trim();
 }
 

@@ -11,9 +11,11 @@ alwaysApply: false
 - **Decorative** images: prefer `alt=""` only when the same information is already in adjacent text **and** no SEO tool in your pipeline requires a filled `alt`. If audits flag empty alts, use a one-line description (e.g. "Arrow for next item") and keep the icon `aria-hidden` with redundant text in the same control.
 - **Icons** inside a link that already has a clear label: parent may use `aria-hidden` on the icon wrapper; the `img` can still use `alt` + `title` with action text (e.g. "View {City} real estate (opens city page)") to satisfy checkers; avoid duplicating the link’s visible name verbatim if it creates noisy screen reader output for users not using the same tool—prefer hiding decorative icons with `alt=""` when WCAG is the only requirement.
 
-**Example (hero + icons):**
+- **Nearby benefit icons** on project listing cards (`ProjectCard`, residential/commercial/new-launches): never use `alt=""`. Resolve label from catalog `altTag`, then `benefitName`, then location benefit name, then filename stem (e.g. `1765793873101_School.png` → "School"). Set `title` to match `alt`.
+
+**Example (hero + nearby icons):**
 
 ```jsx
 <Image src={url} alt={description} title={description} fill sizes="…" />
-<Image src="/icon/navigate.svg" alt={navDescription} title={navDescription} width={18} height={18} aria-hidden />
+<img src={iconUrl} alt={label} title={label} className="mpf-listing-nearby__icon" loading="lazy" />
 ```

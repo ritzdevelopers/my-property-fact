@@ -22,24 +22,63 @@ export function loadNearbyBenefitCatalog() {
   return nearbyCatalogPromise || Promise.resolve([]);
 }
 
-export function resolveNearbyBenefitIcon(benefitName, catalog = []) {
+function findNearbyBenefitMatch(benefitName, catalog = []) {
   const name = String(benefitName || "").trim();
   if (!name || !Array.isArray(catalog) || !catalog.length) return null;
 
   const lower = name.toLowerCase();
-  const match = catalog.find((row) => {
-    const bn = String(row?.benefitName || "")
-      .toLowerCase()
-      .trim();
-    if (!bn) return false;
-    return bn === lower || bn.includes(lower) || lower.includes(bn);
-  });
+  return (
+    catalog.find((row) => {
+      const bn = String(row?.benefitName || "")
+        .toLowerCase()
+        .trim();
+      if (!bn) return false;
+      return bn === lower || bn.includes(lower) || lower.includes(bn);
+    }) || null
+  );
+}
 
-  if (!match?.benefitIcon) return null;
-  if (match.benefitIcon.startsWith("http") || match.benefitIcon.startsWith("/")) {
-    return match.benefitIcon;
+function deriveLabelFromBenefitIconFilename(filename) {
+  const base = String(filename || "")
+    .trim()
+    .replace(/\.[^.]+$/, "");
+  const afterUnderscore = base.includes("_") ? base.split("_").pop() : base;
+  return String(afterUnderscore || "")
+    .replace(/_/g, " ")
+    .trim();
+}
+
+export function resolveNearbyBenefitMeta(benefitName, catalog = []) {
+  const name = String(benefitName || "").trim();
+  const match = findNearbyBenefitMatch(name, catalog);
+
+  if (!match?.benefitIcon) {
+    const fallback = name || "Nearby location";
+    return { icon: null, alt: fallback, title: fallback };
   }
-  return IMAGE_BASE ? `${IMAGE_BASE}nearby-benefit/${match.benefitIcon}` : null;
+
+  let icon = match.benefitIcon;
+  if (!icon.startsWith("http") && !icon.startsWith("/")) {
+    icon = IMAGE_BASE ? `${IMAGE_BASE}nearby-benefit/${match.benefitIcon}` : null;
+  }
+
+  const label =
+    String(
+      match.altTag ||
+        match.benefitName ||
+        name ||
+        deriveLabelFromBenefitIconFilename(match.benefitIcon),
+    ).trim() || "Nearby location";
+
+  if (!icon) {
+    return { icon: null, alt: label, title: label };
+  }
+
+  return { icon, alt: label, title: label };
+}
+
+export function resolveNearbyBenefitIcon(benefitName, catalog = []) {
+  return resolveNearbyBenefitMeta(benefitName, catalog).icon;
 }
 
 export function resolveBuilderFromList(project, builderList) {

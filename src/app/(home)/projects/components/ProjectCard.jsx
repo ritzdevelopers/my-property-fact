@@ -17,7 +17,7 @@ import {
   formatListingStatusLabel,
   loadNearbyBenefitCatalog,
   resolveBuilderFromList,
-  resolveNearbyBenefitIcon,
+  resolveNearbyBenefitMeta,
 } from "@/lib/projectCardHelpers";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import CommonPopUpform from "@/app/(home)/components/common/popupform";
@@ -187,10 +187,13 @@ export default function ProjectCard({
       .map((item) => {
         const name = String(item?.benefitName || "").trim();
         if (!name) return null;
+        const meta = resolveNearbyBenefitMeta(name, nearbyCatalog);
         return {
           name,
           distance: String(item?.distance || "").trim(),
-          icon: resolveNearbyBenefitIcon(name, nearbyCatalog),
+          icon: meta.icon,
+          alt: meta.alt,
+          title: meta.title,
         };
       })
       .filter(Boolean);
@@ -331,7 +334,8 @@ export default function ProjectCard({
                             {item.icon ? (
                               <img
                                 src={item.icon}
-                                alt=""
+                                alt={item.alt}
+                                title={item.title}
                                 className="mpf-listing-nearby__icon"
                                 loading="lazy"
                               />

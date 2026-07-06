@@ -119,6 +119,9 @@ export default function ProjectsRedesigned({
   showBreadcrumb = true,
   hubCategory = "",
 } = {}) {
+  const isPropertyTypeLocked =
+    initialActiveTab === "commercial" || initialActiveTab === "residential";
+
   const {
     cityList: cities,
     projectTypes: propertyTypes,
@@ -289,7 +292,7 @@ export default function ProjectsRedesigned({
 
   const handleClearFilters = () => {
     setFilters(EMPTY_FILTERS);
-    setActiveTab("all");
+    setActiveTab(isPropertyTypeLocked ? initialActiveTab : "all");
     setSortBy("relevance");
     setSearchInput("");
     setDebouncedSearch("");
@@ -803,7 +806,7 @@ export default function ProjectsRedesigned({
   const appliedFilterTags = useMemo(() => {
     const tags = [];
 
-    if (activeTab === "residential" || activeTab === "commercial") {
+    if (!isPropertyTypeLocked && (activeTab === "residential" || activeTab === "commercial")) {
       tags.push({
         key: `property-type:${activeTab}`,
         label: PROPERTY_TYPE_TAG_LABELS[activeTab],
@@ -856,7 +859,7 @@ export default function ProjectsRedesigned({
     }
 
     return tags;
-  }, [activeTab, configurationFilterOptions, filters, sortBy]);
+  }, [activeTab, configurationFilterOptions, filters, isPropertyTypeLocked, sortBy]);
 
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
   const isLoading = siteDataLoading;
@@ -864,7 +867,7 @@ export default function ProjectsRedesigned({
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
     Boolean(selectedSearchProjectKey) ||
-    activeTab !== "all" ||
+    (!isPropertyTypeLocked && activeTab !== "all") ||
     sortBy !== "relevance";
 
   const sortDropdownRef = useRef(null);
@@ -1209,23 +1212,27 @@ export default function ProjectsRedesigned({
               </button>
               {showSortDropdown && (
                 <div className="mpf-sort-dropdown">
-                  <div className="mpf-dropdown-section">
-                    <span className="mpf-dropdown-label">Property Type</span>
-                    {[
-                      { value: "all", label: "All Projects" },
-                      { value: "residential", label: "Residential" },
-                      { value: "commercial", label: "Commercial" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.value}
-                        className={activeTab === opt.value ? "active" : ""}
-                        onClick={() => applyPropertyTypeFromDropdown(opt.value)}
-                      >
-                        {opt.label}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mpf-dropdown-divider"></div>
+                  {!isPropertyTypeLocked && (
+                    <>
+                      <div className="mpf-dropdown-section">
+                        <span className="mpf-dropdown-label">Property Type</span>
+                        {[
+                          { value: "all", label: "All Projects" },
+                          { value: "residential", label: "Residential" },
+                          { value: "commercial", label: "Commercial" },
+                        ].map((opt) => (
+                          <button
+                            key={opt.value}
+                            className={activeTab === opt.value ? "active" : ""}
+                            onClick={() => applyPropertyTypeFromDropdown(opt.value)}
+                          >
+                            {opt.label}
+                          </button>
+                        ))}
+                      </div>
+                      <div className="mpf-dropdown-divider"></div>
+                    </>
+                  )}
                   <div className="mpf-dropdown-section">
                     <span className="mpf-dropdown-label">Sort By</span>
                     {[

@@ -1466,7 +1466,7 @@
 }
 
 .mpf-btn-contact--secondary:hover,
-.mpf-btn-contact--secondary:focus,
+.mpf-btn-contact--secondary:focus-visible,
 .mpf-btn-contact--secondary:active,
 .mpf-btn-contact--secondary:visited {
   background: rgba(13, 88, 52, 0.08);

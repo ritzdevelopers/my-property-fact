@@ -153,24 +153,11 @@ export default function ProjectsRedesigned({
   const [activeQuickFilter, setActiveQuickFilter] = useState(initialQuickFilter);
   const [isSortPending, startSortTransition] = useTransition();
   const [isListingsPinPending, startListingsPinTransition] = useTransition();
-  const [sortLoaderVisible, setSortLoaderVisible] = useState(false);
   const [listingsLoaderVisible, setListingsLoaderVisible] = useState(false);
-  const sortLoaderHideAtRef = useRef(0);
-  const sortLoaderTimerRef = useRef(null);
+  const scrollAfterLoaderRef = useRef(false);
   const listingsLoaderHideAtRef = useRef(0);
   const listingsLoaderTimerRef = useRef(null);
-  const SORT_LOADER_MIN_MS = 2300;
   const LISTINGS_LOADER_MIN_MS = 1200;
-
-  const showOverlayLoader = useCallback(() => {
-    const now = Date.now();
-    sortLoaderHideAtRef.current = Math.max(sortLoaderHideAtRef.current, now + SORT_LOADER_MIN_MS);
-    setSortLoaderVisible(true);
-    if (sortLoaderTimerRef.current) {
-      window.clearTimeout(sortLoaderTimerRef.current);
-      sortLoaderTimerRef.current = null;
-    }
-  }, []);
 
   const showListingsLoader = useCallback(() => {
     const now = Date.now();
@@ -261,32 +248,26 @@ export default function ProjectsRedesigned({
   const handleFilterChange = (key, value) => {
     const willToggleTo = filters[key] === value ? "" : value;
 
-    // Listing pages: selecting BHK or Commercial Type should show loader and sync URL
-    if (isListingPage && (key === "bhkType" || key === "configType")) {
-      showOverlayLoader();
-      if (key === "bhkType") {
-        setFilters((prev) => ({ ...prev, bhkType: willToggleTo, configType: "" }));
-      } else {
-        setFilters((prev) => ({ ...prev, configType: willToggleTo, bhkType: "" }));
-      }
-      if (key === "bhkType") {
-        pushHubTypeToPath({ nextBhkType: willToggleTo, nextConfigType: "" });
-      } else {
-        pushHubTypeToPath({ nextBhkType: "", nextConfigType: willToggleTo });
-      }
-      setCurrentPage(1);
-      return;
-    }
-
-    if (key === "bhkType") {
-      setFilters((prev) => ({ ...prev, bhkType: willToggleTo, configType: "" }));
-      setCurrentPage(1);
-      return;
-    }
-
-    if (key === "configType") {
-      setFilters((prev) => ({ ...prev, configType: willToggleTo, bhkType: "" }));
-      setCurrentPage(1);
+    if (key === "bhkType" || key === "configType" || key === "budget") {
+      scrollAfterLoaderRef.current = true;
+      showListingsLoader();
+      startSortTransition(() => {
+        if (key === "bhkType") {
+          setFilters((prev) => ({ ...prev, bhkType: willToggleTo, configType: "" }));
+        } else if (key === "configType") {
+          setFilters((prev) => ({ ...prev, configType: willToggleTo, bhkType: "" }));
+        } else {
+          setFilters((prev) => ({ ...prev, budget: willToggleTo }));
+        }
+        if (isListingPage && (key === "bhkType" || key === "configType")) {
+          if (key === "bhkType") {
+            pushHubTypeToPath({ nextBhkType: willToggleTo, nextConfigType: "" });
+          } else {
+            pushHubTypeToPath({ nextBhkType: "", nextConfigType: willToggleTo });
+          }
+        }
+        setCurrentPage(1);
+      });
       return;
     }
 
@@ -919,7 +900,8 @@ export default function ProjectsRedesigned({
 
   const applyPropertyTypeFromDropdown = useCallback((nextTab) => {
     setShowSortDropdown(false);
-    showOverlayLoader();
+    scrollAfterLoaderRef.current = true;
+    showListingsLoader();
     startSortTransition(() => {
       setActiveTab(nextTab);
       setFilters((prev) => ({
@@ -929,7 +911,7 @@ export default function ProjectsRedesigned({
       }));
       setCurrentPage(1);
     });
-  }, [showOverlayLoader]);
+  }, [showListingsLoader]);
 
   const handlePropertyTypePill = useCallback((type) => {
     const nextTab = activeTab === type ? "all" : type;
@@ -944,12 +926,22 @@ export default function ProjectsRedesigned({
 
   const applySortFromDropdown = useCallback((nextSort) => {
     setShowSortDropdown(false);
-    showOverlayLoader();
+    scrollAfterLoaderRef.current = true;
+    showListingsLoader();
     startSortTransition(() => {
       setSortBy(nextSort);
       setCurrentPage(1);
     });
-  }, [showOverlayLoader]);
+  }, [showListingsLoader]);
+
+  const handleQuickFilterClick = useCallback((filterKey) => {
+    scrollAfterLoaderRef.current = true;
+    showListingsLoader();
+    startSortTransition(() => {
+      setActiveQuickFilter((prev) => (prev === filterKey ? "" : filterKey));
+      setCurrentPage(1);
+    });
+  }, [showListingsLoader]);
 
   const clearAppliedFilterTag = useCallback(
     (tag) => {
@@ -998,45 +990,11 @@ export default function ProjectsRedesigned({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showSortDropdown]);
 
-  // Prevent background scroll while loader is visible
-  useEffect(() => {
-    if (typeof document === "undefined") return undefined;
-    const prev = document.body.style.overflow;
-    if (sortLoaderVisible) document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [sortLoaderVisible]);
-
-  // Keep loader visible for a minimum duration (best UX)
-  useEffect(() => {
-    if (!sortLoaderVisible) return undefined;
-
-    // While pending, never hide.
-    if (isSortPending) return undefined;
-
-    const now = Date.now();
-    const remaining = Math.max(0, sortLoaderHideAtRef.current - now);
-
-    if (sortLoaderTimerRef.current) window.clearTimeout(sortLoaderTimerRef.current);
-    sortLoaderTimerRef.current = window.setTimeout(() => {
-      setSortLoaderVisible(false);
-      sortLoaderTimerRef.current = null;
-    }, remaining);
-
-    return () => {
-      if (sortLoaderTimerRef.current) {
-        window.clearTimeout(sortLoaderTimerRef.current);
-        sortLoaderTimerRef.current = null;
-      }
-    };
-  }, [isSortPending, sortLoaderVisible]);
-
   // Keep listings-area loader visible for a minimum duration
   useEffect(() => {
     if (!listingsLoaderVisible) return undefined;
 
-    if (isListingsPinPending) return undefined;
+    if (isListingsPinPending || isSortPending) return undefined;
 
     const now = Date.now();
     const remaining = Math.max(0, listingsLoaderHideAtRef.current - now);
@@ -1045,6 +1003,10 @@ export default function ProjectsRedesigned({
     listingsLoaderTimerRef.current = window.setTimeout(() => {
       setListingsLoaderVisible(false);
       listingsLoaderTimerRef.current = null;
+      if (scrollAfterLoaderRef.current) {
+        scrollAfterLoaderRef.current = false;
+        requestAnimationFrame(() => scrollToProjectListings(listingsRef));
+      }
     }, remaining);
 
     return () => {
@@ -1053,9 +1015,9 @@ export default function ProjectsRedesigned({
         listingsLoaderTimerRef.current = null;
       }
     };
-  }, [isListingsPinPending, listingsLoaderVisible]);
+  }, [isListingsPinPending, isSortPending, listingsLoaderVisible]);
 
-  const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending;
+  const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending || isSortPending;
 
   const displayHeading = pageHeading || breadcrumbLabel;
   const projectCountLabel = `${sortedProjects.length} ${
@@ -1064,18 +1026,6 @@ export default function ProjectsRedesigned({
 
   return (
     <div className="mpf-projects-page">
-      {sortLoaderVisible && (
-        <div className="mpf-screen-loader" aria-live="polite" aria-busy="true" role="status">
-          <div className="mpf-screen-loader__backdrop" />
-          <div className="mpf-screen-loader__card">
-            <div className="mpf-screen-loader__spinner" />
-            <div className="mpf-screen-loader__text">
-              <div className="mpf-screen-loader__title">Updating projects</div>
-              <div className="mpf-screen-loader__subtitle">Please wait…</div>
-            </div>
-          </div>
-        </div>
-      )}
       <div className="mpf-container">
         <div className="mpf-page-hero">
           {/* Breadcrumb & Title */}
@@ -1239,10 +1189,7 @@ export default function ProjectsRedesigned({
                 key={qf.key}
                 type="button"
                 className={`mpf-quick-filter-btn ${activeQuickFilter === qf.key ? "active" : ""}`}
-                onClick={() => {
-                  setActiveQuickFilter((prev) => (prev === qf.key ? "" : qf.key));
-                  setCurrentPage(1);
-                }}
+                onClick={() => handleQuickFilterClick(qf.key)}
               >
                 {qf.label}
               </button>
@@ -1405,8 +1352,15 @@ export default function ProjectsRedesigned({
 
             {!isLoading && showListingsAreaLoader && (
               <div className="mpf-listings-loader" aria-live="polite" aria-busy="true" role="status">
-                <div className="mpf-spinner"></div>
-                <p>Loading project...</p>
+                <p className="mpf-listings-loader__text">
+                  Applying filters
+                  <span className="mpf-loader-dots" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                </p>
               </div>
             )}
 

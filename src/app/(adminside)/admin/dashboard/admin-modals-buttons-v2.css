@@ -699,3 +699,79 @@ html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarCont
 html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarContainer button {
   color: #e5e7eb !important;
 }
+
+/* ══════════════════════════════════════════════════════════
+   FAQ list accordion (Manage FAQs modal)
+   Overrides global .accordion-button:not(.collapsed) gradient
+   ══════════════════════════════════════════════════════════ */
+.admin-faq-accordion .accordion-item {
+  border: 1px solid hsl(150 14% 92%);
+  border-radius: 12px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.admin-faq-accordion .accordion-button {
+  background: #fff !important;
+  color: hsl(152 40% 12%) !important;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  box-shadow: none !important;
+}
+
+.admin-faq-accordion .accordion-button:not(.collapsed) {
+  background: #f0f7f3 !important;
+  color: hsl(152 40% 12%) !important;
+  box-shadow: none !important;
+}
+
+.admin-faq-accordion .accordion-button:focus {
+  box-shadow: none !important;
+}
+
+.admin-faq-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.75rem;
+  padding-right: 0.25rem;
+}
+
+.admin-faq-question {
+  flex: 1;
+  text-align: left;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.admin-faq-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.admin-faq-accordion-body {
+  background: #fff;
+  color: #3d5348;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  border-top: 1px solid hsl(150 14% 92%);
+}
+
+html[data-admin-theme="dark"] .admin-faq-accordion .accordion-button,
+html[data-admin-theme="dark"] .admin-faq-accordion .accordion-button:not(.collapsed) {
+  background: #0a0a0a !important;
+  color: #f3f4f6 !important;
+}
+
+html[data-admin-theme="dark"] .admin-faq-accordion .accordion-item {
+  border-color: #444444;
+}
+
+html[data-admin-theme="dark"] .admin-faq-accordion-body {
+  background: #0a0a0a;
+  color: #e5e7eb;
+  border-top-color: #444444;
+}

@@ -30,6 +30,8 @@ const DEFAULT_QUERY_FILTERS = {
   propertyType: "",
   propertyLocation: "",
   budget: "",
+  bhkType: "",
+  configType: "",
 };
 
 function toNumber(value) {

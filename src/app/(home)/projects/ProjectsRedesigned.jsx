@@ -224,7 +224,12 @@ export default function ProjectsRedesigned({
   }, []);
 
   useEffect(() => {
-    const hasFilters = queryFilters?.propertyType || queryFilters?.propertyLocation || queryFilters?.budget;
+    const hasFilters =
+      queryFilters?.propertyType ||
+      queryFilters?.propertyLocation ||
+      queryFilters?.budget ||
+      queryFilters?.bhkType ||
+      queryFilters?.configType;
     if (!hasFilters) return;
     if (queryFilters?.propertyType && (!propertyTypes || propertyTypes.length === 0)) return;
     if (queryFilters?.propertyLocation && (!cities || cities.length === 0)) return;
@@ -241,6 +246,8 @@ export default function ProjectsRedesigned({
       propertyType: selectedType?.projectTypeName || "",
       city: selectedCity?.cityName || "",
       budget: normalizeBudgetSelection(queryFilters?.budget, "web") || "",
+      bhkType: queryFilters?.bhkType || "",
+      configType: queryFilters?.configType || "",
     });
     clearQueryFilters();
   }, [queryFilters, propertyTypes, cities, clearQueryFilters]);

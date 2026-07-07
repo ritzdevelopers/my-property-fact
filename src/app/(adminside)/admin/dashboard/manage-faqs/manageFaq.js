@@ -255,34 +255,44 @@ export default function ManageFaqs({ list, projectsList }) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Accordion defaultActiveKey="0">
+                    <Accordion className="admin-faq-accordion">
                         {faqList.map((item, index) => (
-                            <Accordion.Item eventKey={index.toString()} key={index}>
-                                <div className="d-flex align-items-center justify-content-between px-3 pt-3">
-                                    <Accordion.Header className="flex-grow-1">
-                                        {`Q ${index + 1} - ${item.question}`}
-                                    </Accordion.Header>
-                                    <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        className="ms-3"
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // prevent accordion toggle
-                                            openEditModel(item);
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <span
-                                        className="d-inline-flex mx-2 align-items-center"
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => openConfirmationBox(item.id)}
-                                        role="presentation"
-                                    >
-                                        <AdminTableDeleteIcon />
-                                    </span>
-                                </div>
-                                <Accordion.Body>{`Ans - ${item.answer}`}</Accordion.Body>
+                            <Accordion.Item
+                                eventKey={index.toString()}
+                                key={item.id ?? index}
+                                className="admin-faq-accordion-item"
+                            >
+                                <Accordion.Header className="admin-faq-accordion-header">
+                                    <div className="admin-faq-header-row">
+                                        <span className="admin-faq-question">
+                                            {`Q ${index + 1} - ${item.question}`}
+                                        </span>
+                                        <div
+                                            className="admin-faq-actions"
+                                            role="presentation"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                onClick={() => openEditModel(item)}
+                                            >
+                                                Edit
+                                            </Button>
+                                            <span
+                                                className="d-inline-flex align-items-center"
+                                                style={{ cursor: "pointer" }}
+                                                onClick={() => openConfirmationBox(item.id)}
+                                                role="presentation"
+                                            >
+                                                <AdminTableDeleteIcon />
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Accordion.Header>
+                                <Accordion.Body className="admin-faq-accordion-body">
+                                    {`Ans - ${item.answer}`}
+                                </Accordion.Body>
                             </Accordion.Item>
                         ))}
                     </Accordion>

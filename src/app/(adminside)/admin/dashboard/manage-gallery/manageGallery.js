@@ -14,6 +14,16 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
+import {
+  buildGalleryImageUrl,
+  DEFAULT_PROJECT_CARD_IMAGE,
+} from "@/lib/projectImageUrl";
+
+const getGalleryImageSrc = (slug, imageName) =>
+  buildGalleryImageUrl(slug, imageName, {
+    fallback: DEFAULT_PROJECT_CARD_IMAGE,
+  });
+
 export default function ManageGallery({ list, projectsList, newList }) {
   const [title, setTitle] = useState("");
   const [buttonName, setButtonName] = useState("");
@@ -113,7 +123,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
     // Bind existing images
     const formatted = data.galleryImage.map((img) => ({
       id: img.id,
-      preview: `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${data.slugURL}/${img.image}`,
+      preview: getGalleryImageSrc(data.slugURL, img.image),
       isNew: false
     }));
 
@@ -141,22 +151,29 @@ export default function ManageGallery({ list, projectsList, newList }) {
       flex: 1,
       renderCell: (params) => (
         <>
-          {params.row.galleryImage.map((item, index) => (
-            <img
-              className="mx-2 rounded-2 cursor-pointer"
-              key={index}
-              src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${params.row.slugURL}/${item.image}`}
-              alt={`${params.row.pname}`}
-              width={100}
-              height={40}
-              
-              onClick={() =>
-                openImagePopUp(
-                  `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${params.row.slugURL}/${item.image}`
-                )
-              }
-            />
-          ))}
+          {(params.row.galleryImage || [])
+            .filter((item) => item?.image)
+            .map((item, index) => {
+              const imageSrc = getGalleryImageSrc(
+                params.row.slugURL,
+                item.image,
+              );
+              return (
+                <img
+                  className="mx-2 rounded-2 cursor-pointer"
+                  key={item.id ?? `${params.row.projectId}-${index}`}
+                  src={imageSrc}
+                  alt={params.row.pName || "Gallery image"}
+                  width={100}
+                  height={40}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.src = DEFAULT_PROJECT_CARD_IMAGE;
+                  }}
+                  onClick={() => openImagePopUp(imageSrc)}
+                />
+              );
+            })}
         </>
       ),
     },
@@ -351,7 +368,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
             <img
               className="rounded-2"
               src={popUpImageSrc}
-              alt="pop-up-image"
+              alt="Gallery preview"
               width={0}
               height={0}
               style={{
@@ -360,7 +377,10 @@ export default function ManageGallery({ list, projectsList, newList }) {
                 maxWidth: "100%",
                 maxHeight: "80vh",
               }}
-              
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = DEFAULT_PROJECT_CARD_IMAGE;
+              }}
             />
           )}
         </Modal.Body>
@@ -383,11 +403,14 @@ export default function ManageGallery({ list, projectsList, newList }) {
               </div>
               <img
                 className="rounded-2 d-block my-2"
-                src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${projectSlug}/${item.image}`}
-                alt={projectSlug}
+                src={getGalleryImageSrc(projectSlug, item.image)}
+                alt={projectSlug || "Gallery image"}
                 width={200}
                 height={100}
-                
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = DEFAULT_PROJECT_CARD_IMAGE;
+                }}
               />
               <div>
                 <span

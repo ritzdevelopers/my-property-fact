@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import Multiselect from "multiselect-react-dropdown";
-import { AdminTableEditIcon } from "../common-model/admin-table-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import { useRouter } from "next/navigation";
@@ -41,11 +44,13 @@ export default function ProjectsAmenity({
   const [amenitiesName, setAmenitiesName] = useState("");
 
   useEffect(() => {
-    projectList.forEach(async (item) => {
-      const amenities = await fetchProjectAmenities(item.id);
-      item.amenitiesName = amenities.map((item) => item.title).join(", ");
-    });
-  }, [projectList]);
+    projectList
+      .filter((item) => projectIdsWithAmenity.includes(item.id))
+      .forEach(async (item) => {
+        const amenities = await fetchProjectAmenities(item.id);
+        item.amenitiesName = amenities.map((item) => item.title).join(", ");
+      });
+  }, [projectList, projectIdsWithAmenity]);
 
   // Handler for selecting an option
   const onSelect = (selectedList) => {
@@ -136,6 +141,15 @@ export default function ProjectsAmenity({
     setProjectId(item.id);
   };
 
+  const openConfirmationBox = (id) => {
+    setProjectId(id);
+    setConfirmBox(true);
+  };
+
+  const projectsWithAmenities = projectList
+    .filter((item) => projectIdsWithAmenity.includes(item.id))
+    .map((item, index) => ({ ...item, index: index + 1 }));
+
   //Defining table columns
   const columns = [
     {
@@ -149,9 +163,17 @@ export default function ProjectsAmenity({
     {
       field: "action",
       headerName: "Action",
-      width: 100,
+      width: 120,
       renderCell: (params) => (
-        <div className="d-inline-flex">
+        <div className="d-flex align-items-center gap-2">
+          <span
+            className="d-inline-flex"
+            style={{ cursor: "pointer" }}
+            onClick={() => openConfirmationBox(params.row.id)}
+            role="presentation"
+          >
+            <AdminTableDeleteIcon />
+          </span>
           <span
             className="d-inline-flex"
             style={{ cursor: "pointer" }}
@@ -172,10 +194,10 @@ export default function ProjectsAmenity({
         heading={"Manage Project & Amenity"}
       />
       <div className="table-container">
-        <DataTable columns={columns} list={projectList} />
+        <DataTable columns={columns} list={projectsWithAmenities} />
       </div>
       {/* Modal for adding a new city */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="admin-modal-surface" dialogClassName="admin-modal-dialog">
         <Modal.Header closeButton>
           <Modal.Title>{title}</Modal.Title>
         </Modal.Header>

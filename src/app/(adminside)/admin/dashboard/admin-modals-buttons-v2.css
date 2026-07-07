@@ -73,6 +73,11 @@
   flex: 1;
 }
 
+.modal .text-muted,
+.modal-body .text-muted {
+  color: #3d5348 !important;
+}
+
 /* sub-title helper class (optional, add to Modal.Title spans) */
 .modal-title small {
   display: block;
@@ -117,6 +122,7 @@
   max-height: calc(100vh - 9rem);
   overflow-y: auto;
   background: #fff !important;
+  color: #1b2e24 !important;
 }
 
 .modal-body::-webkit-scrollbar { width: 7px; }
@@ -564,4 +570,132 @@
   font-size: 0.82rem !important;
   color: hsl(152 30% 24%) !important;
   margin-bottom: 0.35rem !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   15. READABLE TEXT — admin-wide contrast (light + dark)
+   ══════════════════════════════════════════════════════════ */
+.admin-layout-wrapper {
+  --admin-text-readable: #1b2e24;
+  --admin-text-muted-readable: #3d5348;
+}
+
+.admin-layout-wrapper .text-muted,
+.admin-layout-wrapper .text-secondary,
+.admin-layout-wrapper .form-text {
+  color: var(--admin-text-muted-readable) !important;
+}
+
+.admin-layout-wrapper .admin-page-container,
+.admin-layout-wrapper .admin-main-content,
+.admin-layout-wrapper .table-container {
+  color: var(--admin-text-readable);
+}
+
+.admin-modal-surface .modal-body,
+.modal.admin-modal-surface .modal-body,
+.modal-content.admin-modal-surface .modal-body {
+  color: var(--admin-text-readable, #1b2e24) !important;
+}
+
+.admin-modal-body-text,
+.admin-modal-surface .admin-modal-body-text {
+  color: var(--admin-text-muted-readable, #3d5348) !important;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.admin-modal-status-text,
+.admin-modal-surface .admin-modal-status-text {
+  color: var(--admin-text-readable, #1b2e24) !important;
+  font-weight: 600;
+}
+
+.admin-modal-surface .text-muted,
+.modal-content.admin-modal-surface .text-muted {
+  color: var(--admin-text-muted-readable, #3d5348) !important;
+}
+
+/* Dark theme: modals + shell (admin-modals-buttons-v2 loads after admin-theme) */
+html[data-admin-theme="dark"] .admin-layout-wrapper {
+  --admin-text-readable: #f9fafb;
+  --admin-text-muted-readable: #d1d5db;
+}
+
+html[data-admin-theme="dark"] .modal-content,
+html[data-admin-theme="dark"] .modal-content.admin-modal-surface {
+  background: #000000 !important;
+  border: 1px solid #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .modal-header,
+html[data-admin-theme="dark"] .admin-modal-surface .modal-header {
+  background: #000000 !important;
+  border-bottom-color: #444444 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .modal-title,
+html[data-admin-theme="dark"] .admin-modal-surface .modal-title {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .modal-body,
+html[data-admin-theme="dark"] .admin-modal-surface .modal-body {
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .modal-footer,
+html[data-admin-theme="dark"] .admin-modal-surface .modal-footer {
+  background: #000000 !important;
+  border-top-color: #444444 !important;
+}
+
+html[data-admin-theme="dark"] .modal .btn-close,
+html[data-admin-theme="dark"] .admin-modal-surface .modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.85;
+}
+
+html[data-admin-theme="dark"] .admin-modal-body-text,
+html[data-admin-theme="dark"] .admin-modal-surface .admin-modal-body-text {
+  color: #e5e7eb !important;
+}
+
+html[data-admin-theme="dark"] .admin-modal-status-text,
+html[data-admin-theme="dark"] .admin-modal-surface .admin-modal-status-text {
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-modal-surface .text-muted,
+html[data-admin-theme="dark"] .modal-content .text-muted {
+  color: #d1d5db !important;
+}
+
+html[data-admin-theme="dark"] .modal .form-label,
+html[data-admin-theme="dark"] .modal-body label {
+  color: #f3f4f6 !important;
+}
+
+html[data-admin-theme="dark"] .modal .form-control,
+html[data-admin-theme="dark"] .modal .form-select,
+html[data-admin-theme="dark"] .modal-body .form-control,
+html[data-admin-theme="dark"] .modal-body .form-select {
+  background: #0a0a0a !important;
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .modal .btn-secondary,
+html[data-admin-theme="dark"] .admin-modal-surface .btn-admin-secondary {
+  background: #0a0a0a !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarContainer .MuiButton-text,
+html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarContainer button {
+  color: #e5e7eb !important;
 }

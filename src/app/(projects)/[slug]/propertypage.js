@@ -38,6 +38,7 @@ import Featured from "../../(home)/components/home/featured/featured";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
+import { formatDistanceKm } from "@/lib/utils";
 import { Col, Row, Modal } from "react-bootstrap";
 import { usePathname, notFound } from "next/navigation";
 
@@ -1275,7 +1276,7 @@ const addNearbyImageIcon = (benefit) => {
                         <h3 className="mb-1 h6 fw-semibold text-dark">
                           {item.benefitName}
                         </h3>
-                        <small className="text-muted">{item.distance}</small>
+                        <small className="text-muted">{formatDistanceKm(item.distance)}</small>
                       </div>
                     </div>
                   </div>

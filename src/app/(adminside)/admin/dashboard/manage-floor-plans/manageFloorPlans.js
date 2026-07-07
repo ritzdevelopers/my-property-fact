@@ -3,7 +3,7 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -267,30 +267,37 @@ export default function ManageFloorPlans({ list, projectsList }) {
           <Modal.Title>Floor Plans</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {list
-            .filter((item) => item.projectId === projectId)
-            .flatMap((item) => item.plans)
-            .map((plan, index) => (
-              <div
-                key={plan.id || index}
-                className="admin-header-btn admin-header-btn--primary mb-3 mx-2"
-                style={{ width: "calc(33% - 1rem)", minWidth: "120px" }}
-              >
-                <div className="d-flex align-items-center justify-content-between">
-                  <div onClick={() => openUpdateFloorPlan(plan)}>
+          <div className="admin-floor-plan-tags">
+            {list
+              .filter((item) => item.projectId === projectId)
+              .flatMap((item) => item.plans)
+              .map((plan, index) => (
+                <div key={plan.id || index} className="admin-floor-plan-tag">
+                  <button
+                    type="button"
+                    className="admin-floor-plan-tag__label"
+                    onClick={() => openUpdateFloorPlan(plan)}
+                  >
                     {plan.planType}
-                  </div>
-                  <FontAwesomeIcon
-                    className="m-0 p-0 text-light bg-danger p-2 rounded-pill"
-                    icon={faClose}
+                  </button>
+                  <button
+                    type="button"
+                    className="admin-floor-plan-tag__remove"
                     onClick={() => openConfirmationBox(plan.id)}
-                  />
+                    aria-label={`Remove ${plan.planType}`}
+                  >
+                    <FontAwesomeIcon icon={faClose} />
+                  </button>
                 </div>
-              </div>
-            ))}
-          <Button className="mb-3 mx-2" onClick={openAddFloorPlan}>
-            + Add New
-          </Button>
+              ))}
+            <button
+              type="button"
+              className="admin-floor-plan-tag__add"
+              onClick={openAddFloorPlan}
+            >
+              + Add New
+            </button>
+          </div>
         </Modal.Body>
       </Modal>
     </div>

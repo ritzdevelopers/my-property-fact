@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
+import { formatDistanceKm } from "@/lib/utils";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -1250,7 +1251,7 @@ export default function PropertyV3({
                             </div>
                             {b.distance ? (
                               <div className="pd3-loc-item__dist">
-                                {b.distance}
+                                {formatDistanceKm(b.distance)}
                               </div>
                             ) : null}
                           </div>

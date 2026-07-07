@@ -4,7 +4,10 @@ import dynamic from "next/dynamic";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "../../_lib/adminToast";
-import { AdminTableEditIcon } from "../common-model/admin-table-icons";
+import {
+  AdminTableDeleteIcon,
+  AdminTableEditIcon,
+} from "../common-model/admin-table-icons";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import CommonModal from "../common-model/common-model";
 import DashboardHeader from "../common-model/dashboardHeader";
@@ -143,11 +146,19 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
         {
             field: "action",
             headerName: "Action",
-            width: 100,
+            width: 120,
             renderCell: (params) => (
-                <div className="d-inline-flex align-items-center">
+                <div className="d-flex align-items-center gap-2">
                     <span
-                        className="d-inline-flex mx-2"
+                        className="d-inline-flex"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => openConfirmationBox(params.row.id)}
+                        role="presentation"
+                    >
+                        <AdminTableDeleteIcon />
+                    </span>
+                    <span
+                        className="d-inline-flex"
                         style={{ cursor: "pointer" }}
                         onClick={() => openEditPopUp(params.row)}
                         role="presentation"

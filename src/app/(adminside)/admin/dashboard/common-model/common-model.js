@@ -99,18 +99,20 @@ export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHe
         }} 
         centered
         backdrop={isDeleting ? 'static' : true}
+        dialogClassName="admin-modal-dialog"
+        contentClassName="admin-modal-surface"
       >
         <Modal.Header closeButton={!isDeleting}>
           <Modal.Title>Are you sure you want to delete?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {isDeleting && (
-            <div className="text-center mb-3">
+            <div className="text-center mb-3 admin-modal-status-text">
               <Spinner animation="border" variant="danger" size="sm" className="me-2" />
               <span>Deleting...</span>
             </div>
           )}
-          <p className="text-muted mb-0">This action cannot be undone.</p>
+          <p className="admin-modal-body-text mb-0">This action cannot be undone.</p>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-center">
           <Button 

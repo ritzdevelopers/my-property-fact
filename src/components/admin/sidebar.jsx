@@ -319,7 +319,7 @@ function NavGroup({ group, pathname, onLinkClick, collapsed, openGroups, toggleG
           )} />
         </button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+      <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
         <div className="ml-4 mt-1 space-y-1 border-l border-sidebar-border pl-4">
           {group.children?.map((child) => {
             if (child.children) {
@@ -349,7 +349,7 @@ function NavGroup({ group, pathname, onLinkClick, collapsed, openGroups, toggleG
                   "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-all duration-200",
                   isActive
                     ? "admin-nav-child-active font-medium"
-                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    : "text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                 )}
               >
                 {ChildIcon && <ChildIcon className="h-4 w-4 shrink-0" />}

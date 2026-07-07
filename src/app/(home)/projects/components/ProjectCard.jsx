@@ -13,6 +13,7 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import { formatDistanceKm } from "@/lib/utils";
 import {
   formatListingStatusLabel,
   loadNearbyBenefitCatalog,
@@ -190,7 +191,7 @@ export default function ProjectCard({
         const meta = resolveNearbyBenefitMeta(name, nearbyCatalog);
         return {
           name,
-          distance: String(item?.distance || "").trim(),
+          distance: formatDistanceKm(item?.distance),
           icon: meta.icon,
           alt: meta.alt,
           title: meta.title,

@@ -54,13 +54,7 @@ export function AdminGridActions({ onEdit, onDelete }) {
         }}
         aria-label="Edit"
       >
-        <img
-          src="/images/admin/edit.svg"
-          alt=""
-          width={15}
-          height={15}
-          style={{ filter: "brightness(10)", pointerEvents: "none", display: "block" }}
-        />
+        <AdminTableEditIcon width={15} height={15} />
       </button>
       <button
         type="button"
@@ -71,13 +65,7 @@ export function AdminGridActions({ onEdit, onDelete }) {
         }}
         aria-label="Delete"
       >
-        <img
-          src="/images/admin/delete.svg"
-          alt=""
-          width={12}
-          height={15}
-          style={{ filter: "brightness(10)", pointerEvents: "none", display: "block" }}
-        />
+        <AdminTableDeleteIcon width={12} height={15} />
       </button>
     </div>
   );

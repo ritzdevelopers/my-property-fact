@@ -6,6 +6,30 @@ export function normalizeProjectSearchText(value) {
     .replace(/\s+/g, " ");
 }
 
+const SEARCH_STOP_WORDS = new Set([
+  "in",
+  "at",
+  "on",
+  "the",
+  "a",
+  "an",
+  "for",
+  "to",
+  "near",
+  "around",
+  "and",
+  "or",
+  "of",
+  "with",
+]);
+
+/** Query tokens used for matching, with filler words removed. */
+export function getMeaningfulQueryTokens(rawQuery) {
+  return normalizeProjectSearchText(rawQuery)
+    .split(/\s+/)
+    .filter((token) => token && !SEARCH_STOP_WORDS.has(token));
+}
+
 function projectNameWords(nameNorm) {
   return nameNorm.split(/\s+/).filter(Boolean);
 }
@@ -41,7 +65,8 @@ export function projectNameMatchesSearch(projectName, rawQuery) {
   if (!name) return false;
   if (name === q) return true;
 
-  const queryTokens = q.split(/\s+/).filter(Boolean);
+  const queryTokens = getMeaningfulQueryTokens(rawQuery);
+  if (queryTokens.length === 0) return true;
   const words = projectNameWords(name);
   return queryTokens.every((token) =>
     queryTokenMatchesProjectName(token, name, words),
@@ -55,8 +80,10 @@ export function scoreProjectSearchMatch(projectName, rawQuery) {
   if (!q || !name) return -1;
   if (!projectNameMatchesSearch(projectName, rawQuery)) return -1;
 
-  const queryTokens = q.split(/\s+/).filter(Boolean);
+  const queryTokens = getMeaningfulQueryTokens(rawQuery);
   const words = projectNameWords(name);
+
+  if (queryTokens.length === 0) return -1;
 
   if (name === q) return 0;
   if (name.startsWith(q)) return 1;
@@ -89,4 +116,10 @@ export function findBestProjectBySearch(raw, list) {
   }
 
   return best;
+}
+
+/** Whether a query looks like a direct project/builder name lookup. */
+export function isLikelyProjectNameQuery(rawQuery) {
+  const tokens = getMeaningfulQueryTokens(rawQuery);
+  return tokens.length > 0 && tokens.length <= 4;
 }

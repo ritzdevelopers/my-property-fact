@@ -22,8 +22,15 @@ import {
 } from "@/app/_global_components/projectFilterUtils";
 import {
   findBestProjectBySearch,
+  isLikelyProjectNameQuery,
   scoreProjectSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
+import {
+  hasStructuredSearchIntent,
+  parseSmartSearchQuery,
+  projectMatchesParsedQuery,
+  projectMatchesSearchTokens,
+} from "@/app/_global_components/smartSearchParser";
 import {
   extractTypesFromProjectConfiguration,
   projectMatchesListingHubCategory,
@@ -146,6 +153,7 @@ export default function ProjectsRedesigned({
   const [currentPage, setCurrentPage] = useState(1);
   const [searchInput, setSearchInput] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchListQuery, setSearchListQuery] = useState("");
   const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
   const [selectedSearchProjectKey, setSelectedSearchProjectKey] = useState("");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -288,6 +296,7 @@ export default function ProjectsRedesigned({
     setSortBy("relevance");
     setSearchInput("");
     setDebouncedSearch("");
+    setSearchListQuery("");
     setSelectedSearchProjectKey("");
     setSearchDropdownOpen(false);
     setActiveQuickFilter("");
@@ -453,18 +462,61 @@ export default function ProjectsRedesigned({
     setDebouncedSearch(q);
     if (!q) {
       setSelectedSearchProjectKey("");
+      setSearchListQuery("");
       setSearchDropdownOpen(false);
+      return;
+    }
+
+    const parsed = parseSmartSearchQuery(q, {
+      cities: cities || [],
+      projectTypes: propertyTypes || [],
+    });
+
+    if (hasStructuredSearchIntent(parsed)) {
+      setSelectedSearchProjectKey("");
+      setSearchListQuery("");
+      setSearchDropdownOpen(false);
+      showListingsLoader();
+      startSortTransition(() => {
+        setFilters((prev) => ({
+          ...prev,
+          city: parsed.cityName || prev.city,
+          budget: parsed.budget || "",
+          bhkType: parsed.configType ? "" : parsed.bhkType || "",
+          configType: parsed.bhkType ? "" : parsed.configType || "",
+        }));
+        if (!isPropertyTypeLocked) {
+          if (parsed.configType || parsed.quickTab === "Commercial") {
+            setActiveTab("commercial");
+          } else if (
+            parsed.bhkType ||
+            parsed.quickTab === "Residential" ||
+            parsed.quickTab === "Plots"
+          ) {
+            setActiveTab("residential");
+          }
+        }
+        setCurrentPage(1);
+      });
       return;
     }
 
     const match =
       searchSuggestions[0] || findBestProjectBySearch(q, searchSuggestionPool);
-    if (match) {
-      pinSearchProject(match);
-      return;
+    if (match && isLikelyProjectNameQuery(q)) {
+      const matchScore = scoreProjectSearchMatch(String(match?.projectName || ""), q);
+      if (matchScore >= 0 && matchScore <= 1) {
+        pinSearchProject(match);
+        return;
+      }
     }
 
-    if (q.length >= 2) setSearchDropdownOpen(true);
+    setSelectedSearchProjectKey("");
+    setSearchListQuery(q);
+    setSearchDropdownOpen(false);
+    setCurrentPage(1);
+    scrollAfterLoaderRef.current = true;
+    showListingsLoader();
   };
 
   const matchesBhkFilter = useCallback((projectConfiguration, selected) => {
@@ -740,20 +792,37 @@ export default function ProjectsRedesigned({
   );
 
   const filteredProjects = useMemo(() => {
-    const list = projectsAfterQuickFilter.filter((item) => {
+    let list = projectsAfterQuickFilter.filter((item) => {
       if (!matchesBhkFilter(item?.projectConfiguration, filters.bhkType)) return false;
       if (!matchesConfigTypeFilter(item?.projectConfiguration, filters.configType)) return false;
       return true;
     });
 
+    const listQuery = searchListQuery.trim();
+    if (listQuery) {
+      const parsed = parseSmartSearchQuery(listQuery, {
+        cities: cities || [],
+        projectTypes: propertyTypes || [],
+      });
+      list = list.filter((item) => {
+        if (hasStructuredSearchIntent(parsed) && projectMatchesParsedQuery(item, parsed)) {
+          return true;
+        }
+        return projectMatchesSearchTokens(item, listQuery);
+      });
+    }
+
     if (!selectedSearchProjectKey) return list;
     return list.filter((item) => getProjectKey(item) === selectedSearchProjectKey);
   }, [
+    cities,
     filters.bhkType,
     filters.configType,
     matchesBhkFilter,
     matchesConfigTypeFilter,
     projectsAfterQuickFilter,
+    propertyTypes,
+    searchListQuery,
     selectedSearchProjectKey,
   ]);
 
@@ -1075,6 +1144,7 @@ export default function ProjectsRedesigned({
                   onChange={(e) => {
                     setSearchInput(e.target.value);
                     setSelectedSearchProjectKey("");
+                    setSearchListQuery("");
                     setSearchDropdownOpen(true);
                   }}
                   onFocus={() => {
@@ -1094,6 +1164,7 @@ export default function ProjectsRedesigned({
                     onClick={() => {
                       setSearchInput("");
                       setDebouncedSearch("");
+                      setSearchListQuery("");
                       setSelectedSearchProjectKey("");
                       setSearchDropdownOpen(false);
                     }}

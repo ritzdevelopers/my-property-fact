@@ -5,10 +5,13 @@ import { useProjectContext } from "@/app/_global_components/contexts/projectsCon
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
   findBestProjectBySearch,
+  isLikelyProjectNameQuery,
+  scoreProjectSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
 import {
   buildSmartSearchSuggestions,
   clearRecentSearches,
+  hasStructuredSearchIntent,
   loadRecentSearches,
   parseSmartSearchQuery,
   removeRecentSearch,
@@ -147,11 +150,18 @@ function isPlotsContext(activeTab, parsed = {}) {
 
 function resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }) {
   if (isPlotsContext(activeTab, parsed)) return "Plots";
+  if (parsed?.configType) return "";
   return parsed?.bhkType || selectedFilterPayload.bhkType;
+}
+
+function resolveNavigationConfigType({ parsed, selectedFilterPayload }) {
+  return parsed?.configType || selectedFilterPayload.configType;
 }
 
 function resolveNavigationQuickTab({ activeTab, parsed }) {
   if (isPlotsContext(activeTab, parsed)) return "Residential";
+  if (parsed?.configType || parsed?.quickTab === "Commercial") return "Commercial";
+  if (activeTab === "Commercial") return "Commercial";
   if (activeTab === "Projects") return "All";
   return parsed?.quickTab || activeTab;
 }
@@ -383,6 +393,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         cityId: parsed.cityId || "",
         budget: parsed.budget || "",
         bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
         quickTab: tab,
         searchLabel: label,
       });
@@ -404,6 +415,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
         cityId: String(suggestion.item.id),
         bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
         quickTab: resolveNavigationQuickTab({ activeTab }),
         searchLabel: `${activeTab !== "All" ? activeTab + " in " : ""}${label}`,
       });
@@ -444,18 +456,40 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
       return;
     }
 
-    const projectMatch = findBestProjectBySearch(q, projectList);
-    if (projectMatch?.slugURL) {
-      saveRecentSearch(q);
-      setRecentSearches(loadRecentSearches());
-      router.push(`/${projectMatch.slugURL}`);
-      return;
-    }
-
     const parsed = parseSmartSearchQuery(q, {
       cities: effectiveCityList,
       projectTypes: effectiveProjectTypes,
     });
+
+    if (hasStructuredSearchIntent(parsed)) {
+      const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
+      const typeId =
+        parsed.propertyTypeId ||
+        findTypeIdForTab(isPlotsContext(activeTab, parsed) ? "Plots" : quickTab, effectiveProjectTypes) ||
+        findTypeIdForTab(activeTab, effectiveProjectTypes);
+
+      navigateToProjects({
+        propertyTypeId: typeId ? String(typeId) : "",
+        cityId: parsed.cityId,
+        budget: parsed.budget,
+        bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+        quickTab,
+        searchLabel: q,
+      });
+      return;
+    }
+
+    const projectMatch = findBestProjectBySearch(q, projectList);
+    if (projectMatch?.slugURL && isLikelyProjectNameQuery(q)) {
+      const matchScore = scoreProjectSearchMatch(projectMatch.projectName, q);
+      if (matchScore >= 0 && matchScore <= 2) {
+        saveRecentSearch(q);
+        setRecentSearches(loadRecentSearches());
+        router.push(`/${projectMatch.slugURL}`);
+        return;
+      }
+    }
 
     const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
     const typeId =
@@ -468,7 +502,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
       cityId: parsed.cityId,
       budget: parsed.budget,
       bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
-      configType: selectedFilterPayload.configType,
+      configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
       quickTab,
       searchLabel: q,
     });
@@ -485,6 +519,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
       propertyTypeId: typeId ? String(typeId) : "",
       cityId: city ? String(city.id) : "",
       bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+      configType: resolveNavigationConfigType({ selectedFilterPayload }),
       quickTab,
       searchLabel: label,
     });

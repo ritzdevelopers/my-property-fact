@@ -3,7 +3,70 @@ import { cityNameMatchesFilter } from "./cityAliasUtils";
 import {
   normalizeProjectSearchText,
   scoreProjectSearchMatch,
+  getMeaningfulQueryTokens,
 } from "./projectSearchUtils";
+import { extractTypesFromProjectConfiguration } from "@/lib/listingFloorValidation";
+
+const CONFIG_TYPE_HINTS = [
+  { pattern: /\bsco\s*plots?\b/i, configType: "sco-plots", label: "SCO Plots", tab: "Commercial" },
+  { pattern: /\bfood\s*courts?\b/i, configType: "food-court", label: "Food Court", tab: "Commercial" },
+  { pattern: /\brestaurants?\b/i, configType: "restaurant", label: "Restaurant", tab: "Commercial" },
+  { pattern: /\bshowrooms?\b/i, configType: "showroom", label: "Showroom", tab: "Commercial" },
+  { pattern: /\bkiosks?\b/i, configType: "kiosk", label: "Kiosk", tab: "Commercial" },
+  {
+    pattern: /\b(?:office\s*spaces?|offices?|coworking|co[\s-]?working)\b/i,
+    configType: "office",
+    label: "Office",
+    tab: "Commercial",
+  },
+  { pattern: /\bretail\s*(?:spaces?|shops?|outlets?)?\b/i, configType: "shops", label: "Shops", tab: "Commercial" },
+  { pattern: /\bshops?\b/i, configType: "shops", label: "Shops", tab: "Commercial" },
+];
+
+const RESIDENTIAL_CONFIG_HINTS = [
+  { pattern: /\b(?:farm\s*houses?)\b/i, bhkType: "Villa", tab: "Residential" },
+  { pattern: /\b(?:independent\s*house|villas?)\b/i, bhkType: "Villa", tab: "Residential" },
+  { pattern: /\b(?:1\s*rk|studio\s*apartments?)\b/i, bhkType: "1 RK", tab: "Residential" },
+  { pattern: /\bbuilder\s*floors?\b/i, bhkType: "2 BHK", tab: "Residential" },
+];
+
+const CONFIG_TYPE_LABELS = {
+  office: "Office",
+  shops: "Shops",
+  showroom: "Showroom",
+  "food-court": "Food Court",
+  kiosk: "Kiosk",
+  restaurant: "Restaurant",
+  "sco-plots": "SCO Plots",
+};
+
+function normalizeConfigTypeKey(rawType) {
+  const t = String(rawType || "").toLowerCase().trim().replace(/\s+/g, " ");
+  if (!t) return null;
+  if (t === "shop" || t === "shops") return "shops";
+  if (t === "office" || t === "offices") return "office";
+  if (t === "kiosk" || t === "kiosks") return "kiosk";
+  if (t === "food court" || t === "food courts") return "food-court";
+  if (t === "restaurant" || t === "restaurants") return "restaurant";
+  if (t === "showroom" || t === "showrooms") return "showroom";
+  if (t === "sco plots" || t === "sco plot") return "sco-plots";
+  return null;
+}
+
+export function matchesConfigTypeInConfiguration(projectConfiguration, selectedKey) {
+  const wanted = String(selectedKey || "").trim();
+  if (!wanted) return true;
+  const config = String(projectConfiguration || "");
+  if (!config) return false;
+
+  const types = extractTypesFromProjectConfiguration(config);
+  const keys = new Set();
+  for (const type of types) {
+    const norm = normalizeConfigTypeKey(type);
+    if (norm) keys.add(norm);
+  }
+  return keys.has(wanted);
+}
 
 const BUDGET_PATTERNS = [
   {
@@ -44,9 +107,9 @@ const BUDGET_PATTERNS = [
 
 const TYPE_HINTS = [
   { pattern: /\b(?:new\s*launch(?:es)?|newly\s*launched)\b/i, tab: "New Launched" },
-  { pattern: /\b(?:commercial|office|retail|shop|showroom)\b/i, tab: "Commercial" },
+  { pattern: /\bcommercial\b/i, tab: "Commercial" },
   { pattern: /\b(?:residential\s*land|(?<!sco\s)plots?)\b/i, tab: "Plots", bhkType: "Plots" },
-  { pattern: /\b(?:residential|apartment|flat|villa|bhk|farm\s*house)\b/i, tab: "Residential" },
+  { pattern: /\b(?:residential|apartments?|flats?|bhk)\b/i, tab: "Residential" },
 ];
 
 const BHK_PATTERN = /\b(\d+)\s*bhk\b/i;
@@ -59,6 +122,8 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
   let cityName = "";
   let quickTab = "";
   let bhkType = "";
+  let configType = "";
+  let configLabel = "";
 
   for (const { pattern, bucket } of BUDGET_PATTERNS) {
     const match = remaining.match(pattern);
@@ -69,17 +134,46 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     }
   }
 
-  for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
+  for (const { pattern, configType: hintConfigType, label, tab } of CONFIG_TYPE_HINTS) {
     if (pattern.test(remaining)) {
+      configType = hintConfigType;
+      configLabel = label;
       quickTab = tab;
-      if (hintBhkType) bhkType = hintBhkType;
       break;
+    }
+  }
+
+  if (!bhkType) {
+    for (const { pattern, bhkType: hintBhkType, tab } of RESIDENTIAL_CONFIG_HINTS) {
+      if (pattern.test(remaining)) {
+        bhkType = hintBhkType;
+        if (!quickTab) quickTab = tab;
+        break;
+      }
+    }
+  }
+
+  if (!quickTab) {
+    for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
+      if (pattern.test(remaining)) {
+        quickTab = tab;
+        if (hintBhkType && !bhkType) bhkType = hintBhkType;
+        break;
+      }
+    }
+  } else if (!bhkType) {
+    for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
+      if (pattern.test(remaining) && hintBhkType) {
+        bhkType = hintBhkType;
+        break;
+      }
     }
   }
 
   const bhkMatch = remaining.match(BHK_PATTERN);
   if (bhkMatch) {
     bhkType = `${bhkMatch[1]} BHK`;
+    if (!quickTab) quickTab = "Residential";
   }
 
   const cityNorm = normalizeProjectSearchText(remaining);
@@ -128,7 +222,40 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     propertyTypeId,
     quickTab,
     bhkType,
+    configType,
+    configLabel: configLabel || CONFIG_TYPE_LABELS[configType] || "",
   };
+}
+
+export function hasStructuredSearchIntent(parsed) {
+  if (!parsed) return false;
+  return Boolean(
+    parsed.cityId ||
+      parsed.configType ||
+      parsed.bhkType ||
+      parsed.budget ||
+      parsed.quickTab,
+  );
+}
+
+export function projectMatchesSearchTokens(project, rawQuery) {
+  const tokens = getMeaningfulQueryTokens(rawQuery);
+  if (tokens.length === 0) return true;
+
+  const haystack = normalizeProjectSearchText(
+    [
+      project?.projectName,
+      project?.projectConfiguration,
+      project?.cityName || project?.city,
+      project?.builderName,
+      project?.projectLocality,
+      project?.projectAddress,
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+
+  return tokens.every((token) => haystack.includes(token));
 }
 
 export function matchesBhkInConfiguration(projectConfiguration, bhkType) {
@@ -160,19 +287,29 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
+  if (parsed.configType && !matchesConfigTypeInConfiguration(project.projectConfiguration, parsed.configType)) {
+    return false;
+  }
+
   if (parsed.budget && !matchesBudgetRangeForProject(project, parsed.budget)) {
     return false;
   }
 
-  return Boolean(parsed.cityName || parsed.bhkType || parsed.budget);
+  return Boolean(parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget);
 }
 
 function buildIntentLabel(parsed) {
   const parts = [];
-  if (parsed.quickTab === "Plots" || parsed.bhkType === "Plots") {
+  if (parsed.configLabel) {
+    parts.push(parsed.configLabel);
+  } else if (parsed.quickTab === "Plots" || parsed.bhkType === "Plots") {
     parts.push("Plots");
   } else if (parsed.bhkType) {
     parts.push(parsed.bhkType);
+  } else if (parsed.quickTab === "Commercial") {
+    parts.push("Commercial");
+  } else if (parsed.quickTab === "Residential") {
+    parts.push("Residential");
   }
   if (parsed.cityName) parts.push(`in ${parsed.cityName}`);
   if (parsed.budget) parts.push(parsed.budget);
@@ -211,7 +348,7 @@ export function buildSmartSearchSuggestions(
     results.push(entry);
   };
 
-  if (parsed.cityName || parsed.bhkType || parsed.budget) {
+  if (parsed.cityName || parsed.bhkType || parsed.budget || parsed.configType) {
     pushResult({
       kind: "intent",
       label: buildIntentLabel(parsed),
@@ -237,7 +374,10 @@ export function buildSmartSearchSuggestions(
       continue;
     }
 
-    if ((parsed.cityName || parsed.bhkType || parsed.budget) && projectMatchesParsedQuery(project, parsed)) {
+    if (
+      (parsed.cityName || parsed.bhkType || parsed.budget || parsed.configType) &&
+      projectMatchesParsedQuery(project, parsed)
+    ) {
       pushResult({
         kind: "project",
         item: project,

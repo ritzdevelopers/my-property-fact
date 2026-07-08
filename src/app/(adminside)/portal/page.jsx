@@ -190,7 +190,7 @@ export default function PortalSignInPage() {
                 <span className="broker-login-step-label">Step 2 of 2</span>
                 <h2>Check your email</h2>
                 <p>
-                  We sent a 6-digit code to<br />
+                  We sent a 4-digit code to<br />
                   <strong>{email}</strong>
                 </p>
               </div>
@@ -211,13 +211,13 @@ export default function PortalSignInPage() {
                     type="text"
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    maxLength={6}
+                    maxLength={4}
                     value={otp}
                     onChange={(e) => {
                       setOtp(e.target.value.replace(/\D/g, ""));
                       setError("");
                     }}
-                    placeholder="000000"
+                    placeholder="0000"
                     disabled={isLoading}
                     className="broker-login-input otp-input no-icon"
                     autoFocus

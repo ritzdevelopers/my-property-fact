@@ -187,8 +187,17 @@ function normalizeText(value = "") {
   return String(value).trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function normalizeCitySearchQuery(value) {
+  let norm = normalizeText(value);
+  if (!norm) return "";
+  if (/\bextension\b/.test(norm)) return norm;
+  norm = norm.replace(/\bnoida\s+extn\b/g, "noida extension");
+  norm = norm.replace(/\bnoida\s+ext\b/g, "noida extension");
+  return norm.replace(/\s+/g, " ").trim();
+}
+
 function normalizeCityInput(rawCity = "") {
-  const city = normalizeText(rawCity);
+  const city = normalizeCitySearchQuery(rawCity);
   if (!city) return "";
   return CITY_ALIASES[city] || city;
 }

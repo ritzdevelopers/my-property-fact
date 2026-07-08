@@ -1,5 +1,9 @@
 import { PROJECT_BUDGET_OPTIONS, matchesBudgetRangeForProject } from "./projectFilterUtils";
-import { cityNameMatchesFilter } from "./cityAliasUtils";
+import {
+  cityNameMatchesFilter,
+  normalizeCitySearchQuery,
+  queryTextMatchesCityName,
+} from "./cityAliasUtils";
 import {
   normalizeProjectSearchText,
   scoreProjectSearchMatch,
@@ -176,7 +180,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     if (!quickTab) quickTab = "Residential";
   }
 
-  const cityNorm = normalizeProjectSearchText(remaining);
+  const cityNorm = normalizeCitySearchQuery(remaining);
   const sortedCities = [...cities].sort(
     (a, b) => String(b?.cityName || "").length - String(a?.cityName || "").length,
   );
@@ -185,10 +189,12 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     const name = String(city?.cityName || "").trim();
     if (!name) continue;
     const nameNorm = normalizeProjectSearchText(name);
-    if (cityNorm.includes(nameNorm) || nameNorm.includes(cityNorm)) {
+    if (queryTextMatchesCityName(cityNorm, nameNorm)) {
       cityId = String(city.id);
       cityName = name;
       remaining = remaining
+        .replace(/\bnoida\s+extn\b/gi, " ")
+        .replace(/\bnoida\s+ext\b/gi, " ")
         .replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ")
         .replace(/\s+/g, " ")
         .trim();
@@ -298,7 +304,7 @@ export function projectMatchesParsedQuery(project, parsed) {
   return Boolean(parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget);
 }
 
-function buildIntentLabel(parsed) {
+export function formatParsedSearchLabel(parsed) {
   const parts = [];
   if (parsed.configLabel) {
     parts.push(parsed.configLabel);
@@ -351,7 +357,7 @@ export function buildSmartSearchSuggestions(
   if (parsed.cityName || parsed.bhkType || parsed.budget || parsed.configType) {
     pushResult({
       kind: "intent",
-      label: buildIntentLabel(parsed),
+      label: formatParsedSearchLabel(parsed),
       meta: "Search all matching projects",
       parsed,
       score: -2,
@@ -392,16 +398,16 @@ export function buildSmartSearchSuggestions(
     const name = String(city?.cityName || "").trim();
     if (!name) continue;
     const nameNorm = normalizeProjectSearchText(name);
-    const qNorm = normalizeProjectSearchText(q);
     if (nameNorm.length < 2) continue;
 
-    if (qNorm.includes(nameNorm) || nameNorm.startsWith(qNorm) || qNorm.startsWith(nameNorm)) {
+    const cityQueryNorm = normalizeCitySearchQuery(q);
+    if (queryTextMatchesCityName(cityQueryNorm, nameNorm)) {
       pushResult({
         kind: "city",
         item: city,
         label: name,
         meta: "City",
-        score: qNorm.includes(nameNorm) ? 1 : 3,
+        score: cityQueryNorm.includes(nameNorm) ? 1 : 3,
       });
     }
   }

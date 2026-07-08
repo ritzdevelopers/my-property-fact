@@ -26,6 +26,7 @@ import {
   scoreProjectSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
 import {
+  formatParsedSearchLabel,
   hasStructuredSearchIntent,
   parseSmartSearchQuery,
   projectMatchesParsedQuery,
@@ -244,7 +245,8 @@ export default function ProjectsRedesigned({
       queryFilters?.propertyLocation ||
       queryFilters?.budget ||
       queryFilters?.bhkType ||
-      queryFilters?.configType;
+      queryFilters?.configType ||
+      queryFilters?.searchLabel;
     if (!hasFilters) return;
     if (queryFilters?.propertyType && (!propertyTypes || propertyTypes.length === 0)) return;
     if (queryFilters?.propertyLocation && (!cities || cities.length === 0)) return;
@@ -265,6 +267,12 @@ export default function ProjectsRedesigned({
       bhkType: queryFilters?.bhkType || "",
       configType: queryFilters?.configType || "",
     });
+
+    const label = String(queryFilters?.searchLabel || "").trim();
+    if (label) {
+      setSearchInput(label);
+      setDebouncedSearch(label);
+    }
 
     if (!isPropertyTypeLocked && typeTab !== "all") {
       setActiveTab(typeTab);
@@ -506,9 +514,14 @@ export default function ProjectsRedesigned({
     });
 
     if (hasStructuredSearchIntent(parsed)) {
+      const cleanLabel = formatParsedSearchLabel(parsed);
       setSelectedSearchProjectKey("");
       setSearchListQuery("");
       setSearchDropdownOpen(false);
+      if (cleanLabel) {
+        setSearchInput(cleanLabel);
+        setDebouncedSearch(cleanLabel);
+      }
       showListingsLoader();
       startSortTransition(() => {
         setFilters((prev) => ({

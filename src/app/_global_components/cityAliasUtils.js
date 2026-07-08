@@ -32,8 +32,14 @@ export const LEGACY_CITY_SLUGS_FOR_PAGE_MERGE = {
  * (e.g. "noida" must not swallow "noida extension" or "greater noida").
  */
 const SUBSTRING_MATCH_BLOCKLIST = {
-  noida: ["noida extension", "greater noida"],
+  noida: ["noida extension", "greater noida", "noida extn", "noida ext"],
 };
+
+/** Abbreviations for "extension" expanded before city matching. */
+const CITY_EXTENSION_ABBREV_EXPANSIONS = [
+  { pattern: /\bnoida\s+extn\b/g, replacement: "noida extension" },
+  { pattern: /\bnoida\s+ext\b/g, replacement: "noida extension" },
+];
 
 function normalizeKey(value) {
   return String(value || "")
@@ -46,6 +52,44 @@ function normalizeKey(value) {
 
 function slugify(value) {
   return normalizeKey(value).replace(/\s+/g, "-");
+}
+
+/**
+ * Expand city extension abbreviations (e.g. "noida extn" → "noida extension").
+ */
+export function normalizeCitySearchQuery(value) {
+  let norm = normalizeKey(value);
+  if (!norm) return "";
+  if (/\bextension\b/.test(norm)) return norm;
+
+  for (const { pattern, replacement } of CITY_EXTENSION_ABBREV_EXPANSIONS) {
+    norm = norm.replace(pattern, replacement);
+  }
+
+  return norm.replace(/\s+/g, " ").trim();
+}
+
+/** @deprecated Use normalizeCitySearchQuery */
+export function stripCityExtensionAbbreviations(value) {
+  return normalizeCitySearchQuery(value);
+}
+
+/** Whether user query text matches a city name for search / autocomplete. */
+export function queryTextMatchesCityName(cityQueryNorm, cityNameNorm) {
+  const queryNorm = normalizeCitySearchQuery(cityQueryNorm);
+  const nameNorm = normalizeKey(cityNameNorm);
+  if (!queryNorm || !nameNorm) return false;
+  if (queryNorm === nameNorm) return true;
+  if (queryNorm.includes(nameNorm)) return true;
+  if (queryNorm.startsWith(`${nameNorm} `)) return true;
+
+  if (nameNorm.includes(" extension") && !/\bextension\b/.test(queryNorm)) {
+    return false;
+  }
+
+  if (nameNorm.startsWith(queryNorm) && queryNorm.length >= 3) return true;
+
+  return false;
 }
 
 /** Canonical URL slug for a city segment (e.g. gurgaon → gurugram). */
@@ -187,13 +231,17 @@ export function projectMatchesCityFilter(
 
   if (cityIdNum != null && matchIds.has(cityIdNum)) return true;
 
+  const canonical = canonicalSlugFromCity(city);
+  const itemCityNorm = cityNorm ?? normalizeKey(item?.cityName);
+  if (itemCityNorm && isBlockedSubstringCityField(itemCityNorm, canonical)) {
+    return false;
+  }
+
   const fields = [
     cityNorm,
     projectAddressNorm,
     localityNorm,
   ].filter(Boolean);
-
-  const canonical = canonicalSlugFromCity(city);
 
   for (const name of matchNames) {
     if (!name) continue;
@@ -214,6 +262,11 @@ export function cityNameMatchesFilter(cityFilterName, item) {
   const cityNorm = normalizeKey(item?.cityName || "");
   const addrNorm = normalizeKey(item?.projectAddress || "");
   const localityNorm = normalizeKey(item?.projectLocality || "");
+
+  // Primary city wins: Noida Extension rows must not appear under a Noida-only filter.
+  if (cityNorm && isBlockedSubstringCityField(cityNorm, canonical)) {
+    return false;
+  }
 
   for (const name of matchNames) {
     if (

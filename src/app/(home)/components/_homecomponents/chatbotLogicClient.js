@@ -3,6 +3,7 @@ import {
   matchesBudgetRangeForProject,
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
+import { normalizeCitySearchQuery } from "@/app/_global_components/cityAliasUtils";
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/`;
 
 const PROPERTY_TYPE_MAP = {
@@ -93,7 +94,7 @@ function escapeRegex(text) {
 }
 
 function normalizeCityInput(rawCity = "") {
-  const city = normalizeText(rawCity);
+  const city = normalizeCitySearchQuery(rawCity);
   return CITY_ALIASES[city] || city;
 }
 

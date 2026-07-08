@@ -11,6 +11,7 @@ import {
 import {
   buildSmartSearchSuggestions,
   clearRecentSearches,
+  formatParsedSearchLabel,
   hasStructuredSearchIntent,
   loadRecentSearches,
   parseSmartSearchQuery,
@@ -306,6 +307,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         budget,
         bhkType: resolvedBhk,
         configType: resolvedConfig,
+        searchLabel: searchLabel || "",
       };
 
       try {
@@ -475,7 +477,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
         configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
         quickTab,
-        searchLabel: q,
+        searchLabel: formatParsedSearchLabel(parsed) || q,
       });
       return;
     }
@@ -504,7 +506,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
       bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
       configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
       quickTab,
-      searchLabel: q,
+      searchLabel: formatParsedSearchLabel(parsed) || q,
     });
   };
 

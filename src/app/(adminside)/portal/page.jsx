@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookie";
 import "./portal-login.css";
@@ -332,8 +333,8 @@ export default function PortalSignInPage() {
 
           <p className="broker-login-footer">
             By continuing, you agree to our{" "}
-            <a href="/privacy-policy">Privacy Policy</a> and{" "}
-            <a href="/terms-and-conditions">Terms</a>.
+            <Link href="/privacy-policy">Privacy Policy</Link> and{" "}
+            <Link href="/terms-and-conditions">Terms</Link>.
           </p>
         </div>
 

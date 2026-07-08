@@ -43,6 +43,7 @@ export default function MobileFilterDrawer({
   budgetOptions = [],
   configurationOptions = [],
   activeFiltersCount = 0,
+  activePropertyTab = "all",
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -85,7 +86,13 @@ export default function MobileFilterDrawer({
             <div className="mpf-mobile-type-pills">
               {propertyTypes.map((type, idx) => {
                 const value = type.projectTypeName;
-                const isSelected = filters.propertyType === value;
+                const typeNorm = String(value || "").toLowerCase();
+                const tabForType = typeNorm.includes("commercial")
+                  ? "commercial"
+                  : typeNorm.includes("residential")
+                    ? "residential"
+                    : "all";
+                const isSelected = activePropertyTab === tabForType;
                 return (
                   <button
                     key={`m-type-${idx}`}

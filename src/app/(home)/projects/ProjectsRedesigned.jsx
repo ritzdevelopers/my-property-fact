@@ -92,6 +92,13 @@ function normalizeText(value) {
   return String(value || "").toLowerCase().trim().replace(/\s+/g, " ");
 }
 
+function getActiveTabFromPropertyTypeName(propertyTypeName) {
+  const typeNorm = normalizeText(propertyTypeName);
+  if (typeNorm.includes("commercial")) return "commercial";
+  if (typeNorm.includes("residential")) return "residential";
+  return "all";
+}
+
 function getProjectKey(project) {
   if (project?.id != null) return `id:${project.id}`;
   const slug = String(project?.slugURL || project?.slug || "").trim();
@@ -249,16 +256,22 @@ export default function ProjectsRedesigned({
       (c) => String(c?.id) === String(queryFilters.propertyLocation)
     );
 
+    const typeTab = getActiveTabFromPropertyTypeName(selectedType?.projectTypeName);
+
     setFilters({
       ...EMPTY_FILTERS,
-      propertyType: selectedType?.projectTypeName || "",
       city: selectedCity?.cityName || "",
       budget: normalizeBudgetSelection(queryFilters?.budget, "web") || "",
       bhkType: queryFilters?.bhkType || "",
       configType: queryFilters?.configType || "",
     });
+
+    if (!isPropertyTypeLocked && typeTab !== "all") {
+      setActiveTab(typeTab);
+    }
+
     clearQueryFilters();
-  }, [queryFilters, propertyTypes, cities, clearQueryFilters]);
+  }, [queryFilters, propertyTypes, cities, clearQueryFilters, isPropertyTypeLocked]);
 
   const handleFilterChange = (key, value) => {
     const willToggleTo = filters[key] === value ? "" : value;
@@ -283,6 +296,20 @@ export default function ProjectsRedesigned({
         }
         setCurrentPage(1);
       });
+      return;
+    }
+
+    if (key === "propertyType" && !isPropertyTypeLocked) {
+      const typeNorm = String(value || "").toLowerCase();
+      const tabForType = typeNorm.includes("commercial")
+        ? "commercial"
+        : typeNorm.includes("residential")
+          ? "residential"
+          : "all";
+      const isCurrentlySelected = activeTab === tabForType;
+      setActiveTab(isCurrentlySelected ? "all" : tabForType);
+      setFilters((prev) => ({ ...prev, propertyType: "" }));
+      setCurrentPage(1);
       return;
     }
 
@@ -383,8 +410,14 @@ export default function ProjectsRedesigned({
       const hubKey = String(hubCategory || "").trim();
 
       if (hubKey && !projectMatchesListingHubCategory(item, hubKey)) return false;
-      if (activeTab === "residential" && !typeNorm.includes("residential")) return false;
-      if (activeTab === "commercial" && !typeNorm.includes("commercial")) return false;
+
+      const effectiveTypeTab =
+        activeTab !== "all"
+          ? activeTab
+          : getActiveTabFromPropertyTypeName(filters.propertyType);
+
+      if (effectiveTypeTab === "residential" && !typeNorm.includes("residential")) return false;
+      if (effectiveTypeTab === "commercial" && !typeNorm.includes("commercial")) return false;
       if (filters.city && !cityNameMatchesFilter(filters.city, item)) return false;
       if (filters.budget && !matchesBudgetRangeForProject(item, filters.budget)) return false;
       if (filters.projectStatus && !statusNorm.includes(normalizeText(filters.projectStatus))) {
@@ -1557,6 +1590,7 @@ export default function ProjectsRedesigned({
         budgetOptions={budgetOptions}
         configurationOptions={configurationFilterOptions}
         activeFiltersCount={activeFiltersCount}
+        activePropertyTab={activeTab}
       />
     </div>
   );

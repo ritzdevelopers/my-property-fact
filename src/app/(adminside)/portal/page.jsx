@@ -87,17 +87,23 @@ export default function PortalSignInPage() {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
         { email: email.trim() },
+        { timeout: 25000 },
       );
-      if (response.data.success) {
+      if (response.status === 200 && response.data?.success !== false) {
         setStep("otp");
         if (response.data.otp) setDevOtp(response.data.otp);
+      } else {
+        setError(response.data?.message || response.data?.error || "Could not send OTP. Please try again.");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Could not send OTP. Please try again.",
-      );
+      const message = err.code === "ECONNABORTED"
+        ? "Request timed out. Please try again."
+        : !err.response
+          ? "Network error. Please check your connection and try again."
+          : err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Could not send OTP. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }

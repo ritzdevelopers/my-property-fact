@@ -68,6 +68,18 @@ function OtpDigitInput({ value, onChange, onKeyDown, onPaste, disabled, inputRef
   );
 }
 
+const AUTH_REQUEST_TIMEOUT_MS = 25000;
+
+function getAuthErrorMessage(err, fallback) {
+  if (err.code === "ECONNABORTED") {
+    return "Request timed out. Please try again.";
+  }
+  if (!err.response) {
+    return "Network error. Please check your connection and try again.";
+  }
+  return err.response?.data?.message || err.response?.data?.error || fallback;
+}
+
 function saveAuthCookies(response) {
   Cookies.set("token", response.data.token, {
     expires: 7,
@@ -188,17 +200,14 @@ export default function BrokerLoginModal({ show, onClose }) {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
         { token: credentialResponse.credential },
+        { timeout: AUTH_REQUEST_TIMEOUT_MS },
       );
       if (response.data.token) {
         saveAuthCookies(response);
         redirectToDashboard();
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Google sign-in failed. Please try again.",
-      );
+      setError(getAuthErrorMessage(err, "Google sign-in failed. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -225,19 +234,18 @@ export default function BrokerLoginModal({ show, onClose }) {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
         { email: email.trim() },
+        { timeout: AUTH_REQUEST_TIMEOUT_MS },
       );
-      if (response.data.success) {
+      if (response.status === 200 && response.data?.success !== false) {
         setStep("otp");
         setOtpDigits(["", "", "", ""]);
         if (response.data.otp) setDevOtp(response.data.otp);
         setTimeout(() => otpRefs.current[0]?.focus(), 100);
+      } else {
+        setError(response.data?.message || response.data?.error || "Could not send OTP. Please try again.");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Could not send OTP. Please try again.",
-      );
+      setError(getAuthErrorMessage(err, "Could not send OTP. Please try again."));
     } finally {
       setIsLoading(false);
     }
@@ -261,6 +269,7 @@ export default function BrokerLoginModal({ show, onClose }) {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/verify-otp`,
         payload,
+        { timeout: AUTH_REQUEST_TIMEOUT_MS },
       );
 
       if (response.data.token) {
@@ -268,11 +277,7 @@ export default function BrokerLoginModal({ show, onClose }) {
         redirectToDashboard();
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.error ||
-          "Invalid OTP. Please check and try again.",
-      );
+      setError(getAuthErrorMessage(err, "Invalid OTP. Please check and try again."));
     } finally {
       setIsLoading(false);
     }

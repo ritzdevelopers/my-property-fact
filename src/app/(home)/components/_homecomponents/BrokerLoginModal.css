@@ -1,0 +1,239 @@
+.broker-login-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(12, 46, 35, 0.55);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  animation: brokerModalFadeIn 0.2s ease;
+}
+
+@keyframes brokerModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.broker-login-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 2rem 1.75rem 1.75rem;
+  box-shadow: 0 24px 64px rgba(12, 46, 35, 0.2);
+  animation: brokerModalSlideUp 0.28s ease;
+}
+
+@keyframes brokerModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.broker-login-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: #f4f6f8;
+  border-radius: 10px;
+  color: #6b7a8d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.broker-login-modal-close:hover {
+  background: #e8ecf0;
+  color: #0c2e23;
+}
+
+.broker-login-modal-brand {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.broker-login-modal-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.broker-login-modal-brand h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #0c2e23;
+  margin: 0 0 0.4rem;
+}
+
+.broker-login-modal-brand p {
+  font-size: 0.88rem;
+  color: #6b7a8d;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.broker-login-modal-field {
+  margin-bottom: 1.1rem;
+}
+
+.broker-login-modal-field label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1a2332;
+  margin-bottom: 0.45rem;
+}
+
+.broker-login-modal-input-wrap {
+  position: relative;
+}
+
+.broker-login-modal-icon {
+  position: absolute;
+  left: 0.9rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9aa8b8;
+  display: flex;
+}
+
+.broker-login-modal-input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  font-size: 0.95rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8faf9;
+  color: #1a2332;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.broker-login-modal-input.with-icon {
+  padding-left: 2.65rem;
+}
+
+.broker-login-modal-input:focus {
+  border-color: #68ac78;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(104, 172, 120, 0.15);
+}
+
+.broker-login-modal-input.otp {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.45rem;
+  font-family: ui-monospace, monospace;
+}
+
+.broker-login-modal-btn {
+  width: 100%;
+  padding: 0.9rem;
+  margin-top: 0.25rem;
+  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.broker-login-modal-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(13, 88, 52, 0.3);
+}
+
+.broker-login-modal-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.broker-login-modal-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: brokerModalSpin 0.7s linear infinite;
+}
+
+@keyframes brokerModalSpin {
+  to { transform: rotate(360deg); }
+}
+
+.broker-login-modal-link {
+  display: block;
+  width: 100%;
+  margin-top: 0.6rem;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  color: #6b7a8d;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+}
+
+.broker-login-modal-link:hover:not(:disabled) {
+  color: #0d5834;
+}
+
+.broker-login-modal-toggle {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #6b7a8d;
+  margin: 1.1rem 0 0;
+}
+
+.broker-login-modal-toggle button {
+  background: none;
+  border: none;
+  color: #0d5834;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 0.25rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.broker-login-modal-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.broker-login-modal-alert.error {
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #fed7d7;
+}
+
+.broker-login-modal-alert.dev {
+  background: #fffff0;
+  color: #975a16;
+  border: 1px solid #fefcbf;
+}

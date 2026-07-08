@@ -1,5 +1,5 @@
 "use client";
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -18,64 +18,62 @@ export const UserProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  useEffect(() => {
-    // Load user data from cookies
-    const loadUserData = () => {
-      try {
-        const cookieData = Cookies.get("userData");
 
-        if (cookieData) {
-          const parsedData = JSON.parse(cookieData);
-          setUserData(parsedData);
-        } else {
-          // Set default user data if no cookie exists
-          setUserData({
-            fullName: "John Agent",
-            email: "john.agent@example.com",
-            phone: "+91 98765 43210",
-            role: "Real Estate Agent",
-            experience: "5 years",
-            location: "Gurgaon, Haryana",
-            bio: "Experienced real estate agent specializing in residential properties in Gurgaon. Committed to helping clients find their dream homes.",
-            avatar: "/logo.webp",
-            verified: true,
-            rating: 4.8,
-            totalDeals: 127,
-            joinDate: "2019-03-15",
-          });
-        }
-      } catch (error) {
-        console.error("Error loading user data:", error);
-        // Set default user data on error
-        setUserData({
-          fullName: "John Agent",
-          email: "john.agent@example.com",
-          phone: "+91 98765 43210",
-          role: "Real Estate Agent",
-          experience: "5 years",
-          location: "Gurgaon, Haryana",
-          bio: "Experienced real estate agent specializing in residential properties in Gurgaon. Committed to helping clients find their dream homes.",
-          avatar: "/logo.webp",
-          verified: true,
-          rating: 4.8,
-          totalDeals: 127,
-          joinDate: "2019-03-15",
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}users/me`,
+        { withCredentials: true },
+      );
+      if (response.data) {
+        const profile = {
+          ...response.data,
+          role: response.data.userType || "Broker",
+        };
+        setUserData(profile);
+        Cookies.set("userData", JSON.stringify(profile), {
+          expires: 7,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+          path: "/",
         });
-      } finally {
-        setLoading(false);
+        return profile;
       }
-    };
-
-    loadUserData();
+    } catch (err) {
+      const cookieData = Cookies.get("userData");
+      if (cookieData) {
+        try {
+          const parsed = JSON.parse(cookieData);
+          setUserData(parsed);
+          return parsed;
+        } catch {
+          // ignore parse error
+        }
+      }
+      console.error("Error loading user profile:", err);
+    }
+    return null;
   }, []);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      setLoading(true);
+      await fetchUserProfile();
+      setLoading(false);
+    };
+    loadUserData();
+  }, [fetchUserProfile]);
 
   const updateUserData = (newData) => {
     const updatedData = { ...userData, ...newData };
     setUserData(updatedData);
-
-    // Save to cookies
     try {
-      Cookies.set("userData", JSON.stringify(updatedData), { expires: 7 }); // 7 days
+      Cookies.set("userData", JSON.stringify(updatedData), {
+        expires: 7,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
+        path: "/",
+      });
     } catch (error) {
       console.error("Error saving user data:", error);
     }
@@ -93,8 +91,14 @@ export const UserProvider = ({ children }) => {
       console.error("Logout API error:", err);
     } finally {
       Cookies.remove("userData");
+      Cookies.remove("token");
+      Cookies.remove("refreshToken");
       router.push("/portal");
     }
+  };
+
+  const refreshUser = async () => {
+    return fetchUserProfile();
   };
 
   const value = {
@@ -102,6 +106,7 @@ export const UserProvider = ({ children }) => {
     loading,
     updateUserData,
     logout,
+    refreshUser,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -73,7 +73,7 @@ export default function PortalDashboardLayout({ children }) {
           >
             <CIcon icon={cilMenu} />
           </Button>
-          <h4 className="mobile-title">Property Portal</h4>
+          <h4 className="mobile-title">Broker Portal</h4>
         </div>
 
         {/* Mobile Overlay */}

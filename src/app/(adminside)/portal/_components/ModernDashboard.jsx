@@ -1,768 +1,444 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Button,
-  ProgressBar,
-  Badge,
-  Spinner,
-  Alert,
-} from "react-bootstrap";
+import Link from "next/link";
+import { Spinner, Alert } from "react-bootstrap";
 import {
   cilHome,
-  cilUser,
-  cilChart,
-  cilCalendar,
   cilPlus,
-  cilSettings,
-  cilViewModule,
+  cilPeople,
+  cilCheckCircle,
+  cilClock,
+  cilExternalLink,
   cilPencil,
-  cilPhone,
+  cilViewModule,
   cilLocationPin,
-  cilStar,
-  cilBuilding,
-  cilLayers,
-  cilCarAlt,
+  cilShieldAlt,
+  cilChart,
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
-import Link from "next/link";
-import { useUser } from "../_contexts/UserContext";
-import { setDemoUserData } from "../_utils/setUserData";
 import axios from "axios";
-import Cookies from "js-cookie";
-import "./PortalCommonStyles.css";
+import { useUser } from "../_contexts/UserContext";
+import { getPublicPropertyUrl } from "../_utils/propertySlug";
+import "./BrokerPhase2Styles.css";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
+
+function formatTimeAgo(dateString) {
+  if (!dateString) return "Recently";
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now - date) / 1000);
+  if (diffInSeconds < 60) return "Just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  return date.toLocaleDateString();
+}
+
+function formatPrice(price) {
+  if (!price && price !== 0) return "Price on request";
+  const num = typeof price === "string" ? parseFloat(price.replace(/[^0-9.Ee+\-]/g, "")) : price;
+  if (isNaN(num)) return "Price on request";
+  if (num >= 10000000) return `₹${(num / 10000000).toFixed(2)} Cr`;
+  if (num >= 100000) return `₹${(num / 100000).toFixed(2)} L`;
+  return `₹${Math.round(num).toLocaleString("en-IN")}`;
+}
+
+function getPropertyImage(property) {
+  if (property.imageUrls?.length > 0) {
+    const path = property.imageUrls[0].replace(/\\/g, "/");
+    return `${API_BASE}get/images/${path}`;
+  }
+  return null;
+}
 
 export default function ModernDashboard() {
   const { userData, loading: userLoading } = useUser();
   const [stats, setStats] = useState({
-    totalListings: 0,
-    activeListings: 0,
-    pendingListings: 0,
-    soldListings: 0,
-    totalViews: 0,
-    inquiries: 0,
-    conversions: 0,
-    revenue: 0,
+    total: 0,
+    live: 0,
+    pending: 0,
+    draft: 0,
+    rejected: 0,
+    leads: 0,
   });
   const [properties, setProperties] = useState([]);
-  const [recentActivities, setRecentActivities] = useState([]);
-  const [topProperties, setTopProperties] = useState([]);
-  const [upcomingTasks, setUpcomingTasks] = useState([]);
-  const [userProfile, setUserProfile] = useState(null);
+  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Format time ago
-  const formatTimeAgo = (dateString) => {
-    if (!dateString) return "Recently";
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
+  useEffect(() => {
+    if (userLoading) return;
 
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    if (diffInSeconds < 604800)
-      return `${Math.floor(diffInSeconds / 86400)} days ago`;
-    return date.toLocaleDateString();
-  };
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [listingsRes, leadsRes] = await Promise.allSettled([
+          axios.get(`${API_BASE}user/property-listings`, { withCredentials: true }),
+          axios.get(`${API_BASE}enquiry/get-user-leads`, { withCredentials: true }),
+        ]);
 
-  // Fetch user properties
-  const fetchProperties = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`,
-        {
-          withCredentials: true,
-        },
-      );
-      if (response.data.success && response.data.properties) {
-        const propertiesData = response.data.properties;
-        setProperties(propertiesData);
+        let props = [];
+        if (
+          listingsRes.status === "fulfilled" &&
+          listingsRes.value.data?.success &&
+          Array.isArray(listingsRes.value.data.properties)
+        ) {
+          props = listingsRes.value.data.properties;
+        }
 
-        // Calculate statistics
-        const totalListings = propertiesData.length;
-        const activeListings = propertiesData.filter(
-          (p) => p.approvalStatus === "APPROVED",
-        ).length;
-        const pendingListings = propertiesData.filter(
-          (p) => p.approvalStatus === "PENDING",
-        ).length;
-        const draftListings = propertiesData.filter(
-          (p) => p.approvalStatus === "DRAFT",
-        ).length;
-        const rejectedListings = propertiesData.filter(
-          (p) => p.approvalStatus === "REJECTED",
-        ).length;
+        let leadCount = 0;
+        if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value.data)) {
+          leadCount = leadsRes.value.data.filter((l) => l.propertyId).length;
+        }
 
-        // Calculate revenue (sum of all property prices - simplified)
-        const revenue = propertiesData.reduce((sum, p) => {
-          if (p.projectPrice) {
-            const priceStr = p.projectPrice.replace(/[^0-9.]/g, "");
-            const price = parseFloat(priceStr) || 0;
-            return sum + price;
-          }
-          return sum;
-        }, 0);
+        const live = props.filter((p) => p.approvalStatus === "APPROVED").length;
+        const pending = props.filter((p) => p.approvalStatus === "PENDING").length;
+        const draft = props.filter((p) => p.approvalStatus === "DRAFT").length;
+        const rejected = props.filter((p) => p.approvalStatus === "REJECTED").length;
 
         setStats({
-          totalListings,
-          activeListings,
-          pendingListings,
-          soldListings: 0, // This would need to come from a separate field
-          totalViews: 0, // This would need to come from analytics
-          inquiries: 0, // This would need to come from enquiries
-          conversions: 0, // This would need to come from analytics
-          revenue: revenue,
+          total: props.length,
+          live,
+          pending,
+          draft,
+          rejected,
+          leads: leadCount,
         });
+        setProperties(props);
 
-        // Generate recent activities from properties
-        const activities = propertiesData
+        const acts = props
           .sort(
             (a, b) =>
-              new Date(b.updatedAt || b.createdAt) -
-              new Date(a.updatedAt || a.createdAt),
+              new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt),
           )
-          .slice(0, 4)
-          .map((property, index) => {
-            let message = "";
-            let icon = cilHome;
-            let color = "info";
-
-            if (property.approvalStatus === "APPROVED") {
-              message = `Property approved: ${property.projectName || "Untitled Property"}`;
-              icon = cilStar;
-              color = "success";
-            } else if (property.approvalStatus === "PENDING") {
-              message = `Property submitted for approval: ${property.projectName || "Untitled Property"}`;
-              icon = cilCalendar;
-              color = "warning";
-            } else if (property.approvalStatus === "DRAFT") {
-              message = `Draft saved: ${property.projectName || "Untitled Property"}`;
-              icon = cilPencil;
-              color = "secondary";
-            } else {
-              message = `Property updated: ${property.projectName || "Untitled Property"}`;
-              icon = cilHome;
-              color = "info";
+          .slice(0, 5)
+          .map((p) => {
+            const title = p.title || p.projectName || "Property";
+            const status = (p.approvalStatus || "PENDING").toUpperCase();
+            let message = `Updated: ${title}`;
+            let type = "info";
+            if (status === "APPROVED") {
+              message = `Live on /properties: ${title}`;
+              type = "success";
+            } else if (status === "PENDING") {
+              message = `Submitted for review: ${title}`;
+              type = "warning";
+            } else if (status === "DRAFT") {
+              message = `Draft saved: ${title}`;
+              type = "muted";
+            } else if (status === "REJECTED") {
+              message = `Needs changes: ${title}`;
+              type = "warning";
             }
-
             return {
-              id: property.id || index,
-              type: property.approvalStatus?.toLowerCase() || "update",
+              id: p.id,
               message,
-              time: formatTimeAgo(property.updatedAt || property.createdAt),
-              icon,
-              color,
+              time: formatTimeAgo(p.updatedAt || p.createdAt),
+              type,
             };
           });
-        setRecentActivities(activities);
-
-        // Get top properties (approved properties, sorted by most recent)
-        const topProps = propertiesData
-          .filter((p) => p.approvalStatus === "APPROVED")
-          .sort(
-            (a, b) =>
-              new Date(b.updatedAt || b.createdAt) -
-              new Date(a.updatedAt || a.createdAt),
-          )
-          .slice(0, 3)
-          .map((property) => {
-            // Get the first image from imageUrls array if available
-            let imageUrl = "/static/generic-floorplan.jpg";
-
-            if (property.imageUrls && property.imageUrls.length > 0) {
-              // imageUrls contains relative paths like "property-listings/{id}/{filename}"
-              // Construct full URL using the API endpoint
-              const relativePath = property.imageUrls[0];
-              // Replace backslashes with forward slashes for URL
-              const normalizedPath = relativePath.replace(/\\/g, "/");
-              // Construct full URL: API_URL + get/images/ + normalized path
-              imageUrl = `${process.env.NEXT_PUBLIC_API_URL}get/images/${normalizedPath}`;
-            } else if (property.projectThumbnail) {
-              // Fallback to projectThumbnail if available (for legacy data)
-              const slugURL =
-                property.slugURL ||
-                property.projectName?.toLowerCase().replace(/\s+/g, "-");
-              imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${slugURL}/${property.projectThumbnail}`;
-            } else if (property.projectLogo) {
-              // Fallback to projectLogo if available
-              const slugURL =
-                property.slugURL ||
-                property.projectName?.toLowerCase().replace(/\s+/g, "-");
-              imageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${slugURL}/${property.projectLogo}`;
-            }
-
-            // Format area
-            const formatArea = (area) => {
-              if (!area) return null;
-              const numArea =
-                typeof area === "string" ? parseFloat(area) : area;
-              if (isNaN(numArea)) return null;
-              return `${numArea.toLocaleString("en-IN")} sq ft`;
-            };
-
-            const area = formatArea(
-              property.carpetArea ||
-                property.builtUpArea ||
-                property.superBuiltUpArea ||
-                property.plotArea,
-            );
-
-            // Format price per sq ft
-            const formatPricePerSqFt = () => {
-              if (property.pricePerSqFt) {
-                const price =
-                  typeof property.pricePerSqFt === "string"
-                    ? parseFloat(property.pricePerSqFt.replace(/[^0-9.]/g, ""))
-                    : property.pricePerSqFt;
-                if (!isNaN(price))
-                  return `₹${price.toLocaleString("en-IN")}/sq ft`;
-              }
-              // Calculate from total price and area
-              if (property.totalPrice && area) {
-                const totalPrice =
-                  typeof property.totalPrice === "string"
-                    ? parseFloat(property.totalPrice.replace(/[^0-9.]/g, ""))
-                    : property.totalPrice;
-                const areaNum = parseFloat(area.replace(/[^0-9.]/g, ""));
-                if (!isNaN(totalPrice) && !isNaN(areaNum) && areaNum > 0) {
-                  const pricePerSqFt = Math.round(totalPrice / areaNum);
-                  return `₹${pricePerSqFt.toLocaleString("en-IN")}/sq ft`;
-                }
-              }
-              return null;
-            };
-
-            return {
-              id: property.id,
-              title:
-                property.projectName || property.title || "Untitled Property",
-              location:
-                property.projectLocality ||
-                property.locality ||
-                property.address ||
-                "Location not specified",
-              city: property.city || null,
-              price:
-                property.projectPrice ||
-                (property.totalPrice
-                  ? `₹${property.totalPrice.toLocaleString("en-IN")}`
-                  : "Price not available"),
-              pricePerSqFt: formatPricePerSqFt(),
-              area: area,
-              bedrooms: property.bedrooms || null,
-              bathrooms: property.bathrooms || null,
-              builderName: property.builderName || null,
-              projectType:
-                property.listingType ||
-                property.subType ||
-                property.projectType ||
-                null,
-              floor: property.floor || null,
-              totalFloors: property.totalFloors || null,
-              furnished: property.furnished || null,
-              parking: property.parking || null,
-              possession: property.possession || null,
-              views: 0, // Would need analytics data
-              inquiries: 0, // Would need enquiry data
-              status: "active",
-              image: imageUrl,
-              createdAt: property.createdAt,
-              updatedAt: property.updatedAt,
-            };
-          });
-        setTopProperties(topProps);
-
-        // Generate tasks from pending properties
-        const tasks = propertiesData
-          .filter(
-            (p) =>
-              p.approvalStatus === "PENDING" ||
-              p.approvalStatus === "REQUIRES_CHANGES",
-          )
-          .slice(0, 3)
-          .map((property, index) => {
-            const taskType =
-              property.approvalStatus === "PENDING" ? "Review" : "Update";
-            const priority =
-              property.approvalStatus === "REQUIRES_CHANGES"
-                ? "high"
-                : "medium";
-
-            return {
-              id: property.id || index,
-              title: `${taskType} property: ${property.projectName || "Untitled"}`,
-              type: taskType,
-              time: new Date(
-                property.updatedAt || property.createdAt,
-              ).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-              priority,
-            };
-          });
-        setUpcomingTasks(tasks.length > 0 ? tasks : []);
+        setActivities(acts);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load dashboard. Please refresh.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Error fetching properties:", err);
-      setError("Failed to load dashboard data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  // Fetch user profile
-  const fetchUserProfile = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}users/me`,
-        {
-          withCredentials: true
-        },
-      );
-
-      if (response.data) {
-        setUserProfile(response.data);
-      }
-    } catch (err) {
-      console.error("Error fetching user profile:", err);
-      // Fallback to userData from context if API fails
-      if (userData) {
-        setUserProfile(userData);
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (!userLoading) {
-      fetchProperties();
-      fetchUserProfile();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    load();
   }, [userLoading]);
 
-  const handleSetDemoData = () => {
-    setDemoUserData();
-    // Reload the page to refresh user data
-    window.location.reload();
-  };
+  const liveProperties = properties
+    .filter((p) => p.approvalStatus === "APPROVED")
+    .slice(0, 3);
 
-  const StatCard = ({ title, value, icon, color, change, changeType }) => (
-    <Card className="stat-card h-100">
-      <Card.Body>
-        <div className="stat-content">
-          <div className={`stat-icon ${color}`}>
-            <CIcon icon={icon} />
-          </div>
-          <div className="stat-info">
-            <h6 className="stat-title">{title}</h6>
-            <h3 className="stat-value">{value}</h3>
-          </div>
-        </div>
-      </Card.Body>
-    </Card>
-  );
-
-  const ActivityItem = ({ activity }) => (
-    <div className="activity-item">
-      <div className="activity-icon">
-        <CIcon icon={activity.icon} className={`text-${activity.color}`} />
-      </div>
-      <div className="activity-content">
-        <p className="activity-message">{activity.message}</p>
-        <small className="activity-time">{activity.time}</small>
-      </div>
-    </div>
-  );
-
-  const PropertyCard = ({ property }) => (
-    <Card className="property-card h-100">
-      <div className="property-image-container">
-        <img
-          src={property.image}
-          alt={property.title}
-          className="property-image"
-          style={{ objectFit: "cover" }}
-        />
-        <Badge
-          bg={
-            property.status === "active"
-              ? "success"
-              : property.status === "sold"
-                ? "warning"
-                : "secondary"
-          }
-          className="property-status"
-        >
-          {property.status}
-        </Badge>
-      </div>
-      <Card.Body>
-        <h6 className="property-title mb-2">{property.title}</h6>
-
-        {/* Location */}
-        <p className="property-location text-muted small mb-2">
-          <CIcon icon={cilLocationPin} className="me-1" />
-          {property.location}
-          {property.city && `, ${property.city}`}
-        </p>
-
-        {/* Builder Name */}
-        {property.builderName && (
-          <p className="text-muted small mb-2">
-            <CIcon icon={cilBuilding} className="me-1" />
-            {property.builderName}
-          </p>
-        )}
-
-        {/* Price */}
-        <div className="property-price mb-2">
-          <strong className="text-primary">{property.price}</strong>
-          {property.pricePerSqFt && (
-            <small className="text-muted d-block">
-              {property.pricePerSqFt}
-            </small>
-          )}
-        </div>
-
-        {/* Property Details Grid */}
-        <div className="property-details-grid mb-3">
-          {(property.bedrooms || property.bathrooms) && (
-            <div className="detail-item">
-              {property.bedrooms && (
-                <span className="me-2">
-                  <CIcon icon={cilHome} className="me-1" />
-                  {property.bedrooms} BHK
-                </span>
-              )}
-              {property.bathrooms && (
-                <span>
-                  <CIcon icon={cilLayers} className="me-1" />
-                  {property.bathrooms} Bath
-                </span>
-              )}
-            </div>
-          )}
-
-          {property.area && (
-            <div className="detail-item">
-              <CIcon icon={cilViewModule} className="me-1" />
-              {property.area}
-            </div>
-          )}
-
-          {property.floor && (
-            <div className="detail-item">
-              <CIcon icon={cilBuilding} className="me-1" />
-              Floor {property.floor}
-              {property.totalFloors && ` of ${property.totalFloors}`}
-            </div>
-          )}
-
-          {property.parking && (
-            <div className="detail-item">
-              <CIcon icon={cilCarAlt} className="me-1" />
-              {property.parking} Parking
-            </div>
-          )}
-
-          {property.furnished && (
-            <div className="detail-item">
-              <CIcon icon={cilStar} className="me-1" />
-              {property.furnished}
-            </div>
-          )}
-
-          {property.possession && (
-            <div className="detail-item">
-              <CIcon icon={cilCalendar} className="me-1" />
-              {property.possession}
-            </div>
-          )}
-        </div>
-
-        {/* Property Type Badge */}
-        {property.projectType && (
-          <div className="mb-2">
-            <Badge bg="info" className="me-1">
-              {property.projectType}
-            </Badge>
-          </div>
-        )}
-
-        {/* Stats */}
-        <div className="property-stats mb-3">
-          <div className="stat-item">
-            <CIcon icon={cilViewModule} className="me-1" />
-            {property.views} views
-          </div>
-          <div className="stat-item">
-            <CIcon icon={cilPhone} className="me-1" />
-            {property.inquiries} inquiries
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="property-actions">
-          <Link title="View Property" href={`/portal/dashboard/listings/${property.id}`}>
-            <Button variant="outline-primary" size="sm" className="me-2">
-              <CIcon icon={cilViewModule} className="me-1" />
-              View
-            </Button>
-          </Link>
-          <Link title="Edit Property" href={`/portal/dashboard/listings/${property.id}?edit=true`}>
-            <Button variant="outline-secondary" size="sm">
-              <CIcon icon={cilPencil} className="me-1" />
-              Edit
-            </Button>
-          </Link>
-        </div>
-      </Card.Body>
-    </Card>
-  );
-
-  const TaskItem = ({ task }) => (
-    <div className="task-item">
-      <div className="task-content">
-        <h6 className="task-title">{task.title}</h6>
-        <small className="task-type">{task.type}</small>
-      </div>
-      <div className="task-meta">
-        <Badge
-          bg={
-            task.priority === "high"
-              ? "danger"
-              : task.priority === "medium"
-                ? "warning"
-                : "info"
-          }
-        >
-          {task.priority}
-        </Badge>
-        <small className="task-time">{task.time}</small>
-      </div>
-    </div>
-  );
-
-  // Calculate profile completion percentage
-  const calculateProfileCompletion = () => {
-    if (!userProfile) return 0;
-    let completed = 0;
-    let total = 7;
-
-    if (userProfile.fullName) completed++;
-    if (userProfile.email) completed++;
-    if (userProfile.phone) completed++;
-    if (userProfile.location) completed++;
-    if (userProfile.bio) completed++;
-    if (userProfile.avatar) completed++;
-    if (userProfile.experience) completed++;
-
-    return Math.round((completed / total) * 100);
-  };
-
-  // Calculate response rate (mock for now)
-  const calculateResponseRate = () => {
-    // This would need to come from enquiry/communication data
-    return 92;
-  };
-
-  // Calculate listing quality (based on approved vs total)
-  const calculateListingQuality = () => {
-    if (stats.totalListings === 0) return 0;
-    return Math.round((stats.activeListings / stats.totalListings) * 100);
-  };
+  const showOnboarding = !loading && stats.total === 0;
 
   if (loading || userLoading) {
     return (
-      <div
-        className="modern-dashboard d-flex justify-content-center align-items-center"
-        style={{ minHeight: "100vh" }}
-      >
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+      <div className="broker-dashboard d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
+        <Spinner animation="border" style={{ color: "#68ac78" }} />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="modern-dashboard p-4">
+      <div className="broker-dashboard">
         <Alert variant="danger">{error}</Alert>
       </div>
     );
   }
 
+  const firstName = (userData?.fullName || "Broker").split(" ")[0];
+
   return (
-    <div className="modern-dashboard">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h2>
-              Welcome back,{" "}
-              {userProfile?.fullName || userData?.fullName || "User"}
-            </h2>
-            <p>Here&apos;s what&apos;s happening with your properties today.</p>
+    <div className="broker-dashboard">
+      {/* Hero */}
+      <div className="broker-hero">
+        <div className="broker-hero-content">
+          <div>
+            <div className="broker-hero-greeting">Broker Portal · Phase 2</div>
+            <h1 className="broker-hero-title">Welcome back, {firstName}</h1>
+            <p className="broker-hero-subtitle">
+              List properties, track approvals, and go live on{" "}
+              <strong style={{ color: "#c9f0d4" }}>/properties</strong> once approved.
+            </p>
           </div>
-          <div className="header-actions">
-            <Link title="Add Property" href="/portal/dashboard/listings?action=add">
-              <Button variant="light" className="me-2">
-                <CIcon icon={cilPlus} className="me-1" />
-                Add Property
-              </Button>
+          <div className="broker-hero-actions">
+            <Link href="/portal/dashboard/listings?action=add" className="broker-btn-primary">
+              <CIcon icon={cilPlus} />
+              List a Property
             </Link>
-            {!userData && (
-              <Button variant="light" onClick={handleSetDemoData}>
-                <CIcon icon={cilUser} className="me-1" />
-                Set Demo User
-              </Button>
-            )}
+            <Link href="/properties" target="_blank" className="broker-btn-ghost">
+              <CIcon icon={cilExternalLink} />
+              View Marketplace
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <Row className="g-4 mb-4">
-        <Col lg={3} md={6}>
-          <StatCard
-            title="Total Listings"
-            value={stats.totalListings}
-            icon={cilHome}
-            color="primary"
-            change="+12%"
-            changeType="success"
-          />
-        </Col>
-        <Col lg={3} md={6}>
-          <StatCard
-            title="Active Listings"
-            value={stats.activeListings}
-            icon={cilChart}
-            color="success"
-            change="+8%"
-            changeType="success"
-          />
-        </Col>
-        <Col lg={3} md={6}>
-          <StatCard
-            title="Pending Listings"
-            value={stats.pendingListings}
-            icon={cilViewModule}
-            color="info"
-            change={
-              stats.pendingListings > 0
-                ? `${stats.pendingListings} pending`
-                : null
-            }
-            changeType="warning"
-          />
-        </Col>
-        <Col lg={3} md={6}>
-          <StatCard
-            title="Total Properties"
-            value={stats.totalListings}
-            icon={cilStar}
-            color="warning"
-            change={
-              stats.totalListings > 0 ? `${stats.activeListings} active` : null
-            }
-            changeType="success"
-          />
-        </Col>
-      </Row>
+      {/* Onboarding for new brokers */}
+      {showOnboarding && (
+        <div className="broker-onboard-banner">
+          <div>
+            <h4>Start listing your first property</h4>
+            <p>
+              Complete the 5-step wizard, submit for approval, and your listing will appear on the public /properties page.
+            </p>
+          </div>
+          <Link href="/portal/dashboard/listings?action=add" className="broker-btn-primary">
+            <CIcon icon={cilPlus} />
+            Add Your First Property
+          </Link>
+        </div>
+      )}
 
-      {/* Main Content - Reorganized Layout */}
-      <Row className="g-4">
-        {/* Top Properties - Full Width */}
-        <Col lg={12}>
-          <Card className="dashboard-card">
-            <Card.Header className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Top Performing Properties</h5>
-              <Link title="Manage All" href="/portal/dashboard/listings">
-                <Button variant="link" size="sm">
-                  Manage All
-                </Button>
+      {/* Publish Pipeline */}
+      <div className="broker-pipeline">
+        <div className="broker-pipeline-title">Publishing Pipeline</div>
+        <div className="broker-pipeline-steps">
+          <div className={`broker-pipeline-step ${stats.draft > 0 ? "active" : stats.total > 0 ? "done" : ""}`}>
+            <div className="broker-pipeline-dot">1</div>
+            <div className="broker-pipeline-label">Draft</div>
+            <div className="broker-pipeline-count">{stats.draft}</div>
+          </div>
+          <div className={`broker-pipeline-step ${stats.pending > 0 ? "active" : stats.live > 0 ? "done" : ""}`}>
+            <div className="broker-pipeline-dot">2</div>
+            <div className="broker-pipeline-label">Under Review</div>
+            <div className="broker-pipeline-count">{stats.pending}</div>
+          </div>
+          <div className={`broker-pipeline-step ${stats.live > 0 ? "active done" : ""}`}>
+            <div className="broker-pipeline-dot">3</div>
+            <div className="broker-pipeline-label">Live on /properties</div>
+            <div className="broker-pipeline-count">{stats.live}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="broker-stats-grid">
+        <div className="broker-stat-card stat-total">
+          <div className="broker-stat-header">
+            <div className="broker-stat-icon icon-total">
+              <CIcon icon={cilHome} />
+            </div>
+          </div>
+          <div className="broker-stat-label">Total Listings</div>
+          <div className="broker-stat-value">{stats.total}</div>
+          <div className="broker-stat-meta">
+            {stats.draft > 0 && <span className="highlight">{stats.draft} drafts</span>}
+            {stats.draft > 0 && stats.rejected > 0 && " · "}
+            {stats.rejected > 0 && <span>{stats.rejected} rejected</span>}
+            {stats.draft === 0 && stats.rejected === 0 && "All your properties"}
+          </div>
+        </div>
+
+        <div className="broker-stat-card stat-live">
+          <div className="broker-stat-header">
+            <div className="broker-stat-icon icon-live">
+              <CIcon icon={cilCheckCircle} />
+            </div>
+          </div>
+          <div className="broker-stat-label">Live on MPF</div>
+          <div className="broker-stat-value">{stats.live}</div>
+          <div className="broker-stat-meta">
+            Visible on <span className="highlight">/properties</span>
+          </div>
+        </div>
+
+        <div className="broker-stat-card stat-pending">
+          <div className="broker-stat-header">
+            <div className="broker-stat-icon icon-pending">
+              <CIcon icon={cilClock} />
+            </div>
+          </div>
+          <div className="broker-stat-label">Pending Review</div>
+          <div className="broker-stat-value">{stats.pending}</div>
+          <div className="broker-stat-meta">Awaiting admin approval</div>
+        </div>
+
+        <div className="broker-stat-card stat-leads">
+          <div className="broker-stat-header">
+            <div className="broker-stat-icon icon-leads">
+              <CIcon icon={cilPeople} />
+            </div>
+          </div>
+          <div className="broker-stat-label">Buyer Inquiries</div>
+          <div className="broker-stat-value">{stats.leads}</div>
+          <div className="broker-stat-meta">Leads from your listings</div>
+        </div>
+      </div>
+
+      {/* Main content */}
+      <div className="broker-two-col">
+        <div>
+          <div className="broker-card">
+            <div className="broker-card-header">
+              <h3 className="broker-card-title">Live Properties</h3>
+              <Link href="/portal/dashboard/listings" className="broker-card-link">
+                Manage all →
               </Link>
-            </Card.Header>
-            <Card.Body>
-              {topProperties.length > 0 ? (
-                <Row className="g-4">
-                  {topProperties.map((property) => (
-                    <Col lg={4} md={6} key={property.id}>
-                      <PropertyCard property={property} />
-                    </Col>
-                  ))}
-                </Row>
-              ) : (
-                <p className="text-muted text-center py-4">
-                  No approved properties yet
-                </p>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Bottom Section - Activities and Quick Actions Side by Side */}
-      <Row className="g-4 mt-2">
-        {/* Recent Activities */}
-        <Col lg={8} md={7}>
-          <Card className="dashboard-card">
-            <Card.Header className="d-flex justify-content-between align-items-center">
-              <h5 className="mb-0">Recent Activities</h5>
-            </Card.Header>
-            <Card.Body>
-              {recentActivities.length > 0 ? (
-                <div className="activities-list">
-                  {recentActivities.map((activity) => (
-                    <ActivityItem key={activity.id} activity={activity} />
-                  ))}
+            </div>
+            <div className="broker-card-body">
+              {liveProperties.length > 0 ? (
+                <div className="broker-property-grid">
+                  {liveProperties.map((p) => {
+                    const title = p.title || p.projectName || "Property";
+                    const img = getPropertyImage(p);
+                    const publicUrl = getPublicPropertyUrl(title, p.id);
+                    return (
+                      <div key={p.id} className="broker-property-card">
+                        <div className="broker-property-img-wrap">
+                          {img ? (
+                            <img src={img} alt={title} className="broker-property-img" />
+                          ) : (
+                            <div className="broker-property-img-placeholder">
+                              <CIcon icon={cilHome} />
+                            </div>
+                          )}
+                          <span className="broker-property-badge live">Live</span>
+                        </div>
+                        <div className="broker-property-body">
+                          <h4 className="broker-property-title">{title}</h4>
+                          <div className="broker-property-location">
+                            <CIcon icon={cilLocationPin} size="sm" />
+                            {p.locality || p.city || p.address || "Location TBD"}
+                          </div>
+                          <div className="broker-property-price">{formatPrice(p.totalPrice)}</div>
+                          <div className="broker-property-actions">
+                            <a href={publicUrl} target="_blank" rel="noopener noreferrer" className="btn-live">
+                              View on MPF
+                            </a>
+                            <Link href={`/portal/dashboard/listings/${p.id}`}>Manage</Link>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ) : (
-                <p className="text-muted text-center py-4">
-                  No recent activities
+                <div className="broker-empty">
+                  <div className="broker-empty-icon">
+                    <CIcon icon={cilHome} />
+                  </div>
+                  <h5>No live properties yet</h5>
+                  <p>Submit a listing and once approved, it will appear here and on /properties.</p>
+                  <Link href="/portal/dashboard/listings?action=add" className="broker-btn-primary">
+                    <CIcon icon={cilPlus} />
+                    List a Property
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Recent Activity */}
+          <div className="broker-card" style={{ marginTop: "1.25rem" }}>
+            <div className="broker-card-header">
+              <h3 className="broker-card-title">Recent Activity</h3>
+            </div>
+            <div className="broker-card-body">
+              {activities.length > 0 ? (
+                activities.map((a) => (
+                  <div key={a.id} className="broker-activity-item">
+                    <div className={`broker-activity-icon ${a.type}`}>
+                      <CIcon icon={a.type === "success" ? cilCheckCircle : cilViewModule} />
+                    </div>
+                    <div>
+                      <p className="broker-activity-text">{a.message}</p>
+                      <span className="broker-activity-time">{a.time}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: "#6b7a8d", textAlign: "center", padding: "1rem 0" }}>
+                  No activity yet. Start by listing a property.
                 </p>
               )}
-            </Card.Body>
-          </Card>
-        </Col>
+            </div>
+          </div>
+        </div>
 
-        {/* Quick Actions */}
-        <Col lg={4} md={5}>
-          <Card className="dashboard-card">
-            <Card.Header>
-              <h5 className="mb-0">Quick Actions</h5>
-            </Card.Header>
-            <Card.Body>
-              <div className="quick-actions">
-                <Link title="Add New Property" href="/portal/dashboard/listings?action=add">
-                  <Button variant="primary" className="w-100 mb-2">
-                    <CIcon icon={cilPlus} className="me-1" />
-                    Add New Property
-                  </Button>
-                </Link>
-                <Link title="View Leads" href="/portal/dashboard/leads">
-                  <Button variant="outline-primary" className="w-100 mb-2">
-                    <CIcon icon={cilUser} className="me-1" />
-                    View Leads
-                  </Button>
-                </Link>
-                <Link title="Update Profile" href="/portal/dashboard/profile">
-                  <Button variant="outline-secondary" className="w-100">
-                    <CIcon icon={cilSettings} className="me-1" />
-                    Update Profile
-                  </Button>
-                </Link>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
+        {/* Sidebar quick actions */}
+        <div>
+          <div className="broker-card">
+            <div className="broker-card-header">
+              <h3 className="broker-card-title">Quick Actions</h3>
+            </div>
+            <div className="broker-card-body">
+              <Link href="/portal/dashboard/listings?action=add" className="broker-quick-action">
+                <div className="broker-quick-action-icon">
+                  <CIcon icon={cilPlus} />
+                </div>
+                <div className="broker-quick-action-text">
+                  <strong>Add New Property</strong>
+                  <span>5-step listing wizard</span>
+                </div>
+              </Link>
+              <Link href="/portal/dashboard/listings" className="broker-quick-action">
+                <div className="broker-quick-action-icon">
+                  <CIcon icon={cilPencil} />
+                </div>
+                <div className="broker-quick-action-text">
+                  <strong>My Listings</strong>
+                  <span>{stats.total} total · {stats.live} live</span>
+                </div>
+              </Link>
+              <Link href="/portal/dashboard/leads" className="broker-quick-action">
+                <div className="broker-quick-action-icon">
+                  <CIcon icon={cilPeople} />
+                </div>
+                <div className="broker-quick-action-text">
+                  <strong>Buyer Leads</strong>
+                  <span>{stats.leads} inquiries</span>
+                </div>
+              </Link>
+              <Link href="/portal/dashboard/compliance/rera" className="broker-quick-action">
+                <div className="broker-quick-action-icon">
+                  <CIcon icon={cilShieldAlt} />
+                </div>
+                <div className="broker-quick-action-text">
+                  <strong>RERA Compliance</strong>
+                  <span>Manage credentials</span>
+                </div>
+              </Link>
+              <Link href="/portal/dashboard/profile" className="broker-quick-action">
+                <div className="broker-quick-action-icon">
+                  <CIcon icon={cilChart} />
+                </div>
+                <div className="broker-quick-action-text">
+                  <strong>Broker Profile</strong>
+                  <span>Update your details</span>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

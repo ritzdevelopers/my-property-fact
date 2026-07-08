@@ -4,7 +4,7 @@ import "./header.css";
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
-import LoginSignupModal from "../_homecomponents/loginSignupModal";
+import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -68,7 +68,7 @@ const HeaderComponent = () => {
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
-  const [showLoginModal, setShowModal] = useState(false);
+  const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -334,8 +334,8 @@ const HeaderComponent = () => {
     }
   };
 
-  const openSignUpModal = () => {
-    setShowModal(true);
+  const openBrokerLoginModal = () => {
+    setShowBrokerLoginModal(true);
   };
 
   // Handle Project Search - keep typing responsive by debouncing actual search work
@@ -979,18 +979,6 @@ const HeaderComponent = () => {
                 </li>
                 <li className="hasChild">
                   <Link
-                    href="/join-our-team"
-                    className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/join-our-team" ? "header-link-active" : ""
-                      }`}
-                    title="Join Our Team"
-                  >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Join Our Team
-                    </span>
-                  </Link>
-                </li>
-                <li className="hasChild">
-                  <Link
                     href="/contact-us"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/contact-us" ? "header-link-active" : ""
                       }`}
@@ -1003,6 +991,15 @@ const HeaderComponent = () => {
                 </li>
               </ul>
             </div>
+            <button
+              type="button"
+              className="header-post-property-cta"
+              onClick={openBrokerLoginModal}
+              title="Post a property for free — broker login"
+            >
+              <span className="header-post-property-cta__text">Post a Property</span>
+              <span className="header-post-property-cta__badge">FREE</span>
+            </button>
           </nav>
           <div className="menuBtn d-flex d-lg-none " onClick={openMenu}>
             <span id="menuLine1"></span>
@@ -1431,18 +1428,6 @@ const HeaderComponent = () => {
                 <li>
                   <Link
                     className="text-decoration-none"
-                    href="/join-our-team"
-                    onClick={openMenu}
-                    title="Join Our Team"
-                  >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Join Our Team
-                    </span>
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    className="text-decoration-none"
                     href="/contact-us"
                     onClick={openMenu}
                     title="Contact Us"
@@ -1451,6 +1436,22 @@ const HeaderComponent = () => {
                       Contact us
                     </span>
                   </Link>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    className="mobile-post-property-cta"
+                    onClick={() => {
+                      const menu = document.getElementById("mbdiv");
+                      if (menu?.classList.contains("active")) {
+                        openMenu();
+                      }
+                      openBrokerLoginModal();
+                    }}
+                    title="Post a property for free"
+                  >
+                    Post a Property <span className="mobile-post-property-cta__free">FREE</span>
+                  </button>
                 </li>
                 {/* <li>
                   <div className="bg-white rounded rounded-3 p-2 cursor-pointer hover-effect"
@@ -1515,7 +1516,7 @@ const HeaderComponent = () => {
           </div>
         </div>
       </div>
-      <LoginSignupModal show={showLoginModal} handleClose={setShowModal} />
+      <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
     </>
   );
 };

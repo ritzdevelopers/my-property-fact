@@ -1634,8 +1634,8 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         <Modal.Body>
           <p>
             Your property has been submitted successfully and is pending
-            approval. Our team will review the details and notify you once
-            it&apos;s published.
+            approval. Once approved by our team, it will be published on the
+            public <strong>/properties</strong> page for buyers to discover.
           </p>
           {createdProperty && (
             <div className="mb-3">

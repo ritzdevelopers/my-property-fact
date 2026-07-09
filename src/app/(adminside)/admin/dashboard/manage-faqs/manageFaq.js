@@ -6,7 +6,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
-import { Accordion, Button, Form, Modal } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -255,47 +255,38 @@ export default function ManageFaqs({ list, projectsList }) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Accordion className="admin-faq-accordion">
+                    <div className="admin-faq-list">
                         {faqList.map((item, index) => (
-                            <Accordion.Item
-                                eventKey={index.toString()}
-                                key={item.id ?? index}
-                                className="admin-faq-accordion-item"
-                            >
-                                <Accordion.Header className="admin-faq-accordion-header">
-                                    <div className="admin-faq-header-row">
-                                        <span className="admin-faq-question">
-                                            {`Q ${index + 1} - ${item.question}`}
-                                        </span>
-                                        <div
-                                            className="admin-faq-actions"
-                                            role="presentation"
-                                            onClick={(e) => e.stopPropagation()}
+                            <div className="admin-faq-card" key={item.id ?? index}>
+                                <div className="admin-faq-card__header">
+                                    <p className="admin-faq-card__question">
+                                        {`Q ${index + 1} - ${item.question}`}
+                                    </p>
+                                    <div className="admin-faq-card__actions">
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            onClick={() => openEditModel(item)}
                                         >
-                                            <Button
-                                                variant="outline-primary"
-                                                size="sm"
-                                                onClick={() => openEditModel(item)}
-                                            >
-                                                Edit
-                                            </Button>
-                                            <span
-                                                className="d-inline-flex align-items-center"
-                                                style={{ cursor: "pointer" }}
-                                                onClick={() => openConfirmationBox(item.id)}
-                                                role="presentation"
-                                            >
-                                                <AdminTableDeleteIcon />
-                                            </span>
-                                        </div>
+                                            Edit
+                                        </Button>
+                                        <span
+                                            className="d-inline-flex align-items-center"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => openConfirmationBox(item.id)}
+                                            role="presentation"
+                                        >
+                                            <AdminTableDeleteIcon />
+                                        </span>
                                     </div>
-                                </Accordion.Header>
-                                <Accordion.Body className="admin-faq-accordion-body">
-                                    {`Ans - ${item.answer}`}
-                                </Accordion.Body>
-                            </Accordion.Item>
+                                </div>
+                                <p className="admin-faq-card__answer">
+                                    <span className="admin-faq-card__answer-label">Ans - </span>
+                                    {item.answer}
+                                </p>
+                            </div>
                         ))}
-                    </Accordion>
+                    </div>
                 </Modal.Body>
             </Modal>
             <CommonModal

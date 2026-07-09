@@ -255,7 +255,7 @@ export default function ManageFaqs({ list, projectsList }) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Accordion defaultActiveKey="0">
+                    <Accordion className="admin-faq-accordion" defaultActiveKey="0">
                         {faqList.map((item, index) => (
                             <Accordion.Item eventKey={index.toString()} key={index}>
                                 <div className="d-flex align-items-center justify-content-between px-3 pt-3">

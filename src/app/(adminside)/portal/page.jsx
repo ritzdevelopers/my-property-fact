@@ -174,7 +174,7 @@ export default function PortalSignInPage() {
           {/* Brand */}
           <div className="broker-login-brand">
             <img src="/logo.webp" alt="My Property Fact" className="broker-login-logo" />
-            <h1>Broker Portal</h1>
+            <h1>Property Portal</h1>
             <p>
               {step === "email"
                 ? isSignUp
@@ -184,7 +184,6 @@ export default function PortalSignInPage() {
             </p>
           </div>
 
-          {/* OTP step */}
           {step === "otp" ? (
             <>
               <button type="button" className="broker-login-back" onClick={resetToEmail}>

@@ -175,7 +175,7 @@ export async function middleware(req) {
 
     if (session.valid) {
       if (
-        (hasRole(session.roles, "USER") || hasRole(session.roles, "BROKER")) &&
+        (hasRole(session.roles, "USER") || hasRole(session.roles, "BROKER") || hasRole(session.roles, "OWNER")) &&
         !hasRole(session.roles, "SUPERADMIN")
       ) {
         return NextResponse.redirect(new URL("/portal/dashboard", req.url));
@@ -227,7 +227,7 @@ export async function middleware(req) {
     }
 
     if (isPortalRoute) {
-      if (!hasRole(session.roles, "USER") && !hasRole(session.roles, "BROKER")) {
+      if (!hasRole(session.roles, "USER") && !hasRole(session.roles, "BROKER") && !hasRole(session.roles, "OWNER")) {
         return NextResponse.redirect(new URL("/portal", req.url));
       }
     }

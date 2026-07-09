@@ -105,9 +105,14 @@ function saveAuthCookies(response) {
   }
 }
 
-export default function BrokerLoginModal({ show, onClose }) {
+export default function BrokerLoginModal({
+  show,
+  onClose,
+  redirectPath = "/portal/dashboard/post-property",
+}) {
   const [mode, setMode] = useState("signin");
-  const [step, setStep] = useState("email");
+  const [step, setStep] = useState("persona");
+  const [persona, setPersona] = useState("");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
@@ -128,7 +133,8 @@ export default function BrokerLoginModal({ show, onClose }) {
   useEffect(() => {
     if (!show) {
       setMode("signin");
-      setStep("email");
+      setStep("persona");
+      setPersona("");
       setEmail("");
       setFullName("");
       setOtpDigits(["", "", "", ""]);
@@ -188,9 +194,33 @@ export default function BrokerLoginModal({ show, onClose }) {
     setDevOtp("");
   };
 
-  const redirectToDashboard = () => {
+  const resetToPersona = () => {
+    setStep("persona");
+    setOtpDigits(["", "", "", ""]);
+    setError("");
+    setDevOtp("");
+  };
+
+  const isOwner = persona === "OWNER";
+  const personaLabel = isOwner ? "Owner" : "Broker";
+
+  const persistPersona = async () => {
+    if (!persona) return;
+    try {
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}users/me/persona`,
+        { userType: persona },
+        { withCredentials: true },
+      );
+    } catch {
+      // New signups get persona from verify-otp; ignore if not yet authenticated
+    }
+  };
+
+  const redirectAfterLogin = async () => {
+    await persistPersona();
     onClose(false);
-    window.location.href = "/portal/dashboard";
+    window.location.href = redirectPath;
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
@@ -199,12 +229,12 @@ export default function BrokerLoginModal({ show, onClose }) {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
-        { token: credentialResponse.credential },
+        { token: credentialResponse.credential, userType: persona },
         { timeout: AUTH_REQUEST_TIMEOUT_MS },
       );
       if (response.data.token) {
         saveAuthCookies(response);
-        redirectToDashboard();
+        await redirectAfterLogin();
       }
     } catch (err) {
       setError(getAuthErrorMessage(err, "Google sign-in failed. Please try again."));
@@ -233,7 +263,7 @@ export default function BrokerLoginModal({ show, onClose }) {
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
-        { email: email.trim() },
+        { email: email.trim(), userType: persona },
         { timeout: AUTH_REQUEST_TIMEOUT_MS },
       );
       if (response.status === 200 && response.data?.success !== false) {
@@ -261,7 +291,7 @@ export default function BrokerLoginModal({ show, onClose }) {
     setIsLoading(true);
     setError("");
     try {
-      const payload = { email: email.trim(), otp };
+      const payload = { email: email.trim(), otp, userType: persona };
       if (mode === "signup" && fullName.trim()) {
         payload.fullName = fullName.trim();
       }
@@ -274,7 +304,7 @@ export default function BrokerLoginModal({ show, onClose }) {
 
       if (response.data.token) {
         saveAuthCookies(response);
-        redirectToDashboard();
+        await redirectAfterLogin();
       }
     } catch (err) {
       setError(getAuthErrorMessage(err, "Invalid OTP. Please check and try again."));
@@ -331,14 +361,22 @@ export default function BrokerLoginModal({ show, onClose }) {
           <div className="broker-login-modal-visual-media">
             <img
               src="/static/home-meta-data/home.gif"
-              alt="Real estate broker dashboard"
+              alt="Real estate property listing"
               className="broker-login-modal-gif"
             />
           </div>
           <div className="broker-login-modal-visual-content">
-            <span className="broker-login-modal-badge">Broker Portal</span>
-            <h3>List properties. Grow your business.</h3>
-            <p>Join thousands of brokers posting listings for free on India&apos;s trusted real estate platform.</p>
+            <span className="broker-login-modal-badge">{personaLabel || "Post Property"} Portal</span>
+            <h3>
+              {isOwner
+                ? "List your property directly"
+                : "List properties. Reach verified buyers."}
+            </h3>
+            <p>
+              {step === "persona"
+                ? "Choose how you will post properties on My Property Fact."
+                : "Sign in to post your property for free on India's trusted real estate platform."}
+            </p>
             <ul className="broker-login-modal-features">
               <li><CheckIcon /> Post unlimited listings</li>
               <li><CheckIcon /> Reach verified buyers</li>
@@ -350,12 +388,16 @@ export default function BrokerLoginModal({ show, onClose }) {
         <div className="broker-login-modal-auth" ref={authPanelRef}>
           <div className="broker-login-modal-brand">
             <img src="/logo.webp" alt="" className="broker-login-modal-logo" />
-            <h2 id="broker-login-modal-title">Post a Property Free</h2>
+            <h2 id="broker-login-modal-title">
+              {step === "persona" ? "Post a Property Free" : "Sign in to continue"}
+            </h2>
             <p>
-              {step === "email"
+              {step === "persona"
+                ? "Tell us who you are before we continue"
+                : step === "email"
                 ? isSignUp
-                  ? "Create your broker account to get started"
-                  : "Sign in to access your broker dashboard"
+                  ? `Create your ${personaLabel.toLowerCase()} account to get started`
+                  : `Sign in as ${personaLabel.toLowerCase()} to post a property`
                 : `Enter the 4-digit code sent to ${email}`}
             </p>
           </div>
@@ -365,7 +407,37 @@ export default function BrokerLoginModal({ show, onClose }) {
             <div className="broker-login-modal-alert dev">Dev OTP: <strong>{devOtp}</strong></div>
           )}
 
-          {step === "otp" ? (
+          {step === "persona" ? (
+            <div className="broker-login-modal-form">
+              <p className="broker-login-modal-persona-label">I am posting as a</p>
+              <div className="broker-login-modal-persona-grid">
+                <button
+                  type="button"
+                  className={`broker-login-modal-persona-card ${persona === "OWNER" ? "selected" : ""}`}
+                  onClick={() => { setPersona("OWNER"); setError(""); }}
+                >
+                  <strong>Property Owner</strong>
+                  <span>I own this property and want to list it myself</span>
+                </button>
+                <button
+                  type="button"
+                  className={`broker-login-modal-persona-card ${persona === "BROKER" ? "selected" : ""}`}
+                  onClick={() => { setPersona("BROKER"); setError(""); }}
+                >
+                  <strong>Broker / Agent</strong>
+                  <span>I list properties on behalf of owners or builders</span>
+                </button>
+              </div>
+              <button
+                type="button"
+                className="broker-login-modal-btn"
+                disabled={!persona}
+                onClick={() => setStep("email")}
+              >
+                Continue
+              </button>
+            </div>
+          ) : step === "otp" ? (
             <form onSubmit={handleVerifyOtp} className="broker-login-modal-form">
               <button type="button" className="broker-login-modal-back" onClick={resetToEmail} disabled={isLoading}>
                 <BackIcon />
@@ -396,7 +468,7 @@ export default function BrokerLoginModal({ show, onClose }) {
                     Verifying…
                   </>
                 ) : (
-                  "Verify & Go to Dashboard"
+                  "Verify & Continue"
                 )}
               </button>
 
@@ -406,6 +478,11 @@ export default function BrokerLoginModal({ show, onClose }) {
             </form>
           ) : (
             <div className="broker-login-modal-form">
+              <button type="button" className="broker-login-modal-back" onClick={resetToPersona} disabled={isLoading}>
+                <BackIcon />
+                Change role
+              </button>
+
               {googleClientId && (
                 <>
                   <div className="broker-login-modal-google">
@@ -494,7 +571,7 @@ export default function BrokerLoginModal({ show, onClose }) {
                   </>
                 ) : (
                   <>
-                    New broker?
+                    New here?
                     <button type="button" onClick={() => { setMode("signup"); resetToEmail(); }}>
                       Create account
                     </button>

@@ -396,3 +396,38 @@
     gap: 0.75rem 1.25rem;
   }
 }
+
+.broker-login-persona-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.broker-login-persona-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1rem 1.1rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+}
+
+.broker-login-persona-card strong {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+.broker-login-persona-card span {
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.broker-login-persona-card.selected {
+  border-color: #0d7a4e;
+  background: #f0fdf4;
+}

@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 
 const UserContext = createContext();
 
+function inferPortalPersona(user) {
+  const roles = user?.roles || [];
+  if (roles.some((r) => String(r).includes("OWNER"))) return "OWNER";
+  if (roles.some((r) => String(r).includes("BROKER"))) return "BROKER";
+  return user?.userType || "BROKER";
+}
+
 export const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
@@ -28,7 +35,8 @@ export const UserProvider = ({ children }) => {
       if (response.data) {
         const profile = {
           ...response.data,
-          role: response.data.userType || "Broker",
+          userType: response.data.userType || inferPortalPersona(response.data),
+          role: response.data.userType || inferPortalPersona(response.data) || "Broker",
         };
         setUserData(profile);
         Cookies.set("userData", JSON.stringify(profile), {

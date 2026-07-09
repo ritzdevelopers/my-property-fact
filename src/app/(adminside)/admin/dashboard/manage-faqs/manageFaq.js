@@ -6,7 +6,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { useEffect, useState } from "react";
-import { Accordion, Button, Form, Modal } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
@@ -255,37 +255,38 @@ export default function ManageFaqs({ list, projectsList }) {
                     </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <Accordion className="admin-faq-accordion" defaultActiveKey="0">
+                    <div className="admin-faq-list">
                         {faqList.map((item, index) => (
-                            <Accordion.Item eventKey={index.toString()} key={index}>
-                                <div className="d-flex align-items-center justify-content-between px-3 pt-3">
-                                    <Accordion.Header className="flex-grow-1">
+                            <div className="admin-faq-card" key={item.id ?? index}>
+                                <div className="admin-faq-card__header">
+                                    <p className="admin-faq-card__question">
                                         {`Q ${index + 1} - ${item.question}`}
-                                    </Accordion.Header>
-                                    <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        className="ms-3"
-                                        onClick={(e) => {
-                                            e.stopPropagation(); // prevent accordion toggle
-                                            openEditModel(item);
-                                        }}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <span
-                                        className="d-inline-flex mx-2 align-items-center"
-                                        style={{ cursor: "pointer" }}
-                                        onClick={() => openConfirmationBox(item.id)}
-                                        role="presentation"
-                                    >
-                                        <AdminTableDeleteIcon />
-                                    </span>
+                                    </p>
+                                    <div className="admin-faq-card__actions">
+                                        <Button
+                                            variant="outline-primary"
+                                            size="sm"
+                                            onClick={() => openEditModel(item)}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <span
+                                            className="d-inline-flex align-items-center"
+                                            style={{ cursor: "pointer" }}
+                                            onClick={() => openConfirmationBox(item.id)}
+                                            role="presentation"
+                                        >
+                                            <AdminTableDeleteIcon />
+                                        </span>
+                                    </div>
                                 </div>
-                                <Accordion.Body>{`Ans - ${item.answer}`}</Accordion.Body>
-                            </Accordion.Item>
+                                <p className="admin-faq-card__answer">
+                                    <span className="admin-faq-card__answer-label">Ans - </span>
+                                    {item.answer}
+                                </p>
+                            </div>
                         ))}
-                    </Accordion>
+                    </div>
                 </Modal.Body>
             </Modal>
             <CommonModal

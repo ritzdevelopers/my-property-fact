@@ -573,7 +573,6 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-<<<<<<< HEAD
    15. FAQ ACCORDION (manage-faqs modal)
    ══════════════════════════════════════════════════════════ */
 .admin-faq-accordion .accordion-item {
@@ -613,8 +612,10 @@
   line-height: 1.55;
   padding: 0.85rem 1rem 1rem !important;
   background: #fff !important;
-=======
-   15. READABLE TEXT — admin-wide contrast (light + dark)
+}
+
+/* ══════════════════════════════════════════════════════════
+   16. READABLE TEXT — admin-wide contrast (light + dark)
    ══════════════════════════════════════════════════════════ */
 .admin-layout-wrapper {
   --admin-text-readable: #1b2e24;
@@ -739,5 +740,4 @@ html[data-admin-theme="dark"] .admin-modal-surface .btn-admin-secondary {
 html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarContainer .MuiButton-text,
 html[data-admin-theme="dark"] .admin-mui-datagrid-paper .MuiDataGrid-toolbarContainer button {
   color: #e5e7eb !important;
->>>>>>> bf773531cb1d2f054f5d1f993cab3ea6f5c8e0d9
 }

@@ -1,267 +1,260 @@
 .dream-property-section {
   position: relative;
-  padding: 80px 0;
-  background: linear-gradient(
-    180deg,
-    rgba(245, 247, 250, 1) 0%,
-    rgba(235, 238, 245, 1) 50%,
-    rgba(230, 233, 242, 1) 100%
-  );
-  overflow: hidden;
+  padding: 64px 0 80px;
+  background: #f8f9fb;
+  overflow-x: clip;
+  overflow-y: visible;
 }
 
 .dream-property-section-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
-}
-
-.dream-property-section-bg img {
-  object-fit: cover;
-}
-
-.dream-property-section::before {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 600px;
-  height: 500px;
-  background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.4'%3E%3Crect x='0' y='80' width='30' height='40' fill='rgba(255,255,255,0.4)'/%3E%3Crect x='35' y='60' width='30' height='60' fill='rgba(255,255,255,0.35)'/%3E%3Crect x='70' y='40' width='30' height='80' fill='rgba(255,255,255,0.3)'/%3E%3Crect x='105' y='70' width='15' height='50' fill='rgba(255,255,255,0.25)'/%3E%3Crect x='0' y='50' width='25' height='30' fill='rgba(255,255,255,0.3)'/%3E%3Crect x='30' y='30' width='25' height='30' fill='rgba(255,255,255,0.25)'/%3E%3Crect x='60' y='20' width='25' height='20' fill='rgba(255,255,255,0.2)'/%3E%3C/g%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 120px 120px;
-  opacity: 0.5;
   pointer-events: none;
-  z-index: 0;
+}
+
+.dream-property-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  display: block;
 }
 
 .dream-property-container {
   position: relative;
-  margin: 0 auto;
-  padding: 0 20px;
   z-index: 1;
+ 
+  margin: 0 auto;
+  
   display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
-}
-
-/* Header Styles */
-.dream-property-header {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  text-align: center;
 }
 
-.nav-arrow-button {
-  width: 50px;
-  height: 50px;
+.dream-property-title {
+  width: 647px;
+  max-width: 100%;
+  margin: 0;
+  color: #333;
+  text-align: center;
+  font-family: "Lato", var(--heaing-font), sans-serif;
+  font-size: 36px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-transform: capitalize;
+}
+
+.dream-see-all-button {
+  display: flex;
+  padding: 12px 34px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 100px;
+  background: #0d5834;
+  color: #fff;
+  font-family: "Lato", var(--heaing-font), sans-serif;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  text-transform: capitalize;
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.3s ease;
+  margin-top: 8px;
+}
+
+.dream-city-wave {
+  display: flex;
+  /* Start marquee from the left to avoid blank space on the right edge */
+  justify-content: flex-start;
+  align-items: flex-end;
+  flex-wrap: nowrap;
+  width: 100%;
+  margin-top: 48px;
+  margin-bottom: 32px;
+  min-height: 180px;
+  overflow-x: hidden;
+  overflow-y: visible;
+  /*
+    Avoid clipping/fading marquee items (icons + labels) inside the container.
+    `mask-image` intentionally hides edges, which made the circles/text look "cut".
+  */
+  /* No extra left/right padding to avoid visible side gaps */
+  padding: 40px 0 14px;
+
+}
+
+.dream-city-track {
+  display: flex;
+  align-items: flex-end;
+  gap: clamp(20px, 3.5vw, 48px);
+  width: max-content;
+  /* Slower horizontal marquee */
+  animation: dream-city-marquee 95s linear infinite;
+  will-change: transform;
+}
+
+@keyframes dream-city-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.dream-city-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #333;
+  /* Slower vertical float */
+  animation: dream-city-float 7s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+  will-change: transform;
+  flex: 0 0 auto;
+}
+
+@keyframes dream-city-float {
+  0%,
+  100% {
+    /*
+      Important: keep float translation <= 0 so labels never get pushed down
+      (transforms don't affect layout, and overflow-x hidden can clip vertically).
+    */
+    transform: translateY(clamp(var(--float-min, -26px), var(--float-base, 0px), 0px));
+  }
+
+  50% {
+    transform: translateY(
+      calc(
+        clamp(var(--float-min, -26px), var(--float-base, 0px), 0px) - 16px
+      )
+    );
+  }
+}
+
+.dream-city-icon-circle {
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: rgba(81, 18, 230, 1);
-  border: none;
-  color: white;
+  background: #fff;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-  display: inline-flex;
-  align-items: center;
-  margin-left: 10px;
+  padding: 22px;
+  box-sizing: border-box;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
 }
 
-.nav-arrow-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-}
-
-.nav-arrow-button svg {
-  font-size: 18px;
-  transform: rotate(-30deg);
-}
-
-.see-all-button {
-  color: white;
-  padding: 14px 50px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.see-all-button:hover {
-  color: white;
-  text-decoration: none;
-}
-
-/* City Cards Grid */
-.city-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  column-gap: 67px;
-  row-gap: 30px;
-  margin-top: 40px;
-}
-
-.city-card {
-  border-radius: 12px;
-  background: white;
-  padding: 0;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 250px;
-}
-
-/* .city-card:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-} */
-
-.city-image-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.city-image-wrapper img {
-  position: absolute;
-  left: -30px;
-  border-radius: 6px;
-}
-
-.city-content {
-  text-align: center;
-}
-
-.city-card:hover .city-image {
-  transform: scale(1.05);
-}
-
-.city-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 20px 20px 15px 20px;
-  font-family: var(
-    --heaing-font,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif
-  );
-}
-
-.explore-details-button {
-  background: rgba(243, 243, 243, 1);
-  color: rgba(0, 0, 0, 1);
-  padding: 5px 20px;
-  border-radius: 30px;
-  text-decoration: none;
-  font-weight: 400;
-  font-size: 14px;
-  text-align: center;
-  margin: 0 20px 20px 20px;
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
+.dream-city-icon-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
 }
 
-.explore-details-button:hover {
-  background: linear-gradient(90deg, #cda958 0%, #a28039 100%);
-  color: white;
-  transform: translateY(-2px);
-  text-decoration: none;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+.dream-city-item:hover .dream-city-icon-circle {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  transform: scale(1.04);
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .city-cards-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-  }
+.dream-city-item:hover {
+  color: #0d5834;
+}
+
+.dream-city-label {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: inherit;
+}
+
+
+.dream-see-all-button:hover {
+  background: #0a4629;
+  color: #fff;
+  text-decoration: none;
+  transform: translateY(-2px);
 }
 
 @media (max-width: 992px) {
-  .city-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+  .dream-city-wave {
+    min-height: 160px;
   }
 
-  .see-all-button {
-    padding: 10px 20px;
-    border-radius: 30px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    white-space: nowrap;
+  .dream-city-icon-circle {
+    width: 100px;
+    height: 100px;
+    padding: 18px;
+  }
+
+  .dream-city-item {
+    --float-min: -12px;
+    --float-max: 12px;
   }
 }
 
 @media (max-width: 768px) {
-  .header-left {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-    margin-bottom: 10px;
+  .dream-property-section {
+    padding: 48px 0 64px;
   }
 
-  .nav-arrow-button {
-    width: 45px;
-    height: 45px;
+  .dream-property-title {
+    font-size: clamp(24px, 6vw, 36px);
   }
 
-  .city-cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px 55px;
+  .dream-city-wave {
+    margin-top: 36px;
   }
 
-  .city-name {
-    font-size: 1.25rem;
-    margin: 15px 15px 12px 15px;
+  .dream-city-icon-circle {
+    width: 88px;
+    height: 88px;
+    padding: 16px;
   }
 
-  .explore-details-button {
-    margin: 0 15px 15px 15px;
-    padding: 2px 10px;
-    font-size: 0.9rem;
+  .dream-city-label {
+    font-size: 14px;
   }
 }
 
 @media (max-width: 576px) {
-  .city-image-wrapper {
-    left: -30px !important;
+  .dream-city-wave {
+    margin-top: 28px;
+    min-height: unset;
+    padding: 8px 14px 12px;
   }
 
-  .city-card {
-    justify-self: center;
+  .dream-city-item {
+    animation-duration: 6.2s;
+    --float-min: -10px;
+    --float-max: 10px;
   }
 
-  .dream-property-header {
-    margin-bottom: 0px !important;
-  }
-
-  .city-cards-grid {
-    width: 85% !important;
-    justify-self: center;
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-
-  .see-all-button {
+  .dream-see-all-button {
     width: 100%;
-    text-align: center;
+    max-width: 320px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dream-city-track {
+    animation: none;
   }
 
-  .city-image-wrapper img {
-    left: 15px !important;
+  .dream-city-item {
+    animation: none;
+    transform: translateY(var(--float-base, 0));
   }
 }

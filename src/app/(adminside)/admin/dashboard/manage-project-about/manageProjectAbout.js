@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
@@ -17,6 +18,7 @@ const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
 export default function ManageProjectAbout({ list, projectsList, projectIdsWithAbout }) {
     const editor = useRef(null);
+    const router = useRouter();
     const [shortDesc, setShortDesc] = useState("");
     const [longDesc, setLongDesc] = useState("");
     const [projectId, setProjectId] = useState("");
@@ -30,39 +32,41 @@ export default function ManageProjectAbout({ list, projectsList, projectIdsWithA
     const [isDisable, setIsDisable] = useState(false);
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const data = {
-            shortDesc: shortDesc,
-            longDesc: longDesc,
-            projectId: projectId,
-        };
         const form = e.currentTarget;
         if (form.checkValidity() === false) {
             e.stopPropagation();
             setValidated(true);
             return;
         }
-        if (form.checkValidity() === true) {
-            setShowLoading(true);
-            try {
-                if (aboutId > 0) {
-                    data.id = aboutId;
-                }
-                const response = await axios.post(
-                    `${process.env.NEXT_PUBLIC_API_URL}project-about/add-update`,
-                    data
-                );
-                if (response.data.isSuccess === 1) {
-                    toast.success(response.data.message);
-                    setShowModal(false);
-                    fetchProjectsAbout();
-                } else {
-                    toast.error(response.data.message);
-                }
-            } catch (error) {
-                toast.error(error);
-            } finally {
-                setShowLoading(false);
+
+        const data = {
+            shortDesc: shortDesc || "",
+            longDesc: longDesc || "",
+            projectId: Number(projectId),
+            id: aboutId > 0 ? aboutId : 0,
+        };
+
+        setShowLoading(true);
+        try {
+            const response = await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}project-about/add-update`,
+                data
+            );
+            if (response.data.isSuccess === 1) {
+                toast.success(response.data.message);
+                setShowModal(false);
+                router.refresh();
+            } else {
+                toast.error(response.data.message || "Failed to save project about.");
             }
+        } catch (error) {
+            toast.error(
+                error?.response?.data?.message ||
+                    error?.message ||
+                    "Failed to save project about."
+            );
+        } finally {
+            setShowLoading(false);
         }
     };
 
@@ -81,11 +85,14 @@ export default function ManageProjectAbout({ list, projectsList, projectIdsWithA
         setShowModal(true);
         setTitle("Edit Project About");
         setProjectId(item.projectId);
-        setShortDesc(item.shortDesc);
-        setLongDesc(item.longDesc);
+        setShortDesc(item.shortDesc || "");
+        setLongDesc(item.longDesc || "");
         setAboutId(item.id);
+        setValidated(false);
         setIsDisable(true);
-        setProjectOptionsList(projectsList.filter((project) => projectIdsWithAbout.includes(project.id)));
+        setProjectOptionsList(
+            projectsList.filter((project) => project.id === item.projectId)
+        );
     };
 
     const openConfirmationBox = (id) => {

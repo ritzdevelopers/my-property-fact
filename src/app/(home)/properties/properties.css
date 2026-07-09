@@ -1067,17 +1067,17 @@ html {
 .status-ready-badge {
   padding: 6px 16px;
   border-radius: 50px;
-  background: #D0FAE5;
-  color: #0D5834;
-  font-weight: 500;
+  background: #c1e3e9;
+  color: #0c3d48;
+  font-weight: 600;
 }
 
 .status-under-construction-badge {
   padding: 6px 16px;
   border-radius: 50px;
-  background: #FEF3C7;
-  color: #92400E;
-  font-weight: 500;
+  background: #e9e2ef;
+  color: #3d2f52;
+  font-weight: 600;
 }
 
 /* Price & Actions */

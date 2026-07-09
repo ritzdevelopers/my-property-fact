@@ -21,7 +21,6 @@ import {
 } from "./recommendedSpotlight";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
-import VaastuStripSection from "./vaastu-strip/VaastuStripSection";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
@@ -29,7 +28,7 @@ const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
 });
 const NewInsight = dynamic(() => import("../_homecomponents/NewInsight"), {
   ssr: true,
-  loading: () => <section className="py-4" style={{ minHeight: 120 }} aria-busy="true" />,
+  loading: () => <section className="py-4" style={{ minHeight: 668 }} aria-busy="true" />,
 });
 
 const DreamPropertySection = dynamic(
@@ -47,6 +46,11 @@ const PopularCitiesSection = dynamic(
 const NoidaProjectsSection = dynamic(
   () => import("./noida-projects/NoidaProjectsSection"),
   { loading: () => <div className="py-4" /> }
+);
+
+const VaastuStripSection = dynamic(
+  () => import("./vaastu-strip/VaastuStripSection"),
+  { loading: () => <div className="py-3" /> }
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
@@ -96,6 +100,12 @@ export default async function HomePage() {
     "eldeco-whispers-of-wonder",
   ];
 
+  const FEATURED_PROJECT_LOGOS = {
+    "eldeco-camelot": "/icon/eldeco_camelot.png",
+    "eldeco-7-peaks-residences": "/icon/logo%20(1).png",
+    "eldeco-whispers-of-wonder": "/icon/eldeco-banner-ai.png",
+  };
+
   // Residential project slugs for "Explore Our Premier Residential Projects"
   const residentialSlugs = [
     "eldeco-camelot",
@@ -120,7 +130,12 @@ export default async function HomePage() {
 
   // Featured: slug-ordered first
   const featuredProjects = allowedSlugs
-    .map((slug) => projects.find((project) => project.slugURL === slug))
+    .map((slug) => {
+      const project = projects.find((p) => p.slugURL === slug);
+      if (!project) return null;
+      const logoOverride = FEATURED_PROJECT_LOGOS[slug];
+      return logoOverride ? { ...project, projectLogo: logoOverride } : project;
+    })
     .filter(Boolean);
   // top cities
   const topCities = ["Noida", "Delhi", "Ghaziabad"];
@@ -195,6 +210,44 @@ export default async function HomePage() {
         )}
 
         {row(
+          0.5,
+          <section className="container home-post-property-strip">
+            <div
+              className="transform-home-post-property-card"
+              role="note"
+              aria-label="Post your property on MyPropertyFact"
+            >
+              <div className="transform-home-post-property-card__content">
+                <p className="transform-home-post-property-card__title">
+                  For Post Your Property Register On{" "}
+                  <Link
+                    href="/"
+                    title="My Property Fact — home"
+                    className="transform-home-post-property-card__brand"
+                  >
+                    Mypropertyfact
+                  </Link>
+                </p>
+                <Link
+                  href="/projects"
+                  title="Explore more - Post your property on MyPropertyFact"
+                  className="transform-home-post-property-card__cta"
+                >
+                  Explore More
+                </Link>
+              </div>
+              <img
+                src="/static/home-meta-data/home.gif"
+                alt="Post your property on MyPropertyFact"
+                title="Post your property on MyPropertyFact"
+                className="transform-home-post-property-card__image"
+                loading="lazy"
+              />
+            </div>
+          </section>,
+        )}
+
+        {row(
           1,
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
@@ -205,7 +258,12 @@ export default async function HomePage() {
               className="transform-home-image"
              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
-                <h1 className="headgradient">Find Flats & Property Across India | Buy & Invest</h1>
+                <h1
+                  className="headgradient headgradient--sparkle"
+                  data-text="Find Flats & Property Across India | Buy & Invest"
+                >
+                  Find Flats & Property Across India | Buy & Invest
+                </h1>
                 <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
             </div>
             <div className="transform-home-content">
@@ -298,7 +356,7 @@ export default async function HomePage() {
             viewAllHref="/projects"
             className="recommended-properties-section"
           />,
-        )}
+        )}  
 
         {row(
           3,

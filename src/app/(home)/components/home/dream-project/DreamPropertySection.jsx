@@ -1,139 +1,130 @@
 "use client";
+
 import Link from "next/link";
-import { useRef } from "react";
-import { FaArrowRight } from "react-icons/fa";
 import "./DreamPropertySection.css";
 
-const DreamPropertySection = () => {
-  const cityCardsRef = useRef(null);
-  // Scroll to cities function
-  const scrollToCities = () => {
-    if (cityCardsRef.current) {
-      cityCardsRef.current.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
+const CITY_ORDER = [
+  "Bareilly",
+  "Chandigarh",
+  "Chennai",
+  "Dehradun",
+  "Faridabad",
+  "Goa",
+  "Greater Noida",
+  "Gurugram",
+  "Hyderabad",
+  "Indore",
+  "Karnal",
+  "Kochi",
+  "Lucknow",
+  "Ludhiana",
+  "Meerut",
+  "Mohali",
+  "Noida Extension",
+  "Panipat",
+  "Pune",
+  "Sonipat",
+  "Thiruvananthapuram",
+  "Vrindavan",
+];
+
+const toCitySlug = (name) =>
+  name
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const getIconPaths = (index) => {
+  const n = String(index + 1).padStart(2, "0");
+  return {
+    // Preferred filenames (with "(1)") — encode the space for safe URLs
+    primary: `/static/icon/icons-${n}%20(1).png`,
+    fallback: `/static/icon/icons-${n}.png`,
   };
-  // Cities data matching the image with name, link, image and alt text
-  const cities = [
-    {
-      name: "Agra",
-      link: "/city/agra",
-      image: "/dream-cities/agra_new.png",
-      alt: "Agra — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Bangalore",
-      link: "/city/bangalore",
-      image: "/dream-cities/bangalore_new.png",
-      alt: "Bangalore — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Noida",
-      link: "/city/noida",
-      image: "/dream-cities/noida_new.png",
-      alt: "Noida — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Delhi",
-      link: "/city/delhi",
-      image: "/dream-cities/delhi_new.png",
-      alt: "Delhi — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Ghaziabad",
-      link: "/city/ghaziabad",
-      image: "/dream-cities/ghaziabad_new.png",
-      alt: "Ghaziabad — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Jaipur",
-      link: "/city/jaipur",
-      image: "/dream-cities/jaipur_new.png",
-      alt: "Jaipur — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Mumbai",
-      link: "/city/mumbai",
-      image: "/dream-cities/mumbai_new.png",
-      alt: "Mumbai — find properties and projects on My Property Fact",
-    },
-    {
-      name: "Gurugram",
-      link: "/city/gurugram",
-      image: "/dream-cities/gurugram_new.png",
-      alt: "Gurugram — find properties and projects on My Property Fact",
-    },
-  ];
+};
 
-  // Returning the dream property section
+const FLOAT_BASE_PATTERN = [-22, 18, -14, 26, -18, 14];
+
+const cities = CITY_ORDER.map((name, index) => {
+  const icons = getIconPaths(index);
+  return {
+    name,
+    link: `/city/${toCitySlug(name)}`,
+    image: icons.primary,
+    imageFallback: icons.fallback,
+    floatBase: FLOAT_BASE_PATTERN[index % FLOAT_BASE_PATTERN.length],
+    floatDelay: `${(index * 0.18).toFixed(2)}s`,
+  };
+});
+
+const DreamPropertySection = () => {
   return (
-    <section className="dream-property-section my-4 my-lg-5">
-      <div className="dream-property-section-bg" aria-hidden>
+    <section className="dream-property-section mb-4 mb-lg-5">
+      <div className="dream-property-section-bg" aria-hidden="true">
         <img
-          src="/dream-cities/dream_City_bg.png"
-          alt="Background artwork for Find Your Dream Property in your city"
-          title="Background artwork for Find Your Dream Property in your city"
-          className="object-fit-cover"
+          src="/dream-cities/image 1009.png"
+          alt="Decorative cityscape background for Find Your Dream Property section"
+          title="Decorative cityscape background for Find Your Dream Property section"
+          className="dream-property-bg-image"
           loading="lazy"
-         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+        />
       </div>
+
       <div className="dream-property-container">
-        {/* Header Section */}
-        <div className="container dream-property-header">
-          <div className="header-left">
-            <h2 className="dream-property-title plus-jakarta-sans-semi-bold">
-              Find Your Dream Property In The City<br/> You Are Searching In
-              <Link href="/projects" title="Browse all real estate projects on My Property Fact">
-              <button
-                
-                className="nav-arrow-button"
-                aria-label="Navigate to cities"
-                
+        <h2 className="dream-property-title">
+          Find Your Dream Property In The City You Are Searching In
+        </h2>
+
+        <div className="dream-city-wave" role="list">
+          <div className="dream-city-track" aria-hidden="false">
+            {[...cities, ...cities].map((city, index) => (
+              <Link
+                key={`${city.name}-${index}`}
+                href={city.link}
+                prefetch={false}
+                className="dream-city-item"
+                role="listitem"
+                title={`Explore ${city.name} real estate, projects and local trends on My Property Fact`}
+                aria-label={`Explore properties in ${city.name}`}
+                style={{
+                  "--float-base": `${city.floatBase}px`,
+                  "--float-delay": city.floatDelay,
+                }}
               >
-                <FaArrowRight />
-              </button>
+                <div className="dream-city-icon-circle">
+                  <img
+                    src={city.image}
+                    data-fallback={city.imageFallback}
+                    alt={city.name}
+                    title={city.name}
+                    width={72}
+                    height={72}
+                    loading="lazy"
+                    onError={(e) => {
+                      const fallback = e.currentTarget.dataset.fallback;
+                      if (!fallback) return;
+                      e.currentTarget.src = fallback;
+                      delete e.currentTarget.dataset.fallback;
+                    }}
+                  />
+                </div>
+                <span className="dream-city-label plus-jakarta-sans-semi-bold">
+                  {city.name}
+                </span>
               </Link>
-            </h2>
+            ))}
           </div>
-          <Link
-            href="/projects"
-            className="see-all-button text-white btn-normal-color"
-            title="View all property listings on My Property Fact"
-          >
-            See All Properties
-          </Link>
         </div>
 
-        {/* City Cards Grid */}
-        <div className="city-cards-grid" ref={cityCardsRef}>
-          {cities.map((city, index) => (
-            <div key={index} className="city-card">
-              <div className="city-image-wrapper">
-                <img
-                  src={city.image}
-                  alt={city.alt}
-                  title={city.alt}
-                  height={90}
-                  width={105}
-                  loading="lazy"
-                />
-              </div>
-              <div className="city-content">
-                <h3 className="city-name">{city.name}</h3>
-                <Link
-                  href={city.link}
-                  prefetch={false}
-                  className="explore-details-button"
-                  title={`Explore ${city.name} real estate, projects and local trends on My Property Fact`}
-                >
-                  Explore Details
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        <Link
+          href="/projects"
+          className="dream-see-all-button"
+          title="View all property listings on My Property Fact"
+        >
+          See all properties
+        </Link>
       </div>
     </section>
   );

@@ -5,7 +5,7 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Form, Modal, Table } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
@@ -13,23 +13,44 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
 import { AdminGridImageThumb } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
+import { formatDistanceKm, normalizeDistanceKm } from "@/lib/utils";
+
 export default function LocationBenefit({ list, projectList }) {
   const router = useRouter();
 
-  // Show all projects in table; projects with no benefits have empty locationBenefits so user can add from modal
-  const mergedList = (projectList ?? []).map((project, index) => {
-    const benefitsData = (list ?? []).find(
-      (item) => Number(item.projectId) === Number(project.id)
-    );
-    return {
-      projectId: project.id,
-      projectName: project.projectName ?? project.name ?? "–",
-      slugUrl: project.slugURL ?? project.slugUrl,
-      locationBenefits: benefitsData?.locationBenefits ?? [],
-      index: index + 1,
-      id: project.id,
-    };
-  });
+  // Show all projects; sort rows with existing benefits to the top for visibility.
+  const tableRows = useMemo(() => {
+    return (projectList ?? [])
+      .map((project) => {
+        const benefitsData = (list ?? []).find(
+          (item) => Number(item.projectId) === Number(project.id),
+        );
+        const locationBenefits = benefitsData?.locationBenefits ?? [];
+        return {
+          projectId: project.id,
+          projectName: project.projectName ?? project.name ?? "–",
+          slugUrl: project.slugURL ?? project.slugUrl,
+          locationBenefits,
+          benefitCount: locationBenefits.length,
+          benefitName: locationBenefits
+            .map((lb) => lb.benefitName)
+            .filter((name) => name !== undefined && name !== null && String(name).trim()),
+          distance: locationBenefits
+            .map((lb) => lb.distance)
+            .filter((value) => value !== undefined && value !== null && String(value).trim()),
+          id: project.id,
+        };
+      })
+      .sort((a, b) => {
+        if (b.benefitCount !== a.benefitCount) {
+          return b.benefitCount - a.benefitCount;
+        }
+        return String(a.projectName).localeCompare(String(b.projectName));
+      })
+      .map((item, index) => ({ ...item, index: index + 1 }));
+  }, [list, projectList]);
+
+  const projectsWithBenefits = tableRows.filter((row) => row.benefitCount > 0).length;
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [buttonName, setButtonName] = useState("");
@@ -60,7 +81,7 @@ export default function LocationBenefit({ list, projectList }) {
       try {
         const formData = new FormData();
         formData.append("benefitName", bName);
-        formData.append("distance", distance);
+        formData.append("distance", normalizeDistanceKm(distance));
         formData.append("projectId", projectId);
         if (id > 0) {
           formData.append("id", id);
@@ -244,14 +265,39 @@ export default function LocationBenefit({ list, projectList }) {
       ),
     },
     {
+      field: "benefitCount",
+      headerName: "Benefits",
+      width: 110,
+      renderCell: (params) =>
+        params.row.benefitCount > 0 ? params.row.benefitCount : "–",
+    },
+    {
       field: "benefitName",
       headerName: "Benefit Name",
       flex: 1,
+      renderCell: (params) => {
+        const names = Array.isArray(params.row.benefitName)
+          ? params.row.benefitName
+          : params.row.benefitName
+            ? [params.row.benefitName]
+            : [];
+        const text = names.filter(Boolean).join(", ");
+        return text || "–";
+      },
     },
     {
       field: "distance",
       headerName: "Distance",
       flex: 1,
+      renderCell: (params) => {
+        const distances = Array.isArray(params.row.distance)
+          ? params.row.distance
+          : [params.row.distance];
+        const formatted = distances
+          .filter((value) => value !== undefined && value !== null && String(value).trim())
+          .map((value) => formatDistanceKm(value));
+        return formatted.length ? formatted.join(", ") : "–";
+      },
     },
     {
       field: "action",
@@ -275,52 +321,49 @@ export default function LocationBenefit({ list, projectList }) {
         functionName={openAddModel}
         heading={"Manage Location Benefits"}
       />
-      <div className="card mb-4 border-0 shadow-sm">
-        <div className="card-body">
-          <h6 className="card-title mb-2">Bulk import from Excel</h6>
-          <p className="text-muted small mb-3">
-            Columns: <strong>Project</strong> (must match project name in the system), then{" "}
-            <strong>School</strong>, <strong>Malls/ IT Park</strong>, <strong>Hospitals</strong>,{" "}
-            <strong>Roads/ Highway</strong>, <strong>Famous for/ Metro</strong>,{" "}
-            <strong>Airport/Famous places</strong>. Each cell:{" "}
-            <code className="small">Place-Name_7-Km</code> (hyphens in the name, distance before{" "}
-            <code>-Km</code>). By default only projects with no location benefits are updated; check
-            the box below to replace existing benefits for listed projects.
-          </p>
-          <Form onSubmit={handleExcelUpload} className="d-flex flex-wrap align-items-end gap-3">
-            <Form.Group>
-              <Form.Label className="small text-muted mb-1">Excel file</Form.Label>
-              <Form.Control
-                type="file"
-                accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
-                onChange={(ev) => setExcelFile(ev.target.files?.[0] ?? null)}
-                disabled={excelUploading}
-              />
-            </Form.Group>
-            <Form.Check
-              type="checkbox"
-              id="replace-benefits-excel"
-              label="Replace existing location benefits"
-              checked={replaceBenefitsFromExcel}
-              onChange={(ev) => setReplaceBenefitsFromExcel(ev.target.checked)}
+      <div className="admin-bulk-import-panel">
+        <h2 className="admin-bulk-import-panel__title">Bulk import from Excel</h2>
+        <p className="admin-bulk-import-panel__help">
+          Columns: <strong>Project</strong> (must match project name in the system), then{" "}
+          <strong>School</strong>, <strong>Malls/ IT Park</strong>, <strong>Hospitals</strong>,{" "}
+          <strong>Roads/ Highway</strong>, <strong>Famous for/ Metro</strong>,{" "}
+          <strong>Airport/Famous places</strong>. Each cell:{" "}
+          <code>Place-Name_7-Km</code> (hyphens in the name, distance before{" "}
+          <code>-Km</code>). By default only projects with no location benefits are updated; check
+          the box below to replace existing benefits for listed projects.
+        </p>
+        <Form onSubmit={handleExcelUpload} className="d-flex flex-wrap align-items-end gap-3">
+          <Form.Group>
+            <Form.Label>Excel file</Form.Label>
+            <Form.Control
+              type="file"
+              accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"
+              onChange={(ev) => setExcelFile(ev.target.files?.[0] ?? null)}
               disabled={excelUploading}
-              className="mb-2"
             />
-            <Button type="submit" variant="success" disabled={excelUploading}>
-              {excelUploading ? "Uploading…" : "Upload & map to projects"}
-            </Button>
-          </Form>
-        </div>
+          </Form.Group>
+          <Form.Check
+            type="checkbox"
+            id="replace-benefits-excel"
+            label="Replace existing location benefits"
+            checked={replaceBenefitsFromExcel}
+            onChange={(ev) => setReplaceBenefitsFromExcel(ev.target.checked)}
+            disabled={excelUploading}
+            className="mb-2"
+          />
+          <Button type="submit" variant="success" disabled={excelUploading}>
+            {excelUploading ? "Uploading…" : "Upload & map to projects"}
+          </Button>
+        </Form>
       </div>
+      <p className="admin-bulk-import-panel__help mb-3">
+        <strong>{projectsWithBenefits}</strong> of <strong>{tableRows.length}</strong> projects
+        have location benefits. Projects with benefits are listed first — use{" "}
+        <strong>View All</strong> to edit, or search for a project without benefits to add new
+        ones.
+      </p>
       <div className="table-container">
-        <DataTable
-          columns={columns}
-          list={mergedList.map((item) => ({
-            ...item,
-            distance: (item.locationBenefits || []).map((lb) => lb.distance),
-            benefitName: (item.locationBenefits || []).map((lb) => lb.benefitName),
-          }))}
-        />
+        <DataTable columns={columns} list={tableRows} />
       </div>
 
       {/* View All benefits modal */}
@@ -330,7 +373,7 @@ export default function LocationBenefit({ list, projectList }) {
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
-            <span className="text-muted">Manage nearby benefits for this project</span>
+            <span className="admin-bulk-import-panel__help mb-0">Manage nearby benefits for this project</span>
             <Button variant="success" size="sm" onClick={openAddBenefitForProject}>
               + Set nearby benefit
             </Button>
@@ -350,7 +393,7 @@ export default function LocationBenefit({ list, projectList }) {
                   <tr key={item.id ?? index}>
                     <td>{index + 1}</td>
                     <td>{item.benefitName}</td>
-                    <td>{item.distance ? `${item.distance.split(" ")[0]} ${item.distance.split(" ")[1] ?? "Km"}` : "–"}</td>
+                    <td>{item.distance ? formatDistanceKm(item.distance) : "–"}</td>
                     <td>
                       <Button
                         variant="outline-primary"
@@ -379,7 +422,7 @@ export default function LocationBenefit({ list, projectList }) {
               </tbody>
             </Table>
           ) : (
-            <p className="text-muted mb-0">No location benefits for this project.</p>
+            <p className="admin-bulk-import-panel__help mb-0">No location benefits for this project.</p>
           )}
         </Modal.Body>
       </Modal>

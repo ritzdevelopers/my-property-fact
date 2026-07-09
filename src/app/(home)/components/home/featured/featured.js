@@ -63,6 +63,7 @@ export default function Featured({
 }) {
   const [projectType, setProjectType] = useState("Residential");
   const [isLoading, setIsLoading] = useState(false);
+  const isHomeFeaturedShowcase = type === "Featured" && !autoPlay;
 
   // When residentialProjects + commercialProjects are passed, use them per tab (no filter). Else filter allProjects by type.
   const filteredProjects = useMemo(() => {
@@ -94,20 +95,20 @@ export default function Featured({
   const settings = useMemo(
     () => ({
       dots: false,
-      infinite: filteredProjects.length > 2,
+      infinite: filteredProjects.length > (isHomeFeaturedShowcase ? 2 : 3),
       speed: 500,
       autoplay: autoPlay,
       autoplaySpeed: 5000,
       arrows: showArrows,
       nextArrow: showArrows && filteredProjects.length > 1 ? <NextArrow /> : null,
       prevArrow: showArrows && filteredProjects.length > 1 ? <PrevArrow /> : null,
-      slidesToShow: 3,
+      slidesToShow: isHomeFeaturedShowcase ? 2 : 3,
       slidesToScroll: 1,
       responsive: [
         {
           breakpoint: 1200,
           settings: {
-            slidesToShow: 3,
+            slidesToShow: isHomeFeaturedShowcase ? 2 : 3,
             slidesToScroll: 1,
           },
         },
@@ -141,7 +142,7 @@ export default function Featured({
         },
       ],
     }),
-    [filteredProjects.length, autoPlay, type, showArrows],
+    [filteredProjects.length, autoPlay, type, showArrows, isHomeFeaturedShowcase],
   );
 
   // Memoized section title
@@ -169,7 +170,11 @@ export default function Featured({
   return (
     <>
       {type !== "Similar" && (
-        <div className="container home-featured-section">
+        <div
+          className={`container home-featured-section${
+            type === "Featured" ? " home-featured-section--spotlight" : ""
+          }`}
+        >
           {autoPlay && type !== "Similar" && (
             <div
               className="d-flex featured-filter-buttons home-featured-filter-buttons gap-3"
@@ -210,13 +215,25 @@ export default function Featured({
               <p className="featured-loading-text">Loading projects...</p>
             </div>
           ) : filteredProjects?.length > 0 ? (
-            <div className={`featured-page-slider ${type === "Featured" && !autoPlay ? "featured-projects-mobile-arrows" : ""}`}>
+            <div
+              className={`featured-page-slider ${
+                type === "Featured" && !autoPlay ? "featured-projects-mobile-arrows featured-page-slider--two-up" : ""
+              }`}
+            >
               <Slider {...settings}>
                 {filteredProjects.map((item, index) => (
-                  <div key={item.id} className="px-2 pb-3">
+                  <div
+                    key={item.id}
+                    className={
+                      isHomeFeaturedShowcase
+                        ? "featured-showcase-slide"
+                        : "px-2 pb-3"
+                    }
+                  >
                     <PropertyContainer
                       data={item}
                       badgeVariant={badgeVariant}
+                      layoutVariant={type === "Featured" ? "overlap" : "default"}
                       imagePriority={index < 2}
                     />
                   </div>

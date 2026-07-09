@@ -1,6 +1,7 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   faInstagram,
   faLinkedin,
@@ -9,133 +10,17 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import FooterCityLinksSection from "./FooterCityLinksSection";
 import "./newfooter.css";
 
 export default function NewFooterDesign({ compactTop = false, cityList: cityListProp }) {
+  const pathname = usePathname();
+  const isInternalListingPage =
+    typeof pathname === "string" && pathname !== "/" && pathname.includes("-in-");
+
   const { cityList: contextCityList = [] } = useSiteData();
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Use prop when provided (e.g. property page) - else context (e.g. home page with SiteDataProvider)
   const cityList = cityListProp ?? contextCityList;
 
-  // Helper function to generate URL slug from prefix
-  const generateSlug = (prefix) => {
-    return `/${prefix.replace(/ /g, "-").toLowerCase().trim()}`;
-  };
-
-  // Delhi NCR cities to show first (order preserved)
-  const DELHI_NCR_CITY_NAMES = [
-    "Delhi",
-    "Noida",
-    "Gurugram",
-    "Faridabad",
-    "Ghaziabad",
-    "Greater Noida",
-    "Noida Extension",
-    "Sonipat",
-  ];
-
-  const sortCitiesDelhiNCRFirst = (cities) => {
-    if (!Array.isArray(cities) || cities.length === 0) return cities;
-    const ncrSet = new Set(DELHI_NCR_CITY_NAMES.map((n) => n.toLowerCase().trim()));
-    return [...cities].sort((a, b) => {
-      const aName = (a?.cityName || "").trim();
-      const bName = (b?.cityName || "").trim();
-      const aNCR = ncrSet.has(aName.toLowerCase());
-      const bNCR = ncrSet.has(bName.toLowerCase());
-      if (aNCR && !bNCR) return -1;
-      if (!aNCR && bNCR) return 1;
-      if (aNCR && bNCR) {
-        const aIdx = DELHI_NCR_CITY_NAMES.findIndex((n) => n.toLowerCase() === aName.toLowerCase());
-        const bIdx = DELHI_NCR_CITY_NAMES.findIndex((n) => n.toLowerCase() === bName.toLowerCase());
-        return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
-      }
-      return aName.localeCompare(bName);
-    });
-  };
-
-  // Filter cities based on category (same logic as old footer), then sort Delhi NCR first
-  // Prop from server (property page): use immediately. Context (home): defer until mounted to avoid hydration mismatch.
-  const safeCityList = Array.isArray(cityListProp)
-    ? cityListProp
-    : isMounted && Array.isArray(cityList)
-      ? cityList
-      : [];
-  const COMMERCIAL_HIDDEN_CITY_NAMES = [
-    "Agra",
-    "Bareilly",
-    "Chennai",
-    "Dehradun",
-    "Kochi",
-    "Thiruvananthapuram",
-    "Vrindavan",
-    "Sonipat",
-    "Panipat",
-    "Karnal",
-    "Meerut",
-  ];
-
-  const APARTMENTS_HIDDEN_CITY_NAMES = ["Karnal"];
-
-  const apartmentsCities = sortCitiesDelhiNCRFirst(
-    safeCityList.filter(
-      (item) =>
-        item?.cityName && !APARTMENTS_HIDDEN_CITY_NAMES.includes(item.cityName),
-    ),
-  );
-  const newProjectsCities = sortCitiesDelhiNCRFirst(
-    safeCityList.filter((item) => item?.cityName && !["Agra"].includes(item.cityName))
-  );
-  const flatsCities = sortCitiesDelhiNCRFirst(safeCityList);
-  const commercialCities = sortCitiesDelhiNCRFirst(
-    safeCityList.filter(
-      (item) =>
-        item?.cityName && !COMMERCIAL_HIDDEN_CITY_NAMES.includes(item.cityName),
-    ),
-  );
-  const SCROLL_HINT_MIN_CITIES = 4;
-  // City lists: scrollable region + pulse hint (no Load More button)
-  const renderCityList = (cities, category, prefix, generateSlugFn) => {
-    const useScroll = cities.length >= SCROLL_HINT_MIN_CITIES;
-
-    return (
-      <>
-        <div className={useScroll ? "footer-new-links-scroll" : undefined}>
-          <ul className="footer-new-links">
-            {cities.map((city, index) => (
-              <li key={`${category}-${city.id || index}`}>
-                <Link
-                  href={`${generateSlugFn(prefix)}${city.slugURL}`}
-                  prefetch={false}
-                  className="footer-new-link"
-
-                  title={`${prefix}${city.cityName}`}
-                >
-                  {prefix}{city.cityName}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-        {useScroll && (
-          <div
-            className="footer-scroll-hint"
-            role="status"
-            aria-label="Scroll the list above to view more links"
-          >
-            <span className="footer-scroll-hint__pulse" aria-hidden>
-              <span className="footer-scroll-hint__pulse-dot" />
-            </span>
-            <span className="footer-scroll-hint__text">Scroll to view more</span>
-          </div>
-        )}
-      </>
-    );
-  };
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -195,26 +80,9 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             </div>
           </div>
         </div>
-        <div className="new-design-footer-bottom container " style={{ paddingBottom: "40px" }}>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">Apartments in India</div>
-            {renderCityList(apartmentsCities, "apartments", "Apartments in ", generateSlug)}
-          </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">New Projects in India</div>
-            {renderCityList(newProjectsCities, "newProjects", "New Projects in ", generateSlug)}
-          </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">
-              Commercial Property in India
-            </div>
-            {renderCityList(commercialCities, "commercial", "Commercial Property in ", generateSlug)}
-          </div>
-          <div className="footer-bottom-column">
-            <div className="footer-new-heading">Flats in India</div>
-            {renderCityList(flatsCities, "flats", "Flats in ", generateSlug)}
-          </div>
-        </div>
+        {!isInternalListingPage && (
+          <FooterCityLinksSection cityList={cityList} />
+        )}
       </div>
       <div className={`new-footer-design-container-fluid${compactTop ? " compact-top" : ""}`}>
         <div className="new-design-container">

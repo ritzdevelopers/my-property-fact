@@ -283,6 +283,40 @@ letter-spacing: 0%;
     flex-direction: column;
     gap: 12px;
 }
+
+/* Compact city-links section (internal listing pages) */
+.new-design-footer-bottom--compact .footer-new-heading {
+    padding-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.1;
+}
+
+.new-design-footer-bottom--compact .footer-new-links {
+    gap: 6px;
+}
+
+.new-design-footer-bottom--compact .footer-new-link {
+    font-size: 12px;
+    line-height: 1.2;
+}
+
+.footer-view-more {
+    margin-top: 8px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(17, 24, 39, 0.16);
+    background: #ffffff;
+    color: #0d5834;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    width: fit-content;
+}
+
+.footer-view-more:hover {
+    border-color: rgba(13, 88, 52, 0.35);
+    background: rgba(13, 88, 52, 0.06);
+}
 .footer-new-link:hover {
     color: #D4AF37;
 }

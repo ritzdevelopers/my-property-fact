@@ -67,6 +67,21 @@ export function debounce(func, wait) {
   };
 }
 
+export function formatDistanceKm(value) {
+  if (value === undefined || value === null) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  return /km/i.test(text) ? text : `${text} Km`;
+}
+
+export function normalizeDistanceKm(value) {
+  if (value === undefined || value === null) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  const numericPart = text.replace(/\s*km\s*$/i, "").trim();
+  return numericPart ? `${numericPart} Km` : "";
+}
+
 export function getInitials(name) {
   if (!name) return "?";
   return name

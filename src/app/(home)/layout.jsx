@@ -2,10 +2,6 @@ import "./bootstrap-critical.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-const LazyBelowFold = dynamic(
-  () => import("./components/_homecomponents/LazyBelowFold"),
-  { loading: () => null }
-);
 
 const HeaderComponent = dynamic(
   () => import("./components/header/headerComponent").then((m) => m.default),
@@ -55,7 +51,6 @@ export default function RootLayout({ children }) {
       <HeaderComponent />
       {children}
       <NewFooterDesign />
-      <LazyBelowFold />
     </>
   );
 }

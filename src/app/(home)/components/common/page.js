@@ -9,10 +9,16 @@ import { useState } from "react";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
+  getProjectImageBaseUrl,
 } from "@/lib/projectImageUrl";
 import "./common.css";
 
-export default function PropertyContainer({ data, badgeVariant = "default", imagePriority = false }) {
+export default function PropertyContainer({
+  data,
+  badgeVariant = "default",
+  layoutVariant = "default",
+  imagePriority = false,
+}) {
   const [imageError, setImageError] = useState(false);
 
   // Ensure data is defined before accessing its properties
@@ -70,8 +76,9 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
       "new launch": { backgroundColor: "#EC191C", textColor: "#1f2937" },
       "ultra luxury": { backgroundColor: "#CC9848", textColor: "#ffffff" },
       luxury: { backgroundColor: "#d32f2f", textColor: "#ffffff" },
-      "ready to move": { backgroundColor: "#0f766e", textColor: "#ffffff" },
-      "under construction": { backgroundColor: "#566BCA", textColor: "#fffffe" },
+      "ready to move": { backgroundColor: "#c1e3e9", textColor: "#0c3d48" },
+      completed: { backgroundColor: "#c1e3e9", textColor: "#0c3d48" },
+      "under construction": { backgroundColor: "#e9e2ef", textColor: "#3d2f52" },
       "possession soon": { backgroundColor: "#2563eb", textColor: "#ffffff" },
       affordable: { backgroundColor: "#22c55e", textColor: "#ffffff" },
     };
@@ -82,10 +89,38 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
 
   const addressSummary = formatProjectAddress(data.projectAddress);
 
+  const buildProjectLogoUrl = () => {
+    const imageBase = getProjectImageBaseUrl();
+    const slug = data.slugURL;
+    const logo = data.projectLogo;
+
+    if (!logo) return "/logo.webp";
+    if (/^https?:\/\//i.test(logo) || logo.startsWith("/")) return logo;
+    if (!imageBase || !slug) return "/logo.webp";
+    return `${imageBase}properties/${slug}/${logo}`;
+  };
+
+  const buildFeaturedSubtitle = () => {
+    const config = String(data.projectConfiguration || "").trim();
+    if (config) return config;
+    return addressSummary;
+  };
+
   const projectCardImageAlt =
     data.projectName
       ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
       : "Real estate project thumbnail — My Property Fact";
+
+  const getFeaturedPillBadgeModifier = (status) => {
+    const normalized = status?.trim().toLowerCase();
+    if (normalized === "new launched" || normalized === "new launch") {
+      return "home-featured-project-tag--new-launched";
+    }
+    if (normalized === "ultra luxury") {
+      return "home-featured-project-tag--ultra-luxury";
+    }
+    return "";
+  };
 
   const renderStatusBadge = () => {
     if (!data.projectStatusName) {
@@ -94,14 +129,29 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
 
     if (badgeVariant === "home-featured") {
       const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
+      const pillBadgeModifier =
+        layoutVariant === "overlap"
+          ? getFeaturedPillBadgeModifier(data.projectStatusName)
+          : "";
+      const usePillStyles = layoutVariant === "overlap" && Boolean(pillBadgeModifier);
 
       return (
         <div
-          className="home-featured-status-badge plus-jakarta-sans-semi-bold"
-          style={{
-            "--badge-color": backgroundColor,
-            "--badge-text-color": textColor,
-          }}
+          className={
+            layoutVariant === "overlap"
+              ? `home-featured-project-tag plus-jakarta-sans-semi-bold${
+                  pillBadgeModifier ? ` ${pillBadgeModifier}` : ""
+                }`
+              : "home-featured-status-badge plus-jakarta-sans-semi-bold"
+          }
+          style={
+            usePillStyles
+              ? undefined
+              : {
+                  "--badge-color": backgroundColor,
+                  "--badge-text-color": textColor,
+                }
+          }
         >
           {data.projectStatusName}
         </div>
@@ -124,6 +174,74 @@ export default function PropertyContainer({ data, badgeVariant = "default", imag
       </div>
     );
   };
+
+  if (layoutVariant === "overlap") {
+    const logoAlt = data.builderName
+      ? `${data.builderName} — builder logo`
+      : `${data.projectName} — project logo`;
+
+    return (
+      <Link
+        href={`/${data.slugURL}`}
+        className="home-featured-project-card text-decoration-none text-dark"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View details about ${data.projectName}`}
+        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+      >
+        <div className="home-featured-image-card">
+          <img
+            src={imageSrc}
+            alt={projectCardImageAlt}
+            title={projectCardImageAlt}
+            className="home-featured-image"
+            width={510}
+            height={232}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority={imagePriority ? "high" : "auto"}
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
+        </div>
+
+        <div className="home-featured-builder-card">
+          {renderStatusBadge()}
+          <div
+            className={`home-featured-builder-logo${
+              data.slugURL === "eldeco-whispers-of-wonder"
+                ? " home-featured-builder-logo--whispers"
+                : ""
+            }`}
+          >
+            <img
+              src={buildProjectLogoUrl()}
+              alt={logoAlt}
+              title={logoAlt}
+              width={
+                data.slugURL === "eldeco-whispers-of-wonder" ? 84 : 72
+              }
+              height={
+                data.slugURL === "eldeco-whispers-of-wonder" ? 72 : 72
+              }
+              loading="lazy"
+            />
+          </div>
+          <div className="home-featured-builder-info">
+            <h3 className="home-featured-builder-name plus-jakarta-sans-semi-bold">
+              {data.projectName}
+            </h3>
+            <p className="home-featured-builder-meta plus-jakarta-sans-semi-bold">
+              {buildFeaturedSubtitle()}
+            </p>
+            <p className="home-featured-builder-price plus-jakarta-sans-semi-bold">
+              {generatePrice(data.projectPrice)}
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <>
       <Link

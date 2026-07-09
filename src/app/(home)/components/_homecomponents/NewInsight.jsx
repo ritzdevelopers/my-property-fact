@@ -1,104 +1,156 @@
-import "./newinsight.css";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
+import "./newinsight.css";
+
+const INSIGHTS = [
+  {
+    id: "emi-calculator",
+    tabLabel: "EMI Calculator",
+    iconSrc: "/static/home-meta-data/calculator.gif",
+    iconAlt: "EMI Calculator icon — Expert Insights and Resources",
+    iconTitle: "EMI Calculator — Expert Insights and Resources",
+    badge: "Financial Tool",
+    readTime: "5 min read",
+    title: "Master Your Mortgage with the EMI Calculator",
+    description:
+      "Take the guesswork out of home financing. Our advanced EMI calculator provides a complete amortization schedule, helps you understand the impact of prepayments, and allows you to compare different loan offers side-by-side.",
+    cta: "Open EMI Calculator",
+    href: "/emi-calculator",
+  },
+  {
+    id: "locate-score",
+    tabLabel: "Locate Score",
+    iconSrc: "/static/home-meta-data/locate_score.gif",
+    iconAlt: "Locate Score icon — Expert Insights and Resources",
+    iconTitle: "Locate Score — Expert Insights and Resources",
+    badge: "Location Tool",
+    readTime: "5 min read",
+    title: "Discover Location Potential with LOCATE Score",
+    description:
+      "Assess location quality, growth potential, and investment risk. Check price trends, connectivity, amenities, and infrastructure to guide smarter property investments with clarity.",
+    cta: "Open Locate Score",
+    href: "/locate-score",
+  },
+];
+
+const SECTION_SUBTITLE =
+  "Expert resources to help you navigate your next big move with confidence.";
 
 export default function NewInsight() {
-  // Defining insights data
-  const insights = [
-    {
-      id: 1,
-      heading: "EMI Calculator",
-      sub_heading:
-        "Compute Monthly EMI, Total Interest, Lifetime Cost Instantly; Adjust Loan Amount, Tenure, Rate...",
-      href: "/emi-calculator",
-      iconSrc: "/static/icon/Calci.svg",
-    },
-    {
-      id: 2,
-      heading: "Locate Score",
-      sub_heading:
-        "Assess Location Quality, Growth Potential, and Investment Risk. Check Price Trends, Connectivity, Amenities, and Infrastructure...",
-      href: "/locate-score",
-      iconSrc: "/static/icon/Graph.svg",
-    },
-  ];
+  const [activeId, setActiveId] = useState(INSIGHTS[0].id);
+  const activeInsight =
+    INSIGHTS.find((insight) => insight.id === activeId) ?? INSIGHTS[0];
 
-  // Returning the new insight section
   return (
-    <div className="container-fluid bg-light new-insight-container py-3 py-lg-5">
-      <div className="container insight-content-wrapper">
-        <div className="insight-layout">
-          <div className="insight-cards">
-            <h2 className="plus-jakarta-sans-semi-bold mb-3 mb-lg-4">
-              Expert Insights & Resources
-            </h2>
-            <div className="d-flex flex-column flex-md-row gap-3">
-              {insights.map((insight) => {
-                const insightIconAlt = `${insight.heading} — Expert Insights & Resources section icon`;
+    <div className="expert-insights-wrapper">
+    <section className="expert-insights-section" aria-labelledby="expert-insights-heading">
+      <div className="expert-insights-bg" aria-hidden="true">
+        <img
+          src="/static/home-meta-data/expert_insights.png"
+          alt="Decorative background artwork for Expert Insights and Resources section"
+          title="Decorative background artwork for Expert Insights and Resources section"
+          className="expert-insights-bg-image"
+        />
+      </div>
+
+      <div className="expert-insights-inner">
+        <header className="expert-insights-header">
+          <h2
+            id="expert-insights-heading"
+            className="expert-insights-title"
+          >
+            Expert Insights &amp; Resources
+          </h2>
+          <p className="expert-insights-subtitle">
+            {SECTION_SUBTITLE}
+          </p>
+        </header>
+
+        <div className="expert-insights-body">
+          <div className="expert-insights-card">
+            <div className="expert-insights-tabs" role="tablist" aria-label="Expert tools">
+              {INSIGHTS.map((insight) => {
+                const isActive = insight.id === activeId;
                 return (
-                <div className="insight-card" key={insight.id}>
-                  <div className="insight-icon-wrapper">
-                    <img
-                      src={insight.iconSrc}
-                      alt={insightIconAlt}
-                      title={insightIconAlt}
-                      width={32}
-                      height={32}
-                      className="insight-icon"
-                    />
-                  </div>
-                  <div className="insight-content">
-                    <h3 className="insight-title plus-jakarta-sans-semi-bold">
-                      {insight.heading}
-                    </h3>
-                    <p className="insight-description plus-jakarta-sans-semi-bold">
-                      {insight.sub_heading}
-                    </p>
-                    <Link
-                      className="insight-link plus-jakarta-sans-semi-bold"
-                      href={insight.href}
-                      title={insight.heading}
-                    >
-                      Explore Now
-                      <span className="insight-link-arrow">
-                        <FontAwesomeIcon icon={faArrowRight} />
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              );
+                  <button
+                    key={insight.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`expert-insights-panel-${insight.id}`}
+                    id={`expert-insights-tab-${insight.id}`}
+                    className={`expert-insights-tab expert-insights-tab--${insight.id}${isActive ? " is-active" : ""}`}
+                    onClick={() => setActiveId(insight.id)}
+                  >
+                    <span className="expert-insights-tab-icon">
+                      <img
+                        src={insight.iconSrc}
+                        alt={insight.iconAlt}
+                        title={insight.iconTitle}
+                        width={28}
+                        height={28}
+                      />
+                    </span>
+                    <span className="expert-insights-tab-label">
+                      {insight.tabLabel}
+                    </span>
+                  </button>
+                );
               })}
             </div>
-          </div>
-          <div className="insight-image-wrapper">
-            <Link
-              href={`${process.env.NEXT_PUBLIC_UI_URL}/exotica-132`}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Exotica-132"
-            >
-            <img
-              src="/static/expert_insights.jpg"
-              alt="Exotica One32 — commercial project featured in Expert Insights & Resources"
-              title="Exotica One32 — commercial project featured in Expert Insights & Resources"
-              width={604}
-              height={308}
-              className="insight-main-image"
-            />
-              </Link>
-            {/* <div className="insight-logo-wrapper">
+
+            <div className="expert-insights-card-image">
               <img
-                src="/static/icon/jacob.svg"
-                alt="Jacob & Co"
-                width={170}
-                height={82}
-                className="insight-logo"
+                src="/static/home-meta-data/expert.png"
+                alt="Luxury home featured in Expert Insights and Resources"
+                title="Luxury home featured in Expert Insights and Resources"
+                width={297}
+                height={154}
+                className="expert-insights-feature-image"
               />
-            </div> */}
+            </div>
+
+            <p className="expert-insights-card-caption">
+              {SECTION_SUBTITLE}
+            </p>
+          </div>
+
+          <div
+            className="expert-insights-detail"
+            role="tabpanel"
+            id={`expert-insights-panel-${activeInsight.id}`}
+            aria-labelledby={`expert-insights-tab-${activeInsight.id}`}
+          >
+            <div className="expert-insights-meta">
+              <span className="expert-insights-badge">
+                {activeInsight.badge}
+              </span>
+              <span className="expert-insights-read-time">
+                {activeInsight.readTime}
+              </span>
+            </div>
+
+            <h3 className="expert-insights-detail-title">
+              {activeInsight.title}
+            </h3>
+
+            <p className="expert-insights-detail-description">
+              {activeInsight.description}
+            </p>
+
+            <Link
+              href={activeInsight.href}
+              className="expert-insights-cta"
+              title={activeInsight.cta}
+            >
+              {activeInsight.cta}
+            </Link>
           </div>
         </div>
       </div>
+    </section>
     </div>
   );
 }

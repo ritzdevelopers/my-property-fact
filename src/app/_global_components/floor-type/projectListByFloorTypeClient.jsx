@@ -5,7 +5,7 @@ import {
   ProjectListingPaginationControls,
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { cityNameMatchesFilter } from "../cityAliasUtils";
 import { useSiteData } from "../contexts/SiteDataContext";
 import {
@@ -99,6 +99,7 @@ export default function ProjectListByFloorTypeClient({
 
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
+  const listingsRef = useRef(null);
 
   const showLoading = siteDataLoading;
 
@@ -106,7 +107,7 @@ export default function ProjectListByFloorTypeClient({
     <>
       <div className="container my-5">
         <h2 className="master-bhk-section-heading mb-3 mb-md-4">Projects</h2>
-        <div className="row g-3">
+        <div className="row g-3" ref={listingsRef}>
           {showLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100 py-5">
               <LoadingSpinner show={showLoading} />
@@ -125,6 +126,7 @@ export default function ProjectListByFloorTypeClient({
             totalPages={totalPages}
             totalItems={totalItems}
             onPageChange={setPage}
+            scrollTargetRef={listingsRef}
           />
         )}
       </div>

@@ -1,6 +1,6 @@
 import "./critical.css";
 import "./globals.css";
-import { Inter, Lato } from "next/font/google";
+import { Damion, Inter, Lato } from "next/font/google";
 import { Suspense } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
@@ -8,6 +8,7 @@ import SiteDataShell from "./_global_components/SiteDataShell";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
+import LazyBelowFold from "./(home)/components/_homecomponents/LazyBelowFold";
 import { serializeJsonLd } from "./_global_components/jsonLd/JsonLdScript";
 
 config.autoAddCss = false;
@@ -90,6 +91,13 @@ const headingFont = Lato({
   display: "swap",
 });
 
+const accentFont = Damion({
+  subsets: ["latin"],
+  weight: ["400"],
+  variable: "--accent-font",
+  display: "swap",
+});
+
 const textFont = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
@@ -118,7 +126,7 @@ export default function RootLayout({ children }) {
         ) : null}
       </head>
       <body
-        className={`${headingFont.variable} ${textFont.variable}`}
+        className={`${headingFont.variable} ${textFont.variable} ${accentFont.variable}`}
         suppressHydrationWarning={true}
       >
         <noscript>
@@ -146,6 +154,7 @@ export default function RootLayout({ children }) {
           <PopularProjectPromoFromRequest />
         </Suspense>
 
+        <LazyBelowFold />
         <ThirdPartyScripts />
       </body>
     </html>

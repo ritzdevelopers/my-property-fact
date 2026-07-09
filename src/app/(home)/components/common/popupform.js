@@ -214,7 +214,7 @@ export default function CommonPopUpform({
       // Check if response is successful
       if (response.data.isSuccess === 1) {
         // onSuccess();
-        handleClose(false);
+        closeModal();
         setValidated(false); // Reset validation state
         setFormData(intitalData);
         setErrors({ name: "", email: "", phone: "" });
@@ -299,12 +299,23 @@ export default function CommonPopUpform({
     : "/static/icon/enquiry.png";
   const popupImageAlt = isProjectDetail ? data?.projectName || "Project" : "Enquiry";
 
+  const closeModal = () => {
+    handleClose(false);
+    window.requestAnimationFrame(() => {
+      const active = document.activeElement;
+      if (active instanceof HTMLElement) {
+        active.blur();
+      }
+    });
+  };
+
   return (
     <>
       <Modal
         show={show}
-        onHide={() => handleClose(false)}
+        onHide={closeModal}
         centered
+        restoreFocus={false}
         backdropClassName="enquiry-popup-backdrop"
         className={`enquiry-popup ${useSplitLayout ? "enquiry-popup--split" : "enquiry-popup--home"}`}
         dialogClassName={`enquiry-popup-dialog ${!useSplitLayout ? "enquiry-popup-dialog--home" : ""}`}
@@ -315,7 +326,7 @@ export default function CommonPopUpform({
           type="button"
           className="btn-close enquiry-popup-close"
           aria-label="Close"
-          onClick={() => handleClose(false)}
+          onClick={closeModal}
         />
           <div className={`enquiry-popup-split ${isHomeSplit ? "enquiry-popup-split--home" : ""}`}>
             <div className={`enquiry-popup-image ${isHomeSplit ? "enquiry-popup-image--home" : ""}`}>
@@ -428,7 +439,7 @@ export default function CommonPopUpform({
               type="button"
               className="btn-close enquiry-popup-home__close"
               aria-label="Close"
-              onClick={() => handleClose(false)}
+              onClick={closeModal}
             />
             <div className="enquiry-popup-home__header">
               <span className="enquiry-popup-home__eyebrow">We&apos;re here to help</span>

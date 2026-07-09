@@ -1,0 +1,99 @@
+{
+  "generatedAt": "2026-06-16T15:41:40",
+  "sourceApi": "https://apis.mypropertyfact.in/api/v1/projects",
+  "notes": [
+    "projectPrice is considered present when non-empty, including 'Price on Request'.",
+    "A field is missing when null/empty or '-' / '—'."
+  ],
+  "total": 1320,
+  "incompleteCount": 8,
+  "missingFieldBreakdown": {
+    "projectThumbnailImage": 6,
+    "projectBannerImage": 3,
+    "projectLogo": 1
+  },
+  "projects": [
+    {
+      "id": 1185,
+      "projectName": "ATS Tourmaline",
+      "slugURL": "ats-tourmaline",
+      "cityName": "Gurugram",
+      "builderName": "ATS Infrastructure",
+      "missingFields": [
+        "projectThumbnailImage"
+      ]
+    },
+    {
+      "id": 1274,
+      "projectName": "Emerald Heights",
+      "slugURL": "emerald-heights",
+      "cityName": "Faridabad",
+      "builderName": "Emerald Developers",
+      "missingFields": [
+        "projectThumbnailImage"
+      ]
+    },
+    {
+      "id": 1146,
+      "projectName": "Emperium Palm Drive",
+      "slugURL": "emperium-palm-drive",
+      "cityName": "Panipat",
+      "builderName": "Emperium",
+      "missingFields": [
+        "projectThumbnailImage",
+        "projectBannerImage",
+        "projectLogo"
+      ]
+    },
+    {
+      "id": 1160,
+      "projectName": "Exotica Dreamville",
+      "slugURL": "exotica-dreamville",
+      "cityName": "Noida",
+      "builderName": "Exotica Infratech LLP",
+      "missingFields": [
+        "projectThumbnailImage"
+      ]
+    },
+    {
+      "id": 1322,
+      "projectName": "Purab Premium Apartments",
+      "slugURL": "purab-premium-apartments",
+      "cityName": "Mohali",
+      "builderName": "GMADA",
+      "missingFields": [
+        "projectBannerImage"
+      ]
+    },
+    {
+      "id": 1257,
+      "projectName": "Trine Towers",
+      "slugURL": "trine-towers",
+      "cityName": "Ghaziabad",
+      "builderName": "Aegis Homes",
+      "missingFields": [
+        "projectThumbnailImage"
+      ]
+    },
+    {
+      "id": 1340,
+      "projectName": "Twin Tower",
+      "slugURL": "twin-tower",
+      "cityName": "Agra",
+      "builderName": "Bholey Baba Infracon",
+      "missingFields": [
+        "projectBannerImage"
+      ]
+    },
+    {
+      "id": 1195,
+      "projectName": "Urbtech Hilston",
+      "slugURL": "urbtech-hilston",
+      "cityName": "Noida",
+      "builderName": "Urbtech India",
+      "missingFields": [
+        "projectThumbnailImage"
+      ]
+    }
+  ]
+}

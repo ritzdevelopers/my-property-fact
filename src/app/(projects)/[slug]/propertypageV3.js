@@ -36,6 +36,7 @@ import {
   scoreProjectSearchMatch,
 } from "../../_global_components/projectSearchUtils";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
 

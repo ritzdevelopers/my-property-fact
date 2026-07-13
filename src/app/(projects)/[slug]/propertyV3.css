@@ -64,7 +64,8 @@
 .pd3-root .pd3-hero-title,
 .pd3-root .pd3-price-title,
 .pd3-root .pd3-builder-title,
-.pd3-root .pd3-enquire__title {
+.pd3-root .pd3-enquire__title,
+.pd3-root .pd3-aside-card__title {
   font-family: var(--pd3-heading-font) !important;
   letter-spacing: 0.1px;
 }

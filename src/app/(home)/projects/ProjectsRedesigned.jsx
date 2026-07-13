@@ -40,6 +40,7 @@ import {
 import {
   scrollToProjectListings,
 } from "@/app/_global_components/projectListingPagination";
+import { consumeListingReturnState } from "@/lib/listingScrollRestore";
 import ProjectCard from "./components/ProjectCard";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
 import "./projects-redesign.css";
@@ -173,6 +174,8 @@ export default function ProjectsRedesigned({
   const scrollAfterLoaderRef = useRef(false);
   const listingsLoaderHideAtRef = useRef(0);
   const listingsLoaderTimerRef = useRef(null);
+  const pendingListingRestoreRef = useRef(null);
+  const listingRestoreDoneRef = useRef(false);
   const LISTINGS_LOADER_MIN_MS = 1200;
 
   const showListingsLoader = useCallback(() => {
@@ -1140,6 +1143,68 @@ export default function ProjectsRedesigned({
   }, [isListingsPinPending, isSortPending, listingsLoaderVisible]);
 
   const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending || isSortPending;
+
+  // Restore list page + scroll when returning from a project detail via Back.
+  useEffect(() => {
+    if (listingRestoreDoneRef.current || pendingListingRestoreRef.current) return;
+    if (isLoading || !sortedProjects.length) return;
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const saved = consumeListingReturnState(pathname, search);
+    if (!saved) {
+      listingRestoreDoneRef.current = true;
+      return;
+    }
+
+    let page = saved.page > 0 ? saved.page : 1;
+    if (saved.slug) {
+      const idx = sortedProjects.findIndex(
+        (p) => (p.slugURL || p.slugUrl) === saved.slug,
+      );
+      if (idx >= 0) {
+        page = Math.floor(idx / PROJECTS_PER_PAGE) + 1;
+      }
+    }
+    page = Math.max(
+      1,
+      Math.min(page, Math.max(1, Math.ceil(sortedProjects.length / PROJECTS_PER_PAGE))),
+    );
+    pendingListingRestoreRef.current = {
+      slug: saved.slug || "",
+      scrollY: saved.scrollY || 0,
+    };
+    setCurrentPage(page);
+  }, [isLoading, sortedProjects, pathname]);
+
+  useEffect(() => {
+    if (listingRestoreDoneRef.current) return;
+    const pending = pendingListingRestoreRef.current;
+    if (!pending || isLoading || showListingsAreaLoader) return;
+
+    let cancelled = false;
+    const t = window.setTimeout(() => {
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        const slug = pending.slug;
+        const card =
+          slug &&
+          document.querySelector(
+            `[data-project-slug="${typeof CSS !== "undefined" && CSS.escape ? CSS.escape(slug) : slug.replace(/"/g, '\\"')}"]`,
+          );
+        if (card) {
+          card.scrollIntoView({ block: "center", behavior: "auto" });
+        } else {
+          window.scrollTo({ top: pending.scrollY || 0, behavior: "auto" });
+        }
+        pendingListingRestoreRef.current = null;
+        listingRestoreDoneRef.current = true;
+      });
+    }, 50);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [currentPage, paginatedProjects, isLoading, showListingsAreaLoader]);
 
   const displayHeading = pageHeading || breadcrumbLabel;
   const projectCountLabel = `${sortedProjects.length} ${

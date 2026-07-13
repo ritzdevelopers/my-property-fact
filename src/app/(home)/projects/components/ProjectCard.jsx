@@ -22,6 +22,7 @@ import {
 } from "@/lib/projectCardHelpers";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import CommonPopUpform from "@/app/(home)/components/common/popupform";
+import { saveListingReturnState } from "@/lib/listingScrollRestore";
 
 const API_BASE = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
 
@@ -80,6 +81,16 @@ export default function ProjectCard({
 
   const { builderList } = useSiteData();
   const slug = project?.slugURL;
+
+  const persistListingReturn = useCallback(() => {
+    if (typeof window === "undefined" || !slug) return;
+    saveListingReturnState({
+      pathname: window.location.pathname,
+      search: window.location.search,
+      slug,
+      scrollY: window.scrollY,
+    });
+  }, [slug]);
 
   const applyBuilderName = useCallback(
     (detail = {}) => {
@@ -233,7 +244,7 @@ export default function ProjectCard({
   };
 
   return (
-    <article className="mpf-listing-card">
+    <article className="mpf-listing-card" data-project-slug={slug || undefined}>
       <div className="mpf-listing-card-link">
         <div className="mpf-listing-image">
           <div className="mpf-listing-slider" aria-label={`${projectName} photos`}>
@@ -298,8 +309,7 @@ export default function ProjectCard({
         <Link
           href={`/${project.slugURL}`}
           className="mpf-listing-content"
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={persistListingReturn}
           aria-label={`View details about ${projectName}`}
           title={projectLinkTitle}
         >
@@ -379,8 +389,7 @@ export default function ProjectCard({
           <Link
             href={`/${project.slugURL}`}
             className="mpf-btn-contact"
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={persistListingReturn}
             title={projectLinkTitle}
           >
             Click to Explore

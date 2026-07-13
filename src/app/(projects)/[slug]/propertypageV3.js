@@ -473,6 +473,7 @@ export default function PropertyV3({
   );
   const sectionRefs = useRef({});
   const galleryStripRef = useRef(null);
+  const router = useRouter();
 
   /* --------- Hooks must run before any early return --------- */
 
@@ -718,6 +719,31 @@ export default function PropertyV3({
     setMobileMenuOpen(false);
   }, []);
 
+  /** Return to the listing/page the user came from; fall back to /projects. */
+  const goBackToPrevious = useCallback(() => {
+    if (typeof window === "undefined") {
+      router.push("/projects");
+      return;
+    }
+    let sameOriginReferrer = false;
+    try {
+      const ref = document.referrer;
+      if (ref) {
+        const url = new URL(ref);
+        sameOriginReferrer =
+          url.origin === window.location.origin &&
+          url.pathname !== window.location.pathname;
+      }
+    } catch {
+      sameOriginReferrer = false;
+    }
+    if (sameOriginReferrer || window.history.length > 1) {
+      router.back();
+      return;
+    }
+    router.push("/projects");
+  }, [router]);
+
   /* --------- Early return if no data --------- */
 
   if (!projectDetail) {
@@ -833,23 +859,35 @@ export default function PropertyV3({
         </nav>
       </aside>
 
-      {/* Breadcrumb */}
+      {/* Breadcrumb + back */}
       <div className="pd3-container">
-        <div className="pd3-breadcrumb" aria-label="Breadcrumb">
-          <Link title="Home" href="/">Home</Link>
-          <span className="pd3-breadcrumb__sep">›</span>
-          {projectDetail.city ? (
-            <>
-              <Link
-                title={`Projects in ${projectDetail.city}`}
-                href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                Projects in {projectDetail.city}
-              </Link>
-              <span className="pd3-breadcrumb__sep">›</span>
-            </>
-          ) : null}
-          <span className="pd3-breadcrumb__current">{projectDetail.projectName}</span>
+        <div className="pd3-breadcrumb-row">
+          <button
+            type="button"
+            className="pd3-back-btn"
+            onClick={goBackToPrevious}
+            title="Go back to previous page"
+            aria-label="Go back to previous page"
+          >
+            <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" />
+            <span>Back</span>
+          </button>
+          <div className="pd3-breadcrumb" aria-label="Breadcrumb">
+            <Link title="Home" href="/">Home</Link>
+            <span className="pd3-breadcrumb__sep">›</span>
+            {projectDetail.city ? (
+              <>
+                <Link
+                  title={`Projects in ${projectDetail.city}`}
+                  href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  Projects in {projectDetail.city}
+                </Link>
+                <span className="pd3-breadcrumb__sep">›</span>
+              </>
+            ) : null}
+            <span className="pd3-breadcrumb__current">{projectDetail.projectName}</span>
+          </div>
         </div>
       </div>
 

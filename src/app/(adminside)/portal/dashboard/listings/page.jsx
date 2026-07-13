@@ -23,6 +23,8 @@ import {
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import axios from "axios";
+import { getPublicPropertyUrl } from "../../_utils/propertySlug";
+import "../../_components/BrokerPhase2Styles.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -119,7 +121,7 @@ export default function ListingPage() {
         
         setAllListings(transformedListings);
       } else {
-        setError(result.message || "Failed to fetch properties");
+        setError(response.data?.message || "Failed to fetch properties");
       }
         } catch (err) {
       console.error("Error fetching properties:", err);
@@ -651,23 +653,40 @@ export default function ListingPage() {
   }
 
   return (
-    <div className="portal-content">
+    <div className="broker-dashboard">
       {/* Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <div className="header-title">
+      <div className="broker-listings-header">
+        <div className="broker-listings-header-content">
+          <div>
             <h2>My Property Listings</h2>
-            <p>Manage your property listings and track their performance</p>
+            <p>List, manage, and track your properties through to the public marketplace</p>
           </div>
-          <div className="header-actions">
-            <Button 
-              variant="light"
-              onClick={() => window.location.href = '/portal/dashboard/listings?action=add'}
+          <div className="broker-hero-actions">
+            <button
+              type="button"
+              className="broker-btn-primary"
+              onClick={() => router.push('/portal/dashboard/listings?action=add')}
             >
-              <CIcon icon={cilPlus} className="me-1" />
+              <CIcon icon={cilPlus} />
               Add New Property
-            </Button>
+            </button>
           </div>
+        </div>
+      </div>
+
+      <div className="broker-publish-info">
+        <div className="broker-publish-info-icon">
+          <CIcon icon={cilCheckCircle} />
+        </div>
+        <div>
+          <strong>How publishing works</strong>
+          <span>
+            Submit your listing → Admin reviews → Once approved, your property goes live on{" "}
+            <a href="/properties" target="_blank" rel="noopener noreferrer" style={{ color: "#0d5834", fontWeight: 600 }}>
+              /properties
+            </a>{" "}
+            for buyers to discover and inquire.
+          </span>
         </div>
       </div>
 
@@ -1317,100 +1336,70 @@ export default function ListingPage() {
                 </Button>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="table table-hover">
-                  <thead>
-                    <tr>
-                      <th>Property</th>
-                      <th>Location</th>
-                      <th>Price</th>
-                      <th>Area</th>
-                      <th>Status</th>
-                      <th>Views</th>
-                      <th>Inquiries</th>
-                      <th>Created</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredListings.map(listing => (
-                      <tr key={listing.id}>
-                        <td>
-                          <div>
-                            <h6 className="mb-1 fw-semibold">{listing.title}</h6>
-                            <small className="text-muted">ID: #{listing.id}</small>
-                          </div>
-                        </td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <CIcon icon={cilLocationPin} className="me-1 text-muted" />
-                            <span>{listing.location}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <strong className="text-primary">{listing.price}</strong>
-                        </td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <CIcon icon={cilViewModule} className="me-1 text-muted" />
-                            <span>{listing.area}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <Badge bg={listing.statusBadge}>
-                            {listing.status}
-                          </Badge>
-                        </td>
-                        <td>
-                          <span className="text-muted">{listing.views}</span>
-                        </td>
-                        <td>
-                          <span className="text-muted">{listing.inquiries}</span>
-                        </td>
-                        <td>
-                          <small className="text-muted">
-                            {listing.created ? new Date(listing.created).toLocaleDateString() : 'N/A'}
-                          </small>
-                        </td>
-                        <td>
-                          <div className="d-flex gap-2">
-                            <Button 
-                              variant="outline-primary" 
-                              size="sm"
-                              onClick={() => handleView(listing.id)}
-                              disabled={deletingId === listing.id}
-                            >
-                              View
-                            </Button>
-                            <Button 
-                              variant="outline-secondary" 
-                              size="sm"
-                              onClick={() => handleEdit(listing.id)}
-                              disabled={deletingId === listing.id}
-                            >
-                              Edit
-                            </Button>
-                            <Button 
-                              variant="outline-danger" 
-                              size="sm"
-                              onClick={() => handleDelete(listing.id)}
-                              disabled={deletingId === listing.id}
-                            >
-                              {deletingId === listing.id ? (
-                                <>
-                                  <Spinner size="sm" className="me-1" />
-                                  Deleting...
-                                </>
-                              ) : (
-                                'Delete'
-                              )}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="broker-listing-card-grid">
+                {filteredListings.map(listing => {
+                  const statusClass = (listing.approvalStatus || 'pending').toLowerCase();
+                  const publicUrl = listing.isApproved
+                    ? getPublicPropertyUrl(listing.title, listing.id)
+                    : null;
+                  return (
+                    <div key={listing.id} className="broker-listing-card">
+                      <div className="broker-listing-card-top">
+                        <div>
+                          <h3 className="broker-listing-card-title">{listing.title}</h3>
+                          <span className="broker-listing-card-id">ID #{listing.id}</span>
+                        </div>
+                        <span className={`broker-status-pill ${statusClass}`}>
+                          {listing.status}
+                        </span>
+                      </div>
+                      <div className="broker-listing-card-details">
+                        <div className="broker-listing-detail">
+                          <CIcon icon={cilLocationPin} size="sm" />
+                          {listing.location}
+                        </div>
+                        <div className="broker-listing-detail">
+                          <CIcon icon={cilMoney} size="sm" />
+                          <strong>{listing.price}</strong>
+                        </div>
+                        <div className="broker-listing-detail">
+                          <CIcon icon={cilViewModule} size="sm" />
+                          {listing.area}
+                        </div>
+                        <div className="broker-listing-detail">
+                          <CIcon icon={cilCalendar} size="sm" />
+                          {listing.created ? new Date(listing.created).toLocaleDateString() : 'N/A'}
+                        </div>
+                      </div>
+                      <div className="broker-listing-card-footer">
+                        {publicUrl && (
+                          <a
+                            href={publicUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-view-live"
+                          >
+                            View on /properties
+                          </a>
+                        )}
+                        <button type="button" onClick={() => handleView(listing.id)}>
+                          View
+                        </button>
+                        <button type="button" onClick={() => handleEdit(listing.id)}>
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-danger-outline"
+                          onClick={() => handleDelete(listing.id)}
+                          disabled={deletingId === listing.id}
+                        >
+                          {deletingId === listing.id ? 'Deleting...' : 'Delete'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </Card.Body>

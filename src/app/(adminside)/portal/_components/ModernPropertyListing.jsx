@@ -44,6 +44,9 @@ import {
   fetchProjectTypes,
 } from "@/app/_global_components/masterFunction";
 import axios from "axios";
+import ListingWizardLayout from "./ListingWizardLayout";
+import "./ListingWizardLayout.css";
+import { useUser } from "../_contexts/UserContext";
 // Helper function to determine which fields should be shown based on property type, subtype, and status
 const getFieldVisibility = (listingType, subType, status) => {
   const isResidential = listingType === "Residential";
@@ -111,6 +114,7 @@ const getFieldVisibility = (listingType, subType, status) => {
 
 export default function ModernPropertyListing({ listingId: propListingId }) {
   const router = useRouter();
+  const { userData } = useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -208,35 +212,48 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
   const steps = [
     {
       id: 1,
-      title: "Basic Information",
+      title: "Basic Details",
+      heading: "Fill out basic details",
+      description: "What kind of property are you listing?",
       icon: cilHome,
-      description: "Property type and basic details",
     },
     {
       id: 2,
-      title: "Location & Area",
+      title: "Location Details",
+      heading: "Where is your property located?",
+      description: "An accurate location helps you connect with the right buyers.",
       icon: cilLocationPin,
-      description: "Address and area specifications",
     },
     {
       id: 3,
-      title: "Pricing & Details",
+      title: "Property Profile",
+      heading: "Tell us about your property",
+      description: "Add area, room, floor and pricing details.",
       icon: cilMoney,
-      description: "Price and property specifications",
     },
     {
       id: 4,
-      title: "Features & Amenities",
-      icon: cilStar,
-      description: "Property features and amenities",
+      title: "Photos, Videos & Voice-over",
+      heading: "Add photos and videos",
+      description: "Properties with photos get significantly more responses.",
+      icon: cilCamera,
     },
     {
       id: 5,
-      title: "Media & Contact",
-      icon: cilCamera,
-      description: "Images, videos and contact information",
+      title: "Amenities section",
+      heading: "Amenities & contact details",
+      description: "Select amenities and how buyers can reach you.",
+      icon: cilStar,
     },
   ];
+
+  useEffect(() => {
+    const layout = document.querySelector(".portal-layout");
+    if (layout) layout.classList.add("portal-layout--wizard");
+    return () => {
+      if (layout) layout.classList.remove("portal-layout--wizard");
+    };
+  }, []);
 
   const validationRules = {
     // Step 1 validations
@@ -357,23 +374,21 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         "pincode",
       ],
       3: [],
-      4: [], // Will be populated conditionally
+      4: ["images"],
       5: [
         "contactName",
         "contactPhone",
         "contactEmail",
         "truthfulDeclaration",
         "dpdpConsent",
-        "images",
       ],
     };
 
-    // Conditionally add Step 4 fields based on listing type
-    if (step === 4) {
+    if (step === 3) {
       if (formData.listingType === "Residential") {
-        stepFields[4] = ["bedrooms", "bathrooms"];
+        stepFields[3] = ["bedrooms", "bathrooms"];
       } else if (formData.listingType === "Commercial") {
-        stepFields[4] = ["bathrooms"]; // Only bathrooms required for commercial
+        stepFields[3] = ["bathrooms"];
       }
     }
 
@@ -428,7 +443,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
     // Virtual tour URL validation (if provided)
     if (
-      step === 5 &&
+      step === 4 &&
       formData.virtualTour &&
       formData.virtualTour.trim() !== ""
     ) {
@@ -1422,28 +1437,21 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         );
       case 3:
         return (
-          <PricingDetailsStep
-            data={formData}
-            onChange={handleInputChange}
-            errors={errors}
-          />
+          <>
+            <PricingDetailsStep
+              data={formData}
+              onChange={handleInputChange}
+              errors={errors}
+            />
+            <FeaturesAmenitiesStep
+              data={formData}
+              onChange={handleInputChange}
+              errors={errors}
+              variant="profile"
+            />
+          </>
         );
       case 4:
-        return (
-          <FeaturesAmenitiesStep
-            data={formData}
-            onChange={handleInputChange}
-            errors={errors}
-            amenities={amenities}
-            features={features}
-            nearbyBenefits={nearbyBenefits}
-            loadingAmenities={loadingAmenities}
-            loadingFeatures={loadingFeatures}
-            loadingNearbyBenefits={loadingNearbyBenefits}
-            apiBaseUrl={process.env.NEXT_PUBLIC_API_URL}
-          />
-        );
-      case 5:
         return (
           <MediaContactStep
             data={formData}
@@ -1451,7 +1459,34 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
             onImageChange={handleImageChange}
             onImageRemove={handleImageRemove}
             errors={errors}
+            variant="media"
           />
+        );
+      case 5:
+        return (
+          <>
+            <FeaturesAmenitiesStep
+              data={formData}
+              onChange={handleInputChange}
+              errors={errors}
+              amenities={amenities}
+              features={features}
+              nearbyBenefits={nearbyBenefits}
+              loadingAmenities={loadingAmenities}
+              loadingFeatures={loadingFeatures}
+              loadingNearbyBenefits={loadingNearbyBenefits}
+              apiBaseUrl={process.env.NEXT_PUBLIC_API_URL}
+              variant="amenities"
+            />
+            <MediaContactStep
+              data={formData}
+              onChange={handleInputChange}
+              onImageChange={handleImageChange}
+              onImageRemove={handleImageRemove}
+              errors={errors}
+              variant="contact"
+            />
+          </>
         );
       default:
         return null;
@@ -1479,133 +1514,28 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
   }
 
   return (
-    <div className="modern-property-listing portal-content">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h2>{isEditMode ? "Edit Property" : "Add New Property"}</h2>
-            <p>
-              {isEditMode
-                ? "Update your property listing information"
-                : "Create a comprehensive property listing in 5 simple steps"}
-            </p>
-          </div>
-          <div className="header-actions">
-            <Button
-              variant="light"
-              onClick={handleSaveDraft}
-              disabled={isSavingDraft}
-            >
+    <>
+      <ListingWizardLayout
+        steps={steps}
+        currentStep={currentStep}
+        formData={formData}
+        userName={userData?.fullName}
+        isEditMode={isEditMode}
+        onStepClick={(id) => setCurrentStep(id)}
+        onBack={handlePrevious}
+        footer={
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 w-100">
+            <Button variant="outline-secondary" onClick={handleSaveDraft} disabled={isSavingDraft}>
               <CIcon icon={cilSave} className="me-1" />
               {isSavingDraft ? "Saving..." : "Save Draft"}
             </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Indicator */}
-      <Card className="dashboard-card progress-card">
-        <Card.Body>
-          <div className="progress-header">
-            <h5>
-              Step {currentStep} of {steps.length}:{" "}
-              {steps[currentStep - 1].title}
-            </h5>
-            <p className="text-muted">{steps[currentStep - 1].description}</p>
-          </div>
-          <ProgressBar
-            now={progressPercentage}
-            variant="success"
-            className="progress-bar-custom"
-            style={{ height: "10px", borderRadius: "5px" }}
-          />
-          <div className="step-indicators">
-            {steps.map((step, index) => (
-              <div
-                key={step.id}
-                className={`step-indicator ${
-                  currentStep > step.id
-                    ? "completed"
-                    : currentStep === step.id
-                      ? "active"
-                      : ""
-                }`}
-              >
-                <div className="step-icon">
-                  {currentStep > step.id ? (
-                    <CIcon icon={cilCheck} />
-                  ) : (
-                    <CIcon icon={step.icon} />
-                  )}
-                </div>
-                <span className="step-label">{step.title}</span>
-              </div>
-            ))}
-          </div>
-        </Card.Body>
-      </Card>
-
-      {/* Form Content */}
-      <Card className="dashboard-card form-card">
-        <Card.Body>
-          {draftSaved && (
-            <Alert
-              variant="success"
-              className="mb-4"
-              dismissible
-              onClose={() => setDraftSaved(false)}
-            >
-              <CIcon icon={cilCheck} className="me-2" />
-              <strong>Draft saved successfully!</strong> You can continue
-              editing and submit when ready.
-            </Alert>
-          )}
-
-          {Object.keys(errors).length > 0 && (
-            <Alert variant="danger" className="mb-4">
-              <CIcon icon={cilWarning} className="me-2" />
-              Please fix the following errors:
-              <ul className="mb-0 mt-2">
-                {Object.entries(errors).map(([field, error]) => (
-                  <li key={field}>{error}</li>
-                ))}
-              </ul>
-            </Alert>
-          )}
-
-          {renderStepContent()}
-        </Card.Body>
-      </Card>
-
-      {/* Navigation */}
-      <Card className="dashboard-card navigation-card">
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <Button
-              variant="outline-secondary"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-            >
-              <CIcon icon={cilArrowLeft} className="me-1" />
-              Previous
-            </Button>
-
-            <div className="step-info">
-              Step {currentStep} of {steps.length}
-            </div>
-
             {currentStep < steps.length ? (
               <Button variant="primary" onClick={handleNext}>
-                Next
+                {currentStep === steps.length - 1 ? "Post & continue" : "Continue"}
                 <CIcon icon={cilArrowRight} className="ms-1" />
               </Button>
             ) : (
-              <Button
-                variant="success"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
+              <Button variant="primary" onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Spinner size="sm" className="me-2" />
@@ -1620,8 +1550,29 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
               </Button>
             )}
           </div>
-        </Card.Body>
-      </Card>
+        }
+      >
+        {draftSaved && (
+          <Alert variant="success" className="mb-4" dismissible onClose={() => setDraftSaved(false)}>
+            <CIcon icon={cilCheck} className="me-2" />
+            <strong>Draft saved successfully!</strong>
+          </Alert>
+        )}
+
+        {Object.keys(errors).length > 0 && (
+          <Alert variant="danger" className="mb-4">
+            <CIcon icon={cilWarning} className="me-2" />
+            Please fix the following errors:
+            <ul className="mb-0 mt-2">
+              {Object.entries(errors).map(([field, error]) => (
+                <li key={field}>{error}</li>
+              ))}
+            </ul>
+          </Alert>
+        )}
+
+        {renderStepContent()}
+      </ListingWizardLayout>
 
       {/* Success Modal */}
       <Modal show={showSuccessModal} onHide={handleCloseSuccessModal} centered>
@@ -1634,8 +1585,8 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         <Modal.Body>
           <p>
             Your property has been submitted successfully and is pending
-            approval. Our team will review the details and notify you once
-            it&apos;s published.
+            approval. Once approved by our team, it will be published on the
+            public <strong>/properties</strong> page for buyers to discover.
           </p>
           {createdProperty && (
             <div className="mb-3">
@@ -2112,7 +2063,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
           }
         }
       `}</style>
-    </div>
+    </>
   );
 }
 
@@ -3600,6 +3551,7 @@ function FeaturesAmenitiesStep({
   loadingFeatures = false,
   loadingNearbyBenefits = false,
   apiBaseUrl = "",
+  variant = "all",
 }) {
   const fieldVisibility = getFieldVisibility(
     data.listingType,
@@ -3759,15 +3711,20 @@ function FeaturesAmenitiesStep({
     return benefit ? benefit.distance : null;
   };
 
+  const showProfile = variant === "all" || variant === "profile";
+  const showAmenities = variant === "all" || variant === "amenities";
+
   return (
     <div className="step-content">
+      {showProfile && (
+        <>
       <h4 className="step-title mb-4">
         {isResidential
           ? "Residential"
           : isCommercial
             ? "Commercial"
             : "Property"}{" "}
-        Features & Amenities
+        Profile
       </h4>
 
       {!data.listingType && (
@@ -3900,8 +3857,11 @@ function FeaturesAmenitiesStep({
           </Col>
         )}
       </Row>
+        </>
+      )}
 
-      {/* Amenities Section */}
+      {showAmenities && (
+      <>
       <Row className="mt-4">
         <Col md={12}>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -4310,6 +4270,8 @@ function FeaturesAmenitiesStep({
           </Button>
         </Modal.Footer>
       </Modal>
+      </>
+      )}
 
       <style jsx>{`
         .amenities-features-grid {
@@ -4378,8 +4340,11 @@ function MediaContactStep({
   onImageChange,
   onImageRemove,
   errors,
+  variant = "all",
 }) {
   const fileInputRef = useRef(null);
+  const showMedia = variant === "all" || variant === "media";
+  const showContact = variant === "all" || variant === "contact";
 
   const handleSelectImages = () => {
     fileInputRef.current?.click();
@@ -4387,7 +4352,9 @@ function MediaContactStep({
 
   return (
     <div className="step-content">
-      <h4 className="step-title mb-4">Media & Contact Information</h4>
+      {showMedia && (
+        <>
+      <h4 className="step-title mb-4">Photos & Videos</h4>
 
       <Row className="g-3">
         <Col md={12}>
@@ -4616,7 +4583,14 @@ function MediaContactStep({
             </Form.Text>
           </Form.Group>
         </Col>
+      </Row>
+        </>
+      )}
 
+      {showContact && (
+        <>
+        <h4 className="step-title mb-4 mt-2">Contact Information</h4>
+        <Row className="g-3">
         <Col md={6}>
           <Form.Group>
             <Form.Label>Contact Name *</Form.Label>
@@ -4786,6 +4760,8 @@ function MediaContactStep({
           </div>
         </Col>
       </Row>
+        </>
+      )}
     </div>
   );
 }

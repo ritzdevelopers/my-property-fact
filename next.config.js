@@ -255,10 +255,9 @@ const nextConfig = {
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
 
-    // Explicit qualities used by <Image quality={…}> across the app (required in Next.js 16+).
-    qualities: [45, 60, 65, 75, 100],
-    // Extra widths so fixed logos can avoid 256w when ~160w suffices (2× 80px), and
-    // hero/feature images can use 1400w instead of jumping 1200 → 1920.
+    qualities: [45, 60, 65, 68, 70, 75, 100],
+    // Cache optimized images longer so repeat visits aren't re-rushed through the optimizer.
+    minimumCacheTTL: 60 * 60 * 24 * 30,
     deviceSizes: [640, 750, 828, 1080, 1200, 1400, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 80, 96, 128, 160, 192, 256, 384],
     remotePatterns: [

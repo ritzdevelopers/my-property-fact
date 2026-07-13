@@ -1,0 +1,118 @@
+.broker-dash-shell {
+  padding: clamp(1.25rem, 3vw, 2rem);
+  min-height: 100%;
+  background: #f8f9fa;
+}
+
+.broker-dash-shell .admin-dash-metric {
+  text-decoration: none;
+  color: inherit;
+}
+
+.broker-dash-onboard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.25rem 0;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+  border: 1px solid rgba(0, 125, 81, 0.15);
+}
+
+.broker-dash-onboard h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #064e3b;
+}
+
+.broker-dash-onboard p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.broker-dash-panel {
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid #eef0f4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.broker-dash-panel__head {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.broker-dash-panel__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.broker-dash-panel__sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+.broker-dash-panel__body {
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.broker-dash-activity {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.broker-dash-activity__item {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.broker-dash-activity__item:last-child {
+  border-bottom: none;
+}
+
+.broker-dash-activity__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #007d51;
+  margin-top: 0.45rem;
+  flex-shrink: 0;
+}
+
+.broker-dash-activity__text {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.broker-dash-activity__time {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.broker-dash-empty {
+  margin: 0;
+  text-align: center;
+  color: #6b7280;
+  padding: 1.5rem 0;
+  font-size: 0.875rem;
+}
+
+@media (max-width: 767px) {
+  .broker-dash-shell {
+    padding: 1rem;
+  }
+}

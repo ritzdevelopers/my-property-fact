@@ -209,6 +209,7 @@ export default async function HomePage() {
           <HeroSection projectTypeList={projectTypeList} cityList={cityList} />,
         )}
 
+        {/* Hidden until portal launch (next month)
         {row(
           0.5,
           <section className="container home-post-property-strip">
@@ -246,6 +247,7 @@ export default async function HomePage() {
             </div>
           </section>,
         )}
+        */}
 
         {row(
           1,
@@ -256,6 +258,9 @@ export default async function HomePage() {
               alt="Transform your home visual section"
               title="Transform your home visual section"
               className="transform-home-image"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
                 <h1

@@ -124,8 +124,8 @@ export default function ModernPortalSidenav({ onNavigate }) {
                 className="brand-logo"
               />
               <div className="brand-text">
-                <h6 className="brand-title text-black text-decoration-none">Property Portal</h6>
-                {/* <small className="brand-subtitle">Agent Dashboard</small> */}
+                <h6 className="brand-title text-black text-decoration-none">Broker Portal</h6>
+                <small className="brand-subtitle">My Property Fact</small>
               </div>
               {onNavigate && (
                 <button 
@@ -162,7 +162,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
                 />
                 <div className="user-info">
                   <div className="user-name">{userData?.fullName || 'User'}</div>
-                  <div className="user-role">{userData?.role || 'Agent'}</div>
+                  <div className="user-role">{userData?.role || 'Broker'}</div>
                 </div>
               </div>
             </CDropdownToggle>
@@ -196,7 +196,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
         }
 
         .sidebar-modern {
-          background: #68ac78 !important;
+          background: linear-gradient(180deg, #0c2e23 0%, #0d5834 60%, #0a2419 100%) !important;
           box-shadow: none !important;
           height: 100vh !important;
           max-height: 100vh !important;

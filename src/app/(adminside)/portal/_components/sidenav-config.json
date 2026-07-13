@@ -10,10 +10,10 @@
     },
     {
       "id": "properties",
-      "label": "Properties",
+      "label": "My Listings",
       "icon": "cilHome",
       "href": "/portal/dashboard/listings",
-      "badge": "NEW",
+      "badge": "P2",
       "access": "ALL",
       "children": [
         {

@@ -247,6 +247,8 @@ export default function ProjectCard({
                   index === activeSlide ? " is-active" : ""
                 }`}
                 loading={imagePriority && index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                fetchPriority="auto"
                 onError={() =>
                   setImageErrors((prev) => ({ ...prev, [index]: true }))
                 }

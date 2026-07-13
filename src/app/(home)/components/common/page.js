@@ -198,7 +198,7 @@ export default function PropertyContainer({
             width={510}
             height={232}
             loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority={imagePriority ? "high" : "auto"}
+            fetchPriority="auto"
             decoding="async"
             onError={() => setImageError(true)}
           />
@@ -261,7 +261,7 @@ export default function PropertyContainer({
             width={400}
             height={230}
             loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority={imagePriority ? "high" : "auto"}
+            fetchPriority="auto"
             decoding="async"
             onError={() => setImageError(true)}
           />

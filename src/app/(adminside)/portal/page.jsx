@@ -1,140 +1,141 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Spinner } from "react-bootstrap";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { useState } from "react";
+import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookie";
+import "./portal-login.css";
+
+function MailIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+    </svg>
+  );
+}
+
+function UserIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function BackIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+  );
+}
 
 export default function PortalSignInPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState("signin");
-  const [formData, setFormData] = useState({
-    email: "",
-    otp: "",
-    fullName: "",
-  });
+  const [mode, setMode] = useState("signin");
+  const [step, setStep] = useState("email");
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
-  const [receivedOTP, setReceivedOTP] = useState("");
   const [error, setError] = useState("");
-  const [googleLoginEnabled, setGoogleLoginEnabled] = useState(true);
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+  const [devOtp, setDevOtp] = useState("");
 
-  // Handling google login
-  const handleSuccess = async (credentialResponse) => {
-    const token = credentialResponse.credential;
-    setIsLoading(true);
+  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+  const resetToEmail = () => {
+    setStep("email");
+    setOtp("");
     setError("");
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
-        { token: token },
-        { withCredentials: true }
-      );
-
-      if (response.status === 200) {
-        router.replace("/portal/dashboard");
-        return;
-      } else {
-        toast.error("Google login failed. Please try again.");
-      }
-    } catch (error) {
-      toast.error("Google login failed. Please try again.");
-    }
+    setDevOtp("");
   };
 
-  // Handling google login error
-  const handleError = () => {
-    setError("Google login failed. Please try again.");
-    setGoogleLoginEnabled(false);
+  const switchMode = (newMode) => {
+    setMode(newMode);
+    resetToEmail();
+    setEmail("");
+    setFullName("");
   };
 
-  // Validating email address
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // Handling login or signup with email
-  const handleEmailAuth = async (isSignup = false) => {
-    if (!formData.email) {
+  const handleSendOtp = async (e) => {
+    e?.preventDefault();
+    if (!email.trim()) {
       setError("Please enter your email address");
       return;
     }
-
-    if (!validateEmail(formData.email)) {
+    if (!validateEmail(email)) {
       setError("Please enter a valid email address");
       return;
     }
-
-    if (isSignup && !formData.fullName) {
+    if (mode === "signup" && !fullName.trim()) {
       setError("Please enter your full name");
       return;
     }
 
     setIsLoading(true);
     setError("");
-
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
-        { email: formData.email },
+        { email: email.trim() },
+        { timeout: 25000 },
       );
-
-      if (response.data.success) {
-        setShowOTP(true);
-        if (response.data.otp) {
-          setReceivedOTP(response.data.otp);
-        }
+      if (response.status === 200 && response.data?.success !== false) {
+        setStep("otp");
+        if (response.data.otp) setDevOtp(response.data.otp);
+      } else {
+        setError(response.data?.message || response.data?.error || "Could not send OTP. Please try again.");
       }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to send OTP. Please check your email address and try again.";
-      setError(errorMessage);
+    } catch (err) {
+      const message = err.code === "ECONNABORTED"
+        ? "Request timed out. Please try again."
+        : !err.response
+          ? "Network error. Please check your connection and try again."
+          : err.response?.data?.message ||
+            err.response?.data?.error ||
+            "Could not send OTP. Please try again.";
+      setError(message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handling OTP verification
-  const handleOTPVerify = async (isSignup = false) => {
-    if (!formData.otp) {
-      setError("Please enter the OTP");
+  const handleVerifyOtp = async (e) => {
+    e?.preventDefault();
+    if (!otp.trim()) {
+      setError("Please enter the OTP sent to your email");
       return;
     }
 
     setIsLoading(true);
     setError("");
-
     try {
-      const requestData = {
-        email: formData.email,
-        otp: formData.otp,
-      };
-
-      if (isSignup && formData.fullName) {
-        requestData.fullName = formData.fullName;
+      const payload = { email: email.trim(), otp: otp.trim() };
+      if (mode === "signup" && fullName.trim()) {
+        payload.fullName = fullName.trim();
       }
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}app/auth/verify-otp`,
-        requestData,
+        payload,
       );
 
       if (response.data.token) {
-        const authToken = response.data.token;
-
-        Cookies.set("token", authToken, {
+        Cookies.set("token", response.data.token, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
           path: "/",
         });
-
         if (response.data.refreshToken) {
           Cookies.set("refreshToken", response.data.refreshToken, {
             expires: 7,
@@ -143,7 +144,6 @@ export default function PortalSignInPage() {
             path: "/",
           });
         }
-
         if (response.data.user) {
           Cookies.set("userData", JSON.stringify(response.data.user), {
             expires: 7,
@@ -152,448 +152,209 @@ export default function PortalSignInPage() {
             path: "/",
           });
         }
-
-        setFormData({ email: "", otp: "", fullName: "" });
-        setShowOTP(false);
-        setReceivedOTP("");
-
-        // Use window.location for immediate navigation (bypasses Next.js router delay)
-        // This is faster than router.push/replace because it doesn't wait for middleware verification
         window.location.href = "/portal/dashboard";
       }
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Invalid OTP. Please check the code and try again.";
-      setError(errorMessage);
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          "Invalid OTP. Please check and try again.",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handling input change
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    setError("");
-  };
-
-  // Switching tabs
-  const switchTab = (tab) => {
-    setActiveTab(tab);
-    setError("");
-    setShowOTP(false);
-    setFormData({ email: "", otp: "", fullName: "" });
-  };
-
-  useEffect(() => {
-    const originalError = console.error;
-    console.error = (...args) => {
-      if (
-        args[0]?.includes?.("GSI_LOGGER") ||
-        args[0]?.includes?.("origin is not allowed") ||
-        args[0]?.includes?.("client ID")
-      ) {
-        setGoogleLoginEnabled(false);
-        return;
-      }
-      originalError.apply(console, args);
-    };
-
-    return () => {
-      console.error = originalError;
-    };
-  }, []);
+  const isSignUp = mode === "signup";
 
   return (
-    <GoogleOAuthProvider clientId={googleClientId}>
-      <div className="auth-page-container">
-        {/* Left Side - Features List */}
-        <div className="auth-features-panel">
-          <div className="features-content">
-            <h2 className="features-title">
-              Features of a My Property Fact Account
-            </h2>
-            <ul className="features-list">
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>List unlimited properties for free every day</span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>Set up personalized property alerts</span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>Connect with buyers across the nation</span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>Showcase your property for Rent or Sale</span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>Receive quick inquiries via phone, email, and SMS</span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>
-                  Track search performance and monitor responses and views
-                  online
-                </span>
-              </li>
-              <li className="feature-item">
-                <span className="feature-icon">✓</span>
-                <span>
-                  Add extensive property details and multiple photos per listing
-                </span>
-              </li>
-            </ul>
+    <div className="broker-login-page">
+      <div className="broker-login-wrap">
+        <div className="broker-login-card">
+          {/* Brand */}
+          <div className="broker-login-brand">
+            <img src="/logo.webp" alt="My Property Fact" className="broker-login-logo" />
+            <h1>Property Portal</h1>
+            <p>
+              {step === "email"
+                ? isSignUp
+                  ? "Create your account with email"
+                  : "Sign in with your email to manage listings"
+                : "Enter the code we sent to your inbox"}
+            </p>
           </div>
-        </div>
 
-        {/* Right Side - Auth Form */}
-        <div className="auth-form-panel">
-          <div className="auth-form-card">
-            <div className="form-header-area">
-              <h1 className="form-main-heading">Log In or Sign Up</h1>
-            </div>
-
-            <div className="form-tabs-area">
-              <button
-                className={`form-tab-button ${activeTab === "signin" ? "active" : ""}`}
-                onClick={() => switchTab("signin")}
-              >
-                Sign In
+          {step === "otp" ? (
+            <>
+              <button type="button" className="broker-login-back" onClick={resetToEmail}>
+                <BackIcon />
+                Change email
               </button>
-              <span className="tab-separator">or</span>
-              <button
-                className={`form-tab-button ${activeTab === "signup" ? "active" : ""}`}
-                onClick={() => switchTab("signup")}
-              >
-                Sign Up
-              </button>
-            </div>
 
-            <div className="form-body-area">
-              {error && (
-                <div className="error-message-box">
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-                    <path
-                      d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    />
-                    <path
-                      d="M10 6V10"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M10 14H10.01"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  {error}
+              <div className="broker-login-otp-header">
+                <span className="broker-login-step-label">Step 2 of 2</span>
+                <h2>Check your email</h2>
+                <p>
+                  We sent a 4-digit code to<br />
+                  <strong>{email}</strong>
+                </p>
+              </div>
+
+              {error && <div className="broker-login-alert error">{error}</div>}
+
+              {devOtp && (
+                <div className="broker-login-alert dev-otp">
+                  Dev OTP: <strong>{devOtp}</strong>
                 </div>
               )}
 
-              {/* Sign In Panel */}
-              <div
-                className={`form-panel-wrapper ${activeTab === "signin" ? "active" : ""}`}
+              <form onSubmit={handleVerifyOtp}>
+                <div className="broker-login-field">
+                  <label htmlFor="otp">Verification code</label>
+                  <input
+                    id="otp"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={4}
+                    value={otp}
+                    onChange={(e) => {
+                      setOtp(e.target.value.replace(/\D/g, ""));
+                      setError("");
+                    }}
+                    placeholder="0000"
+                    disabled={isLoading}
+                    className="broker-login-input otp-input no-icon"
+                    autoFocus
+                  />
+                </div>
+
+                <button type="submit" className="broker-login-btn" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <span className="broker-login-btn-spinner" />
+                      Verifying…
+                    </>
+                  ) : (
+                    isSignUp ? "Verify & Create Account" : "Verify & Sign In"
+                  )}
+                </button>
+              </form>
+
+              <button
+                type="button"
+                className="broker-login-link-btn"
+                onClick={handleSendOtp}
+                disabled={isLoading}
               >
-                {!showOTP ? (
-                  <>
-                    <div className="phone-input-group">
-                      <label className="input-label-text">Email Address</label>
+                Didn&apos;t receive it? Resend code
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="broker-login-step-label">Step 1 of 2 · Email</span>
+
+              {error && <div className="broker-login-alert error">{error}</div>}
+
+              <form onSubmit={handleSendOtp}>
+                {isSignUp && (
+                  <div className="broker-login-field">
+                    <label htmlFor="fullName">Full name</label>
+                    <div className="broker-login-input-wrap">
+                      <span className="broker-login-input-icon">
+                        <UserIcon />
+                      </span>
                       <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="Enter your email address"
+                        id="fullName"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          setError("");
+                        }}
+                        placeholder="Your full name"
                         disabled={isLoading}
-                        className="phone-input-field"
+                        className="broker-login-input"
+                        autoComplete="name"
                       />
                     </div>
+                  </div>
+                )}
 
-                    <button
-                      className="primary-action-button"
-                      onClick={() => handleEmailAuth(false)}
+                <div className="broker-login-field">
+                  <label htmlFor="email">Email address</label>
+                  <div className="broker-login-input-wrap">
+                    <span className="broker-login-input-icon">
+                      <MailIcon />
+                    </span>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        setError("");
+                      }}
+                      placeholder="you@company.com"
                       disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          Sending OTP...
-                        </>
-                      ) : (
-                        "Sign In"
-                      )}
+                      className="broker-login-input"
+                      autoComplete="email"
+                      autoFocus={!isSignUp}
+                    />
+                  </div>
+                </div>
+
+                <button type="submit" className="broker-login-btn" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <span className="broker-login-btn-spinner" />
+                      Sending code…
+                    </>
+                  ) : (
+                    "Continue with Email"
+                  )}
+                </button>
+              </form>
+
+              <div className="broker-login-toggle">
+                {isSignUp ? (
+                  <>
+                    Already a broker?
+                    <button type="button" onClick={() => switchMode("signin")}>
+                      Sign in
                     </button>
                   </>
                 ) : (
                   <>
-                    {receivedOTP && (
-                      <div className="info-message-box">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <path
-                            d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                          <path
-                            d="M10 6V10"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M10 14H10.01"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span>
-                          Development OTP: <strong>{receivedOTP}</strong>
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="phone-input-group">
-                      <label className="input-label-text">Enter OTP</label>
-                      <input
-                        type="text"
-                        name="otp"
-                        value={formData.otp}
-                        onChange={handleInputChange}
-                        placeholder="Enter 6-digit OTP"
-                        maxLength={6}
-                        disabled={isLoading}
-                        className="phone-input-field otp-field"
-                      />
-                    </div>
-
-                    <button
-                      className="primary-action-button"
-                      onClick={() => handleOTPVerify(false)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          Verifying...
-                        </>
-                      ) : (
-                        "Verify OTP"
-                      )}
+                    New broker?
+                    <button type="button" onClick={() => switchMode("signup")}>
+                      Create account
                     </button>
-
-                    <button
-                      type="button"
-                      className="secondary-link-button"
-                      onClick={() => {
-                        setShowOTP(false);
-                        setFormData((prev) => ({ ...prev, otp: "" }));
-                      }}
-                      disabled={isLoading}
-                    >
-                      Change Email Address
-                    </button>
-                  </>
-                )}
-
-                {googleClientId && googleLoginEnabled && (
-                  <>
-                    <div className="divider-section">
-                      <span>OR</span>
-                    </div>
-                    <div className="google-auth-section">
-                      <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                        useOneTap={false}
-                        theme="outline"
-                        size="large"
-                        text="signin_with"
-                      />
-                    </div>
                   </>
                 )}
               </div>
+            </>
+          )}
 
-              {/* Sign Up Panel */}
-              <div
-                className={`form-panel-wrapper ${activeTab === "signup" ? "active" : ""}`}
-              >
-                {!showOTP ? (
-                  <>
-                    <div className="phone-input-group">
-                      <label className="input-label-text">Full Name</label>
-                      <input
-                        type="text"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        placeholder="Enter your full name"
-                        disabled={isLoading}
-                        className="phone-input-field"
-                      />
-                    </div>
+          <p className="broker-login-footer">
+            By continuing, you agree to our{" "}
+            <Link href="/privacy-policy">Privacy Policy</Link> and{" "}
+            <Link href="/terms-and-conditions">Terms</Link>.
+          </p>
+        </div>
 
-                    <div className="phone-input-group">
-                      <label className="input-label-text">Email Address</label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="Enter your email address"
-                        disabled={isLoading}
-                        className="phone-input-field"
-                      />
-                    </div>
-
-                    <button
-                      className="primary-action-button"
-                      onClick={() => handleEmailAuth(true)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          Sending OTP...
-                        </>
-                      ) : (
-                        "Sign Up"
-                      )}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {receivedOTP && (
-                      <div className="info-message-box">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <path
-                            d="M10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18Z"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          />
-                          <path
-                            d="M10 6V10"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                          <path
-                            d="M10 14H10.01"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                        <span>
-                          Development OTP: <strong>{receivedOTP}</strong>
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="phone-input-group">
-                      <label className="input-label-text">Enter OTP</label>
-                      <input
-                        type="text"
-                        name="otp"
-                        value={formData.otp}
-                        onChange={handleInputChange}
-                        placeholder="Enter 6-digit OTP"
-                        maxLength={6}
-                        disabled={isLoading}
-                        className="phone-input-field otp-field"
-                      />
-                    </div>
-
-                    <button
-                      className="primary-action-button"
-                      onClick={() => handleOTPVerify(true)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          Verifying...
-                        </>
-                      ) : (
-                        "Verify OTP & Sign Up"
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="secondary-link-button"
-                      onClick={() => {
-                        setShowOTP(false);
-                        setFormData((prev) => ({ ...prev, otp: "" }));
-                      }}
-                      disabled={isLoading}
-                    >
-                      Change Email Address
-                    </button>
-                  </>
-                )}
-
-                {googleClientId && googleLoginEnabled && (
-                  <>
-                    <div className="divider-section">
-                      <span>OR</span>
-                    </div>
-                    <div className="google-auth-section">
-                      <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                        useOneTap={false}
-                        theme="outline"
-                        size="large"
-                        text="signup_with"
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <p className="terms-text">
-                By clicking &quot;continue with Google or Email&quot; above, you
-                acknowledge that you have read and understood, and agree to{" "}
-                <a href="#" className="terms-link">
-                  Privacy Policy
-                </a>{" "}
-                and{" "}
-                <a href="#" className="terms-link">
-                  Terms and Conditions
-                </a>
-                .
-              </p>
-            </div>
-          </div>
+        <div className="broker-login-features">
+          <span className="broker-login-feature">
+            <CheckIcon /> List properties free
+          </span>
+          <span className="broker-login-feature">
+            <CheckIcon /> Live on /properties
+          </span>
+          <span className="broker-login-feature">
+            <CheckIcon /> Secure email login
+          </span>
         </div>
       </div>
-    </GoogleOAuthProvider>
+    </div>
   );
 }

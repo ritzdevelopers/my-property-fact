@@ -181,8 +181,8 @@ export default function MpfTopPicks({ topProject }) {
                 alt={topPicksBannerAlt}
                 title={topPicksBannerAlt}
                 className="mpf-tp__img"
-                loading="eager"
-                fetchPriority="high"
+                loading="lazy"
+                fetchPriority="low"
                 decoding="async"
                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               <div className="mpf-tp__grad" aria-hidden="true" />

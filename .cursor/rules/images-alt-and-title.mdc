@@ -1,21 +1,58 @@
 ---
-description: next/image and img tags must have descriptive alt; add title for SEO/audit tools
-globs: **/*.{jsx,tsx,js,ts}
+description: Images and links need meaningful alt/title — never blank or "/"
+globs: **/app/(projects)/[slug]/propertypageV*.js,**/app/(projects)/[slug]/**/*.{js,jsx},**/_global_components/**/*.{js,jsx},**/projects/components/**/*.{js,jsx}
 alwaysApply: false
 ---
 
-# Images: `alt` and `title`
+# `alt` / `title` for images and links
 
-- Every `next/image` `Image` (and raw `<img>`) must have a **non-empty, meaningful** `alt` that describes the image or its role in context.
-- Add **`title`** when the image is a primary visual (hero, logo, product) or when product/audit checks expect a tooltip; keep it **consistent with** `alt` or a short natural phrase (avoid keyword stuffing).
-- **Decorative** images: prefer `alt=""` only when the same information is already in adjacent text **and** no SEO tool in your pipeline requires a filled `alt`. If audits flag empty alts, use a one-line description (e.g. "Arrow for next item") and keep the icon `aria-hidden` with redundant text in the same control.
-- **Icons** inside a link that already has a clear label: parent may use `aria-hidden` on the icon wrapper; the `img` can still use `alt` + `title` with action text (e.g. "View {City} real estate (opens city page)") to satisfy checkers; avoid duplicating the link’s visible name verbatim if it creates noisy screen reader output for users not using the same tool—prefer hiding decorative icons with `alt=""` when WCAG is the only requirement.
+SEO/audit tools report **Title: /** when `title` is missing (they fall back to the page path `/`).
 
-- **Nearby benefit icons** on project listing cards (`ProjectCard`, residential/commercial/new-launches): never use `alt=""`. Resolve label from catalog `altTag`, then `benefitName`, then location benefit name, then filename stem (e.g. `1765793873101_School.png` → "School"). Set `title` to match `alt`.
+## Images
 
-**Example (hero + nearby icons):**
+- Every `<img>` / `next/image` needs a **non-empty** `alt` and matching `title`.
+- Amenity / nearby icons: `alt` and `title` from `altTag` → name/title → sensible fallback. Never omit `title`.
 
 ```jsx
-<Image src={url} alt={description} title={description} fill sizes="…" />
-<img src={iconUrl} alt={label} title={label} className="mpf-listing-nearby__icon" loading="lazy" />
+// ❌ BAD — audits show Title: /
+<img src={url} alt={item.altTag || item.title} />
+
+// ✅ GOOD
+const label = item.altTag || item.title || "Amenity icon";
+<img src={url} alt={label} title={label} />
+```
+
+## Links (including `#` section anchors)
+
+- Every `<a>` / `<Link>` that audits check needs a descriptive `title`.
+- Section tabs (`#overview`, `#amenities`, `#gallery`, etc.) must set `title` from the visible label — never leave it unset.
+- External links (Google Maps, etc.) need an explicit `title` too — audits otherwise report **Title: /**.
+
+```jsx
+// ❌ BAD
+<a href={`#${id}`}>{label}</a>
+<a href={mapHref} target="_blank" rel="noopener noreferrer">View On Map</a>
+
+// ✅ GOOD
+<a href={`#${id}`} title={`${label} — ${projectName}`}>{label}</a>
+<a
+  href={mapHref}
+  target="_blank"
+  rel="noopener noreferrer"
+  title={`View ${projectName} on Google Maps`}
+>
+  View On Map
+</a>
+```
+
+## Dynamic titles
+
+- Use template literals. Never put `{variable}` inside a normal string.
+
+```jsx
+// ❌ BAD — literal braces in the tooltip
+title="Projects in {projectDetail.city}"
+
+// ✅ GOOD
+title={`Projects in ${projectDetail.city}`}
 ```

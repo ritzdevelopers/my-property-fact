@@ -421,7 +421,7 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
 function SidebarEnquireCTA({ onOpen }) {
   return (
     <div className="pd3-enquire pd3-enquire--cta-only">
-      <h3 className="pd3-enquire__title">Interested in this project?</h3>
+      <p className="pd3-enquire__title">Interested in this project?</p>
       <p className="pd3-enquire__sub">
         Request a callback — our team will reach out shortly.
       </p>
@@ -840,7 +840,10 @@ export default function PropertyV3({
           <span className="pd3-breadcrumb__sep">›</span>
           {projectDetail.city ? (
             <>
-              <Link title="Projects in {projectDetail.city}" href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}>
+              <Link
+                title={`Projects in ${projectDetail.city}`}
+                href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
+              >
                 Projects in {projectDetail.city}
               </Link>
               <span className="pd3-breadcrumb__sep">›</span>
@@ -974,6 +977,7 @@ export default function PropertyV3({
               <a
                 key={id}
                 href={`#${id}`}
+                title={`${label} — ${projectDetail.projectName || "project"}`}
                 className={`pd3-tab${activeTab === id ? " is-active" : ""}`}
                 role="tab"
                 aria-selected={activeTab === id}
@@ -1047,6 +1051,7 @@ export default function PropertyV3({
                               height={32}
                               width={32}
                               alt={item.altTag || item.title || "Amenity icon"}
+                              title={item.altTag || item.title || "Amenity icon"}
                               className="d-flex mx-auto amenity-modern-icon-img"
                             />
                           </div>
@@ -1318,6 +1323,7 @@ export default function PropertyV3({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="pd3-location-map-btn"
+                            title={`View ${projectDetail.projectName || "project"} on Google Maps`}
                           >
                             View On Map
                           </a>
@@ -1495,7 +1501,7 @@ export default function PropertyV3({
                 <div className="pd3-card__head">
                   <h2 className="pd3-card__title">Similar Projects</h2>
                   <Link
-                    title="View all projects in {projectDetail.city}"
+                    title={`View all projects in ${projectDetail.city || "this city"}`}
                     href={`/city/${String(projectDetail.city || "").toLowerCase().replace(/\s+/g, "-")}`}
                     className="pd3-link"
                   >
@@ -1508,7 +1514,7 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
-                      title="View project"
+                      title={`View ${simName}`}
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"
@@ -1557,9 +1563,9 @@ export default function PropertyV3({
                 <span className="pd3-aside-card__icon">
                   <FontAwesomeIcon icon={faHouseChimney} />
                 </span>
-                <h3 className="pd3-aside-card__title">
+                <p className="pd3-aside-card__title">
                   Why you should consider {projectDetail.projectName}?
-                </h3>
+                </p>
               </div>
               <ul className="pd3-aside-card__list">
                 {whyBullets.length ? (
@@ -1673,6 +1679,7 @@ export default function PropertyV3({
                         height={28}
                         width={28}
                         alt={item.altTag || item.title || "Amenity icon"}
+                        title={item.altTag || item.title || "Amenity icon"}
                         className="d-flex mx-auto amenity-modern-icon-img"
                       />
                     </div>
@@ -1719,6 +1726,7 @@ export default function PropertyV3({
                   <img
                     src={img}
                     alt={`Thumbnail ${idx + 1}`}
+                    title={`Thumbnail ${idx + 1}`}
                     width={88}
                     height={52}
                     className="gallery-zoom-thumb-img"
@@ -1754,6 +1762,7 @@ export default function PropertyV3({
                 key={`gallery-img-${activeGalleryIndex}`}
                 src={allImagesForHero[activeGalleryIndex]}
                 alt={`Gallery ${activeGalleryIndex + 1}`}
+                title={`Gallery ${activeGalleryIndex + 1}`}
                 width={1400}
                 height={1000}
                 className="gallery-zoom-image"

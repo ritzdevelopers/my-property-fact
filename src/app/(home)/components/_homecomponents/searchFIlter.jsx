@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useProjectContext } from "@/app/_global_components/contexts/projectsContext";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
@@ -32,25 +31,100 @@ const SEARCH_TABS = [
 ];
 
 const RESIDENTIAL_PROPERTY_TYPES = [
-  { key: "flat", label: "Flat/Apartment" },
-  { key: "builder-floor", label: "Builder Floor", bhkType: "2 BHK" },
-  { key: "villa", label: "Independent House/Villa", bhkType: "Villa" },
-  { key: "plots", label: "Residential Land", bhkType: "Plots" },
-  { key: "serviced", label: "Serviced Apartments" },
-  { key: "1rk", label: "1 RK/Studio Apartment", bhkType: "1 RK" },
-  { key: "other", label: "Other" },
-  { key: "farm-house", label: "Farm House", bhkType: "Villa" },
+  { key: "flat", label: "Flat/Apartment", hint: "BHK homes" },
+  { key: "builder-floor", label: "Builder Floor", bhkType: "2 BHK", hint: "Low-rise floors" },
+  { key: "villa", label: "Independent House/Villa", bhkType: "Villa", hint: "Private homes" },
+  { key: "plots", label: "Residential Land", bhkType: "Plots", hint: "Plots & land" },
+  { key: "serviced", label: "Serviced Apartments", hint: "Fully serviced" },
+  { key: "1rk", label: "1 RK/Studio Apartment", bhkType: "1 RK", hint: "Compact living" },
+  { key: "other", label: "Other", hint: "Other types" },
+  { key: "farm-house", label: "Farm House", bhkType: "Villa", hint: "Farm living" },
 ];
 
 const COMMERCIAL_PROPERTY_TYPES = [
-  { key: "office", label: "Office", configType: "office" },
-  { key: "shops", label: "Shops", configType: "shops" },
-  { key: "showroom", label: "Showroom", configType: "showroom" },
-  { key: "food-court", label: "Food Court", configType: "food-court" },
-  { key: "kiosk", label: "Kiosk", configType: "kiosk" },
-  { key: "restaurant", label: "Restaurant", configType: "restaurant" },
-  { key: "sco-plots", label: "SCO Plots", configType: "sco-plots" },
+  { key: "office", label: "Office", configType: "office", hint: "Workspaces" },
+  { key: "shops", label: "Shops", configType: "shops", hint: "Retail units" },
+  { key: "showroom", label: "Showroom", configType: "showroom", hint: "Display spaces" },
+  { key: "food-court", label: "Food Court", configType: "food-court", hint: "Food spaces" },
+  { key: "kiosk", label: "Kiosk", configType: "kiosk", hint: "Compact retail" },
+  { key: "restaurant", label: "Restaurant", configType: "restaurant", hint: "Dining spaces" },
+  { key: "sco-plots", label: "SCO Plots", configType: "sco-plots", hint: "Shop-cum-office" },
 ];
+
+function PropertyTypeIcon({ typeKey }) {
+  const common = {
+    width: 20,
+    height: 20,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    "aria-hidden": true,
+  };
+  const stroke = { stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" };
+
+  switch (typeKey) {
+    case "flat":
+    case "serviced":
+    case "1rk":
+      return (
+        <svg {...common}>
+          <path d="M4 20V9.5L12 4l8 5.5V20" {...stroke} />
+          <path d="M9 20v-6h6v6" {...stroke} />
+          <path d="M9 10.5h.01M15 10.5h.01" {...stroke} />
+        </svg>
+      );
+    case "villa":
+    case "farm-house":
+    case "builder-floor":
+      return (
+        <svg {...common}>
+          <path d="M3 20h18" {...stroke} />
+          <path d="M5 20V10l7-5 7 5v10" {...stroke} />
+          <path d="M10 20v-5h4v5" {...stroke} />
+        </svg>
+      );
+    case "plots":
+    case "sco-plots":
+      return (
+        <svg {...common}>
+          <path d="M4 6h16v12H4z" {...stroke} />
+          <path d="M4 12h16M12 6v12" {...stroke} />
+        </svg>
+      );
+    case "office":
+      return (
+        <svg {...common}>
+          <path d="M5 20V5h10v15" {...stroke} />
+          <path d="M15 10h4v10" {...stroke} />
+          <path d="M8 8h.01M12 8h.01M8 12h.01M12 12h.01M8 16h.01M12 16h.01" {...stroke} />
+        </svg>
+      );
+    case "shops":
+    case "showroom":
+    case "kiosk":
+      return (
+        <svg {...common}>
+          <path d="M4 9h16l-1.2 11H5.2L4 9z" {...stroke} />
+          <path d="M8 9V7a4 4 0 0 1 8 0v2" {...stroke} />
+        </svg>
+      );
+    case "food-court":
+    case "restaurant":
+      return (
+        <svg {...common}>
+          <path d="M8 4v7M6 4v4a2 2 0 0 0 4 0V4" {...stroke} />
+          <path d="M8 11v9" {...stroke} />
+          <path d="M16 4v16M16 4c2 0 3 1.5 3 4s-1 4-3 4" {...stroke} />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <path d="M4 20V9.5L12 4l8 5.5V20" {...stroke} />
+          <path d="M9 20v-6h6v6" {...stroke} />
+        </svg>
+      );
+  }
+}
 
 const QUICK_CITY_CHIPS = ["Noida", "Gurugram", "Delhi", "Ghaziabad", "Bangalore"];
 
@@ -145,6 +219,57 @@ function resolveFilterPayload(selectedPropertyKeys, filterMode) {
   return { bhkType, configType, labels: selected.map((item) => item.label) };
 }
 
+function normalizeCommercialConfigKey(rawType = "") {
+  const t = String(rawType || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+  if (!t) return null;
+  if (t === "shop" || t === "shops") return "shops";
+  if (t === "office" || t === "offices") return "office";
+  if (t === "kiosk" || t === "kiosks") return "kiosk";
+  if (t === "food court" || t === "food courts") return "food-court";
+  if (t === "restaurant" || t === "restaurants") return "restaurant";
+  if (t === "showroom" || t === "showrooms") return "showroom";
+  if (t === "sco plots" || t === "sco plot") return "sco-plots";
+  return null;
+}
+
+/** Keys that exist in live projectConfiguration values across the catalog. */
+function getAvailablePropertyTypeKeys(projectList = []) {
+  const residential = new Set();
+  const commercial = new Set();
+
+  for (const project of projectList) {
+    const config = String(project?.projectConfiguration || "");
+    if (!config) continue;
+
+    if (/\d+\s*bhk/i.test(config)) residential.add("flat");
+    if (/\bbuilder\s*floor\b/i.test(config)) residential.add("builder-floor");
+    if (/\bvilla\b/i.test(config)) residential.add("villa");
+    if (/\bplot(s)?\b/i.test(config) || /\bland\b/i.test(config)) residential.add("plots");
+    if (/\bserviced\b/i.test(config)) residential.add("serviced");
+    if (/\brk\b/i.test(config) || /\bstudio\b/i.test(config)) residential.add("1rk");
+    if (/\bfarm\s*house\b/i.test(config)) residential.add("farm-house");
+
+    const parts = config.split(",").map((p) => p.trim()).filter(Boolean);
+    for (const part of parts) {
+      const cleaned = part.replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "").trim();
+      const key = normalizeCommercialConfigKey(cleaned);
+      if (key) commercial.add(key);
+      if (/\bsco\s*plots?\b/i.test(cleaned)) commercial.add("sco-plots");
+      if (/\bshops?\b/i.test(cleaned)) commercial.add("shops");
+      if (/\boffices?\b/i.test(cleaned)) commercial.add("office");
+      if (/\bshowrooms?\b/i.test(cleaned)) commercial.add("showroom");
+      if (/\bfood\s*courts?\b/i.test(cleaned)) commercial.add("food-court");
+      if (/\bkiosks?\b/i.test(cleaned)) commercial.add("kiosk");
+      if (/\brestaurants?\b/i.test(cleaned)) commercial.add("restaurant");
+    }
+  }
+
+  return { residential, commercial };
+}
+
 function isPlotsContext(activeTab, parsed = {}) {
   return activeTab === "Plots" || parsed.quickTab === "Plots" || parsed.bhkType === "Plots";
 }
@@ -195,6 +320,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
   const router = useRouter();
   const searchWrapRef = useRef(null);
   const cardRef = useRef(null);
+  const propertyPanelRef = useRef(null);
   const trimmedInput = searchInput.trim();
   const isSuggestionsLoading =
     dropdownOpen && trimmedInput.length >= 2 && (!suggestionsReady || trimmedInput !== debouncedSearch);
@@ -259,8 +385,66 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const activeFilterOptions =
-    filterMode === "commercial" ? COMMERCIAL_PROPERTY_TYPES : RESIDENTIAL_PROPERTY_TYPES;
+  const availablePropertyTypeKeys = useMemo(
+    () => getAvailablePropertyTypeKeys(projectList),
+    [projectList],
+  );
+
+  const activeFilterOptions = useMemo(() => {
+    if (filterMode === "commercial") {
+      const { commercial } = availablePropertyTypeKeys;
+      // Until catalog loads, avoid flashing every hardcoded option.
+      if (!projectList.length) return [];
+      return COMMERCIAL_PROPERTY_TYPES.filter((opt) => commercial.has(opt.key));
+    }
+
+    const { residential } = availablePropertyTypeKeys;
+    if (!projectList.length) return [];
+    return RESIDENTIAL_PROPERTY_TYPES.filter((opt) => residential.has(opt.key));
+  }, [availablePropertyTypeKeys, filterMode, projectList.length]);
+
+  useEffect(() => {
+    if (!categoryOpen) return undefined;
+
+    const timer = window.setTimeout(() => {
+      const panel = propertyPanelRef.current;
+      if (!panel) return;
+
+      const rect = panel.getBoundingClientRect();
+      const bottomGap = 32;
+      const overflowBottom = rect.bottom - (window.innerHeight - bottomGap);
+
+      if (overflowBottom > 0) {
+        window.scrollBy({ top: overflowBottom, behavior: "smooth" });
+        return;
+      }
+
+      // Nudge a little when the open point sits low in the viewport.
+      const trigger = searchWrapRef.current?.querySelector(".smart-search-category-trigger");
+      const triggerRect = trigger?.getBoundingClientRect();
+      if (!triggerRect) return;
+
+      const lowThreshold = window.innerHeight * 0.55;
+      if (triggerRect.top > lowThreshold) {
+        window.scrollBy({ top: Math.min(140, triggerRect.top - lowThreshold + 40), behavior: "smooth" });
+      } else if (triggerRect.top < 96) {
+        window.scrollBy({ top: triggerRect.top - 96, behavior: "smooth" });
+      }
+    }, 50);
+
+    return () => window.clearTimeout(timer);
+  }, [categoryOpen, filterMode, activeFilterOptions.length]);
+
+  useEffect(() => {
+    if (!selectedPropertyKeys.length) return;
+    const allowed = new Set(activeFilterOptions.map((opt) => opt.key));
+    // Keep Plots tab selection even while catalog is still loading.
+    if (activeTab === "Plots" && selectedPropertyKeys.includes("plots")) return;
+    const next = selectedPropertyKeys.filter((key) => allowed.has(key));
+    if (next.length !== selectedPropertyKeys.length) {
+      setSelectedPropertyKeys(next);
+    }
+  }, [activeFilterOptions, activeTab, selectedPropertyKeys]);
 
   const selectedFilterPayload = useMemo(
     () => resolveFilterPayload(selectedPropertyKeys, filterMode),
@@ -575,16 +759,40 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
             <div className="smart-search-category">
               <button
                 type="button"
-                className={`smart-search-category-trigger${categoryOpen ? " active" : ""}`}
+                className={`smart-search-category-trigger${categoryOpen ? " active" : ""}${
+                  selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+                }`}
                 onClick={() => {
                   setCategoryOpen(!categoryOpen);
                   setDropdownOpen(false);
                 }}
                 aria-expanded={categoryOpen}
-                aria-haspopup="true"
+                aria-haspopup="listbox"
               >
-                <span>{selectedCategoryLabel}</span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <span className="smart-search-category-trigger__icon" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M4 20V9.5L12 4l8 5.5V20"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="smart-search-category-trigger__text">{selectedCategoryLabel}</span>
+                {selectedPropertyKeys.length > 1 ? (
+                  <span className="smart-search-category-trigger__count">{selectedPropertyKeys.length}</span>
+                ) : null}
+                <svg
+                  className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                >
                   <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
@@ -674,11 +882,19 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           ) : null}
 
           {categoryOpen ? (
-            <div className="smart-search-property-panel">
+            <div
+              ref={propertyPanelRef}
+              className="smart-search-property-panel"
+              role="listbox"
+              aria-multiselectable="true"
+            >
               <div className="smart-search-property-panel__header">
-                <span className="smart-search-property-panel__title">
-                  {filterMode === "commercial" ? "Commercial property types" : "Residential property types"}
-                </span>
+                <div className="smart-search-property-panel__heading">
+                  <span className="smart-search-property-panel__eyebrow">
+                    {filterMode === "commercial" ? "Commercial" : "Residential"}
+                  </span>
+                  <span className="smart-search-property-panel__title">Choose property type</span>
+                </div>
                 {selectedPropertyKeys.length > 0 ? (
                   <button
                     type="button"
@@ -690,34 +906,57 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
                 ) : null}
               </div>
 
-              <div className="smart-search-property-panel__grid">
-                {activeFilterOptions.map((option) => {
-                  const checked = selectedPropertyKeys.includes(option.key);
-                  return (
-                    <label
-                      key={option.key}
-                      className={`smart-search-property-option${checked ? " smart-search-property-option--checked" : ""}`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={() => togglePropertyFilter(option.key)}
-                      />
-                      <span className="smart-search-property-option__box" aria-hidden />
-                      <span className="smart-search-property-option__label">{option.label}</span>
-                    </label>
-                  );
-                })}
-              </div>
+              {activeFilterOptions.length > 0 ? (
+                <div className="smart-search-property-panel__grid">
+                  {activeFilterOptions.map((option) => {
+                    const checked = selectedPropertyKeys.includes(option.key);
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        role="option"
+                        aria-selected={checked}
+                        className={`smart-search-property-option${checked ? " smart-search-property-option--checked" : ""}`}
+                        onClick={() => togglePropertyFilter(option.key)}
+                      >
+                        <span className="smart-search-property-option__icon">
+                          <PropertyTypeIcon typeKey={option.key} />
+                        </span>
+                        <span className="smart-search-property-option__copy">
+                          <span className="smart-search-property-option__label">{option.label}</span>
+                          {option.hint ? (
+                            <span className="smart-search-property-option__hint">{option.hint}</span>
+                          ) : null}
+                        </span>
+                        <span className="smart-search-property-option__check" aria-hidden>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke="currentColor"
+                              strokeWidth="2.4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="smart-search-property-panel__empty" role="status">
+                  Loading available property types…
+                </div>
+              )}
 
               <div className="smart-search-property-panel__footer">
                 {filterMode === "residential" ? (
                   <button type="button" className="smart-search-property-panel__switch" onClick={switchToCommercialFilters}>
-                    Looking for commercial properties? <strong>Click here</strong>
+                    Looking for commercial? <strong>Switch</strong>
                   </button>
                 ) : (
                   <button type="button" className="smart-search-property-panel__switch" onClick={switchToResidentialFilters}>
-                    Looking for residential properties? <strong>Click here</strong>
+                    Looking for residential? <strong>Switch</strong>
                   </button>
                 )}
               </div>
@@ -771,9 +1010,6 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               {city}
             </button>
           ))}
-          <Link href="/projects" className="smart-search-chip smart-search-chip--link" prefetch={false}>
-            View all projects
-          </Link>
         </div>
       </div>
     </div>

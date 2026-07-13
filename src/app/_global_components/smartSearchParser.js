@@ -3,6 +3,7 @@ import {
   cityNameMatchesFilter,
   normalizeCitySearchQuery,
   queryTextMatchesCityName,
+  removeCityMentionsFromQuery,
 } from "./cityAliasUtils";
 import {
   normalizeProjectSearchText,
@@ -74,18 +75,24 @@ export function matchesConfigTypeInConfiguration(projectConfiguration, selectedK
 
 const BUDGET_PATTERNS = [
   {
+    // "below/under/up to 3 cr" → ceiling bucket at or under that amount
     pattern: /\b(?:below|under|upto|up\s*to|less\s*than)\s*(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\b/i,
     bucket: (n) => {
       const v = Number(n);
       if (v <= 1) return "Up to 1Cr*";
-      if (v < 3) return "1-3 Cr*";
-      if (v < 5) return "3-5 Cr*";
+      if (v <= 3) return "1-3 Cr*";
+      if (v <= 5) return "3-5 Cr*";
       return "Above 5 Cr*";
     },
   },
   {
     pattern: /\b(?:above|over|more\s*than)\s*(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\b/i,
-    bucket: () => "Above 5 Cr*",
+    bucket: (n) => {
+      const v = Number(n);
+      if (v < 3) return "1-3 Cr*";
+      if (v < 5) return "3-5 Cr*";
+      return "Above 5 Cr*";
+    },
   },
   {
     pattern: /\b(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\s*[-–to]+\s*(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\b/i,
@@ -98,12 +105,13 @@ const BUDGET_PATTERNS = [
     },
   },
   {
+    // Bare amount like "3 cr" ≈ that price band (3 sits on the 3-5 boundary)
     pattern: /\b(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\b/i,
     bucket: (n) => {
       const v = Number(n);
       if (v <= 1) return "Up to 1Cr*";
       if (v < 3) return "1-3 Cr*";
-      if (v < 5) return "3-5 Cr*";
+      if (v <= 5) return "3-5 Cr*";
       return "Above 5 Cr*";
     },
   },
@@ -192,12 +200,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     if (queryTextMatchesCityName(cityNorm, nameNorm)) {
       cityId = String(city.id);
       cityName = name;
-      remaining = remaining
-        .replace(/\bnoida\s+extn\b/gi, " ")
-        .replace(/\bnoida\s+ext\b/gi, " ")
-        .replace(new RegExp(name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ")
-        .replace(/\s+/g, " ")
-        .trim();
+      remaining = removeCityMentionsFromQuery(remaining, name);
       break;
     }
   }

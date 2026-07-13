@@ -209,6 +209,7 @@ export default async function HomePage() {
           <HeroSection projectTypeList={projectTypeList} cityList={cityList} />,
         )}
 
+        {/* Hidden until portal launch (next month)
         {row(
           0.5,
           <section className="container home-post-property-strip">
@@ -246,6 +247,7 @@ export default async function HomePage() {
             </div>
           </section>,
         )}
+        */}
 
         {row(
           1,

@@ -258,6 +258,9 @@ export default async function HomePage() {
               alt="Transform your home visual section"
               title="Transform your home visual section"
               className="transform-home-image"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
              style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             <div className="transform-home-heading-box">
                 <h1

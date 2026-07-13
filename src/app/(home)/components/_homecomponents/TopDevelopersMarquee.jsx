@@ -22,6 +22,9 @@ function LogoCell({ item, suppressA11y }) {
       width={176}
       height={56}
       className="transform-home-developers-logo"
+      loading="lazy"
+      decoding="async"
+      fetchPriority="low"
       draggable={false}
     />
   );

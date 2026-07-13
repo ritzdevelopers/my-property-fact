@@ -471,7 +471,8 @@ const HeaderComponent = () => {
                 title="My Property Fact logo — main site header"
                 height={74}
                 width={80}
-                fetchPriority="high"
+                fetchPriority="low"
+                decoding="async"
               />
             </Link>
           </div>

@@ -6,6 +6,34 @@ export function normalizeProjectSearchText(value) {
     .replace(/\s+/g, " ");
 }
 
+/** Collapse spaces/hyphens so "rajnagar" can match "raj nagar". */
+export function collapseProjectSearchText(value) {
+  return normalizeProjectSearchText(value).replace(/[\s-]+/g, "");
+}
+
+/**
+ * Locality / place shorthand expansions applied before tokenizing.
+ * Longer patterns must come first.
+ */
+const LOCALITY_PHRASE_EXPANSIONS = [
+  { pattern: /\braj\s*nagar\s*ext(?:ension|n)?\b/g, replacement: "raj nagar extension" },
+  { pattern: /\brajnagar\b/g, replacement: "raj nagar" },
+  { pattern: /\bindirapuram\s*ext(?:ension|n)?\b/g, replacement: "indirapuram extension" },
+  { pattern: /\bgomti\s*nagar\s*ext(?:ension|n)?\b/g, replacement: "gomti nagar extension" },
+];
+
+/** Expand common locality spellings (e.g. rajnagar → raj nagar). */
+export function expandProjectSearchQuery(value) {
+  let norm = normalizeProjectSearchText(value).replace(/-/g, " ");
+  if (!norm) return "";
+
+  for (const { pattern, replacement } of LOCALITY_PHRASE_EXPANSIONS) {
+    norm = norm.replace(pattern, replacement);
+  }
+
+  return normalizeProjectSearchText(norm);
+}
+
 const SEARCH_STOP_WORDS = new Set([
   "in",
   "at",
@@ -21,13 +49,35 @@ const SEARCH_STOP_WORDS = new Set([
   "or",
   "of",
   "with",
+  "project",
+  "projects",
+  "property",
+  "properties",
+  "flat",
+  "flats",
+  "apartment",
+  "apartments",
+  "residential",
+  "commercial",
 ]);
 
 /** Query tokens used for matching, with filler words removed. */
 export function getMeaningfulQueryTokens(rawQuery) {
-  return normalizeProjectSearchText(rawQuery)
+  return expandProjectSearchQuery(rawQuery)
     .split(/\s+/)
     .filter((token) => token && !SEARCH_STOP_WORDS.has(token));
+}
+
+/** Whether a search token appears in spaced or collapsed haystack text. */
+export function searchTokenMatchesHaystack(token, haystack, collapsedHaystack = "") {
+  const t = String(token || "").trim();
+  if (!t) return true;
+  if (haystack.includes(t)) return true;
+
+  const collapsedToken = collapseProjectSearchText(t);
+  const collapsed =
+    collapsedHaystack || collapseProjectSearchText(haystack);
+  return collapsedToken.length >= 4 && collapsed.includes(collapsedToken);
 }
 
 function projectNameWords(nameNorm) {

@@ -7,8 +7,11 @@ import {
 } from "./cityAliasUtils";
 import {
   normalizeProjectSearchText,
+  collapseProjectSearchText,
+  expandProjectSearchQuery,
   scoreProjectSearchMatch,
   getMeaningfulQueryTokens,
+  searchTokenMatchesHaystack,
 } from "./projectSearchUtils";
 import { extractTypesFromProjectConfiguration } from "@/lib/listingFloorValidation";
 
@@ -124,7 +127,34 @@ const TYPE_HINTS = [
   { pattern: /\b(?:residential|apartments?|flats?|bhk)\b/i, tab: "Residential" },
 ];
 
-const BHK_PATTERN = /\b(\d+)\s*bhk\b/i;
+const BHK_PATTERN_GLOBAL = /\b(\d+)\s*bhk\b/gi;
+
+function extractAllBhkTypes(text) {
+  const types = [];
+  const seen = new Set();
+  const source = String(text || "");
+  let match;
+  BHK_PATTERN_GLOBAL.lastIndex = 0;
+  while ((match = BHK_PATTERN_GLOBAL.exec(source)) !== null) {
+    const label = `${match[1]} BHK`;
+    if (seen.has(label)) continue;
+    seen.add(label);
+    types.push(label);
+  }
+  return types;
+}
+
+function stripStructuredNoiseFromQuery(text) {
+  return String(text || "")
+    .replace(BHK_PATTERN_GLOBAL, " ")
+    .replace(/\b(?:below|under|upto|up\s*to|less\s*than|above|over|more\s*than)\s*(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores)\b/gi, " ")
+    .replace(/\b(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores)(?:\s*[-–to]+\s*(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores))?/gi, " ")
+    .replace(/\b(?:new\s*launch(?:es)?|newly\s*launched|commercial|residential|apartments?|flats?|bhk)\b/gi, " ")
+    .replace(/\b(?:in|at|near|around|for|with|and|or|,|=)\b/gi, " ")
+    .replace(/[,/|]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = [] } = {}) {
   const original = String(rawQuery || "").trim();
@@ -134,6 +164,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
   let cityName = "";
   let quickTab = "";
   let bhkType = "";
+  let bhkTypes = [];
   let configType = "";
   let configLabel = "";
 
@@ -159,6 +190,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, bhkType: hintBhkType, tab } of RESIDENTIAL_CONFIG_HINTS) {
       if (pattern.test(remaining)) {
         bhkType = hintBhkType;
+        bhkTypes = hintBhkType ? [hintBhkType] : [];
         if (!quickTab) quickTab = tab;
         break;
       }
@@ -169,7 +201,10 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
       if (pattern.test(remaining)) {
         quickTab = tab;
-        if (hintBhkType && !bhkType) bhkType = hintBhkType;
+        if (hintBhkType && !bhkType) {
+          bhkType = hintBhkType;
+          bhkTypes = [hintBhkType];
+        }
         break;
       }
     }
@@ -177,14 +212,16 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
       if (pattern.test(remaining) && hintBhkType) {
         bhkType = hintBhkType;
+        bhkTypes = [hintBhkType];
         break;
       }
     }
   }
 
-  const bhkMatch = remaining.match(BHK_PATTERN);
-  if (bhkMatch) {
-    bhkType = `${bhkMatch[1]} BHK`;
+  const parsedBhkTypes = extractAllBhkTypes(remaining);
+  if (parsedBhkTypes.length > 0) {
+    bhkTypes = parsedBhkTypes;
+    bhkType = parsedBhkTypes[0];
     if (!quickTab) quickTab = "Residential";
   }
 
@@ -217,20 +254,20 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     if (typeMeta?.id != null) propertyTypeId = String(typeMeta.id);
   }
 
-  const cleanQuery = remaining
-    .replace(/\b(?:in|at|near|around)\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const cleanQuery = stripStructuredNoiseFromQuery(remaining);
+  const localityQuery = expandProjectSearchQuery(cleanQuery);
 
   return {
     original,
     cleanQuery,
+    localityQuery,
     budget: PROJECT_BUDGET_OPTIONS.includes(budget) ? budget : "",
     cityId,
     cityName,
     propertyTypeId,
     quickTab,
     bhkType,
+    bhkTypes,
     configType,
     configLabel: configLabel || CONFIG_TYPE_LABELS[configType] || "",
   };
@@ -242,8 +279,10 @@ export function hasStructuredSearchIntent(parsed) {
     parsed.cityId ||
       parsed.configType ||
       parsed.bhkType ||
+      (parsed.bhkTypes && parsed.bhkTypes.length) ||
       parsed.budget ||
-      parsed.quickTab,
+      parsed.quickTab ||
+      parsed.localityQuery,
   );
 }
 
@@ -263,8 +302,11 @@ export function projectMatchesSearchTokens(project, rawQuery) {
       .filter(Boolean)
       .join(" "),
   );
+  const collapsed = collapseProjectSearchText(haystack);
 
-  return tokens.every((token) => haystack.includes(token));
+  return tokens.every((token) =>
+    searchTokenMatchesHaystack(token, haystack, collapsed),
+  );
 }
 
 export function matchesBhkInConfiguration(projectConfiguration, bhkType) {
@@ -292,7 +334,17 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
-  if (parsed.bhkType && !matchesBhkInConfiguration(project.projectConfiguration, parsed.bhkType)) {
+  const bhkOptions = Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 0
+    ? parsed.bhkTypes
+    : parsed.bhkType
+      ? [parsed.bhkType]
+      : [];
+  if (
+    bhkOptions.length > 0 &&
+    !bhkOptions.some((bhk) =>
+      matchesBhkInConfiguration(project.projectConfiguration, bhk),
+    )
+  ) {
     return false;
   }
 
@@ -304,7 +356,20 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
-  return Boolean(parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget);
+  if (parsed.localityQuery) {
+    if (!projectMatchesSearchTokens(project, parsed.localityQuery)) {
+      return false;
+    }
+  }
+
+  return Boolean(
+    parsed.cityName ||
+      parsed.bhkType ||
+      (parsed.bhkTypes && parsed.bhkTypes.length) ||
+      parsed.configType ||
+      parsed.budget ||
+      parsed.localityQuery,
+  );
 }
 
 export function formatParsedSearchLabel(parsed) {
@@ -313,6 +378,8 @@ export function formatParsedSearchLabel(parsed) {
     parts.push(parsed.configLabel);
   } else if (parsed.quickTab === "Plots" || parsed.bhkType === "Plots") {
     parts.push("Plots");
+  } else if (Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 1) {
+    parts.push(parsed.bhkTypes.join(", "));
   } else if (parsed.bhkType) {
     parts.push(parsed.bhkType);
   } else if (parsed.quickTab === "Commercial") {
@@ -320,7 +387,16 @@ export function formatParsedSearchLabel(parsed) {
   } else if (parsed.quickTab === "Residential") {
     parts.push("Residential");
   }
-  if (parsed.cityName) parts.push(`in ${parsed.cityName}`);
+
+  const place = parsed.localityQuery || parsed.cityName || "";
+  if (place) {
+    const prettyPlace = String(place)
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+    parts.push(`in ${prettyPlace}`);
+  }
   if (parsed.budget) parts.push(parsed.budget);
   if (parts.length > 0) return parts.join(" ");
   return parsed.original;
@@ -428,6 +504,43 @@ export function buildSmartSearchSuggestions(
         score: nameLower.startsWith(qLower) ? 2 : 5,
       });
     }
+  }
+
+  const localityCounts = new Map();
+  for (const project of projectList) {
+    const locality = String(project?.projectLocality || "").trim();
+    if (!locality || locality.length < 3) continue;
+    if (!projectMatchesSearchTokens(project, q)) continue;
+    const key = normalizeProjectSearchText(locality);
+    const prev = localityCounts.get(key);
+    if (prev) {
+      prev.count += 1;
+    } else {
+      localityCounts.set(key, {
+        label: locality,
+        city: String(project?.cityName || project?.city || "").trim(),
+        count: 1,
+      });
+    }
+  }
+  for (const entry of localityCounts.values()) {
+    const localityNorm = normalizeProjectSearchText(entry.label);
+    const collapsedLocality = collapseProjectSearchText(localityNorm);
+    const queryNorm = normalizeProjectSearchText(q);
+    const score =
+      localityNorm === queryNorm || collapsedLocality === collapseProjectSearchText(q)
+        ? 1
+        : localityNorm.startsWith(queryNorm) || collapsedLocality.startsWith(collapseProjectSearchText(q))
+          ? 2
+          : 4;
+    pushResult({
+      kind: "locality",
+      label: entry.label,
+      meta: entry.city
+        ? `Locality · ${entry.city} · ${entry.count} project${entry.count === 1 ? "" : "s"}`
+        : `Locality · ${entry.count} project${entry.count === 1 ? "" : "s"}`,
+      score,
+    });
   }
 
   results.sort((a, b) => a.score - b.score || a.label.localeCompare(b.label));

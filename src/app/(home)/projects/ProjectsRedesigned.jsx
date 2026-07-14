@@ -275,6 +275,10 @@ export default function ProjectsRedesigned({
     if (label) {
       setSearchInput(label);
       setDebouncedSearch(label);
+      // Prefer the full label so locality phrasing survives structured BHK parsing.
+      setSearchListQuery(label);
+      setSelectedSearchProjectKey("");
+      setCurrentPage(1);
     }
 
     if (!isPropertyTypeLocked && typeTab !== "all") {
@@ -518,8 +522,12 @@ export default function ProjectsRedesigned({
 
     if (hasStructuredSearchIntent(parsed)) {
       const cleanLabel = formatParsedSearchLabel(parsed);
+      const multiBhk = Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 1;
       setSelectedSearchProjectKey("");
-      setSearchListQuery("");
+      // Keep locality (and multi-BHK free-text) so Raj Nagar Extn isn't dropped.
+      setSearchListQuery(
+        parsed.localityQuery || multiBhk || parsed.cityName ? q : "",
+      );
       setSearchDropdownOpen(false);
       if (cleanLabel) {
         setSearchInput(cleanLabel);
@@ -531,8 +539,9 @@ export default function ProjectsRedesigned({
           ...prev,
           city: parsed.cityName || prev.city,
           budget: parsed.budget || "",
-          bhkType: parsed.configType ? "" : parsed.bhkType || "",
-          configType: parsed.bhkType ? "" : parsed.configType || "",
+          // Multi-BHK is handled via searchListQuery parsing (OR). Single BHK uses sidebar.
+          bhkType: parsed.configType || multiBhk ? "" : parsed.bhkType || "",
+          configType: parsed.bhkType || multiBhk ? "" : parsed.configType || "",
         }));
         if (!isPropertyTypeLocked) {
           if (parsed.configType || parsed.quickTab === "Commercial") {
@@ -854,8 +863,10 @@ export default function ProjectsRedesigned({
         projectTypes: propertyTypes || [],
       });
       list = list.filter((item) => {
-        if (hasStructuredSearchIntent(parsed) && projectMatchesParsedQuery(item, parsed)) {
-          return true;
+        const hasStructured = hasStructuredSearchIntent(parsed);
+        if (hasStructured) {
+          // Require structured constraints AND locality residual together.
+          return projectMatchesParsedQuery(item, parsed);
         }
         return projectMatchesSearchTokens(item, listQuery);
       });

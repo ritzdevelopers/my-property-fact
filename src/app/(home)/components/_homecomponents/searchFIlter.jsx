@@ -135,6 +135,7 @@ const SUGGESTION_KIND_LABELS = {
   project: "Project",
   city: "City",
   builder: "Builder",
+  locality: "Locality",
 };
 
 function SuggestionDotsLoader({ label = "Finding matches" }) {
@@ -277,6 +278,8 @@ function isPlotsContext(activeTab, parsed = {}) {
 function resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }) {
   if (isPlotsContext(activeTab, parsed)) return "Plots";
   if (parsed?.configType) return "";
+  // Multi-BHK queries are OR'd in smart search; don't lock the sidebar to one size.
+  if (Array.isArray(parsed?.bhkTypes) && parsed.bhkTypes.length > 1) return "";
   return parsed?.bhkType || selectedFilterPayload.bhkType;
 }
 
@@ -622,6 +625,17 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           searchLabel: label,
         });
       }
+      return;
+    }
+
+    if (suggestion.kind === "locality") {
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: label,
+      });
     }
   };
 

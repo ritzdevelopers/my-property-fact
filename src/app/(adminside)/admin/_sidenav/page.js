@@ -253,6 +253,18 @@ export default function SideNav({ onLinkClick }) {
         {isSuperAdmin && (
           <li
             className={
+              isActive("/admin/dashboard/search-reports") ? "active" : ""
+            }
+          >
+            <Link title="Search Reports" href="/admin/dashboard/search-reports" onClick={handleLinkClick}>
+              <FontAwesomeIcon icon={faLayerGroup} className="admin-nav-ico" />
+              <span>Search Reports</span>
+            </Link>
+          </li>
+        )}
+        {isSuperAdmin && (
+          <li
+            className={
               isActive("/admin/dashboard/activity-log") ? "active" : ""
             }
           >

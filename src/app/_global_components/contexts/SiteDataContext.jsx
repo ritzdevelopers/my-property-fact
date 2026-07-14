@@ -12,8 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { projectMatchesCityFilter } from "../cityAliasUtils";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
 import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
-import { projectMatchesSearchTokens } from "../smartSearchParser";
-import { projectNameMatchesSearch } from "../projectSearchUtils";
+import { projectNameMatchesSearch, scoreProjectFieldsSearchMatch } from "../projectSearchUtils";
 
 const DEFAULT_PROJECT_FILTERS = {
   propertyType: "",
@@ -181,17 +180,13 @@ export function SiteDataProvider({ children, initialData = null }) {
     const propertyType = searchParams.get("propertyType") || "";
     const propertyLocation = searchParams.get("propertyLocation") || "";
     const budget = searchParams.get("budget") || "";
-    const searchLabel = searchParams.get("search") || "";
 
-    if (!propertyType && !propertyLocation && !budget && !searchLabel) return;
+    if (!propertyType && !propertyLocation && !budget) return;
 
     setQueryFiltersState({
       propertyType,
       propertyLocation,
       budget,
-      bhkType: "",
-      configType: "",
-      searchLabel,
     });
   }, [searchParams]);
 
@@ -416,7 +411,20 @@ export function SiteDataProvider({ children, initialData = null }) {
     return (projectList || []).filter((project) => {
       const name = project?.projectName || project?.name || "";
       if (projectNameMatchesSearch(name, q)) return true;
-      return projectMatchesSearchTokens(project, q);
+
+      if (scoreProjectFieldsSearchMatch(project, q) >= 0) return true;
+
+      const haystack = normalizeText(
+        [
+          name,
+          project?.cityName || "",
+          project?.builderName || "",
+          project?.projectAddress || "",
+          project?.projectLocality || "",
+        ].join(" "),
+      );
+      const words = q.split(" ").filter(Boolean);
+      return words.every((word) => haystack.includes(word));
     });
   }, [projectList]);
 

@@ -43,6 +43,7 @@ import {
   Database,
   ClipboardList,
   ChevronRight,
+  Search,
 } from "lucide-react";
 
 const navItems = [
@@ -79,6 +80,13 @@ const navItems = [
     label: "Traffic & Logs",
     icon: TrendingUp,
     href: "/admin/dashboard/super-tracking",
+    superAdminOnly: true,
+  },
+  {
+    id: "search-reports",
+    label: "Search Reports",
+    icon: Search,
+    href: "/admin/dashboard/search-reports",
     superAdminOnly: true,
   },
   {

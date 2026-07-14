@@ -7,13 +7,16 @@ import {
 } from "./cityAliasUtils";
 import {
   normalizeProjectSearchText,
-  collapseProjectSearchText,
-  expandProjectSearchQuery,
   scoreProjectSearchMatch,
+  scoreProjectFieldsSearchMatch,
+  scoreTextAgainstQueries,
   getMeaningfulQueryTokens,
-  searchTokenMatchesHaystack,
+  queryTokenMatchesWord,
+  findBestSearchCorrection,
+  collectProjectLocalities,
 } from "./projectSearchUtils";
 import { extractTypesFromProjectConfiguration } from "@/lib/listingFloorValidation";
+import { trackSearchEvent } from "@/lib/trackSearchEvent";
 
 const CONFIG_TYPE_HINTS = [
   { pattern: /\bsco\s*plots?\b/i, configType: "sco-plots", label: "SCO Plots", tab: "Commercial" },
@@ -127,34 +130,7 @@ const TYPE_HINTS = [
   { pattern: /\b(?:residential|apartments?|flats?|bhk)\b/i, tab: "Residential" },
 ];
 
-const BHK_PATTERN_GLOBAL = /\b(\d+)\s*bhk\b/gi;
-
-function extractAllBhkTypes(text) {
-  const types = [];
-  const seen = new Set();
-  const source = String(text || "");
-  let match;
-  BHK_PATTERN_GLOBAL.lastIndex = 0;
-  while ((match = BHK_PATTERN_GLOBAL.exec(source)) !== null) {
-    const label = `${match[1]} BHK`;
-    if (seen.has(label)) continue;
-    seen.add(label);
-    types.push(label);
-  }
-  return types;
-}
-
-function stripStructuredNoiseFromQuery(text) {
-  return String(text || "")
-    .replace(BHK_PATTERN_GLOBAL, " ")
-    .replace(/\b(?:below|under|upto|up\s*to|less\s*than|above|over|more\s*than)\s*(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores)\b/gi, " ")
-    .replace(/\b(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores)(?:\s*[-–to]+\s*(?:₹\s*)?\d+(?:\.\d+)?\s*(?:cr|crore|crores))?/gi, " ")
-    .replace(/\b(?:new\s*launch(?:es)?|newly\s*launched|commercial|residential|apartments?|flats?|bhk)\b/gi, " ")
-    .replace(/\b(?:in|at|near|around|for|with|and|or|,|=)\b/gi, " ")
-    .replace(/[,/|]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+const BHK_PATTERN = /\b(\d+)\s*bhk\b/i;
 
 export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = [] } = {}) {
   const original = String(rawQuery || "").trim();
@@ -164,7 +140,6 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
   let cityName = "";
   let quickTab = "";
   let bhkType = "";
-  let bhkTypes = [];
   let configType = "";
   let configLabel = "";
 
@@ -190,7 +165,6 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, bhkType: hintBhkType, tab } of RESIDENTIAL_CONFIG_HINTS) {
       if (pattern.test(remaining)) {
         bhkType = hintBhkType;
-        bhkTypes = hintBhkType ? [hintBhkType] : [];
         if (!quickTab) quickTab = tab;
         break;
       }
@@ -201,10 +175,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
       if (pattern.test(remaining)) {
         quickTab = tab;
-        if (hintBhkType && !bhkType) {
-          bhkType = hintBhkType;
-          bhkTypes = [hintBhkType];
-        }
+        if (hintBhkType && !bhkType) bhkType = hintBhkType;
         break;
       }
     }
@@ -212,16 +183,14 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
       if (pattern.test(remaining) && hintBhkType) {
         bhkType = hintBhkType;
-        bhkTypes = [hintBhkType];
         break;
       }
     }
   }
 
-  const parsedBhkTypes = extractAllBhkTypes(remaining);
-  if (parsedBhkTypes.length > 0) {
-    bhkTypes = parsedBhkTypes;
-    bhkType = parsedBhkTypes[0];
+  const bhkMatch = remaining.match(BHK_PATTERN);
+  if (bhkMatch) {
+    bhkType = `${bhkMatch[1]} BHK`;
     if (!quickTab) quickTab = "Residential";
   }
 
@@ -254,20 +223,20 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     if (typeMeta?.id != null) propertyTypeId = String(typeMeta.id);
   }
 
-  const cleanQuery = stripStructuredNoiseFromQuery(remaining);
-  const localityQuery = expandProjectSearchQuery(cleanQuery);
+  const cleanQuery = remaining
+    .replace(/\b(?:in|at|near|around)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
   return {
     original,
     cleanQuery,
-    localityQuery,
     budget: PROJECT_BUDGET_OPTIONS.includes(budget) ? budget : "",
     cityId,
     cityName,
     propertyTypeId,
     quickTab,
     bhkType,
-    bhkTypes,
     configType,
     configLabel: configLabel || CONFIG_TYPE_LABELS[configType] || "",
   };
@@ -279,16 +248,16 @@ export function hasStructuredSearchIntent(parsed) {
     parsed.cityId ||
       parsed.configType ||
       parsed.bhkType ||
-      (parsed.bhkTypes && parsed.bhkTypes.length) ||
       parsed.budget ||
-      parsed.quickTab ||
-      parsed.localityQuery,
+      parsed.quickTab,
   );
 }
 
 export function projectMatchesSearchTokens(project, rawQuery) {
   const tokens = getMeaningfulQueryTokens(rawQuery);
   if (tokens.length === 0) return true;
+
+  if (scoreProjectFieldsSearchMatch(project, rawQuery) >= 0) return true;
 
   const haystack = normalizeProjectSearchText(
     [
@@ -302,10 +271,11 @@ export function projectMatchesSearchTokens(project, rawQuery) {
       .filter(Boolean)
       .join(" "),
   );
-  const collapsed = collapseProjectSearchText(haystack);
 
-  return tokens.every((token) =>
-    searchTokenMatchesHaystack(token, haystack, collapsed),
+  const words = haystack.split(/\s+/).filter(Boolean);
+  return tokens.every(
+    (token) =>
+      haystack.includes(token) || words.some((word) => queryTokenMatchesWord(token, word)),
   );
 }
 
@@ -334,17 +304,7 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
-  const bhkOptions = Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 0
-    ? parsed.bhkTypes
-    : parsed.bhkType
-      ? [parsed.bhkType]
-      : [];
-  if (
-    bhkOptions.length > 0 &&
-    !bhkOptions.some((bhk) =>
-      matchesBhkInConfiguration(project.projectConfiguration, bhk),
-    )
-  ) {
+  if (parsed.bhkType && !matchesBhkInConfiguration(project.projectConfiguration, parsed.bhkType)) {
     return false;
   }
 
@@ -356,20 +316,7 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
-  if (parsed.localityQuery) {
-    if (!projectMatchesSearchTokens(project, parsed.localityQuery)) {
-      return false;
-    }
-  }
-
-  return Boolean(
-    parsed.cityName ||
-      parsed.bhkType ||
-      (parsed.bhkTypes && parsed.bhkTypes.length) ||
-      parsed.configType ||
-      parsed.budget ||
-      parsed.localityQuery,
-  );
+  return Boolean(parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget);
 }
 
 export function formatParsedSearchLabel(parsed) {
@@ -378,8 +325,6 @@ export function formatParsedSearchLabel(parsed) {
     parts.push(parsed.configLabel);
   } else if (parsed.quickTab === "Plots" || parsed.bhkType === "Plots") {
     parts.push("Plots");
-  } else if (Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 1) {
-    parts.push(parsed.bhkTypes.join(", "));
   } else if (parsed.bhkType) {
     parts.push(parsed.bhkType);
   } else if (parsed.quickTab === "Commercial") {
@@ -387,16 +332,7 @@ export function formatParsedSearchLabel(parsed) {
   } else if (parsed.quickTab === "Residential") {
     parts.push("Residential");
   }
-
-  const place = parsed.localityQuery || parsed.cityName || "";
-  if (place) {
-    const prettyPlace = String(place)
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
-    parts.push(`in ${prettyPlace}`);
-  }
+  if (parsed.cityName) parts.push(`in ${parsed.cityName}`);
   if (parsed.budget) parts.push(parsed.budget);
   if (parts.length > 0) return parts.join(" ");
   return parsed.original;
@@ -413,6 +349,7 @@ function formatProjectMeta(project) {
 
 /**
  * Build autocomplete suggestions for natural-language queries like "3 bhk in noida".
+ * Also corrects typos (e.g. "croessfridgdg republik" → Crossing Republik).
  */
 export function buildSmartSearchSuggestions(
   rawQuery,
@@ -422,6 +359,8 @@ export function buildSmartSearchSuggestions(
   if (q.length < 2) return [];
 
   const parsed = parseSmartSearchQuery(q, { cities, projectTypes });
+  const cleanQuery = String(parsed.cleanQuery || "").trim();
+  const matchQueries = [q, cleanQuery].filter(Boolean);
   const qLower = q.toLowerCase();
   const results = [];
   const seen = new Set();
@@ -433,6 +372,31 @@ export function buildSmartSearchSuggestions(
     results.push(entry);
   };
 
+  const correction = findBestSearchCorrection(q, {
+    projectList,
+    builderList,
+    cities,
+    cleanQuery,
+  });
+
+  if (correction?.isCorrection && correction.score >= 0) {
+    const place = correction.item?.cityName || correction.meta || "";
+    pushResult({
+      kind: correction.kind === "project" ? "project" : correction.kind,
+      item: correction.item,
+      label: correction.label,
+      meta:
+        correction.score >= 7
+          ? place
+            ? `Did you mean · ${place}`
+            : "Did you mean"
+          : correction.meta,
+      score: -1,
+      isCorrection: true,
+      correctedFrom: q,
+    });
+  }
+
   if (parsed.cityName || parsed.bhkType || parsed.budget || parsed.configType) {
     pushResult({
       kind: "intent",
@@ -443,9 +407,43 @@ export function buildSmartSearchSuggestions(
     });
   }
 
+  // Dedicated locality hits so area typos surface clearly
+  for (const loc of collectProjectLocalities(projectList)) {
+    const score = scoreTextAgainstQueries(loc.name, matchQueries);
+    if (score < 0) continue;
+    pushResult({
+      kind: "locality",
+      item: loc,
+      label: loc.name,
+      meta: loc.cityName ? `Area · ${loc.cityName}` : "Area",
+      score: score >= 7 ? 0 : score,
+      isCorrection: score >= 7,
+    });
+  }
+
   for (const project of projectList) {
     const name = String(project?.projectName || "").trim();
     if (!name) continue;
+
+    const fieldScore = scoreProjectFieldsSearchMatch(project, q, [cleanQuery]);
+    if (fieldScore >= 0) {
+      const locality = String(project?.projectLocality || "").trim();
+      const localityScore = locality
+        ? scoreTextAgainstQueries(locality, matchQueries)
+        : -1;
+      const nameScore = scoreTextAgainstQueries(name, matchQueries);
+      pushResult({
+        kind: "project",
+        item: project,
+        label: name,
+        meta:
+          localityScore >= 0 && (nameScore < 0 || localityScore <= nameScore)
+            ? `${formatProjectMeta(project)} · matched area`
+            : formatProjectMeta(project),
+        score: fieldScore,
+      });
+      continue;
+    }
 
     const nameScore = scoreProjectSearchMatch(name, q);
     if (nameScore >= 0) {
@@ -488,6 +486,18 @@ export function buildSmartSearchSuggestions(
         meta: "City",
         score: cityQueryNorm.includes(nameNorm) ? 1 : 3,
       });
+      continue;
+    }
+
+    const fuzzyCityScore = scoreTextAgainstQueries(name, matchQueries);
+    if (fuzzyCityScore >= 0) {
+      pushResult({
+        kind: "city",
+        item: city,
+        label: name,
+        meta: fuzzyCityScore >= 7 ? "Did you mean · City" : "City",
+        score: Math.max(fuzzyCityScore, 7),
+      });
     }
   }
 
@@ -503,44 +513,19 @@ export function buildSmartSearchSuggestions(
         meta: "Builder",
         score: nameLower.startsWith(qLower) ? 2 : 5,
       });
+      continue;
     }
-  }
 
-  const localityCounts = new Map();
-  for (const project of projectList) {
-    const locality = String(project?.projectLocality || "").trim();
-    if (!locality || locality.length < 3) continue;
-    if (!projectMatchesSearchTokens(project, q)) continue;
-    const key = normalizeProjectSearchText(locality);
-    const prev = localityCounts.get(key);
-    if (prev) {
-      prev.count += 1;
-    } else {
-      localityCounts.set(key, {
-        label: locality,
-        city: String(project?.cityName || project?.city || "").trim(),
-        count: 1,
+    const fuzzyBuilderScore = scoreTextAgainstQueries(name, matchQueries);
+    if (fuzzyBuilderScore >= 0) {
+      pushResult({
+        kind: "builder",
+        item: builder,
+        label: name,
+        meta: fuzzyBuilderScore >= 7 ? "Did you mean · Builder" : "Builder",
+        score: Math.max(fuzzyBuilderScore, 7),
       });
     }
-  }
-  for (const entry of localityCounts.values()) {
-    const localityNorm = normalizeProjectSearchText(entry.label);
-    const collapsedLocality = collapseProjectSearchText(localityNorm);
-    const queryNorm = normalizeProjectSearchText(q);
-    const score =
-      localityNorm === queryNorm || collapsedLocality === collapseProjectSearchText(q)
-        ? 1
-        : localityNorm.startsWith(queryNorm) || collapsedLocality.startsWith(collapseProjectSearchText(q))
-          ? 2
-          : 4;
-    pushResult({
-      kind: "locality",
-      label: entry.label,
-      meta: entry.city
-        ? `Locality · ${entry.city} · ${entry.count} project${entry.count === 1 ? "" : "s"}`
-        : `Locality · ${entry.count} project${entry.count === 1 ? "" : "s"}`,
-      score,
-    });
   }
 
   results.sort((a, b) => a.score - b.score || a.label.localeCompare(b.label));
@@ -561,13 +546,26 @@ export function loadRecentSearches() {
   }
 }
 
-export function saveRecentSearch(label) {
+export function saveRecentSearch(label, options = {}) {
   if (typeof window === "undefined" || !label) return;
   const trimmed = String(label).trim();
   if (!trimmed) return;
   const existing = loadRecentSearches().filter((s) => s !== trimmed);
   const next = [trimmed, ...existing].slice(0, RECENT_SEARCHES_LIMIT);
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+
+  try {
+    trackSearchEvent({
+      query: trimmed,
+      searchType: options.searchType || "property",
+      targetRef: options.targetRef,
+      targetLabel: options.targetLabel || trimmed,
+      resultCount: options.resultCount,
+      sourcePath: options.sourcePath,
+    });
+  } catch {
+    /* ignore — analytics must never break search */
+  }
 }
 
 export function removeRecentSearch(label) {

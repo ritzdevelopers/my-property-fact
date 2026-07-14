@@ -22,8 +22,10 @@ import {
 } from "@/app/_global_components/projectFilterUtils";
 import {
   findBestProjectBySearch,
+  findBestSearchCorrection,
   isLikelyProjectNameQuery,
-  scoreProjectSearchMatch,
+  projectNameLooksLikeDirectMatch,
+  scoreProjectFieldsSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
 import {
   formatParsedSearchLabel,
@@ -36,6 +38,7 @@ import {
   extractTypesFromProjectConfiguration,
   projectMatchesListingHubCategory,
 } from "@/lib/listingFloorValidation";
+import { trackSearchEvent } from "@/lib/trackSearchEvent";
 
 import {
   scrollToProjectListings,
@@ -275,10 +278,6 @@ export default function ProjectsRedesigned({
     if (label) {
       setSearchInput(label);
       setDebouncedSearch(label);
-      // Prefer the full label so locality phrasing survives structured BHK parsing.
-      setSearchListQuery(label);
-      setSelectedSearchProjectKey("");
-      setCurrentPage(1);
     }
 
     if (!isPropertyTypeLocked && typeTab !== "all") {
@@ -472,7 +471,7 @@ export default function ProjectsRedesigned({
     for (const item of searchSuggestionPool) {
       const name = String(item?.projectName || "").trim();
       if (!name) continue;
-      const score = scoreProjectSearchMatch(name, q);
+      const score = scoreProjectFieldsSearchMatch(item, q);
       if (score < 0) continue;
       ranked.push({ item, score });
     }
@@ -489,9 +488,18 @@ export default function ProjectsRedesigned({
   const pinSearchProject = useCallback(
     (project) => {
       if (!project) return;
+      const name = String(project?.projectName || "").trim();
+      if (name) {
+        trackSearchEvent({
+          query: name,
+          searchType: "property",
+          targetRef: project?.slug || project?.projectSlug || undefined,
+          targetLabel: name,
+          sourcePath: "/projects",
+        });
+      }
       showListingsLoader();
       startListingsPinTransition(() => {
-        const name = String(project?.projectName || "").trim();
         setSelectedSearchProjectKey(getProjectKey(project));
         if (name) {
           setSearchInput(name);
@@ -515,6 +523,12 @@ export default function ProjectsRedesigned({
       return;
     }
 
+    trackSearchEvent({
+      query: q,
+      searchType: "property",
+      sourcePath: "/projects",
+    });
+
     const parsed = parseSmartSearchQuery(q, {
       cities: cities || [],
       projectTypes: propertyTypes || [],
@@ -522,12 +536,8 @@ export default function ProjectsRedesigned({
 
     if (hasStructuredSearchIntent(parsed)) {
       const cleanLabel = formatParsedSearchLabel(parsed);
-      const multiBhk = Array.isArray(parsed.bhkTypes) && parsed.bhkTypes.length > 1;
       setSelectedSearchProjectKey("");
-      // Keep locality (and multi-BHK free-text) so Raj Nagar Extn isn't dropped.
-      setSearchListQuery(
-        parsed.localityQuery || multiBhk || parsed.cityName ? q : "",
-      );
+      setSearchListQuery("");
       setSearchDropdownOpen(false);
       if (cleanLabel) {
         setSearchInput(cleanLabel);
@@ -539,9 +549,8 @@ export default function ProjectsRedesigned({
           ...prev,
           city: parsed.cityName || prev.city,
           budget: parsed.budget || "",
-          // Multi-BHK is handled via searchListQuery parsing (OR). Single BHK uses sidebar.
-          bhkType: parsed.configType || multiBhk ? "" : parsed.bhkType || "",
-          configType: parsed.bhkType || multiBhk ? "" : parsed.configType || "",
+          bhkType: parsed.configType ? "" : parsed.bhkType || "",
+          configType: parsed.bhkType ? "" : parsed.configType || "",
         }));
         if (!isPropertyTypeLocked) {
           if (parsed.configType || parsed.quickTab === "Commercial") {
@@ -559,14 +568,39 @@ export default function ProjectsRedesigned({
       return;
     }
 
+    const correction = findBestSearchCorrection(q, {
+      projectList: searchSuggestionPool,
+      cleanQuery: parsed.cleanQuery,
+    });
     const match =
       searchSuggestions[0] || findBestProjectBySearch(q, searchSuggestionPool);
-    if (match && isLikelyProjectNameQuery(q)) {
-      const matchScore = scoreProjectSearchMatch(String(match?.projectName || ""), q);
-      if (matchScore >= 0 && matchScore <= 1) {
-        pinSearchProject(match);
-        return;
-      }
+
+    // Pin a project only when the project NAME matches the query
+    if (
+      match &&
+      isLikelyProjectNameQuery(q) &&
+      projectNameLooksLikeDirectMatch(match, q, [parsed.cleanQuery])
+    ) {
+      pinSearchProject(match);
+      return;
+    }
+
+    if (correction?.isCorrection && correction.label) {
+      setSelectedSearchProjectKey("");
+      setSearchListQuery(correction.label);
+      setSearchInput(correction.label);
+      setDebouncedSearch(correction.label);
+      setSearchDropdownOpen(false);
+      setCurrentPage(1);
+      return;
+    }
+
+    if (match && scoreProjectFieldsSearchMatch(match, q, [parsed.cleanQuery]) >= 0) {
+      setSelectedSearchProjectKey("");
+      setSearchListQuery(correction?.label || parsed.cleanQuery || q);
+      setSearchDropdownOpen(false);
+      setCurrentPage(1);
+      return;
     }
 
     setSelectedSearchProjectKey("");
@@ -863,10 +897,8 @@ export default function ProjectsRedesigned({
         projectTypes: propertyTypes || [],
       });
       list = list.filter((item) => {
-        const hasStructured = hasStructuredSearchIntent(parsed);
-        if (hasStructured) {
-          // Require structured constraints AND locality residual together.
-          return projectMatchesParsedQuery(item, parsed);
+        if (hasStructuredSearchIntent(parsed) && projectMatchesParsedQuery(item, parsed)) {
+          return true;
         }
         return projectMatchesSearchTokens(item, listQuery);
       });

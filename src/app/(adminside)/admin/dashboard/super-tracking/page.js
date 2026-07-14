@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
@@ -352,6 +353,12 @@ export default function SuperTrackingPage() {
           Website traffic
         </button>
       </div>
+
+      <p className="super-tracking__note" style={{ marginTop: "-0.35rem" }}>
+        Looking for what users searched? Open{" "}
+        <Link href="/admin/dashboard/search-reports">Search Reports</Link> for weekly/monthly
+        keyword, property, and blog search analytics (Excel export included).
+      </p>
 
       {tab === "traffic" && (
         <WebsiteTrafficOverview

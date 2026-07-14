@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { FiSearch } from "react-icons/fi";
 import { searchBlogsAction } from "@/app/(home)/blog/actions";
+import { trackSearchEvent } from "@/lib/trackSearchEvent";
 
 function blogFeaturedImageAlt(blogTitle) {
   return blogTitle?.trim()
@@ -65,6 +66,12 @@ export default function BlogSidebar({
       try {
         const filtered = await searchBlogsAction(query.trim());
         setSearchResults(filtered);
+        trackSearchEvent({
+          query: query.trim(),
+          searchType: "blog",
+          resultCount: Array.isArray(filtered) ? filtered.length : 0,
+          sourcePath: typeof window !== "undefined" ? window.location?.pathname : "/blog",
+        });
       } catch {
         setSearchResults([]);
       } finally {

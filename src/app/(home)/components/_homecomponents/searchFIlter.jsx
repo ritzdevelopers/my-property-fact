@@ -4,8 +4,10 @@ import { useProjectContext } from "@/app/_global_components/contexts/projectsCon
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
   findBestProjectBySearch,
+  findBestSearchCorrection,
   isLikelyProjectNameQuery,
-  scoreProjectSearchMatch,
+  projectNameLooksLikeDirectMatch,
+  scoreProjectFieldsSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
 import {
   buildSmartSearchSuggestions,
@@ -135,7 +137,7 @@ const SUGGESTION_KIND_LABELS = {
   project: "Project",
   city: "City",
   builder: "Builder",
-  locality: "Locality",
+  locality: "Area",
 };
 
 function SuggestionDotsLoader({ label = "Finding matches" }) {
@@ -160,17 +162,42 @@ function highlightMatch(text, query) {
   const lowerSource = source.toLowerCase();
   const lowerQuery = q.toLowerCase();
   const index = lowerSource.indexOf(lowerQuery);
-  if (index < 0) return source;
+  if (index >= 0) {
+    return (
+      <>
+        {source.slice(0, index)}
+        <mark className="smart-search-suggestion__highlight">
+          {source.slice(index, index + q.length)}
+        </mark>
+        {source.slice(index + q.length)}
+      </>
+    );
+  }
 
-  return (
-    <>
-      {source.slice(0, index)}
-      <mark className="smart-search-suggestion__highlight">
-        {source.slice(index, index + q.length)}
+  // Typo queries won't substring-match — highlight overlapping corrected words
+  const queryTokens = lowerQuery.split(/\s+/).filter((t) => t.length >= 3);
+  if (queryTokens.length === 0) return source;
+
+  return source.split(/(\s+)/).map((part, idx) => {
+    if (/^\s+$/.test(part)) return part;
+    const lowerPart = part.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const hits = queryTokens.some((token) => {
+      if (!lowerPart) return false;
+      if (lowerPart.startsWith(token) || token.startsWith(lowerPart)) return true;
+      // Cheap overlap for typo tokens
+      let shared = 0;
+      for (let i = 0; i < lowerPart.length; i += 1) {
+        if (token.includes(lowerPart[i])) shared += 1;
+      }
+      return shared / Math.max(lowerPart.length, 1) >= 0.6 && lowerPart.length >= 4;
+    });
+    if (!hits) return <span key={idx}>{part}</span>;
+    return (
+      <mark key={idx} className="smart-search-suggestion__highlight">
+        {part}
       </mark>
-      {source.slice(index + q.length)}
-    </>
-  );
+    );
+  });
 }
 
 const PLACEHOLDER_EXAMPLES = [
@@ -278,8 +305,6 @@ function isPlotsContext(activeTab, parsed = {}) {
 function resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }) {
   if (isPlotsContext(activeTab, parsed)) return "Plots";
   if (parsed?.configType) return "";
-  // Multi-BHK queries are OR'd in smart search; don't lock the sidebar to one size.
-  if (Array.isArray(parsed?.bhkTypes) && parsed.bhkTypes.length > 1) return "";
   return parsed?.bhkType || selectedFilterPayload.bhkType;
 }
 
@@ -302,6 +327,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
     cityList: contextCityList = [],
     builderList = [],
     projectList = [],
+    loading: siteDataLoading = false,
     setQueryFilters,
     setQuickProjectFilter,
     resetProjectFilters,
@@ -326,7 +352,12 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
   const propertyPanelRef = useRef(null);
   const trimmedInput = searchInput.trim();
   const isSuggestionsLoading =
-    dropdownOpen && trimmedInput.length >= 2 && (!suggestionsReady || trimmedInput !== debouncedSearch);
+    dropdownOpen &&
+    trimmedInput.length >= 2 &&
+    (siteDataLoading ||
+      !projectList.length ||
+      !suggestionsReady ||
+      trimmedInput !== debouncedSearch);
 
   const effectiveProjectTypes = useMemo(
     () =>
@@ -611,6 +642,24 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
       return;
     }
 
+    if (suggestion.kind === "locality") {
+      const cityName = suggestion.item?.cityName || "";
+      const city = cityName
+        ? effectiveCityList.find(
+            (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+          )
+        : null;
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        cityId: city ? String(city.id) : "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: label,
+      });
+      return;
+    }
+
     if (suggestion.kind === "builder") {
       setSearchInput(label);
       setDebouncedSearch(label);
@@ -625,17 +674,6 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           searchLabel: label,
         });
       }
-      return;
-    }
-
-    if (suggestion.kind === "locality") {
-      navigateToProjects({
-        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
-        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
-        configType: resolveNavigationConfigType({ selectedFilterPayload }),
-        quickTab: resolveNavigationQuickTab({ activeTab }),
-        searchLabel: label,
-      });
     }
   };
 
@@ -681,14 +719,77 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
     }
 
     const projectMatch = findBestProjectBySearch(q, projectList);
-    if (projectMatch?.slugURL && isLikelyProjectNameQuery(q)) {
-      const matchScore = scoreProjectSearchMatch(projectMatch.projectName, q);
-      if (matchScore >= 0 && matchScore <= 2) {
-        saveRecentSearch(q);
+    const correction = findBestSearchCorrection(q, {
+      projectList,
+      builderList,
+      cities: effectiveCityList,
+      cleanQuery: parsed.cleanQuery,
+    });
+
+    // Only jump straight to a project page when the PROJECT NAME matches.
+    // Area typos like "croessfridgdg republik" → search Crossing Republik listings.
+    if (
+      projectMatch?.slugURL &&
+      isLikelyProjectNameQuery(q) &&
+      projectNameLooksLikeDirectMatch(projectMatch, q, [parsed.cleanQuery])
+    ) {
+      saveRecentSearch(projectMatch.projectName || q);
+      setRecentSearches(loadRecentSearches());
+      router.push(`/${projectMatch.slugURL}`);
+      return;
+    }
+
+    if (correction?.isCorrection && correction.label) {
+      if (correction.kind === "project" && correction.item?.slugURL) {
+        saveRecentSearch(correction.label);
         setRecentSearches(loadRecentSearches());
-        router.push(`/${projectMatch.slugURL}`);
+        router.push(`/${correction.item.slugURL}`);
         return;
       }
+
+      if (correction.kind === "builder") {
+        const slug =
+          correction.item?.slugUrl ||
+          correction.item?.slugURL ||
+          correction.item?.slug;
+        if (slug) {
+          saveRecentSearch(correction.label);
+          setRecentSearches(loadRecentSearches());
+          router.push(`/builder/${slug}`);
+          return;
+        }
+      }
+
+      const cityName = correction.item?.cityName || "";
+      const city =
+        correction.kind === "city"
+          ? correction.item
+          : cityName
+            ? effectiveCityList.find(
+                (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+              )
+            : null;
+
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        cityId: city?.id != null ? String(city.id) : "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: correction.label,
+      });
+      return;
+    }
+
+    if (projectMatch && scoreProjectFieldsSearchMatch(projectMatch, q, [parsed.cleanQuery]) >= 0) {
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: correction?.label || parsed.cleanQuery || q,
+      });
+      return;
     }
 
     const quickTab = resolveNavigationQuickTab({ activeTab, parsed });

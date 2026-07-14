@@ -8,9 +8,15 @@ import {
 import {
   normalizeProjectSearchText,
   scoreProjectSearchMatch,
+  scoreProjectFieldsSearchMatch,
+  scoreTextAgainstQueries,
   getMeaningfulQueryTokens,
+  queryTokenMatchesWord,
+  findBestSearchCorrection,
+  collectProjectLocalities,
 } from "./projectSearchUtils";
 import { extractTypesFromProjectConfiguration } from "@/lib/listingFloorValidation";
+import { trackSearchEvent } from "@/lib/trackSearchEvent";
 
 const CONFIG_TYPE_HINTS = [
   { pattern: /\bsco\s*plots?\b/i, configType: "sco-plots", label: "SCO Plots", tab: "Commercial" },
@@ -251,6 +257,8 @@ export function projectMatchesSearchTokens(project, rawQuery) {
   const tokens = getMeaningfulQueryTokens(rawQuery);
   if (tokens.length === 0) return true;
 
+  if (scoreProjectFieldsSearchMatch(project, rawQuery) >= 0) return true;
+
   const haystack = normalizeProjectSearchText(
     [
       project?.projectName,
@@ -264,7 +272,11 @@ export function projectMatchesSearchTokens(project, rawQuery) {
       .join(" "),
   );
 
-  return tokens.every((token) => haystack.includes(token));
+  const words = haystack.split(/\s+/).filter(Boolean);
+  return tokens.every(
+    (token) =>
+      haystack.includes(token) || words.some((word) => queryTokenMatchesWord(token, word)),
+  );
 }
 
 export function matchesBhkInConfiguration(projectConfiguration, bhkType) {
@@ -337,6 +349,7 @@ function formatProjectMeta(project) {
 
 /**
  * Build autocomplete suggestions for natural-language queries like "3 bhk in noida".
+ * Also corrects typos (e.g. "croessfridgdg republik" → Crossing Republik).
  */
 export function buildSmartSearchSuggestions(
   rawQuery,
@@ -346,6 +359,8 @@ export function buildSmartSearchSuggestions(
   if (q.length < 2) return [];
 
   const parsed = parseSmartSearchQuery(q, { cities, projectTypes });
+  const cleanQuery = String(parsed.cleanQuery || "").trim();
+  const matchQueries = [q, cleanQuery].filter(Boolean);
   const qLower = q.toLowerCase();
   const results = [];
   const seen = new Set();
@@ -357,6 +372,31 @@ export function buildSmartSearchSuggestions(
     results.push(entry);
   };
 
+  const correction = findBestSearchCorrection(q, {
+    projectList,
+    builderList,
+    cities,
+    cleanQuery,
+  });
+
+  if (correction?.isCorrection && correction.score >= 0) {
+    const place = correction.item?.cityName || correction.meta || "";
+    pushResult({
+      kind: correction.kind === "project" ? "project" : correction.kind,
+      item: correction.item,
+      label: correction.label,
+      meta:
+        correction.score >= 7
+          ? place
+            ? `Did you mean · ${place}`
+            : "Did you mean"
+          : correction.meta,
+      score: -1,
+      isCorrection: true,
+      correctedFrom: q,
+    });
+  }
+
   if (parsed.cityName || parsed.bhkType || parsed.budget || parsed.configType) {
     pushResult({
       kind: "intent",
@@ -367,9 +407,43 @@ export function buildSmartSearchSuggestions(
     });
   }
 
+  // Dedicated locality hits so area typos surface clearly
+  for (const loc of collectProjectLocalities(projectList)) {
+    const score = scoreTextAgainstQueries(loc.name, matchQueries);
+    if (score < 0) continue;
+    pushResult({
+      kind: "locality",
+      item: loc,
+      label: loc.name,
+      meta: loc.cityName ? `Area · ${loc.cityName}` : "Area",
+      score: score >= 7 ? 0 : score,
+      isCorrection: score >= 7,
+    });
+  }
+
   for (const project of projectList) {
     const name = String(project?.projectName || "").trim();
     if (!name) continue;
+
+    const fieldScore = scoreProjectFieldsSearchMatch(project, q, [cleanQuery]);
+    if (fieldScore >= 0) {
+      const locality = String(project?.projectLocality || "").trim();
+      const localityScore = locality
+        ? scoreTextAgainstQueries(locality, matchQueries)
+        : -1;
+      const nameScore = scoreTextAgainstQueries(name, matchQueries);
+      pushResult({
+        kind: "project",
+        item: project,
+        label: name,
+        meta:
+          localityScore >= 0 && (nameScore < 0 || localityScore <= nameScore)
+            ? `${formatProjectMeta(project)} · matched area`
+            : formatProjectMeta(project),
+        score: fieldScore,
+      });
+      continue;
+    }
 
     const nameScore = scoreProjectSearchMatch(name, q);
     if (nameScore >= 0) {
@@ -412,6 +486,18 @@ export function buildSmartSearchSuggestions(
         meta: "City",
         score: cityQueryNorm.includes(nameNorm) ? 1 : 3,
       });
+      continue;
+    }
+
+    const fuzzyCityScore = scoreTextAgainstQueries(name, matchQueries);
+    if (fuzzyCityScore >= 0) {
+      pushResult({
+        kind: "city",
+        item: city,
+        label: name,
+        meta: fuzzyCityScore >= 7 ? "Did you mean · City" : "City",
+        score: Math.max(fuzzyCityScore, 7),
+      });
     }
   }
 
@@ -426,6 +512,18 @@ export function buildSmartSearchSuggestions(
         label: name,
         meta: "Builder",
         score: nameLower.startsWith(qLower) ? 2 : 5,
+      });
+      continue;
+    }
+
+    const fuzzyBuilderScore = scoreTextAgainstQueries(name, matchQueries);
+    if (fuzzyBuilderScore >= 0) {
+      pushResult({
+        kind: "builder",
+        item: builder,
+        label: name,
+        meta: fuzzyBuilderScore >= 7 ? "Did you mean · Builder" : "Builder",
+        score: Math.max(fuzzyBuilderScore, 7),
       });
     }
   }
@@ -448,13 +546,26 @@ export function loadRecentSearches() {
   }
 }
 
-export function saveRecentSearch(label) {
+export function saveRecentSearch(label, options = {}) {
   if (typeof window === "undefined" || !label) return;
   const trimmed = String(label).trim();
   if (!trimmed) return;
   const existing = loadRecentSearches().filter((s) => s !== trimmed);
   const next = [trimmed, ...existing].slice(0, RECENT_SEARCHES_LIMIT);
   localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+
+  try {
+    trackSearchEvent({
+      query: trimmed,
+      searchType: options.searchType || "property",
+      targetRef: options.targetRef,
+      targetLabel: options.targetLabel || trimmed,
+      resultCount: options.resultCount,
+      sourcePath: options.sourcePath,
+    });
+  } catch {
+    /* ignore — analytics must never break search */
+  }
 }
 
 export function removeRecentSearch(label) {

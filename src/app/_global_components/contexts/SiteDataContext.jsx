@@ -12,7 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { projectMatchesCityFilter } from "../cityAliasUtils";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
 import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
-import { projectNameMatchesSearch } from "../projectSearchUtils";
+import { projectNameMatchesSearch, scoreProjectFieldsSearchMatch } from "../projectSearchUtils";
 
 const DEFAULT_PROJECT_FILTERS = {
   propertyType: "",
@@ -412,12 +412,15 @@ export function SiteDataProvider({ children, initialData = null }) {
       const name = project?.projectName || project?.name || "";
       if (projectNameMatchesSearch(name, q)) return true;
 
+      if (scoreProjectFieldsSearchMatch(project, q) >= 0) return true;
+
       const haystack = normalizeText(
         [
           name,
           project?.cityName || "",
           project?.builderName || "",
           project?.projectAddress || "",
+          project?.projectLocality || "",
         ].join(" "),
       );
       const words = q.split(" ").filter(Boolean);

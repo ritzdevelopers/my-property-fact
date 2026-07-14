@@ -1,5 +1,6 @@
 import { fetchBuilderDetails } from "@/app/_global_components/masterFunction";
 import { notFound } from "next/navigation";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
 import BuilderPage from "./builderpage";
 
 export const revalidate = 120;
@@ -60,5 +61,10 @@ export default async function Builder({ params }) {
     notFound();
   }
 
-  return <BuilderPage builderDetail={builderDetail} />;
+  const { projectList: _projectList, ...builderMeta } = builderDetail;
+  const projectList = slimProjectListForListing(builderDetail.projectList || []);
+
+  return (
+    <BuilderPage builderData={builderMeta} initialProjects={projectList} />
+  );
 }

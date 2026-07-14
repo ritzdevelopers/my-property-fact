@@ -4,6 +4,14 @@ import { slimProjectListForListing } from "@/lib/slimProjectListing";
 const fetchInit =
   typeof window === "undefined" ? { next: { revalidate: 60 } } : {};
 
+function unwrapProjectList(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.content)) return payload.content;
+  if (Array.isArray(payload?.projects)) return payload.projects;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+}
+
 /**
  * Cities, builders, types, and statuses only — safe to embed in root layout HTML.
  * Project catalog is loaded client-side to keep document size under 2MB.
@@ -44,12 +52,13 @@ export async function fetchSiteDataFromApi() {
   const meta = await fetchSiteMetaFromApi();
 
   const projectsRes = await fetch(`${apiBase}projects`, fetchInit);
+  if (!projectsRes.ok) {
+    throw new Error(`Failed to load projects (${projectsRes.status})`);
+  }
   const projectsData = await projectsRes.json();
 
   return {
     ...meta,
-    projectList: slimProjectListForListing(
-      Array.isArray(projectsData) ? projectsData : [],
-    ),
+    projectList: slimProjectListForListing(unwrapProjectList(projectsData)),
   };
 }

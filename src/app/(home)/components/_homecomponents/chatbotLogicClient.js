@@ -4,6 +4,8 @@ import {
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
 import { normalizeCitySearchQuery } from "@/app/_global_components/cityAliasUtils";
+import { getPublicApiBase } from "@/lib/publicApiBase";
+
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties/`;
 
 const PROPERTY_TYPE_MAP = {
@@ -362,6 +364,65 @@ function fetchProjects(session, projectList = [], projectTypes = []) {
   return createProjectBatch(session);
 }
 
+function unwrapSearchResults(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.content)) return payload.content;
+  if (Array.isArray(payload?.projects)) return payload.projects;
+  if (Array.isArray(payload?.data)) return payload.data;
+  return [];
+}
+
+/** Fallback when SiteData catalog is unavailable — uses the same backend search API. */
+async function fetchProjectsFromApi(session) {
+  const typeId = session.data.propertyTypeId || PROPERTY_TYPE_MAP[session.data.type] || 1;
+  const normalizedCity = normalizeCityInput(session.data.city);
+  const cityId = CITY_MAP[normalizedCity];
+  const budget =
+    normalizeBudgetSelection(session.data.budget, "web") ||
+    normalizeBudgetSelection(session.data.budget, "api") ||
+    session.data.budget;
+
+  if (!cityId) {
+    return {
+      reply: "I could not map that city in our active property data. Please choose another city.",
+      options: CITY_OPTIONS,
+    };
+  }
+
+  const base = getPublicApiBase() || process.env.NEXT_PUBLIC_API_URL || "";
+  if (!base) {
+    return {
+      reply: "Project data is unavailable right now. Please try again in a moment.",
+      options: ["Try again", "Restart"],
+    };
+  }
+
+  const url = new URL(`${base}projects/search-by-type-city-budget`);
+  url.searchParams.set("propertyType", String(typeId));
+  url.searchParams.set("propertyLocation", String(cityId));
+  url.searchParams.set("budget", String(budget));
+
+  const response = await fetch(url.toString(), {
+    headers: { Accept: "application/json" },
+  });
+  if (!response.ok) {
+    throw new Error(`Search API failed (${response.status})`);
+  }
+
+  const payload = await response.json();
+  const allProjects = unwrapSearchResults(payload);
+  const cityMatchedProjects = allProjects.filter((project) =>
+    projectMatchesSelectedCity(project, normalizedCity),
+  );
+
+  session.results = {
+    allProjects: cityMatchedProjects.length ? cityMatchedProjects : allProjects,
+    currentIndex: 0,
+  };
+  session.step = CHAT_STATES.SHOWING_RESULTS;
+  return createProjectBatch(session);
+}
+
 function handleResultsState(message, session) {
   const msg = normalizeText(message);
 
@@ -525,6 +586,30 @@ export async function generateClientChatResponse(
   }
 
   if (nextSession.step === CHAT_STATES.AWAIT_BUDGET) {
+    if (["try again", "retry", "again"].includes(msg) && nextSession.data.budget) {
+      try {
+        if (Array.isArray(projectList) && projectList.length > 0) {
+          return {
+            nextSession,
+            payload: fetchProjects(nextSession, projectList, projectTypes),
+          };
+        }
+        return {
+          nextSession,
+          payload: await fetchProjectsFromApi(nextSession),
+        };
+      } catch (error) {
+        console.error("Client chatbot retry failed:", error);
+        return {
+          nextSession,
+          payload: {
+            reply: "Still could not load matching projects. Please tap Try again or Restart.",
+            options: ["Try again", "Restart"],
+          },
+        };
+      }
+    }
+
     const budget = resolveBudget(msg);
     if (!budget) {
       return {
@@ -539,13 +624,8 @@ export async function generateClientChatResponse(
     nextSession.data.budget = budget;
     try {
       if (!Array.isArray(projectList) || projectList.length === 0) {
-        return {
-          nextSession,
-          payload: {
-            reply: "Project data is loading. Please try again in a moment.",
-            options: ["Restart"],
-          },
-        };
+        const payload = await fetchProjectsFromApi(nextSession);
+        return { nextSession, payload };
       }
 
       const payload = fetchProjects(nextSession, projectList, projectTypes);
@@ -555,8 +635,8 @@ export async function generateClientChatResponse(
       return {
         nextSession,
         payload: {
-          reply: "Something went wrong while fetching projects.",
-          options: ["Restart"],
+          reply: "Could not load matching projects right now. Please tap Try again.",
+          options: ["Try again", "Restart"],
         },
       };
     }

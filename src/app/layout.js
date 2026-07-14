@@ -148,13 +148,15 @@ export default function RootLayout({ children }) {
           />
         </noscript>
 
-        <SiteDataShell>{children}</SiteDataShell>
+        <SiteDataShell>
+          {children}
+          <LazyBelowFold />
+        </SiteDataShell>
         <WebsiteGateway />
         <Suspense fallback={null}>
           <PopularProjectPromoFromRequest />
         </Suspense>
 
-        <LazyBelowFold />
         <ThirdPartyScripts />
       </body>
     </html>

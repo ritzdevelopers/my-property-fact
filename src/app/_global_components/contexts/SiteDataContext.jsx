@@ -142,10 +142,15 @@ export function SiteDataProvider({ children, initialData = null }) {
         }
 
         if (!siteDataPromise) {
-          siteDataPromise = fetchSiteDataFromApi().then((data) => {
-            siteDataCache = data;
-            return data;
-          });
+          siteDataPromise = fetchSiteDataFromApi()
+            .then((data) => {
+              siteDataCache = data;
+              return data;
+            })
+            .catch((err) => {
+              siteDataPromise = null;
+              throw err;
+            });
         }
 
         const data = await siteDataPromise;
@@ -158,7 +163,8 @@ export function SiteDataProvider({ children, initialData = null }) {
             setProjectTypes(data.projectTypes);
             setProjectStatuses(data.projectStatuses);
           }
-          setProjectList(data.projectList);
+          setProjectList(data.projectList || []);
+          setError(null);
         }
       } catch (err) {
         if (!cancelled) setError(err?.message || "Failed to load site data");
@@ -172,7 +178,7 @@ export function SiteDataProvider({ children, initialData = null }) {
     return () => {
       cancelled = true;
     };
-  }, [initialData]);
+  }, [initialData, initialHasProjects]);
 
   useEffect(() => {
     if (!searchParams) return;

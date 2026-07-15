@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { formatDistanceKm } from "@/lib/utils";
+import { peekListingReturnState } from "@/lib/listingScrollRestore";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -732,30 +733,34 @@ export default function PropertyV3({
     setMobileMenuOpen(false);
   }, []);
 
-  /** Return to the listing/page the user came from; fall back to /projects. */
+  /**
+   * Return to the listing/page the user came from.
+   * Prefer the saved listing return path (same-tab from /projects), then real
+   * history when available. Never call history.back() solely because referrer
+   * is same-origin — that breaks new-tab opens (referrer set, history empty).
+   */
   const goBackToPrevious = useCallback(() => {
-    if (typeof window === "undefined") {
-      router.push("/projects");
+    const saved = peekListingReturnState();
+    if (saved?.pathname) {
+      router.push(`${saved.pathname}${saved.search || ""}`);
       return;
     }
-    let sameOriginReferrer = false;
-    try {
-      const ref = document.referrer;
-      if (ref) {
-        const url = new URL(ref);
-        sameOriginReferrer =
-          url.origin === window.location.origin &&
-          url.pathname !== window.location.pathname;
-      }
-    } catch {
-      sameOriginReferrer = false;
-    }
-    if (sameOriginReferrer || window.history.length > 1) {
+
+    if (typeof window !== "undefined" && window.history.length > 1) {
       router.back();
       return;
     }
+
+    const city = projectDetail?.city;
+    if (city) {
+      router.push(
+        `/${String(city).toLowerCase().replace(/\s+/g, "-")}`,
+      );
+      return;
+    }
+
     router.push("/projects");
-  }, [router]);
+  }, [router, projectDetail?.city]);
 
   /* --------- Early return if no data --------- */
 

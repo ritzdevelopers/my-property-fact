@@ -312,6 +312,13 @@
   text-decoration: none;
   font-weight: 700;
   white-space: nowrap;
+  transition: color 0.18s ease;
+}
+
+.home-projects-preview__view-all:hover,
+.home-projects-preview__view-all:focus-visible {
+  color: #C9A24D;
+  text-decoration: none;
 }
 
 .home-projects-preview__nav {

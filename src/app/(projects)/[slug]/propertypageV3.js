@@ -638,6 +638,8 @@ export default function PropertyV3({
   const floorPlans = Array.isArray(projectDetail?.floorPlans)
     ? projectDetail.floorPlans
     : [];
+  const floorPlanDescription =
+    projectDetail?.floorPlanDescription || projectDetail?.floorPlanDesc || "";
   const bhkGroups = useMemo(() => {
     const m = new Map();
     floorPlans.forEach((p) => {
@@ -648,9 +650,20 @@ export default function PropertyV3({
     return Array.from(m.entries()).map(([bhk, items]) => ({ bhk, items }));
   }, [floorPlans]);
 
+  /** Keep tab selection valid across project navigations; never leave selection null when groups exist. */
   useEffect(() => {
-    if (!activeBhk && bhkGroups.length) setActiveBhk(bhkGroups[0].bhk);
-  }, [bhkGroups, activeBhk]);
+    if (!bhkGroups.length) {
+      if (activeBhk != null) setActiveBhk(null);
+      return;
+    }
+    const stillValid = bhkGroups.some((g) => g.bhk === activeBhk);
+    if (!stillValid) setActiveBhk(bhkGroups[0].bhk);
+  }, [bhkGroups, activeBhk, projectDetail?.slugURL]);
+
+  const resolvedActiveBhk =
+    (activeBhk && bhkGroups.some((g) => g.bhk === activeBhk)
+      ? activeBhk
+      : bhkGroups[0]?.bhk) || null;
 
   const amenities = Array.isArray(projectDetail?.amenities)
     ? projectDetail.amenities
@@ -752,7 +765,7 @@ export default function PropertyV3({
   }
 
   const activeBhkItems =
-    bhkGroups.find((g) => g.bhk === activeBhk)?.items || [];
+    bhkGroups.find((g) => g.bhk === resolvedActiveBhk)?.items || [];
 
   const handleTouchFormChange = (field) => (e) => {
     setTouchForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -1036,23 +1049,25 @@ export default function PropertyV3({
         <div className="pd3-body">
           <main className="pd3-main">
             {/* Overview */}
-            <section
-              id="overview"
-              ref={(el) => (sectionRefs.current.overview = el)}
-              className="pd3-card"
-            >
-              <div className="pd3-card__head">
-                <h2 className="pd3-card__title">
-                  About {projectDetail.projectName}
-                </h2>
-              </div>
-              <div
-                className="pd3-card__body"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeHtml(overviewHtml),
-                }}
-              />
-            </section>
+            {overviewHtml ? (
+              <section
+                id="overview"
+                ref={(el) => (sectionRefs.current.overview = el)}
+                className="pd3-card"
+              >
+                <div className="pd3-card__head">
+                  <h2 className="pd3-card__title">
+                    About {projectDetail.projectName}
+                  </h2>
+                </div>
+                <div
+                  className="pd3-card__body"
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizeHtml(overviewHtml),
+                  }}
+                />
+              </section>
+            ) : null}
 
             {/* Amenities — same layout / “View more” side panel as V2 */}
             {amenities.length ? (
@@ -1118,7 +1133,7 @@ export default function PropertyV3({
             ) : null}
 
             {/* Floor Plans with BHK tabs */}
-            {floorPlans.length ? (
+            {floorPlans.length || floorPlanDescription ? (
               <section
                 id="floorplan"
                 ref={(el) => (sectionRefs.current.floorplan = el)}
@@ -1127,76 +1142,95 @@ export default function PropertyV3({
                 <div className="pd3-card__head">
                   <h2 className="pd3-card__title">Floor Plans &amp; Pricing</h2>
                 </div>
-                <div className="pd3-bhk-tabs" role="tablist">
-                  {bhkGroups.map(({ bhk, items }) => (
-                    <button
-                      key={bhk}
-                      type="button"
-                      role="tab"
-                      aria-selected={activeBhk === bhk}
-                      className={`pd3-bhk-tab${
-                        activeBhk === bhk ? " is-active" : ""
-                      }`}
-                      onClick={() => setActiveBhk(bhk)}
-                    >
-                      {bhk}
-                      <span style={{ opacity: 0.6, marginLeft: 6 }}>
-                        ({items.length})
-                      </span>
-                    </button>
-                  ))}
-                </div>
-                <div className="pd3-fp-count">
-                  {activeBhkItems.length} Floor Plan
-                  {activeBhkItems.length === 1 ? "" : "s"} Available
-                </div>
-                <div className="pd3-fp-grid">
-                  {activeBhkItems.map((plan, i) => (
-                    <div
-                      className="pd3-fp-card"
-                      key={`${plan?.planType || "plan"}-${i}`}
-                    >
-                      <div className="pd3-fp-card__head">
-                        <span>{plan.planType}</span>
-                        <span className="pd3-fp-card__head-sub">
-                          {getFloorPlanArea(plan)}
-                        </span>
-                      </div>
-                      <div className="pd3-fp-card__img">
-                        <img
-                          src={
-                            plan.floorPlanImage
-                              ? projectImageSrc(plan.floorPlanImage)
-                              : "/static/floor_plans.png"
-                          }
-                          alt={`${plan.planType} floor plan`}
-                          title={`${plan.planType} floor plan`}
-                          className="pd3-tile-img"
-                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-                      </div>
-                      <div className="pd3-fp-card__body">
-                        <div className="pd3-fp-card__price">
-                          {plan.price
-                            ? generatePrice(plan.price)
-                            : "Price on Request"}
-                        </div>
-                        {projectDetail.projectStatusName ? (
-                          <div className="pd3-fp-card__status">
-                            {projectDetail.projectStatusName}
-                          </div>
-                        ) : null}
+                {floorPlanDescription ? (
+                  <div
+                    className="pd3-card__body pd3-fp-description"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeHtml(floorPlanDescription),
+                    }}
+                  />
+                ) : null}
+                {floorPlans.length ? (
+                  <>
+                    <div className="pd3-bhk-tabs" role="tablist">
+                      {bhkGroups.map(({ bhk, items }) => (
                         <button
+                          key={bhk}
                           type="button"
-                          className="pd3-fp-card__cta"
-                          onClick={() => setPopUp(true)}
+                          role="tab"
+                          aria-selected={resolvedActiveBhk === bhk}
+                          className={`pd3-bhk-tab${
+                            resolvedActiveBhk === bhk ? " is-active" : ""
+                          }`}
+                          onClick={() => setActiveBhk(bhk)}
                         >
-                          Request Callback{" "}
-                          <FontAwesomeIcon icon={faArrowRight} />
+                          {bhk}
+                          <span style={{ opacity: 0.6, marginLeft: 6 }}>
+                            ({items.length})
+                          </span>
                         </button>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                    <div className="pd3-fp-count">
+                      {activeBhkItems.length} Floor Plan
+                      {activeBhkItems.length === 1 ? "" : "s"} Available
+                    </div>
+                    <div className="pd3-fp-grid">
+                      {activeBhkItems.map((plan, i) => (
+                        <div
+                          className="pd3-fp-card"
+                          key={`${plan?.planType || "plan"}-${i}`}
+                        >
+                          <div className="pd3-fp-card__head">
+                            <span>{plan.planType}</span>
+                            <span className="pd3-fp-card__head-sub">
+                              {getFloorPlanArea(plan)}
+                            </span>
+                          </div>
+                          <div className="pd3-fp-card__img">
+                            <img
+                              src={
+                                plan.floorPlanImage
+                                  ? projectImageSrc(plan.floorPlanImage)
+                                  : "/static/floor_plans.png"
+                              }
+                              alt={`${plan.planType} floor plan`}
+                              title={`${plan.planType} floor plan`}
+                              className="pd3-tile-img"
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                          </div>
+                          <div className="pd3-fp-card__body">
+                            <div className="pd3-fp-card__price">
+                              {plan.price
+                                ? generatePrice(plan.price)
+                                : "Price on Request"}
+                            </div>
+                            {projectDetail.projectStatusName ? (
+                              <div className="pd3-fp-card__status">
+                                {projectDetail.projectStatusName}
+                              </div>
+                            ) : null}
+                            <button
+                              type="button"
+                              className="pd3-fp-card__cta"
+                              onClick={() => setPopUp(true)}
+                            >
+                              Request Callback{" "}
+                              <FontAwesomeIcon icon={faArrowRight} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
               </section>
             ) : null}
 

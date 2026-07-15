@@ -639,11 +639,9 @@ const normalizeKeywords = (keywords, slug) => {
   if (Array.isArray(keywords)) {
     return keywords;
   }
+  // Pass through admin-saved string as-is so spacing (e.g. ", " vs ",") is preserved on the live site
   if (typeof keywords === "string" && keywords.trim()) {
-    return keywords
-      .split(",")
-      .map((keyword) => keyword.trim())
-      .filter(Boolean);
+    return keywords;
   }
   return [
     `${slug.replace(/-/g, " ")} flats`,

@@ -237,6 +237,14 @@ export default function NewAboutUs({ platformStats }) {
 
   return (
     <>
+      <div className="new-about-us-banner">
+        <img
+          src="/static/about-us/Rectangle 45295.png"
+          alt="My Property Fact team"
+          width={1440}
+          height={362}
+        />
+      </div>
       <div className="container-fluid">
         <motion.div
           className="new-about-us-container"

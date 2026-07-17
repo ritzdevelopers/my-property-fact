@@ -1,4 +1,5 @@
-import AboutUsV3 from "./AboutUsV3";
+import CommonHeaderBanner from "../components/common/commonheaderbanner";
+import NewAboutUs from "./NewAboutUs";
 import {
   getAllProjects,
   fetchBuilderData,
@@ -28,8 +29,9 @@ export default async function AboutUsPage() {
   };
 
   return (
-    <main id="primary-content" aria-label="About My Property Fact">
-      <AboutUsV3 platformStats={platformStats} />
+    <main id="primary-content" aria-labelledby="mpf-page-heading">
+      <CommonHeaderBanner headerText={"About Us"} pageName={"About Us"} />
+      <NewAboutUs platformStats={platformStats} />
     </main>
   );
 }

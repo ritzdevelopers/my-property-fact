@@ -7,34 +7,8 @@ import {
   isHomeGatewayRevealDone,
   MPF_GATEWAY_HIDDEN_EVENT,
 } from "./mpfGatewayEvents";
-import { PUBLIC_STATIC_SEGMENTS } from "@/lib/publicRouteValidation";
 import "./PopularProjectPromo.css";
 
-const HIDE_PREFIXES = [
-  "/admin",
-  "/portal",
-  "/projects",
-  "/city",
-  "/builder",
-  // Internal listing hub pages (footer links)
-  "/apartments-in-",
-  "/flats-in-",
-  "/new-projects-in-",
-  "/commercial-property-in-",
-  "/offices-and-shop-in-",
-];
-
-const STATIC_FIRST_SEGMENTS = new Set(PUBLIC_STATIC_SEGMENTS);
-
-/** Project detail URLs are single-segment catch-alls like `/24-wall-street`. */
-function isProjectDetailPath(pathname) {
-  const segments = String(pathname || "/")
-    .replace(/\/+$/, "")
-    .split("/")
-    .filter(Boolean);
-  if (segments.length !== 1) return false;
-  return !STATIC_FIRST_SEGMENTS.has(segments[0]);
-}
 /* Slower full-card out/in; must stay in sync with PopularProjectPromo.css */
 const AUTO_ROTATE_MS = 10000;
 /* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */
@@ -105,18 +79,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
       ? items
       : [];
 
-  const isInternalListingPage = pathname.includes("-in-");
-
-  const hideByRoute =
-    isInternalListingPage ||
-    isProjectDetailPath(pathname) ||
-    HIDE_PREFIXES.some((p) => {
-      // "/projects" style routes
-      if (pathname === p || pathname.startsWith(`${p}/`)) return true;
-      // "/new-projects-in-delhi" style routes (prefix contains trailing '-')
-      if (p.endsWith("-") && pathname.startsWith(p)) return true;
-      return false;
-    });
+  // This location-based promotional card belongs exclusively on the home page.
+  const hideByRoute = !isHome;
 
   useEffect(() => {
     if (!isHome) {

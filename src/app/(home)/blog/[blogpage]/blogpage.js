@@ -53,6 +53,22 @@ function demoteBodyH1ToH2(html) {
     .replace(/<\/h1>/gi, "</h2>");
 }
 
+function decodeHeadingEntities(value) {
+  const entities = {
+    amp: "&",
+    apos: "'",
+    gt: ">",
+    lt: "<",
+    nbsp: " ",
+    quot: '"',
+    "#39": "'",
+    "#x27": "'",
+  };
+  return value.replace(/&([a-z]+|#\d+|#x[0-9a-f]+);/gi, (entity, key) =>
+    entities[key.toLowerCase()] ?? entity,
+  );
+}
+
 /**
  * Parse the CMS HTML, assign a stable slug `id` to every <h2>, and return the
  * transformed HTML plus an ordered Table-of-Contents list `{ id, text }[]`.
@@ -92,18 +108,19 @@ function buildToc(html) {
         .replace(/&nbsp;/gi, " ")
         .replace(/\s+/g, " ")
         .trim();
-      if (!plain) return match;
+      const headingText = decodeHeadingEntities(plain);
+      if (!headingText) return match;
 
       const existingId = /\bid\s*=\s*["']([^"']+)["']/i.exec(attrs);
       let id;
       if (existingId) {
         id = existingId[1];
         usedIds.add(id);
-        toc.push({ id, text: plain });
+        toc.push({ id, text: headingText });
         return match;
       }
-      id = uniqueSlug(plain);
-      toc.push({ id, text: plain });
+      id = uniqueSlug(headingText);
+      toc.push({ id, text: headingText });
       return `<h2${attrs} id="${id}">${inner}</h2>`;
     },
   );

@@ -84,6 +84,9 @@ export function AdminLayout({
             onLinkClick={handleLinkClick}
             isSuperAdmin={isSuperAdmin}
             hasPermission={hasPermission}
+            // onSidebarToggle={() =>{
+            //   setSidebarCollapsed(!sidebarCollapsed)
+            // }}
             onLogout={handleLogout}
             theme={theme}
           />

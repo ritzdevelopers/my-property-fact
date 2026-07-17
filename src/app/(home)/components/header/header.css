@@ -30,6 +30,11 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
 }
 
+.header.about-us-header {
+  background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
 .conditional-header {
   background: linear-gradient(90deg, #071E13 0%, #15231C 50%, #0B613D 100%) !important;
 }
@@ -65,6 +70,11 @@
 /* City / Builder menu triggers are <button>, not <a> — match link color when scrolled */
 .fixed-header .header-links .header-nav-dropdown-trigger {
   color: #111 !important;
+}
+
+.fixed-header.about-us-header .header-links a,
+.fixed-header.about-us-header .header-links .header-nav-dropdown-trigger {
+  color: #fff !important;
 }
 
 /* When fixed (white bg), hover must stay visible – use dark green */

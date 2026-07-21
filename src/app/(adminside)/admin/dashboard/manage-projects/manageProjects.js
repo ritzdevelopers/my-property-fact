@@ -161,11 +161,20 @@ export default function ManageProjects({
   const [uploadExcelFile, setUploadExcelFile] = useState(null);
   const [uploadZipFile, setUploadZipFile] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
-  const allowedTypes = [
+  const allowedZipTypes = new Set([
     "application/zip",
     "application/x-zip-compressed",
-    "multipart/x-zip"
-  ];
+    "multipart/x-zip",
+    "application/octet-stream",
+    "",
+  ]);
+
+  const isZipFile = (file) => {
+    if (!file) return false;
+    const type = (file.type || "").toLowerCase();
+    if (allowedZipTypes.has(type)) return true;
+    return /\.zip$/i.test(file.name || "");
+  };
   const handleCountryChange = (e) => {
     const countryId = parseInt(e.target.value);
     setFormData((prev) => ({
@@ -791,17 +800,22 @@ export default function ManageProjects({
 
   const handleUploadProjectsSubmit = async (e) => {
     e?.preventDefault();
-    if (!uploadExcelFile || !uploadZipFile) {
+    if (!uploadExcelFile) {
       toast.error("Please select an Excel file (.xlsx or .xls)");
       return;
     }
-    if (!allowedTypes.includes(uploadZipFile.type)) {
-      toast.error("Please select a zip file");
+    if (!uploadZipFile) {
+      toast.error("Please select a zip file with project images");
       return;
     }
-    if (uploadExcelFile && uploadZipFile) setUploadLoading(true);
-    const toastId = toast.loading("Uploading data…");
+    if (!isZipFile(uploadZipFile)) {
+      toast.error("Please select a valid .zip file");
+      return;
+    }
+    setUploadLoading(true);
+    let toastId = null;
     try {
+      toastId = toast.loading("Uploading data…");
       const formData = new FormData();
       formData.append("file", uploadExcelFile);
       if (uploadZipFile) {
@@ -814,8 +828,17 @@ export default function ManageProjects({
         formData,
         {
           withCredentials: true,
+          timeout: 600000,
           headers: {
             ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          onUploadProgress: (event) => {
+            if (!toastId || !event.total) return;
+            const pct = Math.round((event.loaded * 100) / event.total);
+            toast.update(toastId, {
+              render: `Uploading data… ${pct}%`,
+              isLoading: true,
+            });
           },
         },
       );
@@ -826,7 +849,7 @@ export default function ManageProjects({
           render: successText,
           type: "success",
           isLoading: false,
-          autoClose: 4000,
+          duration: 4000,
         });
         closeUploadModal();
         router.refresh();
@@ -835,20 +858,28 @@ export default function ManageProjects({
           render: response.data?.message ?? "Upload failed",
           type: "error",
           isLoading: false,
-          autoClose: 5000,
+          duration: 5000,
         });
       }
     } catch (error) {
       console.log(error);
 
       const message =
-        error.response?.data?.message ?? error.message ?? "Upload failed";
-      toast.update(toastId, {
-        render: message,
-        type: "error",
-        isLoading: false,
-        autoClose: 5000,
-      });
+        error.response?.data?.message ??
+        (error.code === "ECONNABORTED"
+          ? "Upload timed out. The file may be too large or the server is busy — try again."
+          : error.message) ??
+        "Upload failed";
+      if (toastId != null) {
+        toast.update(toastId, {
+          render: message,
+          type: "error",
+          isLoading: false,
+          duration: 5000,
+        });
+      } else {
+        toast.error(message);
+      }
     } finally {
       setUploadLoading(false);
     }

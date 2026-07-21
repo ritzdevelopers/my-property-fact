@@ -82,7 +82,6 @@ export default function ProjectListByFloorTypeClient({
     () => resolveFloorTypeAndCity({ title, floorTypeProp, cityNameProp }),
     [title, floorTypeProp, cityNameProp],
   );
-  const listingHeading = (floorType || "").trim() || "Projects";
 
   const filteredProjectsByBrType = useMemo(() => {
     const source = projectList.length ? projectList : initialProjects;
@@ -107,16 +106,7 @@ export default function ProjectListByFloorTypeClient({
   return (
     <>
       <div className="container my-5">
-        <h2 className="master-bhk-section-heading mb-1 mb-md-2">
-          {listingHeading}
-        </h2>
-        {cityName ? (
-          <p className="text-muted mb-3 mb-md-4">
-            {cityName.replace(/%20/g, " ").trim()}
-          </p>
-        ) : (
-          <div className="mb-3 mb-md-4" />
-        )}
+        <h2 className="master-bhk-section-heading mb-3 mb-md-4">Projects</h2>
         <div className="row g-3" ref={listingsRef}>
           {showLoading ? (
             <div className="d-flex justify-content-center align-items-center w-100 py-5">

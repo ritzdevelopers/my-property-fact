@@ -1,43 +1,14 @@
-import HeaderComponent from "@/app/(home)/components/header/headerComponent";
+import CommonBreadCrum from "@/app/(home)/components/common/breadcrum";
+import CommonHeaderBanner from "@/app/(home)/components/common/commonheaderbanner";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
-import ProjectsRedesigned from "@/app/(home)/projects/ProjectsRedesigned";
+import ProjectListByFloorTypeClient from "./projectListByFloorTypeClient";
+import HeaderComponent from "@/app/(home)/components/header/headerComponent";
 import {
   buildCompoundListingTitle,
   citySlugToListingLabel,
   floorSlugToListingLabel,
   normalizeFloorSlugSegment,
 } from "@/app/_global_components/masterFunction";
-
-function resolveInitialFilters(floorType = "", categorySlug = null) {
-  const label = String(floorType || "").trim();
-  const lower = label.toLowerCase();
-  const isBhk = /\d+\s*bhk|\d+\s*rk/i.test(lower);
-
-  let hubCategory = "";
-  let initialActiveTab = "all";
-
-  if (categorySlug === "new-projects") {
-    hubCategory = "new-projects";
-  } else if (categorySlug === "commercial" || categorySlug === "offices-and-shop") {
-    hubCategory = categorySlug;
-    initialActiveTab = "commercial";
-  } else if (categorySlug === "apartments" || categorySlug === "flats") {
-    hubCategory = categorySlug;
-    initialActiveTab = "residential";
-  } else if (!isBhk && label) {
-    // Non-BHK floor listings (shops/office/plots/etc.) behave like config filters.
-    initialActiveTab = "commercial";
-  } else if (isBhk) {
-    initialActiveTab = "residential";
-  }
-
-  return {
-    hubCategory,
-    initialActiveTab,
-    initialBhkType: isBhk ? label : "",
-    initialConfigType: !isBhk && label ? label : "",
-  };
-}
 
 export default function ProjectListByFloorType({
   slug,
@@ -61,25 +32,25 @@ export default function ProjectListByFloorType({
 
   const floorType = floorSlugToListingLabel(floorSlug);
   const cityName = citySlugToListingLabel(citySlugStr);
-  const categorySlug = compoundListing?.categorySlug ?? null;
-  const filters = resolveInitialFilters(floorType, categorySlug);
 
   return (
     <>
       <HeaderComponent />
-      <main id="primary-content" aria-labelledby="mpf-page-heading">
-        <ProjectsRedesigned
-          initialCity={cityName}
-          initialActiveTab={filters.initialActiveTab}
-          initialBhkType={filters.initialBhkType}
-          initialConfigType={filters.initialConfigType}
-          hubCategory={filters.hubCategory}
-          breadcrumbParent={{ href: "/projects", label: "Projects" }}
-          breadcrumbLabel={title ? `${title.replace("%20", " ")}` : "All Projects"}
-          pageHeading={title ? `${title.replace("%20", " ")}` : "All Projects"}
-          showBreadcrumb={true}
-        />
-      </main>
+      <CommonHeaderBanner
+        image={"project-banner.jpg"}
+        headerText={title ? `${title.replace("%20", " ")}` : "All Projects"}
+      />
+      <CommonBreadCrum
+        firstPage={"projects"}
+        pageName={title ? `${title.replace("%20", " ")}` : "All Projects"}
+      />
+      <ProjectListByFloorTypeClient
+        title={title}
+        floorType={floorType}
+        cityName={cityName}
+        categorySlug={compoundListing?.categorySlug ?? null}
+        initialProjects={initialProjects}
+      />
       <NewFooterDesign cityList={cityList} compactTop={true} />
     </>
   );

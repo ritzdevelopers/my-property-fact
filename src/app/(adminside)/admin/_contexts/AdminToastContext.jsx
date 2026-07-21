@@ -40,7 +40,15 @@ const TOAST_VARIANTS = {
 const DEFAULT_DURATION = 4500;
 const MAX_TOASTS = 5;
 
-function Toast({ id, type, title, message, onDismiss, duration = DEFAULT_DURATION }) {
+function Toast({
+  id,
+  type,
+  title,
+  message,
+  onDismiss,
+  duration = DEFAULT_DURATION,
+  isLoading = false,
+}) {
   const [isExiting, setIsExiting] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(100);
@@ -48,13 +56,15 @@ function Toast({ id, type, title, message, onDismiss, duration = DEFAULT_DURATIO
   const startTimeRef = useRef(null);
   const remainingRef = useRef(duration);
   const variant = TOAST_VARIANTS[type] || TOAST_VARIANTS.info;
+  const isPersistent = isLoading || duration == null || duration <= 0;
 
   const startTimer = useCallback(() => {
+    if (isPersistent) return;
     startTimeRef.current = Date.now();
     timerRef.current = setTimeout(() => {
       handleDismiss();
     }, remainingRef.current);
-  }, []);
+  }, [isPersistent]);
 
   const pauseTimer = useCallback(() => {
     if (timerRef.current) {
@@ -74,11 +84,14 @@ function Toast({ id, type, title, message, onDismiss, duration = DEFAULT_DURATIO
   }, [id, onDismiss, isExiting]);
 
   useEffect(() => {
-    startTimer();
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [startTimer]);
+    remainingRef.current =
+      duration == null || duration <= 0 ? DEFAULT_DURATION : duration;
+    setProgress(100);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [duration, isLoading, isPersistent]);
 
   useEffect(() => {
     if (isPaused) {
@@ -89,25 +102,29 @@ function Toast({ id, type, title, message, onDismiss, duration = DEFAULT_DURATIO
   }, [isPaused, isExiting, pauseTimer, startTimer]);
 
   useEffect(() => {
-    if (isExiting || isPaused) return;
+    if (isPersistent || isExiting || isPaused) return;
     const progressInterval = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current;
       const newProgress = Math.max(((remainingRef.current - elapsed) / duration) * 100, 0);
       setProgress(newProgress);
     }, 50);
     return () => clearInterval(progressInterval);
-  }, [duration, isExiting, isPaused]);
+  }, [duration, isExiting, isPaused, isPersistent]);
 
   return (
     <div
-      className={`admin-toast ${variant.className}${isExiting ? " admin-toast--exiting" : ""}`}
+      className={`admin-toast ${variant.className}${isLoading ? " admin-toast--loading" : ""}${isExiting ? " admin-toast--exiting" : ""}`}
       role="alert"
       aria-live="assertive"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
+      onMouseEnter={() => !isPersistent && setIsPaused(true)}
+      onMouseLeave={() => !isPersistent && setIsPaused(false)}
     >
       <div className="admin-toast__icon-wrap">
-        <FontAwesomeIcon icon={variant.icon} className="admin-toast__icon" />
+        {isLoading ? (
+          <span className="admin-toast__spinner" aria-hidden="true" />
+        ) : (
+          <FontAwesomeIcon icon={variant.icon} className="admin-toast__icon" />
+        )}
       </div>
       <div className="admin-toast__content">
         {title && <div className="admin-toast__title">{title}</div>}
@@ -121,12 +138,14 @@ function Toast({ id, type, title, message, onDismiss, duration = DEFAULT_DURATIO
       >
         <FontAwesomeIcon icon={faTimes} />
       </button>
-      <div className="admin-toast__progress">
-        <div
-          className="admin-toast__progress-bar"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+      {!isPersistent ? (
+        <div className="admin-toast__progress">
+          <div
+            className="admin-toast__progress-bar"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -176,6 +195,29 @@ export function AdminToastProvider({ children }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
+  const updateToast = useCallback((id, options = {}) => {
+    setToasts((prev) =>
+      prev.map((toastItem) => {
+        if (toastItem.id !== id) return toastItem;
+        const nextType = options.type ?? toastItem.type;
+        const variant = TOAST_VARIANTS[nextType] || TOAST_VARIANTS.info;
+        return {
+          ...toastItem,
+          ...options,
+          type: nextType,
+          title:
+            options.title ??
+            (options.isLoading ? "Uploading" : variant?.defaultTitle),
+          message: options.render ?? options.message ?? toastItem.message,
+          duration:
+            options.duration ??
+            (options.isLoading ? null : DEFAULT_DURATION),
+          isLoading: options.isLoading ?? false,
+        };
+      }),
+    );
+  }, []);
+
   const toast = useCallback((message) => addToast({ type: "info", message }), [addToast]);
   toast.success = useCallback((message, options = {}) => 
     addToast({ type: "success", message, ...options }), [addToast]);
@@ -185,6 +227,20 @@ export function AdminToastProvider({ children }) {
     addToast({ type: "warning", message, ...options }), [addToast]);
   toast.info = useCallback((message, options = {}) => 
     addToast({ type: "info", message, ...options }), [addToast]);
+  toast.loading = useCallback(
+    (message, options = {}) =>
+      addToast({
+        type: "info",
+        title: "Uploading",
+        message,
+        duration: null,
+        isLoading: true,
+        ...options,
+      }),
+    [addToast],
+  );
+  toast.update = updateToast;
+  toast.dismiss = dismissToast;
 
   useEffect(() => {
     setToastRef(toast);
@@ -192,7 +248,7 @@ export function AdminToastProvider({ children }) {
   }, [toast]);
 
   return (
-    <ToastContext.Provider value={{ toast, addToast, dismissToast }}>
+    <ToastContext.Provider value={{ toast, addToast, dismissToast, updateToast }}>
       {children}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </ToastContext.Provider>

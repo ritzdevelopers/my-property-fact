@@ -5,6 +5,16 @@ import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGateway
 import "./VaastuStripSection.css";
 
 const INSTAGRAM_REELS = [
+  {
+    id: "Da7Gsw3jPqP",
+    title: "Vaastu insights: Ye Vastu Dosh aapki tarakki rok raha hai",
+    thumbnailSrc: "/static/vaastu-strip/reel-da7gsw3jpqp-thumbnail.png",
+  },
+  {
+    id: "DapDoL9gfIg",
+    title: "Vaastu insights: Is hafte ye rashiyan galti na karein",
+    thumbnailSrc: "/static/vaastu-strip/reel-dapdol9gfig-thumbnail.png",
+  },
   { id: "DaXEro5gddT", title: "My Property Fact — Instagram reel" },
   { id: "DaFC1n1grCs", title: "My Property Fact — Instagram reel" },
   { id: "DZy2IFyk2Mp", title: "My Property Fact — Instagram reel" },
@@ -17,6 +27,20 @@ const INSTAGRAM_REELS = [
 ];
 
 const MEDIA_CARDS = [
+  {
+    id: "vaastu-reel-da7gsw3jpqp",
+    reelId: "Da7Gsw3jPqP",
+    imageSrc: "/static/vaastu-strip/reel-da7gsw3jpqp-thumbnail.png",
+    alt: "Vaastu insights thumbnail: Ye Vastu Dosh aapki tarakki rok raha hai",
+    title: "Vaastu insights: Ye Vastu Dosh aapki tarakki rok raha hai",
+  },
+  {
+    id: "vaastu-reel-dapdol9gfig",
+    reelId: "DapDoL9gfIg",
+    imageSrc: "/static/vaastu-strip/reel-dapdol9gfig-thumbnail.png",
+    alt: "Vaastu insights thumbnail: Is hafte ye rashiyan galti na karein",
+    title: "Vaastu insights: Is hafte ye rashiyan galti na karein",
+  },
   {
     id: "vaastu-reel-daxero5gddt",
     reelId: "DaXEro5gddT",
@@ -470,7 +494,7 @@ export default function VaastuStripSection() {
                       ) : (
                         <div className="vaastu-reels-slide-idle" aria-hidden="true">
                           <img
-                            src={getInstagramThumbnailUrl(reel.id)}
+                            src={reel.thumbnailSrc || getInstagramThumbnailUrl(reel.id)}
                             alt={reel.title}
                             title={reel.title}
                             className="vaastu-reels-thumb"

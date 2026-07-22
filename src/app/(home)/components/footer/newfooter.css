@@ -35,14 +35,14 @@
     display: flex;
     justify-content: space-between;
     margin-bottom: 50px;
-    gap: 40px;
+    gap: 28px;
 }
 
 .new-design-footer-top-left {
     width: 50%;
 }
 .new-design-footer-top-new-left {
-    width: 25%;
+    width: 28%;
 }
 
 .new-design-footer-top-left-logo {
@@ -117,7 +117,7 @@
 }
 .new-design-footer-top-new-right
 {
-    width: 75%;
+    width: 72%;
 }
 
 .new-design-footer-top-left-content{
@@ -320,6 +320,49 @@ letter-spacing: 0%;
 .footer-new-link:hover {
     color: #D4AF37;
 }
+
+/* City links — 4 columns in one row */
+.footer-city-links-section {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px 20px;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 20px 40px;
+}
+
+.footer-city-links-section .footer-bottom-column {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: none;
+}
+
+@media (max-width: 991px) {
+    .footer-city-links-section {
+        flex-wrap: wrap;
+        gap: 20px 16px;
+    }
+
+    .footer-city-links-section .footer-bottom-column {
+        flex: 1 1 calc(50% - 16px);
+        min-width: 220px;
+    }
+}
+
+@media (max-width: 575px) {
+    .footer-city-links-section {
+        flex-direction: column;
+    }
+
+    .footer-city-links-section .footer-bottom-column {
+        flex: 1 1 100%;
+        min-width: 0;
+        width: 100%;
+    }
+}
+
 .footer-links {
     list-style: none;
     padding: 0;
@@ -383,15 +426,15 @@ letter-spacing: 0%;
 }
 @media (min-width: 992px) {
     .new-design-footer-bottom {
-        min-height: 260px !important;
+        min-height: 220px !important;
     }
 }
 
 /* Bottom Section */
 .new-design-footer-bottom {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 40px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 32px;
     padding-top: 30px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -691,7 +734,7 @@ letter-spacing: 0%;
     
     .new-design-footer-bottom {
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
+        gap: 24px 28px;
     }
     
     .footer-stay-updated {
@@ -763,7 +806,7 @@ letter-spacing: 0%;
     
     .new-design-footer-bottom {
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
+        gap: 24px 28px;
     }
     
     .footer-stay-updated {

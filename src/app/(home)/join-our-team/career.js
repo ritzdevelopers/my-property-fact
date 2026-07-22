@@ -178,7 +178,7 @@ export default function Career({ jobsArr = [] }) {
             <div className="col-lg-7">
               <p className="career-v2-eyebrow plus-jakarta-sans-regular">Careers at My Property Fact</p>
               <h1 id="mpf-page-heading" className="career-v2-hero__title plus-jakarta-sans-bold">
-                Build the future of real estate intelligence.
+                Build the Future of Real Estate Intelligence
               </h1>
               <p className="career-v2-hero__subtitle plus-jakarta-sans-regular">
                 Join a passionate team where technology, data, and creativity come together to help millions
@@ -224,7 +224,7 @@ export default function Career({ jobsArr = [] }) {
         <div className="container">
           <div className="career-v2-section-head">
             <h2 className="career-v2-section-title plus-jakarta-sans-semi-bold">
-              Your next career move starts here
+              Your Next Career Move Starts Here
             </h2>
             <p className="career-v2-section-subtitle plus-jakarta-sans-regular">
               At My Property Fact, we&apos;re building the future of real estate intelligence with innovation,
@@ -304,16 +304,22 @@ export default function Career({ jobsArr = [] }) {
 
                       <div className="career-v2-job__body">
                         <div className="career-v2-job__content">
-                          {job.shortDescription && (
-                            <p className="career-v2-job__summary plus-jakarta-sans-regular">
-                              {job.shortDescription}
-                            </p>
-                          )}
-                          {job.longDescription && (
+                          {job.longDescription ? (
                             <div
                               className="career-v2-job__description plus-jakarta-sans-regular"
                               dangerouslySetInnerHTML={{ __html: job.longDescription }}
                             />
+                          ) : (
+                            job.shortDescription && (
+                              <>
+                                <h4 className="career-v2-job__subheading plus-jakarta-sans-semi-bold">
+                                  Job Description
+                                </h4>
+                                <p className="career-v2-job__summary plus-jakarta-sans-regular">
+                                  {job.shortDescription}
+                                </p>
+                              </>
+                            )
                           )}
                           <div className="career-v2-job__actions">
                             <button
@@ -420,7 +426,7 @@ export default function Career({ jobsArr = [] }) {
         <div className="container">
           <div className="career-v2-form-grid">
             <div>
-              <h2 className="career-v2-form__intro-title plus-jakarta-sans-bold">Ready to join us?</h2>
+              <h2 className="career-v2-form__intro-title plus-jakarta-sans-bold">Ready to Join Us?</h2>
               <p className="career-v2-form__intro-text plus-jakarta-sans-regular">
                 Take the next step in your career with a team that values growth, passion, and performance.
                 Fill in your details and we&apos;ll get back to you.

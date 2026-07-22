@@ -412,13 +412,16 @@
   color: rgba(0, 0, 0, 0.72);
 }
 
-.career-v2-job__description h1,
-.career-v2-job__description h2,
-.career-v2-job__description h3 {
-  font-size: 1rem;
+.career-v2-job__description h4,
+.career-v2-job__subheading {
+  font-size: 0.95rem;
   font-weight: 600;
   margin: 18px 0 10px;
   color: #111111;
+}
+
+.career-v2-job__description header h4:first-child {
+  margin-top: 0;
 }
 
 .career-v2-job__description ul {

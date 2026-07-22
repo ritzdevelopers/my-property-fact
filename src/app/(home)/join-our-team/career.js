@@ -243,7 +243,7 @@ export default function Career({ jobsArr = [] }) {
           <div className="career-v2-section-head">
             <h2 className="career-v2-section-title plus-jakarta-sans-semi-bold">Current Openings</h2>
             <p className="career-v2-section-subtitle plus-jakarta-sans-regular">
-              Explore roles across technology, content, and sales — and apply directly from this page.
+              Explore roles across technology, content, and sales, and apply directly from this page.
             </p>
           </div>
 

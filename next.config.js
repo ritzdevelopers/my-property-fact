@@ -86,6 +86,11 @@ const nextConfig = {
         destination: "/builder/one-global-forbes",
         permanent: true,
       },
+      {
+        source: "/builder/home-%26-soul",
+        destination: "/builder/home-and-soul",
+        permanent: true,
+      },
 
       // Invalid/legacy public paths
       { source: "/builder/eleque", destination: "/", permanent: true },

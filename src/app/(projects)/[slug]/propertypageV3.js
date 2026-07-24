@@ -897,7 +897,7 @@ export default function PropertyV3({
               <>
                 <Link
                   title={`Projects in ${projectDetail.city}`}
-                  href={`/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
+                  href={`/city/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
                 >
                   Projects in {projectDetail.city}
                 </Link>

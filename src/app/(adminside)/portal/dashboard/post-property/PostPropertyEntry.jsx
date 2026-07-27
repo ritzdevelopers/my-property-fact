@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../_contexts/UserContext";
+import { getUserDisplayName, getUserRoleLabel } from "../../_utils/userDisplay";
+import PortalUserAvatar from "../../_components/PortalUserAvatar";
 
 function AddPropertyIcon() {
   return (
@@ -41,11 +43,6 @@ export default function PostPropertyEntry() {
     };
   }, []);
 
-  const persona =
-    userData?.userType ||
-    (userData?.roles?.some((r) => String(r).includes("OWNER")) ? "OWNER" : null) ||
-    (userData?.roles?.some((r) => String(r).includes("BROKER")) ? "BROKER" : null);
-
   if (loading) {
     return (
       <div className="ppe-shell ppe-shell--loading">
@@ -54,8 +51,8 @@ export default function PostPropertyEntry() {
     );
   }
 
-  const firstName = (userData?.fullName || "there").split(" ")[0];
-  const personaLabel = persona === "OWNER" ? "Property Owner" : persona === "BROKER" ? "Broker / Agent" : null;
+  const displayName = getUserDisplayName(userData);
+  const personaLabel = getUserRoleLabel(userData);
 
   return (
     <div className="ppe-shell">
@@ -76,11 +73,16 @@ export default function PostPropertyEntry() {
         </section>
 
         <section className="ppe-card">
-          <h2>What would you like to do?</h2>
-          <p className="ppe-card__sub">
-            Welcome back, {firstName}
-            {personaLabel ? ` · ${personaLabel}` : ""}
-          </p>
+          <div className="ppe-card__user">
+            <PortalUserAvatar userData={userData} size="md" />
+            <div>
+              <h2>What would you like to do?</h2>
+              <p className="ppe-card__sub">
+                Welcome back, <strong>{displayName}</strong>
+                {personaLabel ? ` · ${personaLabel}` : ""}
+              </p>
+            </div>
+          </div>
 
           <div className="ppe-action-grid">
             <button

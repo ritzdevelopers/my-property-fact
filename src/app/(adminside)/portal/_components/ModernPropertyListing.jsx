@@ -1520,6 +1520,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         currentStep={currentStep}
         formData={formData}
         userName={userData?.fullName}
+        userData={userData}
         isEditMode={isEditMode}
         onStepClick={(id) => setCurrentStep(id)}
         onBack={handlePrevious}

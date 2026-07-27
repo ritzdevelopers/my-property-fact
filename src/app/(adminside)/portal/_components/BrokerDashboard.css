@@ -1,7 +1,112 @@
 .broker-dash-shell {
-  padding: clamp(1.25rem, 3vw, 2rem);
+  padding: clamp(1rem, 3vw, 2rem);
   min-height: 100%;
   background: #f8f9fa;
+}
+
+.broker-dash-welcome {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+  border: 1px solid rgba(0, 125, 81, 0.12);
+  box-shadow: 0 2px 12px rgba(13, 88, 52, 0.06);
+}
+
+.broker-dash-welcome__user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.broker-dash-welcome__info {
+  min-width: 0;
+}
+
+.broker-dash-welcome__kicker {
+  margin: 0 0 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.broker-dash-welcome__name {
+  margin: 0;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #111827;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.broker-dash-welcome__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-top: 0.45rem;
+}
+
+.broker-dash-welcome__badge {
+  display: inline-flex;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(13, 88, 52, 0.1);
+  color: #065f46;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.broker-dash-welcome__contact {
+  font-size: 0.8rem;
+  color: #6b7280;
+  word-break: break-all;
+}
+
+.broker-dash-welcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  flex-shrink: 0;
+}
+
+.broker-dash-welcome__cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.15rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
+  color: #fff !important;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  white-space: nowrap;
+}
+
+.broker-dash-welcome__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(13, 88, 52, 0.25);
+  color: #fff;
+}
+
+.broker-dash-shell .admin-dash-home__hero-row {
+  margin-bottom: 1.25rem;
+}
+
+.broker-dash-shell .admin-dash-home__signed-in-meta {
+  margin: 0.35rem 0 0;
 }
 
 .broker-dash-shell .admin-dash-metric {
@@ -111,8 +216,67 @@
   font-size: 0.875rem;
 }
 
+.broker-dash-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.broker-dash-split .admin-dash-home__catalog {
+  margin: 0;
+}
+
 @media (max-width: 767px) {
   .broker-dash-shell {
+    padding: 0.875rem;
+  }
+
+  .broker-dash-split {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .broker-dash-welcome {
     padding: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .broker-dash-welcome__user {
+    flex: 1 1 100%;
+  }
+
+  .broker-dash-welcome__actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .broker-dash-welcome__cta {
+    flex: 1;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .broker-dash-onboard {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .broker-dash-onboard .admin-dash-quick-link {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .broker-dash-welcome__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .broker-dash-welcome__actions .admin-dash-home__trend {
+    justify-content: center;
   }
 }

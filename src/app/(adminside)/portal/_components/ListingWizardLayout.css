@@ -15,6 +15,65 @@
   background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
   color: #fff;
   flex-shrink: 0;
+  gap: 1rem;
+}
+
+.lw-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: auto;
+  min-width: 0;
+  max-width: 220px;
+}
+
+.lw-header__user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.lw-header__user-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.lw-header__user-role {
+  font-size: 0.65rem;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lw-header__user :global(.portal-user-avatar--initials) {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lw-mobile-progress {
+  display: none;
+  position: relative;
+  height: 4px;
+  background: #e5e7eb;
+}
+
+.lw-mobile-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #68ac78, #0d5834);
+  transition: width 0.3s ease;
+}
+
+.lw-mobile-progress__label {
+  display: none;
+}
+
+.lw-tips--mobile {
+  display: none;
 }
 
 .lw-header__brand {
@@ -349,20 +408,72 @@
 @media (max-width: 1100px) {
   .lw-body {
     grid-template-columns: 1fr;
+    padding: 1rem;
   }
 
   .lw-sidebar,
   .lw-tips {
     display: none;
   }
+
+  .lw-mobile-progress {
+    display: block;
+  }
+
+  .lw-tips--mobile {
+    display: block;
+    margin-top: 1rem;
+  }
+
+  .lw-header__user {
+    max-width: 140px;
+  }
+
+  .lw-header__user-role {
+    display: none;
+  }
 }
 
 @media (max-width: 576px) {
+  .lw-header {
+    padding: 0 0.75rem;
+    height: 52px;
+  }
+
+  .lw-header__title {
+    font-size: 0.95rem;
+  }
+
+  .lw-header__logo {
+    height: 24px;
+  }
+
   .lw-body {
     padding: 0.75rem;
   }
 
   .lw-form-card {
     padding: 1rem;
+  }
+
+  .lw-main__title {
+    font-size: 1.15rem;
+  }
+
+  .lw-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .lw-footer .btn {
+    width: 100%;
+  }
+
+  .lw-header__user-info {
+    display: none;
+  }
+
+  .lw-header__user {
+    max-width: none;
   }
 }

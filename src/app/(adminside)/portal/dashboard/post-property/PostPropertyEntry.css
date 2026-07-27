@@ -95,8 +95,21 @@
   color: #0c2e23;
 }
 
+.ppe-card__user {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #eef0f4;
+}
+
+.ppe-card__user h2 {
+  margin: 0 0 0.25rem;
+}
+
 .ppe-card__sub {
-  margin: 0 0 1rem;
+  margin: 0;
   font-size: 0.875rem;
   color: #6b7280;
 }
@@ -197,6 +210,22 @@
 @media (max-width: 900px) {
   .ppe-layout {
     grid-template-columns: 1fr;
+  }
+
+  .ppe-shell {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ppe-card {
+    padding: 1.25rem;
+  }
+
+  .ppe-card__user {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
   }
 }
 

@@ -1,0 +1,41 @@
+.portal-user-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.portal-user-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: 0.7rem;
+}
+
+.portal-user-avatar--md {
+  width: 44px;
+  height: 44px;
+  font-size: 0.85rem;
+}
+
+.portal-user-avatar--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 1rem;
+}
+
+.portal-user-avatar--xl {
+  width: 72px;
+  height: 72px;
+  font-size: 1.25rem;
+}
+
+.portal-user-avatar--initials {
+  background: linear-gradient(135deg, #0d5834 0%, #68ac78 100%);
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(13, 88, 52, 0.2);
+}

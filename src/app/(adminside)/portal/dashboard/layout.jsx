@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import ModernPortalSidenav from "../_components/ModernPortalSidenav";
 import ErrorBoundary from "../_components/ErrorBoundary";
 import CSSLoader from "../_components/CSSLoader";
+import PortalUserAvatar from "../_components/PortalUserAvatar";
+import { useUser } from "../_contexts/UserContext";
+import { getUserDisplayName } from "../_utils/userDisplay";
 import { Button } from "react-bootstrap";
 import { cilMenu } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
@@ -11,6 +14,8 @@ export default function PortalDashboardLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const { userData } = useUser();
+  const displayName = getUserDisplayName(userData);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -73,7 +78,13 @@ export default function PortalDashboardLayout({ children }) {
           >
             <CIcon icon={cilMenu} />
           </Button>
-          <h4 className="mobile-title">Broker Portal</h4>
+          <div className="mobile-header__center">
+            <h4 className="mobile-title">Broker Portal</h4>
+            {displayName && displayName !== "Broker" && (
+              <span className="mobile-user-name">{displayName}</span>
+            )}
+          </div>
+          <PortalUserAvatar userData={userData} size="sm" className="mobile-header__avatar" />
         </div>
 
         {/* Mobile Overlay */}
@@ -103,7 +114,7 @@ export default function PortalDashboardLayout({ children }) {
         .mobile-header {
           display: none;
           align-items: center;
-          padding: 1rem;
+          padding: 0.75rem 1rem;
           background: white;
           border-bottom: 1px solid #e9ecef;
           box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -113,6 +124,29 @@ export default function PortalDashboardLayout({ children }) {
           left: 0;
           right: 0;
           height: 60px;
+          gap: 0.75rem;
+        }
+
+        .mobile-header__center {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .mobile-user-name {
+          font-size: 0.72rem;
+          color: #6b7280;
+          font-weight: 600;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          line-height: 1.2;
+        }
+
+        .mobile-header :global(.mobile-header__avatar) {
+          flex-shrink: 0;
         }
 
 

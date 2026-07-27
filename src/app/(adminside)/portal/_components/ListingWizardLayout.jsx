@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { ArrowLeft, Headphones } from "lucide-react";
+import { getUserDisplayName, getUserRoleLabel } from "../_utils/userDisplay";
+import PortalUserAvatar from "./PortalUserAvatar";
 import "./ListingWizardLayout.css";
 
 const STEP_TIPS = {
@@ -96,6 +97,7 @@ export default function ListingWizardLayout({
   currentStep,
   formData,
   userName,
+  userData,
   isEditMode,
   onStepClick,
   onBack,
@@ -104,7 +106,9 @@ export default function ListingWizardLayout({
 }) {
   const score = computePropertyScore(formData);
   const tips = STEP_TIPS[currentStep] || STEP_TIPS[1];
-  const firstName = (userName || "there").split(" ")[0];
+  const displayName = getUserDisplayName(userData || { fullName: userName });
+  const roleLabel = getUserRoleLabel(userData || {});
+  const progressPct = Math.round((currentStep / steps.length) * 100);
 
   return (
     <div className="lw-shell">
@@ -113,12 +117,26 @@ export default function ListingWizardLayout({
           <img src="/logo.webp" alt="My Property Fact" className="lw-header__logo" />
           <span className="lw-header__title">Post Property</span>
         </div>
+        <div className="lw-header__user">
+          <PortalUserAvatar userData={userData || { fullName: userName }} size="sm" />
+          <div className="lw-header__user-info">
+            <span className="lw-header__user-name">{displayName}</span>
+            <span className="lw-header__user-role">{roleLabel}</span>
+          </div>
+        </div>
         <div className="lw-header__actions">
           <span className="lw-header__help" title="Support">
             <Headphones className="h-5 w-5" />
           </span>
         </div>
       </header>
+
+      <div className="lw-mobile-progress" aria-hidden>
+        <div className="lw-mobile-progress__bar" style={{ width: `${progressPct}%` }} />
+        <span className="lw-mobile-progress__label">
+          Step {currentStep} of {steps.length}
+        </span>
+      </div>
 
       <div className="lw-body">
         <aside className="lw-sidebar">
@@ -178,7 +196,7 @@ export default function ListingWizardLayout({
           <div className="lw-main__head">
             <h1 className="lw-main__title">
               {currentStep === 1 && !isEditMode
-                ? `Welcome back ${firstName}, fill out basic details`
+                ? `Hi ${displayName}, fill out basic details`
                 : steps[currentStep - 1]?.heading || steps[currentStep - 1]?.title}
             </h1>
             {steps[currentStep - 1]?.description && (
@@ -187,6 +205,18 @@ export default function ListingWizardLayout({
           </div>
 
           <div className="lw-form-card">{children}</div>
+
+          <div className="lw-tips lw-tips--mobile">
+            <div className="lw-tips__card">
+              <h3 className="lw-tips__title">{tips.title}</h3>
+              <ul className="lw-tips__list">
+                {tips.tips.map((tip) => (
+                  <li key={tip}>{tip}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
           {footer && <div className="lw-footer">{footer}</div>}
         </main>
 

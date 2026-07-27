@@ -19,6 +19,8 @@ import "@coreui/coreui/dist/css/coreui.min.css";
 import { useState, useEffect } from "react";
 import sidenavConfig from "./sidenav-config.json";
 import { useUser } from "../_contexts/UserContext";
+import PortalUserAvatar from "./PortalUserAvatar";
+import { getUserDisplayName, getUserRoleLabel } from "../_utils/userDisplay";
 import { cilX } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 
@@ -153,16 +155,10 @@ export default function ModernPortalSidenav({ onNavigate }) {
               caret={false}
             >
               <div className="user-profile">
-                <img
-                  src="/logo.webp"
-                  alt="user-avatar"
-                  height={32}
-                  width={32}
-                  className="user-avatar"
-                />
+                <PortalUserAvatar userData={userData} size="sm" />
                 <div className="user-info">
-                  <div className="user-name">{userData?.fullName || 'User'}</div>
-                  <div className="user-role">{userData?.role || 'Broker'}</div>
+                  <div className="user-name">{getUserDisplayName(userData)}</div>
+                  <div className="user-role">{getUserRoleLabel(userData)}</div>
                 </div>
               </div>
             </CDropdownToggle>

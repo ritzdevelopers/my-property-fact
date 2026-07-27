@@ -6,7 +6,13 @@ import { Spinner, Alert } from "react-bootstrap";
 import { TrendingUp } from "lucide-react";
 import axios from "axios";
 import { useUser } from "../_contexts/UserContext";
+import {
+  getUserDisplayName,
+  getUserRoleLabel,
+  getUserContactLine,
+} from "../_utils/userDisplay";
 import BrokerDashboardStats, { BrokerQuickActions } from "./BrokerDashboardStats";
+import PortalUserAvatar from "./PortalUserAvatar";
 import "../../admin/dashboard/dashboard-home.css";
 import "./BrokerDashboard.css";
 
@@ -104,7 +110,9 @@ export default function ModernDashboard() {
     );
   }
 
-  const displayName = (userData?.fullName || "Broker").split(" ")[0];
+  const displayName = getUserDisplayName(userData);
+  const roleLabel = getUserRoleLabel(userData);
+  const contactLine = getUserContactLine(userData);
   const growthLabel =
     stats?.addedThisMonth > 0
       ? `+${stats.addedThisMonth} this month`
@@ -114,18 +122,39 @@ export default function ModernDashboard() {
 
   return (
     <div className="admin-dash-home broker-dash-shell">
+      <section className="broker-dash-welcome">
+        <div className="broker-dash-welcome__user">
+          <PortalUserAvatar userData={userData} size="xl" />
+          <div className="broker-dash-welcome__info">
+            <p className="broker-dash-welcome__kicker">Welcome back</p>
+            <h1 className="broker-dash-welcome__name">{displayName}</h1>
+            <div className="broker-dash-welcome__meta">
+              <span className="broker-dash-welcome__badge">{roleLabel}</span>
+              {contactLine && (
+                <span className="broker-dash-welcome__contact">{contactLine}</span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="broker-dash-welcome__actions">
+          <span className="admin-dash-home__trend">
+            <TrendingUp className="h-4 w-4" />
+            {growthLabel}
+          </span>
+          <Link href="/portal/dashboard/listings?action=add" className="broker-dash-welcome__cta">
+            Add Property
+          </Link>
+        </div>
+      </section>
+
       <div className="admin-dash-home__hero-row">
         <div>
           <p className="admin-dash-home__kicker">Executive Overview</p>
-          <h1 className="admin-dash-home__title">My Portfolio</h1>
+          <h2 className="admin-dash-home__title">My Portfolio</h2>
           <p className="admin-dash-home__signed-in-meta">
-            Welcome back, {displayName}. Here&apos;s an overview of your listed properties.
+            Here&apos;s an overview of your listed properties and activity.
           </p>
         </div>
-        <span className="admin-dash-home__trend">
-          <TrendingUp className="h-4 w-4" />
-          {growthLabel}
-        </span>
       </div>
 
       <BrokerDashboardStats stats={stats} loading={false} />
@@ -142,7 +171,7 @@ export default function ModernDashboard() {
         </div>
       )}
 
-      <div className="admin-dash-home__split admin-dash-home__split--no-chart">
+      <div className="broker-dash-split">
         <section className="broker-dash-panel">
           <div className="broker-dash-panel__head">
             <h2 className="broker-dash-panel__title">Recent Activity</h2>

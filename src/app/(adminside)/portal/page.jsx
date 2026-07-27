@@ -46,6 +46,7 @@ export default function PortalSignInPage() {
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [otp, setOtp] = useState("");
+  const [needsFullName, setNeedsFullName] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [devOtp, setDevOtp] = useState("");
@@ -57,6 +58,7 @@ export default function PortalSignInPage() {
     setOtp("");
     setError("");
     setDevOtp("");
+    setNeedsFullName(false);
   };
 
   const switchMode = (newMode) => {
@@ -91,6 +93,7 @@ export default function PortalSignInPage() {
       );
       if (response.status === 200 && response.data?.success !== false) {
         setStep("otp");
+        setNeedsFullName(mode === "signup" || response.data.userExists === false);
         if (response.data.otp) setDevOtp(response.data.otp);
       } else {
         setError(response.data?.message || response.data?.error || "Could not send OTP. Please try again.");
@@ -115,12 +118,16 @@ export default function PortalSignInPage() {
       setError("Please enter the OTP sent to your email");
       return;
     }
+    if (needsFullName && !fullName.trim()) {
+      setError("Please enter your full name to create your account");
+      return;
+    }
 
     setIsLoading(true);
     setError("");
     try {
       const payload = { email: email.trim(), otp: otp.trim() };
-      if (mode === "signup" && fullName.trim()) {
+      if (fullName.trim()) {
         payload.fullName = fullName.trim();
       }
 
@@ -155,6 +162,10 @@ export default function PortalSignInPage() {
         window.location.href = "/portal/dashboard";
       }
     } catch (err) {
+      const errorCode = err.response?.data?.error;
+      if (errorCode === "full_name_required") {
+        setNeedsFullName(true);
+      }
       setError(
         err.response?.data?.message ||
           err.response?.data?.error ||
@@ -209,6 +220,31 @@ export default function PortalSignInPage() {
               )}
 
               <form onSubmit={handleVerifyOtp}>
+                {needsFullName && (
+                  <div className="broker-login-field">
+                    <label htmlFor="fullNameOtp">Full name</label>
+                    <div className="broker-login-input-wrap">
+                      <span className="broker-login-input-icon">
+                        <UserIcon />
+                      </span>
+                      <input
+                        id="fullNameOtp"
+                        type="text"
+                        value={fullName}
+                        onChange={(e) => {
+                          setFullName(e.target.value);
+                          setError("");
+                        }}
+                        placeholder="Your full name"
+                        disabled={isLoading}
+                        className="broker-login-input"
+                        autoComplete="name"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                )}
+
                 <div className="broker-login-field">
                   <label htmlFor="otp">Verification code</label>
                   <input
@@ -225,7 +261,7 @@ export default function PortalSignInPage() {
                     placeholder="0000"
                     disabled={isLoading}
                     className="broker-login-input otp-input no-icon"
-                    autoFocus
+                    autoFocus={!needsFullName}
                   />
                 </div>
 
@@ -236,7 +272,7 @@ export default function PortalSignInPage() {
                       Verifying…
                     </>
                   ) : (
-                    isSignUp ? "Verify & Create Account" : "Verify & Sign In"
+                    needsFullName ? "Verify & Create Account" : "Verify & Sign In"
                   )}
                 </button>
               </form>

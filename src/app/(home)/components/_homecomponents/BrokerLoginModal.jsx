@@ -116,6 +116,7 @@ export default function BrokerLoginModal({
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
+  const [needsFullName, setNeedsFullName] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [devOtp, setDevOtp] = useState("");
@@ -138,6 +139,7 @@ export default function BrokerLoginModal({
       setEmail("");
       setFullName("");
       setOtpDigits(["", "", "", ""]);
+      setNeedsFullName(false);
       setError("");
       setDevOtp("");
       setIsLoading(false);
@@ -192,6 +194,7 @@ export default function BrokerLoginModal({
     setOtpDigits(["", "", "", ""]);
     setError("");
     setDevOtp("");
+    setNeedsFullName(false);
   };
 
   const resetToPersona = () => {
@@ -268,6 +271,7 @@ export default function BrokerLoginModal({
       );
       if (response.status === 200 && response.data?.success !== false) {
         setStep("otp");
+        setNeedsFullName(mode === "signup" || response.data.userExists === false);
         setOtpDigits(["", "", "", ""]);
         if (response.data.otp) setDevOtp(response.data.otp);
         setTimeout(() => otpRefs.current[0]?.focus(), 100);
@@ -287,12 +291,16 @@ export default function BrokerLoginModal({
       setError("Please enter the 4-digit code sent to your email");
       return;
     }
+    if (needsFullName && !fullName.trim()) {
+      setError("Please enter your full name to create your account");
+      return;
+    }
 
     setIsLoading(true);
     setError("");
     try {
       const payload = { email: email.trim(), otp, userType: persona };
-      if (mode === "signup" && fullName.trim()) {
+      if (fullName.trim()) {
         payload.fullName = fullName.trim();
       }
 
@@ -307,6 +315,10 @@ export default function BrokerLoginModal({
         await redirectAfterLogin();
       }
     } catch (err) {
+      const errorCode = err.response?.data?.error;
+      if (errorCode === "full_name_required") {
+        setNeedsFullName(true);
+      }
       setError(getAuthErrorMessage(err, "Invalid OTP. Please check and try again."));
     } finally {
       setIsLoading(false);
@@ -444,6 +456,29 @@ export default function BrokerLoginModal({
                 Change email
               </button>
 
+              {needsFullName && (
+                <div className="broker-login-modal-field">
+                  <label htmlFor="broker-modal-name-otp">Full name</label>
+                  <div className="broker-login-modal-input-wrap">
+                    <span className="broker-login-modal-icon"><UserIcon /></span>
+                    <input
+                      id="broker-modal-name-otp"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => {
+                        setFullName(e.target.value);
+                        setError("");
+                      }}
+                      placeholder="Your full name"
+                      disabled={isLoading}
+                      className="broker-login-modal-input with-icon"
+                      autoComplete="name"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="broker-login-modal-field">
                 <label>Verification code</label>
                 <div className="broker-login-modal-otp-row" onPaste={handleOtpPaste}>
@@ -468,7 +503,7 @@ export default function BrokerLoginModal({
                     Verifying…
                   </>
                 ) : (
-                  "Verify & Continue"
+                  needsFullName ? "Verify & Create Account" : "Verify & Continue"
                 )}
               </button>
 

@@ -60,8 +60,8 @@ function renderCityList(cities, category, prefix, generateSlugFn) {
   const useScroll = cities.length >= SCROLL_HINT_MIN_CITIES;
 
   return (
-    <>
-      <div className={useScroll ? "footer-new-links-scroll" : undefined}>
+    <div className="footer-new-links-body">
+      <div className={useScroll ? "footer-new-links-scroll" : "footer-new-links-static"}>
         <ul className="footer-new-links">
           {cities.map((city, index) => (
             <li key={`${category}-${city.id || index}`}>
@@ -90,7 +90,7 @@ function renderCityList(cities, category, prefix, generateSlugFn) {
           <span className="footer-scroll-hint__text">Scroll to view more</span>
         </div>
       )}
-    </>
+    </div>
   );
 }
 

@@ -321,45 +321,83 @@ letter-spacing: 0%;
     color: #D4AF37;
 }
 
-/* City links — 4 columns in one row */
-.footer-city-links-section {
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px 20px;
-    max-width: 100%;
+/* City links — centered container, 4 equal columns, vertical center-aligned lists */
+.footer-city-links-container {
+    max-width: 90%;
     margin: 0 auto;
-    padding: 0 20px 40px;
+    padding: 0 20px;
+}
+
+.footer-city-links-section {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 16px 20px;
+    width: 100%;
+    padding-bottom: 40px;
 }
 
 .footer-city-links-section .footer-bottom-column {
-    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    /* text-align: center; */
     min-width: 0;
-    max-width: none;
+    height: 100%;
+}
+
+.footer-city-links-section .footer-new-heading {
+    text-align: center;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.footer-city-links-section .footer-new-links-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+}
+
+.footer-city-links-section .footer-new-links-scroll,
+.footer-city-links-section .footer-new-links-static {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: clamp(150px, 15vh, 280px);
+}
+
+.footer-city-links-section .footer-new-links-scroll {
+    max-height: clamp(150px, 15vh, 280px);
+}
+
+.footer-city-links-section .footer-new-links {
+    align-items: center;
+    width: 100%;
+}
+
+.footer-city-links-section .footer-new-links li {
+    text-align: center;
+    width: 100%;
+}
+
+.footer-city-links-section .footer-scroll-hint {
+    justify-content: center;
+    width: 100%;
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 @media (max-width: 991px) {
     .footer-city-links-section {
-        flex-wrap: wrap;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px 16px;
-    }
-
-    .footer-city-links-section .footer-bottom-column {
-        flex: 1 1 calc(50% - 16px);
-        min-width: 220px;
     }
 }
 
 @media (max-width: 575px) {
     .footer-city-links-section {
-        flex-direction: column;
-    }
-
-    .footer-city-links-section .footer-bottom-column {
-        flex: 1 1 100%;
-        min-width: 0;
-        width: 100%;
+        grid-template-columns: 1fr;
     }
 }
 

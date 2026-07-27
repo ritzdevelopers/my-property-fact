@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   faInstagram,
   faLinkedin,
@@ -14,10 +13,6 @@ import FooterCityLinksSection from "./FooterCityLinksSection";
 import "./newfooter.css";
 
 export default function NewFooterDesign({ compactTop = false, cityList: cityListProp }) {
-  const pathname = usePathname();
-  const isInternalListingPage =
-    typeof pathname === "string" && pathname !== "/" && pathname.includes("-in-");
-
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
 
@@ -80,9 +75,9 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
             </div>
           </div>
         </div>
-        {!isInternalListingPage && (
+        <div className="footer-city-links-container">
           <FooterCityLinksSection cityList={cityList} />
-        )}
+        </div>
       </div>
       <div className={`new-footer-design-container-fluid${compactTop ? " compact-top" : ""}`}>
         <div className="new-design-container">

@@ -1,3 +1,5 @@
+import "@/app/(home)/bootstrap-critical.css";
+import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import { notFound } from "next/navigation";
 import {
   fetchAllProjects,
@@ -825,5 +827,10 @@ return {
 }
 
 export default function ProjectSlugLayout({ children }) {
-return children;
+  return (
+    <>
+      <BootstrapDeferredStyles />
+      {children}
+    </>
+  );
 }

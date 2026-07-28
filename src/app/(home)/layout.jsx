@@ -1,5 +1,5 @@
 import "./bootstrap-critical.css";
-import "bootstrap/dist/css/bootstrap.min.css";
+import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 
@@ -49,6 +49,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <>
+      <BootstrapDeferredStyles />
       <HeaderComponent />
       {children}
       <NewFooterDesign />

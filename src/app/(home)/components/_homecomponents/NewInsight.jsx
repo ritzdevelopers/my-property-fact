@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import "./newinsight.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const INSIGHTS = [
   {
@@ -39,6 +39,8 @@ const SECTION_SUBTITLE =
   "Expert resources to help you navigate your next big move with confidence.";
 
 export default function NewInsight() {
+  useDeferredStylesheet(() => import("./newinsight.css"));
+
   const [activeId, setActiveId] = useState(INSIGHTS[0].id);
   const activeInsight =
     INSIGHTS.find((insight) => insight.id === activeId) ?? INSIGHTS[0];

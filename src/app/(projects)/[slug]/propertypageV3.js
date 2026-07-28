@@ -10,6 +10,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { formatDistanceKm } from "@/lib/utils";
 import { peekListingReturnState } from "@/lib/listingScrollRestore";
+import {
+  getCityPageHref,
+  resolveCitySlug,
+} from "@/app/_global_components/cityAliasUtils";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -350,7 +354,7 @@ function ProjectSearchBar() {
 
 /* ---------------------------- Hero single image ---------------------------- */
 
-function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
+function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex, primaryLcp }) {
   const list = slides.length ? slides : ["/static/no_image.png"];
   const primary = list[0];
   const secondary = list[1] || list[0];
@@ -358,21 +362,45 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
   const total = Math.max(totalCount || 0, list.length);
   const moreCount = Math.max(total - 3, 0);
 
+  const {
+    src: lcpSrc,
+    srcSet: lcpSrcSet,
+    sizes: lcpSizes,
+    alt: lcpAlt,
+    ...lcpRest
+  } = primaryLcp || {};
+
   return (
     <div className="pd3-hero-collage">
-      <button
-        type="button"
-        className="pd3-hero-tile pd3-hero-tile--primary"
-        onClick={() => onOpenAtIndex(0)}
-        aria-label={`Open photo gallery. ${total} photos`}
-      >
-        <img loading="eager"
-          src={primary}
-          alt="Project primary photo"
-          title="Project primary photo"
+      <div className="pd3-hero-tile pd3-hero-tile--primary">
+        <img
+          {...lcpRest}
+          src={lcpSrc || primary}
+          srcSet={lcpSrcSet}
+          sizes={lcpSizes}
+          alt={lcpAlt || "Project primary photo"}
+          title={lcpAlt || "Project primary photo"}
           className="pd3-tile-img"
-         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-      </button>
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          width={1200}
+          height={800}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+        <button
+          type="button"
+          className="pd3-hero-tile-hit"
+          onClick={() => onOpenAtIndex(0)}
+          aria-label={`Open photo gallery. ${total} photos`}
+        />
+      </div>
 
       <div className="pd3-hero-side">
         <button
@@ -386,6 +414,11 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
             alt="Project secondary photo"
             title="Project secondary photo"
             className="pd3-tile-img"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={600}
+            height={400}
            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         </button>
         <button
@@ -399,6 +432,11 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
             alt="Project additional photo"
             title="Project additional photo"
             className="pd3-tile-img"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={600}
+            height={400}
            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
           {moreCount > 0 ? (
             <span className="pd3-hero-more-overlay">
@@ -453,6 +491,8 @@ export default function PropertyV3({
   projectDetail,
   similarProjects = [],
   nearbyBenefitsList,
+  heroSlides: heroSlidesProp,
+  heroPrimaryLcp,
 }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [activeBhk, setActiveBhk] = useState(null);
@@ -570,6 +610,9 @@ export default function PropertyV3({
     ? projectDetail.galleryImages
     : [];
   const allImagesForHero = useMemo(() => {
+    if (Array.isArray(heroSlidesProp) && heroSlidesProp.length) {
+      return heroSlidesProp;
+    }
     const d = desktopImages
       .map((b) => b?.desktopImage)
       .filter(Boolean)
@@ -579,7 +622,7 @@ export default function PropertyV3({
       .filter(Boolean)
       .map((f) => projectImageSrc(f));
     return [...d, ...g];
-  }, [desktopImages, galleryImages, projectImageSrc]);
+  }, [heroSlidesProp, desktopImages, galleryImages, projectImageSrc]);
   const totalMediaCount = allImagesForHero.length;
 
   const aboutBuilderImageSrc = useMemo(() => {
@@ -740,8 +783,22 @@ export default function PropertyV3({
    * is same-origin — that breaks new-tab opens (referrer set, history empty).
    */
   const goBackToPrevious = useCallback(() => {
+    const cityHref = projectDetail?.city
+      ? getCityPageHref(projectDetail.city)
+      : null;
+
     const saved = peekListingReturnState();
     if (saved?.pathname) {
+      // Legacy/wrong saves used `/{city}` instead of `/city/{city}`.
+      const citySlug = projectDetail?.city
+        ? resolveCitySlug(
+            String(projectDetail.city).toLowerCase().replace(/\s+/g, "-"),
+          )
+        : "";
+      if (citySlug && saved.pathname === `/${citySlug}` && cityHref) {
+        router.push(cityHref);
+        return;
+      }
       router.push(`${saved.pathname}${saved.search || ""}`);
       return;
     }
@@ -751,11 +808,8 @@ export default function PropertyV3({
       return;
     }
 
-    const city = projectDetail?.city;
-    if (city) {
-      router.push(
-        `/${String(city).toLowerCase().replace(/\s+/g, "-")}`,
-      );
+    if (cityHref) {
+      router.push(cityHref);
       return;
     }
 
@@ -897,7 +951,7 @@ export default function PropertyV3({
               <>
                 <Link
                   title={`Projects in ${projectDetail.city}`}
-                  href={`/city/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
+                  href={getCityPageHref(projectDetail.city)}
                 >
                   Projects in {projectDetail.city}
                 </Link>
@@ -918,6 +972,7 @@ export default function PropertyV3({
             }
             totalCount={totalMediaCount}
             onOpenAtIndex={openLightboxAt}
+            primaryLcp={heroPrimaryLcp}
           />
 
           {/* Summary card */}
@@ -1579,7 +1634,7 @@ export default function PropertyV3({
                   <h2 className="pd3-card__title">Similar Projects</h2>
                   <Link
                     title={`View all projects in ${projectDetail.city || "this city"}`}
-                    href={`/city/${String(projectDetail.city || "").toLowerCase().replace(/\s+/g, "-")}`}
+                    href={getCityPageHref(projectDetail.city)}
                     className="pd3-link"
                   >
                     View all <FontAwesomeIcon icon={faArrowRight} />

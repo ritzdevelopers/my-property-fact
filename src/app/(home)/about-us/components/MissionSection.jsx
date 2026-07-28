@@ -22,7 +22,7 @@ export default function MissionSection() {
             My Property Fact was founded with one simple vision—to make
             property buying transparent, data-driven, and stress-free.
             We believe every buyer deserves access to verified
-            information before making one of life's biggest investments.
+            information before making one of life&apos;s biggest investments.
           </p>
 
         </div>
@@ -49,7 +49,7 @@ export default function MissionSection() {
             </h3>
 
             <p className="paragraph">
-              To become India's most trusted property intelligence
+              To become India&apos;s most trusted property intelligence
               platform where every decision is backed by real data.
             </p>
 

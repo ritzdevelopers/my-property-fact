@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { getLegacyWebStoryPath } from "@/lib/publicApiBase";
-import "../new-views/newviews.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const STORY_COVER_IMAGES = [
   "/news-views/MPF_web stories-03.jpg",
@@ -11,6 +11,8 @@ const STORY_COVER_IMAGES = [
 ];
 
 export default function NewsAndViews({ webStoryList }) {
+  useDeferredStylesheet(() => import("../new-views/newviews.css"));
+
   const visibleStories = (Array.isArray(webStoryList) ? webStoryList : [])
     .filter((item) => item.webStories.length > 0)
     .sort((a, b) => {

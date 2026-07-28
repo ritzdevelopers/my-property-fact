@@ -10,9 +10,10 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import FooterCityLinksSection from "./FooterCityLinksSection";
-import "./newfooter.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 export default function NewFooterDesign({ compactTop = false, cityList: cityListProp }) {
+  useDeferredStylesheet(() => import("./newfooter.css"));
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
 

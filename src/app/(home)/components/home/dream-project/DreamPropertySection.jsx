@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import "./DreamPropertySection.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const CITY_ORDER = [
   "Bareilly",
@@ -60,6 +60,8 @@ const cities = CITY_ORDER.map((name, index) => {
 });
 
 const DreamPropertySection = () => {
+  useDeferredStylesheet(() => import("./DreamPropertySection.css"));
+
   return (
     <section className="dream-property-section mb-4 mb-lg-5">
       <div className="dream-property-section-bg" aria-hidden="true">

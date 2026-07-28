@@ -433,6 +433,15 @@ export function resolveCitySlug(slug) {
   return CITY_SLUG_ALIASES[norm] || norm;
 }
 
+/** `/city/{slug}` href for a city display name or slug segment. */
+export function getCityPageHref(cityOrSlug) {
+  if (cityOrSlug == null || cityOrSlug === "") return "/projects";
+  const slug = resolveCitySlug(
+    String(cityOrSlug).trim().toLowerCase().replace(/\s+/g, "-"),
+  );
+  return slug ? `/city/${slug}` : "/projects";
+}
+
 /** Resolve city segment in `{floor}-in-{city}` or `{category}-in-{city}` slugs. */
 export function resolveCitySlugInCompoundSlug(slug) {
   if (!slug || typeof slug !== "string" || !slug.includes("-in-")) {

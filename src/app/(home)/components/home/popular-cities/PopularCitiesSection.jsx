@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import "./PopularCitiesSection.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 /* Row 1 marquee starts with Agra; row 2 uses the same list in reverse */
 const cities = [
@@ -78,6 +78,8 @@ function MarqueeRow({ rowIndex }) {
 }
 
 export default function PopularCitiesSection() {
+  useDeferredStylesheet(() => import("./PopularCitiesSection.css"));
+
   return (
     <section className="popular-cities-section" aria-labelledby="popular-cities-heading">
       <div className="pc__head-wrap">

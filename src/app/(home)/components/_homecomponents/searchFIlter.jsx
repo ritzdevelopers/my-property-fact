@@ -921,6 +921,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
               <input
                 type="search"
                 className="smart-search-input"
+                role="combobox"
                 value={searchInput}
                 onChange={(e) => {
                   setSearchInput(e.target.value);
@@ -934,6 +935,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
                 aria-label="Search properties, projects, cities"
                 aria-expanded={dropdownOpen}
                 aria-controls="smart-search-suggestions"
+                aria-autocomplete="list"
                 autoComplete="off"
               />
               {searchInput ? (
@@ -973,6 +975,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
                     key={`${s.kind}-${s.label}-${idx}`}
                     type="button"
                     role="option"
+                    aria-selected={false}
                     className="smart-search-suggestion"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSuggestionSelect(s)}

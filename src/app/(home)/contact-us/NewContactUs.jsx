@@ -390,6 +390,8 @@ export default function NewContactUs() {
                       alt={CONTACT_SPOTLIGHT.imageAlt}
                       title={CONTACT_SPOTLIGHT.imageAlt}
                       className="contact-expert-image-cover"
+                      loading="lazy"
+                      decoding="async"
                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     <div
                       className="contact-expert-image-gradient"

@@ -1293,6 +1293,7 @@ export default function ProjectsRedesigned({
                 <FontAwesomeIcon icon={faSearch} className="mpf-page-top-search__icon" aria-hidden />
                 <input
                   type="search"
+                  role="combobox"
                   placeholder='Search "Eldeco, M3M, Godrej..."'
                   value={searchInput}
                   onChange={(e) => {
@@ -1349,6 +1350,7 @@ export default function ProjectsRedesigned({
                           key={key}
                           type="button"
                           role="option"
+                          aria-selected={false}
                           className="mpf-page-top-search__option"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => handleSuggestionSelect(project)}
@@ -1615,7 +1617,7 @@ export default function ProjectsRedesigned({
                   <ProjectCard
                     key={project.id || idx}
                     project={project}
-                    imagePriority={idx < 3}
+                    imagePriority={idx < 2}
                   />
                 ))}
               </div>

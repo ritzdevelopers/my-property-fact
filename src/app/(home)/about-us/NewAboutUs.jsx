@@ -259,6 +259,8 @@ export default function NewAboutUs({ platformStats }) {
               width={441}
               height={515}
               className="img-fluid"
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
           <motion.div
@@ -418,6 +420,8 @@ export default function NewAboutUs({ platformStats }) {
             width={561}
             height={373}
             className="img-fluid"
+            loading="lazy"
+            decoding="async"
           />
         </motion.div>
         <motion.div

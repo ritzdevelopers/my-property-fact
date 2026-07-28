@@ -399,7 +399,7 @@ export default function BlogDetail({
   return (
     <div className={detailStyles.blogDetailWrap}>
       <CommonHeaderBanner
-        image={"builder-banner.jp"}
+        image={"builder-banner.jpg"}
         headerText={"Blog-Detail"}
         pageName={blogTitle}
         firstPage={"Blog"}
@@ -421,6 +421,8 @@ export default function BlogDetail({
                   className="img-fluid"
                   width={1200}
                   height={648}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

@@ -421,6 +421,8 @@ export default function BlogDetail({
                   className="img-fluid"
                   width={1200}
                   height={648}
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

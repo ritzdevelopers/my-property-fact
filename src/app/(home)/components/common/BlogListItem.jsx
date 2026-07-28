@@ -35,6 +35,8 @@ export default function BlogListItem({ blog, openInNewTab = false }) {
             alt={featuredAlt}
             title={featuredAlt}
             className="img-fluid"
+            loading="lazy"
+            decoding="async"
           />
         </Link>
       )}

@@ -371,6 +371,10 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
           alt="Project primary photo"
           title="Project primary photo"
           className="pd3-tile-img"
+          fetchPriority="high"
+          decoding="async"
+          width={1200}
+          height={800}
          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       </button>
 
@@ -386,6 +390,11 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
             alt="Project secondary photo"
             title="Project secondary photo"
             className="pd3-tile-img"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={600}
+            height={400}
            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
         </button>
         <button
@@ -399,6 +408,11 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
             alt="Project additional photo"
             title="Project additional photo"
             className="pd3-tile-img"
+            loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            width={600}
+            height={400}
            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
           {moreCount > 0 ? (
             <span className="pd3-hero-more-overlay">

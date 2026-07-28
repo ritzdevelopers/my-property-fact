@@ -259,7 +259,7 @@ export default function ProjectCard({
                 }`}
                 loading={imagePriority && index === 0 ? "eager" : "lazy"}
                 decoding="async"
-                fetchPriority="auto"
+                fetchPriority={imagePriority && index === 0 ? "high" : "low"}
                 onError={() =>
                   setImageErrors((prev) => ({ ...prev, [index]: true }))
                 }

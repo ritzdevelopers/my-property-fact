@@ -4,11 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
-import "swiper/css";
-import "./NoidaProjectsSection.css";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import { HOME_FAQ_ITEMS } from "./homeFaqItems";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 function getProjectImageUrl(project) {
   return buildProjectImageUrl(project, { preferThumbnail: true });
@@ -95,6 +94,13 @@ const CITY_CARDS = [
 const FAQ_ITEMS = HOME_FAQ_ITEMS;
 
 export default function NoidaProjectsSection() {
+  useDeferredStylesheet(() =>
+    Promise.all([
+      import("swiper/css"),
+      import("./NoidaProjectsSection.css"),
+    ]),
+  );
+
   const [cityCards, setCityCards] = useState(CITY_CARDS);
   const [openFaqId, setOpenFaqId] = useState(FAQ_ITEMS[0]?.id || null);
   const { cityList, projectList } = useSiteData();

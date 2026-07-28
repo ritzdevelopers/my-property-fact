@@ -4,7 +4,22 @@ import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import {
+  BANNER_IMAGE_QUALITY,
+  BANNER_IMAGE_SIZES,
+  CAREER_HERO_BANNER,
+  getOptimizedImageProps,
+} from "@/lib/optimizedImage";
 import "./career.css";
+
+const careerHeroImageProps = getOptimizedImageProps({
+  src: CAREER_HERO_BANNER.src,
+  width: CAREER_HERO_BANNER.width,
+  height: CAREER_HERO_BANNER.height,
+  alt: "Join Our Team at My Property Fact — careers banner",
+  sizes: BANNER_IMAGE_SIZES,
+  quality: BANNER_IMAGE_QUALITY,
+});
 
 const PERKS = [
   {
@@ -172,6 +187,18 @@ export default function Career({ jobsArr = [] }) {
     <div className="career-v2">
       {/* Hero */}
       <section className="career-v2-hero" aria-label="Join Our Team">
+        <img
+          {...careerHeroImageProps}
+          alt="Join Our Team at My Property Fact — careers banner"
+          title="Join Our Team at My Property Fact — careers banner"
+          className="career-v2-hero__bg-img"
+          width={CAREER_HERO_BANNER.width}
+          height={CAREER_HERO_BANNER.height}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+          aria-hidden="true"
+        />
         <div className="career-v2-hero__bg" aria-hidden="true" />
         <div className="container position-relative">
           <div className="row gy-4 align-items-end">

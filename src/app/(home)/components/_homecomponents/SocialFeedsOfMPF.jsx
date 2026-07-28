@@ -2,13 +2,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
-import "./SocialFeedsOfMPF.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 export default function SocialFeedsOfMPF() {
+  useDeferredStylesheet(() =>
+    Promise.all([
+      import("swiper/css"),
+      import("swiper/css/navigation"),
+      import("swiper/css/pagination"),
+      import("./SocialFeedsOfMPF.css"),
+    ]),
+  );
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);

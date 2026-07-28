@@ -1,11 +1,10 @@
 "use client";
 import Slider from "react-slick";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 import "./featured.css";
 import Link from "next/link";
 import PropertyContainer from "../../common/page";
 import { useMemo, useState, useEffect } from "react";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 function NextArrow(props) {
   const { className, style, onClick } = props;
@@ -61,6 +60,13 @@ export default function Featured({
   residentialProjects,
   commercialProjects,
 }) {
+  useDeferredStylesheet(() =>
+    Promise.all([
+      import("slick-carousel/slick/slick.css"),
+      import("slick-carousel/slick/slick-theme.css"),
+    ]),
+  );
+
   const [projectType, setProjectType] = useState("Residential");
   const [isLoading, setIsLoading] = useState(false);
   const isHomeFeaturedShowcase = type === "Featured" && !autoPlay;

@@ -1615,7 +1615,7 @@ export default function ProjectsRedesigned({
                   <ProjectCard
                     key={project.id || idx}
                     project={project}
-                    imagePriority={idx < 3}
+                    imagePriority={idx < 2}
                   />
                 ))}
               </div>

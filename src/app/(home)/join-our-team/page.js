@@ -1,4 +1,5 @@
 import Career from "./career";
+import CareerHeroPreload from "./CareerHeroPreload";
 import data from "../../_global_components/job-description.json";
 export const metadata = {
   title: "Careers at MyPropertyFact | Join Our Real Estate Innovation Team",
@@ -20,6 +21,7 @@ export const metadata = {
 export default function CareerPage() {
   return (
     <main id="primary-content" aria-labelledby="mpf-page-heading">
+      <CareerHeroPreload />
       <Career jobsArr={data} />
     </main>
   );

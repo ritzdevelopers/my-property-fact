@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
-import "./VaastuStripSection.css";
+import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const INSTAGRAM_REELS = [
   { id: "DaXEro5gddT", title: "My Property Fact — Instagram reel" },
@@ -75,6 +75,8 @@ const STRIP_SCROLL_STEP = STRIP_CARD_WIDTH + STRIP_GAP;
 const DESKTOP_BREAKPOINT = 992;
 
 export default function VaastuStripSection() {
+  useDeferredStylesheet(() => import("./VaastuStripSection.css"));
+
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isDesktop, setIsDesktop] = useState(false);

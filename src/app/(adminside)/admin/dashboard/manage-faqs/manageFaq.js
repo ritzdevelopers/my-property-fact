@@ -98,15 +98,8 @@ export default function ManageFaqs({ list, projectsList }) {
         }
     };
 
-    const projectWithoutFaq = () => {
-        const excludedIds = list.map(item => item.projectId);
-        let res = [];
-        if (projectId === 0) {
-            res = projectsList.filter(project => !excludedIds.includes(project.id));
-            setProjectOption(res);
-        } else {
-            setProjectOption(projectsList);
-        }
+    const loadProjectOptions = () => {
+        setProjectOption(Array.isArray(projectsList) ? projectsList : []);
     };
 
     //Handle Add FAQ
@@ -120,7 +113,7 @@ export default function ManageFaqs({ list, projectsList }) {
         if (!showFaqList) {
             setProjectId(0);
         }
-        projectWithoutFaq();
+        loadProjectOptions();
         setFaqId(0);
     };
     //Handle edit FAQ
@@ -132,12 +125,12 @@ export default function ManageFaqs({ list, projectsList }) {
         setQuestion(item.question);
         setFaqId(item.id);
         setProjectId(item.projectId || projectId || 0);
-        projectWithoutFaq();
+        loadProjectOptions();
     };
 
     useEffect(() => {
-        projectWithoutFaq();
-    }, []);
+        loadProjectOptions();
+    }, [projectsList]);
 
     //Handle delete faq
     const openConfirmationBox = (id) => {
@@ -191,7 +184,11 @@ export default function ManageFaqs({ list, projectsList }) {
                                 required
                                 disabled={faqId > 0}
                             >
-                                <option value="">Select Project</option>
+                                <option value="">
+                                    {projetOption.length
+                                        ? "Select Project"
+                                        : "No projects loaded"}
+                                </option>
                                 {projetOption
                                     .map((item) => (
                                         <option

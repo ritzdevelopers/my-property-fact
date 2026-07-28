@@ -4,23 +4,31 @@
 }
 
 .heroIntro-container {
-    max-width: 1280px;
+    max-width: 1300px;
     width: 100%;
     margin: auto;
-    padding: 0 40px;
 }
 
 .heroHeading {
-    margin: 0 auto 70px;
-    font-size: 72px;
-    line-height: 1.1;
-    font-weight: 700;
-    letter-spacing: -2px;
+    max-width: 1000px;
+    margin: 0 0 70px;
+
+    font-family: "Lato", sans-serif;
+    font-size: 65px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0;
+
     color: #111827;
 }
 
 .heroHeading span {
-    color: #B6B6B6;
+    color: #BDBDBD;
+    transition: color .6s ease;
+}
+
+.heroHeading.active span {
+    color: #111827;
 }
 
 .introGrid {
@@ -31,7 +39,10 @@
 }
 
 .leftImage {
+    padding: 18px;
+    border: 1px solid #EAEAEA;
     transition: .45s;
+    background: #fff;
 }
 
 .leftImage:hover {
@@ -40,42 +51,52 @@
 
 .leftImage img {
     width: 100%;
-    height: 560px;
+    height: 650px;
     object-fit: cover;
     display: block;
 }
 
-.rightContent {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+.rightContent{
+    display:flex;
+    flex-direction:column;
+    gap:32px;
 }
 
-.rightContent p {
-    max-width: 760px;
-    font-size: 17px;
-    line-height: 1.7;
-    color: #5F6672;
+.introText{
+    max-width:759px;
+
+    font-family:"Inter",sans-serif;
+    font-size:18px;
+    font-weight:400;
+    line-height:27px;
+    color:#5F6672;
 }
 
-.rightContent img {
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 6px;
-    transition: .4s;
+.rightImageFrame{
+    width:100%;
+    padding:18px;
+    border:1px solid #EAEAEA;
+    border-top-right-radius:63px;
+    background:#fff;
 }
 
-.rightContent img:hover {
-    transform: scale(1.02);
+.rightImageFrame img{
+    width:100%;
+    height:390px;
+    object-fit:cover;
+    display:block;
+    border-top-right-radius:45px;
 }
 
-.bottomDescription {
-    max-width: 1040px;
-    margin: 70px auto 0;
-    font-size: 18px;
-    line-height: 1.6;
-    color: #6B7280;
+.bottomDescription{
+    max-width:1142px;
+    margin:50px auto 0;
+
+    font-family:"Inter",sans-serif;
+    font-size:18px;
+    font-weight:400;
+    line-height:27px;
+    color:#5F6672;
 }
 
 /* ===========================

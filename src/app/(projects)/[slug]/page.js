@@ -32,26 +32,17 @@ import {
   buildProductJsonLd,
   resolveProjectFaqRawList,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
+import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
+import { slimProjectForListing } from "@/lib/slimProjectListing";
 
 /** ISR-friendly cache for valid project/listing pages. */
 export const revalidate = 120;
 
 const SIMILAR_PROJECTS_MAX = 12;
 
-/** Only fields used by `PropertyContainer` / Similar Projects carousel — avoids serializing full `/projects` rows. */
+/** Only fields used by listing cards / similar-project carousel — avoids serializing full `/projects` rows. */
 function slimProjectCardForPayload(p) {
-  if (!p || typeof p !== "object") return p;
-  return {
-    id: p.id,
-    slugURL: p.slugURL,
-    projectName: p.projectName,
-    propertyTypeName: p.propertyTypeName,
-    projectPrice: p.projectPrice,
-    projectAddress: p.projectAddress,
-    projectBannerImage: p.projectBannerImage,
-    projectThumbnailImage: p.projectThumbnailImage,
-    projectStatusName: p.projectStatusName,
-  };
+  return slimProjectForListing(p);
 }
 
 /**
@@ -148,29 +139,34 @@ export default async function PropertyPage({ params }) {
     const isCitySlug =
       !maybeCompoundListing && (await isCityTypeUrl(slug));
 
-    let floorListingProjects = null;
-    if (
-      !isCompoundFloorListing &&
-      !isCitySlug &&
-      parsedFloorCity &&
-      (await isKnownCitySlug(parsedFloorCity.citySlug))
-    ) {
-      floorListingProjects = getFloorListingProjectsInCity(
-        allProjectsForSlug,
-        parsedFloorCity.citySlug,
-        parsedFloorCity.floorSlug,
-      );
+    let floorListingProjects = [];
+    let isKnownFloorCity = false;
+    if (!isCompoundFloorListing && !isCitySlug && parsedFloorCity) {
+      isKnownFloorCity = await isKnownCitySlug(parsedFloorCity.citySlug);
+      if (isKnownFloorCity) {
+        floorListingProjects = getFloorListingProjectsInCity(
+          allProjectsForSlug,
+          parsedFloorCity.citySlug,
+          parsedFloorCity.floorSlug,
+        );
+      }
     }
 
     const isFloorTypeSlug =
-      !isCompoundFloorListing &&
-      !isCitySlug &&
-      Boolean(parsedFloorCity) &&
-      Array.isArray(floorListingProjects) &&
-      floorListingProjects.length > 0;
+      !isCompoundFloorListing && !isCitySlug && Boolean(parsedFloorCity) && isKnownFloorCity;
 
     if (isCitySlug) {
-      return <MasterBHKProjectsPage slug={slug} cityList={cityList} />;
+      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
+      return (
+        <>
+          <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
+          <MasterBHKProjectsPage
+            slug={slug}
+            cityList={cityList}
+            faqItems={listingFaqs}
+          />
+        </>
+      );
     } else if (isCompoundFloorListing) {
       const compoundKey = `${maybeCompoundListing.floorSlug}-${maybeCompoundListing.categorySlug}`;
       const compoundProjects = getCompoundListingProjectsInCity(
@@ -181,21 +177,31 @@ export default async function PropertyPage({ params }) {
       if (compoundProjects.length === 0) {
         notFound();
       }
+      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
       return (
-        <ProjectListByFloorType
-          slug={slug}
-          cityList={cityList}
-          compoundListing={maybeCompoundListing}
-          initialProjects={compoundProjects.map(slimProjectCardForPayload)}
-        />
+        <>
+          <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
+          <ProjectListByFloorType
+            slug={slug}
+            cityList={cityList}
+            compoundListing={maybeCompoundListing}
+            initialProjects={compoundProjects.map(slimProjectCardForPayload)}
+            faqItems={listingFaqs}
+          />
+        </>
       );
     } else if (isFloorTypeSlug) {
+      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
       return (
-        <ProjectListByFloorType
-          slug={slug}
-          cityList={cityList}
-          initialProjects={floorListingProjects.map(slimProjectCardForPayload)}
-        />
+        <>
+          <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
+          <ProjectListByFloorType
+            slug={slug}
+            cityList={cityList}
+            initialProjects={floorListingProjects.map(slimProjectCardForPayload)}
+            faqItems={listingFaqs}
+          />
+        </>
       );
     } else if (
       !isProjectSlug &&

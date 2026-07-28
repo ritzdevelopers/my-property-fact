@@ -83,7 +83,14 @@ export default function ProjectListByFloorTypeClient({
     [title, floorTypeProp, cityNameProp],
   );
 
+  const hasInitialProjects = initialProjects.length > 0;
+  const showLoading = siteDataLoading && !hasInitialProjects;
+
   const filteredProjectsByBrType = useMemo(() => {
+    if (hasInitialProjects && !projectList.length) {
+      return initialProjects;
+    }
+
     const source = projectList.length ? projectList : initialProjects;
     if (!source.length || !cityName) return [];
 
@@ -95,13 +102,18 @@ export default function ProjectListByFloorTypeClient({
       );
     }
     return applyListingCategoryFilter(filtered, categorySlug);
-  }, [projectList, initialProjects, floorType, cityName, categorySlug]);
+  }, [
+    projectList,
+    initialProjects,
+    hasInitialProjects,
+    floorType,
+    cityName,
+    categorySlug,
+  ]);
 
   const { pageItems, currentPage, totalPages, totalItems, setPage } =
     useProjectListingPagination(filteredProjectsByBrType);
   const listingsRef = useRef(null);
-
-  const showLoading = siteDataLoading;
 
   return (
     <>
@@ -118,7 +130,9 @@ export default function ProjectListByFloorTypeClient({
                 <PropertyContainer data={project} />
               </div>
             ))
-          ) : null}
+          ) : (
+            <p>No projects found for this listing.</p>
+          )}
         </div>
         {!showLoading && filteredProjectsByBrType.length > 0 && (
           <ProjectListingPaginationControls

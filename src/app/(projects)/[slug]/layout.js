@@ -1,3 +1,5 @@
+import "@/app/(home)/bootstrap-critical.css";
+import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import { notFound } from "next/navigation";
 import {
   fetchAllProjects,
@@ -9,7 +11,7 @@ import {
 } from "@/app/_global_components/masterFunction";
 import {
   collectKnownFloorSlugs,
-  getFloorListingProjectsInCity,
+  isRecognizedFloorSlugSegment,
   parseFloorInCitySlug,
 } from "@/lib/listingFloorValidation";
 import {
@@ -732,21 +734,14 @@ if (
   slug.includes("-in-") &&
   !(await isCityTypeUrl(slug))
 ) {
-  const projects = await fetchAllProjects();
-  if (projects.length > 0) {
-    const knownFloorSlugs = collectKnownFloorSlugs(projects);
-    const parsedFloor = parseFloorInCitySlug(slug, knownFloorSlugs);
-    if (
-      !parsedFloor ||
-      !(await isKnownCitySlug(parsedFloor.citySlug)) ||
-      getFloorListingProjectsInCity(
-        projects,
-        parsedFloor.citySlug,
-        parsedFloor.floorSlug,
-      ).length === 0
-    ) {
-      notFound();
-    }
+  const knownFloorSlugs = collectKnownFloorSlugs(await fetchAllProjects());
+  const parsedFloor = parseFloorInCitySlug(slug, knownFloorSlugs);
+  if (
+    !parsedFloor ||
+    !(await isKnownCitySlug(parsedFloor.citySlug)) ||
+    !isRecognizedFloorSlugSegment(parsedFloor.floorSlug)
+  ) {
+    notFound();
   }
 }
 
@@ -825,5 +820,10 @@ return {
 }
 
 export default function ProjectSlugLayout({ children }) {
-return children;
+  return (
+    <>
+      <BootstrapDeferredStyles />
+      {children}
+    </>
+  );
 }

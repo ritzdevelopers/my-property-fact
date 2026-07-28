@@ -1,15 +1,40 @@
 "use client";
-
+import { useEffect, useRef, useState } from "react";
 import "./style/HeroIntroSection.css";
 
 export default function HeroIntroSection() {
+
+  const headingRef = useRef(null);
+  const [active, setActive] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setActive(entry.intersectionRatio < 0.8);
+      },
+      {
+        threshold: [0.8],
+      }
+    );
+
+    if (headingRef.current) {
+      observer.observe(headingRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <section className="heroIntro">
 
       <div className="heroIntro-container">
 
-        <h1 className="heroHeading">
-          Building Tr<span>ust. Creating Better Spaces.</span>
+        <h1
+          ref={headingRef}
+          className={`heroHeading ${active ? "active" : ""}`}
+        >
+          Building Tr
+          <span>ust. Creating Better Spaces.</span>
         </h1>
 
         <div className="introGrid">
@@ -25,7 +50,7 @@ export default function HeroIntroSection() {
 
           <div className="rightContent">
 
-            <p>
+            <p className="introText">
               My Property Fact (MPF) is India&apos;s buyer-first real estate guide.
               We combine data, on-ground verification, and plain-English advice
               to help you choose confidently. Our proprietary LOCATE Score
@@ -40,11 +65,12 @@ export default function HeroIntroSection() {
               insights you can actually use.
             </p>
 
-            <img
-              src="/about/about_us_banner.jpg"
-              alt="Property"
-            />
-
+            <div className="rightImageFrame">
+              <img
+                src="/about/about_us_banner.jpg"
+                alt="Property"
+              />
+            </div>
           </div>
 
         </div>

@@ -134,9 +134,9 @@ export default function TimelineSection() {
               >
                 <motion.div
                   className="timeline-fill"
-                  animate={{
-                    width: active === index ? "100%" : "0%",
-                  }}
+  animate={{
+    width: active === index ? "calc(100% + 4px)" : 0,
+}}
                   transition={{
                     duration: 0.45,
                   }}

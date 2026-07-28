@@ -354,7 +354,7 @@ function ProjectSearchBar() {
 
 /* ---------------------------- Hero single image ---------------------------- */
 
-function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
+function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex, primaryLcp }) {
   const list = slides.length ? slides : ["/static/no_image.png"];
   const primary = list[0];
   const secondary = list[1] || list[0];
@@ -362,25 +362,45 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex }) {
   const total = Math.max(totalCount || 0, list.length);
   const moreCount = Math.max(total - 3, 0);
 
+  const {
+    src: lcpSrc,
+    srcSet: lcpSrcSet,
+    sizes: lcpSizes,
+    alt: lcpAlt,
+    ...lcpRest
+  } = primaryLcp || {};
+
   return (
     <div className="pd3-hero-collage">
-      <button
-        type="button"
-        className="pd3-hero-tile pd3-hero-tile--primary"
-        onClick={() => onOpenAtIndex(0)}
-        aria-label={`Open photo gallery. ${total} photos`}
-      >
-        <img loading="eager"
-          src={primary}
-          alt="Project primary photo"
-          title="Project primary photo"
+      <div className="pd3-hero-tile pd3-hero-tile--primary">
+        <img
+          {...lcpRest}
+          src={lcpSrc || primary}
+          srcSet={lcpSrcSet}
+          sizes={lcpSizes}
+          alt={lcpAlt || "Project primary photo"}
+          title={lcpAlt || "Project primary photo"}
           className="pd3-tile-img"
+          loading="eager"
           fetchPriority="high"
           decoding="async"
           width={1200}
           height={800}
-         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-      </button>
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+          }}
+        />
+        <button
+          type="button"
+          className="pd3-hero-tile-hit"
+          onClick={() => onOpenAtIndex(0)}
+          aria-label={`Open photo gallery. ${total} photos`}
+        />
+      </div>
 
       <div className="pd3-hero-side">
         <button
@@ -471,6 +491,8 @@ export default function PropertyV3({
   projectDetail,
   similarProjects = [],
   nearbyBenefitsList,
+  heroSlides: heroSlidesProp,
+  heroPrimaryLcp,
 }) {
   const [openFaq, setOpenFaq] = useState(null);
   const [activeBhk, setActiveBhk] = useState(null);
@@ -588,6 +610,9 @@ export default function PropertyV3({
     ? projectDetail.galleryImages
     : [];
   const allImagesForHero = useMemo(() => {
+    if (Array.isArray(heroSlidesProp) && heroSlidesProp.length) {
+      return heroSlidesProp;
+    }
     const d = desktopImages
       .map((b) => b?.desktopImage)
       .filter(Boolean)
@@ -597,7 +622,7 @@ export default function PropertyV3({
       .filter(Boolean)
       .map((f) => projectImageSrc(f));
     return [...d, ...g];
-  }, [desktopImages, galleryImages, projectImageSrc]);
+  }, [heroSlidesProp, desktopImages, galleryImages, projectImageSrc]);
   const totalMediaCount = allImagesForHero.length;
 
   const aboutBuilderImageSrc = useMemo(() => {
@@ -947,6 +972,7 @@ export default function PropertyV3({
             }
             totalCount={totalMediaCount}
             onOpenAtIndex={openLightboxAt}
+            primaryLcp={heroPrimaryLcp}
           />
 
           {/* Summary card */}

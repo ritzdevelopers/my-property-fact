@@ -2118,6 +2118,17 @@
   height: 410px;
 }
 
+.pd3-hero-tile-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .pd3-hero-cover-chip {
   position: absolute;
   top: 10px;
@@ -3702,4 +3713,49 @@ button.pd3-gallery-strip__item {
 }
 @media (max-width: 420px) {
   .pd3-root .pd3-bhk-hero { grid-template-columns: 1fr; }
+}
+
+/* Route loading shell — large visible block for mobile LCP while project data streams */
+.pd3-loading-shell {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.pd3-loading-topbar {
+  height: 74px;
+  background: #0d5834;
+}
+
+.pd3-hero-tile--skeleton {
+  background: #e6eaf0;
+  animation: pd3-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.pd3-summary--skeleton {
+  margin-top: 30px;
+  padding: 22px 24px;
+  border-radius: 8px;
+  background: #f4f6f9;
+}
+
+.pd3-skeleton-line {
+  border-radius: 6px;
+  background: #e6eaf0;
+  animation: pd3-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+.pd3-skeleton-line--title {
+  height: 28px;
+  width: min(420px, 72%);
+  margin-bottom: 12px;
+}
+
+.pd3-skeleton-line--sub {
+  height: 18px;
+  width: min(280px, 52%);
+}
+
+@keyframes pd3-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.72; }
 }

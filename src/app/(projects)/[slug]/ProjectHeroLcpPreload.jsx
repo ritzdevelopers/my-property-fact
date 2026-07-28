@@ -1,24 +1,21 @@
 import {
-  BANNER_IMAGE_QUALITY,
-  getOptimizedImageProps,
-  getProjectHeroImageUrl,
-  REMOTE_HERO_DEFAULT,
+  buildProjectHeroLcpProps,
+  getProjectHeroSlides,
 } from "@/lib/optimizedImage";
 
 /**
  * Preload the primary project hero image for LCP on project detail pages.
+ * URLs must match the optimized src used by HeroMediaPrimary.
  */
 export default function ProjectHeroLcpPreload({ projectDetail }) {
-  const heroSrc = getProjectHeroImageUrl(projectDetail);
-  if (!heroSrc) return null;
+  const slides = getProjectHeroSlides(projectDetail);
+  const primary = slides[0];
+  if (!primary) return null;
 
-  const { srcSet, sizes } = getOptimizedImageProps({
-    src: heroSrc,
-    width: REMOTE_HERO_DEFAULT.width,
-    height: REMOTE_HERO_DEFAULT.height,
-    sizes: "(max-width: 767.98px) 100vw, 66vw",
-    quality: BANNER_IMAGE_QUALITY,
-  });
+  const { srcSet, sizes } = buildProjectHeroLcpProps(
+    primary,
+    projectDetail?.projectName,
+  );
 
   return (
     <link

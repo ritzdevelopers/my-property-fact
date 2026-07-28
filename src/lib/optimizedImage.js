@@ -79,3 +79,54 @@ export function getProjectHeroImageUrl(projectDetail) {
 
   return `${base}properties/${slug}/${raw}`;
 }
+
+/** All hero gallery URLs for a project (desktop images first, then gallery). */
+export function getProjectHeroSlides(projectDetail) {
+  if (!projectDetail || typeof projectDetail !== "object") {
+    return ["/static/no_image.png"];
+  }
+
+  const slug = projectDetail.slugURL || projectDetail.slugUrl;
+  const base = String(process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
+
+  const toUrl = (filename) => {
+    const raw = String(filename || "").trim();
+    if (!raw) return null;
+    if (/^https?:\/\//i.test(raw) || raw.startsWith("/")) return raw;
+    if (!base || !slug) return null;
+    return `${base}properties/${slug}/${raw}`;
+  };
+
+  const desktopImages = Array.isArray(projectDetail.desktopImages)
+    ? projectDetail.desktopImages
+    : [];
+  const galleryImages = Array.isArray(projectDetail.galleryImages)
+    ? projectDetail.galleryImages
+    : [];
+
+  const urls = [
+    ...desktopImages.map((b) => toUrl(b?.desktopImage)),
+    ...galleryImages.map((b) => toUrl(b?.imageName)),
+  ].filter(Boolean);
+
+  if (urls.length) return urls;
+
+  const fallback = getProjectHeroImageUrl(projectDetail);
+  return [fallback || "/static/no_image.png"];
+}
+
+/** Optimized img props for the project hero LCP image (server + client must share). */
+export function buildProjectHeroLcpProps(src, projectName) {
+  const alt = projectName
+    ? `${projectName} — primary project photo on My Property Fact`
+    : "Project primary photo on My Property Fact";
+
+  return getOptimizedImageProps({
+    src: src || "/static/no_image.png",
+    width: REMOTE_HERO_DEFAULT.width,
+    height: REMOTE_HERO_DEFAULT.height,
+    alt,
+    sizes: "(max-width: 767.98px) 100vw, 66vw",
+    quality: BANNER_IMAGE_QUALITY,
+  });
+}

@@ -26,7 +26,6 @@ import {
 import MasterBHKProjectsPage from "@/app/_global_components/bhk-components/master-bhk-server-component";
 import ProjectListByFloorType from "@/app/_global_components/floor-type/projectListByFloorType";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
-import ProjectHeroLcpPreload from "./ProjectHeroLcpPreload";
 import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
 import {
   buildFaqJsonLd,
@@ -240,7 +239,6 @@ export default async function PropertyPage({ params }) {
 
       return (
         <>
-          <ProjectHeroLcpPreload projectDetail={projectDetail} />
           <JsonLdScript data={buildProductJsonLd(projectForJsonLd)} />
           <JsonLdScript
             data={buildFaqJsonLd(resolveProjectFaqRawList(projectDetail))}

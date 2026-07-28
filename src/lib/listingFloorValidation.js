@@ -192,12 +192,23 @@ const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "sco",
 ]);
 
+/** Well-formed `{floor}` segments allowed as listing pages even before project data exists. */
+const RECOGNIZED_FLOOR_SLUG_PATTERN =
+  /^(?:\d+-bhk|\d+-rk-studio|\d+-sq\.ft|\d+-br-villa|plot|shops|office|kiosk|food-court|restaurant|showroom|sco-plots)$/;
+
+export function isRecognizedFloorSlugSegment(floorSlug) {
+  const normalized = normalizeFloorSlugSegment(floorSlug || "");
+  if (!normalized || BLOCKED_FLOOR_URL_SLUGS.has(normalized)) return false;
+  return RECOGNIZED_FLOOR_SLUG_PATTERN.test(normalized);
+}
+
 export function resolveKnownFloorSlug(rawFloorSlug, knownSlugs) {
   const normalized = normalizeFloorSlugSegment(rawFloorSlug);
-  if (!normalized || !knownSlugs?.size) return null;
+  if (!normalized) return null;
   if (BLOCKED_FLOOR_URL_SLUGS.has(normalized)) return null;
   const canonical = canonicalFloorSlugForUrl(normalized);
-  if (knownSlugs.has(canonical)) return canonical;
+  if (knownSlugs?.size && knownSlugs.has(canonical)) return canonical;
+  if (isRecognizedFloorSlugSegment(canonical)) return canonical;
   return null;
 }
 

@@ -869,6 +869,39 @@
   gap: 16px;
 }
 
+.faq-list--scrollable {
+  max-height: calc(68px * 5 + 16px * 4);
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
+  scrollbar-gutter: stable;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 24, 39, 0.28) transparent;
+}
+
+.faq-list--scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.faq-list--scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.faq-list--scrollable::-webkit-scrollbar-thumb {
+  background: rgba(17, 24, 39, 0.22);
+  border-radius: 999px;
+}
+
+.faq-list--scrollable::-webkit-scrollbar-thumb:hover {
+  background: rgba(17, 24, 39, 0.35);
+}
+
+.faq-list--scrollable .faq-item {
+  flex-shrink: 0;
+}
+
 .faq-item{
   display: flex;
   flex-direction: column;
@@ -884,6 +917,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
 }
 
 .faq-text{
@@ -917,30 +959,29 @@
   width: 32px;
   height: 32px;
   border: none;
-  
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  cursor: pointer;
   background: #ffffff;
   transition: background 0.2s ease, transform 0.1s ease;
+  pointer-events: none;
 }
 
-.faq-plus-wrap img{
-  transition: transform 0.2s ease;
-}
-
-.faq-plus-wrap.open img{
+.faq-plus-wrap.open svg {
   transform: rotate(45deg);
 }
 
-.faq-plus-wrap:hover{
+.faq-head:hover .faq-plus-wrap {
   background: #F9FAFB;
 }
 
-.faq-plus-wrap:active{
+.faq-head:active .faq-plus-wrap {
   transform: scale(0.98);
+}
+
+.faq-plus-wrap svg {
+  transition: transform 0.2s ease;
 }
 
 .faq-answer{

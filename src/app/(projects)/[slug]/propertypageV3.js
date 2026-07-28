@@ -10,6 +10,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
 import { formatDistanceKm } from "@/lib/utils";
 import { peekListingReturnState } from "@/lib/listingScrollRestore";
+import {
+  getCityPageHref,
+  resolveCitySlug,
+} from "@/app/_global_components/cityAliasUtils";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -754,8 +758,22 @@ export default function PropertyV3({
    * is same-origin — that breaks new-tab opens (referrer set, history empty).
    */
   const goBackToPrevious = useCallback(() => {
+    const cityHref = projectDetail?.city
+      ? getCityPageHref(projectDetail.city)
+      : null;
+
     const saved = peekListingReturnState();
     if (saved?.pathname) {
+      // Legacy/wrong saves used `/{city}` instead of `/city/{city}`.
+      const citySlug = projectDetail?.city
+        ? resolveCitySlug(
+            String(projectDetail.city).toLowerCase().replace(/\s+/g, "-"),
+          )
+        : "";
+      if (citySlug && saved.pathname === `/${citySlug}` && cityHref) {
+        router.push(cityHref);
+        return;
+      }
       router.push(`${saved.pathname}${saved.search || ""}`);
       return;
     }
@@ -765,11 +783,8 @@ export default function PropertyV3({
       return;
     }
 
-    const city = projectDetail?.city;
-    if (city) {
-      router.push(
-        `/${String(city).toLowerCase().replace(/\s+/g, "-")}`,
-      );
+    if (cityHref) {
+      router.push(cityHref);
       return;
     }
 
@@ -911,7 +926,7 @@ export default function PropertyV3({
               <>
                 <Link
                   title={`Projects in ${projectDetail.city}`}
-                  href={`/city/${String(projectDetail.city).toLowerCase().replace(/\s+/g, "-")}`}
+                  href={getCityPageHref(projectDetail.city)}
                 >
                   Projects in {projectDetail.city}
                 </Link>
@@ -1593,7 +1608,7 @@ export default function PropertyV3({
                   <h2 className="pd3-card__title">Similar Projects</h2>
                   <Link
                     title={`View all projects in ${projectDetail.city || "this city"}`}
-                    href={`/city/${String(projectDetail.city || "").toLowerCase().replace(/\s+/g, "-")}`}
+                    href={getCityPageHref(projectDetail.city)}
                     className="pd3-link"
                   >
                     View all <FontAwesomeIcon icon={faArrowRight} />

@@ -399,7 +399,7 @@ export default function BlogDetail({
   return (
     <div className={detailStyles.blogDetailWrap}>
       <CommonHeaderBanner
-        image={"builder-banner.jp"}
+        image={"builder-banner.jpg"}
         headerText={"Blog-Detail"}
         pageName={blogTitle}
         firstPage={"Blog"}

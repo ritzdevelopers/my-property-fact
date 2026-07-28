@@ -47,7 +47,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
     <div>
       <div className="new-footer-design">
         {/* Newsletter Section */}
-        <div className="container newslettermaxwidth">
+        {/* <div className="container newslettermaxwidth">
           <div className="new-design-footer-top newsletter-background">
             <div className="new-design-footer-top-left newsletterbox-left newsletter-text">
               <div className="newlatter-heading">
@@ -74,7 +74,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
               <img src="/static/footer/newsletter1.png" title="Corporate park" alt="Corporate park" className="center-img" />
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="footer-city-links-container">
           <FooterCityLinksSection cityList={cityList} />
         </div>

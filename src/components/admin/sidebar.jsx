@@ -44,6 +44,7 @@ import {
   ClipboardList,
   ChevronRight,
   Search,
+  CircleHelp,
 } from "lucide-react";
 
 const navItems = [
@@ -53,6 +54,13 @@ const navItems = [
     icon: LayoutDashboard,
     href: "/admin/dashboard",
     exact: true,
+  },
+  {
+    id: "listing-faqs",
+    label: "Listing Page FAQs",
+    icon: CircleHelp,
+    href: "/admin/dashboard/manage-listing-faqs",
+    permission: "MANAGE_WEBSITE",
   },
   {
     id: "property-approvals",
@@ -121,6 +129,12 @@ const navGroups = [
           { id: "testimonials", label: "Testimonials", href: "/admin/dashboard/manage-testimonials", icon: Star },
         ],
       },
+      {
+        id: "listing-faqs-website",
+        label: "Listing Page FAQs",
+        href: "/admin/dashboard/manage-listing-faqs",
+        icon: CircleHelp,
+      },
     ],
   },
   {
@@ -151,7 +165,7 @@ const navGroups = [
       { id: "proj-banners", label: "Banners", href: "/admin/dashboard/manage-banners" },
       { id: "floor-plans", label: "Floor Plans", href: "/admin/dashboard/manage-floor-plans" },
       { id: "gallery", label: "Gallery", href: "/admin/dashboard/manage-gallery" },
-      { id: "faqs", label: "FAQs", href: "/admin/dashboard/manage-faqs" },
+      { id: "faqs", label: "Project FAQs", href: "/admin/dashboard/manage-faqs" },
       { id: "proj-about", label: "About", href: "/admin/dashboard/manage-project-about" },
       { id: "walkthrough", label: "Walkthrough", href: "/admin/dashboard/manage-project-walkthrough" },
       { id: "loc-benefits", label: "Location Benefits", href: "/admin/dashboard/location-benifits" },

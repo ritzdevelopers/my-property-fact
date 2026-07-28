@@ -46,6 +46,7 @@ const NAV_INDEX = [
   { label: "Project About", href: "/admin/dashboard/manage-project-about", tags: "about description" },
   { label: "Project Walkthrough", href: "/admin/dashboard/manage-project-walkthrough", tags: "walkthrough video" },
   { label: "Manage FAQs", href: "/admin/dashboard/manage-faqs", tags: "faq question answer" },
+  { label: "Manage Listing Page FAQs", href: "/admin/dashboard/manage-listing-faqs", tags: "listing footer page faq food court shops noida" },
   { label: "Manage Enquiries", href: "/admin/dashboard/enquiries", tags: "enquiry lead contact" },
   { label: "Manage Score Evaluation", href: "/admin/dashboard/manage-score-evalution", tags: "score rating evaluation" },
   { label: "Location Benefits", href: "/admin/dashboard/manage-location-benefits", tags: "location benefit nearby" },

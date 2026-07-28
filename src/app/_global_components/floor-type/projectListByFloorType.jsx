@@ -1,5 +1,6 @@
 import CommonBreadCrum from "@/app/(home)/components/common/breadcrum";
 import CommonHeaderBanner from "@/app/(home)/components/common/commonheaderbanner";
+import BlogFaqSection from "@/app/(home)/components/common/BlogFaqSection";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 import ProjectListByFloorTypeClient from "./projectListByFloorTypeClient";
 import HeaderComponent from "@/app/(home)/components/header/headerComponent";
@@ -15,6 +16,7 @@ export default function ProjectListByFloorType({
   cityList = [],
   compoundListing = null,
   initialProjects = [],
+  faqItems = [],
 }) {
   const title = compoundListing
     ? buildCompoundListingTitle(compoundListing)
@@ -50,6 +52,10 @@ export default function ProjectListByFloorType({
         cityName={cityName}
         categorySlug={compoundListing?.categorySlug ?? null}
         initialProjects={initialProjects}
+      />
+      <BlogFaqSection
+        faqItems={faqItems}
+        subtitle={`Find answers to common questions about ${title ? title.toLowerCase() : "properties"} on My Property Fact.`}
       />
       <NewFooterDesign cityList={cityList} compactTop={true} />
     </>

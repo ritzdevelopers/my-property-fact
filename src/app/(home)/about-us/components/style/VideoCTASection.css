@@ -1,0 +1,180 @@
+.videoCTASection{
+    position: relative;
+    background: #fff;
+    padding: 50px 0;
+}
+
+.videoCTASection::before,
+.videoCTASection::after{
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #E5E7EB;
+}
+
+.videoCTASection::before{
+    top: 0;
+}
+
+.videoCTASection::after{
+    bottom: 0;
+}
+
+.videoCTAContainer{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+
+    display: grid;
+    grid-template-columns: 58% 42%;
+    align-items: center;
+    gap: 60px;
+}
+
+/* VIDEO */
+
+.videoWrapper{
+    width: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #000;
+}
+
+.videoWrapper iframe{
+    width: 100%;
+    aspect-ratio: 16/9;
+    border: 0;
+    display: block;
+}
+
+/* CONTENT */
+
+.videoContent{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.videoTitle{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    margin: 0;
+
+    font-family: var(--font-lato);
+    font-size: 38px;
+    font-weight: 600;
+    line-height: 1.12;
+    color: #111827;
+}
+
+.videoTitle span{
+    display: block;
+}
+
+.videoTitle span:last-child{
+    margin-top: 2px;
+}
+
+/* =========================
+   Large Tablet
+========================= */
+
+@media (max-width:1200px){
+
+    .videoCTAContainer{
+        gap: 45px;
+        padding: 0 30px;
+    }
+
+    .videoTitle{
+        font-size: 34px;
+    }
+
+}
+
+/* =========================
+   Tablet
+========================= */
+
+@media (max-width:991px){
+
+    .videoCTASection{
+        padding: 60px 0;
+    }
+
+    .videoCTAContainer{
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 0 24px;
+    }
+
+    .videoContent{
+        order: -1;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .videoTitle{
+        align-items: center;
+        font-size: 40px;
+        line-height: 1.2;
+    }
+
+    .noBreak{
+        white-space: normal;
+    }
+
+}
+
+/* =========================
+   Mobile
+========================= */
+
+@media (max-width:767px){
+
+    .videoCTASection{
+        padding: 50px 0;
+    }
+
+    .videoCTAContainer{
+        gap: 30px;
+        padding: 0 20px;
+    }
+
+    .videoWrapper{
+        border-radius: 6px;
+    }
+
+    .videoTitle{
+        font-size: 30px;
+        line-height: 1.25;
+    }
+
+}
+
+/* =========================
+   Small Mobile
+========================= */
+
+@media (max-width:480px){
+
+    .videoCTASection{
+        padding: 40px 0;
+    }
+
+    .videoCTAContainer{
+        padding: 0 16px;
+        gap: 24px;
+    }
+
+    .videoTitle{
+        font-size: 24px;
+        line-height: 1.3;
+    }
+
+}

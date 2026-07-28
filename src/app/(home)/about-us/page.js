@@ -1,5 +1,6 @@
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import NewAboutUs from "./NewAboutUs";
+import AboutPageV2 from "./AboutPageV2";
 import {
   getAllProjects,
   fetchBuilderData,
@@ -30,8 +31,9 @@ export default async function AboutUsPage() {
 
   return (
     <main id="primary-content" aria-labelledby="mpf-page-heading">
-      <CommonHeaderBanner headerText={"About Us"} pageName={"About Us"} />
-      <NewAboutUs platformStats={platformStats} />
+      {/* <CommonHeaderBanner headerText={"About Us"} pageName={"About Us"} /> */}
+      {/* <NewAboutUs platformStats={platformStats} /> */}
+      <AboutPageV2 />
     </main>
   );
 }

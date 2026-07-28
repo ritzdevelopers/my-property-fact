@@ -1,0 +1,368 @@
+.timeline-section {
+  position: relative;
+  padding: 50px 0;
+  background: #fff;
+  overflow: hidden;
+}
+
+.timeline-content {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  align-items: center;
+  gap: 90px;
+  margin-bottom: 90px;
+}
+
+/* LEFT IMAGE */
+
+.timeline-image {
+  width: 100%;
+  max-width: 360px;
+  margin: auto;
+  transform: rotate(-10deg);
+  border-radius: 22px;
+  overflow: hidden;
+  /* box-shadow: 0 30px 70px rgba(0, 0, 0, .18); */
+}
+
+.timeline-image img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  transition: .5s;
+}
+
+.timeline-image:hover img {
+  transform: scale(1.05);
+}
+
+/* RIGHT SIDE */
+
+.timeline-right {
+  max-width: 650px;
+}
+
+.timeline-year {
+  font-size: clamp(65px, 6.3vw, 92px); /* ~10% smaller */
+  font-weight: 800;
+  line-height: 0.9;
+  margin-bottom: 20px;
+  color: #000;
+}
+
+.timeline-description {
+  max-width: 520px;
+  margin-left: 120px;
+
+  font-size: 16px;          /* Smaller text */
+  line-height: 1.65;        /* Reduced line spacing */
+  font-weight: 400;
+  color: #777;
+}
+
+/* TIMELINE */
+
+.timeline-years {
+  position: relative;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.timeline-years::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  top: 12px;
+
+  height: 2px;
+
+  background: #d9d9d9;
+
+  z-index: 0;
+}
+
+.timeline-item {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+
+  cursor: pointer;
+
+  flex: 1;
+
+  z-index: 2;
+}
+
+.timeline-pill {
+
+  position: relative;
+
+  width: 64px;
+  height: 24px;
+
+  border: 2px solid #111;
+
+  border-radius: 50px;
+
+  background: white;
+
+  overflow: hidden;
+
+  transition: .35s;
+}
+
+.timeline-fill {
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  height: 100%;
+  width: 0;
+
+  background: #000;
+
+  border-radius: inherit;
+}
+
+.timeline-pill.active {
+  border-color: #000;
+}
+
+.timeline-label {
+
+  margin-top: 15px;
+
+  font-size: 22px;
+
+  font-weight: 500;
+
+  color: #777;
+
+  transition: .3s;
+}
+
+.timeline-label.active {
+  color: #000;
+  font-weight: 700;
+}
+
+/* Hover */
+
+.timeline-item:hover .timeline-pill {
+
+  transform: translateY(-3px) scale(1.08);
+
+  box-shadow: 0 12px 24px rgba(0,0,0,.12);
+}
+
+.timeline-item:hover .timeline-label {
+  color: #000;
+}
+
+/* Tablet */
+
+/* ==========================================
+   Laptop (1200px)
+========================================== */
+
+@media (max-width:1200px){
+
+    .timeline-section{
+        padding:45px 0;
+    }
+
+    .timeline-content{
+        grid-template-columns:360px 1fr;
+        gap:70px;
+        margin-bottom:70px;
+    }
+
+    .timeline-image{
+        max-width:320px;
+    }
+
+    .timeline-description{
+        margin-left:80px;
+        max-width:480px;
+    }
+
+}
+
+/* ==========================================
+   Tablet (991px)
+========================================== */
+
+@media (max-width:991px){
+
+    .timeline-section{
+        padding:50px 0;
+    }
+
+    .timeline-content{
+        grid-template-columns:1fr;
+        gap:45px;
+        margin-bottom:55px;
+        text-align:center;
+    }
+
+    .timeline-right{
+        max-width:700px;
+        margin:auto;
+    }
+
+    .timeline-image{
+        max-width:320px;
+        margin:auto;
+        transform:rotate(-8deg);
+    }
+
+    .timeline-year{
+        font-size:64px;
+        margin-bottom:18px;
+    }
+
+    .timeline-description{
+        margin:0 auto;
+        max-width:600px;
+        font-size:16px;
+        line-height:1.7;
+    }
+
+    .timeline-years{
+        overflow-x:auto;
+        justify-content:flex-start;
+        gap:32px;
+        padding:0 0 16px;
+        scrollbar-width:none;
+        -ms-overflow-style:none;
+    }
+
+    .timeline-years::-webkit-scrollbar{
+        display:none;
+    }
+
+    .timeline-years::before{
+        width:900px;
+        left:0;
+        right:auto;
+    }
+
+    .timeline-item{
+        flex:none;
+    }
+
+}
+
+/* ==========================================
+   Mobile (767px)
+========================================== */
+
+@media (max-width:767px){
+
+    .timeline-section{
+        padding:40px 0;
+    }
+
+    .timeline-content{
+        gap:35px;
+        margin-bottom:45px;
+    }
+
+    .timeline-image{
+        max-width:250px;
+        transform:rotate(-6deg);
+    }
+
+    .timeline-year{
+        font-size:48px;
+        line-height:1;
+        margin-bottom:16px;
+    }
+
+    .timeline-description{
+        max-width:100%;
+        font-size:15px;
+        line-height:1.75;
+    }
+
+    .timeline-years{
+        gap:24px;
+        padding-bottom:14px;
+    }
+
+    .timeline-years::before{
+        width:760px;
+    }
+
+    .timeline-pill{
+        width:56px;
+        height:22px;
+    }
+
+    .timeline-label{
+        margin-top:12px;
+        font-size:17px;
+    }
+
+}
+
+/* ==========================================
+   Small Mobile (480px)
+========================================== */
+
+@media (max-width:480px){
+
+    .timeline-section{
+        padding:35px 0;
+    }
+
+    .timeline-content{
+        gap:28px;
+        margin-bottom:38px;
+    }
+
+    .timeline-image{
+        max-width:270px;
+        border-radius:16px;
+    }
+
+    .timeline-year{
+        font-size:38px;
+    }
+
+    .timeline-description{
+        font-size:14px;
+        line-height:1.7;
+    }
+
+    .timeline-years{
+        gap:20px;
+    }
+
+    .timeline-years::before{
+        width:650px;
+    }
+
+    .timeline-pill{
+        width:50px;
+        height:20px;
+    }
+
+    .timeline-label{
+        font-size:15px;
+        margin-top:10px;
+    }
+
+}

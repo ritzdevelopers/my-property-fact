@@ -7,7 +7,10 @@ import {
   ProjectListingPaginationControls,
   useProjectListingPagination,
 } from "@/app/_global_components/projectListingPagination";
-import { cityNameMatchesFilter } from "@/app/_global_components/cityAliasUtils";
+import {
+  cityNameMatchesFilter,
+  resolveCitySlug,
+} from "@/app/_global_components/cityAliasUtils";
 import { isBhkFloorSlugSegment } from "@/app/_global_components/masterFunction";
 import { projectMatchesListingHubCategory } from "@/lib/listingFloorValidation";
 import Link from "next/link";
@@ -391,15 +394,15 @@ export default function MasterBHKProjectList() {
         gap-3 flex-wrap"
         >
           {floorTypeList.map((floorType) => {
-            const citySlug = floorType.city
-              .trim()
-              .replace(/\s+/g, "-")
-              .toLowerCase();
-            const href =
+            const citySlug = resolveCitySlug(
+              floorType.city.trim().replace(/\s+/g, "-").toLowerCase(),
+            );
+            const pathSegment =
               isBhkFloorSlugSegment(floorType.slugType) &&
               urlCategorySegment !== "flats"
                 ? `${floorType.slugType}-${urlCategorySegment}-in-${citySlug}`
                 : `${floorType.slugType}-in-${citySlug}`;
+            const href = `/${pathSegment}`;
             return (
               <Link
                 title={floorType.label}

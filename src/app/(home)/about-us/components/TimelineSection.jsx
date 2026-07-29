@@ -128,15 +128,14 @@ export default function TimelineSection() {
             >
 
               <div
-                className={`timeline-pill ${
-                  active === index ? "active" : ""
-                }`}
+                className={`timeline-pill ${active === index ? "active" : ""
+                  }`}
               >
                 <motion.div
                   className="timeline-fill"
-  animate={{
-    width: active === index ? "calc(100% + 4px)" : 0,
-}}
+                  animate={{
+                    width: active === index ? "calc(100% + 4px)" : 0,
+                  }}
                   transition={{
                     duration: 0.45,
                   }}
@@ -144,9 +143,8 @@ export default function TimelineSection() {
               </div>
 
               <span
-                className={`timeline-label ${
-                  active === index ? "active" : ""
-                }`}
+                className={`timeline-label ${active === index ? "active" : ""
+                  }`}
               >
                 {year.year}
               </span>

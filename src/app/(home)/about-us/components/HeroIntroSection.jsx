@@ -4,6 +4,28 @@ import "./style/HeroIntroSection.css";
 
 export default function HeroIntroSection() {
 
+  const leftImageRef = useRef(null);
+const rightImageRef = useRef(null);
+
+useEffect(() => {
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        leftImageRef.current?.classList.add("reveal");
+        rightImageRef.current?.classList.add("reveal");
+      }
+    },
+    {
+      threshold: 0.25,
+    }
+  );
+
+  if (leftImageRef.current) observer.observe(leftImageRef.current);
+  if (rightImageRef.current) observer.observe(rightImageRef.current);
+
+  return () => observer.disconnect();
+}, []);
+
   const headingRef = useRef(null);
   const [active, setActive] = useState(false);
 
@@ -33,13 +55,13 @@ export default function HeroIntroSection() {
           ref={headingRef}
           className={`heroHeading ${active ? "active" : ""}`}
         >
-          Building Tr
-          <span>ust. Creating Better Spaces.</span>
+          Building Trust. Creating Better Spaces.
+          <span></span>
         </h1>
 
         <div className="introGrid">
 
-          <div className="leftImage">
+          <div className="leftImage" ref={leftImageRef}>
 
             <img
               src="/about/about_us_section.jpg"
@@ -65,7 +87,7 @@ export default function HeroIntroSection() {
               insights you can actually use.
             </p>
 
-            <div className="rightImageFrame">
+            <div className="rightImageFrame"  ref={rightImageRef}>
               <img
                 src="/about/about_us_banner.jpg"
                 alt="Property"

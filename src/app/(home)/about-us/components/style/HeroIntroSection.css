@@ -13,7 +13,6 @@
     max-width: 1000px;
     margin: 0 0 70px;
 
-    font-family: "Lato", sans-serif;
     font-size: 65px;
     font-weight: 600;
     line-height: 1;
@@ -36,6 +35,57 @@
     grid-template-columns: 390px 1fr;
     gap: 54px;
     align-items: start;
+}
+
+.leftImage,
+.rightImageFrame{
+    position:relative;
+    overflow:hidden;
+}
+
+.leftImage::before,
+.rightImageFrame::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    background:#fff;
+    z-index:2;
+
+    opacity:1;
+    transform:translateX(0);
+
+    transition:
+        transform 2.2s cubic-bezier(.16,1,.3,1),
+        opacity 1.8s ease;
+}
+
+.leftImage img,
+.rightImageFrame img{
+    display:block;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+
+    opacity:0;
+    transform:scale(1.02);
+
+    will-change:transform,opacity;
+
+transition:
+    opacity 1.6s ease,
+    transform 2.4s cubic-bezier(.16,1,.3,1);
+}
+
+.leftImage.reveal::before,
+.rightImageFrame.reveal::before{
+    transform:translateX(102%);
+    opacity:0;
+}
+
+.leftImage.reveal img,
+.rightImageFrame.reveal img{
+    opacity:1;
+    transform:scale(1);
 }
 
 .leftImage {
@@ -65,7 +115,6 @@
 .introText{
     max-width:759px;
 
-    font-family:"Inter",sans-serif;
     font-size:18px;
     font-weight:400;
     line-height:27px;
@@ -92,7 +141,6 @@
     max-width:1142px;
     margin:50px auto 0;
 
-    font-family:"Inter",sans-serif;
     font-size:18px;
     font-weight:400;
     line-height:27px;

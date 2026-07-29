@@ -1,6 +1,7 @@
 import "./about-v2.css";
 
 import HeroIntroSection from "./components/HeroIntroSection";
+import CounterSection from "./components/CounterSection";
 import VideoCTASection from "./components/VideoCTASection";
 import WhyChooseSection from "./components/WhyChooseSection";
 import TimelineSection from "./components/TimelineSection";
@@ -12,6 +13,7 @@ export default function AboutPageV2() {
   return (
     <main className="about-page">
       <HeroIntroSection />
+      <CounterSection />
       <VideoCTASection />
       <WhyChooseSection />
       <TimelineSection />

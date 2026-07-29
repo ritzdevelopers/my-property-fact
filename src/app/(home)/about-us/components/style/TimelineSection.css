@@ -45,8 +45,6 @@
 
 .timeline-year{
     margin:0 0 24px;
-
-    font-family:"Inter",sans-serif;
     font-size:111px;
     font-weight:700;
     line-height:1;
@@ -57,8 +55,6 @@
 .timeline-description{
     width:574px;
     margin-left: 100px;
-
-    font-family:"Inter",sans-serif;
     font-size:18px;
     font-weight:400;
     line-height:27px;
@@ -80,41 +76,56 @@
     margin:0 auto;
 }
 
-.timeline-years::before{
+/* .timeline-years::before{
     content:"";
 
     position:absolute;
 
     left:0;
     right:0;
-    top:16px;
+    top:9px;
 
     height:2px;
 
     background:#111;
-}
+} */
 
 .timeline-item {
-  position: relative;
+    position: relative;
 
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-  align-items: center;
+    flex: 1;
 
-  cursor: pointer;
+    cursor: pointer;
+}
 
-  flex: 1;
+/* Line to next item */
+.timeline-item:not(:last-child)::after {
+    content: "";
 
-  z-index: 2;
+    position: absolute;
+
+    top: 9px;
+    left: calc(50% + 15px);
+
+    width: calc(100% - 30px);
+
+    height: 2px;
+
+    background: #111;
+
+    z-index: 0;
 }
 
 .timeline-pill {
 
   position: relative;
 
-  width: 87px;
-  height: 34px;
+  width: 30px;
+  height: 20px;
 
   border: 2px solid #111;
 
@@ -148,8 +159,6 @@
 .timeline-label{
 
     margin-top:14px;
-
-    font-family:"Inter",sans-serif;
     font-size:20px;
     font-weight:400;
 
@@ -166,7 +175,7 @@
 
 .timeline-item:hover .timeline-pill {
 
-  transform: translateY(-3px) scale(1.08);
+  transform: none;
 
   /* box-shadow: 0 12px 24px rgba(0,0,0,.12); */
 }

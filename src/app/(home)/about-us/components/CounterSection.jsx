@@ -5,89 +5,102 @@ import "./style/CounterSection.css";
 import { motion } from "framer-motion";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
+import Image from "next/image";
 
-import {
-  MapPinned,
-  Building,
-  Building2,
-  House,
-} from "lucide-react";
+const UNITS_DISPLAY = 10030;
 
-const stats = [
-  {
-    icon: MapPinned,
-    value: 29,
-    title: "Cities",
-    desc: "Presence Across India",
-  },
-  {
-    icon: Building,
-    value: 482,
-    title: "Builders",
-    desc: "Verified Partners",
-  },
-  {
-    icon: Building2,
-    value: 1341,
-    title: "Projects",
-    desc: "Premium Properties",
-  },
-  {
-    icon: House,
-    value: 10030,
-    title: "Units",
-    desc: "Happy Homebuyers",
-  },
-];
-
-export default function CounterSection() {
+export default function CounterSection({
+  citiesCount = 29,
+  buildersCount = 482,
+  projectsCount = 1341,
+}) {
   const { ref, inView } = useInView({
     triggerOnce: true,
-    threshold: 0.3,
+    threshold: 0.25,
   });
+
+  const stats = [
+    {
+      image: "/static/footer/icon1.svg",
+      alt: "Cities covered",
+      number: Number(citiesCount),
+      label: "Cities",
+    },
+    {
+      image: "/static/footer/icon2.svg",
+      alt: "Verified builders",
+      number: Number(buildersCount),
+      label: "Builders",
+    },
+    {
+      image: "/static/footer/icon3.svg",
+      alt: "Listed projects",
+      number: Number(projectsCount),
+      label: "Projects",
+    },
+    {
+      image: "/static/footer/icon4.svg",
+      alt: "Property units",
+      number: UNITS_DISPLAY,
+      label: "Units",
+    },
+  ];
 
   return (
     <section className="statsSection">
       <div className="statsContainer" ref={ref}>
         <div className="statsGrid">
-          {stats.map((item, index) => {
-            const Icon = item.icon;
+          {stats.map((item, index) => (
+            <motion.div
+              key={item.label}
+              className="statCard"
+              initial={{
+                opacity: 0,
+                y: 40,
+                scale: 0.94,
+              }}
+              whileInView={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              viewport={{ once: true }}
+              transition={{
+                duration: 0.55,
+                delay: index * 0.12,
+              }}
+              whileHover={{
+                y: -8,
+                scale: 1.03,
+              }}
+            >
+              <div className="iconBox">
+                <Image
+                  src={item.image}
+                  alt={item.alt}
+                  width={28}
+                  height={28}
+                />
+              </div>
 
-            return (
-              <motion.div
-                key={index}
-                className="statCard"
-                initial={{ opacity: 0, y: 35 }}
-                animate={inView ? { opacity: 1, y: 0 } : {}}
-                transition={{
-                  duration: 0.5,
-                  delay: index * 0.15,
-                }}
-                whileHover={{
-                  y: -6,
-                }}
-              >
-                <div className="iconBox">
-                  <Icon size={28} strokeWidth={2} />
-                </div>
+              <h3>
+                {inView ? (
+                  <CountUp
+                    start={0}
+                    end={item.number}
+                    duration={2.5}
+                    separator=","
+                    useEasing
+                  />
+                ) : (
+                  "0"
+                )}
+                +
+              </h3>
 
-                <h3>
-                  {inView && (
-                    <CountUp
-                      end={item.value}
-                      duration={2}
-                      separator=","
-                    />
-                  )}
-                  +
-                </h3>
-
-                <h4>{item.title}</h4>
-
-                <p>{item.desc}</p>
-              </motion.div>
-            );
-          })}
+              <h4>{item.label}</h4>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

@@ -213,6 +213,11 @@
     color:#6B7280;
 }
 
+.whyChoose__mobileCard,
+.whyChoose__mobileButtons {
+  display: none;
+}
+
 /* ==========================================
    ANIMATION
 ========================================== */
@@ -298,72 +303,80 @@
    MOBILE
 ========================================== */
 
-@media (max-width: 768px) {
-  .whyChoose {
-    padding: 60px 0;
+@media (max-width:768px){
+
+  .whyChoose{
+    padding:60px 0;
   }
 
-  .whyChoose__container {
-    padding: 0 20px;
+  .whyChoose__container{
+    padding:0 20px;
   }
 
-  .whyChoose__content {
-    padding: 40px 0;
+  .whyChoose__content{
+    padding:40px 0;
   }
 
-  .whyChoose__title {
-    font-size: 32px;
-    margin-bottom: 32px;
+  .whyChoose__header{
+    display:block;
+    text-align:center;
+    margin-bottom:30px;
   }
 
-  .whyChoose__blueBg {
-    left: 0;
-    width: 100%;
+  .whyChoose__title{
+    font-size:32px;
+    margin:0 auto 30px;
+    text-align:center;
   }
 
-  .whyChoose__slider {
-    width: calc(100% + 20px);
-    margin-left: -20px;
-    padding: 15px 0;
+  .whyChoose__blueBg{
+    left:0;
+    width:100%;
   }
 
-  .whyChoose__track {
-    gap: 18px;
+  /* Hide desktop slider */
+  .whyChoose__slider{
+    display:none;
   }
 
-  .whyCard {
-    width: 240px;
-    min-height: 160px;
-
-    padding: 24px 20px;
+  /* Show single card */
+  .whyChoose__mobileCard{
+    display:flex;
+    justify-content:center;
+    position:relative;
+    z-index:2;
   }
 
-  .whyCard h3 {
-    font-size: 14px;
-    margin-bottom: 14px;
+  .whyChoose__mobileCard .whyCard{
+    width:100%;
+    max-width:320px;
+    min-height:220px;
   }
 
-  .whyCard p {
-    font-size: 14px;
-    line-height: 1.7;
+  /* Buttons below card */
+  .whyChoose__mobileButtons{
+    display:flex;
+    justify-content:center;
+    gap:16px;
+    margin-top:24px;
+    position:relative;
+    z-index:2;
   }
 
-  @media (max-width:768px){
+  .whyChoose__arrow{
+    width:46px;
+    height:46px;
+  }
 
-    .whyChoose__header{
-        flex-direction:column;
-        align-items:flex-start;
-        gap:20px;
-    }
+  .whyCard{
+    width:100%;
+    text-align:center;
+    align-items:center;
+    justify-content:center;
+  }
 
-    .whyChoose__arrows{
-        align-self:flex-end;
-    }
-
-    .whyChoose__arrow{
-        width:42px;
-        height:42px;
-        font-size:18px;
-    }
-}
+  .whyCard h3,
+  .whyCard p{
+    text-align:center;
+  }
 }

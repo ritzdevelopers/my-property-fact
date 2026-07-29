@@ -78,13 +78,13 @@ export default function WhyMyPropertyFact({ platformStats }) {
             </div>
           </div> */}
 
-          {/* {platformStats ? (
+          {platformStats ? (
             <MpfPlatformStatistics
               citiesCount={platformStats.cities}
               buildersCount={platformStats.builders}
               projectsCount={platformStats.projects}
             />
-          ) : null} */}
+          ) : null}
 
           <div className="our-commitment-container">
             <div className="our-commitment-content-container">

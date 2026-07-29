@@ -22,7 +22,14 @@ import {
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
-import { ADMIN_PERMISSIONS } from "../../adminPermissions";
+import {
+  ADMIN_PERMISSIONS,
+  ADMIN_PERMISSION_DEFINITIONS,
+  DEFAULT_STAFF_ADMIN_PERMISSIONS,
+  isStaffAdminRoleName,
+  roleListIncludesStaffAdmin,
+  roleObjectsIncludeStaffAdmin,
+} from "../../adminPermissions";
 
 const apiWithAuth = () => ({
   withCredentials: true,
@@ -69,6 +76,9 @@ function getUserRowMeta(user, isSuperAdmin) {
     verified,
     waitingPortalActivation,
     pendingPortalApproval,
+    isStaffAdmin:
+      roleObjectsIncludeStaffAdmin(user.roles) &&
+      !roleNamesUpper.includes("SUPERADMIN"),
   };
 }
 
@@ -148,7 +158,9 @@ export default function ManageUsers({ users: initialUsers }) {
   const [users, setUsers] = useState(initialUsers || []);
   const [roles, setRoles] = useState([]);
   const [rolesLoading, setRolesLoading] = useState(true);
-  const [permissionDefinitions, setPermissionDefinitions] = useState([]);
+  const [permissionDefinitions, setPermissionDefinitions] = useState(
+    ADMIN_PERMISSION_DEFINITIONS,
+  );
   const [showModal, setShowModal] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -167,6 +179,7 @@ export default function ManageUsers({ users: initialUsers }) {
   const [userSearch, setUserSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [permissionsTouched, setPermissionsTouched] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
     fullName: "",
@@ -217,11 +230,12 @@ export default function ManageUsers({ users: initialUsers }) {
           `${process.env.NEXT_PUBLIC_API_URL}admin-portal/auth/admin-permission-definitions`,
           apiWithAuth(),
         );
-        if (!cancelled && Array.isArray(permRes.data)) {
+        if (!cancelled && Array.isArray(permRes.data) && permRes.data.length > 0) {
           setPermissionDefinitions(permRes.data);
         }
-      } catch {
-        if (!cancelled) setPermissionDefinitions([]);
+      } catch (error) {
+        console.error("Error fetching permission definitions:", error);
+        if (!cancelled) setPermissionDefinitions(ADMIN_PERMISSION_DEFINITIONS);
       }
 
       try {
@@ -281,6 +295,7 @@ export default function ManageUsers({ users: initialUsers }) {
       enquiryAccessPin: "",
       userCategory: "ADMIN_USER",
     });
+    setPermissionsTouched(false);
     setShowModal(true);
   };
 
@@ -306,6 +321,7 @@ export default function ManageUsers({ users: initialUsers }) {
   const openEditModal = (user) => {
     setEditingUser(user);
     const userRoleIds = user.roles ? user.roles.map((role) => role.id) : [];
+    setPermissionsTouched(false);
     setFormData({
       id: user.id,
       fullName: user.fullName || "",
@@ -330,6 +346,7 @@ export default function ManageUsers({ users: initialUsers }) {
   const handleClose = () => {
     setShowModal(false);
     setEditingUser(null);
+    setPermissionsTouched(false);
     setFormData({
       id: null,
       fullName: "",
@@ -369,21 +386,31 @@ export default function ManageUsers({ users: initialUsers }) {
   const handleRoleChange = (roleId) => {
     setFormData((prev) => {
       const roleIds = prev.roleIds || [];
-      const togglingOffAdmin =
-        roleIds.includes(roleId) &&
-        roles.find((r) => r.id === roleId && String(r.roleName).toUpperCase() === "ADMIN");
+      const role = roles.find((r) => r.id === roleId);
+      const isAdminRole = role && isStaffAdminRoleName(role.roleName);
+      const togglingOffAdmin = roleIds.includes(roleId) && isAdminRole;
       if (roleIds.includes(roleId)) {
         return {
           ...prev,
           roleIds: roleIds.filter((id) => id !== roleId),
           adminPermissions: togglingOffAdmin ? [] : prev.adminPermissions,
         };
-      } else {
-        return {
-          ...prev,
-          roleIds: [...roleIds, roleId],
-        };
       }
+
+      const nextRoleIds = [...roleIds, roleId];
+      const shouldSeedPermissions =
+        isAdminRole &&
+        (!prev.adminPermissions || prev.adminPermissions.length === 0);
+      if (shouldSeedPermissions) {
+        setPermissionsTouched(true);
+      }
+      return {
+        ...prev,
+        roleIds: nextRoleIds,
+        adminPermissions: shouldSeedPermissions
+          ? [...DEFAULT_STAFF_ADMIN_PERMISSIONS]
+          : prev.adminPermissions,
+      };
     });
   };
 
@@ -395,6 +422,7 @@ export default function ManageUsers({ users: initialUsers }) {
   };
 
   const handleAdminPermissionToggle = (key) => {
+    setPermissionsTouched(true);
     setFormData((prev) => {
       const cur = prev.adminPermissions || [];
       const k = String(key).toUpperCase();
@@ -412,10 +440,10 @@ export default function ManageUsers({ users: initialUsers }) {
   };
 
   const editorHasAdminRole = () => {
-    const names = (roles || [])
-      .filter((r) => formData.roleIds.includes(r.id))
-      .map((r) => String(r.roleName || "").toUpperCase());
-    return names.includes("ADMIN");
+    const selectedRoles = (roles || []).filter((r) =>
+      formData.roleIds.includes(r.id),
+    );
+    return roleObjectsIncludeStaffAdmin(selectedRoles);
   };
 
   const handleSubmit = async (e) => {
@@ -473,8 +501,17 @@ export default function ManageUsers({ users: initialUsers }) {
           userCategory: normalizeUserCategory(formData.userCategory),
         };
         if (hasAdminRoleSelected) {
-          payload.adminPermissions = formData.adminPermissions || [];
-          if (hasEnquiryPerm && /^\d{4}$/.test(pinTrim)) {
+          const permsToSave =
+            (formData.adminPermissions || []).length > 0
+              ? formData.adminPermissions
+              : DEFAULT_STAFF_ADMIN_PERMISSIONS;
+          payload.adminPermissions = permsToSave;
+          if (
+            permsToSave
+              .map((x) => String(x || "").toUpperCase())
+              .includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES) &&
+            /^\d{4}$/.test(pinTrim)
+          ) {
             payload.enquiryAccessPin = pinTrim;
           }
         }
@@ -568,12 +605,6 @@ export default function ManageUsers({ users: initialUsers }) {
         headers: { ...auth.headers, "Content-Type": "application/json" },
       };
 
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/roles`,
-        formData.roleIds,
-        jsonAuth,
-      );
-
       const userPayload = {
         fullName: formData.fullName,
         phone: formData.phone,
@@ -585,12 +616,16 @@ export default function ManageUsers({ users: initialUsers }) {
       if (isSuperAdmin) {
         userPayload.userCategory = normalizeUserCategory(formData.userCategory);
       }
-      if (editorHasAdminRole()) {
-        userPayload.adminPermissions = formData.adminPermissions || [];
+      const hasAdminRoleSelected = editorHasAdminRole();
+      const selectedPermissions = formData.adminPermissions || [];
+      if (hasAdminRoleSelected) {
+        if (permissionsTouched || selectedPermissions.length > 0) {
+          userPayload.adminPermissions = selectedPermissions;
+        }
       }
       if (
         isSuperAdmin &&
-        editorHasAdminRole() &&
+        hasAdminRoleSelected &&
         hasEnquiryPerm &&
         /^\d{4}$/.test(pinTrim)
       ) {
@@ -600,6 +635,12 @@ export default function ManageUsers({ users: initialUsers }) {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}`,
         userPayload,
+        jsonAuth,
+      );
+
+      await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}users/${formData.id}/roles`,
+        formData.roleIds,
         jsonAuth,
       );
 
@@ -1003,6 +1044,7 @@ export default function ManageUsers({ users: initialUsers }) {
                     enabled,
                     verified,
                     pendingPortalApproval,
+                    isStaffAdmin,
                   } = getUserRowMeta(user, isSuperAdmin);
                   const roleLabel = getRoleNames(user.roles);
                   const roleParts = roleLabel.split(", ");
@@ -1042,7 +1084,7 @@ export default function ManageUsers({ users: initialUsers }) {
                           <td>
                             {pendingPortalApproval ? (
                               <span className="admin-chip-warn">Pending</span>
-                            ) : !roleNamesUpper.includes("ADMIN") ? (
+                            ) : !isStaffAdmin ? (
                               <span className="text-muted small">—</span>
                             ) : (
                               <span className="admin-chip-ok">OK</span>
@@ -1051,9 +1093,6 @@ export default function ManageUsers({ users: initialUsers }) {
                           <td>
                             {(() => {
                               const keys = user.adminPermissions || [];
-                              const isStaffAdmin =
-                                roleNamesUpper.includes("ADMIN") &&
-                                !roleNamesUpper.includes("SUPERADMIN");
                               if (!isStaffAdmin) {
                                 return (
                                   <span className="text-muted small">—</span>
@@ -1082,9 +1121,6 @@ export default function ManageUsers({ users: initialUsers }) {
                           </td>
                           <td>
                             {(() => {
-                              const isStaffAdmin =
-                                roleNamesUpper.includes("ADMIN") &&
-                                !roleNamesUpper.includes("SUPERADMIN");
                               const hasEnq = (user.adminPermissions || [])
                                 .map((x) => String(x || "").toUpperCase())
                                 .includes(ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
@@ -1232,7 +1268,7 @@ export default function ManageUsers({ users: initialUsers }) {
                   const rolesUpper = (rejectStaffUser.roles || []).map((r) =>
                     String(r?.roleName || "").toUpperCase(),
                   );
-                  return rolesUpper.includes("ADMIN")
+                  return roleListIncludesStaffAdmin(rolesUpper)
                     ? "The Admin role and dashboard username will be removed."
                     : "The portal account will be disabled.";
                 })()}
@@ -1570,12 +1606,45 @@ export default function ManageUsers({ users: initialUsers }) {
                 </Form.Group>
               </Col>
             </Row>
-            {isSuperAdmin && editorHasAdminRole() && permissionDefinitions.length > 0 && (
+            {isSuperAdmin && editorHasAdminRole() && (
               <Row>
                 <Col md={12}>
                   <Form.Group className="mb-2">
                     <div className="admin-modal-section-title">
                       Admin permissions
+                    </div>
+                    <div className="d-flex flex-wrap gap-2 mb-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline-secondary"
+                        className="btn-admin-secondary"
+                        onClick={() => {
+                          setPermissionsTouched(true);
+                          setFormData((prev) => ({
+                            ...prev,
+                            adminPermissions: [...DEFAULT_STAFF_ADMIN_PERMISSIONS],
+                          }));
+                        }}
+                      >
+                        Select all CMS access
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline-secondary"
+                        className="btn-admin-secondary"
+                        onClick={() => {
+                          setPermissionsTouched(true);
+                          setFormData((prev) => ({
+                            ...prev,
+                            adminPermissions: [],
+                            enquiryAccessPin: "",
+                          }));
+                        }}
+                      >
+                        Clear all
+                      </Button>
                     </div>
                     <div className="admin-modal-check-scroll admin-modal-check-scroll-lg">
                       {permissionDefinitions.map((def) => {

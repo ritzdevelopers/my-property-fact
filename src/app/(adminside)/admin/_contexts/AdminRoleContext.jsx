@@ -38,6 +38,14 @@ function normalizeRoles(roles) {
   );
 }
 
+function rolesIncludeStaffAdmin(normalizedRoles) {
+  return (normalizedRoles || []).some((roleName) => {
+    const n = String(roleName || "").toUpperCase();
+    if (!n || n.includes("SUPER")) return false;
+    return n === "ADMIN" || n === "ADMINUSER";
+  });
+}
+
 export function AdminRoleProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
@@ -115,7 +123,7 @@ export function AdminRoleProvider({ children }) {
 
   const value = useMemo(() => {
     const isSuperAdmin = roles.includes("SUPERADMIN");
-    const isAdmin = roles.includes("ADMIN");
+    const isAdmin = rolesIncludeStaffAdmin(roles);
     const isAdminOnly = isAdmin && !isSuperAdmin;
     const permSet = new Set(permissions);
     const hasPermission = (key) => {

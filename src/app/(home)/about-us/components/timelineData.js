@@ -13,13 +13,13 @@ export const timelineData = [
   },
   {
     year: "2018",
-    image: "/about/timeline/2016.webp",
+    image: "/about/timeline/2018.webp",
     description:
       "Partnered with leading developers and launched digital property campaigns to simplify the home buying experience for customers across India.",
   },
   {
     year: "2019",
-    image: "/about/timeline/2017.webp",
+    image: "/about/timeline/2019.webp",
     description:
       "Introduced premium project showcases and personalized consultation services, making property discovery faster, easier, and more reliable.",
   },
@@ -37,13 +37,13 @@ export const timelineData = [
   },
   {
     year: "2022",
-    image: "/about/timeline/2016.webp",
+    image: "/about/timeline/2018.webp",
     description:
       "Enhanced customer experience through advanced digital tools, verified listings, and expert property advisors for every requirement.",
   },
   {
     year: "2023",
-    image: "/about/timeline/2017.webp",
+    image: "/about/timeline/2019.webp",
     description:
       "Reached new milestones with successful project launches, improved client satisfaction, and innovative marketing strategies for real estate.",
   },
@@ -61,7 +61,7 @@ export const timelineData = [
   },
   {
     year: "2026",
-    image: "/about/timeline/2016.webp",
+    image: "/about/timeline/2018.webp",
     description:
       "Building the future of real estate with innovation, trust, and customer-first experiences while connecting people with their dream properties.",
   },

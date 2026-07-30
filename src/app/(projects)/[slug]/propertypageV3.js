@@ -980,16 +980,20 @@ export default function PropertyV3({
             <div className="pd3-summary__top">
               <div className="pd3-summary__titlewrap">
                 <div className="pd3-summary__title">
-                  <h1>{projectDetail.projectName}, <br />
-                    <div className="pd3-summary__location">
-                      <FontAwesomeIcon icon={faLocationDot} />
-                      <span>
-                        {[projectDetail.projectLocality, projectDetail.city]
-                          .filter(Boolean)
-                          .join(", ")}
-                      </span>
-                    </div>
+                  <h1>
+                    {projectDetail.projectName} |{" "}
+                    {[projectDetail.projectLocality, projectDetail.city]
+                      .filter(Boolean)
+                      .join(", ")}
                   </h1>
+                </div>
+                <div className="pd3-summary__location">
+                  <FontAwesomeIcon icon={faLocationDot} />
+                  <span>
+                    {[projectDetail.projectLocality, projectDetail.city, projectDetail.state]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </span>
                 </div>
               </div>
               <div className="pd3-summary__cta">

@@ -332,16 +332,17 @@ export default function NewContactUs() {
 
                 <div className="contact-expert-phone-card-wrap">
                   <a
-                    href="tel:+918920024793"
+                    href="https://wa.me/918920024793"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="contact-expert-phone-card"
-                    aria-label="Call My Property Fact at +91 8920024793"
-                    title="Call My Property Fact — +91 8920024793"
+                    aria-label="Chat with My Property Fact on WhatsApp"
+                    title="Chat with My Property Fact on WhatsApp"
                   >
                     <div className="contact-expert-phone-icon">
                       <img
                         src="/static/icon/phone_call.svg"
-                        alt="Phone call icon — My Property Fact contact page"
-                        title="Phone call icon — tap to call"
+                        alt="WhatsApp contact icon"
                         width={18}
                         height={18}
                       />
@@ -392,7 +393,7 @@ export default function NewContactUs() {
                       className="contact-expert-image-cover"
                       loading="lazy"
                       decoding="async"
-                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                     <div
                       className="contact-expert-image-gradient"
                       aria-hidden
@@ -407,158 +408,158 @@ export default function NewContactUs() {
 
             <div className="col-12 col-lg-8 contact-expert-form-column">
               <div className="contact-expert-form-shell">
-              <div className="contact-expert-form-card">
-                <p className="contact-expert-form-heading">Send a Message</p>
-                <p className="contact-expert-form-lead">
-                  Fill out the form below and one of our property consultants
-                  will reach out shortly.
-                </p>
-                <form
-                  className="contact-expert-form"
-                  onSubmit={handleSubmit}
-                  noValidate
-                >
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-name"
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        id="contact-expert-name"
-                        type="text"
-                        name="name"
-                        className={`contact-expert-input contact-expert-input--body ${errors.name ? "is-invalid" : ""
-                          }`}
-                        placeholder="Enter Your Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.name && (
-                        <span className="contact-expert-error">{errors.name}</span>
-                      )}
-                    </div>
-                    <div className="col-md-6">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-phone"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        id="contact-expert-phone"
-                        type="tel"
-                        name="phone"
-                        className={`contact-expert-input contact-expert-input--body ${errors.phone ? "is-invalid" : ""
-                          }`}
-                        placeholder="+91 00000 00000"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.phone && (
-                        <span className="contact-expert-error">{errors.phone}</span>
-                      )}
-                    </div>
-                    <div className="col-12">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-email"
-                      >
-                        Email Address
-                      </label>
-                      <input
-                        id="contact-expert-email"
-                        type="email"
-                        name="email"
-                        className={`contact-expert-input ${errors.email ? "is-invalid" : ""
-                          }`}
-                        placeholder="Enter Your Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.email && (
-                        <span className="contact-expert-error">{errors.email}</span>
-                      )}
-                    </div>
-                    <div className="col-12">
-                      <fieldset className="contact-expert-interest-fieldset">
-                        <legend className="contact-expert-label contact-expert-interest-legend">
-                          Interested In
-                        </legend>
-                        <div className="contact-expert-radio-group">
-                          {INTEREST_OPTIONS.map((opt, i) => {
-                            const inputId = `contact-expert-interest-${i}`;
-                            return (
-                              <label
-                                key={opt}
-                                className="contact-expert-radio"
-                                htmlFor={inputId}
-                                title={opt}
-                              >
-                                <input
-                                  type="radio"
-                                  id={inputId}
-                                  name="interestedIn"
-                                  value={opt}
-                                  checked={formData.interestedIn === opt}
-                                  onChange={handleChange}
-                                  className="contact-expert-radio-input"
-                                />
-                                <span className="contact-expert-radio-text">
-                                  {opt}
-                                </span>
-                              </label>
-                            );
-                          })}
-                        </div>
-                      </fieldset>
-                    </div>
-                    <div className="col-12">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-message"
-                      >
-                        Your Message
-                      </label>
-                      <textarea
-                        id="contact-expert-message"
-                        name="message"
-                        className="contact-expert-textarea"
-                        placeholder="How can we help you?"
-                        rows={4}
-                        value={formData.message}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="contact-expert-submit"
-                    disabled={isSubmitting}
-                    title="Submit your inquiry — sends this form to My Property Fact"
+                <div className="contact-expert-form-card">
+                  <p className="contact-expert-form-heading">Send a Message</p>
+                  <p className="contact-expert-form-lead">
+                    Fill out the form below and one of our property consultants
+                    will reach out shortly.
+                  </p>
+                  <form
+                    className="contact-expert-form"
+                    onSubmit={handleSubmit}
+                    noValidate
                   >
-                    <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
-                    <img
-                      src="/static/icon/enquiry.svg"
-                      alt="Enquiry icon — submits this form"
-                      title="Enquiry icon — submits this form"
-                      width={19}
-                      height={16}
-                      className="contact-expert-submit-icon"
-                      aria-hidden
-                    />
-                  </button>
-                </form>
-              </div>
+                    <div className="row g-3">
+                      <div className="col-md-6">
+                        <label
+                          className="contact-expert-label"
+                          htmlFor="contact-expert-name"
+                        >
+                          Full Name
+                        </label>
+                        <input
+                          id="contact-expert-name"
+                          type="text"
+                          name="name"
+                          className={`contact-expert-input contact-expert-input--body ${errors.name ? "is-invalid" : ""
+                            }`}
+                          placeholder="Enter Your Name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.name && (
+                          <span className="contact-expert-error">{errors.name}</span>
+                        )}
+                      </div>
+                      <div className="col-md-6">
+                        <label
+                          className="contact-expert-label"
+                          htmlFor="contact-expert-phone"
+                        >
+                          Phone Number
+                        </label>
+                        <input
+                          id="contact-expert-phone"
+                          type="tel"
+                          name="phone"
+                          className={`contact-expert-input contact-expert-input--body ${errors.phone ? "is-invalid" : ""
+                            }`}
+                          placeholder="+91 00000 00000"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.phone && (
+                          <span className="contact-expert-error">{errors.phone}</span>
+                        )}
+                      </div>
+                      <div className="col-12">
+                        <label
+                          className="contact-expert-label"
+                          htmlFor="contact-expert-email"
+                        >
+                          Email Address
+                        </label>
+                        <input
+                          id="contact-expert-email"
+                          type="email"
+                          name="email"
+                          className={`contact-expert-input ${errors.email ? "is-invalid" : ""
+                            }`}
+                          placeholder="Enter Your Email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.email && (
+                          <span className="contact-expert-error">{errors.email}</span>
+                        )}
+                      </div>
+                      <div className="col-12">
+                        <fieldset className="contact-expert-interest-fieldset">
+                          <legend className="contact-expert-label contact-expert-interest-legend">
+                            Interested In
+                          </legend>
+                          <div className="contact-expert-radio-group">
+                            {INTEREST_OPTIONS.map((opt, i) => {
+                              const inputId = `contact-expert-interest-${i}`;
+                              return (
+                                <label
+                                  key={opt}
+                                  className="contact-expert-radio"
+                                  htmlFor={inputId}
+                                  title={opt}
+                                >
+                                  <input
+                                    type="radio"
+                                    id={inputId}
+                                    name="interestedIn"
+                                    value={opt}
+                                    checked={formData.interestedIn === opt}
+                                    onChange={handleChange}
+                                    className="contact-expert-radio-input"
+                                  />
+                                  <span className="contact-expert-radio-text">
+                                    {opt}
+                                  </span>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </fieldset>
+                      </div>
+                      <div className="col-12">
+                        <label
+                          className="contact-expert-label"
+                          htmlFor="contact-expert-message"
+                        >
+                          Your Message
+                        </label>
+                        <textarea
+                          id="contact-expert-message"
+                          name="message"
+                          className="contact-expert-textarea"
+                          placeholder="How can we help you?"
+                          rows={4}
+                          value={formData.message}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="contact-expert-submit"
+                      disabled={isSubmitting}
+                      title="Submit your inquiry — sends this form to My Property Fact"
+                    >
+                      <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
+                      <img
+                        src="/static/icon/enquiry.svg"
+                        alt="Enquiry icon — submits this form"
+                        title="Enquiry icon — submits this form"
+                        width={19}
+                        height={16}
+                        className="contact-expert-submit-icon"
+                        aria-hidden
+                      />
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>

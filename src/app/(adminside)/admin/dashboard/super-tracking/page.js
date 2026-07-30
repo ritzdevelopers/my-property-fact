@@ -2,17 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import "./super-tracking.css";
 import WebsiteTrafficOverview from "./WebsiteTrafficOverview";
 
 function adminAuthHeaders() {
-  const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+  return {};
 }
 
 async function adminFetchJson(url) {

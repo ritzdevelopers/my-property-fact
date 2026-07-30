@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
@@ -13,16 +14,8 @@ import CommonModal from "../common-model/common-model";
 import { useRouter } from "next/navigation";
 import DashboardHeader from "../common-model/dashboardHeader";
 import DataTable from "../common-model/data-table";
-import Cookies from "js-cookie";
 
-const apiWithAuth = () => ({
-  withCredentials: true,
-  headers: {
-    ...(typeof window !== "undefined" && Cookies.get("token")
-      ? { Authorization: `Bearer ${Cookies.get("token")}` }
-      : {}),
-  },
-});
+
 
 export default function ProjectsAmenity({
   projectList,
@@ -98,7 +91,7 @@ export default function ProjectsAmenity({
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}projects/add-update-amenity`,
           data,
-          apiWithAuth(),
+          adminApiWithAuth(),
         );
         if (response.data.isSuccess === 1) {
           router.refresh();
@@ -126,7 +119,7 @@ export default function ProjectsAmenity({
   const fetchProjectAmenities = async (projectId) => {
     const response = await axios.get(
       `${process.env.NEXT_PUBLIC_API_URL}amenity/get-by-project-id/${projectId}`,
-      apiWithAuth(),
+      adminApiWithAuth(),
     );
     return response.data;
   };

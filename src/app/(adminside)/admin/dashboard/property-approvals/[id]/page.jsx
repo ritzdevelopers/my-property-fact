@@ -42,7 +42,6 @@ function adminAxiosConfig(extra = {}) {
   return {
     withCredentials: true,
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(extra.headers || {}),
     },
   };

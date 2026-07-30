@@ -6,7 +6,6 @@ import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Cookies from "js-cookie";
 import axios from "axios";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { ADMIN_VERSION } from "../_components/VersionUpgradeModal";
@@ -96,11 +95,6 @@ export default function AdminTopBar() {
     try {
       const res = await axios.get(`${base}users/pending-permissions-count`, {
         withCredentials: true,
-        headers: {
-          ...(typeof window !== "undefined" && Cookies.get("token")
-            ? { Authorization: `Bearer ${Cookies.get("token")}` }
-            : {}),
-        },
       });
       const d = res.data || {};
       setPendingTotal(Number(d.totalPending) || 0);

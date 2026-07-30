@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -18,13 +19,7 @@ import { useAdminConfirm } from "../../_contexts/AdminConfirmContext";
 import { toast } from "../../_lib/adminToast";
 import "./property-approvals.css";
 
-function adminFetchHeaders() {
-  const token =
-    typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+
 
 function adminAxiosConfig() {
   const token =
@@ -32,7 +27,6 @@ function adminAxiosConfig() {
   return {
     withCredentials: true,
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   };
 }

@@ -1,8 +1,8 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import DashboardHeader from "../common-model/dashboardHeader";
@@ -11,16 +11,7 @@ import { useRouter } from "next/navigation";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import "./pending-permissions.css";
 
-function apiWithAuth() {
-  return {
-    withCredentials: true,
-    headers: {
-      ...(typeof window !== "undefined" && Cookies.get("token")
-        ? { Authorization: `Bearer ${Cookies.get("token")}` }
-        : {}),
-    },
-  };
-}
+
 
 function formatWhen(iso) {
   if (iso == null || iso === "") return "—";
@@ -59,7 +50,7 @@ export default function PendingPermissionsClient() {
     try {
       const res = await axios.get(
         `${base}users/pending-permissions`,
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       const data = res.data || {};
       setAdminRows(
@@ -94,7 +85,7 @@ export default function PendingPermissionsClient() {
       await axios.put(
         `${base}users/${id}/approve-admin-staff`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Registration approved.");
       await load();
@@ -123,7 +114,7 @@ export default function PendingPermissionsClient() {
       await axios.put(
         `${base}users/${u.id}/reject-admin-staff`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Rejected.");
       setRejectPortalUser(null);
@@ -142,7 +133,7 @@ export default function PendingPermissionsClient() {
       await axios.put(
         `${base}users/password-reset-requests/${id}/approve`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Password updated using the proposed password.");
       await load();
@@ -170,7 +161,7 @@ export default function PendingPermissionsClient() {
       await axios.put(
         `${base}users/password-reset-requests/${editRequestId}/approve`,
         { editedPassword: p },
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Password updated with your edited value.");
       setEditModalOpen(false);
@@ -198,7 +189,7 @@ export default function PendingPermissionsClient() {
       await axios.put(
         `${base}users/password-reset-requests/${id}/reject`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Password reset request rejected.");
       await load();

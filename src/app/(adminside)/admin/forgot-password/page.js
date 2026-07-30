@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../_lib/adminApiAuth";
 
 import axios from "axios";
 import Link from "next/link";
@@ -51,8 +52,7 @@ export default function AdminForgotPasswordPage() {
     try {
       await axios.post(
         `${apiBase}admin-portal/auth/admin-password-reset-check-email`,
-        { email: trimmed },
-        { withCredentials: true },
+        { email: trimmed }, adminApiWithAuth(),
       );
       toast.success("Email verified. Enter your new password.");
       setStep(STEP_PASSWORDS);
@@ -100,8 +100,7 @@ export default function AdminForgotPasswordPage() {
           dashboardUsername: dash,
           newPassword,
           confirmPassword,
-        },
-        { withCredentials: true },
+        }, adminApiWithAuth(),
       );
       toast.success("Request Sent to Super Admin");
       setNewPassword("");

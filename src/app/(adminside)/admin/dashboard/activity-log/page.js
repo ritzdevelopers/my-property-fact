@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { AdminLoader } from "@/components/admin/admin-loader";
@@ -9,10 +8,7 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import "./activity-log.css";
 
 function adminAuthHeaders() {
-  const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+  return {};
 }
 
 /** Spring/Jackson may serialize LocalDateTime as an array [y, mo, d, h, mi, s, ns]. */

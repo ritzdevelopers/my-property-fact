@@ -20,6 +20,7 @@ import {
   LockKeyhole,
 } from "lucide-react";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import { clearLegacyAdminTokenCookies } from "@/app/(adminside)/admin/_lib/adminApiAuth";
 
 const FEATURE_SLIDES = [
   {
@@ -118,6 +119,7 @@ export function LoginForm({ className }) {
       );
 
       if (response.status === 200) {
+        clearLegacyAdminTokenCookies();
         const sessionRes = await fetch(`${apiBase}admin-portal/auth/session`, {
           credentials: "include",
         });

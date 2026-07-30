@@ -1,7 +1,7 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../_lib/adminApiAuth";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Cookies from "js-cookie";
 import { toast } from "../_lib/adminToast";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
@@ -11,12 +11,7 @@ const DISMISS_SESSION_KEY = "mpf_backup_banner_dismissed";
 const POLL_MS = 30_000;
 const POLL_ACTIVE_MS = 3_000;
 
-function adminFetchHeaders() {
-  const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+
 
 function formatBytes(bytes) {
   if (bytes == null || bytes <= 0) return "";

@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import {
@@ -53,7 +54,7 @@ export default function ManageBanners({ list, config = {} }) {
         const url = base ? `${base}/home-banner/all` : "";
         if (!url) return;
         let cancelled = false;
-        axios.get(url, { withCredentials: true })
+        axios.get(url, adminApiWithAuth())
             .then((res) => {
                 if (!cancelled && Array.isArray(res?.data)) setHomeBannerListFromApi(res.data);
             })

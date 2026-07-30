@@ -1,3 +1,355 @@
+/* MPF Admin login — Zoho-inspired centered split card (golden-green accents) */
+
+.mpf-zoho-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: #f4f5f7;
+  background-image:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.04) 0%, transparent 40%),
+    linear-gradient(225deg, rgba(201, 162, 39, 0.05) 0%, transparent 35%),
+    repeating-linear-gradient(
+      -32deg,
+      transparent,
+      transparent 48px,
+      rgba(28, 36, 48, 0.018) 48px,
+      rgba(28, 36, 48, 0.018) 49px
+    );
+  font-family: "Nunito Sans", "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+}
+
+.mpf-zoho-login__card {
+  width: 100%;
+  max-width: 920px;
+  display: grid;
+  grid-template-columns: 1fr;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(28, 36, 48, 0.04),
+    0 12px 40px rgba(28, 36, 48, 0.1);
+  overflow: hidden;
+  min-height: 520px;
+}
+
+@media (min-width: 900px) {
+  .mpf-zoho-login__card {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* —— Form pane —— */
+.mpf-zoho-login__form-pane {
+  padding: 2rem 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 900px) {
+  .mpf-zoho-login__form-pane {
+    padding: 2.5rem 2.75rem 2rem;
+  }
+}
+
+.mpf-zoho-login__brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.mpf-zoho-login__logo {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+.mpf-zoho-login__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #a67c0a;
+  background: #fff6d9;
+  border: 1px solid #f0d78a;
+}
+
+.mpf-zoho-login__title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1c2430;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.mpf-zoho-login__subtitle {
+  margin: 0.35rem 0 1.5rem;
+  font-size: 0.9375rem;
+  color: #6b7280;
+}
+
+.mpf-zoho-login__alert {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.875rem;
+  border-radius: 8px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.8125rem;
+}
+
+.mpf-zoho-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mpf-zoho-login__field label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.mpf-zoho-login__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.mpf-zoho-login__label-row label {
+  margin-bottom: 0;
+}
+
+.mpf-zoho-login__input {
+  position: relative;
+}
+
+.mpf-zoho-login__input-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.mpf-zoho-login__input input {
+  width: 100%;
+  height: 44px;
+  padding: 0 0.9rem 0 2.4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fafafa;
+  font-size: 0.9375rem;
+  color: #1c2430;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.mpf-zoho-login__input input.has-toggle {
+  padding-right: 2.6rem;
+}
+
+.mpf-zoho-login__input input:focus {
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.mpf-zoho-login__input input.is-error {
+  border-color: #ef4444;
+  background: #fff;
+}
+
+.mpf-zoho-login__toggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.mpf-zoho-login__toggle:hover {
+  color: #1d4ed8;
+  background: #fff6d9;
+}
+
+.mpf-zoho-login__error {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+.mpf-zoho-login__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 46px;
+  margin-top: 0.35rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.975rem;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #d4a017 0%, #16a34a 45%, #2563eb 100%);
+  box-shadow: 0 4px 14px rgba(111, 130, 41, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.mpf-zoho-login__submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(111, 130, 41, 0.34);
+}
+
+.mpf-zoho-login__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.mpf-zoho-login__footer {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.mpf-zoho-login__link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mpf-zoho-login__link:hover {
+  text-decoration: underline;
+}
+
+.mpf-zoho-login__link-static {
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
+/* —— Promo pane —— */
+.mpf-zoho-login__promo-pane {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2.5rem 2.25rem;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(37, 99, 235, 0.12), transparent 70%),
+    linear-gradient(180deg, #fafbf6 0%, #fff6d9 100%);
+  border-left: 1px solid #e8ebd8;
+}
+
+@media (min-width: 900px) {
+  .mpf-zoho-login__promo-pane {
+    display: flex;
+  }
+}
+
+.mpf-zoho-login__promo-visual {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+  margin-bottom: 1.35rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(243, 245, 230, 0.7));
+  border: 1px solid #e2e8c8;
+  box-shadow: 0 8px 24px rgba(111, 130, 41, 0.1);
+  overflow: hidden;
+}
+
+.mpf-zoho-login__promo-visual--building {
+  padding: 0;
+  background: #eef2e0;
+}
+
+.mpf-zoho-login__building-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.mpf-zoho-login__promo-icon {
+  display: none;
+}
+
+.mpf-zoho-login__promo-title {
+  margin: 0 0 0.65rem;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1c2430;
+  letter-spacing: -0.02em;
+}
+
+.mpf-zoho-login__promo-text {
+  margin: 0;
+  max-width: 20rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+.mpf-zoho-login__dots {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 1.75rem;
+}
+
+.mpf-zoho-login__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: #cfd6a8;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.mpf-zoho-login__dot.is-active {
+  background: #2563eb;
+  transform: scale(1.2);
+}
+
+/* Keep older auth classes usable for forgot-password pages */
+.admin-auth-shell {
+  min-height: 100vh;
+}
+
+/* ===== Legacy auth shell (register / shared) ===== */
 /* MPF Admin — unified auth experience (login / forgot password) */
 
 .admin-auth-shell {
@@ -699,4 +1051,23 @@
   .admin-auth-brand-panel__footer {
     display: none;
   }
+}
+
+/* Golden-green overrides for legacy auth buttons */
+.admin-auth-submit {
+  background: linear-gradient(135deg, #d4a017 0%, #16a34a 45%, #2563eb 100%) !important;
+  box-shadow: 0 6px 18px rgba(111, 130, 41, 0.28) !important;
+}
+.admin-auth-stepper__step.is-active .admin-auth-stepper__num {
+  background: linear-gradient(135deg, #d4a017, #16a34a, #2563eb) !important;
+  box-shadow: 0 3px 10px rgba(111, 130, 41, 0.3) !important;
+}
+.admin-auth-forgot,
+.admin-auth-form-panel a {
+  color: #1d4ed8 !important;
+}
+.admin-auth-input input:focus,
+.admin-auth-input:focus-within {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
 }

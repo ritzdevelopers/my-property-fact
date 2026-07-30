@@ -1,5 +1,5 @@
 /**
- * @param {"default" | "executive" | "executivePlain"} pageStyle — executive adds kicker; executivePlain = same toolbar/chrome as executive without the kicker (e.g. Manage Users).
+ * @param {"default" | "executive" | "executivePlain"} pageStyle
  */
 export default function DashboardHeader({
   heading,
@@ -18,9 +18,14 @@ export default function DashboardHeader({
 
   return (
     <div
-      className={`admin-dashboard-toolbar${isExecutiveChrome ? " admin-dashboard-toolbar--executive" : ""}`}
+      className={`admin-dashboard-toolbar mpf-page-toolbar${isExecutiveChrome ? " admin-dashboard-toolbar--executive" : ""}`}
     >
       <div className="admin-dashboard-toolbar-title-wrap">
+        <nav className="mpf-page-breadcrumb" aria-label="Breadcrumb">
+          <span>Admin</span>
+          <span className="mpf-page-breadcrumb__sep">/</span>
+          <span className="mpf-page-breadcrumb__current">{heading}</span>
+        </nav>
         {showExecutiveKicker ? (
           <p className="admin-dashboard-toolbar-kicker">Executive overview</p>
         ) : null}

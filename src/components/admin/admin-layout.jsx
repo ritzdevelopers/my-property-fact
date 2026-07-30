@@ -63,7 +63,7 @@ export function AdminLayout({
 
   return (
     <NavLoadingProvider>
-    <div className={cn("admin-v2-shell min-h-screen bg-background", theme === "dark" && "dark")}>
+    <div className={cn("admin-v2-shell mpf-zoho-shell admin-layout-wrapper min-h-screen", theme === "dark" && "dark")}>
       {/* Desktop Sidebar */}
       <div className="hidden md:fixed md:inset-y-0 md:z-50 md:flex">
         <AdminSidebar
@@ -78,26 +78,23 @@ export function AdminLayout({
 
       {/* Mobile Sidebar */}
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-64 p-0">
+        <SheetContent side="left" className="w-64 p-0 border-0">
           <AdminSidebar
             collapsed={false}
             onLinkClick={handleLinkClick}
             isSuperAdmin={isSuperAdmin}
             hasPermission={hasPermission}
-            // onSidebarToggle={() =>{
-            //   setSidebarCollapsed(!sidebarCollapsed)
-            // }}
             onLogout={handleLogout}
             theme={theme}
           />
         </SheetContent>
       </Sheet>
 
-      {/* Main content area */}
+      {/* Main column */}
       <div
         className={cn(
-          "flex flex-col transition-all duration-300",
-          sidebarCollapsed ? "md:pl-16" : "md:pl-64"
+          "flex min-h-screen flex-col transition-all duration-300",
+          sidebarCollapsed ? "md:pl-16" : "md:pl-[220px]"
         )}
       >
         <AdminHeader
@@ -115,14 +112,13 @@ export function AdminLayout({
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 admin-page-canvas">
-          <div className="admin-page-inner container mx-auto p-4 md:p-6 lg:p-8 max-w-[1600px]">
+        <main className="flex-1 admin-page-canvas mpf-zoho-canvas">
+          <div className="mpf-zoho-workspace">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Toast notifications */}
       <Toaster />
 
       <ConfirmDialog

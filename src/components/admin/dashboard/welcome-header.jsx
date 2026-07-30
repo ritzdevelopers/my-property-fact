@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Sparkles, Clock, ShieldCheck } from "lucide-react";
+import { Clock, ShieldCheck } from "lucide-react";
 
 export function WelcomeHeader({
   displayName,
@@ -10,8 +10,6 @@ export function WelcomeHeader({
   loading = false,
 }) {
   const [currentTime, setCurrentTime] = React.useState(new Date());
-  const [typedGreeting, setTypedGreeting] = React.useState("");
-  const [typingDone, setTypingDone] = React.useState(false);
 
   const greeting = React.useMemo(() => {
     const hour = new Date().getHours();
@@ -20,44 +18,18 @@ export function WelcomeHeader({
     return "Good evening";
   }, []);
 
-  const fullGreeting = React.useMemo(() => {
-    if (loading) return "";
-    const name =
-      (displayName && displayName.trim()) ||
-      (isSuperAdmin ? "Super Admin" : "Admin");
-    return `${greeting}, ${name}`;
-  }, [loading, displayName, isSuperAdmin, greeting]);
+  const name =
+    (displayName && displayName.trim()) ||
+    (isSuperAdmin ? "Super Admin" : "Admin");
 
   React.useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 30_000);
     return () => clearInterval(timer);
   }, []);
 
-  React.useEffect(() => {
-    if (!fullGreeting) {
-      setTypedGreeting("");
-      setTypingDone(false);
-      return;
-    }
-
-    setTypedGreeting("");
-    setTypingDone(false);
-    let i = 0;
-    const interval = setInterval(() => {
-      i += 1;
-      setTypedGreeting(fullGreeting.slice(0, i));
-      if (i >= fullGreeting.length) {
-        clearInterval(interval);
-        setTypingDone(true);
-      }
-    }, 35);
-
-    return () => clearInterval(interval);
-  }, [fullGreeting]);
-
   const formattedDate = currentTime.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
+    weekday: "short",
+    month: "short",
     day: "numeric",
     year: "numeric",
   });
@@ -70,62 +42,46 @@ export function WelcomeHeader({
 
   if (loading) {
     return (
-      <div className="mpf-hero">
-        <div className="mpf-hero__inner">
-          <div>
-            <div className="mpf-hero__badges">
-              <span className="mpf-chip mpf-chip--accent">
-                <Sparkles className="h-3 w-3" />
-                MPF Admin v2.0
-              </span>
-            </div>
-            <div className="mpf-hero__skel" />
-          </div>
-        </div>
+      <div className="mpf-dash-welcome mpf-dash-welcome--loading">
+        <div className="mpf-dash-welcome__skel" />
       </div>
     );
   }
 
   return (
-    <div className="mpf-hero">
-      <div className="mpf-hero__inner">
-        <div>
-          <div className="mpf-hero__badges">
-            <span className="mpf-chip mpf-chip--accent">
-              <Sparkles className="h-3 w-3" />
-              MPF Admin v2.0
+    <div className="mpf-dash-welcome">
+      <div className="mpf-dash-welcome__left">
+        <nav className="mpf-page-breadcrumb" aria-label="Breadcrumb">
+          <span>Admin</span>
+          <span className="mpf-page-breadcrumb__sep">/</span>
+          <span className="mpf-page-breadcrumb__current">Dashboard</span>
+        </nav>
+        <h1 className="mpf-dash-welcome__title">
+          {greeting}, {name}
+        </h1>
+        <p className="mpf-dash-welcome__sub">
+          Here&apos;s what&apos;s happening across your property platform today.
+        </p>
+        <div className="mpf-dash-welcome__chips">
+          <span className="mpf-dash-chip">MPF Admin</span>
+          {roleLabel && (
+            <span className="mpf-dash-chip mpf-dash-chip--role">
+              <ShieldCheck className="h-3 w-3" />
+              {roleLabel}
             </span>
-            {roleLabel && (
-              <span className="mpf-chip">
-                <ShieldCheck className="h-3 w-3" />
-                {roleLabel}
-              </span>
-            )}
-          </div>
-          <h1 className="mpf-hero__greeting">
-            {typedGreeting}
-            {!typingDone && fullGreeting && (
-              <span className="mpf-hero__typing-cursor" />
-            )}
-          </h1>
-          <p className="mpf-hero__sub">
-            Here&apos;s what&apos;s happening across your property platform today.
-          </p>
+          )}
         </div>
-
-        <div className="mpf-hero__meta">
-          <div className="mpf-hero__clock">
-            <span className="mpf-hero__clock-icon">
-              <Clock className="h-4 w-4" />
-            </span>
-            <span>
-              <span className="mpf-hero__clock-time" suppressHydrationWarning>
-                {formattedTime}
-              </span>
-              <span className="mpf-hero__clock-date" style={{ display: "block" }} suppressHydrationWarning>
-                {formattedDate}
-              </span>
-            </span>
+      </div>
+      <div className="mpf-dash-welcome__right">
+        <div className="mpf-dash-welcome__clock">
+          <Clock className="h-4 w-4" />
+          <div>
+            <div className="mpf-dash-welcome__time" suppressHydrationWarning>
+              {formattedTime}
+            </div>
+            <div className="mpf-dash-welcome__date" suppressHydrationWarning>
+              {formattedDate}
+            </div>
           </div>
         </div>
       </div>

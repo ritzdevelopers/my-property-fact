@@ -1,0 +1,100 @@
+/* Single admin loader — arc spinner */
+
+.mpf-loader {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.mpf-loader__ring {
+  display: block;
+  transform-origin: center;
+  animation: mpf-loader-spin 0.85s linear infinite;
+}
+
+.mpf-loader--sm .mpf-loader__ring {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.mpf-loader--md .mpf-loader__ring {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.mpf-loader--lg .mpf-loader__ring {
+  width: 3rem;
+  height: 3rem;
+}
+
+.mpf-loader__track {
+  stroke: #e4e7ec;
+  stroke-width: 3.5;
+}
+
+.mpf-loader__arc {
+  stroke: #2563eb;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 70 113;
+  stroke-dashoffset: 0;
+}
+
+.mpf-loader__label {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #5a6570;
+  letter-spacing: 0.01em;
+}
+
+.mpf-loader--sm .mpf-loader__label {
+  font-size: 0.75rem;
+}
+
+.mpf-loader-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 420px;
+  width: 100%;
+  padding: 2rem 1rem;
+}
+
+/* Nav overlay — one loader only, flat, no card shadow */
+.mpf-navload {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(244, 245, 247, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.mpf-navload__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.5rem 1.75rem;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  border-radius: 10px;
+  box-shadow: none !important;
+}
+
+@keyframes mpf-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-loader__ring {
+    animation-duration: 1.6s;
+  }
+}

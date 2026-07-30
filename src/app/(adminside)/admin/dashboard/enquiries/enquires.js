@@ -9,7 +9,6 @@ import {
   Form,
   FormControl,
   InputGroup,
-  Spinner,
 } from "react-bootstrap";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
@@ -18,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faMagnifyingGlass, faFilter, faEnvelope, faPhone, faLocationDot, faArrowUpRightFromSquare, faInbox } from "@fortawesome/free-solid-svg-icons";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { parsePriceToCrore } from "@/app/_global_components/projectFilterUtils";
+import { AdminLoader } from "@/components/admin/admin-loader";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
@@ -169,6 +169,58 @@ const LEAD_TYPE_FILTER_OPTIONS = [
   { value: "all", label: "All leads" },
   { value: "test_only", label: "Test leads only" },
 ];
+
+function enquiryMonthKey(row) {
+  const raw = row?.createdAt ?? row?.updatedAt ?? row?.date;
+  if (raw == null || raw === "") return "";
+  const d = new Date(raw);
+  if (Number.isNaN(d.getTime())) return "";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  return `${y}-${m}`;
+}
+
+function formatMonthLabel(yyyyMm) {
+  const [y, m] = String(yyyyMm).split("-").map(Number);
+  if (!y || !m) return yyyyMm;
+  const d = new Date(y, m - 1, 1);
+  return d.toLocaleString(undefined, { month: "short", year: "numeric" });
+}
+
+function buildMonthFilterOptions(rows) {
+  const now = new Date();
+  const thisKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const lastDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastKey = `${lastDate.getFullYear()}-${String(lastDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const fromData = new Set();
+  (rows || []).forEach((row) => {
+    const key = enquiryMonthKey(row);
+    if (key) fromData.add(key);
+  });
+
+  // Always include last 12 calendar months so the filter stays usable
+  for (let i = 0; i < 12; i += 1) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    fromData.add(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+    );
+  }
+
+  const sorted = Array.from(fromData).sort((a, b) => b.localeCompare(a));
+  const options = [
+    { value: "", label: "All months" },
+    { value: thisKey, label: "This month" },
+    { value: lastKey, label: "Last month" },
+  ];
+
+  sorted.forEach((key) => {
+    if (key === thisKey || key === lastKey) return;
+    options.push({ value: key, label: formatMonthLabel(key) });
+  });
+
+  return options;
+}
 
 function isTestLead(row) {
   return String(row?.status || "").trim().toLowerCase() === "test";
@@ -353,6 +405,7 @@ export default function Enquiries() {
   const [filterCity, setFilterCity] = useState("");
   const [filterState, setFilterState] = useState("");
   const [filterPrice, setFilterPrice] = useState("");
+  const [filterMonth, setFilterMonth] = useState("");
   const [filterLeadType, setFilterLeadType] = useState("exclude_test");
   const [page, setPage] = useState(0);
   const [accessStatus, setAccessStatus] = useState(null);
@@ -566,6 +619,7 @@ export default function Enquiries() {
     return {
       cities: Array.from(citySet).sort((a, b) => a.localeCompare(b)),
       states: Array.from(stateSet).sort((a, b) => a.localeCompare(b)),
+      months: buildMonthFilterOptions(enrichedList),
     };
   }, [enrichedList]);
 
@@ -579,6 +633,9 @@ export default function Enquiries() {
         return false;
       }
       if (!matchesPriceFilter(row, filterPrice)) {
+        return false;
+      }
+      if (filterMonth && enquiryMonthKey(row) !== filterMonth) {
         return false;
       }
       if (filterLeadType === "exclude_test" && isTestLead(row)) {
@@ -612,11 +669,11 @@ export default function Enquiries() {
     return [...matched].sort(
       (a, b) => enquirySortTimeMs(b) - enquirySortTimeMs(a),
     );
-  }, [enrichedList, search, filterCity, filterState, filterPrice, filterLeadType]);
+  }, [enrichedList, search, filterCity, filterState, filterPrice, filterMonth, filterLeadType]);
 
   useEffect(() => {
     setPage(0);
-  }, [search, filterCity, filterState, filterPrice, filterLeadType]);
+  }, [search, filterCity, filterState, filterPrice, filterMonth, filterLeadType]);
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE));
   const safePage = Math.min(page, pageCount - 1);
@@ -629,6 +686,7 @@ export default function Enquiries() {
     filterCity,
     filterState,
     filterPrice,
+    filterMonth,
     search.trim(),
     filterLeadType !== "exclude_test" ? filterLeadType : "",
   ].filter(Boolean).length;
@@ -757,11 +815,7 @@ export default function Enquiries() {
   }, [showUnlockGate]);
 
   if (roleLoading || (canUseEnquiries && !isSuperAdmin && accessStatus === null)) {
-    return (
-      <div className="d-flex justify-content-center align-items-center py-5">
-        <Spinner animation="border" role="status" variant="success" />
-      </div>
-    );
+    return <AdminLoader fullPage label="Loading enquiries…" size="lg" />;
   }
 
   return (
@@ -843,29 +897,27 @@ export default function Enquiries() {
       ) : null}
 
       {loading && showTable ? (
-        <div className="d-flex justify-content-center align-items-center py-5">
-          <Spinner animation="border" role="status" variant="success" />
-        </div>
+        <AdminLoader fullPage label="Loading enquiries…" size="lg" />
       ) : null}
 
       {!loading && showTable ? (
         <div className="enquiries-content mt-2">
-          <div className="enquiries-stats">
-            <div className="enquiries-stat-card">
-              <span className="enquiries-stat-card__label">Total enquiries</span>
-              <strong className="enquiries-stat-card__value">{enquiryStats.total}</strong>
+          <div className="enquiries-metrics" aria-label="Enquiry summary">
+            <div className="enquiries-metrics__item">
+              <span className="enquiries-metrics__value">{enquiryStats.total}</span>
+              <span className="enquiries-metrics__label">Total</span>
             </div>
-            <div className="enquiries-stat-card">
-              <span className="enquiries-stat-card__label">Matching filters</span>
-              <strong className="enquiries-stat-card__value">{enquiryStats.filtered}</strong>
+            <div className="enquiries-metrics__item">
+              <span className="enquiries-metrics__value">{enquiryStats.filtered}</span>
+              <span className="enquiries-metrics__label">Matching</span>
             </div>
-            <div className="enquiries-stat-card">
-              <span className="enquiries-stat-card__label">With project data</span>
-              <strong className="enquiries-stat-card__value">{enquiryStats.withProject}</strong>
+            <div className="enquiries-metrics__item">
+              <span className="enquiries-metrics__value">{enquiryStats.withProject}</span>
+              <span className="enquiries-metrics__label">With project</span>
             </div>
-            <div className="enquiries-stat-card">
-              <span className="enquiries-stat-card__label">Test leads</span>
-              <strong className="enquiries-stat-card__value">{enquiryStats.testLeads}</strong>
+            <div className="enquiries-metrics__item">
+              <span className="enquiries-metrics__value">{enquiryStats.testLeads}</span>
+              <span className="enquiries-metrics__label">Test leads</span>
             </div>
           </div>
 
@@ -927,6 +979,13 @@ export default function Enquiries() {
                   options={PRICE_FILTER_OPTIONS}
                 />
                 <FilterDropdown
+                  label="All months"
+                  value={filterMonth}
+                  onChange={setFilterMonth}
+                  ariaLabel="Filter by month"
+                  options={filterOptions.months}
+                />
+                <FilterDropdown
                   label="Hide test leads"
                   value={filterLeadType}
                   onChange={setFilterLeadType}
@@ -941,6 +1000,7 @@ export default function Enquiries() {
                       setFilterCity("");
                       setFilterState("");
                       setFilterPrice("");
+                      setFilterMonth("");
                       setFilterLeadType("exclude_test");
                       setSearch("");
                     }}

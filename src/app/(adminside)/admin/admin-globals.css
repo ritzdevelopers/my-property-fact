@@ -2,75 +2,81 @@
 @tailwind components;
 @tailwind utilities;
 
+/* MPF Admin design tokens — golden-green mix (admin only) */
 :root {
-  --background: 150 20% 98%;
-  --foreground: 152 40% 10%;
+  --background: 60 12% 97%;
+  --foreground: 150 18% 14%;
   --card: 0 0% 100%;
-  --card-foreground: 152 40% 10%;
+  --card-foreground: 150 18% 14%;
   --popover: 0 0% 100%;
-  --popover-foreground: 152 40% 10%;
-  --primary: 152 69% 22%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 150 15% 95%;
-  --secondary-foreground: 152 30% 18%;
-  --muted: 150 12% 94%;
-  --muted-foreground: 152 10% 42%;
-  --accent: 150 18% 93%;
-  --accent-foreground: 152 40% 14%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --success: 142 76% 36%;
+  --popover-foreground: 150 18% 14%;
+  /* Golden-green mix primary */
+  --primary: 72 48% 40%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 70 18% 94%;
+  --secondary-foreground: 80 25% 22%;
+  --muted: 60 12% 94%;
+  --muted-foreground: 150 8% 42%;
+  --accent: 72 35% 93%;
+  --accent-foreground: 72 48% 28%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 152 50% 34%;
   --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
+  --warning: 42 78% 48%;
   --warning-foreground: 0 0% 0%;
-  --border: 150 12% 88%;
-  --input: 150 12% 88%;
-  --ring: 152 69% 22%;
-  --radius: 0.75rem;
+  --border: 60 10% 88%;
+  --input: 60 10% 88%;
+  --ring: 72 48% 40%;
+  --radius: 0.625rem;
 
-  --sidebar-background: 152 47% 11%;
-  --sidebar-foreground: 0 0% 98%;
-  --sidebar-primary: 142 70% 55%;
-  --sidebar-primary-foreground: 152 50% 12%;
-  --sidebar-accent: 152 30% 18%;
-  --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 152 25% 22%;
-  --sidebar-ring: 142 70% 55%;
+  /* Dark olive sidebar */
+  --sidebar-background: 110 22% 12%;
+  --sidebar-foreground: 60 10% 96%;
+  --sidebar-primary: 72 48% 44%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 110 16% 18%;
+  --sidebar-accent-foreground: 60 10% 96%;
+  --sidebar-border: 110 14% 18%;
+  --sidebar-ring: 72 48% 44%;
+
+  --mpf-brand: 72 48% 40%;
+  --mpf-brand-soft: 72 35% 93%;
 }
 
 .dark {
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 142 76% 56%;
-  --primary-foreground: 152 50% 8%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
+  --background: 210 18% 8%;
+  --foreground: 60 10% 96%;
+  --card: 210 16% 11%;
+  --card-foreground: 60 10% 96%;
+  --popover: 210 16% 11%;
+  --popover-foreground: 60 10% 96%;
+  --primary: 72 52% 48%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 14% 16%;
+  --secondary-foreground: 60 10% 96%;
+  --muted: 210 14% 16%;
+  --muted-foreground: 60 8% 60%;
+  --accent: 210 14% 16%;
+  --accent-foreground: 60 10% 96%;
+  --destructive: 0 62% 40%;
   --destructive-foreground: 0 0% 98%;
-  --success: 142 76% 46%;
+  --success: 152 45% 40%;
   --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;
+  --warning: 42 78% 48%;
   --warning-foreground: 0 0% 0%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 142 76% 56%;
+  --border: 210 14% 18%;
+  --input: 210 14% 18%;
+  --ring: 72 52% 48%;
 
-  --sidebar-background: 240 10% 5%;
-  --sidebar-foreground: 0 0% 95%;
-  --sidebar-primary: 142 76% 56%;
-  --sidebar-primary-foreground: 240 10% 5%;
-  --sidebar-accent: 240 5% 12%;
-  --sidebar-accent-foreground: 0 0% 95%;
-  --sidebar-border: 240 5% 15%;
-  --sidebar-ring: 142 76% 56%;
+  --sidebar-background: 110 22% 8%;
+  --sidebar-foreground: 60 10% 96%;
+  --sidebar-primary: 72 52% 48%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 110 16% 14%;
+  --sidebar-accent-foreground: 60 10% 96%;
+  --sidebar-border: 110 14% 16%;
+  --sidebar-ring: 72 52% 48%;
 }
 
 @layer base {
@@ -82,4 +88,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+.admin-v2-shell {
+  font-family: "Nunito Sans", "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+}
+
+.admin-v2-shell h1,
+.admin-v2-shell h2,
+.admin-v2-shell h3 {
+  font-family: "Nunito Sans", "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }

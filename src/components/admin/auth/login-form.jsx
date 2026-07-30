@@ -14,26 +14,28 @@ import {
   EyeOff,
   ArrowRight,
   Loader2,
-  Sparkles,
   Shield,
   LayoutDashboard,
   FileText,
   LockKeyhole,
-  Info,
-  UserPlus,
 } from "lucide-react";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
-const FEATURES = [
+const FEATURE_SLIDES = [
+  {
+    icon: Shield,
+    title: "Secure staff access",
+    text: "Sign in with credentials issued by your Super Administrator. Sessions stay protected while you work.",
+  },
   {
     icon: LayoutDashboard,
-    title: "One dashboard for everything",
-    text: "Projects, blogs, enquiries, and site content — all in one place.",
+    title: "One control panel",
+    text: "Manage projects, blogs, enquiries, and website content from a single workspace.",
   },
   {
     icon: FileText,
     title: "Publish with confidence",
-    text: "Preview blogs and web stories before they go live.",
+    text: "Preview blogs and web stories before they go live on My Property Fact.",
   },
 ];
 
@@ -59,6 +61,7 @@ export function LoginForm({ className }) {
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [errors, setErrors] = React.useState({});
+  const [slide, setSlide] = React.useState(0);
 
   React.useEffect(() => {
     router.prefetch("/admin/dashboard");
@@ -72,6 +75,13 @@ export function LoginForm({ className }) {
       router.replace("/admin", { scroll: false });
     }
   }, [searchParams, router, toast]);
+
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setSlide((s) => (s + 1) % FEATURE_SLIDES.length);
+    }, 4500);
+    return () => clearInterval(id);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -164,201 +174,154 @@ export function LoginForm({ className }) {
     }
   };
 
+  const activeSlide = FEATURE_SLIDES[slide];
+
   return (
-    <div className={cn("admin-auth-shell admin-v2-shell", className)}>
-      {/* Brand panel */}
-      <aside className="admin-auth-brand-panel" aria-label="My Property Fact admin">
-        <div className="admin-auth-brand-panel__bg" aria-hidden>
-          <img src="/static/banners/desktop-banner-new.svg" alt="" />
-          <div className="admin-auth-brand-panel__overlay" />
-        </div>
-
-        <div className="admin-auth-brand-panel__inner">
-          <div>
+    <div className={cn("mpf-zoho-login", className)}>
+      <div className="mpf-zoho-login__card" role="main">
+        {/* Left — sign-in */}
+        <section className="mpf-zoho-login__form-pane">
+          <div className="mpf-zoho-login__brand-row">
             <img
-              src="/images/admin/login-register.svg"
+              src="/images/admin/logo.svg"
               alt="My Property Fact"
-              className="admin-auth-brand-panel__logo"
+              className="mpf-zoho-login__logo"
             />
-            <span className="admin-auth-brand-panel__version">
-              <Sparkles className="h-3 w-3" />
-              Admin v2.0
+            <span className="mpf-zoho-login__pill">
+              <LockKeyhole className="h-3 w-3" />
+              Staff access
             </span>
-            <h1 className="admin-auth-brand-panel__headline">
-              Manage your property platform with clarity
-            </h1>
-            <p className="admin-auth-brand-panel__sub">
-              A secure workspace for My Property Fact staff.
-            </p>
           </div>
 
-          <ul className="admin-auth-brand-panel__features">
-            {FEATURES.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="admin-auth-brand-panel__feature">
-                <span className="admin-auth-brand-panel__feature-icon">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span>
-                  <strong>{title}</strong>
-                  <br />
-                  {text}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          <div className="admin-auth-brand-panel__info">
-            <span className="admin-auth-brand-panel__info-icon">
-              <Info className="h-4 w-4" />
-            </span>
-            <p>
-              <strong>New to the admin panel?</strong> Your Super Administrator
-              creates accounts from <strong>Manage Users</strong>. If you cannot
-              sign in, ask them to verify your role and email.
-            </p>
-          </div>
-        </div>
-      </aside>
-
-      {/* Sign-in form */}
-      <main className="admin-auth-form-panel">
-        <div className="admin-auth-form-panel__card">
-          <p className="admin-auth-form-panel__eyebrow">Staff sign in</p>
-          <h2 className="admin-auth-form-panel__title">Welcome back</h2>
-          <p className="admin-auth-form-panel__intro">
-            Use the credentials provided by your Super Administrator. All fields below are required.
-          </p>
+          <h1 className="mpf-zoho-login__title">Sign in</h1>
+          <p className="mpf-zoho-login__subtitle">to access MPF Admin</p>
 
           {!apiBase && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive mb-4">
-              <strong>Setup incomplete:</strong> The admin server URL is not configured. Contact IT or your Super Admin.
+            <div className="mpf-zoho-login__alert">
+              <strong>Setup incomplete:</strong> The admin server URL is not configured.
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="admin-auth-form">
-            <div className="admin-auth-field">
-              <div className="admin-auth-field__label-row">
-                <label htmlFor="dashboardUsername" className="admin-auth-label">
-                  Dashboard username
-                </label>
-                <span className="admin-auth-optional">Optional</span>
-              </div>
-              <div className="admin-auth-input">
-                <User className="admin-auth-input__icon" aria-hidden />
+          <form onSubmit={handleSubmit} className="mpf-zoho-login__form">
+            <div className="mpf-zoho-login__field">
+              <label htmlFor="dashboardUsername">Dashboard username</label>
+              <div className="mpf-zoho-login__input">
+                <User className="mpf-zoho-login__input-icon" aria-hidden />
                 <input
                   id="dashboardUsername"
                   name="dashboardUsername"
                   type="text"
-                  placeholder="Same username shown in Manage Users"
+                  placeholder="Optional — from Manage Users"
                   value={formData.dashboardUsername}
                   onChange={handleChange}
                   autoComplete="username"
                 />
               </div>
-              <p className="admin-auth-field-hint">
-                If your Super Admin gave you a dashboard username, enter it here. Otherwise leave blank.
-              </p>
             </div>
 
-            <div className="admin-auth-field">
-              <label htmlFor="email" className="admin-auth-label">
-                Work email
-              </label>
-              <div className="admin-auth-input">
-                <Mail className="admin-auth-input__icon" aria-hidden />
+            <div className="mpf-zoho-login__field">
+              <label htmlFor="email">Email address</label>
+              <div className="mpf-zoho-login__input">
+                <Mail className="mpf-zoho-login__input-icon" aria-hidden />
                 <input
                   id="email"
                   name="email"
                   type="email"
-                  placeholder="you@mypropertyfact.in"
+                  placeholder="Email address"
                   value={formData.email}
                   onChange={handleChange}
                   autoComplete="email"
-                  className={cn(errors.email && "admin-auth-input--error")}
+                  className={cn(errors.email && "is-error")}
                 />
               </div>
-              {errors.email ? (
-                <p className="admin-auth-error">{errors.email}</p>
-              ) : (
-                <p className="admin-auth-field-hint">
-                  The email address registered for your admin account.
-                </p>
-              )}
+              {errors.email && <p className="mpf-zoho-login__error">{errors.email}</p>}
             </div>
 
-            <div className="admin-auth-field">
-              <div className="admin-auth-field__label-row">
-                <label htmlFor="password" className="admin-auth-label">
-                  Password
-                </label>
-                <Link href="/admin/forgot-password" className="admin-auth-forgot">
+            <div className="mpf-zoho-login__field">
+              <div className="mpf-zoho-login__label-row">
+                <label htmlFor="password">Password</label>
+                <Link href="/admin/forgot-password" className="mpf-zoho-login__link">
                   Forgot password?
                 </Link>
               </div>
-              <div className="admin-auth-input">
-                <Lock className="admin-auth-input__icon" aria-hidden />
+              <div className="mpf-zoho-login__input">
+                <Lock className="mpf-zoho-login__input-icon" aria-hidden />
                 <input
                   id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="Password"
                   value={formData.password}
                   onChange={handleChange}
                   autoComplete="current-password"
-                  className={cn("admin-auth-input--with-toggle", errors.password && "admin-auth-input--error")}
+                  className={cn("has-toggle", errors.password && "is-error")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="admin-auth-input__toggle"
+                  className="mpf-zoho-login__toggle"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {errors.password && <p className="admin-auth-error">{errors.password}</p>}
+              {errors.password && <p className="mpf-zoho-login__error">{errors.password}</p>}
             </div>
 
             <button
               type="submit"
-              className="admin-auth-submit"
+              className="mpf-zoho-login__submit"
               disabled={isLoading || !apiBase}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Signing you in…
+                  Signing in…
                 </>
               ) : (
                 <>
-                  Sign in to dashboard
+                  Next
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="admin-auth-divider">
-            <span>or</span>
-          </div>
+          <p className="mpf-zoho-login__footer">
+            Need an account? Ask your Super Admin via{" "}
+            <span className="mpf-zoho-login__link-static">Manage Users</span>
+            {" · "}
+            <Link href="/admin/register" className="mpf-zoho-login__link">
+              Register
+            </Link>
+          </p>
+        </section>
 
-          <Link href="/admin/register" className="admin-auth-secondary-btn">
-            <UserPlus className="h-4 w-4" />
-            Create an account
-          </Link>
-
-          <div className="admin-auth-trust-row">
-            <span className="admin-auth-trust-item">
-              <Shield className="h-3.5 w-3.5" />
-              Secure staff access
-            </span>
-            <span className="admin-auth-trust-item">
-              <LockKeyhole className="h-3.5 w-3.5" />
-              Session protected
-            </span>
+        {/* Right — feature showcase */}
+        <aside className="mpf-zoho-login__promo-pane" aria-label="Admin highlights">
+          <div className="mpf-zoho-login__promo-visual mpf-zoho-login__promo-visual--building">
+            <img
+              src="/images/admin/login-building.png"
+              alt="Modern property building"
+              className="mpf-zoho-login__building-img"
+            />
           </div>
-        </div>
-      </main>
+          <h2 className="mpf-zoho-login__promo-title">{activeSlide.title}</h2>
+          <p className="mpf-zoho-login__promo-text">{activeSlide.text}</p>
+          <div className="mpf-zoho-login__dots" role="tablist" aria-label="Feature slides">
+            {FEATURE_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                role="tab"
+                aria-selected={i === slide}
+                className={cn("mpf-zoho-login__dot", i === slide && "is-active")}
+                onClick={() => setSlide(i)}
+              />
+            ))}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

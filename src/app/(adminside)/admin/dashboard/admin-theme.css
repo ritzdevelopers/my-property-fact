@@ -2,18 +2,20 @@
    Loaded from admin-layout.css for dashboard shell. */
 
 .admin-layout-wrapper {
-  --admin-primary: #005032;
-  --admin-primary-hover: #004229;
-  --admin-primary-soft: rgba(0, 80, 50, 0.12);
-  --admin-primary-border: rgba(0, 80, 50, 0.22);
-  --admin-ink: #1b2e24;
-  --admin-ink-muted: #4d6358;
+  --admin-primary: #2563eb;
+  --admin-primary-hover: #1d4ed8;
+  --admin-primary-soft: rgba(37, 99, 235, 0.12);
+  --admin-primary-border: rgba(37, 99, 235, 0.35);
+  --admin-ink: #0f1b2d;
+  --admin-ink-muted: #5a6577;
   --admin-surface-elevated: rgba(255, 255, 255, 0.94);
   --admin-radius-lg: 16px;
   --admin-radius-md: 12px;
   --admin-radius-sm: 8px;
-  --admin-shadow-soft: 0 1px 3px rgba(27, 46, 36, 0.06),
-    0 12px 40px rgba(27, 46, 36, 0.07);
+  --admin-shadow-soft: none;
+  --mpf-gold: #d4a017;
+  --mpf-blue: #2563eb;
+  --mpf-green: #16a34a;
 }
 
 /* Role chips & Status badges mapping identical structural bounds */
@@ -99,7 +101,7 @@
 }
 
 .admin-perm-view-link {
-  color: var(--admin-primary, #4a9960) !important;
+  color: var(--admin-primary, #8fa63a) !important;
   text-decoration: none !important;
 }
 
@@ -210,9 +212,9 @@
 }
 
 .admin-modal-surface .admin-user-type-card {
-  border: 1px solid rgba(0, 80, 50, 0.16);
+  border: 1px solid rgba(143, 166, 58, 0.16);
   border-radius: 12px;
-  background: linear-gradient(180deg, rgba(0, 80, 50, 0.05), rgba(0, 80, 50, 0.02));
+  background: linear-gradient(180deg, rgba(143, 166, 58, 0.05), rgba(143, 166, 58, 0.02));
   padding: 0.9rem 1rem;
 }
 
@@ -232,14 +234,14 @@
 }
 
 .admin-modal-surface .admin-user-type-option:hover {
-  border-color: rgba(0, 80, 50, 0.34);
-  box-shadow: 0 2px 8px rgba(0, 80, 50, 0.08);
+  border-color: rgba(143, 166, 58, 0.34);
+  box-shadow: 0 2px 8px rgba(143, 166, 58, 0.08);
 }
 
 .admin-modal-surface .admin-user-type-option.is-active {
-  border-color: rgba(0, 80, 50, 0.5);
-  background: linear-gradient(180deg, rgba(0, 80, 50, 0.1), rgba(0, 80, 50, 0.04));
-  box-shadow: inset 0 0 0 1px rgba(0, 80, 50, 0.2);
+  border-color: rgba(143, 166, 58, 0.5);
+  background: linear-gradient(180deg, rgba(143, 166, 58, 0.1), rgba(143, 166, 58, 0.04));
+  box-shadow: inset 0 0 0 1px rgba(143, 166, 58, 0.2);
 }
 
 .admin-modal-surface .admin-user-type-option-title {
@@ -289,18 +291,18 @@
 }
 
 .admin-modal-surface .btn-admin-primary {
-  background: #005032 !important;
+  background: #8fa63a !important;
   color: #fff !important;
   border: none !important;
   font-weight: 600;
   padding: 0.6rem 1.25rem;
   border-radius: 8px;
-  box-shadow: 0px 4px 6px -4px #0050321A, 0px 10px 15px -3px #0050321A;
+  box-shadow: 0px 4px 6px -4px #8fa63a1A, 0px 10px 15px -3px #8fa63a1A;
 }
 
 .admin-modal-surface .btn-admin-primary:hover:not(:disabled) {
   background: #00452a !important;
-  box-shadow: 0px 6px 10px -4px #0050321A, 0px 12px 20px -3px #0050321A;
+  box-shadow: 0px 6px 10px -4px #8fa63a1A, 0px 12px 20px -3px #8fa63a1A;
 }
 
 .admin-modal-surface .btn-admin-secondary {
@@ -337,20 +339,20 @@
 }
 
 .manage-users-toolbar .manage-users-create-btn {
-  background: var(--admin-primary, #005032) !important;
+  background: var(--admin-primary, #8fa63a) !important;
   border: none !important;
   color: #fff !important;
   font-weight: 600;
   border-radius: 10px;
   padding: 0.45rem 1.1rem;
-  box-shadow: 0 4px 6px -4px rgba(0, 80, 50, 0.1), 0 10px 15px -3px rgba(0, 80, 50, 0.1);
+  box-shadow: 0 4px 6px -4px rgba(143, 166, 58, 0.1), 0 10px 15px -3px rgba(143, 166, 58, 0.1);
 }
 
 .manage-users-toolbar .manage-users-create-btn:hover:not(:disabled),
 .manage-users-toolbar .manage-users-create-btn:focus-visible {
-  background: #003d26 !important;
+  background: #6f8229 !important;
   color: #fff !important;
-  box-shadow: 0 6px 10px -4px rgba(0, 80, 50, 0.15), 0 12px 20px -3px rgba(0, 80, 50, 0.12);
+  box-shadow: 0 6px 10px -4px rgba(143, 166, 58, 0.15), 0 12px 20px -3px rgba(143, 166, 58, 0.12);
 }
 
 .manage-users-search {
@@ -471,29 +473,28 @@
   align-items: flex-start;
   gap: 0.15rem;
   padding: 0.85rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid rgba(27, 46, 36, 0.1);
+  border-radius: 8px;
+  border: 1px solid #e6e8ec;
   background: #fff;
-  box-shadow: 0 1px 2px rgba(27, 46, 36, 0.04);
+  box-shadow: none;
   cursor: pointer;
   text-align: left;
   transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
     border-color 0.15s ease,
     background 0.15s ease;
 }
 
 .mu-summary-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(27, 46, 36, 0.08);
+  transform: none;
+  box-shadow: none;
+  border-color: #d8dfb8;
+  background: #fafbf7;
 }
 
 .mu-summary-card.is-active {
-  border-color: rgba(0, 80, 50, 0.35);
-  box-shadow:
-    0 0 0 2px rgba(0, 80, 50, 0.12),
-    0 8px 20px rgba(0, 80, 50, 0.08);
+  border-color: rgba(143, 166, 58, 0.35);
+  box-shadow: none;
+  background: #f3f5e6;
 }
 
 .mu-summary-card__icon {
@@ -566,7 +567,7 @@
   border: none;
   background: none;
   padding: 0;
-  color: var(--admin-primary, #005032);
+  color: var(--admin-primary, #8fa63a);
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -669,8 +670,8 @@
 
 .mu-status-pill--verified {
   color: #0f5132;
-  background: rgba(0, 80, 50, 0.1);
-  border-color: rgba(0, 80, 50, 0.18);
+  background: rgba(143, 166, 58, 0.1);
+  border-color: rgba(143, 166, 58, 0.18);
 }
 
 .mu-status-pill--unverified {
@@ -822,7 +823,7 @@ img.admin-table-action-icon {
 }
 
 .admin-app-topbar .admin-theme-toggle-btn:focus-visible {
-  outline: 2px solid rgba(0, 80, 50, 0.45);
+  outline: 2px solid rgba(143, 166, 58, 0.45);
   outline-offset: 2px;
 }
 
@@ -1158,7 +1159,7 @@ html[data-admin-theme="dark"] .mu-status-pill--pending {
 
 html[data-admin-theme="dark"] .mu-status-pill--verified {
   color: #bbf7d0;
-  background: rgba(0, 80, 50, 0.28);
+  background: rgba(143, 166, 58, 0.28);
   border-color: rgba(134, 239, 172, 0.35);
 }
 
@@ -2626,8 +2627,8 @@ html[data-admin-theme="dark"] .admin-toast--info .admin-toast__icon-wrap {
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.7rem;
-  background: linear-gradient(135deg, rgba(0, 80, 50, 0.12), rgba(34, 197, 94, 0.15));
-  border: 1px solid rgba(0, 80, 50, 0.2);
+  background: linear-gradient(135deg, rgba(143, 166, 58, 0.12), rgba(34, 197, 94, 0.15));
+  border: 1px solid rgba(143, 166, 58, 0.2);
   border-radius: 8px;
   font-size: 0.72rem;
   font-weight: 700;
@@ -2640,7 +2641,7 @@ html[data-admin-theme="dark"] .admin-toast--info .admin-toast__icon-wrap {
 }
 
 .admin-version-badge:hover {
-  background: linear-gradient(135deg, rgba(0, 80, 50, 0.16), rgba(34, 197, 94, 0.2));
+  background: linear-gradient(135deg, rgba(143, 166, 58, 0.16), rgba(34, 197, 94, 0.2));
   transform: translateY(-1px);
 }
 
@@ -2715,7 +2716,7 @@ html[data-admin-theme="dark"] .admin-version-badge__dot {
 .admin-upgrade-modal__header {
   position: relative;
   padding: 2.5rem 2rem 1.5rem;
-  background: linear-gradient(145deg, #005032 0%, #003d26 50%, #002a1a 100%);
+  background: linear-gradient(145deg, #8fa63a 0%, #6f8229 50%, #5a6b20 100%);
   text-align: center;
   overflow: hidden;
 }
@@ -2813,8 +2814,8 @@ html[data-admin-theme="dark"] .admin-version-badge__dot {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  background: rgba(0, 80, 50, 0.1);
-  color: #005032;
+  background: rgba(143, 166, 58, 0.1);
+  color: #8fa63a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2831,7 +2832,7 @@ html[data-admin-theme="dark"] .admin-version-badge__dot {
 .admin-upgrade-modal__btn {
   width: 100%;
   padding: 0.9rem 1.5rem;
-  background: linear-gradient(145deg, #005032, #003d26);
+  background: linear-gradient(145deg, #8fa63a, #6f8229);
   border: none;
   border-radius: 12px;
   color: #ffffff;
@@ -2840,16 +2841,16 @@ html[data-admin-theme="dark"] .admin-version-badge__dot {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 
-    0 4px 6px -1px rgba(0, 80, 50, 0.2),
-    0 10px 15px -3px rgba(0, 80, 50, 0.15);
+    0 4px 6px -1px rgba(143, 166, 58, 0.2),
+    0 10px 15px -3px rgba(143, 166, 58, 0.15);
 }
 
 .admin-upgrade-modal__btn:hover {
   background: linear-gradient(145deg, #004229, #00301f);
   transform: translateY(-2px);
   box-shadow: 
-    0 6px 10px -1px rgba(0, 80, 50, 0.25),
-    0 14px 20px -3px rgba(0, 80, 50, 0.2);
+    0 6px 10px -1px rgba(143, 166, 58, 0.25),
+    0 14px 20px -3px rgba(143, 166, 58, 0.2);
 }
 
 .admin-upgrade-modal__btn:active {
@@ -2869,7 +2870,7 @@ html[data-admin-theme="dark"] .admin-upgrade-modal {
 }
 
 html[data-admin-theme="dark"] .admin-upgrade-modal__header {
-  background: linear-gradient(145deg, #003d26 0%, #002a1a 50%, #001a10 100%);
+  background: linear-gradient(145deg, #6f8229 0%, #5a6b20 50%, #001a10 100%);
 }
 
 html[data-admin-theme="dark"] .admin-upgrade-modal__body {

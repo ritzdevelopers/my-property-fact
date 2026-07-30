@@ -319,6 +319,15 @@ export default function ManageUsers({ users: initialUsers }) {
   };
 
   const openEditModal = (user) => {
+    const roleNames = (user.roles || []).map((r) =>
+      String(r?.roleName || "").toUpperCase(),
+    );
+    if (roleNames.includes("SUPERADMIN")) {
+      toast.error(
+        "Super Admin accounts cannot be edited here. Permissions are always full access.",
+      );
+      return;
+    }
     setEditingUser(user);
     const userRoleIds = user.roles ? user.roles.map((role) => role.id) : [];
     setPermissionsTouched(false);

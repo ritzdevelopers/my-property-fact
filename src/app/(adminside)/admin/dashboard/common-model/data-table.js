@@ -4,35 +4,35 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useMemo, useState } from "react";
 
 const executiveGridSx = {
-  border: "1px solid #eef0f4",
-  borderRadius: "16px",
-  fontFamily: "'Lato', 'Poppins', system-ui, sans-serif",
-  boxShadow: "0 2px 12px rgba(17, 24, 39, 0.06)",
+  border: "1px solid #e6e8ec",
+  borderRadius: "10px",
+  fontFamily: "'Nunito Sans', 'Source Sans 3', system-ui, sans-serif",
+  boxShadow: "none",
   "& .MuiDataGrid-toolbarContainer": {
-    padding: "0.6rem 1rem",
-    borderBottom: "1px solid #eef0f4",
+    padding: "0.55rem 0.85rem",
+    borderBottom: "1px solid #e6e8ec",
     gap: "0.5rem",
-    background: "#fafafa",
-    borderRadius: "16px 16px 0 0",
+    background: "#fafbfc",
+    borderRadius: "10px 10px 0 0",
   },
   "& .MuiDataGrid-toolbarContainer button": {
     fontSize: "0.78rem",
     fontWeight: 600,
-    color: "#4a9960",
+    color: "#6f8229",
     textTransform: "none",
     letterSpacing: "0.01em",
   },
   "& .MuiDataGrid-columnHeaders": {
-    backgroundColor: "#f3f4f6",
-    borderBottom: "1px solid #e5e7eb",
+    backgroundColor: "#fafbfc",
+    borderBottom: "1px solid #e6e8ec",
   },
   "& .MuiDataGrid-columnHeader": {
     fontWeight: 700,
     fontSize: "0.6875rem",
-    letterSpacing: "0.07em",
+    letterSpacing: "0.06em",
     textTransform: "uppercase",
     color: "#6b7280",
-    backgroundColor: "#f3f4f6",
+    backgroundColor: "#fafbfc",
     outline: "none !important",
   },
   "& .MuiDataGrid-columnHeaderTitle": {
@@ -45,21 +45,21 @@ const executiveGridSx = {
       outline: "none !important",
     },
   "& .MuiDataGrid-columnSeparator": {
-    color: "#e5e7eb",
+    color: "#e6e8ec",
   },
   "& .MuiDataGrid-iconSeparator": {
     color: "#d1d5db",
   },
   "& .MuiDataGrid-row": {
     backgroundColor: "#fff",
-    fontSize: "0.875rem",
+    fontSize: "0.8125rem",
   },
   "& .MuiDataGrid-row:hover": {
-    backgroundColor: "#f9fafb !important",
+    backgroundColor: "#f3f5e6 !important",
   },
   "& .MuiDataGrid-cell": {
-    borderColor: "#eef0f4",
-    color: "#111827",
+    borderColor: "#eef0f3",
+    color: "#1c2430",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -68,8 +68,8 @@ const executiveGridSx = {
     alignItems: "center",
   },
   "& .MuiDataGrid-footerContainer": {
-    borderTop: "1px solid #eef0f4",
-    backgroundColor: "#fafafa",
+    borderTop: "1px solid #e6e8ec",
+    backgroundColor: "#fafbfc",
     fontWeight: 500,
     fontSize: "0.8125rem",
     color: "#6b7280",
@@ -78,7 +78,7 @@ const executiveGridSx = {
     color: "#cbd5e1",
   },
   "& .Mui-checked, & .MuiCheckbox-root.Mui-checked": {
-    color: "#01613E !important",
+    color: "#8fa63a !important",
   },
   "& .centered-cell": {
     marginLeft: "0",
@@ -137,7 +137,7 @@ export default function DataTable({
       <Paper
         className="admin-mui-datagrid-paper"
         elevation={0}
-        sx={{ width: "100%", borderRadius: "16px" }}
+        sx={{ width: "100%", borderRadius: "10px" }}
       >
         <DataGrid
           rows={list ?? []}

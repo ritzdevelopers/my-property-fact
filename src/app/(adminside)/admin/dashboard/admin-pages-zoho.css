@@ -1,0 +1,376 @@
+/* Global Zoho-style polish for ALL admin dashboard pages (golden-green) */
+
+.mpf-zoho-workspace .admin-dashboard-toolbar,
+.mpf-page-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0 0 0.85rem !important;
+  margin: 0 0 1rem !important;
+  border: none !important;
+  border-bottom: 1px solid #e6e8ec !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.mpf-page-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-bottom: 0.25rem;
+}
+
+.mpf-page-breadcrumb__sep {
+  opacity: 0.7;
+}
+
+.mpf-page-breadcrumb__current {
+  color: #6f8229;
+  font-weight: 600;
+}
+
+.admin-dashboard-toolbar-title {
+  margin: 0 !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: #1c2430 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.admin-dashboard-toolbar-kicker {
+  margin: 0 0 0.15rem !important;
+  font-size: 0.7rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8fa63a !important;
+}
+
+.admin-dashboard-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.admin-header-btn {
+  display: inline-flex;
+  align-items: center;
+  height: 2.15rem;
+  padding: 0 0.9rem !important;
+  border-radius: 6px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+
+.admin-header-btn--primary {
+  background: linear-gradient(135deg, #a8b84a 0%, #8fa63a 55%, #6f8229 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 8px rgba(111, 130, 41, 0.25) !important;
+}
+
+.admin-header-btn--primary:hover {
+  filter: brightness(0.96);
+}
+
+.admin-header-btn--export {
+  background: #fff !important;
+  color: #5a6b20 !important;
+  border: 1px solid #d8dfb8 !important;
+}
+
+.admin-header-btn--export:hover {
+  background: #f3f5e6 !important;
+}
+
+/* Bootstrap / CoreUI surfaces inside workspace */
+.mpf-zoho-workspace .card,
+.mpf-zoho-workspace .panel,
+.mpf-zoho-workspace .box,
+.mpf-zoho-workspace .MuiPaper-root.admin-mui-datagrid-paper {
+  border: 1px solid #e6e8ec !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  background: #fff !important;
+}
+
+.mpf-zoho-workspace .card-header,
+.mpf-zoho-workspace .panel-heading {
+  background: #fafbfc !important;
+  border-bottom: 1px solid #e6e8ec !important;
+  font-weight: 600;
+  color: #1c2430;
+}
+
+.mpf-zoho-workspace .table,
+.mpf-zoho-workspace table {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.mpf-zoho-workspace .table thead th,
+.mpf-zoho-workspace table thead th {
+  background: #f7f8fa !important;
+  color: #374151 !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700 !important;
+  border-bottom: 1px solid #e6e8ec !important;
+  white-space: nowrap;
+}
+
+.mpf-zoho-workspace .table tbody td,
+.mpf-zoho-workspace table tbody td {
+  border-color: #eef0f3 !important;
+  color: #111827 !important;
+  font-weight: 600 !important;
+  vertical-align: middle;
+}
+
+.mpf-zoho-workspace .table-hover tbody tr:hover {
+  background: transparent !important;
+}
+
+.mpf-zoho-workspace .badge,
+.mpf-zoho-workspace .status-badge,
+.mpf-zoho-workspace .admin-chip-ok,
+.mpf-zoho-workspace .admin-chip-role {
+  border-radius: 999px !important;
+  font-weight: 600 !important;
+  font-size: 0.7rem !important;
+}
+
+.mpf-zoho-workspace .badge-success,
+.mpf-zoho-workspace .bg-success {
+  background: #e8f5e9 !important;
+  color: #1b5e20 !important;
+}
+
+.mpf-zoho-workspace .badge-warning,
+.mpf-zoho-workspace .bg-warning {
+  background: #fff8e1 !important;
+  color: #8a6d00 !important;
+}
+
+.mpf-zoho-workspace .badge-danger,
+.mpf-zoho-workspace .bg-danger {
+  background: #fdecea !important;
+  color: #b71c1c !important;
+}
+
+.mpf-zoho-workspace .badge-primary,
+.mpf-zoho-workspace .bg-primary {
+  background: #e8effe !important;
+  color: #1d4ed8 !important;
+}
+
+.mpf-zoho-workspace .btn-primary,
+.mpf-zoho-workspace .btn-success {
+  background: linear-gradient(135deg, #d4a017 0%, #16a34a 50%, #2563eb 100%) !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+.mpf-zoho-workspace .btn-outline-primary,
+.mpf-zoho-workspace .btn-outline-success {
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+  border-radius: 6px !important;
+}
+
+.mpf-zoho-workspace .btn-outline-primary:hover,
+.mpf-zoho-workspace .btn-outline-success:hover {
+  background: #e8effe !important;
+}
+
+.mpf-zoho-workspace .form-control,
+.mpf-zoho-workspace .form-select,
+.mpf-zoho-workspace input.form-control,
+.mpf-zoho-workspace select.form-select,
+.mpf-zoho-workspace textarea.form-control {
+  border-radius: 6px !important;
+  border-color: #d5d8de !important;
+  font-size: 0.875rem !important;
+}
+
+.mpf-zoho-workspace .form-control:focus,
+.mpf-zoho-workspace .form-select:focus {
+  border-color: #2563eb !important;
+  box-shadow: none !important;
+  outline: 2px solid rgba(37, 99, 235, 0.35) !important;
+}
+
+.mpf-zoho-workspace .modal-header {
+  border-bottom: 1px solid #e6e8ec;
+  background: #fafbfc;
+}
+
+.mpf-zoho-workspace .modal-footer {
+  border-top: 1px solid #e6e8ec;
+  background: #fafbfc;
+}
+
+.mpf-zoho-workspace .nav-tabs .nav-link.active {
+  color: #1d4ed8 !important;
+  border-color: #e6e8ec #e6e8ec #fff !important;
+  font-weight: 600;
+}
+
+.mpf-zoho-workspace .page-item.active .page-link {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+}
+
+.mpf-zoho-workspace .page-link {
+  color: #2563eb;
+}
+
+.mpf-zoho-workspace .pagination .page-link:hover {
+  background: #e8effe;
+  color: #1d4ed8;
+}
+
+/* Filter / search bars common across pages */
+.mpf-zoho-workspace .admin-content-filters,
+.mpf-zoho-workspace .filter-bar,
+.mpf-zoho-workspace .search-filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  padding: 0.75rem;
+  margin-bottom: 0.85rem;
+  background: #fafbfc;
+  border: 1px solid #e6e8ec;
+  border-radius: 8px;
+}
+
+/* DataGrid loader */
+.admin-datagrid-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  min-height: 220px;
+  border: 1px dashed #d8dfb8;
+  border-radius: 10px;
+  background: #fafbfc;
+}
+
+.admin-datagrid-loader__label {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.admin-datagrid-loader__ring {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid #d8dfb8;
+  border-top-color: #8fa63a;
+  border-radius: 50%;
+  animation: mpf-spin 0.7s linear infinite;
+}
+
+@keyframes mpf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Summary / filter cards */
+.mpf-zoho-workspace .admin-summary-card,
+.mpf-zoho-workspace .mpf-stat,
+.mpf-zoho-workspace .stat-card {
+  border: 1px solid #e6e8ec !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Links */
+.mpf-zoho-workspace a:not(.btn):not(.nav-link):not(.dropdown-item) {
+  color: #2563eb;
+}
+
+.mpf-zoho-workspace a:not(.btn):not(.nav-link):hover {
+  color: #1d4ed8;
+}
+
+/* Empty states */
+.mpf-zoho-workspace .empty-state,
+.mpf-zoho-workspace .no-data {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: #9ca3af;
+  border: 1px dashed #d5d8de;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+/* —— Sober inner-page tables (all dashboard modules) —— */
+.mpf-zoho-workspace .card,
+.mpf-zoho-workspace .panel,
+.mpf-zoho-workspace .box {
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+
+.mpf-zoho-workspace .manage-users-table-scroll,
+.mpf-zoho-workspace .table-responsive,
+.mpf-zoho-workspace .admin-datagrid-scroll-host,
+.mpf-zoho-workspace .MuiDataGrid-root {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  overflow: hidden;
+  background: #fff !important;
+}
+
+.mpf-zoho-workspace table.table,
+.mpf-zoho-workspace .manage-users-compact-table {
+  margin-bottom: 0 !important;
+}
+
+.mpf-zoho-workspace table thead th {
+  background: #f7f8fa !important;
+  padding: 0.65rem 0.85rem !important;
+}
+
+.mpf-zoho-workspace table tbody td {
+  padding: 0.7rem 0.85rem !important;
+}
+
+.mpf-zoho-workspace .admin-content-filters,
+.mpf-zoho-workspace .filter-bar,
+.mpf-zoho-workspace .search-filter-row {
+  box-shadow: none !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+}
+
+.mpf-zoho-workspace .admin-datagrid-loader {
+  border-color: #d5d8de !important;
+  box-shadow: none !important;
+}
+
+.mpf-zoho-workspace .admin-datagrid-loader__ring {
+  border-color: #e8effe;
+  border-top-color: #2563eb;
+}
+
+.mpf-page-breadcrumb__current {
+  color: #a67c0a !important;
+}

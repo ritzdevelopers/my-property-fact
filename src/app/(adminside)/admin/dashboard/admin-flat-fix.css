@@ -1,0 +1,616 @@
+/* ============================================================
+   Admin clear UI — last in cascade
+   Flat, readable, no shadows, no hover lift effects
+   ============================================================ */
+
+.admin-v2-shell,
+.mpf-zoho-shell,
+.admin-layout-wrapper {
+  --mpf-shadow-sm: none;
+  --mpf-shadow-md: none;
+  --mpf-shadow-lg: none;
+  --admin-shadow-soft: none;
+  --mpf-gold-green: #d4a017;
+  --mpf-gold-green-dark: #a67c0a;
+  --mpf-gold-green-soft: #fff6d9;
+  --mpf-blue: #2563eb;
+  --mpf-green: #16a34a;
+  --mpf-border: #e5e7eb;
+  --mpf-ink: #111827;
+  --mpf-muted: #4b5563;
+}
+
+/* —— Inner pages: bolder, clearer text —— */
+.mpf-zoho-workspace,
+.admin-page-surface,
+.admin-v2-shell .mpf-zoho-workspace {
+  color: #111827 !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mpf-zoho-workspace,
+.mpf-zoho-workspace p,
+.mpf-zoho-workspace span:not(.badge):not(.MuiChip-label),
+.mpf-zoho-workspace label,
+.mpf-zoho-workspace li,
+.mpf-zoho-workspace td,
+.mpf-zoho-workspace .form-control,
+.mpf-zoho-workspace .form-select,
+.mpf-zoho-workspace input,
+.mpf-zoho-workspace select,
+.mpf-zoho-workspace textarea,
+.admin-page-surface,
+.admin-page-surface p,
+.admin-page-surface label,
+.admin-page-surface td {
+  font-weight: 600;
+}
+
+.mpf-zoho-workspace h1,
+.mpf-zoho-workspace h2,
+.mpf-zoho-workspace h3,
+.mpf-zoho-workspace h4,
+.mpf-zoho-workspace h5,
+.mpf-zoho-workspace .admin-dashboard-toolbar-title,
+.admin-page-surface h1,
+.admin-page-surface h2,
+.admin-page-surface h3 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+.mpf-zoho-workspace table thead th,
+.mpf-zoho-workspace .table thead th,
+.admin-page-surface table thead th {
+  color: #374151 !important;
+  font-weight: 700 !important;
+  font-size: 0.72rem !important;
+}
+
+.mpf-zoho-workspace table tbody td,
+.mpf-zoho-workspace .table tbody td,
+.admin-page-surface table tbody td {
+  color: #111827 !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+}
+
+.mpf-zoho-workspace .text-muted,
+.mpf-zoho-workspace .text-secondary,
+.mpf-zoho-workspace small,
+.admin-page-surface .text-muted,
+.mpf-page-breadcrumb,
+.activity-log__lead,
+.activity-log__email,
+.activity-log__metric-label,
+.enquiries-metrics__label,
+.enquiries-result-count {
+  color: #4b5563 !important;
+  font-weight: 600 !important;
+}
+
+.mpf-zoho-workspace .form-control,
+.mpf-zoho-workspace .form-select,
+.mpf-zoho-workspace input,
+.mpf-zoho-workspace select,
+.mpf-zoho-workspace textarea {
+  color: #111827 !important;
+  font-weight: 600 !important;
+}
+
+.mpf-zoho-workspace .form-control::placeholder,
+.mpf-zoho-workspace input::placeholder {
+  color: #6b7280 !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
+.mpf-zoho-workspace a:not(.btn):not(.nav-link),
+.admin-page-surface a:not(.btn) {
+  font-weight: 700 !important;
+}
+
+.mpf-zoho-workspace .btn,
+.mpf-zoho-workspace button,
+.admin-page-surface .btn,
+.admin-page-surface button {
+  font-weight: 700 !important;
+}
+
+.activity-log__name,
+.activity-log__action,
+.enquiries-lead__name,
+.enquiries-metrics__value,
+.activity-log__metric-value {
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+.activity-log__when-date,
+.enquiries-property__location,
+.enquiries-message {
+  color: #1f2937 !important;
+  font-weight: 600 !important;
+}
+
+/* No shadows anywhere in admin */
+.admin-v2-shell,
+.admin-v2-shell *,
+.mpf-zoho-shell,
+.mpf-zoho-shell *,
+.admin-layout-wrapper,
+.admin-layout-wrapper *,
+.admin-v2-shell *:hover,
+.mpf-zoho-shell *:hover,
+.admin-layout-wrapper *:hover {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* No lift / scale hover on cards & rows (keep button color changes) */
+.admin-v2-shell .enquiries-metrics__item:hover,
+.admin-v2-shell .mu-summary-card:hover,
+.admin-v2-shell .enquiries-stat-card:hover,
+.admin-v2-shell .admin-stat-card:hover,
+.admin-v2-shell .mpf-stat:hover,
+.admin-v2-shell .enquiries-row:hover,
+.admin-v2-shell tr:hover,
+.admin-v2-shell .card:hover {
+  transform: none !important;
+  background-image: none;
+}
+
+.admin-v2-shell .form-control:focus,
+.admin-v2-shell .form-select:focus,
+.admin-v2-shell input:focus,
+.admin-v2-shell select:focus,
+.admin-v2-shell textarea:focus {
+  outline: 2px solid rgba(143, 166, 58, 0.4) !important;
+  outline-offset: 0 !important;
+  border-color: #8fa63a !important;
+  box-shadow: none !important;
+}
+
+/* —— Workspace: flush panel, not floating card —— */
+.mpf-zoho-canvas,
+.admin-page-canvas {
+  background: #f0f1f3 !important;
+  padding: 0 !important;
+}
+
+.mpf-zoho-workspace {
+  background: #fff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 1.15rem 1.35rem 1.5rem !important;
+  min-height: calc(100vh - 3.25rem) !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+.admin-page-surface {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* —— Page toolbar —— */
+.mpf-page-toolbar,
+.admin-dashboard-toolbar {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--mpf-border) !important;
+  border-radius: 0 !important;
+  margin: 0 0 1.15rem !important;
+  padding: 0 0 0.95rem !important;
+  box-shadow: none !important;
+}
+
+.admin-dashboard-toolbar-title {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: var(--mpf-ink) !important;
+  letter-spacing: -0.02em !important;
+  margin: 0.15rem 0 0 !important;
+  line-height: 1.25 !important;
+}
+
+.mpf-page-breadcrumb {
+  font-size: 0.75rem !important;
+  color: var(--mpf-muted) !important;
+  font-weight: 500 !important;
+}
+
+.mpf-page-breadcrumb__current {
+  color: #5a6b20 !important;
+  font-weight: 600 !important;
+}
+
+.admin-header-btn--export,
+.admin-header-btn--primary {
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+  font-size: 0.8125rem !important;
+  padding: 0.45rem 0.9rem !important;
+  box-shadow: none !important;
+}
+
+.admin-header-btn--export {
+  background: #fff !important;
+  border: 1px solid #d8dfb8 !important;
+  color: #5a6b20 !important;
+}
+
+.admin-header-btn--export:hover {
+  background: var(--mpf-gold-green-soft) !important;
+  border-color: #8fa63a !important;
+  color: #5a6b20 !important;
+}
+
+.admin-header-btn--primary {
+  background: #8fa63a !important;
+  border: 1px solid #8fa63a !important;
+  color: #fff !important;
+}
+
+.admin-header-btn--primary:hover {
+  background: #6f8229 !important;
+  border-color: #6f8229 !important;
+  color: #fff !important;
+}
+
+/* —— Enquiries: metric strip (not cards) —— */
+.enquiries-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+}
+
+.enquiries-metrics {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 0 !important;
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 8px !important;
+  background: #fafbfc !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+}
+
+.enquiries-metrics__item {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.2rem !important;
+  padding: 0.9rem 1.1rem !important;
+  border-right: 1px solid var(--mpf-border) !important;
+  min-width: 0 !important;
+}
+
+.enquiries-metrics__item:last-child {
+  border-right: none !important;
+}
+
+.enquiries-metrics__value {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  color: var(--mpf-ink) !important;
+  line-height: 1.15 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.enquiries-metrics__label {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  color: var(--mpf-muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.04em !important;
+}
+
+@media (max-width: 768px) {
+  .enquiries-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  .enquiries-metrics__item:nth-child(2) {
+    border-right: none !important;
+  }
+  .enquiries-metrics__item:nth-child(1),
+  .enquiries-metrics__item:nth-child(2) {
+    border-bottom: 1px solid var(--mpf-border) !important;
+  }
+}
+
+/* Legacy stat cards → same flat look if still present */
+.enquiries-stats {
+  display: none !important;
+}
+
+.enquiries-stat-card,
+.mu-summary-card,
+.mpf-stat,
+.admin-stat-card,
+.card,
+.MuiPaper-root {
+  box-shadow: none !important;
+}
+
+/* —— Filter panel —— */
+.enquiries-filter-panel {
+  background: #fff !important;
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 8px !important;
+  padding: 0.85rem 1rem !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+}
+
+.enquiries-filter-panel__top {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.75rem 1rem !important;
+}
+
+.enquiries-search {
+  flex: 1 1 280px !important;
+  min-width: 0 !important;
+}
+
+.enquiries-search__icon {
+  background: #fafbfc !important;
+  border: 1px solid #d5d8de !important;
+  border-right: none !important;
+  color: var(--mpf-muted) !important;
+  border-radius: 6px 0 0 6px !important;
+}
+
+.enquiries-search__input,
+.enquiries-page .form-control,
+.enquiries-page .form-select {
+  border: 1px solid #d5d8de !important;
+  border-radius: 0 6px 6px 0 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  min-height: 2.35rem !important;
+}
+
+.enquiries-result-count {
+  font-size: 0.8125rem !important;
+  color: var(--mpf-muted) !important;
+  white-space: nowrap !important;
+}
+
+.enquiries-result-count strong {
+  color: var(--mpf-ink) !important;
+  font-weight: 700 !important;
+}
+
+.enquiries-filter-panel__filters {
+  padding-top: 0.15rem !important;
+}
+
+.enquiries-filter-chip-group {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.enquiries-filter-chip-group__label {
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: var(--mpf-muted) !important;
+  margin-right: 0.15rem !important;
+}
+
+.enquiries-filter-dropdown__trigger,
+.enquiries-page .btn-outline-secondary {
+  border: 1px solid #d5d8de !important;
+  background: #fff !important;
+  color: #374151 !important;
+  border-radius: 6px !important;
+  font-size: 0.8125rem !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  min-height: 2.1rem !important;
+}
+
+.enquiries-filter-dropdown__trigger.has-value,
+.enquiries-filter-dropdown__item.is-active {
+  border-color: #8fa63a !important;
+  background: var(--mpf-gold-green-soft) !important;
+  color: #5a6b20 !important;
+}
+
+.enquiries-clear-filters {
+  border: none !important;
+  background: transparent !important;
+  color: #5a6b20 !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  text-decoration: underline !important;
+  padding: 0.25rem 0.4rem !important;
+}
+
+/* —— Table —— */
+.enquiries-table-wrap,
+.manage-users-table-scroll {
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 8px !important;
+  overflow: auto !important;
+  background: #fff !important;
+}
+
+.enquiries-page .manage-users-compact-table,
+.enquiries-table {
+  margin: 0 !important;
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.enquiries-page .manage-users-compact-table thead th {
+  background: #f7f8fa !important;
+  color: #4b5563 !important;
+  font-size: 0.68rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  border-bottom: 1px solid var(--mpf-border) !important;
+  border-top: none !important;
+  padding: 0.7rem 0.85rem !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1 !important;
+}
+
+.enquiries-page .manage-users-compact-table tbody td {
+  border-color: #eef0f3 !important;
+  padding: 0.75rem 0.85rem !important;
+  font-size: 0.8125rem !important;
+  vertical-align: middle !important;
+  color: #1f2937 !important;
+}
+
+.enquiries-page .manage-users-compact-table tbody tr:hover,
+.enquiries-row:hover {
+  background: transparent !important;
+}
+
+.enquiries-lead__name {
+  font-weight: 700 !important;
+  color: var(--mpf-ink) !important;
+  font-size: 0.875rem !important;
+  margin-bottom: 0.2rem !important;
+}
+
+.enquiries-lead__line {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  color: #5a6b20 !important;
+  font-size: 0.75rem !important;
+  text-decoration: none !important;
+  margin-top: 0.15rem !important;
+}
+
+.enquiries-lead__line:hover {
+  text-decoration: underline !important;
+  color: #6f8229 !important;
+}
+
+.enquiries-source-pill.is-web {
+  background: var(--mpf-gold-green-soft) !important;
+  color: #5a6b20 !important;
+  border: 1px solid #d8dfb8 !important;
+}
+
+.enquiries-source-pill.is-app {
+  background: #f7f4e8 !important;
+  color: #6b5a20 !important;
+  border: 1px solid #e4d9b0 !important;
+}
+
+.enquiries-page-url {
+  color: #5a6b20 !important;
+}
+
+.status-custom-trigger {
+  border: 1px solid #d8dfb8 !important;
+  background: var(--mpf-gold-green-soft) !important;
+  color: #5a6b20 !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+
+.status-custom-menu {
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Pagination */
+.enquiries-pagination {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.75rem !important;
+  padding-top: 0.25rem !important;
+}
+
+.enquiries-pagination .btn {
+  border: 1px solid #d5d8de !important;
+  background: #fff !important;
+  color: #374151 !important;
+  border-radius: 6px !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+.enquiries-pagination .btn:disabled {
+  opacity: 0.45 !important;
+}
+
+.enquiries-pagination .btn:not(:disabled):hover {
+  border-color: #8fa63a !important;
+  background: var(--mpf-gold-green-soft) !important;
+  color: #5a6b20 !important;
+}
+
+.admin-v2-shell .page-item.active .page-link {
+  background: #8fa63a !important;
+  border-color: #8fa63a !important;
+  color: #fff !important;
+}
+
+/* Sidebar / header flat */
+.admin-sidebar-premium,
+.admin-header-premium {
+  box-shadow: none !important;
+}
+
+/* Unlock */
+.enquiries-unlock-card {
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 10px !important;
+  background: #fff !important;
+  box-shadow: none !important;
+}
+
+.enquiries-unlock-submit {
+  background: #8fa63a !important;
+  border: none !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+.enquiries-unlock-submit:hover {
+  background: #6f8229 !important;
+}
+
+/* Hide old nav loader bar if any remnant */
+.nav-loader-bar,
+.dot-pulse-loader {
+  display: none !important;
+}
+
+/* DataGrid */
+.admin-mui-datagrid-paper,
+.MuiDataGrid-root {
+  box-shadow: none !important;
+  border: 1px solid var(--mpf-border) !important;
+  border-radius: 8px !important;
+}

@@ -102,15 +102,15 @@ function UserStatusBadge({ pendingPortalApproval, enabled }) {
   if (!enabled) {
     return (
       <span className="mu-status-pill mu-status-pill--disabled">
-        <FontAwesomeIcon icon={faUserSlash} className="mu-status-pill__icon" aria-hidden />
-        Disabled
+        <span className="mu-status-pill__dot mu-status-pill__dot--suspended" aria-hidden />
+        Suspended
       </span>
     );
   }
 
   return (
     <span className="mu-status-pill mu-status-pill--active">
-      <span className="mu-status-pill__dot" aria-hidden />
+      <span className="mu-status-pill__dot mu-status-pill__dot--active" aria-hidden />
       Active
     </span>
   );
@@ -1053,8 +1053,12 @@ export default function ManageUsers({ users: initialUsers }) {
                   return (
                     <tr key={user.id} className={rowStateClass}>
                       <td>{user.id}</td>
-                      <td className="fw-medium mu-cell-name">{user.fullName || "—"}</td>
-                      <td style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }} title={user.email}>
+                      <td className="fw-medium mu-cell-name mu-cell-account">{user.fullName || "—"}</td>
+                      <td
+                        className="mu-cell-account"
+                        style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }}
+                        title={user.email}
+                      >
                         {user.email || "—"}
                       </td>
                       <td>{user.dashboardUsername || "—"}</td>

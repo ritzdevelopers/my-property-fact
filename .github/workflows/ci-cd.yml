@@ -48,9 +48,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2222
           command_timeout: 30m
+          script_stop: true
           script: |
+            set -e
             cd ~/my-property-fact
+            sudo chown -R "$(whoami):$(whoami)" .
             git pull origin main
             npm ci
             npm run build
-            pm2 reload frontend || pm2 start npm --name my-property-fact -- start
+            pm2 describe my-property-fact >/dev/null 2>&1 && pm2 reload my-property-fact || pm2 start npm --name my-property-fact -- start

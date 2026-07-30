@@ -1,5 +1,29 @@
 /** Must match backend {@code AdminPermissionKeys}. */
 
+export function normalizeAdminRoleName(role) {
+  return String(role || "")
+    .replace(/^ROLE_/i, "")
+    .trim()
+    .toUpperCase();
+}
+
+/** Dashboard staff Admin role (not Super Admin). */
+export function isStaffAdminRoleName(roleName) {
+  const n = normalizeAdminRoleName(roleName);
+  if (!n || n.includes("SUPER")) return false;
+  return n === "ADMIN" || n === "ADMINUSER";
+}
+
+export function roleListIncludesStaffAdmin(roles) {
+  return (roles || []).some((role) => isStaffAdminRoleName(role));
+}
+
+export function roleObjectsIncludeStaffAdmin(roleObjects) {
+  return (roleObjects || []).some((role) =>
+    isStaffAdminRoleName(role?.roleName),
+  );
+}
+
 export const ADMIN_PERMISSIONS = {
   MANAGE_WEBSITE: "MANAGE_WEBSITE",
   MANAGE_OPTIONS: "MANAGE_OPTIONS",
@@ -14,14 +38,78 @@ export const ADMIN_PERMISSIONS = {
   MANAGE_ENQUIRIES: "MANAGE_ENQUIRIES",
 };
 
+/** Default CMS permissions (all except enquiries). Used when assigning Admin role. */
+export const DEFAULT_STAFF_ADMIN_PERMISSIONS = Object.values(
+  ADMIN_PERMISSIONS,
+).filter((key) => key !== ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+
+/** Labels for Manage Users permission checkboxes (fallback if API unavailable). */
+export const ADMIN_PERMISSION_DEFINITIONS = [
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_WEBSITE,
+    label: "Manage website",
+    description: "Home banners and similar site content",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_OPTIONS,
+    label: "Manage options",
+    description:
+      "Countries, states, cities, builders, project types, careers, etc.",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_PROJECTS,
+    label: "Manage projects",
+    description:
+      "Projects, banners, galleries, FAQs, amenities, floor plans, Excel bulk upload",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_INSIGHTS,
+    label: "Insight management",
+    description:
+      "City price data, locality scores, headers, insight categories, top developers",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_BLOGS,
+    label: "Blog management",
+    description: "Blogs and blog categories",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_WEB_STORIES,
+    label: "Web story management",
+    description: "Web stories and categories",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_AMENITIES,
+    label: "Amenities",
+    description: "Master amenities list",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_FEATURES,
+    label: "Features",
+    description: "Property features",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_NEARBY_BENEFITS,
+    label: "Nearby benefits",
+    description: "Location / nearby benefit content",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS,
+    label: "Property approvals",
+    description: "Review and approve user-submitted property listings",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_ENQUIRIES,
+    label: "Manage enquiries",
+    description:
+      "View leads and enquiries after entering the 4-digit code set by Super Admin",
+  },
+];
+
 export function canAccessAdminPath(roles, permissions, pathname) {
-  const normalizedRoles = (roles || []).map((r) =>
-    String(r || "")
-      .replace(/^ROLE_/i, "")
-      .toUpperCase(),
-  );
+  const normalizedRoles = (roles || []).map((r) => normalizeAdminRoleName(r));
   const isSuper = normalizedRoles.includes("SUPERADMIN");
-  const isAdmin = normalizedRoles.includes("ADMIN");
+  const isAdmin = roleListIncludesStaffAdmin(normalizedRoles);
   if (isSuper) return { ok: true };
   if (!isAdmin) return { ok: false, redirect: "/admin/dashboard" };
 

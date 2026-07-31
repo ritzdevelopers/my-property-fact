@@ -8,6 +8,83 @@ function stripHtml(value) {
   return value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+function cleanFaqText(text) {
+  return stripHtml(text)
+    .replace(/^(?:Q\d+[\.\:\s\-]*|(?:\d+[\.\)]\s*))/i, "")
+    .replace(/^Ans[\-\s:]+\s*/i, "")
+    .trim();
+}
+
+function isFaqSectionHeading(html) {
+  const text = stripHtml(html).toLowerCase();
+  return /\bfaqs?\b/.test(text) || /frequently asked/.test(text);
+}
+
+/**
+ * Parse Q&A pairs from CMS blog HTML (after an h2/h3 "FAQs" heading).
+ * Supports h3+p blocks and inline p "Q1…" / "Ans-" pairs.
+ */
+export function extractFaqsFromBlogHtml(html) {
+  if (!html || typeof html !== "string") return [];
+
+  const headingRe = /<h[23][^>]*>[\s\S]*?<\/h[23]>/gi;
+  let faqStart = -1;
+  let match;
+  while ((match = headingRe.exec(html)) !== null) {
+    if (isFaqSectionHeading(match[0])) {
+      faqStart = match.index + match[0].length;
+      break;
+    }
+  }
+  if (faqStart < 0) return [];
+
+  const section = html.slice(faqStart);
+  const items = [];
+
+  const h3BlockRe = /<h3[^>]*>([\s\S]*?)<\/h3>([\s\S]*?)(?=<h3|<h2|$)/gi;
+  let h3Match;
+  while ((h3Match = h3BlockRe.exec(section)) !== null) {
+    const question = cleanFaqText(h3Match[1]);
+    if (!question || isFaqSectionHeading(h3Match[1])) continue;
+
+    let answer = "";
+    const pRe = /<p[^>]*>([\s\S]*?)<\/p>/gi;
+    let pMatch;
+    while ((pMatch = pRe.exec(h3Match[2])) !== null) {
+      const candidate = cleanFaqText(pMatch[1]);
+      if (candidate && !/^Q\d/i.test(candidate)) {
+        answer = candidate;
+        break;
+      }
+    }
+    if (question && answer) {
+      items.push({ question, answer });
+    }
+  }
+  if (items.length) return items;
+
+  const blockRe = /<(p|h3)[^>]*>([\s\S]*?)<\/\1>/gi;
+  let pendingQuestion = null;
+  let blockMatch;
+  while ((blockMatch = blockRe.exec(section)) !== null) {
+    const raw = blockMatch[2];
+    const text = stripHtml(raw);
+    const looksLikeQuestion =
+      /^(?:Q\d+[\.\:\s\-]|(?:\d+[\.\)]\s))/i.test(text) ||
+      /<strong[^>]*>\s*Q\d/i.test(raw);
+    const looksLikeAnswer = /^Ans[\-\s:]/i.test(text);
+
+    if (looksLikeQuestion && !looksLikeAnswer) {
+      pendingQuestion = cleanFaqText(raw);
+    } else if (looksLikeAnswer && pendingQuestion) {
+      items.push({ question: pendingQuestion, answer: cleanFaqText(raw) });
+      pendingQuestion = null;
+    }
+  }
+
+  return items;
+}
+
 /** Blog detail APIs may expose FAQs under different keys. */
 export function resolveBlogFaqRawList(blog) {
   if (!blog || typeof blog !== "object") return [];
@@ -30,6 +107,18 @@ export function normalizeFaqItems(rawFaqs) {
       a: stripHtml(item?.answer ?? item?.a ?? item?.faqAnswer ?? ""),
     }))
     .filter((item) => String(item.q).trim() && String(item.a).trim());
+}
+
+/** Normalized FAQ items for JSON-LD — API fields first, then CMS HTML fallback. */
+export function resolveBlogFaqItemsForSchema(blog) {
+  const fromApi = normalizeFaqItems(resolveBlogFaqRawList(blog));
+  if (fromApi.length) return fromApi;
+
+  const html =
+    blog?.blogDescription ??
+    blog?.data?.blogDescription ??
+    "";
+  return normalizeFaqItems(extractFaqsFromBlogHtml(html));
 }
 
 /** Project detail APIs may expose FAQs under different keys. */

@@ -8,7 +8,22 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/zoom";
+import PropertyHeader from "./components/PropertyHeader";
+import PropertyGallery from "./components/PropertyGallery";
+import PropertyStats from "./components/PropertyStats";
+import PropertyLocationSection from "./components/PropertyLocationSection";
+import PropertyEMICard from "./components/PropertyEMICard";
+import PropertyTabs from "./components/PropertyTabs";
+import PropertyDetailsSection from "./components/PropertyDetailsSection";
+import PropertyHighlightsCard from "./components/PropertyHighlightsCard";
+import SimilarPropertiesCard from "./components/SimilarPropertiesCard";
+import PropertyOverview from "./components/PropertyOverview";
+import PropertyFeatures from "./components/PropertyFeatures";
+import PropertyContactCard from "./components/PropertyContactCard";
+import PropertyAmenities from "./components/PropertyAmenities";
+import PropertyVideoSection from "./components/PropertyVideoSection";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import PropertyContactBanner from "./components/PropertyContactBanner";
 import {
   faPhone,
   faMapMarkerAlt,
@@ -140,17 +155,17 @@ export default function PropertyDetailClient({
   // Extract ID from slug (slug format: title-id or just id)
   const propertyId = slug
     ? (() => {
-        const slugStr = slug.toString();
-        // Try to extract ID from end of slug (after last hyphen)
-        const parts = slugStr.split("-");
-        const lastPart = parts[parts.length - 1];
-        // Check if last part is a number
-        if (!isNaN(lastPart) && lastPart !== "") {
-          return parseInt(lastPart);
-        }
-        // If not, try parsing the whole slug as ID
-        return !isNaN(slugStr) ? parseInt(slugStr) : null;
-      })()
+      const slugStr = slug.toString();
+      // Try to extract ID from end of slug (after last hyphen)
+      const parts = slugStr.split("-");
+      const lastPart = parts[parts.length - 1];
+      // Check if last part is a number
+      if (!isNaN(lastPart) && lastPart !== "") {
+        return parseInt(lastPart);
+      }
+      // If not, try parsing the whole slug as ID
+      return !isNaN(slugStr) ? parseInt(slugStr) : null;
+    })()
     : null;
 
   // Smooth scroll behavior
@@ -232,14 +247,14 @@ export default function PropertyDetailClient({
       } else {
         setSubmitError(
           response.data.message ||
-            "Failed to submit inquiry. Please try again.",
+          "Failed to submit inquiry. Please try again.",
         );
       }
     } catch (err) {
       console.error("Error submitting contact form:", err);
       setSubmitError(
         err.response?.data?.message ||
-          "Failed to submit inquiry. Please try again.",
+        "Failed to submit inquiry. Please try again.",
       );
     } finally {
       setSubmitting(false);
@@ -533,10 +548,139 @@ export default function PropertyDetailClient({
   if (property.city) locationParts.push(property.city);
   if (property.pincode) locationParts.push(property.pincode);
 
+  const getPropertyVideos = () => {
+    const videos = [];
+
+    if (property?.propertyVideos?.length) {
+      videos.push(...property.propertyVideos);
+    }
+
+    if (property?.videos?.length) {
+      videos.push(...property.videos);
+    }
+
+    if (property?.propertyVideoUrls?.length) {
+      videos.push(...property.propertyVideoUrls);
+    }
+
+    return videos.filter(Boolean);
+  };
+
   return (
     <div className="property-detail-page mt-5">
-      {/* Header Section */}
-      <div className="property-header-section mt-5 pt-4">
+      <PropertyHeader
+        property={property}
+        locationParts={locationParts}
+        formatPrice={formatPrice}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        scrollToSection={scrollToSection}
+        setShowContactModal={setShowContactModal}
+      />
+      <PropertyGallery
+        images={allImageUrls}
+        propertyTitle={property?.title}
+        onImageClick={(index) => {
+          setLightboxImageIndex(index);
+          setLightboxZoom(1);
+          setShowImageLightbox(true);
+        }}
+      />
+      <div className="property-details-container">
+        <div className="row g-4">
+
+          <div className="col-lg-8">
+
+            <PropertyStats
+              property={property}
+              formatArea={formatArea}
+            />
+
+            <PropertyTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              scrollToSection={scrollToSection}
+            />
+
+            {activeTab === "Overview" && (
+              <>
+                <PropertyOverview property={property} />
+              </>
+            )}
+
+            {activeTab === "Property Details" && (
+              <PropertyDetailsSection
+                property={property}
+                formatPrice={formatPrice}
+                formatPricePerSqft={formatPricePerSqft}
+                formatArea={formatArea}
+              />
+            )}
+
+            {activeTab === "Location" && (
+              <PropertyLocationSection
+                property={property}
+              />
+            )}
+
+            <PropertyAmenities
+              property={property}
+              getPropertyAmenities={getPropertyAmenities}
+              getAmenityImageUrl={getAmenityImageUrl}
+            />
+            <PropertyFeatures
+              property={property}
+              getPropertyFeatures={getPropertyFeatures}
+              getFeatureImageUrl={getFeatureImageUrl}
+            />
+            <PropertyVideoSection
+              videos={getPropertyVideos()}
+            />
+          </div>
+
+          <div className="col-lg-4">
+
+            <PropertyContactCard
+              contactForm={contactForm}
+              handleContactFormChange={handleContactFormChange}
+              handleContactSubmit={handleContactSubmit}
+              submitting={submitting}
+              submitSuccess={submitSuccess}
+              submitError={submitError}
+              setSubmitError={setSubmitError}
+            />
+
+            <PropertyEMICard
+              property={property}
+              formatPrice={formatPrice}
+            />
+
+            <PropertyHighlightsCard
+              highlights={[
+                "Prime location in Sector 95",
+                "Park-facing with excellent ventilation",
+                "Ready to move-in condition",
+                "Gated community with 24/7 security",
+                "Excellent connectivity to metro & highways",
+              ]}
+            />
+
+            <SimilarPropertiesCard
+              total={150}
+              locality={property?.locality}
+              onClick={() => scrollToSection("recommendation-section")}
+            />
+
+          </div>
+
+        </div>
+      </div>
+      <PropertyContactBanner
+        phone="+91 98765 43210"
+        onCallClick={() => setShowContactModal(true)}
+        onEnquiryClick={() => setShowContactModal(true)}
+      />
+      {/* <div className="property-header-section mt-5 pt-4">
         <div className="container">
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 py-3">
             <div className="flex-grow-1">
@@ -629,7 +773,6 @@ export default function PropertyDetailClient({
             </div>
           </div>
 
-          {/* Navigation Tabs */}
           <div className="property-nav-tabs">
             <button
               className={activeTab === "Overview" ? "active" : ""}
@@ -680,15 +823,12 @@ export default function PropertyDetailClient({
             </button>
           </div>
         </div>
-      </div>
+      </div> */}
 
-      {/* Hero Section */}
-      <div className="container my-4">
+      {/* <div className="container my-4">
         <div className="row hero-section-row">
-          {/* Left Panel - Media Gallery (40%) */}
           <div className="col-lg-5 col-md-12 mb-4">
             <div className="property-media-gallery">
-              {/* Media Tabs */}
               <div className="media-tabs">
                 <button
                   className={`media-tab ${mediaTab === "Videos" ? "active" : ""}`}
@@ -704,7 +844,6 @@ export default function PropertyDetailClient({
                 </button>
               </div>
 
-              {/* Media Content - images like before; hover shows "Click to view", click opens modal */}
               <div className="media-content property-media-content-with-hover">
                 {mediaTab === "Property" && allImageUrls.length > 0 ? (
                   <>
@@ -772,7 +911,6 @@ export default function PropertyDetailClient({
                     </div>
                   </div>
                 )}
-                {/* Mute Icon for Videos */}
                 {mediaTab === "Videos" && (
                   <div className="mute-icon">
                     <FontAwesomeIcon icon={faVolumeMute} />
@@ -782,12 +920,10 @@ export default function PropertyDetailClient({
             </div>
           </div>
 
-          {/* Right Panel - Property Details (60%) - Redesigned */}
           <div className="col-lg-7 col-md-12">
             <div className="property-details-hero-v2">
               <h3 className="details-hero-title-v2">Property Details</h3>
 
-              {/* Price block - prominent */}
               <div className="pd-price-block">
                 <div className="pd-price-label">Price</div>
                 <div className="pd-price-amount">
@@ -801,7 +937,6 @@ export default function PropertyDetailClient({
                 )}
               </div>
 
-              {/* Key specs grid */}
               <div className="pd-specs-grid">
                 <div className="pd-spec-card">
                   <span className="pd-spec-label">Area</span>
@@ -841,7 +976,6 @@ export default function PropertyDetailClient({
                 )}
               </div>
 
-              {/* More details list */}
               <div className="pd-more-details">
                 {property.parking && (
                   <div className="pd-detail-row">
@@ -860,7 +994,7 @@ export default function PropertyDetailClient({
                     </span>
                     <span className="pd-detail-value">
                       {property.ageOfConstruction !== null &&
-                      property.ageOfConstruction !== undefined
+                        property.ageOfConstruction !== undefined
                         ? `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`
                         : property.status}
                     </span>
@@ -910,10 +1044,8 @@ export default function PropertyDetailClient({
           </div>
         </div>
 
-        {/* Content Sections */}
         <div className="row">
           <div className="col-12">
-            {/* About Property Section - Overview */}
             <div id="overview-section" className="property-section mt-4">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <h3 className="section-title mb-0">About Property</h3>
@@ -934,7 +1066,6 @@ export default function PropertyDetailClient({
               )}
             </div>
 
-            {/* Property Details Grid */}
             <div className="property-section mt-4">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <h4 className="section-subtitle mb-0">Property Details</h4>
@@ -1070,7 +1201,6 @@ export default function PropertyDetailClient({
               </div>
             </div>
 
-            {/* Amenities Section */}
             {(() => {
               const propertyAmenities = getPropertyAmenities();
               return propertyAmenities.length > 0 ||
@@ -1093,60 +1223,59 @@ export default function PropertyDetailClient({
                   <div className="amenities-grid">
                     {propertyAmenities.length > 0
                       ? propertyAmenities.map((amenity, index) => {
-                          const imageUrl = getAmenityImageUrl(
-                            amenity.amenityImageUrl,
-                          );
-                          return (
-                            <div
-                              key={amenity.id || index}
-                              className="amenity-item"
-                            >
-                              {imageUrl ? (
-                                <div className="amenity-image-wrapper">
-                                  <img
-                                    src={imageUrl}
-                                    alt={
-                                      amenity.altTag ||
-                                      amenity.title ||
-                                      "Amenity"
-                                    }
-                                    width={30}
-                                    height={30}
-                                    className="amenity-image"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="amenity-icon-wrapper">
-                                  <FontAwesomeIcon
-                                    icon={faCheck}
-                                    className="amenity-icon"
-                                  />
-                                </div>
-                              )}
-                              <span className="amenity-title">
-                                {amenity.title ||
-                                  property.amenityNames?.[index]}
-                              </span>
-                            </div>
-                          );
-                        })
-                      : property.amenityNames.map((amenity, index) => (
-                          <div key={index} className="amenity-item">
-                            <div className="amenity-icon-wrapper">
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className="amenity-icon"
-                              />
-                            </div>
-                            <span className="amenity-title">{amenity}</span>
+                        const imageUrl = getAmenityImageUrl(
+                          amenity.amenityImageUrl,
+                        );
+                        return (
+                          <div
+                            key={amenity.id || index}
+                            className="amenity-item"
+                          >
+                            {imageUrl ? (
+                              <div className="amenity-image-wrapper">
+                                <img
+                                  src={imageUrl}
+                                  alt={
+                                    amenity.altTag ||
+                                    amenity.title ||
+                                    "Amenity"
+                                  }
+                                  width={30}
+                                  height={30}
+                                  className="amenity-image"
+                                />
+                              </div>
+                            ) : (
+                              <div className="amenity-icon-wrapper">
+                                <FontAwesomeIcon
+                                  icon={faCheck}
+                                  className="amenity-icon"
+                                />
+                              </div>
+                            )}
+                            <span className="amenity-title">
+                              {amenity.title ||
+                                property.amenityNames?.[index]}
+                            </span>
                           </div>
-                        ))}
+                        );
+                      })
+                      : property.amenityNames.map((amenity, index) => (
+                        <div key={index} className="amenity-item">
+                          <div className="amenity-icon-wrapper">
+                            <FontAwesomeIcon
+                              icon={faCheck}
+                              className="amenity-icon"
+                            />
+                          </div>
+                          <span className="amenity-title">{amenity}</span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               ) : null;
             })()}
 
-            {/* Features Section */}
             {(() => {
               const propertyFeatures = getPropertyFeatures();
               return propertyFeatures.length > 0 ||
@@ -1171,60 +1300,59 @@ export default function PropertyDetailClient({
                   <div className="amenities-grid">
                     {propertyFeatures.length > 0
                       ? propertyFeatures.map((feature, index) => {
-                          const imageUrl = getFeatureImageUrl(
-                            feature.iconImageUrl,
-                          );
-                          return (
-                            <div
-                              key={feature.id || index}
-                              className="amenity-item"
-                            >
-                              {imageUrl ? (
-                                <div className="amenity-image-wrapper">
-                                  <img
-                                    src={imageUrl}
-                                    alt={
-                                      feature.altTag ||
-                                      feature.title ||
-                                      "Feature"
-                                    }
-                                    width={60}
-                                    height={60}
-                                    className="amenity-image"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="amenity-icon-wrapper">
-                                  <FontAwesomeIcon
-                                    icon={faCheck}
-                                    className="amenity-icon"
-                                  />
-                                </div>
-                              )}
-                              <span className="amenity-title">
-                                {feature.title ||
-                                  property.featureNames?.[index]}
-                              </span>
-                            </div>
-                          );
-                        })
-                      : property.featureNames.map((feature, index) => (
-                          <div key={index} className="amenity-item">
-                            <div className="amenity-icon-wrapper">
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className="amenity-icon"
-                              />
-                            </div>
-                            <span className="amenity-title">{feature}</span>
+                        const imageUrl = getFeatureImageUrl(
+                          feature.iconImageUrl,
+                        );
+                        return (
+                          <div
+                            key={feature.id || index}
+                            className="amenity-item"
+                          >
+                            {imageUrl ? (
+                              <div className="amenity-image-wrapper">
+                                <img
+                                  src={imageUrl}
+                                  alt={
+                                    feature.altTag ||
+                                    feature.title ||
+                                    "Feature"
+                                  }
+                                  width={60}
+                                  height={60}
+                                  className="amenity-image"
+                                />
+                              </div>
+                            ) : (
+                              <div className="amenity-icon-wrapper">
+                                <FontAwesomeIcon
+                                  icon={faCheck}
+                                  className="amenity-icon"
+                                />
+                              </div>
+                            )}
+                            <span className="amenity-title">
+                              {feature.title ||
+                                property.featureNames?.[index]}
+                            </span>
                           </div>
-                        ))}
+                        );
+                      })
+                      : property.featureNames.map((feature, index) => (
+                        <div key={index} className="amenity-item">
+                          <div className="amenity-icon-wrapper">
+                            <FontAwesomeIcon
+                              icon={faCheck}
+                              className="amenity-icon"
+                            />
+                          </div>
+                          <span className="amenity-title">{feature}</span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               ) : null;
             })()}
 
-            {/* Nearby Benefits Section */}
             {(() => {
               const propertyNearbyBenefits = getPropertyNearbyBenefits();
               return propertyNearbyBenefits.length > 0 ? (
@@ -1248,7 +1376,6 @@ export default function PropertyDetailClient({
                   </div>
                   <div className="amenities-grid">
                     {propertyNearbyBenefits.map((benefit, index) => {
-                      // Get the full benefit details from allNearbyBenefits
                       const fullBenefit = allNearbyBenefits.find(
                         (b) => b.id === benefit.id,
                       );
@@ -1306,7 +1433,6 @@ export default function PropertyDetailClient({
               ) : null;
             })()}
 
-            {/* Society / Project Section */}
             {property.projectName && (
               <div id="society-section" className="property-section mt-4">
                 <div className="d-flex align-items-center justify-content-between mb-3">
@@ -1318,14 +1444,12 @@ export default function PropertyDetailClient({
                     {property.bedrooms && (
                       <span>{getBedroomLabel(property.bedrooms)}</span>
                     )}
-                    {/* Display builder from project details if available, otherwise from property */}
                     {(projectDetails?.builderName || property.builderName) && (
                       <span className="ms-2">
                         Developed / built by{" "}
                         {projectDetails?.builderName || property.builderName}
                       </span>
                     )}
-                    {/* Display builder details if available from project */}
                     {projectDetails?.builderDetails && (
                       <div className="mt-2">
                         <p className="text-muted small mb-1">
@@ -1341,7 +1465,6 @@ export default function PropertyDetailClient({
                       </div>
                     )}
                   </div>
-                  {/* Display project description if available */}
                   {projectDetails?.projectDescription && (
                     <div className="mt-3">
                       <h5 className="mb-2 h6">About Project</h5>
@@ -1350,7 +1473,6 @@ export default function PropertyDetailClient({
                       </p>
                     </div>
                   )}
-                  {/* Display additional project details if available */}
                   {projectDetails && (
                     <div className="mt-3">
                       {projectDetails.projectType && (
@@ -1393,17 +1515,6 @@ export default function PropertyDetailClient({
               </div>
             )}
 
-            {/* Virtual Tour Section */}
-            {/* <div className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h4 className="section-subtitle mb-0">Virtual Tour</h4>
-              </div>
-              <VirtualTour />
-            </div> */}
-
-            {/* Contact Information Section */}
-
-            {/* Sponsored Properties Section */}
             {relatedProperties.length > 0 && (
               <div className="property-section mt-4">
                 <h4 className="section-subtitle">Sponsored Properties</h4>
@@ -1443,7 +1554,6 @@ export default function PropertyDetailClient({
               </div>
             )}
 
-            {/* Price Trends Section */}
             <div id="price-trends-section" className="property-section mt-4">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <h4 className="section-subtitle mb-0">Price Trends</h4>
@@ -1472,7 +1582,6 @@ export default function PropertyDetailClient({
               </div>
             </div>
 
-            {/* Explore Locality Section */}
             <div id="locality-section" className="property-section mt-4">
               <div className="d-flex align-items-center justify-content-between mb-3">
                 <h4 className="section-subtitle mb-0">Explore Locality</h4>
@@ -1507,7 +1616,6 @@ export default function PropertyDetailClient({
               </div>
             </div>
 
-            {/* Owner Properties Section - Recommendation (Slider) */}
             {relatedProperties.length > 0 && (
               <div
                 id="recommendation-section"
@@ -1551,11 +1659,11 @@ export default function PropertyDetailClient({
                           : null;
                       const relatedSlug = related.title
                         ? related.title
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")
-                            .replace(/(^-|-$)/g, "") +
-                          "-" +
-                          related.id
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/(^-|-$)/g, "") +
+                        "-" +
+                        related.id
                         : related.id.toString();
                       return (
                         <SwiperSlide key={related.id}>
@@ -1577,10 +1685,10 @@ export default function PropertyDetailClient({
                                 </div>
                               )}
                               {relatedPhotoTotal > 0 && (
-                                  <div className="image-count-badge">
-                                    {relatedPhotoTotal}+ Photos
-                                  </div>
-                                )}
+                                <div className="image-count-badge">
+                                  {relatedPhotoTotal}+ Photos
+                                </div>
+                              )}
                             </div>
                             <div className="owner-property-details">
                               <p className="price-text mb-1">
@@ -1622,10 +1730,9 @@ export default function PropertyDetailClient({
             )}
           </div>
         </div>
-      </div>
+      </div> */}
 
-      {/* Contact Form Modal - Compact Modern Design */}
-      <Modal
+      {/* <Modal
         show={showContactModal}
         onHide={() => {
           setShowContactModal(false);
@@ -1770,10 +1877,9 @@ export default function PropertyDetailClient({
             </Form>
           )}
         </Modal.Body>
-      </Modal>
+      </Modal> */}
 
-      {/* Image Lightbox Modal - click image to open, zoom in/out */}
-      <Modal
+      {/* <Modal
         show={showImageLightbox}
         onHide={() => {
           setShowImageLightbox(false);
@@ -1892,7 +1998,6 @@ export default function PropertyDetailClient({
                   transformOrigin: "center center",
                 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={allImageUrls[lightboxImageIndex]}
                   alt={`${property?.title || "Property"} - Image ${lightboxImageIndex + 1}`}
@@ -1902,7 +2007,7 @@ export default function PropertyDetailClient({
             </div>
           </div>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
     </div>
   );
 }

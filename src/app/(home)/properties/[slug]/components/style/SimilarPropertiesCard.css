@@ -1,0 +1,69 @@
+.similar-properties-card {
+    margin-top: 20px;
+    padding: 24px;
+
+    background: #000;
+    border-radius: 16px;
+}
+
+.similar-properties-title {
+    margin: 0 0 14px;
+
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+
+    color: #fff;
+}
+
+.similar-properties-text {
+    margin: 0 0 24px;
+
+    font-size: 14px;
+    line-height: 1.7;
+
+    color: rgba(255,255,255,.72);
+}
+
+.similar-properties-btn {
+    width: 100%;
+    height: 46px;
+
+    border: 1px solid rgba(255,255,255,.8);
+    border-radius: 10px;
+
+    background: transparent;
+    color: #fff;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    transition: .25s ease;
+}
+
+.similar-properties-btn:hover {
+    background: #fff;
+    color: #000;
+}
+
+@media (max-width:576px) {
+
+    .similar-properties-card {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .similar-properties-title {
+        font-size: 17px;
+    }
+
+    .similar-properties-text {
+        font-size: 13px;
+    }
+
+    .similar-properties-btn {
+        height: 42px;
+        font-size: 13px;
+    }
+
+}

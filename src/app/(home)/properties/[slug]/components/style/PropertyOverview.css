@@ -1,0 +1,68 @@
+.property-overview-card {
+    background: #fff;
+    border: 1px solid #e7e7e7;
+    border-radius: 18px;
+    padding: 34px;
+    margin-top: 24px;
+    margin-bottom: 28px;
+}
+
+.overview-title {
+    margin: 0 0 18px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.overview-description {
+    color: #5f6368;
+    font-size: 17px;
+    line-height: 1.9;
+}
+
+.overview-description p {
+    margin-bottom: 20px;
+}
+
+.overview-address {
+    margin-top: 24px;
+    background: #edfdf3;
+    border-radius: 12px;
+    padding: 18px 20px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #0a6a45;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.overview-address svg {
+    font-size: 20px;
+    color: #0a6a45;
+    flex-shrink: 0;
+}
+
+@media (max-width:768px){
+
+.property-overview-card{
+padding:20px;
+}
+
+.overview-title{
+font-size:22px;
+}
+
+.overview-description{
+font-size:15px;
+line-height:1.8;
+}
+
+.overview-address{
+font-size:15px;
+padding:14px 16px;
+}
+
+}

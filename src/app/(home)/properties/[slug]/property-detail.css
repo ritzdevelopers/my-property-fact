@@ -1,9 +1,15 @@
 /* Property Detail Page - Matching Theme Colors */
 .property-detail-page {
-  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  background: #fff;
   min-height: 100vh;
   padding-bottom: 3rem;
   margin-top: 75px;
+}
+
+.property-details-container{
+    max-width: 1320px;
+    width: 100%;
+    margin: 32px auto;
 }
 
 /* Smooth Animations */

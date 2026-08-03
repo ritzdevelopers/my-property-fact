@@ -3,8 +3,9 @@
 =========================================== */
 
 .property-header {
-    background: #fff;
-    padding: 36px 0 0;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    padding: 36px 0 20px;
+    margin-bottom: 10px;
 }
 
 .property-header .container {

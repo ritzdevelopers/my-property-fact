@@ -1,0 +1,126 @@
+.property-emi-card {
+    background: #ffffff;
+    border: 1px solid #E7E7E7;
+    border-radius: 20px;
+    padding: 24px;
+    margin-top: 24px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
+.property-emi-title {
+    margin: 0 0 24px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1E1E1E;
+}
+
+.property-loan-details {
+    padding-bottom: 18px;
+    border-bottom: 1px solid #ECECEC;
+}
+
+.loan-label {
+    display: block;
+    font-size: 15px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.loan-price {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0C6B43;
+    line-height: 1.2;
+}
+
+.loan-percent {
+    margin: 10px 0 0;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.emi-result-box {
+    margin-top: 20px;
+    padding: 20px;
+    background: #ECFDF3;
+    border-radius: 14px;
+    text-align: center;
+}
+
+.emi-label {
+    display: block;
+    font-size: 15px;
+    color: #6B7280;
+    margin-bottom: 8px;
+}
+
+.emi-price {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #0C6B43;
+    line-height: 1.2;
+}
+
+.emi-note {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: #6B7280;
+}
+
+/* Tablet */
+
+@media (max-width: 992px) {
+
+    .property-emi-card {
+        padding: 22px;
+    }
+
+    .property-emi-title {
+        font-size: 19px;
+    }
+
+    .loan-price {
+        font-size: 20px;
+    }
+
+    .emi-price {
+        font-size: 26px;
+    }
+}
+
+/* Mobile */
+
+@media (max-width: 576px) {
+
+    .property-emi-card {
+        padding: 18px;
+        border-radius: 16px;
+    }
+
+    .property-emi-title {
+        font-size: 18px;
+        margin-bottom: 18px;
+    }
+
+    .loan-price {
+        font-size: 18px;
+    }
+
+    .loan-percent,
+    .loan-label,
+    .emi-label,
+    .emi-note {
+        font-size: 13px;
+    }
+
+    .emi-result-box {
+        padding: 16px;
+        border-radius: 12px;
+    }
+
+    .emi-price {
+        font-size: 24px;
+    }
+}

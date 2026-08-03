@@ -1,0 +1,150 @@
+.property-location-section {
+    background: #fff;
+    border: 1px solid #E8ECEF;
+    border-radius: 20px;
+    padding: 32px;
+    margin-top: 24px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.04);
+}
+
+.location-title {
+    margin: 0 0 28px;
+    font-size: 30px;
+    font-weight: 700;
+    color: #202124;
+}
+
+.location-address-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 22px;
+    background: #F6FCF8;
+    border: 1px solid #DCEFE3;
+    border-radius: 16px;
+    margin-bottom: 28px;
+}
+
+.location-icon {
+    width: 56px;
+    height: 56px;
+    min-width: 56px;
+    border-radius: 14px;
+    background: #DDF8E7;
+    color: #0C6B43;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+}
+
+.location-content {
+    flex: 1;
+}
+
+.location-content h5 {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #202124;
+}
+
+.location-content p {
+    margin: 0;
+    color: #616161;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.location-map-card {
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid #E8ECEF;
+    background: #fff;
+}
+
+.location-map-card iframe {
+    width: 100%;
+    height: 420px;
+    border: 0;
+    display: block;
+}
+
+.map-placeholder {
+    height: 420px;
+    background: linear-gradient(180deg,#FAFAFA,#F3F5F6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px;
+}
+
+.map-placeholder-icon {
+    font-size: 60px;
+    color: #0C6B43;
+    margin-bottom: 18px;
+}
+
+.map-placeholder h5 {
+    margin: 0 0 10px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #202124;
+}
+
+.map-placeholder p {
+    margin: 0;
+    color: #6B7280;
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 420px;
+}
+
+@media (max-width: 768px) {
+
+    .property-location-section {
+        padding: 20px;
+    }
+
+    .location-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    .location-address-card {
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+    }
+
+    .location-icon {
+        width: 50px;
+        height: 50px;
+        min-width: 50px;
+        font-size: 20px;
+    }
+
+    .location-content h5 {
+        font-size: 17px;
+    }
+
+    .location-content p {
+        font-size: 14px;
+    }
+
+    .location-map-card iframe,
+    .map-placeholder {
+        height: 300px;
+    }
+
+    .map-placeholder-icon {
+        font-size: 48px;
+    }
+
+    .map-placeholder h5 {
+        font-size: 18px;
+    }
+
+}

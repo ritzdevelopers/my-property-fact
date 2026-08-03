@@ -1,0 +1,168 @@
+/* ===========================
+   Property Details Section
+=========================== */
+
+.property-details-section {
+    background: #ffffff;
+    border: 1px solid #E7ECE8;
+    border-radius: 24px;
+    padding: 48px;
+    margin-top: 24px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Heading */
+
+.property-details-title {
+    position: relative;
+    margin: 0 0 40px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #202124;
+}
+
+.property-details-title::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -14px;
+    width: 72px;
+    height: 4px;
+    background: #C89A39;
+    border-radius: 20px;
+}
+
+/* ===========================
+   Grid
+=========================== */
+
+.property-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 24px;
+}
+
+/* ===========================
+   Card
+=========================== */
+
+.property-detail-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    min-height: 72px;
+
+    padding: 0 24px;
+
+    background: #FBFDFC;
+
+    border: 1px solid #E7ECE8;
+    border-radius: 16px;
+
+    transition: all .25s ease;
+}
+
+.property-detail-card:hover {
+    border-color: #D3E6D8;
+    box-shadow: 0 8px 18px rgba(12, 107, 67, .06);
+}
+
+/* ===========================
+   Label
+=========================== */
+
+.property-detail-label {
+    font-size: 17px;
+    font-weight: 600;
+    color: #4B5563;
+    white-space: nowrap;
+}
+
+/* ===========================
+   Value
+=========================== */
+
+.property-detail-value {
+    font-size: 17px;
+    font-weight: 500;
+    color: #202124;
+
+    text-align: right;
+
+    margin-left: 20px;
+
+    word-break: break-word;
+}
+
+/* ===========================
+   Link
+=========================== */
+
+.property-detail-link {
+    color: #0D6EFD;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.property-detail-link:hover {
+    text-decoration: underline;
+}
+
+/* ===========================
+   Tablet
+=========================== */
+
+@media (max-width: 991px) {
+
+    .property-details-section {
+        padding: 30px;
+    }
+
+    .property-details-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+}
+
+/* ===========================
+   Mobile
+=========================== */
+
+@media (max-width: 576px) {
+
+    .property-details-section {
+        padding: 20px;
+        border-radius: 18px;
+    }
+
+    .property-details-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    .property-details-title::after {
+        width: 60px;
+    }
+
+    .property-detail-card {
+        min-height: auto;
+        padding: 16px 18px;
+
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .property-detail-label {
+        font-size: 15px;
+    }
+
+    .property-detail-value {
+        margin-left: 0;
+        text-align: left;
+        font-size: 15px;
+    }
+
+}

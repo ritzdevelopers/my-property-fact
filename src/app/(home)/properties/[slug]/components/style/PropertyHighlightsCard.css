@@ -1,0 +1,74 @@
+.property-highlights-card {
+    margin-top: 24px;
+    padding: 24px;
+    background: #F2FFF7;
+    border: 1px solid #DCEEE3;
+    border-radius: 18px;
+}
+
+.property-highlights-title {
+    margin: 0 0 18px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1F1F1F;
+    line-height: 1.4;
+}
+
+.property-highlights-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.property-highlights-list li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 14px;
+
+    font-size: 15px;
+    font-weight: 400;
+    color: #555;
+    line-height: 1.7;
+}
+
+.property-highlights-list li:last-child {
+    margin-bottom: 0;
+}
+
+.property-highlights-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 10px;
+
+    width: 8px;
+    height: 8px;
+
+    background: #0C6B43;
+    border-radius: 50%;
+}
+
+@media (max-width:991px) {
+
+    .property-highlights-card {
+        margin-top: 20px;
+    }
+
+}
+
+@media (max-width:576px) {
+
+    .property-highlights-card {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .property-highlights-title {
+        font-size: 17px;
+    }
+
+    .property-highlights-list li {
+        font-size: 14px;
+    }
+
+}

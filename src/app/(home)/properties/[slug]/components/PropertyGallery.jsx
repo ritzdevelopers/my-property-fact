@@ -25,6 +25,7 @@ const PropertyGallery = ({
 
   return (
     <div className="property-gallery">
+      <div className="container">
 
       {/* Tabs */}
       <div className="gallery-header">
@@ -96,6 +97,7 @@ const PropertyGallery = ({
         {images.length === 2 && (
           <div className="gallery-placeholder"></div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -2,13 +2,8 @@
   width: 100%;
 }
 
-/* Header */
-
-.gallery-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
+.property-gallery .container {
+    max-width: 1320px;
 }
 
 .gallery-tab {
@@ -20,6 +15,7 @@
   font-size: 15px;
   font-weight: 600;
   cursor: default;
+  margin-bottom: 10px;
 }
 
 /* Grid */
@@ -55,13 +51,13 @@
   background: #eee;
 }
 
-.gallery-main {
+/* .gallery-main {
   border-radius: 16px 0 0 16px;
 }
 
 .gallery-last {
   border-radius: 0 16px 16px 0;
-}
+} */
 
 .gallery-item img {
   width: 100%;

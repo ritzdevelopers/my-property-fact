@@ -57,7 +57,7 @@ jobs:
             npm ci
             export NEXT_PUBLIC_ROOT_URL=https://mypropertyfact.in
             export NEXT_PUBLIC_UI_URL=https://mypropertyfact.in
-            npm run build
+            sudo npm run build
             pm2 describe my-property-fact >/dev/null 2>&1 && pm2 reload my-property-fact || pm2 start npm --name my-property-fact -- start
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}

@@ -1732,7 +1732,7 @@ export default function PropertyDetailClient({
         </div>
       </div> */}
 
-      {/* <Modal
+      <Modal
         show={showContactModal}
         onHide={() => {
           setShowContactModal(false);
@@ -1877,7 +1877,7 @@ export default function PropertyDetailClient({
             </Form>
           )}
         </Modal.Body>
-      </Modal> */}
+      </Modal>
 
       {/* <Modal
         show={showImageLightbox}

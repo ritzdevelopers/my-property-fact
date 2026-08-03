@@ -34,7 +34,7 @@ const PropertyContactCard = ({
           <p>
             Your enquiry has been submitted successfully.
             <br />
-            We'll contact you shortly.
+            We&apos;ll contact you shortly.
           </p>
         </div>
       ) : (
@@ -44,7 +44,7 @@ const PropertyContactCard = ({
           </h3>
 
           <p className="contact-card-subtitle">
-            Fill out the form and we'll get back to you shortly
+            Fill out the form and we&apos;ll get back to you shortly
           </p>
 
           {submitError && (

@@ -1,6 +1,6 @@
 .property-amenities-section {
     background: #fff;
-    border: 1px solid #e9e9e9;
+    border: 2px solid #e9e9e9;
     border-radius: 20px;
     padding: 28px;
     margin-top: 28px;
@@ -43,7 +43,7 @@
     padding:10px;
 
     background:#fff;
-    border:1px solid #E6E6E6;
+    border:2px solid #E6E6E6;
     border-radius:14px;
 
     min-height:92px;

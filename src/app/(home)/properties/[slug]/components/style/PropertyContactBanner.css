@@ -172,68 +172,163 @@
 
 @media (max-width:1200px) {
 
-    .property-contact-container {
-        padding: 24px;
-        gap: 24px;
+    .property-contact-banner {
+        margin: 40px 40px;
     }
 
-    .banner-left,
+    .property-contact-container {
+        padding: 20px 24px;
+        gap: 20px;
+    }
+
+    .banner-left {
+        width: 240px;
+        height: auto;
+    }
+
+    .banner-left img {
+        max-width: 240px;
+    }
+
     .banner-right {
+        width: 220px;
+        height: auto;
+    }
+
+    .banner-right img {
         width: 220px;
     }
 
     .banner-center {
         width: auto;
+        flex: 1;
+        margin: 0 20px;
     }
 
     .banner-center h2 {
-        font-size: 28px;
+        font-size: 20px;
     }
 }
 
 @media (max-width:992px) {
 
+    .property-contact-banner {
+        margin: 30px 20px;
+    }
+
     .property-contact-container {
         flex-direction: column;
         text-align: center;
-    }
-
-    .banner-center {
-        margin: 20px 0;
-    }
-
-    .banner-buttons {
-        justify-content: center;
+        padding: 30px 20px;
     }
 
     .banner-left,
     .banner-right {
-        width: 240px;
+        width: 220px;
         height: auto;
     }
 
-    .banner-right img,
-    .banner-left img {
+    .banner-left img,
+    .banner-right img {
         width: 100%;
+        max-width: 220px;
+    }
+
+    .banner-center {
+        width: 100%;
+        margin: 0;
+    }
+
+    .banner-center h2 {
+        font-size: 26px;
+    }
+
+    .banner-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .banner-center p {
+        margin-top: 22px;
     }
 }
 
-@media (max-width:576px) {
+@media (max-width:768px) {
+
+    .property-contact-banner {
+        margin: 24px 16px;
+    }
+
+    .property-contact-container {
+        padding: 24px 16px;
+    }
+
+    .banner-left,
+    .banner-right {
+        width: 180px;
+    }
+
+    .banner-left img,
+    .banner-right img {
+        max-width: 180px;
+    }
 
     .banner-center h2 {
         font-size: 22px;
+        line-height: 1.4;
     }
 
     .banner-buttons {
         flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
     }
 
     .call-btn,
     .enquiry-btn {
         width: 100%;
+        justify-content: center;
+    }
+
+    .banner-center p {
+        font-size: 18px;
+    }
+}
+
+@media (max-width:576px) {
+
+    .property-contact-banner {
+        margin: 20px 12px;
+    }
+
+    .property-contact-container {
+        padding: 20px 14px;
+        border-radius: 12px;
+    }
+
+    .banner-left,
+    .banner-right {
+        width: 150px;
+    }
+
+    .banner-left img,
+    .banner-right img {
+        max-width: 150px;
+    }
+
+    .banner-center h2 {
+        font-size: 18px;
+    }
+
+    .call-btn,
+    .enquiry-btn {
+        width: 100%;
+        height: 46px;
+        font-size: 14px;
     }
 
     .banner-center p {
         font-size: 16px;
+        margin-top: 18px;
     }
 }

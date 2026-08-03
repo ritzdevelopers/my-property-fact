@@ -1,0 +1,307 @@
+/* ===========================================
+   PROPERTY HEADER
+=========================================== */
+
+.property-header {
+    background: #fff;
+    padding: 36px 0 0;
+}
+
+.property-header .container {
+    max-width: 1320px;
+}
+
+/* ===========================================
+   BREADCRUMB
+=========================================== */
+
+.property-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    margin-bottom: 18px;
+
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+.property-breadcrumb a,
+.property-breadcrumb span {
+    color: #6B7280;
+    text-decoration: none;
+}
+
+.property-breadcrumb .active {
+    color: #111827;
+}
+
+/* ===========================================
+   TOP
+=========================================== */
+
+.property-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* ===========================================
+   LEFT
+=========================================== */
+
+.property-header-left {
+    flex: 1;
+}
+
+/* TITLE */
+
+.property-title {
+    margin: 0;
+
+    color: #101828;
+
+    font-size: 26px;
+    font-weight: 500;
+    line-height: 100%;
+}
+
+/* ===========================================
+   LOCATION
+=========================================== */
+
+.property-meta {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    margin-top: 16px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    color: #4B5563;
+
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.meta-item svg {
+    color: #0D5834;
+    font-size: 14px;
+}
+
+/* ===========================================
+   PRICE
+=========================================== */
+
+.property-price-row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    margin-top: 20px;
+}
+
+.property-price {
+    color: #0D5834;
+
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 100%;
+}
+
+.price-per-sqft {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 32px;
+
+    padding: 0 18px;
+
+    border-radius: 999px;
+
+    background: #CFE7C7;
+
+    color: #101828;
+
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* ===========================================
+   RIGHT
+=========================================== */
+
+.property-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contact-btn {
+    height: 32px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: #0D5834;
+
+    color: white;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    transition: .25s;
+}
+
+.contact-btn:hover {
+    background: #084726;
+}
+
+.action-icons {
+    display: flex;
+    gap: 8px;
+
+    margin-top: 10px;
+}
+
+.icon-btn {
+    width: 32px;
+    height: 32px;
+
+    border: 1px solid #ECECEC;
+    border-radius: 8px;
+
+    background: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+
+    transition: .25s;
+}
+
+.icon-btn:hover {
+    background: #f7f7f7;
+}
+
+.icon-btn svg {
+    color: #111827;
+    font-size: 14px;
+}
+
+/* ===========================================
+   TABS
+=========================================== */
+
+.property-tabs-wrapper {
+    margin-top: 28px;
+
+    border-top: 1px solid #ECECEC;
+    border-bottom: 1px solid #ECECEC;
+
+    background: #fff;
+}
+
+.property-tabs {
+    display: flex;
+    align-items: center;
+}
+
+.property-tabs button {
+    position: relative;
+
+    height: 56px;
+
+    padding: 0 24px;
+
+    background: transparent;
+    border: none;
+
+    color: #667085;
+
+    font-size: 15px;
+    font-weight: 500;
+
+    transition: .25s;
+}
+
+.property-tabs button:hover {
+    color: #0D5834;
+}
+
+.property-tabs button.active {
+    color: #0D5834;
+}
+
+.property-tabs button.active::after {
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    bottom: 0;
+
+    width: 100%;
+    height: 3px;
+
+    background: #0D5834;
+}
+
+/* ===========================================
+   RESPONSIVE
+=========================================== */
+
+@media (max-width:992px) {
+
+    .property-header-top {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .property-header-right {
+        align-items: flex-start;
+    }
+
+    .property-title {
+        font-size: 22px;
+    }
+
+    .property-price {
+        font-size: 32px;
+    }
+
+}
+
+@media (max-width:768px) {
+
+    .property-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .property-price-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .property-tabs {
+        overflow-x: auto;
+    }
+
+    .property-tabs button {
+        white-space: nowrap;
+    }
+
+}

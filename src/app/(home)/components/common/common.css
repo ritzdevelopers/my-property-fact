@@ -208,6 +208,10 @@
   text-overflow: ellipsis;
 }
 
+.blog-card:hover .card-title {
+  color: #0d5834; /* Darker green on hover (optional) */
+}
+
 .btn-continue-reading {
   color: #C9A24D;
   border: none;

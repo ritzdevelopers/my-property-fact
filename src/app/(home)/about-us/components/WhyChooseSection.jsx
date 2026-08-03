@@ -6,24 +6,29 @@ import "./style/WhyChooseSection.css";
 
 const features = [
   {
-    title: "HOLISTIC PLATFORM",
+    title: "Buyer-First Platform",
     description:
-      "Find everything from residential rentals to large-scale commercial investments in one place.",
+      "Every feature is designed to help buyers make informed decisions - not just browse listings.",
   },
   {
-    title: "HOLISTIC PLATFORM1",
+    title: "Verified Market Insights",
     description:
-      "Find everything from residential rentals to large-scale commercial investments in one place.",
+      "Access trusted data, on-ground research, and expert analysis to stay ahead of the market.",
   },
   {
-    title: "HOLISTIC PLATFORM2",
+    title: "LOCATE Score",
     description:
-      "Find everything from residential rentals to large-scale commercial investments in one place.",
+      "Compare neighbourhoods based on connectivity, amenities, infrastructure, demand, and future growth - all in one score.",
   },
   {
-    title: "HOLISTIC PLATFORM3",
+    title: "Smart Property Tools",
     description:
-      "Find everything from residential rentals to large-scale commercial investments in one place.",
+      "From EMI calculators to stamp duty estimates, our tools simplify planning and help you budget with confidence.",
+  },
+  {
+    title: "Reach the Right Audience",
+    description:
+      "Generate quality enquiries by connecting your projects with genuine buyers and investors.",
   },
 ];
 

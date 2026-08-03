@@ -1,0 +1,239 @@
+/* ===============================
+   Property Contact Banner
+================================== */
+
+.property-contact-banner {
+    margin: 40px 110px;
+}
+
+.property-contact-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 240px;
+
+    padding: 20px 48px;
+
+    border: 1px solid #D3E6FF;
+    border-radius: 16px;
+
+    background: #F8FBFF;
+}
+
+/* ===============================
+   Left Image
+================================== */
+
+.banner-left {
+    width: 310px;
+    height: 220px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+.banner-left img {
+    width: 100%;
+    max-width: 310px;
+    height: auto;
+}
+
+/* ===============================
+   Center Content
+================================== */
+
+.banner-center {
+    width: 493px;
+    margin: 0 32px;
+}
+
+.banner-center h2 {
+    margin: 0;
+
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.25;
+
+    color: #111827;
+}
+
+/* ===============================
+   Buttons
+================================== */
+
+.banner-buttons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+
+    margin-top: 20px;
+}
+
+/* Call Button */
+
+.call-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    height: 40px;
+
+    padding: 10px 17px;
+
+    border: 1.6px solid #0D5834;
+    border-radius: 50px;
+
+    background: #0D5834;
+
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: .3s;
+}
+
+.call-btn:hover {
+    background: #0a472a;
+}
+
+/* Enquiry */
+
+.enquiry-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    width: 202px;
+    height: 40px;
+
+    padding: 10px 16px;
+
+    border: 1px solid #0D5834;
+    border-radius: 50px;
+
+    background: white;
+
+    color: #0D5834;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: .3s;
+}
+
+.enquiry-btn:hover {
+    background: #f5fff9;
+}
+
+/* ===============================
+   Bottom Text
+================================== */
+
+.banner-center p {
+    margin-top: 28px;
+
+    font-size: 18px;
+    font-weight: 500;
+    color: #000;
+}
+
+/* ===============================
+   Right Image
+================================== */
+
+.banner-right {
+    width: 294px;
+    height: 157px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+}
+
+.banner-right img {
+    width: 294px;
+    height: auto;
+}
+
+/* ===============================
+   Responsive
+================================== */
+
+@media (max-width:1200px) {
+
+    .property-contact-container {
+        padding: 24px;
+        gap: 24px;
+    }
+
+    .banner-left,
+    .banner-right {
+        width: 220px;
+    }
+
+    .banner-center {
+        width: auto;
+    }
+
+    .banner-center h2 {
+        font-size: 28px;
+    }
+}
+
+@media (max-width:992px) {
+
+    .property-contact-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .banner-center {
+        margin: 20px 0;
+    }
+
+    .banner-buttons {
+        justify-content: center;
+    }
+
+    .banner-left,
+    .banner-right {
+        width: 240px;
+        height: auto;
+    }
+
+    .banner-right img,
+    .banner-left img {
+        width: 100%;
+    }
+}
+
+@media (max-width:576px) {
+
+    .banner-center h2 {
+        font-size: 22px;
+    }
+
+    .banner-buttons {
+        flex-direction: column;
+    }
+
+    .call-btn,
+    .enquiry-btn {
+        width: 100%;
+    }
+
+    .banner-center p {
+        font-size: 16px;
+    }
+}

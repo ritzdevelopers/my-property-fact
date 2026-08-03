@@ -31,7 +31,7 @@ export default function NewsAndViews({ webStoryList }) {
             const storyCoverAlt = `${item.categoryName} — Realty Updates Web Stories cover image`;
             const localStoryCover = STORY_COVER_IMAGES[index % STORY_COVER_IMAGES.length];
             return (
-            <div key={index} className="col-12 col-md-6 col-lg-3">
+            <div key={index} className="col-6 col-md-6 col-lg-3">
               <Link
                 className="h-100 text-decoration-none text-dark shadow-sm"
                 href={getLegacyWebStoryPath(item.categoryName)}

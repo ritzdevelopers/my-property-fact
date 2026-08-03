@@ -206,51 +206,52 @@ export default async function HomePage() {
       <>
         {row(
           0,
-          <HeroSection projectTypeList={projectTypeList} cityList={cityList} />,
+          <HeroSection
+            projectTypeList={projectTypeList}
+            cityList={cityList}
+            title="Find Flats & Property Across India | Buy & Invest"
+            subtitle="Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights."
+          />,
         )}
-
-        {/* Hidden until portal launch (next month)
-        {row(
-          0.5,
-          <section className="container home-post-property-strip">
-            <div
-              className="transform-home-post-property-card"
-              role="note"
-              aria-label="Post your property on MyPropertyFact"
-            >
-              <div className="transform-home-post-property-card__content">
-                <p className="transform-home-post-property-card__title">
-                  For Post Your Property Register On{" "}
-                  <Link
-                    href="/"
-                    title="My Property Fact — home"
-                    className="transform-home-post-property-card__brand"
-                  >
-                    Mypropertyfact
-                  </Link>
-                </p>
-                <Link
-                  href="/projects"
-                  title="Explore more - Post your property on MyPropertyFact"
-                  className="transform-home-post-property-card__cta"
-                >
-                  Explore More
-                </Link>
-              </div>
-              <img
-                src="/static/home-meta-data/home.gif"
-                alt="Post your property on MyPropertyFact"
-                title="Post your property on MyPropertyFact"
-                className="transform-home-post-property-card__image"
-                loading="lazy"
-              />
-            </div>
-          </section>,
-        )}
-        */}
 
         {row(
           1,
+          <FeaturedPage
+            title="Featured Projects"
+            type="Featured"
+            autoPlay={false}
+            allFeaturedProperties={slimFeatured}
+          />,
+        )}
+
+        {row(
+          1.5,
+          <section className="mpf-expert-band" aria-label="Talk to an expert">
+            <div className="container mpf-expert-band__inner">
+              <div>
+                <p className="mpf-expert-band__title">
+                  Need help choosing the right property?
+                </p>
+                <p className="mpf-expert-band__sub">
+                  Browse flats, apartments, and commercial properties with verified
+                  listings, price trends, and expert insights.
+                </p>
+              </div>
+              <Link
+                href="/contact-us"
+                title="Contact us"
+                className="mpf-expert-band__cta"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Contact us
+              </Link>
+            </div>
+          </section>,
+        )}
+
+        {row(
+          2,
           <section className="container transform-home-section">
           <div className="transform-home-image-wrap">
             <img
@@ -261,85 +262,27 @@ export default async function HomePage() {
               loading="lazy"
               decoding="async"
               fetchPriority="low"
-             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-            <div className="transform-home-heading-box">
-                <h1
-                  className="headgradient headgradient--sparkle"
-                  data-text="Find Flats & Property Across India | Buy & Invest"
-                >
-                  Find Flats & Property Across India | Buy & Invest
-                </h1>
-                <p className=" headsub">Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.</p>
-            </div>
-            <div className="transform-home-content">
-              <div className="transform-home-headline-stack">
-                <RotatingHeroHeadline />
-                <div className="transform-home-mpf-logo-wrap">
-                  <img
-                    src="/static/mpf_text.png"
-                    alt="My Property Fact"
-                    title="My Property Fact"
-                    width={224}
-                    height={30}
-                    className="transform-home-mpf-logo"
-                  />
-                </div>
-                <div className="transform-home-why">
-                  <p className="transform-home-why-title">Why choose us?</p>
-                  <ul className="transform-home-why-list">
-                    <li className="transform-home-why-item">
-                      <span className="transform-home-why-check" aria-hidden>
-                        <svg
-                          viewBox="0 0 24 24"
-                          width={20}
-                          height={20}
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M20 6L9 17l-5-5"
-                            stroke="#178c2c"
-                            strokeWidth="2.2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      <span className="transform-home-why-text">
-                        Verified Property {" "}
-                        <strong>Insights for Smart Decision Making</strong>
-                      </span>
-                    </li>
-                    <li className="transform-home-why-item">
-                      <span className="transform-home-why-check" aria-hidden>
-                        <svg
-                          viewBox="0 0 24 24"
-                          width={20}
-                          height={20}
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M20 6L9 17l-5-5"
-                            stroke="#178c2c"
-                            strokeWidth="2.2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      <span className="transform-home-why-text">
-                        <strong>Advanced Tools for Effortless Property Search</strong>{" "}
-                        & Cost Estimation
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-                <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
-                <div className="transform-home-explore-projects-wrap">
-                  <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
-                    Explore Projects
-                  </Link>
+            />
+            <div className="transform-home-copy">
+              <div className="transform-home-content">
+                <div className="transform-home-headline-stack">
+                  <RotatingHeroHeadline />
+                  <div className="transform-home-mpf-logo-wrap">
+                    <img
+                      src="/static/mpf_text.png"
+                      alt="My Property Fact"
+                      title="My Property Fact"
+                      width={224}
+                      height={30}
+                      className="transform-home-mpf-logo"
+                    />
+                  </div>
+                  <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
+                  <div className="transform-home-explore-projects-wrap">
+                    <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
+                      Explore Projects
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -348,7 +291,7 @@ export default async function HomePage() {
         )}
 
         {row(
-          2,
+          3,
           <RecommendedProjectsWithGeolocation
             title="New Property Launches"
             fallbackItems={slimRecommendedProperties}
@@ -364,12 +307,12 @@ export default async function HomePage() {
         )}  
 
         {row(
-          3,
+          4,
           <TopPicksWithRotation initialProject={mpfTopPicProject} />,
         )}
 
         {row(
-          4,
+          5,
           <RecommendedProjectsWithGeolocation
             title="Popular Projects"
             fallbackItems={slimRecommendedProjects}
@@ -381,17 +324,7 @@ export default async function HomePage() {
         )}
 
         <div className="position-relative">
-          {row(5, <NewInsight />)}
-
-          {row(
-            6,
-            <FeaturedPage
-              title="Featured Projects"
-              type="Featured"
-              autoPlay={false}
-              allFeaturedProperties={slimFeatured}
-            />,
-          )}
+          {row(6, <NewInsight />)}
 
           {row(7, <DreamPropertySection />)}
 

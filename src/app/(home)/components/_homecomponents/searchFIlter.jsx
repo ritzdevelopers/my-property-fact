@@ -19,9 +19,10 @@ import {
   removeRecentSearch,
   saveRecentSearch,
 } from "@/app/_global_components/smartSearchParser";
-import { useRouter } from "next/navigation";
+import { PROJECT_BUDGET_OPTIONS } from "@/app/_global_components/projectFilterUtils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Spinner } from "react-bootstrap";
+import { useRouter } from "next/navigation";
 
 const SEARCH_TABS = [
   { key: "All", label: "All" },
@@ -30,6 +31,21 @@ const SEARCH_TABS = [
   { key: "New Launched", label: "New Launch" },
   { key: "Plots", label: "Plots" },
   { key: "Projects", label: "Projects" },
+];
+
+/** Home hero mockup — 3 tabs (maps to existing search keys). */
+const HOME_HERO_TABS = [
+  { key: "All", label: "Buy" },
+  { key: "Residential", label: "Rent" },
+  { key: "New Launched", label: "New Launch" },
+];
+
+const HOME_POPULAR_CHIPS = [
+  "2 BHK in Noida",
+  "3 BHK in Gurgaon",
+  "New Launch in Noida",
+  "Luxury Apartments",
+  "Under 50 Lakhs",
 ];
 
 const RESIDENTIAL_PROPERTY_TYPES = [
@@ -320,7 +336,9 @@ function resolveNavigationQuickTab({ activeTab, parsed }) {
   return parsed?.quickTab || activeTab;
 }
 
-export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
+export default function SearchFilter({ projectTypeList = [], cityList = [], layout = "default" }) {
+  const isHomeHero = layout === "home-hero";
+  const displayTabs = isHomeHero ? HOME_HERO_TABS : SEARCH_TABS;
   const { setProjectData } = useProjectContext();
   const {
     projectTypes: contextProjectTypes = [],
@@ -345,6 +363,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
   const [recentSearches, setRecentSearches] = useState([]);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [suggestionsReady, setSuggestionsReady] = useState(true);
+  const [heroCityId, setHeroCityId] = useState("");
+  const [heroBudget, setHeroBudget] = useState("");
 
   const router = useRouter();
   const searchWrapRef = useRef(null);
@@ -507,16 +527,29 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
     [debouncedSearch, projectList, effectiveCityList, builderList, effectiveProjectTypes],
   );
 
+  const withHeroFilters = useCallback(
+    (params) =>
+      isHomeHero
+        ? {
+            ...params,
+            cityId: params.cityId || heroCityId,
+            budget: params.budget || heroBudget,
+          }
+        : params,
+    [heroBudget, heroCityId, isHomeHero],
+  );
+
   const navigateToProjects = useCallback(
-    async ({
-      propertyTypeId = "",
-      cityId = "",
-      budget = "",
-      bhkType = "",
-      configType = "",
-      quickTab = "All",
-      searchLabel = "",
-    }) => {
+    async (params) => {
+      const {
+        propertyTypeId = "",
+        cityId = "",
+        budget = "",
+        bhkType = "",
+        configType = "",
+        quickTab = "All",
+        searchLabel = "",
+      } = withHeroFilters(params);
       const resolvedBhk = bhkType || selectedFilterPayload.bhkType;
       const resolvedConfig = configType || selectedFilterPayload.configType;
       const paramsObj = {
@@ -544,7 +577,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         setLoading(false);
       }
     },
-    [resetProjectFilters, router, setProjectData, setQueryFilters, setQuickProjectFilter, selectedFilterPayload],
+    [resetProjectFilters, router, setProjectData, setQueryFilters, setQuickProjectFilter, selectedFilterPayload, withHeroFilters],
   );
 
   const handleTabChange = (tab) => {
@@ -849,13 +882,114 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
     setRecentSearches([]);
   };
 
+  const handlePopularChip = (label) => {
+    setSearchInput(label);
+    setDebouncedSearch(label);
+    setDropdownOpen(false);
+    setTimeout(() => {
+      searchWrapRef.current?.querySelector("form")?.requestSubmit();
+    }, 0);
+  };
+
   const showSuggestionsPanel = dropdownOpen && trimmedInput.length >= 2 && !categoryOpen;
 
+  const searchInputField = (
+    <>
+      <svg className="smart-search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+        <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <input
+        type="search"
+        className="smart-search-input"
+        value={searchInput}
+        onChange={(e) => {
+          setSearchInput(e.target.value);
+          setSuggestionsReady(false);
+          setDropdownOpen(true);
+        }}
+        onFocus={() => {
+          if (trimmedInput.length >= 2) setDropdownOpen(true);
+        }}
+        placeholder={
+          isHomeHero
+            ? "Type a project, builder or location"
+            : PLACEHOLDER_EXAMPLES[placeholderIdx]
+        }
+        aria-label="Search properties, projects, cities"
+        aria-expanded={dropdownOpen}
+        aria-controls="smart-search-suggestions"
+        autoComplete="off"
+      />
+      {searchInput ? (
+        <button
+          type="button"
+          className="smart-search-clear"
+          onClick={() => {
+            setSearchInput("");
+            setDebouncedSearch("");
+            setDropdownOpen(false);
+          }}
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+      ) : null}
+    </>
+  );
+
+  const searchSubmitButton = (
+    <button type="submit" className="smart-search-submit search-btn-home-page" aria-label="Search">
+      {loading ? (
+        <Spinner animation="border" size="sm" variant="light" />
+      ) : (
+        <>
+          {isHomeHero ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden className="smart-search-submit__icon">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+              <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+          ) : null}
+          <span>Search</span>
+        </>
+      )}
+    </button>
+  );
+
+  const propertyTypeTrigger = (
+    <button
+      type="button"
+      className={`smart-search-category-trigger smart-search-hero-select-trigger${categoryOpen ? " active" : ""}${
+        selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+      }`}
+      onClick={() => {
+        setCategoryOpen(!categoryOpen);
+        setDropdownOpen(false);
+      }}
+      aria-expanded={categoryOpen}
+      aria-haspopup="listbox"
+    >
+      <span className="smart-search-category-trigger__text">
+        {selectedPropertyKeys.length > 0 ? selectedCategoryLabel : isHomeHero ? "All Type" : selectedCategoryLabel}
+      </span>
+      <svg
+        className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden
+      >
+        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  );
+
   return (
-    <div className="home-search-container container">
+    <div className={`home-search-container container${isHomeHero ? " home-search-container--hero-ss" : ""}`}>
       <div className="smart-search-card search-filter-shadow" ref={cardRef}>
         <div className="smart-search-tabs" role="tablist" aria-label="Property categories">
-          {SEARCH_TABS.map((tab) => (
+          {displayTabs.map((tab) => (
             <button
               key={tab.key}
               type="button"
@@ -870,7 +1004,56 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
         </div>
 
         <div className="smart-search-bar-wrap" ref={searchWrapRef}>
-          <form className="smart-search-bar" onSubmit={handleSearch}>
+          <form
+            className={`smart-search-bar${isHomeHero ? " smart-search-bar--hero-ss" : ""}`}
+            onSubmit={handleSearch}
+          >
+            {isHomeHero ? (
+              <>
+                <div className="smart-search-hero-field smart-search-hero-field--search">
+                  <span className="smart-search-hero-field__label">Search Projects, Builders, Locations</span>
+                  <div className="smart-search-input-wrap">{searchInputField}</div>
+                </div>
+                <div className="smart-search-hero-field smart-search-hero-field--location">
+                  <span className="smart-search-hero-field__label">Location</span>
+                  <select
+                    className="smart-search-hero-select"
+                    value={heroCityId}
+                    onChange={(e) => setHeroCityId(e.target.value)}
+                    aria-label="Select location"
+                  >
+                    <option value="">Select Location</option>
+                    {effectiveCityList.map((city) => (
+                      <option key={city.id} value={String(city.id)}>
+                        {city.cityName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="smart-search-hero-field smart-search-hero-field--type">
+                  <span className="smart-search-hero-field__label">Property Type</span>
+                  {propertyTypeTrigger}
+                </div>
+                <div className="smart-search-hero-field smart-search-hero-field--budget">
+                  <span className="smart-search-hero-field__label">Budget</span>
+                  <select
+                    className="smart-search-hero-select"
+                    value={heroBudget}
+                    onChange={(e) => setHeroBudget(e.target.value)}
+                    aria-label="Select budget"
+                  >
+                    <option value="">Min - Max</option>
+                    {PROJECT_BUDGET_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {searchSubmitButton}
+              </>
+            ) : (
+              <>
             <div className="smart-search-category">
               <button
                 type="button"
@@ -914,47 +1097,12 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
             </div>
 
             <div className="smart-search-input-wrap">
-              <svg className="smart-search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-                <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <input
-                type="search"
-                className="smart-search-input"
-                value={searchInput}
-                onChange={(e) => {
-                  setSearchInput(e.target.value);
-                  setSuggestionsReady(false);
-                  setDropdownOpen(true);
-                }}
-                onFocus={() => {
-                  if (trimmedInput.length >= 2) setDropdownOpen(true);
-                }}
-                placeholder={PLACEHOLDER_EXAMPLES[placeholderIdx]}
-                aria-label="Search properties, projects, cities"
-                aria-expanded={dropdownOpen}
-                aria-controls="smart-search-suggestions"
-                autoComplete="off"
-              />
-              {searchInput ? (
-                <button
-                  type="button"
-                  className="smart-search-clear"
-                  onClick={() => {
-                    setSearchInput("");
-                    setDebouncedSearch("");
-                    setDropdownOpen(false);
-                  }}
-                  aria-label="Clear search"
-                >
-                  ×
-                </button>
-              ) : null}
+              {searchInputField}
             </div>
 
-            <button type="submit" className="smart-search-submit search-btn-home-page" aria-label="Search">
-              {loading ? <Spinner animation="border" size="sm" variant="light" /> : "Search"}
-            </button>
+            {searchSubmitButton}
+              </>
+            )}
           </form>
 
           {showSuggestionsPanel ? (
@@ -1079,7 +1227,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           ) : null}
         </div>
 
-        {recentSearches.length > 0 ? (
+        {!isHomeHero && recentSearches.length > 0 ? (
           <div className="smart-search-recent">
             <span className="smart-search-recent__label">Recent searches:</span>
             <div className="smart-search-recent__pills">
@@ -1113,19 +1261,23 @@ export default function SearchFilter({ projectTypeList = [], cityList = [] }) {
           </div>
         ) : null}
 
-        <div className="smart-search-chips">
-          {QUICK_CITY_CHIPS.map((city) => (
-            <button
-              key={city}
-              type="button"
-              className="smart-search-chip"
-              onClick={() => handleQuickCity(city)}
-            >
-              {activeTab !== "All" ? `${activeTab} in ` : ""}
-              {city}
-            </button>
-          ))}
-        </div>
+      </div>
+      <div className="smart-search-chips">
+        {(isHomeHero ? HOME_POPULAR_CHIPS : QUICK_CITY_CHIPS).map((item) => (
+          <button
+            key={item}
+            type="button"
+            className="smart-search-chip"
+            onClick={() => (isHomeHero ? handlePopularChip(item) : handleQuickCity(item))}
+          >
+            {isHomeHero ? item : (
+              <>
+                {activeTab !== "All" ? `${activeTab} in ` : ""}
+                {item}
+              </>
+            )}
+          </button>
+        ))}
       </div>
     </div>
   );

@@ -452,36 +452,63 @@ const HeaderComponent = () => {
   return (
     <>
       <div
-        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isScrolled ? "fixed-header" : ""
+        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss" : ""} ${isScrolled ? "fixed-header" : ""
           } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
-        <div className="container d-flex justify-content-between align-items-center">
-          <div className="mpf-logo d-flex align-items-center gap-4">
+        <div className={`container d-flex justify-content-between align-items-center${isHomePage ? " header-home-ss__container" : ""}`}>
+          <div className="mpf-logo d-flex align-items-center gap-3">
             <Link
               href="/"
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
+              className={isHomePage ? "mpf-header-brand" : undefined}
               {...(logoOpensInNewTab
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
             >
-              <img loading="eager"
-                src="/logo.webp"
-                alt="My Property Fact logo — main site header"
-                title="My Property Fact logo — main site header"
-                height={74}
-                width={80}
-                fetchPriority="low"
-                decoding="async"
-              />
+              {isHomePage ? (
+                <img
+                  loading="eager"
+                  src="/logo.webp"
+                  alt="My Property Fact logo — main site header"
+                  title="My Property Fact logo — main site header"
+                  className="mpf-header-logo-img"
+                  height={58}
+                  width={62}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              ) : (
+                <img loading="eager"
+                  src="/logo.webp"
+                  alt="My Property Fact logo — main site header"
+                  title="My Property Fact logo — main site header"
+                  height={74}
+                  width={80}
+                  fetchPriority="low"
+                  decoding="async"
+                />
+              )}
             </Link>
+            {isHomePage ? (
+              <Link href="/city/delhi" className="mpf-header-location-pill" title="Browse Delhi NCR properties">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" stroke="currentColor" strokeWidth="1.8" />
+                  <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+                </svg>
+                <span>Delhi NCR</span>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </Link>
+            ) : null}
           </div>
           <nav className="d-none d-lg-flex flex-grow-1 justify-content-end align-items-center">
-            <div className="menu position-relative">
+            <div className={`menu position-relative${isHomePage ? " header-home-ss__menu" : ""}`}>
               <ul className="d-flex gap-5 m-0 align-items-center header-links list-unstyled fw-bold">
                 <li
-                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  className={`hasChild header-nav-cities${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
                   onMouseEnter={() => {
                     setIsDropdownHovered(true);
                     setIsNavDropdownDismissed(false);
@@ -496,7 +523,7 @@ const HeaderComponent = () => {
                     aria-haspopup="true"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      Cities
+                      {isHomePage ? "Locations" : "Cities"}
                     </span>
                   </button>
                   <div className="dropdown dropdown-lg z-3 city-dropdown">
@@ -577,7 +604,7 @@ const HeaderComponent = () => {
                   </div>
                 </li>
                 <li
-                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  className={`hasChild header-nav-builders${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
                   onMouseEnter={() => {
                     setIsDropdownHovered(true);
                     setIsNavDropdownDismissed(false);
@@ -673,7 +700,7 @@ const HeaderComponent = () => {
                     )}
                   </div>
                 </li>
-                <li className="hasChild">
+                <li className={`hasChild header-nav-about${isHomePage ? " header-nav-hide-home" : ""}`}>
                   <Link
                     href="/about-us"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/about-us" ? "header-link-active" : ""
@@ -685,9 +712,9 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                {isBlogTypeRoute && (
+                {(isBlogTypeRoute || isHomePage) && (
                   <li
-                    className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                    className={`hasChild header-nav-projects${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
                     onMouseEnter={() => {
                       setIsDropdownHovered(true);
                       setIsNavDropdownDismissed(false);
@@ -975,7 +1002,23 @@ const HeaderComponent = () => {
                     </div>
                   </li>
                 )}
-                <li className="hasChild">
+                {isHomePage ? (
+                  <li className="hasChild header-nav-resources">
+                    <Link
+                      href="/blog"
+                      className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold d-inline-flex align-items-center gap-1${isBlogTypeRoute ? " header-link-active" : ""}`}
+                      title="Resources"
+                    >
+                      <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
+                        Resources
+                      </span>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
+                    </Link>
+                  </li>
+                ) : null}
+                <li className="hasChild header-nav-blog">
                   <Link
                     href="/blog"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${isBlogTypeRoute ? "header-link-active" : ""
@@ -987,7 +1030,7 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                <li className="hasChild">
+                <li className={`hasChild header-nav-join${isHomePage ? " header-nav-hide-home" : ""}`}>
                   <Link
                     href="/join-our-team"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/join-our-team" ? "header-link-active" : ""
@@ -999,20 +1042,36 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                <li className="hasChild">
+                <li className="hasChild header-nav-contact">
                   <Link
                     href="/contact-us"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/contact-us" ? "header-link-active" : ""
                       }`}
-                    title="Contact Us"
+                    title={isHomePage ? "Contact" : "Contact Us"}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
-                      Contact Us
+                      {isHomePage ? "Contact" : "Contact Us"}
                     </span>
                   </Link>
                 </li>
               </ul>
             </div>
+            {isHomePage ? (
+              <div className="mpf-header-home-actions d-none d-lg-flex align-items-center">
+                <a href="tel:+918920024793" className="mpf-header-phone" title="Sales enquiry">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="mpf-header-phone__copy">
+                    <strong>+91 8920 024 793</strong>
+                    <small>Sales Enquiry</small>
+                  </span>
+                </a>
+                <Link href="/contact-us" className="mpf-header-callback-btn" title="Request callback">
+                  Request Callback
+                </Link>
+              </div>
+            ) : null}
             {/* Hidden until portal launch (next month)
             <button
               type="button"

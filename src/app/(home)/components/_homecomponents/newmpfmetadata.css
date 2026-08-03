@@ -397,10 +397,11 @@
 
 .home-project-card__media {
   position: relative;
-  height: 182px;
+  height: auto;
+  aspect-ratio: 16 / 11;
   overflow: hidden;
-  background: #f3f4f6;
-  border-radius: 12px;
+  background: #eef0f3;
+  border-radius: 14px 14px 0 0;
 }
 
 .home-project-card__image {
@@ -421,17 +422,18 @@
 
 .home-project-card__badge {
   position: absolute;
-  left: 10px;
-  bottom: 10px;
-  top: auto;
-  padding: 5px 10px;
-  border-radius: 999px;
-  background: rgba(17, 24, 39, 0.9);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  opacity: 0;
+  left: 12px;
+  top: 12px;
+  bottom: auto;
+  padding: 6px 10px;
+  border-radius: 0;
+  background: rgba(250, 248, 244, 0.92);
+  color: #141a1c;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 1;
   transition: opacity 0.2s ease;
   pointer-events: none;
 }

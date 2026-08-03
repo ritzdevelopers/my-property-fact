@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
 export default function ContactUs() {
@@ -122,12 +123,12 @@ export default function ContactUs() {
     }
 
     try {
-      const submitData = {
+      const submitData = await buildEnquirySubmitData({
         ...formData,
         pageName: "Contact us",
         projectLink: `${process.env.NEXT_PUBLIC_ROOT_URL}${pathName}`,
         enquiryFrom: `Contact us page`,
-      };
+      });
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,

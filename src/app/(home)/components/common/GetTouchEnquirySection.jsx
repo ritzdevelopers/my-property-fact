@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { usePathname } from "next/navigation";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
@@ -135,12 +136,24 @@ export default function GetTouchEnquirySection({
 
     try {
       setShowLoading(true);
-      const submitData = {
-        ...formData,
-        enquiryFrom,
-        projectLink: `${baseUrl}${pathname || "/"}`,
-        pageName: projectDetail ? "Project Detail" : "Home",
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          enquiryFrom,
+          projectLink: `${baseUrl}${pathname || "/"}`,
+          pageName: projectDetail ? "Project Detail" : "Home",
+        },
+        projectDetail
+          ? {
+              property: {
+                property_name: projectDetail.projectName ?? null,
+                project: projectDetail.projectName ?? null,
+                builder: projectDetail.builderName ?? null,
+                city: projectDetail.cityName ?? null,
+              },
+            }
+          : undefined,
+      );
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,

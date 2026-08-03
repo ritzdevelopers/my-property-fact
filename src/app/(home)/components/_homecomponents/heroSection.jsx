@@ -77,7 +77,12 @@ function HeroBannerPicture() {
   );
 }
 
-export default function HeroSection({ projectTypeList, cityList }) {
+export default function HeroSection({
+  projectTypeList,
+  cityList,
+  title = "Find Flats & Property Across India | Buy & Invest",
+  subtitle = "Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.",
+}) {
   const normalizeTypeName = (value = "") => value.trim().toLowerCase();
   const headingTypes = new Set([
     "commercial",
@@ -176,6 +181,7 @@ export default function HeroSection({ projectTypeList, cityList }) {
   return (
     <>
       <section
+        id="mpf-home-hero"
         ref={heroBannerRef}
         className="position-relative hero-section-wrapper"
         aria-label="Hero Banner"
@@ -185,7 +191,110 @@ export default function HeroSection({ projectTypeList, cityList }) {
           <HeroBannerPicture />
 
           <div className="home-banner-overlay" aria-hidden="true" />
-          <SearchFilter projectTypeList={projectTypeList} cityList={cityList} />
+
+          <div className="mpf-hero-shell container">
+            <div className="mpf-hero-main">
+              <div className="mpf-hero-copy">
+                <h1 className="headgradient headgradient--sparkle" data-text={title}>
+                  {title.includes("Across India") ? (
+                    <>
+                      Find Flats &amp; Property{" "}
+                      <span className="mpf-hero-highlight">Across India</span>
+                      {" | Buy & Invest"}
+                    </>
+                  ) : (
+                    title
+                  )}
+                </h1>
+                <p className="headsub">
+                  Browse flats, apartments, and commercial properties in India with{" "}
+                  <span className="mpf-hero-verified">verified</span> listings, price
+                  trends, and expert insights.
+                </p>
+              </div>
+
+              <SearchFilter
+                projectTypeList={projectTypeList}
+                cityList={cityList}
+                layout="home-hero"
+              />
+            </div>
+
+            <aside className="mpf-hero-badge" aria-label="Property insights">
+              <span className="mpf-hero-badge__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path
+                    d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </span>
+              <span className="mpf-hero-badge__text">
+                <strong>Verified listings</strong>, price trends &amp; expert insights
+              </span>
+            </aside>
+          </div>
+        </div>
+
+        <div className="mpf-value-strip" aria-label="Why choose us">
+          <div className="container mpf-value-strip__inner">
+            <div className="mpf-value-strip__item">
+              <span className="mpf-value-strip__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M9.5 12.2l1.8 1.8 3.5-3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="mpf-value-strip__copy">
+                <strong>100% Verified</strong>
+                <span>Projects &amp; Builders</span>
+              </span>
+            </div>
+            <div className="mpf-value-strip__item">
+              <span className="mpf-value-strip__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="mpf-value-strip__copy">
+                <strong>Best Price</strong>
+                <span>Guaranteed</span>
+              </span>
+            </div>
+            <div className="mpf-value-strip__item">
+              <span className="mpf-value-strip__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="mpf-value-strip__copy">
+                <strong>Expert Support</strong>
+                <span>7 Days a Week</span>
+              </span>
+            </div>
+            <div className="mpf-value-strip__item">
+              <span className="mpf-value-strip__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="mpf-value-strip__copy">
+                <strong>Easy Booking</strong>
+                <span>Hassle Free</span>
+              </span>
+            </div>
+            <div className="mpf-value-strip__item">
+              <span className="mpf-value-strip__icon" aria-hidden>
+                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                  <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span className="mpf-value-strip__copy">
+                <strong>RERA Approved</strong>
+                <span>All Projects</span>
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 

@@ -98,5 +98,5 @@ export default async function PopularProjectPromo() {
 
   if (items.length === 0) return null;
 
-  return <PopularProjectPromoClient items={items} showAfterMs={1000} />;
+  return <PopularProjectPromoClient items={items} showAfterMs={400} />;
 }

@@ -9,6 +9,7 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 import { usePathname, useRouter } from "next/navigation";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/gif 2.gif";
@@ -723,22 +724,32 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const submitData = {
-        ...formData,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.replace(/\D/g, "").slice(-10),
-        message: formData.message || `Enquiry for ${projectName || "project"} from Chatbot`,
-        enquiryFrom: "Chatbot",
-        projectLink: projectLink || (() => {
-          const base = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
-          return projectName
-            ? `${base}/${String(projectName).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`
-            : `${base}/`;
-        })(),
-        pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
-        sessionId,
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.replace(/\D/g, "").slice(-10),
+          message: formData.message || `Enquiry for ${projectName || "project"} from Chatbot`,
+          enquiryFrom: "Chatbot",
+          projectLink: projectLink || (() => {
+            const base = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
+            return projectName
+              ? `${base}/${String(projectName).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`
+              : `${base}/`;
+          })(),
+          pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
+          sessionId,
+        },
+        projectName
+          ? {
+              property: {
+                property_name: projectName,
+                project: projectName,
+              },
+            }
+          : undefined,
+      );
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}enquiry/post`, {
         method: "POST",

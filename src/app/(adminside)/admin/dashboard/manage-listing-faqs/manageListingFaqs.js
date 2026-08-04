@@ -1,6 +1,6 @@
 "use client";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
+import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -12,9 +12,23 @@ import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
+import { useAdminRole } from "../../_contexts/AdminRoleContext";
+import { ADMIN_PERMISSIONS } from "../../adminPermissions";
+
+function emptyBulkRow() {
+  return {
+    pageSlug: "",
+    pageTitle: "",
+    question: "",
+    answer: "",
+    sortOrder: 0,
+  };
+}
 
 export default function ManageListingFaqs({ list, pageOptions = [] }) {
   const router = useRouter();
+  const { hasPermission } = useAdminRole();
+  const canBulkAdd = hasPermission(ADMIN_PERMISSIONS.BULK_LISTING_FAQS);
 
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState("");
@@ -32,6 +46,11 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   const [faqList, setFaqList] = useState([]);
   const [slugOptions, setSlugOptions] = useState(pageOptions);
 
+  const [showBulk, setShowBulk] = useState(false);
+  const [bulkRows, setBulkRows] = useState([emptyBulkRow()]);
+  const [bulkValidated, setBulkValidated] = useState(false);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
   const mutationHeaders = () => {
     const token =
       typeof window !== "undefined" ? Cookies.get("token") : undefined;
@@ -47,6 +66,11 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   useEffect(() => {
     loadPageOptions();
   }, [pageOptions]);
+
+  const resolvePageTitle = (slug) => {
+    const match = pageOptions.find((opt) => opt.pageSlug === slug);
+    return match?.pageTitle || "";
+  };
 
   const handlePageSlugChange = (value) => {
     setPageSlug(value);
@@ -133,6 +157,91 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     setFaqId(0);
   };
 
+  const openBulkModel = () => {
+    loadPageOptions();
+    setBulkRows([emptyBulkRow(), emptyBulkRow()]);
+    setBulkValidated(false);
+    setShowBulk(true);
+  };
+
+  const updateBulkRow = (index, patch) => {
+    setBulkRows((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, ...patch } : row)),
+    );
+  };
+
+  const handleBulkPageSlugChange = (index, value) => {
+    const match = pageOptions.find((opt) => opt.pageSlug === value);
+    updateBulkRow(index, {
+      pageSlug: value,
+      pageTitle: match?.pageTitle || resolvePageTitle(value) || "",
+    });
+  };
+
+  const addBulkRow = () => {
+    setBulkRows((prev) => [...prev, emptyBulkRow()]);
+  };
+
+  const removeBulkRow = (index) => {
+    setBulkRows((prev) => {
+      if (prev.length <= 1) return [emptyBulkRow()];
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleBulkSubmit = async (e) => {
+    e.preventDefault();
+    setBulkValidated(true);
+
+    const faqs = bulkRows
+      .map((row) => ({
+        pageSlug: String(row.pageSlug || "").trim().toLowerCase(),
+        pageTitle: String(row.pageTitle || "").trim(),
+        question: String(row.question || "").trim(),
+        answer: String(row.answer || "").trim(),
+        sortOrder: Number(row.sortOrder) || 0,
+      }))
+      .filter((row) => row.pageSlug && row.question && row.answer)
+      .map((row) => ({
+        ...row,
+        pageTitle: row.pageTitle || resolvePageTitle(row.pageSlug) || row.pageSlug,
+      }));
+
+    if (faqs.length === 0) {
+      toast.error(
+        "Add at least one complete FAQ (page, question, and answer required)",
+      );
+      return;
+    }
+
+    try {
+      setBulkLoading(true);
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/bulk-add`,
+        { faqs },
+        {
+          withCredentials: true,
+          headers: mutationHeaders(),
+        },
+      );
+      if (response.data.isSuccess === 1) {
+        toast.success(response.data.message);
+        setShowBulk(false);
+        setBulkRows([emptyBulkRow()]);
+        router.refresh();
+      } else {
+        toast.error(response?.data?.message || "Failed to bulk add FAQs");
+      }
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message ||
+          "You may not have access to bulk FAQ add",
+      );
+    } finally {
+      setBulkLoading(false);
+    }
+  };
+
   const openEditModel = (item) => {
     setShow(true);
     setTitle("Update FAQ");
@@ -192,6 +301,9 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         buttonName={"+ Add FAQ"}
         functionName={openAddModel}
         heading={"Manage Listing Page FAQs"}
+        exportExcel={canBulkAdd ? "+ Bulk Add FAQs" : undefined}
+        exportFunction={canBulkAdd ? openBulkModel : undefined}
+        exportIconType="add"
       />
       <div className="table-container">
         <DataTable columns={columns} list={list} />
@@ -285,6 +397,147 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
             <Button className="mt-3 btn btn-success" type="submit" disabled={showLoading}>
               {buttonName} <LoadingSpinner show={showLoading} />
             </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      <Modal
+        size="xl"
+        show={showBulk}
+        onHide={() => !bulkLoading && setShowBulk(false)}
+        centered
+        scrollable
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Bulk Add FAQs (Pro)</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="text-muted small mb-3">
+            Add multiple FAQs for different listing pages in one save. Each row
+            can target a different page.
+          </p>
+          <Form noValidate onSubmit={handleBulkSubmit}>
+            {bulkRows.map((row, index) => {
+              const incomplete =
+                bulkValidated &&
+                !(
+                  String(row.pageSlug || "").trim() &&
+                  String(row.question || "").trim() &&
+                  String(row.answer || "").trim()
+                );
+              return (
+                <div
+                  key={index}
+                  className="border rounded p-3 mb-3"
+                  style={{
+                    background: incomplete ? "rgba(220,53,69,0.04)" : undefined,
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <strong className="small">FAQ #{index + 1}</strong>
+                    <Button
+                      type="button"
+                      variant="outline-danger"
+                      size="sm"
+                      onClick={() => removeBulkRow(index)}
+                      disabled={bulkRows.length <= 1}
+                      title="Remove row"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </Button>
+                  </div>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Page</Form.Label>
+                    <Form.Select
+                      value={row.pageSlug}
+                      onChange={(e) =>
+                        handleBulkPageSlugChange(index, e.target.value)
+                      }
+                      isInvalid={
+                        bulkValidated && !String(row.pageSlug || "").trim()
+                      }
+                    >
+                      <option value="">Select Page</option>
+                      {slugOptions.map((item) => (
+                        <option key={item.pageSlug} value={item.pageSlug}>
+                          {item.pageTitle}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Or enter page slug</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. 3-bhk-in-noida"
+                      value={row.pageSlug}
+                      onChange={(e) =>
+                        handleBulkPageSlugChange(index, e.target.value)
+                      }
+                      isInvalid={
+                        bulkValidated && !String(row.pageSlug || "").trim()
+                      }
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Sort Order</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min={0}
+                      value={row.sortOrder}
+                      onChange={(e) =>
+                        updateBulkRow(index, { sortOrder: e.target.value })
+                      }
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-2">
+                    <Form.Label>Question</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      placeholder="Enter Question"
+                      value={row.question}
+                      onChange={(e) =>
+                        updateBulkRow(index, { question: e.target.value })
+                      }
+                      isInvalid={
+                        bulkValidated && !String(row.question || "").trim()
+                      }
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Answer</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={2}
+                      placeholder="Enter Answer"
+                      value={row.answer}
+                      onChange={(e) =>
+                        updateBulkRow(index, { answer: e.target.value })
+                      }
+                      isInvalid={
+                        bulkValidated && !String(row.answer || "").trim()
+                      }
+                    />
+                  </Form.Group>
+                </div>
+              );
+            })}
+            <div className="d-flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline-secondary"
+                onClick={addBulkRow}
+                disabled={bulkLoading}
+              >
+                + Add another FAQ
+              </Button>
+              <Button type="submit" className="btn btn-success" disabled={bulkLoading}>
+                Save {bulkRows.length} FAQ
+                {bulkRows.length === 1 ? "" : "s"}{" "}
+                <LoadingSpinner show={bulkLoading} />
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

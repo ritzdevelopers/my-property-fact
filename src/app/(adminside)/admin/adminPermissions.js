@@ -26,6 +26,7 @@ export function roleObjectsIncludeStaffAdmin(roleObjects) {
 
 export const ADMIN_PERMISSIONS = {
   MANAGE_WEBSITE: "MANAGE_WEBSITE",
+  MANAGE_LISTING_FAQS: "MANAGE_LISTING_FAQS",
   MANAGE_OPTIONS: "MANAGE_OPTIONS",
   MANAGE_PROJECTS: "MANAGE_PROJECTS",
   MANAGE_INSIGHTS: "MANAGE_INSIGHTS",
@@ -49,6 +50,12 @@ export const ADMIN_PERMISSION_DEFINITIONS = [
     key: ADMIN_PERMISSIONS.MANAGE_WEBSITE,
     label: "Manage website",
     description: "Home banners and similar site content",
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
+    label: "Manage listing page FAQs",
+    description:
+      "FAQs for listing pages (city hubs, BHK, shops, food court, etc.)",
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_OPTIONS,
@@ -166,7 +173,10 @@ export function canAccessAdminPath(roles, permissions, pathname) {
   const rules = [
     ["/admin/dashboard/manage-home-banners", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
     ["/admin/dashboard/manage-testimonials", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
-    ["/admin/dashboard/manage-listing-faqs", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
+    [
+      "/admin/dashboard/manage-listing-faqs",
+      ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
+    ],
     [
       "/admin/dashboard/manage-countries",
       ADMIN_PERMISSIONS.MANAGE_OPTIONS,

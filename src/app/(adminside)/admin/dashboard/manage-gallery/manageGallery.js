@@ -9,6 +9,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
+import { adminApiWithAuth } from "../../_lib/adminApiAuth";
 import CommonModal from "../common-model/common-model";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import DataTable from "../common-model/data-table";
@@ -81,19 +82,22 @@ export default function ManageGallery({ list, projectsList, newList }) {
         const response = await axios.post(
           `${process.env.NEXT_PUBLIC_API_URL}project-gallery/add-new`,
           formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          adminApiWithAuth(),
         );
         if (response.data.isSuccess === 1) {
           toast.success(response.data.message);
           router.refresh();
           setShow(false);
+        } else {
+          toast.error(response.data?.message || "Failed to save gallery images");
         }
       } catch (error) {
-        toast.error(error.response?.data?.message || "Something went wrong!");
+        toast.error(
+          error.response?.data?.message ||
+            (error.response?.status === 403
+              ? "Access denied — you need Manage projects permission"
+              : "Something went wrong!"),
+        );
       } finally {
         setShowLoading(false);
         setButtonName("Add");

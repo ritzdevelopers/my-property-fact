@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import { clearLegacyAdminTokenCookies } from "../_lib/adminApiAuth";
 
 const AdminRoleContext = createContext({
   loading: true,
@@ -54,6 +55,7 @@ export function AdminRoleProvider({ children }) {
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
+    clearLegacyAdminTokenCookies();
     let cancelled = false;
     (async () => {
       const base = getPublicApiBase();

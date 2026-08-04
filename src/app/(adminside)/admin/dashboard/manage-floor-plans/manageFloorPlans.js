@@ -67,7 +67,6 @@ export default function ManageFloorPlans({ list, projectsList }) {
         {
           withCredentials: true,
           headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       );

@@ -1226,3 +1226,89 @@ letter-spacing: 0%;
         width: 100%;
     }
 }
+
+/* Newsletter Thank You Modal */
+.newsletter-thankyou-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
+    animation: newsletterModalFadeIn 0.2s ease;
+}
+
+@keyframes newsletterModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.newsletter-thankyou-modal {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: newsletterModalSlideUp 0.25s ease;
+}
+
+@keyframes newsletterModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.newsletter-thankyou-close {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    border: none;
+    background: transparent;
+    font-size: 1.75rem;
+    line-height: 1;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+}
+
+.newsletter-thankyou-close:hover {
+    color: #212529;
+}
+
+.newsletter-thankyou-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0d5834;
+    margin-bottom: 0.75rem;
+}
+
+.newsletter-thankyou-text {
+    font-size: 0.95rem;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.newsletter-thankyou-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 0.625rem 2rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.newsletter-thankyou-btn:hover {
+    color: #ffffff;
+}

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Building2 } from "lucide-react";
+import { AdminLoader } from "@/components/admin/admin-loader";
 
 const NavLoadingContext = React.createContext({ startNavigation: () => {} });
 
@@ -13,15 +13,8 @@ export function useNavLoading() {
 function NavLoadingOverlay() {
   return (
     <div className="mpf-navload" role="status" aria-live="polite" aria-busy="true">
-      <div className="mpf-navload__card">
-        <div className="mpf-navload__icon">
-          <Building2 strokeWidth={1.75} />
-          <span className="mpf-navload__pulse" />
-        </div>
-        <p className="mpf-navload__title">Loading workspace…</p>
-        <div className="mpf-navload__bar">
-          <span />
-        </div>
+      <div className="mpf-navload__inner">
+        <AdminLoader label="Loading…" size="lg" />
       </div>
     </div>
   );
@@ -39,7 +32,6 @@ export function NavLoadingProvider({ children }) {
     }
   }, []);
 
-  // When the route actually changes, the new page has begun rendering — hide.
   React.useEffect(() => {
     setLoading(false);
     clearTimer();
@@ -52,7 +44,6 @@ export function NavLoadingProvider({ children }) {
       if (!href || href === pathname) return;
       setLoading(true);
       clearTimer();
-      // Safety net so the overlay never gets stuck.
       timeoutRef.current = setTimeout(() => setLoading(false), 12000);
     },
     [pathname, clearTimer]
@@ -61,7 +52,7 @@ export function NavLoadingProvider({ children }) {
   return (
     <NavLoadingContext.Provider value={{ startNavigation }}>
       {children}
-      {loading && <NavLoadingOverlay />}
+      {loading ? <NavLoadingOverlay /> : null}
     </NavLoadingContext.Provider>
   );
 }

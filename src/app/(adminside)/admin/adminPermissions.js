@@ -207,6 +207,7 @@ export function canAccessAdminPath(roles, permissions, pathname) {
       ADMIN_PERMISSIONS.MANAGE_PROJECTS,
     ],
     ["/admin/dashboard/manage-projects", ADMIN_PERMISSIONS.MANAGE_PROJECTS],
+    ["/admin/dashboard/projects", ADMIN_PERMISSIONS.MANAGE_PROJECTS],
     ["/admin/dashboard/city-price-data", ADMIN_PERMISSIONS.MANAGE_INSIGHTS],
     [
       "/admin/dashboard/manage-insight-headers",

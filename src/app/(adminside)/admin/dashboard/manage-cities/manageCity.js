@@ -196,7 +196,6 @@ export default function City({ list, stateList }) {
       const response = await axios.post(`${apiBase}city/save`, payload, {
         withCredentials: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
 
@@ -242,7 +241,6 @@ export default function City({ list, stateList }) {
       const res = await axios.post(`${apiBase}city/upload-city-monuments-zip`, data, {
         withCredentials: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       if (res.data?.isSuccess === 1) {

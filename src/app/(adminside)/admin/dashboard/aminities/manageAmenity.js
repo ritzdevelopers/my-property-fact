@@ -54,7 +54,6 @@ export default function ManageAminity({ list }) {
     const token =
       typeof window !== "undefined" ? Cookies.get("token") : undefined;
     const authHeaders = {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
 
     try {

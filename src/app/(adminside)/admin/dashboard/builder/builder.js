@@ -138,7 +138,6 @@ export default function Builder({ list }) {
       const res = await axios.post(`${apiBase}builder/upload-developer-media`, data, {
         withCredentials: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       if (res.data?.isSuccess === 1) {
@@ -179,7 +178,6 @@ export default function Builder({ list }) {
       const res = await axios.post(`${apiBase}builder/upload-builder-logos-zip`, data, {
         withCredentials: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       if (res.data?.isSuccess === 1) {

@@ -37,7 +37,6 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
       typeof window !== "undefined" ? Cookies.get("token") : undefined;
     return {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     };
   };
 

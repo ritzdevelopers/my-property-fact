@@ -4,20 +4,23 @@ import { AdminRoleProvider } from "../_contexts/AdminRoleContext";
 import { AdminThemeProvider } from "../_contexts/AdminThemeContext";
 import { AdminToastProvider } from "../_contexts/AdminToastContext";
 import { AdminConfirmProvider } from "../_contexts/AdminConfirmContext";
-import AdminTimeBand from "../_components/AdminTimeBand";
 import AdminTelemetryMount from "./AdminTelemetryMount";
-import NavigationLoader from "./NavigationLoader";
 import VersionUpgradeModal from "../_components/VersionUpgradeModal";
 import { AdminShell } from "@/components/admin/admin-shell";
+import { AdminRouteGuard } from "@/components/admin/admin-route-guard";
 import "../admin-globals.css";
 import "./admin-layout.css";
 import "./admin-theme.css";
 import "./admin-buttons-v2.css";
-import "./dashboard-home.css";
 import "./admin-aesthetic.css";
 import "./dashboard-v2.css";
 import "./admin-modals-buttons-v2.css";
+import "./admin-pages-zoho.css";
+import "./admin-dashboard-new.css";
 import "../admin-ux-enhancements.css";
+import "@/components/admin/admin-loader.css";
+import "./admin-flat-fix.css";
+import "./admin-palette-mix.css";
 
 export default function AdminDashboardLayout({ children }) {
   return (
@@ -25,13 +28,13 @@ export default function AdminDashboardLayout({ children }) {
       <AdminThemeProvider>
         <AdminToastProvider>
           <AdminConfirmProvider>
-          <AdminTimeBand />
-          <Suspense fallback={null}>
-            <AdminTelemetryMount />
-          </Suspense>
-          <VersionUpgradeModal />
-          <NavigationLoader />
-          <AdminShell>{children}</AdminShell>
+            <Suspense fallback={null}>
+              <AdminTelemetryMount />
+            </Suspense>
+            <VersionUpgradeModal />
+            <AdminShell>
+              <AdminRouteGuard>{children}</AdminRouteGuard>
+            </AdminShell>
           </AdminConfirmProvider>
         </AdminToastProvider>
       </AdminThemeProvider>

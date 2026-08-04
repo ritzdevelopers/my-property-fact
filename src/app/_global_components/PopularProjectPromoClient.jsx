@@ -10,7 +10,7 @@ import {
 import "./PopularProjectPromo.css";
 
 /* Slower full-card out/in; must stay in sync with PopularProjectPromo.css */
-const AUTO_ROTATE_MS = 10000;
+const AUTO_ROTATE_MS = 30000;
 /* Match CSS: exit transition 1.2s, enter keyframe 1.25s + small buffer */
 const SLIDE_OUT_MS = 1250;
 const SLIDE_IN_MS = 1350;
@@ -116,7 +116,7 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
           const q = new URLSearchParams({
             lat: String(latitude),
             lon: String(longitude),
-            intent: "projects",
+            intent: "popular-promo",
           });
           if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
             q.set("accuracy", String(Math.round(accuracy)));
@@ -124,7 +124,7 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
           const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
           const data = await res.json();
           if (!cancelled && data?.success && Array.isArray(data?.items) && data.items.length) {
-            const mapped = data.items.map(toPromoItem).filter(Boolean).slice(0, 5);
+            const mapped = data.items.map(toPromoItem).filter(Boolean);
             if (mapped.length) setLocationItems(mapped);
           }
         } catch {

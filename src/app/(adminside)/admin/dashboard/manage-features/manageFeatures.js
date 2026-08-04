@@ -56,7 +56,6 @@ export default function ManageFeatures({ list }) {
           withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         }
       );

@@ -416,7 +416,7 @@
 
 .admin-v2-shell .btn-info,
 .modal .btn-info {
-  background: linear-gradient(135deg, hsl(208 80% 50%), hsl(214 80% 42%)) !important;
+  background: linear-gradient(135deg, #a8b84a, #8fa63a) !important;
   border: none !important;
   color: #fff !important;
 }
@@ -435,16 +435,16 @@
 .modal .btn-outline-success,
 .modal .btn-outline-primary {
   background: #fff !important;
-  border: 1.5px solid hsl(152 40% 66%) !important;
-  color: hsl(152 55% 28%) !important;
+  border: 1.5px solid #8fa63a !important;
+  color: #6f8229 !important;
 }
 
 .admin-v2-shell .btn-outline-success:hover:not(:disabled),
 .admin-v2-shell .btn-outline-primary:hover:not(:disabled),
 .modal .btn-outline-success:hover:not(:disabled),
 .modal .btn-outline-primary:hover:not(:disabled) {
-  background: hsl(152 50% 96%) !important;
-  border-color: hsl(152 50% 50%) !important;
+  background: #f3f5e6 !important;
+  border-color: #6f8229 !important;
 }
 
 .admin-v2-shell .btn-outline-danger,

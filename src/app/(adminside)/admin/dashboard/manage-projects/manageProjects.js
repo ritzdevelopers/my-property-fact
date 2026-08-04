@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import {
@@ -19,14 +20,7 @@ import Cookies from "js-cookie";
 // Dynamically import JoditEditor with SSR disabled
 const JoditEditor = dynamic(() => import("jodit-react"), { ssr: false });
 
-const apiWithAuth = () => ({
-  withCredentials: true,
-  headers: {
-    ...(typeof window !== "undefined" && Cookies.get("token")
-      ? { Authorization: `Bearer ${Cookies.get("token")}` }
-      : {}),
-  },
-});
+
 function formatProjectDateTime(value) {
   if (value == null || value === "") return "—";
   if (typeof value === "string") {
@@ -214,7 +208,6 @@ export default function ManageProjects({
     const authConfig = {
       withCredentials: true,
       headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     };
 
@@ -373,7 +366,6 @@ export default function ManageProjects({
         {
           withCredentials: true,
           headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
         },
       );
@@ -704,7 +696,7 @@ export default function ManageProjects({
     try {
       const res = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}projects/admin-export`,
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       projects = Array.isArray(res.data) ? res.data : [];
     } catch (e) {
@@ -830,7 +822,6 @@ export default function ManageProjects({
           withCredentials: true,
           timeout: 600000,
           headers: {
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           onUploadProgress: (event) => {
             if (!toastId || !event.total) return;

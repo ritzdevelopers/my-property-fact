@@ -34,7 +34,6 @@ export default function ManageFaqs({ list, projectsList }) {
             typeof window !== "undefined" ? Cookies.get("token") : undefined;
         return {
             "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
         };
     };
 

@@ -1,0 +1,157 @@
+/* Completely new dashboard chrome — kills old forest-green hero */
+
+.mpf-dash-welcome {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0 0 1rem;
+  margin: 0 0 1rem;
+  border-bottom: 1px solid #e6e8ec;
+  background: transparent !important;
+}
+
+.mpf-dash-welcome--loading .mpf-dash-welcome__skel {
+  height: 72px;
+  width: 100%;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #f3f4f6, #eef0f3, #f3f4f6);
+  background-size: 200% 100%;
+  animation: mpf-skel 1.2s ease infinite;
+}
+
+@keyframes mpf-skel {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+.mpf-dash-welcome__title {
+  margin: 0.15rem 0 0.35rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1c2430;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.mpf-dash-welcome__sub {
+  margin: 0 0 0.65rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  max-width: 36rem;
+}
+
+.mpf-dash-welcome__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mpf-dash-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #f3f5e6;
+  color: #5a6b20;
+  border: 1px solid #d8dfb8;
+}
+
+.mpf-dash-chip--role {
+  background: #fff;
+  color: #374151;
+  border-color: #e6e8ec;
+}
+
+.mpf-dash-welcome__clock {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #e6e8ec;
+  background: #fafbfc;
+  color: #6b7280;
+  min-width: 140px;
+}
+
+.mpf-dash-welcome__time {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1c2430;
+  line-height: 1.2;
+}
+
+.mpf-dash-welcome__date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.1rem;
+}
+
+/* Neutralize ANY leftover old hero classes if still referenced */
+.mpf-zoho-workspace .mpf-hero,
+.admin-v2-shell .mpf-hero {
+  background: transparent !important;
+  background-image: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #1c2430 !important;
+  padding: 0 0 1rem !important;
+  margin: 0 0 1rem !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid #e6e8ec !important;
+}
+
+.mpf-zoho-workspace .mpf-hero__inner {
+  background: transparent !important;
+}
+
+.mpf-zoho-workspace .mpf-hero__greeting {
+  color: #1c2430 !important;
+  font-size: 1.5rem !important;
+}
+
+.mpf-zoho-workspace .mpf-hero__sub {
+  color: #6b7280 !important;
+}
+
+.mpf-zoho-workspace .mpf-hero__clock,
+.mpf-zoho-workspace .mpf-hero__meta {
+  background: #fafbfc !important;
+  border: 1px solid #e6e8ec !important;
+  color: #1c2430 !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Stat cards — clean white Zoho cards */
+.mpf-zoho-workspace .mpf-stat,
+.mpf-zoho-workspace .admin-stat-card,
+.mpf-zoho-workspace [class*="stat-card"] {
+  background: #fff !important;
+  border: 1px solid #e6e8ec !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+/* Kill dark green gradients from old dashboard-home if any slip through */
+.mpf-zoho-workspace [class*="hero"],
+.mpf-zoho-workspace [class*="welcome-banner"],
+.mpf-zoho-workspace .admin-welcome-band {
+  background: #fff !important;
+  background-image: none !important;
+  color: #1c2430 !important;
+}
+
+/* Hide legacy time band if it still mounts elsewhere */
+.admin-time-band,
+.AdminTimeBand {
+  display: none !important;
+}
+
+.mpf-dash { gap: 1rem !important; }
+.mpf-dash > .mpf-dash-welcome { margin-bottom: 0; border-bottom: 1px solid #e6e8ec; padding-bottom: 1rem; }

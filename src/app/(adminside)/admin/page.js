@@ -1,18 +1,16 @@
 "use client";
 import { Suspense } from "react";
 import "./admin-globals.css";
+import "./admin-auth.css";
 import { LoginForm } from "@/components/admin/auth/login-form";
 import { Toaster } from "@/components/ui/toaster";
-import { Building2, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 function LoginFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Building2 className="h-7 w-7" />
-        </div>
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+    <div className="mpf-zoho-login">
+      <div className="mpf-zoho-login__card" style={{ minHeight: 320, placeItems: "center", display: "grid" }}>
+        <Loader2 className="h-7 w-7 animate-spin" style={{ color: "#8fa63a" }} />
       </div>
     </div>
   );

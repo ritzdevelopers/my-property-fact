@@ -591,14 +591,14 @@
 .admin-dash-chart__traffic-details-link {
   font-size: 0.78rem;
   font-weight: 800;
-  color: #005032;
+  color: #8fa63a;
   text-decoration: none;
   border-bottom: 1px solid rgba(0, 80, 50, 0.35);
   padding-bottom: 1px;
 }
 
 .admin-dash-chart__traffic-details-link:hover {
-  color: #003d26;
+  color: #6f8229;
   border-bottom-color: rgba(0, 61, 38, 0.55);
 }
 
@@ -1525,7 +1525,7 @@
 
 .admin-dash-home__projects-card-value {
   margin: 0;
-  color: #005032;
+  color: #8fa63a;
   font-size: clamp(2rem, 10vw, 3rem);
   font-weight: 800;
   line-height: 1.05;

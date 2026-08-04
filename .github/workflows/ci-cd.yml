@@ -48,9 +48,19 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2222
           command_timeout: 30m
+          script_stop: true
+          envs: NEXT_PUBLIC_API_URL,NEXT_PUBLIC_IMAGE_URL,NEXTAUTH_SECRET,NEXTAUTH_URL
           script: |
+            set -e
             cd ~/my-property-fact
             git pull origin main
             npm ci
-            npm run build
-            pm2 reload my-property-fact || pm2 start npm --name my-property-fact -- start
+            export NEXT_PUBLIC_ROOT_URL=https://mypropertyfact.in
+            export NEXT_PUBLIC_UI_URL=https://mypropertyfact.in
+            sudo npm run build
+            pm2 describe my-property-fact >/dev/null 2>&1 && pm2 reload my-property-fact || pm2 start npm --name my-property-fact -- start
+        env:
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_IMAGE_URL: ${{ secrets.NEXT_PUBLIC_IMAGE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}

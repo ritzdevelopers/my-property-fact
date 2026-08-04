@@ -1,4 +1,5 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import axios from "axios";
@@ -38,14 +39,7 @@ import {
 } from "../common-model/adminContentFilters";
 import BlogPreviewModal from "./BlogPreviewModal";
 
-const apiWithAuth = () => ({
-  withCredentials: true,
-  headers: {
-    ...(typeof window !== "undefined" && Cookies.get("token")
-      ? { Authorization: `Bearer ${Cookies.get("token")}` }
-      : {}),
-  },
-});
+
 // 🔥 This prevents SSR errors
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -113,7 +107,6 @@ async function refreshBlogSitemap() {
       method: "POST",
       credentials: "include",
       headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
 
@@ -399,7 +392,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       const response = await axios.post(
         `${apiBase}blog/update-status?id=${blogId}&status=${nextStatus}`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
 
       if (response.data?.isSuccess !== 1) {
@@ -528,7 +521,6 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       withCredentials: true,
       headers: {
         "Content-Type": "multipart/form-data",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
     });
     return { response, status };
@@ -585,7 +577,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       const response = await axios.post(
         `${apiBase}blog/publish?id=${blogIdToPublish}`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
 
       if (response.data?.isSuccess !== 1) {

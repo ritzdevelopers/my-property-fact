@@ -1,7 +1,7 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../_lib/adminApiAuth";
 
 import { useEffect, useMemo, useState } from "react";
-import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../adminPermissions";
@@ -18,13 +18,7 @@ import { Activity } from "lucide-react";
 
 const SITE_TRAFFIC_POLL_MS = 5_000;
 
-function adminFetchHeaders() {
-  const token =
-    typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+
 
 export default function Dashboard({
   noOfProjects,

@@ -15,11 +15,9 @@ import {
   ArrowRight,
   ArrowLeft,
   Loader2,
-  Sparkles,
-  ShieldCheck,
   KeyRound,
   UserPlus,
-  Check,
+  LockKeyhole,
 } from "lucide-react";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
@@ -114,111 +112,38 @@ export function RegisterForm({ className }) {
   };
 
   return (
-    <div className={cn("admin-auth-shell admin-v2-shell", className)}>
-      {/* Brand panel */}
-      <aside className="admin-auth-brand-panel" aria-label="My Property Fact admin">
-        <div className="admin-auth-brand-panel__bg" aria-hidden>
-          <img src="/static/banners/desktop-banner-new.svg" alt="" />
-          <div className="admin-auth-brand-panel__overlay" />
-        </div>
-
-        <div className="admin-auth-brand-panel__inner">
-          <div>
+    <div className={cn("mpf-zoho-login", className)}>
+      <div className="mpf-zoho-login__card" role="main">
+        {/* Left — registration form */}
+        <section className="mpf-zoho-login__form-pane">
+          <div className="mpf-zoho-login__brand-row">
             <img
-              src="/images/admin/login-register.svg"
+              src="/images/admin/logo.svg"
               alt="My Property Fact"
-              className="admin-auth-brand-panel__logo"
+              className="mpf-zoho-login__logo"
             />
-            <span className="admin-auth-brand-panel__version">
-              <Sparkles className="h-3 w-3" />
-              Admin v2.0
+            <span className="mpf-zoho-login__pill">
+              <LockKeyhole className="h-3 w-3" />
+              Staff registration
             </span>
-            <h1 className="admin-auth-brand-panel__headline">
-              Create your admin account
-            </h1>
-            <p className="admin-auth-brand-panel__sub">
-              Set up access to the My Property Fact workspace in two quick steps.
-            </p>
           </div>
 
-          <ol className="admin-auth-stepper-vertical">
-            {STEPS.map((s) => (
-              <li
-                key={s.id}
-                className={cn(
-                  "admin-auth-stepper-vertical__item",
-                  step === s.id && "is-active",
-                  step > s.id && "is-done"
-                )}
-              >
-                <span className="admin-auth-stepper-vertical__dot">
-                  {step > s.id ? <Check className="h-3.5 w-3.5" /> : s.id}
-                </span>
-                <span>
-                  <strong>Step {s.id}</strong>
-                  <br />
-                  {s.label}
-                </span>
-              </li>
-            ))}
-          </ol>
-
-          <p className="admin-auth-brand-panel__footer">
-            Authorized personnel only. Account creation may require approval from a
-            Super Administrator.
-          </p>
-        </div>
-      </aside>
-
-      {/* Form panel */}
-      <main className="admin-auth-form-panel">
-        <div className="admin-auth-form-panel__card">
-          <p className="admin-auth-form-panel__eyebrow">Staff registration</p>
-          <h2 className="admin-auth-form-panel__title">Create an account</h2>
-
-          {/* Stepper (top) */}
-          <div className="admin-auth-stepper">
-            {STEPS.map((s, i) => (
-              <React.Fragment key={s.id}>
-                <div
-                  className={cn(
-                    "admin-auth-stepper__step",
-                    step === s.id && "is-active",
-                    step > s.id && "is-done"
-                  )}
-                >
-                  <span className="admin-auth-stepper__num">
-                    {step > s.id ? <Check className="h-4 w-4" /> : s.id}
-                  </span>
-                  <span className="admin-auth-stepper__label">{s.label}</span>
-                </div>
-                {i < STEPS.length - 1 && (
-                  <span
-                    className={cn(
-                      "admin-auth-stepper__bar",
-                      step > s.id && "is-done"
-                    )}
-                  />
-                )}
-              </React.Fragment>
-            ))}
-          </div>
+          <h1 className="mpf-zoho-login__title">Create account</h1>
+          <p className="mpf-zoho-login__subtitle">to access MPF Admin</p>
 
           {!apiBase && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive mb-4">
+            <div className="mpf-zoho-login__alert">
               <strong>Setup incomplete:</strong> The admin server URL is not configured.
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="admin-auth-form">
+          <form onSubmit={handleSubmit} className="mpf-zoho-login__form">
             {step === 1 ? (
               <>
-                <div className="admin-auth-field">
-                  <label htmlFor="fullName" className="admin-auth-label">
-                    Full name
-                  </label>
-                  <div className="admin-auth-input">
-                    <User className="admin-auth-input__icon" aria-hidden />
+                <div className="mpf-zoho-login__field">
+                  <label htmlFor="fullName">Full name</label>
+                  <div className="mpf-zoho-login__input">
+                    <User className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="fullName"
                       name="fullName"
@@ -227,20 +152,18 @@ export function RegisterForm({ className }) {
                       value={formData.fullName}
                       onChange={handleChange}
                       autoComplete="name"
-                      className={cn(errors.fullName && "admin-auth-input--error")}
+                      className={cn(errors.fullName && "is-error")}
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="admin-auth-error">{errors.fullName}</p>
+                    <p className="mpf-zoho-login__error">{errors.fullName}</p>
                   )}
                 </div>
 
-                <div className="admin-auth-field">
-                  <label htmlFor="email" className="admin-auth-label">
-                    Work email
-                  </label>
-                  <div className="admin-auth-input">
-                    <Mail className="admin-auth-input__icon" aria-hidden />
+                <div className="mpf-zoho-login__field">
+                  <label htmlFor="email">Work email</label>
+                  <div className="mpf-zoho-login__input">
+                    <Mail className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="email"
                       name="email"
@@ -249,17 +172,17 @@ export function RegisterForm({ className }) {
                       value={formData.email}
                       onChange={handleChange}
                       autoComplete="email"
-                      className={cn(errors.email && "admin-auth-input--error")}
+                      className={cn(errors.email && "is-error")}
                     />
                   </div>
                   {errors.email && (
-                    <p className="admin-auth-error">{errors.email}</p>
+                    <p className="mpf-zoho-login__error">{errors.email}</p>
                   )}
                 </div>
 
                 <button
                   type="button"
-                  className="admin-auth-submit"
+                  className="mpf-zoho-login__submit"
                   onClick={goNext}
                   disabled={!apiBase}
                 >
@@ -269,12 +192,10 @@ export function RegisterForm({ className }) {
               </>
             ) : (
               <>
-                <div className="admin-auth-field">
-                  <label htmlFor="password" className="admin-auth-label">
-                    Password
-                  </label>
-                  <div className="admin-auth-input">
-                    <Lock className="admin-auth-input__icon" aria-hidden />
+                <div className="mpf-zoho-login__field">
+                  <label htmlFor="password">Password</label>
+                  <div className="mpf-zoho-login__input">
+                    <Lock className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="password"
                       name="password"
@@ -283,15 +204,12 @@ export function RegisterForm({ className }) {
                       value={formData.password}
                       onChange={handleChange}
                       autoComplete="new-password"
-                      className={cn(
-                        "admin-auth-input--with-toggle",
-                        errors.password && "admin-auth-input--error"
-                      )}
+                      className={cn("has-toggle", errors.password && "is-error")}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="admin-auth-input__toggle"
+                      className="mpf-zoho-login__toggle"
                       aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
@@ -302,16 +220,14 @@ export function RegisterForm({ className }) {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="admin-auth-error">{errors.password}</p>
+                    <p className="mpf-zoho-login__error">{errors.password}</p>
                   )}
                 </div>
 
-                <div className="admin-auth-field">
-                  <label htmlFor="confirmPassword" className="admin-auth-label">
-                    Confirm password
-                  </label>
-                  <div className="admin-auth-input">
-                    <Lock className="admin-auth-input__icon" aria-hidden />
+                <div className="mpf-zoho-login__field">
+                  <label htmlFor="confirmPassword">Confirm password</label>
+                  <div className="mpf-zoho-login__input">
+                    <Lock className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="confirmPassword"
                       name="confirmPassword"
@@ -320,23 +236,21 @@ export function RegisterForm({ className }) {
                       value={formData.confirmPassword}
                       onChange={handleChange}
                       autoComplete="new-password"
-                      className={cn(errors.confirmPassword && "admin-auth-input--error")}
+                      className={cn(errors.confirmPassword && "is-error")}
                     />
                   </div>
                   {errors.confirmPassword && (
-                    <p className="admin-auth-error">{errors.confirmPassword}</p>
+                    <p className="mpf-zoho-login__error">{errors.confirmPassword}</p>
                   )}
                 </div>
 
-                <div className="admin-auth-field">
-                  <div className="admin-auth-field__label-row">
-                    <label htmlFor="dashboardUsername" className="admin-auth-label">
-                      Dashboard username
-                    </label>
-                    <span className="admin-auth-optional">Optional</span>
+                <div className="mpf-zoho-login__field">
+                  <div className="mpf-zoho-login__label-row">
+                    <label htmlFor="dashboardUsername">Dashboard username</label>
+                    <span className="mpf-zoho-login__link-static">Optional</span>
                   </div>
-                  <div className="admin-auth-input">
-                    <User className="admin-auth-input__icon" aria-hidden />
+                  <div className="mpf-zoho-login__input">
+                    <User className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="dashboardUsername"
                       name="dashboardUsername"
@@ -349,15 +263,13 @@ export function RegisterForm({ className }) {
                   </div>
                 </div>
 
-                <div className="admin-auth-field">
-                  <div className="admin-auth-field__label-row">
-                    <label htmlFor="registrationPin" className="admin-auth-label">
-                      Registration PIN
-                    </label>
-                    <span className="admin-auth-optional">If provided</span>
+                <div className="mpf-zoho-login__field">
+                  <div className="mpf-zoho-login__label-row">
+                    <label htmlFor="registrationPin">Registration PIN</label>
+                    <span className="mpf-zoho-login__link-static">If provided</span>
                   </div>
-                  <div className="admin-auth-input">
-                    <KeyRound className="admin-auth-input__icon" aria-hidden />
+                  <div className="mpf-zoho-login__input">
+                    <KeyRound className="mpf-zoho-login__input-icon" aria-hidden />
                     <input
                       id="registrationPin"
                       name="registrationPin"
@@ -369,49 +281,64 @@ export function RegisterForm({ className }) {
                   </div>
                 </div>
 
-                <div className="admin-auth-step-actions">
+                <div className="mpf-zoho-login__label-row">
                   <button
                     type="button"
-                    className="admin-auth-secondary-btn admin-auth-secondary-btn--inline"
+                    className="mpf-zoho-login__link"
                     onClick={goBack}
                     disabled={isLoading}
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Back
                   </button>
-                  <button
-                    type="submit"
-                    className="admin-auth-submit"
-                    disabled={isLoading || !apiBase}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Creating…
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="h-4 w-4" />
-                        Create account
-                      </>
-                    )}
-                  </button>
                 </div>
+
+                <button
+                  type="submit"
+                  className="mpf-zoho-login__submit"
+                  disabled={isLoading || !apiBase}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Creating…
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4" />
+                      Create account
+                    </>
+                  )}
+                </button>
               </>
             )}
           </form>
 
-          <div className="admin-auth-trust-row">
-            <span className="admin-auth-trust-item">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              Already have an account?
-            </span>
-            <Link href="/admin" className="admin-auth-forgot">
-              Sign in instead
+          <p className="mpf-zoho-login__footer">
+            Already have an account?{" "}
+            <Link href="/admin" className="mpf-zoho-login__link">
+              Sign in
             </Link>
+          </p>
+        </section>
+
+        {/* Right — registration promo */}
+        <aside className="mpf-zoho-login__promo-pane" aria-label="Registration information">
+          <div className="mpf-zoho-login__promo-visual mpf-zoho-login__promo-visual--building">
+            <img
+              src="/images/admin/login-building.png"
+              alt="Modern property building"
+              className="mpf-zoho-login__building-img"
+            />
           </div>
-        </div>
-      </main>
+          <h2 className="mpf-zoho-login__promo-title">Join the admin workspace</h2>
+          <p className="mpf-zoho-login__promo-text">
+            Register in two quick steps to manage projects, content, and enquiries on
+            My Property Fact. Account creation may require approval from your Super
+            Administrator.
+          </p>
+        </aside>
+      </div>
     </div>
   );
 }

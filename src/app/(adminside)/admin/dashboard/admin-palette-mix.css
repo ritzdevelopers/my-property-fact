@@ -1,0 +1,279 @@
+/* ============================================================
+   MPF Admin palette — bold golden + blue + green mix
+   Loaded last (via admin-flat-fix) so tokens win everywhere
+   ============================================================ */
+
+.admin-v2-shell,
+.mpf-zoho-shell,
+.admin-layout-wrapper {
+  /* Bold triad */
+  --mpf-gold: #d4a017;
+  --mpf-gold-bright: #e8b923;
+  --mpf-gold-dark: #a67c0a;
+  --mpf-gold-soft: #fff6d9;
+
+  --mpf-blue: #2563eb;
+  --mpf-blue-bright: #3b82f6;
+  --mpf-blue-dark: #1d4ed8;
+  --mpf-blue-soft: #e8effe;
+
+  --mpf-green: #16a34a;
+  --mpf-green-bright: #22c55e;
+  --mpf-green-dark: #15803d;
+  --mpf-green-soft: #e8f8ee;
+
+  /* Mixed primary (gold→green with blue accent usage) */
+  --mpf-gold-green: #d4a017;
+  --mpf-gold-green-bright: #e8b923;
+  --mpf-gold-green-dark: #a67c0a;
+  --mpf-gold-green-soft: #fff6d9;
+  --mpf-gold-green-muted: rgba(212, 160, 23, 0.18);
+
+  --admin-primary: #2563eb;
+  --admin-primary-hover: #1d4ed8;
+  --admin-primary-soft: rgba(37, 99, 235, 0.12);
+  --admin-primary-border: rgba(37, 99, 235, 0.35);
+
+  --mpf-accent-cta: linear-gradient(135deg, #d4a017 0%, #16a34a 55%, #2563eb 100%);
+  --mpf-accent-cta-solid: #2563eb;
+  --mpf-accent-success: #16a34a;
+  --mpf-accent-gold: #d4a017;
+
+  --zoho-navy: #0f1b2d;
+  --zoho-sidebar: #122033;
+}
+
+/* Sidebar — deep blue with gold/green accents */
+.admin-sidebar-premium {
+  background:
+    linear-gradient(180deg, #15283f 0%, #0f1b2d 55%, #0c1624 100%) !important;
+}
+
+.admin-sidebar-premium .admin-nav-active,
+.admin-sidebar-premium a.admin-nav-active,
+.admin-v2-shell .admin-nav-item.admin-nav-active {
+  background: rgba(37, 99, 235, 0.22) !important;
+  color: #fff !important;
+  border-left: 3px solid #e8b923 !important;
+}
+
+.admin-sidebar-cta {
+  background: linear-gradient(135deg, #d4a017 0%, #16a34a 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  font-weight: 700 !important;
+}
+
+.admin-sidebar-cta:hover {
+  background: linear-gradient(135deg, #e8b923 0%, #22c55e 100%) !important;
+  color: #fff !important;
+}
+
+/* Primary buttons / actions */
+.admin-header-btn--primary,
+.admin-v2-shell .btn-primary,
+.admin-layout-wrapper .btn-primary {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
+.admin-header-btn--primary:hover,
+.admin-v2-shell .btn-primary:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #fff !important;
+}
+
+.admin-header-btn--export {
+  background: #fff !important;
+  border: 1px solid #d4a017 !important;
+  color: #a67c0a !important;
+}
+
+.admin-header-btn--export:hover {
+  background: #fff6d9 !important;
+  border-color: #d4a017 !important;
+  color: #a67c0a !important;
+}
+
+/* Focus rings — blue */
+.admin-v2-shell .form-control:focus,
+.admin-v2-shell .form-select:focus,
+.admin-v2-shell input:focus,
+.admin-v2-shell select:focus,
+.admin-v2-shell textarea:focus {
+  outline: 2px solid rgba(37, 99, 235, 0.4) !important;
+  border-color: #2563eb !important;
+}
+
+/* Breadcrumb current — gold */
+.mpf-page-breadcrumb__current {
+  color: #a67c0a !important;
+}
+
+/* Metrics strip accents */
+.enquiries-metrics {
+  background: linear-gradient(90deg, #fff6d9 0%, #e8effe 50%, #e8f8ee 100%) !important;
+  border-color: #d7dde8 !important;
+}
+
+.enquiries-metrics__value {
+  color: #0f1b2d !important;
+}
+
+.enquiries-metrics__item:nth-child(1) .enquiries-metrics__value {
+  color: #d4a017 !important;
+}
+.enquiries-metrics__item:nth-child(2) .enquiries-metrics__value {
+  color: #2563eb !important;
+}
+.enquiries-metrics__item:nth-child(3) .enquiries-metrics__value {
+  color: #16a34a !important;
+}
+.enquiries-metrics__item:nth-child(4) .enquiries-metrics__value {
+  color: #a67c0a !important;
+}
+
+/* Source pills — blue website / gold app */
+.enquiries-source-pill.is-web {
+  background: #e8effe !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+
+.enquiries-source-pill.is-app {
+  background: #fff6d9 !important;
+  color: #a67c0a !important;
+  border: 1px solid #f0d78a !important;
+}
+
+/* Links — blue */
+.enquiries-lead__line,
+.enquiries-page-url,
+.admin-v2-shell .text-primary,
+.admin-v2-shell a.link-primary,
+.enquiries-page a:not(.btn):not(.enquiries-clear-filters) {
+  color: #2563eb !important;
+}
+
+.enquiries-lead__line:hover,
+.enquiries-page-url:hover {
+  color: #1d4ed8 !important;
+}
+
+/* Status / success — green */
+.status-custom-trigger {
+  background: #e8f8ee !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+.status-custom-item.is-active {
+  background: #e8f8ee !important;
+  color: #15803d !important;
+}
+
+/* Filter active chips — gold */
+.enquiries-filter-dropdown__trigger.has-value,
+.enquiries-filter-dropdown__item.is-active {
+  border-color: #d4a017 !important;
+  background: #fff6d9 !important;
+  color: #a67c0a !important;
+}
+
+.enquiries-clear-filters {
+  color: #2563eb !important;
+}
+
+/* Pagination active — blue */
+.admin-v2-shell .page-item.active .page-link,
+.enquiries-pagination .btn:not(:disabled):hover {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #fff !important;
+}
+
+.enquiries-pagination .btn:not(:disabled):hover {
+  background: #e8effe !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+}
+
+/* Unlock / primary submits */
+.enquiries-unlock-submit {
+  background: linear-gradient(135deg, #d4a017 0%, #2563eb 100%) !important;
+  color: #fff !important;
+}
+
+.enquiries-unlock-submit:hover {
+  background: linear-gradient(135deg, #e8b923 0%, #1d4ed8 100%) !important;
+}
+
+.enquiries-unlock-icon-ring {
+  background: linear-gradient(145deg, rgba(212, 160, 23, 0.25), rgba(37, 99, 235, 0.15)) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+  color: #2563eb !important;
+}
+
+/* Loader arc — gold→blue */
+.mpf-loader__arc {
+  stroke: #2563eb !important;
+}
+
+.mpf-loader__track {
+  stroke: #e8effe !important;
+}
+
+/* Chips / badges */
+.admin-layout-wrapper .admin-chip-role,
+.admin-v2-shell .badge.bg-primary,
+.admin-v2-shell .badge-primary {
+  background: #e8effe !important;
+  color: #1d4ed8 !important;
+  border: 1px solid #bfdbfe !important;
+}
+
+.admin-layout-wrapper .admin-chip-ok {
+  background: #e8f8ee !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+.admin-layout-wrapper .admin-chip-warn {
+  background: #fff6d9 !important;
+  color: #a67c0a !important;
+  border: 1px solid #f0d78a !important;
+}
+
+/* Price badge — gold */
+.enquiries-price-badge {
+  background: #fff6d9 !important;
+  color: #a67c0a !important;
+  border: 1px solid #f0d78a !important;
+}
+
+/* Stat cards / dashboard accents */
+.admin-stat-card--primary { --stat-accent: #2563eb; }
+.admin-stat-card--success { --stat-accent: #16a34a; }
+.admin-stat-card--info { --stat-accent: #3b82f6; }
+.admin-stat-card--warning { --stat-accent: #d4a017; }
+.admin-stat-card--purple { --stat-accent: #2563eb; }
+
+.admin-v2-shell .mu-summary-card.is-active {
+  border-color: #2563eb !important;
+  background: #e8effe !important;
+}
+
+/* DataGrid selection / focus */
+.admin-v2-shell .MuiDataGrid-row.Mui-selected {
+  background: #e8effe !important;
+}
+
+/* Auth / login accents if under admin wrappers */
+.mpf-zoho-login .mpf-zoho-login__btn,
+.admin-auth .btn-primary {
+  background: linear-gradient(135deg, #d4a017 0%, #2563eb 100%) !important;
+  border: none !important;
+  color: #fff !important;
+}

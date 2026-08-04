@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import Cookies from "js-cookie";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -23,10 +22,7 @@ const PIE_COLORS = [
 ];
 
 function adminAuthHeaders() {
-  const token = typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
+  return {};
 }
 
 function parseVisitOccurredAt(raw) {

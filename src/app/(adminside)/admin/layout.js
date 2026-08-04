@@ -2,9 +2,9 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./admin-globals.css";
 import "./admin-auth.css";
 import "./dashboard/admin-buttons-v2.css";
-import { Poppins } from "next/font/google";
+import { Nunito_Sans } from "next/font/google";
 
-const poppins = Poppins({
+const nunitoSans = Nunito_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   display: "swap",
@@ -22,5 +22,5 @@ export const viewport = {
 };
 
 export default function AdminLayout({ children }) {
-  return <div className={poppins.className}>{children}</div>;
+  return <div className={nunitoSans.className}>{children}</div>;
 }

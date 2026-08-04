@@ -96,7 +96,7 @@
 .approval-card__price {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #005032;
+  color: #8fa63a;
 }
 
 .approval-card__price-sqft {
@@ -148,7 +148,7 @@
 }
 
 .approval-btn--approve {
-  background: #005032;
+  background: #8fa63a;
   color: white;
 }
 

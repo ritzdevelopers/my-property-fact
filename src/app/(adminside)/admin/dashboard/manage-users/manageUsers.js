@@ -1,9 +1,9 @@
 "use client";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { useState, useEffect, useMemo } from "react";
 import { Button, Col, Form, InputGroup, Modal, Row } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCheck,
@@ -31,14 +31,7 @@ import {
   roleObjectsIncludeStaffAdmin,
 } from "../../adminPermissions";
 
-const apiWithAuth = () => ({
-  withCredentials: true,
-  headers: {
-    ...(typeof window !== "undefined" && Cookies.get("token")
-      ? { Authorization: `Bearer ${Cookies.get("token")}` }
-      : {}),
-  },
-});
+
 
 const USER_CATEGORY_OPTIONS = [
   { value: "APP_USER", label: "App User", hint: "Registered from website/app flows" },
@@ -109,15 +102,15 @@ function UserStatusBadge({ pendingPortalApproval, enabled }) {
   if (!enabled) {
     return (
       <span className="mu-status-pill mu-status-pill--disabled">
-        <FontAwesomeIcon icon={faUserSlash} className="mu-status-pill__icon" aria-hidden />
-        Disabled
+        <span className="mu-status-pill__dot mu-status-pill__dot--suspended" aria-hidden />
+        Suspended
       </span>
     );
   }
 
   return (
     <span className="mu-status-pill mu-status-pill--active">
-      <span className="mu-status-pill__dot" aria-hidden />
+      <span className="mu-status-pill__dot mu-status-pill__dot--active" aria-hidden />
       Active
     </span>
   );
@@ -209,7 +202,7 @@ export default function ManageUsers({ users: initialUsers }) {
       try {
         const response = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}admin/roles`,
-          apiWithAuth(),
+          adminApiWithAuth(),
         );
 
         if (
@@ -228,7 +221,7 @@ export default function ManageUsers({ users: initialUsers }) {
       try {
         const permRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}admin-portal/auth/admin-permission-definitions`,
-          apiWithAuth(),
+          adminApiWithAuth(),
         );
         if (!cancelled && Array.isArray(permRes.data) && permRes.data.length > 0) {
           setPermissionDefinitions(permRes.data);
@@ -241,7 +234,7 @@ export default function ManageUsers({ users: initialUsers }) {
       try {
         const usersRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_URL}users`,
-          apiWithAuth(),
+          adminApiWithAuth(),
         );
 
         if (
@@ -319,6 +312,15 @@ export default function ManageUsers({ users: initialUsers }) {
   };
 
   const openEditModal = (user) => {
+    const roleNames = (user.roles || []).map((r) =>
+      String(r?.roleName || "").toUpperCase(),
+    );
+    if (roleNames.includes("SUPERADMIN")) {
+      toast.error(
+        "Super Admin accounts cannot be edited here. Permissions are always full access.",
+      );
+      return;
+    }
     setEditingUser(user);
     const userRoleIds = user.roles ? user.roles.map((role) => role.id) : [];
     setPermissionsTouched(false);
@@ -483,11 +485,7 @@ export default function ManageUsers({ users: initialUsers }) {
       setShowLoading(true);
       try {
         const jsonAuth = {
-          ...apiWithAuth(),
-          headers: {
-            ...apiWithAuth().headers,
-            "Content-Type": "application/json",
-          },
+          ...adminApiWithAuth(), headers: { "Content-Type": "application/json" },
         };
         const payload = {
           fullName: formData.fullName.trim(),
@@ -599,11 +597,7 @@ export default function ManageUsers({ users: initialUsers }) {
     setShowLoading(true);
 
     try {
-      const auth = apiWithAuth();
-      const jsonAuth = {
-        ...auth,
-        headers: { ...auth.headers, "Content-Type": "application/json" },
-      };
+      const jsonAuth = { ...adminApiWithAuth(), headers: { "Content-Type": "application/json" } };
 
       const userPayload = {
         fullName: formData.fullName,
@@ -691,7 +685,7 @@ export default function ManageUsers({ users: initialUsers }) {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/activate`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
 
       toast.success("User activated successfully");
@@ -707,7 +701,7 @@ export default function ManageUsers({ users: initialUsers }) {
       const response = await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/deactivate`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       if (response.status === 200) {
         toast.success("User deactivated successfully");
@@ -743,7 +737,7 @@ export default function ManageUsers({ users: initialUsers }) {
     try {
       await axios.delete(
         `${process.env.NEXT_PUBLIC_API_URL}users/${row.id}`,
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("User deleted.");
       setDeleteConfirmUser(null);
@@ -770,7 +764,7 @@ export default function ManageUsers({ users: initialUsers }) {
     try {
       const usersRes = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}users`,
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       if (usersRes.status === 200 && Array.isArray(usersRes.data)) {
         setUsers(usersRes.data);
@@ -787,7 +781,7 @@ export default function ManageUsers({ users: initialUsers }) {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/approve-admin-staff`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Registration approved.");
       await reloadUsersList();
@@ -815,7 +809,7 @@ export default function ManageUsers({ users: initialUsers }) {
       await axios.put(
         `${process.env.NEXT_PUBLIC_API_URL}users/${userId}/reject-admin-staff`,
         {},
-        apiWithAuth(),
+        adminApiWithAuth(),
       );
       toast.success("Rejected.");
       setRejectStaffUser(null);
@@ -1059,8 +1053,12 @@ export default function ManageUsers({ users: initialUsers }) {
                   return (
                     <tr key={user.id} className={rowStateClass}>
                       <td>{user.id}</td>
-                      <td className="fw-medium mu-cell-name">{user.fullName || "—"}</td>
-                      <td style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }} title={user.email}>
+                      <td className="fw-medium mu-cell-name mu-cell-account">{user.fullName || "—"}</td>
+                      <td
+                        className="mu-cell-account"
+                        style={{ maxWidth: 250, overflow: "hidden", textOverflow: "ellipsis" }}
+                        title={user.email}
+                      >
                         {user.email || "—"}
                       </td>
                       <td>{user.dashboardUsername || "—"}</td>

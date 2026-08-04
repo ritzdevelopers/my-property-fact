@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import {
   faInstagram,
@@ -19,24 +20,24 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showThankYouModal, setShowThankYouModal] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email.trim()) return;
+
     try {
       setLoading(true);
-      const res = await fetch("https://script.google.com/macros/s/AKfycby8ZetPUFIP_lYQ_Fhs_A8mAWu0o5UQwOkhffb3jG8ZjOrImDW9W_W2z-H115PRfRBa/exec",
+      await fetch(
+        "https://script.google.com/macros/s/AKfycby8ZetPUFIP_lYQ_Fhs_A8mAWu0o5UQwOkhffb3jG8ZjOrImDW9W_W2z-H115PRfRBa/exec",
         {
           method: "POST",
-          body: JSON.stringify({
-            email,
-          }),
+          body: JSON.stringify({ email }),
         }
       );
-      const data = await res.json();
-      if (data.success) {
-        alert("You have subscribed successfully!");
-        setEmail("");
-      }
+
+      setEmail("");
+      setShowThankYouModal(true);
     } catch (error) {
       console.log(error);
       alert("Something went wrong");
@@ -66,7 +67,7 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
                   <button className="newsletter-button btn-normal-color newletterbutton"
                     type="submit" disabled={loading}
                    >
-                    {loading ? "Saving..." : "Subscribe"}
+                    {loading ? "Subscribing..." : "Subscribe"}
                   </button>
                 </div>
               </form>
@@ -293,6 +294,46 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
         </button>
       )} */}
       </div>
+
+      {showThankYouModal &&
+        createPortal(
+          <div
+            className="newsletter-thankyou-overlay"
+            onClick={() => setShowThankYouModal(false)}
+            role="presentation"
+          >
+            <div
+              className="newsletter-thankyou-modal"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="newsletter-thankyou-title"
+            >
+              <button
+                type="button"
+                className="newsletter-thankyou-close"
+                onClick={() => setShowThankYouModal(false)}
+                aria-label="Close"
+              >
+                ×
+              </button>
+              <h3 id="newsletter-thankyou-title" className="newsletter-thankyou-title">
+                Thank You for Subscribing
+              </h3>
+              <p className="newsletter-thankyou-text">
+                You&apos;re all set! Look out for fresh articles in your inbox every Friday morning.
+              </p>
+              <button
+                type="button"
+                className="newsletter-thankyou-btn btn-normal-color"
+                onClick={() => setShowThankYouModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

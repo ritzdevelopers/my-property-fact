@@ -147,7 +147,6 @@ const navGroups = [
       { id: "states", label: "States", href: "/admin/dashboard/manage-states" },
       { id: "cities", label: "Cities", href: "/admin/dashboard/manage-cities" },
       { id: "localities", label: "Localities", href: "/admin/dashboard/manage-localities" },
-      { id: "score-eval", label: "Score Evaluation", href: "/admin/dashboard/manage-score-evalution" },
       { id: "project-types", label: "Project Types", href: "/admin/dashboard/project-types" },
       { id: "project-status", label: "Project Status", href: "/admin/dashboard/manage-project-status" },
       { id: "builders", label: "Builders", href: "/admin/dashboard/builder" },
@@ -178,6 +177,7 @@ const navGroups = [
     permission: "MANAGE_INSIGHTS",
     children: [
       { id: "price-data", label: "City Price Data", href: "/admin/dashboard/city-price-data" },
+      { id: "score-eval", label: "Score Evaluation", href: "/admin/dashboard/manage-score-evalution" },
       { id: "insight-headers", label: "Headers", href: "/admin/dashboard/manage-insight-headers" },
       { id: "insight-category", label: "Categories", href: "/admin/dashboard/insight-category" },
       { id: "top-devs", label: "Top Developers", href: "/admin/dashboard/top-developers" },
@@ -280,7 +280,7 @@ function NavItem({ item, isActive, onClick, collapsed }) {
       href={item.href}
       onClick={handleClick}
       className={cn(
-        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+            "flex items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-all duration-150",
         isActive
           ? "admin-nav-active"
           : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -327,7 +327,7 @@ function NavGroup({ group, pathname, onLinkClick, collapsed, openGroups, toggleG
       <CollapsibleTrigger asChild>
         <button
           className={cn(
-            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+            "flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-[13px] font-medium transition-all",
             hasActiveChild
               ? "bg-sidebar-accent text-sidebar-accent-foreground"
               : "text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
@@ -425,7 +425,7 @@ export function AdminSidebar({
       <aside
         className={cn(
           "flex h-screen flex-col bg-sidebar border-r border-sidebar-border transition-all duration-300 admin-sidebar-premium",
-          collapsed ? "w-16" : "w-64"
+          collapsed ? "w-16" : "w-[220px]"
         )}
       >
         {/* Logo */}
@@ -451,8 +451,8 @@ export function AdminSidebar({
                   <span className="text-sm font-semibold text-sidebar-foreground leading-tight admin-sidebar-brand__title">
                     My Property Fact
                   </span>
-                  <span className="text-xs text-sidebar-foreground/60">
-                    Admin v2.0
+                  <span className="text-xs text-sidebar-foreground/55">
+                    Control Panel
                   </span>
                 </div>
               </>

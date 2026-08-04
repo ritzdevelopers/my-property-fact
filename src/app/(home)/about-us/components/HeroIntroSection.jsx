@@ -5,26 +5,26 @@ import "./style/HeroIntroSection.css";
 export default function HeroIntroSection() {
 
   const leftImageRef = useRef(null);
-const rightImageRef = useRef(null);
+  const rightImageRef = useRef(null);
 
-useEffect(() => {
-  const observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry.isIntersecting) {
-        leftImageRef.current?.classList.add("reveal");
-        rightImageRef.current?.classList.add("reveal");
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          leftImageRef.current?.classList.add("reveal");
+          rightImageRef.current?.classList.add("reveal");
+        }
+      },
+      {
+        threshold: 0.25,
       }
-    },
-    {
-      threshold: 0.25,
-    }
-  );
+    );
 
-  if (leftImageRef.current) observer.observe(leftImageRef.current);
-  if (rightImageRef.current) observer.observe(rightImageRef.current);
+    if (leftImageRef.current) observer.observe(leftImageRef.current);
+    if (rightImageRef.current) observer.observe(rightImageRef.current);
 
-  return () => observer.disconnect();
-}, []);
+    return () => observer.disconnect();
+  }, []);
 
   const headingRef = useRef(null);
   const [active, setActive] = useState(false);
@@ -55,7 +55,7 @@ useEffect(() => {
           ref={headingRef}
           className={`heroHeading ${active ? "active" : ""}`}
         >
-          Building Trust. Creating Better Spaces.
+          Why Trust MPF?
           <span></span>
         </h1>
 
@@ -73,21 +73,11 @@ useEffect(() => {
           <div className="rightContent">
 
             <p className="introText">
-              My Property Fact (MPF) is India&apos;s buyer-first real estate guide.
-              We combine data, on-ground verification, and plain-English advice
-              to help you choose confidently. Our proprietary LOCATE Score
-              compares neighbourhoods on economy, projects, connectivity,
-              amenities, trends, and supply and demand.
-
-              We demystify carpet area, approvals, GST and stamp duty, and
-              normalise every home to an effective price per usable square foot.
-
-              Whether you&apos;re shortlisting your first 2-BHK or benchmarking a
-              portfolio, MPF gives you clear checklists, calculators and market
-              insights you can actually use.
+              At My Property Fact, transparency, trust, and innovation are at the heart of everything we do. By combining technology, reliable data, and expert guidance, we make every stage of your real estate journey - from discovery to decision - simpler, smarter, and more transparent. <br /><br />
+              Whether you&apos;re buying, renting, or investing, My Property Fact is here to help you explore with confidence and make property decisions you can truly trust.
             </p>
 
-            <div className="rightImageFrame"  ref={rightImageRef}>
+            <div className="rightImageFrame" ref={rightImageRef}>
               <img
                 src="/about/about_us_banner.jpg"
                 alt="Property"
@@ -97,14 +87,16 @@ useEffect(() => {
 
         </div>
 
+        <h2 className="bottomHeading">
+          Real Estate Without the Guesswork.
+        </h2>
+
         <p className="bottomDescription">
-          Welcome to My Property Fact, your go-to platform for discovering the
-          perfect real estate opportunities. Whether you&apos;re an investor hunting
-          for the next big project, a business owner scouting commercial space,
-          or a family looking for a new home to call your own. We bring together
-          all types of properties, from high-end apartments and cozy farmhouses
-          to strategic commercial plots and premium office spaces for both
-          buying and renting.
+          Welcome to My Property Fact (MPF), India&apos;s buyer-first real estate platform, built to make property decisions simpler, smarter, and more transparent.
+
+          We combine verified data, on-ground research, and easy-to-understand insights to help you buy, rent, or invest with confidence. From our proprietary LOCATE Score to clear guidance on carpet area, approvals, GST, and stamp duty, we simplify complex real estate information so you can make informed decisions.
+
+          Whether you&apos;re looking for apartments, villas, plots, farmhouses, office spaces, or commercial properties, MPF brings everything together in one place - helping you find the right property with confidence.
         </p>
 
       </div>

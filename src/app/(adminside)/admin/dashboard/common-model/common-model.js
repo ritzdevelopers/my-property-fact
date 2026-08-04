@@ -22,7 +22,6 @@ export default function CommonModal({ confirmBox, setConfirmBox, api, fetchAllHe
       const response = await axios.delete(api, {
         withCredentials: true,
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
       });
       

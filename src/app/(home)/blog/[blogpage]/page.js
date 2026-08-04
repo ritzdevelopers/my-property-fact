@@ -8,8 +8,7 @@ import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
 import {
   buildBlogArticleJsonLd,
   buildFaqJsonLd,
-  normalizeFaqItems,
-  resolveBlogFaqRawList,
+  resolveBlogFaqItemsForSchema,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
 
 export async function generateMetadata({ params }) {
@@ -45,9 +44,7 @@ export default async function BlogPage({ params }) {
   }
 
   const articleSchema = buildBlogArticleJsonLd(blogDetail);
-  const faqSchema = buildFaqJsonLd(
-    normalizeFaqItems(resolveBlogFaqRawList(blogDetail)),
-  );
+  const faqSchema = buildFaqJsonLd(resolveBlogFaqItemsForSchema(blogDetail));
 
   const sidebarRecentPosts = await fetchLatestBlogs(3);
 

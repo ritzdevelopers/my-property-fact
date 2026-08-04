@@ -1,6 +1,9 @@
 import axios from "axios";
 import ManageListingFaqs from "./manageListingFaqs";
-import { fetchCityData } from "@/app/_global_components/masterFunction";
+import {
+  fetchAllProjects,
+  fetchCityData,
+} from "@/app/_global_components/masterFunction";
 import { buildListingPageSlugOptions } from "@/lib/listingPageSlugOptions";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
@@ -25,8 +28,12 @@ const fetchListingFaqs = async () => {
 };
 
 export default async function ManageListingFaqsPage() {
-  const [list, cityList] = await Promise.all([fetchListingFaqs(), fetchCityData()]);
-  const pageOptions = buildListingPageSlugOptions(cityList);
+  const [list, cityList, projects] = await Promise.all([
+    fetchListingFaqs(),
+    fetchCityData(),
+    fetchAllProjects(),
+  ]);
+  const pageOptions = buildListingPageSlugOptions(cityList, projects);
 
   return (
     <ManageListingFaqs list={list} pageOptions={pageOptions} />

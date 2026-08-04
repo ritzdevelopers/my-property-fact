@@ -232,7 +232,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
               <Form.Label>Or enter page slug manually</Form.Label>
               <Form.Control
                 type="text"
-                placeholder="e.g. food-court-in-noida"
+                placeholder="e.g. 3-bhk-in-noida, food-court-in-gurugram"
                 value={pageSlug}
                 onChange={(e) => handlePageSlugChange(e.target.value)}
                 disabled={faqId > 0}

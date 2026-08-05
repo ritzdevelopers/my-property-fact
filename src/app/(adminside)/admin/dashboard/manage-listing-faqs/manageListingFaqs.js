@@ -403,7 +403,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         buttonName={"+ Add FAQ"}
         functionName={openAddModel}
         heading={"Manage Listing Page FAQs"}
-        exportExcel={canBulkAdd ? "+ Bulk Add FAQs" : undefined}
+        exportExcel={canBulkAdd ? "Bulk Add FAQs" : undefined}
         exportFunction={canBulkAdd ? openBulkModel : undefined}
         exportIconType="add"
       />

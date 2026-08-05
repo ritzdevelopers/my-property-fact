@@ -178,106 +178,40 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     return page?.faqs?.[0] || null;
   };
 
-  /** Q&A already on this row, or from the nearest filled bulk row (e.g. FAQ #1 → FAQ #2). */
-  const getCurrentSelectionFaq = (index, rows = bulkRows) => {
-    const current = rows[index];
-    if (
-      String(current?.question || "").trim() &&
-      String(current?.answer || "").trim()
-    ) {
-      return {
-        question: current.question,
-        answer: current.answer,
-        sortOrder: current.sortOrder ?? 0,
-      };
-    }
-    for (let i = index - 1; i >= 0; i--) {
-      const row = rows[i];
-      if (
-        String(row?.question || "").trim() &&
-        String(row?.answer || "").trim()
-      ) {
-        return {
-          question: row.question,
-          answer: row.answer,
-          sortOrder: row.sortOrder ?? 0,
-        };
-      }
-    }
-    for (let i = 0; i < rows.length; i++) {
-      if (i === index) continue;
-      const row = rows[i];
-      if (
-        String(row?.question || "").trim() &&
-        String(row?.answer || "").trim()
-      ) {
-        return {
-          question: row.question,
-          answer: row.answer,
-          sortOrder: row.sortOrder ?? 0,
-        };
-      }
-    }
-    return null;
-  };
-
   const resolveBulkPageTitle = (value) =>
     pageOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
     resolvePageTitle(value) ||
     "";
 
-  const applyBulkPageChange = (
-    index,
-    value,
-    { useFirstFaq = false, copyCurrentSelection = false } = {},
-  ) => {
-    const pageTitle = resolveBulkPageTitle(value);
-
-    if (useFirstFaq) {
-      const firstFaq = getFirstFaqForPage(value);
-      updateBulkRow(index, {
-        pageSlug: value,
+  /** Yes: same page on every FAQ row. */
+  const applyPageToAllBulkRows = (pageSlug, pageTitle) => {
+    setBulkRows((prev) =>
+      prev.map((row) => ({
+        ...row,
+        pageSlug,
         pageTitle,
-        question: firstFaq?.question ?? "",
-        answer: firstFaq?.answer ?? "",
-        sortOrder: firstFaq?.sortOrder ?? 0,
-      });
-      return;
-    }
+      })),
+    );
+  };
 
-    if (copyCurrentSelection) {
-      setBulkRows((prev) => {
-        const selection = getCurrentSelectionFaq(index, prev);
-        return prev.map((row, i) =>
-          i === index
-            ? {
-                ...row,
-                pageSlug: value,
-                pageTitle,
-                ...(selection
-                  ? {
-                      question: selection.question,
-                      answer: selection.answer,
-                      sortOrder: selection.sortOrder,
-                    }
-                  : {}),
-              }
-            : row,
-        );
-      });
-      return;
-    }
-
+  /** No: only this FAQ row + load that page's first FAQ. */
+  const applyPageToSingleBulkRow = (index, pageSlug, pageTitle) => {
+    const firstFaq = getFirstFaqForPage(pageSlug);
     updateBulkRow(index, {
-      pageSlug: value,
+      pageSlug,
       pageTitle,
+      question: firstFaq?.question ?? "",
+      answer: firstFaq?.answer ?? "",
+      sortOrder: firstFaq?.sortOrder ?? 0,
     });
   };
 
   const handleBulkPageSlugChange = (index, value, { fromSelect = false } = {}) => {
+    const pageTitle = resolveBulkPageTitle(value);
+
     if (!fromSelect || !value) {
-      // Manual slug typing: only update page fields, leave Q&A alone.
-      applyBulkPageChange(index, value);
+      // Manual slug typing: only update this row's page fields.
+      updateBulkRow(index, { pageSlug: value, pageTitle });
       return;
     }
 
@@ -285,9 +219,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     const currentSlug = String(currentRow.pageSlug || "");
     if (currentSlug === value) return;
 
-    const pageTitle = resolveBulkPageTitle(value);
-
-    // Show the chosen page in the dropdown immediately (controlled select).
+    // Show the chosen page on this row immediately (controlled select).
     updateBulkRow(index, { pageSlug: value, pageTitle });
 
     setPendingPageChange({
@@ -305,18 +237,23 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
 
   const confirmKeepCurrentSelection = () => {
     if (!pendingPageChange) return;
-    applyBulkPageChange(pendingPageChange.index, pendingPageChange.pageSlug, {
-      copyCurrentSelection: true,
-    });
+    // Yes → same page selected on FAQ #1, #2, and all other rows.
+    applyPageToAllBulkRows(
+      pendingPageChange.pageSlug,
+      pendingPageChange.pageTitle,
+    );
     setShowKeepSelectionModal(false);
     setPendingPageChange(null);
   };
 
   const confirmUseFirstFaq = () => {
     if (!pendingPageChange) return;
-    applyBulkPageChange(pendingPageChange.index, pendingPageChange.pageSlug, {
-      useFirstFaq: true,
-    });
+    // No → only this single row; load first FAQ for the selected page.
+    applyPageToSingleBulkRow(
+      pendingPageChange.index,
+      pendingPageChange.pageSlug,
+      pendingPageChange.pageTitle,
+    );
     setShowKeepSelectionModal(false);
     setPendingPageChange(null);
   };
@@ -336,7 +273,15 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   };
 
   const addBulkRow = () => {
-    setBulkRows((prev) => [...prev, emptyBulkRow()]);
+    setBulkRows((prev) => {
+      const source = prev.find((row) => String(row.pageSlug || "").trim());
+      const next = emptyBulkRow();
+      if (source) {
+        next.pageSlug = source.pageSlug;
+        next.pageTitle = source.pageTitle;
+      }
+      return [...prev, next];
+    });
   };
 
   const removeBulkRow = (index) => {
@@ -769,7 +714,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         backdrop="static"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Keep current FAQ selection?</Modal.Title>
+          <Modal.Title>Apply page to all FAQs?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p className="mb-2">
@@ -782,9 +727,9 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
             .
           </p>
           <p className="mb-0 text-muted">
-            Choose <strong>Yes</strong> to reuse your current FAQ text (from this
-            row or a previous FAQ row). Choose <strong>No</strong> to load the
-            first FAQ from the selected page.
+            Choose <strong>Yes</strong> to select this same page on FAQ #2 and
+            every other row. Choose <strong>No</strong> to apply it only to this
+            FAQ and load that page&apos;s first FAQ.
           </p>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-center gap-2">
@@ -792,10 +737,10 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
             Cancel
           </Button>
           <Button variant="outline-primary" onClick={confirmUseFirstFaq}>
-            No — use first FAQ
+            No — only this FAQ
           </Button>
           <Button variant="success" onClick={confirmKeepCurrentSelection}>
-            Yes — keep current
+            Yes — same page on all
           </Button>
         </Modal.Footer>
       </Modal>

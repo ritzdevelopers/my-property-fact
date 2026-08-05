@@ -178,6 +178,7 @@ body:has(.mpf-home-r26) .mpf-header-callback-btn {
   min-height: 42px;
   padding: 10px 18px;
   border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   background: var(--mpf-green) !important;
   color: #fff !important;
   font-weight: 700;
@@ -256,8 +257,20 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .home-banner-overlay {
   z-index: 2;
   background:
-    linear-gradient(90deg, rgba(0, 0, 0, 0.78) 0%, rgba(0, 0, 0, 0.58) 22%, rgba(0, 0, 0, 0.28) 46%, rgba(0, 0, 0, 0.08) 62%, rgba(0, 0, 0, 0) 78%),
-    linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.06) 44%, rgba(0, 0, 0, 0.22) 100%);
+    linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.88) 0%,
+      rgba(0, 0, 0, 0.72) 22%,
+      rgba(0, 0, 0, 0.42) 46%,
+      rgba(0, 0, 0, 0.18) 62%,
+      rgba(0, 0, 0, 0.05) 78%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.45) 0%,
+      rgba(0, 0, 0, 0.15) 44%,
+      rgba(0, 0, 0, 0.35) 100%
+    );
 }
 
 .mpf-home-r26 .mpf-hero-shell {
@@ -284,6 +297,14 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   padding: 0;
   pointer-events: none;
   animation: mpfHeroReveal 800ms var(--mpf-ease) both;
+}
+
+.mpf-hero-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 48px;
+  padding-bottom: 30px;
 }
 
 .mpf-home-r26 .mpf-hero-copy .headgradient,
@@ -430,7 +451,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   overflow: visible !important;
 }
 
-.mpf-home-r26 .smart-search-tabs {
+.mpf-home-r26 {
   gap: 4px;
   border-bottom: 0;
   margin: 0;
@@ -440,20 +461,20 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   scrollbar-width: none;
 }
 
-.mpf-home-r26 .smart-search-tabs::-webkit-scrollbar {
+.mpf-home-r26::-webkit-scrollbar {
   display: none;
 }
 
-.mpf-home-r26 .smart-search-tab {
+.mpf-home-r26 {
   border-radius: 10px 10px 0 0 !important;
   background: rgba(255, 255, 255, 0.88) !important;
   color: var(--mpf-ink-soft) !important;
   font-family: var(--mpf-sans);
   font-weight: 600;
   font-size: 13px !important;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  /* border: 1px solid rgba(255, 255, 255, 0.5) !important; */
   border-bottom: 0 !important;
-  padding: 9px 20px !important;
+  /* padding: 9px 20px !important; */
   box-shadow: none;
   margin-bottom: -1px;
 }
@@ -462,8 +483,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   display: none !important;
 }
 
-.mpf-home-r26 .smart-search-tab--active,
-.mpf-home-r26 .smart-search-tab[aria-selected="true"] {
+.mpf-home-r26
+.mpf-home-r26 {
   color: #fff !important;
   background: var(--mpf-charcoal) !important;
   border-color: var(--mpf-charcoal) !important;
@@ -486,7 +507,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   justify-content: center;
   gap: 4px;
   padding: 10px 14px;
-  min-height: 72px;
+  /* min-height: 72px; */
   border-right: 1px solid rgba(26, 29, 35, 0.08);
 }
 
@@ -510,7 +531,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 .mpf-home-r26 .smart-search-hero-field--search .smart-search-input {
   font-size: 14px !important;
-  padding-left: 28px;
+  /* padding-left: 28px; */
 }
 
 .mpf-home-r26 .smart-search-hero-field--search .smart-search-input-icon {
@@ -556,8 +577,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   justify-content: center;
   gap: 8px;
   min-width: 132px;
-  min-height: 72px;
-  border-radius: 0 14px 14px 0 !important;
+  /* min-height: 72px; */
+  border-radius: 14px !important;
   font-size: 15px !important;
 }
 
@@ -581,7 +602,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .smart-search-bar--hero-ss .smart-search-submit {
     grid-column: 1 / -1;
     min-height: 52px;
-    border-radius: 0 0 14px 14px !important;
+    border-radius: 14px !important;
   }
 }
 
@@ -610,7 +631,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   border-radius: 0 14px 14px 14px !important;
   background: #fff !important;
   box-shadow: none !important;
-  min-height: 58px;
+  /* min-height: 58px; */
 }
 
 .mpf-home-r26 .smart-search-category {
@@ -622,10 +643,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   flex: 1;
 }
 
-.mpf-home-r26 .smart-search-category-trigger {
+/* .mpf-home-r26 .smart-search-category-trigger {
   min-height: 58px !important;
   font-size: 13px !important;
-}
+} */
 
 .mpf-home-r26 .smart-search-input {
   font-size: 14px !important;
@@ -637,7 +658,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   color: #fff !important;
   border-radius: 0 12px 12px 0 !important;
   min-width: 120px;
-  min-height: 58px;
+  /* min-height: 58px; */
   font-weight: 700 !important;
 }
 
@@ -692,13 +713,17 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   left: auto;
   right: auto;
   bottom: auto;
-  z-index: 5;
+  z-index: 2;
   width: 100%;
-  background: #fff;
-  border-top: 1px solid var(--mpf-line);
-  border-bottom: 1px solid var(--mpf-line);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+
+  background: rgba(255, 255, 255, 0.06);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(8px);
+
   padding: 16px 0;
 }
 
@@ -723,8 +748,12 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   color: var(--mpf-muted);
 }
 
+.mpf-home-r26 .mpf-value-strip__copy span {
+  color: #b8b8b8;
+}
+
 .mpf-home-r26 .mpf-value-strip__copy strong {
-  color: var(--mpf-ink);
+  color: #fff;
   font-weight: 700;
   font-size: 0.82rem;
 }
@@ -770,7 +799,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 
   .mpf-home-r26 .mpf-value-strip__inner {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .mpf-home-r26 .smart-search-bar {
@@ -811,7 +840,6 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .transform-home-section {
   margin-top: 36px;
   margin-bottom: 36px;
-  max-width: 1200px;
 }
 
 .mpf-home-r26 .transform-home-image-wrap {
@@ -1046,8 +1074,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   top: 12px !important;
   left: 12px !important;
   border-radius: 6px !important;
-  background: #e84b7a !important;
-  color: #fff !important;
+  background: var(--badge-bg, #e84b7a) !important;
+  color: var(--badge-color, #fff) !important;
   font-family: var(--mpf-sans) !important;
   font-size: 0.68rem !important;
   font-weight: 700 !important;

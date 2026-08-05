@@ -216,11 +216,17 @@ export default async function HomePage() {
 
         {row(
           1,
-          <FeaturedPage
-            title="Featured Projects"
-            type="Featured"
-            autoPlay={false}
-            allFeaturedProperties={slimFeatured}
+                    <RecommendedProjectsWithGeolocation
+            title="New Property Launches"
+            fallbackItems={slimRecommendedProperties}
+            fallbackSubtitle={
+              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
+              "Explore New Residential & Commercial Properties"
+            }
+            kind="project"
+            locationIntent="projects"
+            viewAllHref="/projects"
+            className="recommended-properties-section"
           />,
         )}
 
@@ -253,58 +259,52 @@ export default async function HomePage() {
         {row(
           2,
           <section className="container transform-home-section">
-          <div className="transform-home-image-wrap">
-            <img
-              src="/static/transform_new.png"
-              alt="Transform your home visual section"
-              title="Transform your home visual section"
-              className="transform-home-image"
-              loading="lazy"
-              decoding="async"
-              fetchPriority="low"
-            />
-            <div className="transform-home-copy">
-              <div className="transform-home-content">
-                <div className="transform-home-headline-stack">
-                  <RotatingHeroHeadline />
-                  <div className="transform-home-mpf-logo-wrap">
-                    <img
-                      src="/static/mpf_text.png"
-                      alt="My Property Fact"
-                      title="My Property Fact"
-                      width={224}
-                      height={30}
-                      className="transform-home-mpf-logo"
-                    />
-                  </div>
-                  <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
-                  <div className="transform-home-explore-projects-wrap">
-                    <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
-                      Explore Projects
-                    </Link>
+            <div className="transform-home-image-wrap">
+              <img
+                src="/static/transform_new.png"
+                alt="Transform your home visual section"
+                title="Transform your home visual section"
+                className="transform-home-image"
+                loading="lazy"
+                decoding="async"
+                fetchPriority="low"
+              />
+              <div className="transform-home-copy">
+                <div className="transform-home-content">
+                  <div className="transform-home-headline-stack">
+                    <RotatingHeroHeadline />
+                    <div className="transform-home-mpf-logo-wrap">
+                      <img
+                        src="/static/mpf_text.png"
+                        alt="My Property Fact"
+                        title="My Property Fact"
+                        width={224}
+                        height={30}
+                        className="transform-home-mpf-logo"
+                      />
+                    </div>
+                    <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
+                    <div className="transform-home-explore-projects-wrap">
+                      <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
+                        Explore Projects
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
         )}
 
         {row(
           3,
-          <RecommendedProjectsWithGeolocation
-            title="New Property Launches"
-            fallbackItems={slimRecommendedProperties}
-            fallbackSubtitle={
-              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
-              "Explore New Residential & Commercial Properties"
-            }
-            kind="project"
-            locationIntent="projects"
-            viewAllHref="/projects"
-            className="recommended-properties-section"
-          />,
-        )}  
+          // <FeaturedPage
+          //   title="Featured Projects"
+          //   type="Featured"
+          //   autoPlay={false}
+          //   allFeaturedProperties={slimFeatured}
+          // />,
+        )}
 
         {row(
           4,
@@ -320,6 +320,7 @@ export default async function HomePage() {
             kind="project"
             locationIntent="latest-projects"
             viewAllHref="/projects"
+            badgeColor="#16A34A"
           />,
         )}
 

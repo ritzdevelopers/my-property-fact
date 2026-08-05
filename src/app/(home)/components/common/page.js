@@ -139,18 +139,17 @@ export default function PropertyContainer({
         <div
           className={
             layoutVariant === "overlap"
-              ? `home-featured-project-tag plus-jakarta-sans-semi-bold${
-                  pillBadgeModifier ? ` ${pillBadgeModifier}` : ""
-                }`
+              ? `home-featured-project-tag plus-jakarta-sans-semi-bold${pillBadgeModifier ? ` ${pillBadgeModifier}` : ""
+              }`
               : "home-featured-status-badge plus-jakarta-sans-semi-bold"
           }
           style={
             usePillStyles
               ? undefined
               : {
-                  "--badge-color": backgroundColor,
-                  "--badge-text-color": textColor,
-                }
+                "--badge-color": backgroundColor,
+                "--badge-text-color": textColor,
+              }
           }
         >
           {data.projectStatusName}
@@ -183,59 +182,49 @@ export default function PropertyContainer({
     return (
       <Link
         href={`/${data.slugURL}`}
-        className="home-featured-project-card text-decoration-none text-dark"
+        className="home-featured-project-card text-decoration-none"
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${data.projectName}`}
-        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+        title={data.projectName || "View Project"}
       >
         <div className="home-featured-image-card">
           <img
             src={imageSrc}
             alt={projectCardImageAlt}
-            title={projectCardImageAlt}
             className="home-featured-image"
             width={510}
-            height={232}
+            height={300}
             loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority="auto"
             decoding="async"
             onError={() => setImageError(true)}
           />
+
+          {renderStatusBadge()}
         </div>
 
-        <div className="home-featured-builder-card">
-          {renderStatusBadge()}
-          <div
-            className={`home-featured-builder-logo${
-              data.slugURL === "eldeco-whispers-of-wonder"
-                ? " home-featured-builder-logo--whispers"
-                : ""
-            }`}
-          >
+        <div className="home-featured-card-content">
+          <h3 className="home-featured-builder-name">
+            {data.projectName}
+          </h3>
+
+          {/* <div className="home-featured-location">
             <img
-              src={buildProjectLogoUrl()}
-              alt={logoAlt}
-              title={logoAlt}
-              width={
-                data.slugURL === "eldeco-whispers-of-wonder" ? 84 : 72
-              }
-              height={
-                data.slugURL === "eldeco-whispers-of-wonder" ? 72 : 72
-              }
-              loading="lazy"
+              src="/icon/map-pin.svg"
+              alt=""
+              width={14}
+              height={14}
             />
+
+            <span>{data.locationName}</span>
+          </div> */}
+
+          <div className="home-featured-builder-price">
+            {generatePrice(data.projectPrice)}
           </div>
-          <div className="home-featured-builder-info">
-            <h3 className="home-featured-builder-name plus-jakarta-sans-semi-bold">
-              {data.projectName}
-            </h3>
-            <p className="home-featured-builder-meta plus-jakarta-sans-semi-bold">
-              {buildFeaturedSubtitle()}
-            </p>
-            <p className="home-featured-builder-price plus-jakarta-sans-semi-bold">
-              {generatePrice(data.projectPrice)}
-            </p>
+
+          <div className="home-featured-builder-meta">
+            {buildFeaturedSubtitle()}
           </div>
         </div>
       </Link>

@@ -14,6 +14,7 @@ import {
   HERO_IMAGE_QUALITY,
   HERO_IMAGE_SIZES,
 } from "./heroBannerAssets";
+import { Typewriter } from "react-simple-typewriter";
 
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
 
@@ -194,105 +195,122 @@ export default function HeroSection({
 
           <div className="mpf-hero-shell container">
             <div className="mpf-hero-main">
-              <div className="mpf-hero-copy">
-                <h1 className="headgradient headgradient--sparkle" data-text={title}>
-                  {title.includes("Across India") ? (
-                    <>
-                      Find Flats &amp; Property{" "}
-                      <span className="mpf-hero-highlight">Across India</span>
-                      {" | Buy & Invest"}
-                    </>
-                  ) : (
-                    title
-                  )}
-                </h1>
-                <p className="headsub">
-                  Browse flats, apartments, and commercial properties in India with{" "}
-                  <span className="mpf-hero-verified">verified</span> listings, price
-                  trends, and expert insights.
-                </p>
+              <div className="mpf-hero-content">
+                <div className="mpf-hero-copy">
+                  <h1 className="headgradient headgradient--sparkle" data-text={title}>
+                    {title.includes("Across India") ? (
+                      <>
+                        Find Your Perfect Property in
+                        <span className="mpf-hero-highlight"> Across
+                          <Typewriter
+                            words={[
+                              " Delhi NCR",
+                              " Bangalore",
+                              " Mumbai",
+                              " Hyderabad",
+                              " Pune",
+                              " Chennai",
+                              " Noida",
+                              " Gurugram",
+                              " Ahmedabad",
+                              " Kolkata"
+                            ]} loop={0}
+                            cursor
+                            cursorStyle="|"
+                            typeSpeed={90}
+                            deleteSpeed={50}
+                            delaySpeed={1800}
+                          />
+                        </span>
+                        {/* {" | Buy & Invest"} */}
+                      </>
+                    ) : (
+                      title
+                    )}
+                  </h1>
+                  <p className="headsub">
+                    Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.
+                  </p>
+                </div>
+                <aside className="mpf-hero-badge" aria-label="Property insights">
+                  <span className="mpf-hero-badge__icon" aria-hidden>
+                    <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                      <path
+                        d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </span>
+                  <span className="mpf-hero-badge__text">
+                    <strong>Verified listings</strong>, price trends &amp; expert insights
+                  </span>
+                </aside>
               </div>
-
               <SearchFilter
                 projectTypeList={projectTypeList}
                 cityList={cityList}
                 layout="home-hero"
               />
             </div>
-
-            <aside className="mpf-hero-badge" aria-label="Property insights">
-              <span className="mpf-hero-badge__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path
-                    d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-                    fill="currentColor"
-                  />
-                </svg>
-              </span>
-              <span className="mpf-hero-badge__text">
-                <strong>Verified listings</strong>, price trends &amp; expert insights
-              </span>
-            </aside>
           </div>
-        </div>
-
-        <div className="mpf-value-strip" aria-label="Why choose us">
-          <div className="container mpf-value-strip__inner">
-            <div className="mpf-value-strip__item">
-              <span className="mpf-value-strip__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M9.5 12.2l1.8 1.8 3.5-3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="mpf-value-strip__copy">
-                <strong>100% Verified</strong>
-                <span>Projects &amp; Builders</span>
-              </span>
-            </div>
-            <div className="mpf-value-strip__item">
-              <span className="mpf-value-strip__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="mpf-value-strip__copy">
-                <strong>Best Price</strong>
-                <span>Guaranteed</span>
-              </span>
-            </div>
-            <div className="mpf-value-strip__item">
-              <span className="mpf-value-strip__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="mpf-value-strip__copy">
-                <strong>Expert Support</strong>
-                <span>7 Days a Week</span>
-              </span>
-            </div>
-            <div className="mpf-value-strip__item">
-              <span className="mpf-value-strip__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="mpf-value-strip__copy">
-                <strong>Easy Booking</strong>
-                <span>Hassle Free</span>
-              </span>
-            </div>
-            <div className="mpf-value-strip__item">
-              <span className="mpf-value-strip__icon" aria-hidden>
-                <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                  <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="mpf-value-strip__copy">
-                <strong>RERA Approved</strong>
-                <span>All Projects</span>
-              </span>
+          <div className="mpf-value-strip" aria-label="Why choose us">
+            <div className="container mpf-value-strip__inner">
+              <div className="mpf-value-strip__item">
+                <span className="mpf-value-strip__icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                    <path d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M9.5 12.2l1.8 1.8 3.5-3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="mpf-value-strip__copy">
+                  <strong>100% Verified</strong>
+                  <span>Projects &amp; Builders</span>
+                </span>
+              </div>
+              <div className="mpf-value-strip__item">
+                <span className="mpf-value-strip__icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="mpf-value-strip__copy">
+                  <strong>Best Price</strong>
+                  <span>Guaranteed</span>
+                </span>
+              </div>
+              <div className="mpf-value-strip__item">
+                <span className="mpf-value-strip__icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                    <path d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="mpf-value-strip__copy">
+                  <strong>Expert Support</strong>
+                  <span>7 Days a Week</span>
+                </span>
+              </div>
+              <div className="mpf-value-strip__item">
+                <span className="mpf-value-strip__icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                    <path d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="mpf-value-strip__copy">
+                  <strong>Easy Booking</strong>
+                  <span>Hassle Free</span>
+                </span>
+              </div>
+              <div className="mpf-value-strip__item">
+                <span className="mpf-value-strip__icon" aria-hidden>
+                  <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
+                    <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </span>
+                <span className="mpf-value-strip__copy">
+                  <strong>RERA Approved</strong>
+                  <span>All Projects</span>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -307,61 +325,61 @@ export default function HeroSection({
             const typeKey = getTypeKey(item?.projectTypeName);
             const { alt: railIconAlt, title: railIconTitle } = railIconMetaForKey(typeKey);
             return (
-            <Link
-              key={`right-rail-type-${index}`}
-              href={`/projects/${item.slugUrl}`}
-              className={`home-right-type-rail__link${openRightRailIndex === index ? " home-right-type-rail__link--open" : ""}`}
-              title={`${item.projectTypeName} projects`}
-              style={{ "--stagger": index }}
-              onMouseEnter={() => onRightRailMouseEnter(index)}
-              onMouseLeave={() => onRightRailMouseLeave(index)}
-              onFocus={() => onRightRailMouseEnter(index)}
-              onBlur={() => {
-                if (railHoverLeaveTimerRef.current) {
-                  clearTimeout(railHoverLeaveTimerRef.current);
-                  railHoverLeaveTimerRef.current = null;
-                }
-                setOpenRightRailIndex((prev) => (prev === index ? null : prev));
-              }}
-            >
-              <span
-                className={`home-right-type-rail__icon home-right-type-rail__icon--${typeKey}`}
-                aria-hidden
+              <Link
+                key={`right-rail-type-${index}`}
+                href={`/projects/${item.slugUrl}`}
+                className={`home-right-type-rail__link${openRightRailIndex === index ? " home-right-type-rail__link--open" : ""}`}
+                title={`${item.projectTypeName} projects`}
+                style={{ "--stagger": index }}
+                onMouseEnter={() => onRightRailMouseEnter(index)}
+                onMouseLeave={() => onRightRailMouseLeave(index)}
+                onFocus={() => onRightRailMouseEnter(index)}
+                onBlur={() => {
+                  if (railHoverLeaveTimerRef.current) {
+                    clearTimeout(railHoverLeaveTimerRef.current);
+                    railHoverLeaveTimerRef.current = null;
+                  }
+                  setOpenRightRailIndex((prev) => (prev === index ? null : prev));
+                }}
               >
-                {typeKey === "commercial" ? (
-                  <img
-                    src="/icon/skyscrapers.png"
-                    alt={railIconAlt}
-                    title={railIconTitle}
-                    width={36}
-                    height={36}
-                  />
-                ) : typeKey === "residential" ? (
-                  <img
-                    src="/icon/residential.png"
-                    alt={railIconAlt}
-                    title={railIconTitle}
-                    width={36}
-                    height={36}
-                  />
-                ) : (
-                  <img
-                    src={NEW_LAUNCHES_RAIL_ICON}
-                    alt={railIconAlt}
-                    title={railIconTitle}
-                    width={36}
-                    height={36}
-                  />
-                )}
-              </span>
-              <span className="home-right-type-rail__text">
-                {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
-                  <div className="property-type-heading m-0">{item.projectTypeName}</div>
-                ) : (
-                  <span>{item.projectTypeName}</span>
-                )}
-              </span>
-            </Link>
+                <span
+                  className={`home-right-type-rail__icon home-right-type-rail__icon--${typeKey}`}
+                  aria-hidden
+                >
+                  {typeKey === "commercial" ? (
+                    <img
+                      src="/icon/skyscrapers.png"
+                      alt={railIconAlt}
+                      title={railIconTitle}
+                      width={36}
+                      height={36}
+                    />
+                  ) : typeKey === "residential" ? (
+                    <img
+                      src="/icon/residential.png"
+                      alt={railIconAlt}
+                      title={railIconTitle}
+                      width={36}
+                      height={36}
+                    />
+                  ) : (
+                    <img
+                      src={NEW_LAUNCHES_RAIL_ICON}
+                      alt={railIconAlt}
+                      title={railIconTitle}
+                      width={36}
+                      height={36}
+                    />
+                  )}
+                </span>
+                <span className="home-right-type-rail__text">
+                  {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
+                    <div className="property-type-heading m-0">{item.projectTypeName}</div>
+                  ) : (
+                    <span>{item.projectTypeName}</span>
+                  )}
+                </span>
+              </Link>
             );
           })}
         </aside>

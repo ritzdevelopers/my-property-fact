@@ -23,21 +23,15 @@ import { PROJECT_BUDGET_OPTIONS } from "@/app/_global_components/projectFilterUt
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { useRouter } from "next/navigation";
+import Select from "react-select";
 
-const SEARCH_TABS = [
+const HOME_HERO_TABS = [
   { key: "All", label: "All" },
   { key: "Residential", label: "Residential" },
   { key: "Commercial", label: "Commercial" },
   { key: "New Launched", label: "New Launch" },
   { key: "Plots", label: "Plots" },
   { key: "Projects", label: "Projects" },
-];
-
-/** Home hero mockup — 3 tabs (maps to existing search keys). */
-const HOME_HERO_TABS = [
-  { key: "All", label: "Buy" },
-  { key: "Residential", label: "Rent" },
-  { key: "New Launched", label: "New Launch" },
 ];
 
 const HOME_POPULAR_CHIPS = [
@@ -439,6 +433,16 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
+  const cityOptions = effectiveCityList.map((city) => ({
+    value: String(city.id),
+    label: city.cityName,
+  }));
+
+  const budgetOptions = PROJECT_BUDGET_OPTIONS.map((budget) => ({
+    value: budget,
+    label: budget,
+  }));
+
   const availablePropertyTypeKeys = useMemo(
     () => getAvailablePropertyTypeKeys(projectList),
     [projectList],
@@ -531,10 +535,10 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     (params) =>
       isHomeHero
         ? {
-            ...params,
-            cityId: params.cityId || heroCityId,
-            budget: params.budget || heroBudget,
-          }
+          ...params,
+          cityId: params.cityId || heroCityId,
+          budget: params.budget || heroBudget,
+        }
         : params,
     [heroBudget, heroCityId, isHomeHero],
   );
@@ -679,8 +683,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       const cityName = suggestion.item?.cityName || "";
       const city = cityName
         ? effectiveCityList.find(
-            (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
-          )
+          (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+        )
         : null;
       navigateToProjects({
         propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
@@ -799,8 +803,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           ? correction.item
           : cityName
             ? effectiveCityList.find(
-                (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
-              )
+              (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+            )
             : null;
 
       navigateToProjects({
@@ -959,9 +963,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const propertyTypeTrigger = (
     <button
       type="button"
-      className={`smart-search-category-trigger smart-search-hero-select-trigger${categoryOpen ? " active" : ""}${
-        selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
-      }`}
+      className={`smart-search-category-trigger smart-search-hero-select-trigger${categoryOpen ? " active" : ""}${selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+        }`}
       onClick={() => {
         setCategoryOpen(!categoryOpen);
         setDropdownOpen(false);
@@ -1015,20 +1018,24 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                   <div className="smart-search-input-wrap">{searchInputField}</div>
                 </div>
                 <div className="smart-search-hero-field smart-search-hero-field--location">
-                  <span className="smart-search-hero-field__label">Location</span>
-                  <select
-                    className="smart-search-hero-select"
-                    value={heroCityId}
-                    onChange={(e) => setHeroCityId(e.target.value)}
-                    aria-label="Select location"
-                  >
-                    <option value="">Select Location</option>
-                    {effectiveCityList.map((city) => (
-                      <option key={city.id} value={String(city.id)}>
-                        {city.cityName}
-                      </option>
-                    ))}
-                  </select>
+                  <span className="smart-search-hero-field__label">
+                    Location
+                  </span>
+
+                  <Select
+                    classNamePrefix="location-select"
+                    options={cityOptions}
+                    placeholder="Select Location"
+                    value={
+                      cityOptions.find((option) => option.value === heroCityId) || null
+                    }
+                    onChange={(selected) =>
+                      setHeroCityId(selected ? selected.value : "")
+                    }
+                    isSearchable
+                    maxMenuHeight={220}
+                    menuPlacement="auto"
+                  />
                 </div>
                 <div className="smart-search-hero-field smart-search-hero-field--type">
                   <span className="smart-search-hero-field__label">Property Type</span>
@@ -1036,71 +1043,71 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                 </div>
                 <div className="smart-search-hero-field smart-search-hero-field--budget">
                   <span className="smart-search-hero-field__label">Budget</span>
-                  <select
-                    className="smart-search-hero-select"
-                    value={heroBudget}
-                    onChange={(e) => setHeroBudget(e.target.value)}
-                    aria-label="Select budget"
-                  >
-                    <option value="">Min - Max</option>
-                    {PROJECT_BUDGET_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    classNamePrefix="location-select"
+                    options={budgetOptions}
+                    placeholder="Min - Max"
+                    value={
+                      budgetOptions.find((option) => option.value === heroBudget) || null
+                    }
+                    onChange={(selected) =>
+                      setHeroBudget(selected ? selected.value : "")
+                    }
+                    isSearchable={false}
+                    maxMenuHeight={220}
+                    menuPlacement="auto"
+                  />
                 </div>
                 {searchSubmitButton}
               </>
             ) : (
               <>
-            <div className="smart-search-category">
-              <button
-                type="button"
-                className={`smart-search-category-trigger${categoryOpen ? " active" : ""}${
-                  selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
-                }`}
-                onClick={() => {
-                  setCategoryOpen(!categoryOpen);
-                  setDropdownOpen(false);
-                }}
-                aria-expanded={categoryOpen}
-                aria-haspopup="listbox"
-              >
-                <span className="smart-search-category-trigger__icon" aria-hidden>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M4 20V9.5L12 4l8 5.5V20"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </span>
-                <span className="smart-search-category-trigger__text">{selectedCategoryLabel}</span>
-                {selectedPropertyKeys.length > 1 ? (
-                  <span className="smart-search-category-trigger__count">{selectedPropertyKeys.length}</span>
-                ) : null}
-                <svg
-                  className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden
-                >
-                  <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </div>
+                <div className="smart-search-category">
+                  <button
+                    type="button"
+                    className={`smart-search-category-trigger${categoryOpen ? " active" : ""}${selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+                      }`}
+                    onClick={() => {
+                      setCategoryOpen(!categoryOpen);
+                      setDropdownOpen(false);
+                    }}
+                    aria-expanded={categoryOpen}
+                    aria-haspopup="listbox"
+                  >
+                    <span className="smart-search-category-trigger__icon" aria-hidden>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M4 20V9.5L12 4l8 5.5V20"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span className="smart-search-category-trigger__text">{selectedCategoryLabel}</span>
+                    {selectedPropertyKeys.length > 1 ? (
+                      <span className="smart-search-category-trigger__count">{selectedPropertyKeys.length}</span>
+                    ) : null}
+                    <svg
+                      className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden
+                    >
+                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </div>
 
-            <div className="smart-search-input-wrap">
-              {searchInputField}
-            </div>
+                <div className="smart-search-input-wrap">
+                  {searchInputField}
+                </div>
 
-            {searchSubmitButton}
+                {searchSubmitButton}
               </>
             )}
           </form>
@@ -1262,15 +1269,25 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         ) : null}
 
       </div>
-      <div className="smart-search-chips">
+      <div className="smart-search-trending">
+        <span className="smart-search-trending-title">
+          Trending Search:
+        </span>
+
         {(isHomeHero ? HOME_POPULAR_CHIPS : QUICK_CITY_CHIPS).map((item) => (
           <button
             key={item}
             type="button"
             className="smart-search-chip"
-            onClick={() => (isHomeHero ? handlePopularChip(item) : handleQuickCity(item))}
+            onClick={() =>
+              isHomeHero
+                ? handlePopularChip(item)
+                : handleQuickCity(item)
+            }
           >
-            {isHomeHero ? item : (
+            {isHomeHero ? (
+              item
+            ) : (
               <>
                 {activeTab !== "All" ? `${activeTab} in ` : ""}
                 {item}

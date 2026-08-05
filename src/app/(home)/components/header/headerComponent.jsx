@@ -1002,7 +1002,7 @@ const HeaderComponent = () => {
                     </div>
                   </li>
                 )}
-                {isHomePage ? (
+                {/* {isHomePage ? (
                   <li className="hasChild header-nav-resources">
                     <Link
                       href="/blog"
@@ -1017,7 +1017,7 @@ const HeaderComponent = () => {
                       </svg>
                     </Link>
                   </li>
-                ) : null}
+                ) : null} */}
                 <li className="hasChild header-nav-blog">
                   <Link
                     href="/blog"

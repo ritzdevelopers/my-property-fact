@@ -130,6 +130,7 @@ export default function HomeRecommendationCards({
   kind,
   viewAllHref,
   className = "",
+  badgeColor = "#E84B7A",
 }) {
   const safeItems = useMemo(
     () => (Array.isArray(items) ? items.slice(0, 8) : []),
@@ -262,8 +263,16 @@ export default function HomeRecommendationCards({
                       className="home-project-card__image"
                       loading="lazy"
                       decoding="async"
-                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-                    <span className="home-project-card__badge">{card.badge}</span>
+                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+                    <span
+                      className="home-project-card__badge"
+                      style={{
+                        "--badge-bg": badgeColor,
+                        "--badge-color": "#fff",
+                      }}
+                    >
+                      {card.badge}
+                    </span>
                   </div>
 
                   <div className="home-project-card__body">

@@ -178,71 +178,159 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     return page?.faqs?.[0] || null;
   };
 
-  const applyBulkPageChange = (index, value, keepCurrentSelection) => {
-    const match = pageOptions.find((opt) => opt.pageSlug === value);
-    const pageTitle = match?.pageTitle || resolvePageTitle(value) || "";
+  /** Q&A already on this row, or from the nearest filled bulk row (e.g. FAQ #1 → FAQ #2). */
+  const getCurrentSelectionFaq = (index, rows = bulkRows) => {
+    const current = rows[index];
+    if (
+      String(current?.question || "").trim() &&
+      String(current?.answer || "").trim()
+    ) {
+      return {
+        question: current.question,
+        answer: current.answer,
+        sortOrder: current.sortOrder ?? 0,
+      };
+    }
+    for (let i = index - 1; i >= 0; i--) {
+      const row = rows[i];
+      if (
+        String(row?.question || "").trim() &&
+        String(row?.answer || "").trim()
+      ) {
+        return {
+          question: row.question,
+          answer: row.answer,
+          sortOrder: row.sortOrder ?? 0,
+        };
+      }
+    }
+    for (let i = 0; i < rows.length; i++) {
+      if (i === index) continue;
+      const row = rows[i];
+      if (
+        String(row?.question || "").trim() &&
+        String(row?.answer || "").trim()
+      ) {
+        return {
+          question: row.question,
+          answer: row.answer,
+          sortOrder: row.sortOrder ?? 0,
+        };
+      }
+    }
+    return null;
+  };
 
-    if (keepCurrentSelection) {
+  const resolveBulkPageTitle = (value) =>
+    pageOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
+    resolvePageTitle(value) ||
+    "";
+
+  const applyBulkPageChange = (
+    index,
+    value,
+    { useFirstFaq = false, copyCurrentSelection = false } = {},
+  ) => {
+    const pageTitle = resolveBulkPageTitle(value);
+
+    if (useFirstFaq) {
+      const firstFaq = getFirstFaqForPage(value);
       updateBulkRow(index, {
         pageSlug: value,
         pageTitle,
+        question: firstFaq?.question ?? "",
+        answer: firstFaq?.answer ?? "",
+        sortOrder: firstFaq?.sortOrder ?? 0,
       });
       return;
     }
 
-    const firstFaq = getFirstFaqForPage(value);
+    if (copyCurrentSelection) {
+      setBulkRows((prev) => {
+        const selection = getCurrentSelectionFaq(index, prev);
+        return prev.map((row, i) =>
+          i === index
+            ? {
+                ...row,
+                pageSlug: value,
+                pageTitle,
+                ...(selection
+                  ? {
+                      question: selection.question,
+                      answer: selection.answer,
+                      sortOrder: selection.sortOrder,
+                    }
+                  : {}),
+              }
+            : row,
+        );
+      });
+      return;
+    }
+
     updateBulkRow(index, {
       pageSlug: value,
       pageTitle,
-      question: firstFaq?.question ?? "",
-      answer: firstFaq?.answer ?? "",
-      sortOrder: firstFaq?.sortOrder ?? 0,
     });
   };
 
   const handleBulkPageSlugChange = (index, value, { fromSelect = false } = {}) => {
     if (!fromSelect || !value) {
-      applyBulkPageChange(index, value, true);
+      // Manual slug typing: only update page fields, leave Q&A alone.
+      applyBulkPageChange(index, value);
       return;
     }
 
-    const currentSlug = String(bulkRows[index]?.pageSlug || "");
+    const currentRow = bulkRows[index] || emptyBulkRow();
+    const currentSlug = String(currentRow.pageSlug || "");
     if (currentSlug === value) return;
+
+    const pageTitle = resolveBulkPageTitle(value);
+
+    // Show the chosen page in the dropdown immediately (controlled select).
+    updateBulkRow(index, { pageSlug: value, pageTitle });
 
     setPendingPageChange({
       index,
       pageSlug: value,
-      pageTitle:
-        pageOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
-        resolvePageTitle(value) ||
-        "",
+      pageTitle,
+      previousPageSlug: currentSlug,
+      previousPageTitle: currentRow.pageTitle || "",
+      previousQuestion: currentRow.question || "",
+      previousAnswer: currentRow.answer || "",
+      previousSortOrder: currentRow.sortOrder ?? 0,
     });
     setShowKeepSelectionModal(true);
   };
 
   const confirmKeepCurrentSelection = () => {
     if (!pendingPageChange) return;
-    applyBulkPageChange(
-      pendingPageChange.index,
-      pendingPageChange.pageSlug,
-      true,
-    );
+    applyBulkPageChange(pendingPageChange.index, pendingPageChange.pageSlug, {
+      copyCurrentSelection: true,
+    });
     setShowKeepSelectionModal(false);
     setPendingPageChange(null);
   };
 
   const confirmUseFirstFaq = () => {
     if (!pendingPageChange) return;
-    applyBulkPageChange(
-      pendingPageChange.index,
-      pendingPageChange.pageSlug,
-      false,
-    );
+    applyBulkPageChange(pendingPageChange.index, pendingPageChange.pageSlug, {
+      useFirstFaq: true,
+    });
     setShowKeepSelectionModal(false);
     setPendingPageChange(null);
   };
 
   const cancelPendingPageChange = () => {
+    if (pendingPageChange) {
+      updateBulkRow(pendingPageChange.index, {
+        pageSlug: pendingPageChange.previousPageSlug,
+        pageTitle: pendingPageChange.previousPageTitle,
+        question: pendingPageChange.previousQuestion,
+        answer: pendingPageChange.previousAnswer,
+        sortOrder: pendingPageChange.previousSortOrder,
+      });
+    }
     setShowKeepSelectionModal(false);
     setPendingPageChange(null);
   };
@@ -694,9 +782,9 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
             .
           </p>
           <p className="mb-0 text-muted">
-            Choose <strong>Yes</strong> to keep the current question and answer
-            for this page. Choose <strong>No</strong> to load the first FAQ from
-            the selected page.
+            Choose <strong>Yes</strong> to reuse your current FAQ text (from this
+            row or a previous FAQ row). Choose <strong>No</strong> to load the
+            first FAQ from the selected page.
           </p>
         </Modal.Body>
         <Modal.Footer className="d-flex justify-content-center gap-2">

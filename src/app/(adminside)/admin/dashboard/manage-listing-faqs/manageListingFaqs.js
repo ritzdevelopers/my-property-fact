@@ -50,6 +50,8 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   const [bulkRows, setBulkRows] = useState([emptyBulkRow()]);
   const [bulkValidated, setBulkValidated] = useState(false);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [showKeepSelectionModal, setShowKeepSelectionModal] = useState(false);
+  const [pendingPageChange, setPendingPageChange] = useState(null);
 
   const mutationHeaders = () => {
     const token =
@@ -170,12 +172,79 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     );
   };
 
-  const handleBulkPageSlugChange = (index, value) => {
+  const getFirstFaqForPage = (slug) => {
+    if (!slug) return null;
+    const page = (list || []).find((item) => item.pageSlug === slug);
+    return page?.faqs?.[0] || null;
+  };
+
+  const applyBulkPageChange = (index, value, keepCurrentSelection) => {
     const match = pageOptions.find((opt) => opt.pageSlug === value);
+    const pageTitle = match?.pageTitle || resolvePageTitle(value) || "";
+
+    if (keepCurrentSelection) {
+      updateBulkRow(index, {
+        pageSlug: value,
+        pageTitle,
+      });
+      return;
+    }
+
+    const firstFaq = getFirstFaqForPage(value);
     updateBulkRow(index, {
       pageSlug: value,
-      pageTitle: match?.pageTitle || resolvePageTitle(value) || "",
+      pageTitle,
+      question: firstFaq?.question ?? "",
+      answer: firstFaq?.answer ?? "",
+      sortOrder: firstFaq?.sortOrder ?? 0,
     });
+  };
+
+  const handleBulkPageSlugChange = (index, value, { fromSelect = false } = {}) => {
+    if (!fromSelect || !value) {
+      applyBulkPageChange(index, value, true);
+      return;
+    }
+
+    const currentSlug = String(bulkRows[index]?.pageSlug || "");
+    if (currentSlug === value) return;
+
+    setPendingPageChange({
+      index,
+      pageSlug: value,
+      pageTitle:
+        pageOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
+        resolvePageTitle(value) ||
+        "",
+    });
+    setShowKeepSelectionModal(true);
+  };
+
+  const confirmKeepCurrentSelection = () => {
+    if (!pendingPageChange) return;
+    applyBulkPageChange(
+      pendingPageChange.index,
+      pendingPageChange.pageSlug,
+      true,
+    );
+    setShowKeepSelectionModal(false);
+    setPendingPageChange(null);
+  };
+
+  const confirmUseFirstFaq = () => {
+    if (!pendingPageChange) return;
+    applyBulkPageChange(
+      pendingPageChange.index,
+      pendingPageChange.pageSlug,
+      false,
+    );
+    setShowKeepSelectionModal(false);
+    setPendingPageChange(null);
+  };
+
+  const cancelPendingPageChange = () => {
+    setShowKeepSelectionModal(false);
+    setPendingPageChange(null);
   };
 
   const addBulkRow = () => {
@@ -451,7 +520,9 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
                     <Form.Select
                       value={row.pageSlug}
                       onChange={(e) =>
-                        handleBulkPageSlugChange(index, e.target.value)
+                        handleBulkPageSlugChange(index, e.target.value, {
+                          fromSelect: true,
+                        })
                       }
                       isInvalid={
                         bulkValidated && !String(row.pageSlug || "").trim()
@@ -601,6 +672,44 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
             ))}
           </div>
         </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showKeepSelectionModal}
+        onHide={cancelPendingPageChange}
+        centered
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Keep current FAQ selection?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            You selected{" "}
+            <strong>
+              {pendingPageChange?.pageTitle ||
+                pendingPageChange?.pageSlug ||
+                "this page"}
+            </strong>
+            .
+          </p>
+          <p className="mb-0 text-muted">
+            Choose <strong>Yes</strong> to keep the current question and answer
+            for this page. Choose <strong>No</strong> to load the first FAQ from
+            the selected page.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="d-flex justify-content-center gap-2">
+          <Button variant="secondary" onClick={cancelPendingPageChange}>
+            Cancel
+          </Button>
+          <Button variant="outline-primary" onClick={confirmUseFirstFaq}>
+            No — use first FAQ
+          </Button>
+          <Button variant="success" onClick={confirmKeepCurrentSelection}>
+            Yes — keep current
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <CommonModal

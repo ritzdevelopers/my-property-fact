@@ -1293,6 +1293,7 @@ export default function ProjectsRedesigned({
                 <FontAwesomeIcon icon={faSearch} className="mpf-page-top-search__icon" aria-hidden />
                 <input
                   type="search"
+                  role="combobox"
                   placeholder='Search "Eldeco, M3M, Godrej..."'
                   value={searchInput}
                   onChange={(e) => {
@@ -1309,6 +1310,7 @@ export default function ProjectsRedesigned({
                   aria-expanded={searchDropdownOpen}
                   aria-controls="mpf-project-search-dropdown"
                   aria-autocomplete="list"
+                  aria-haspopup="listbox"
                   autoComplete="off"
                 />
                 {searchInput ? (
@@ -1349,6 +1351,7 @@ export default function ProjectsRedesigned({
                           key={key}
                           type="button"
                           role="option"
+                          aria-selected={false}
                           className="mpf-page-top-search__option"
                           onMouseDown={(e) => e.preventDefault()}
                           onClick={() => handleSuggestionSelect(project)}

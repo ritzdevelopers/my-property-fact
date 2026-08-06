@@ -173,6 +173,32 @@ export default function HomeRecommendationCards({
 
   if (!safeItems.length) return null;
 
+  const getBadgeColor = (badge) => {
+    const text = (badge || "").toLowerCase();
+
+    if (text.includes("new")) {
+      return "#16A34A"; // Green
+    }
+
+    if (text.includes("under")) {
+      return "#F59E0B"; // Orange
+    }
+
+    if (text.includes("ready")) {
+      return "#2563EB"; // Blue
+    }
+
+    if (text.includes("delivered")) {
+      return "#7C3AED"; // Purple
+    }
+
+    if (text.includes("sold")) {
+      return "#DC2626"; // Red
+    }
+
+    return badgeColor; // Default color
+  };
+
   return (
     <section
       className={`container home-projects-preview ${className}`.trim()}
@@ -267,7 +293,7 @@ export default function HomeRecommendationCards({
                     <span
                       className="home-project-card__badge"
                       style={{
-                        "--badge-bg": badgeColor,
+                        "--badge-bg": getBadgeColor(card.badge),
                         "--badge-color": "#fff",
                       }}
                     >

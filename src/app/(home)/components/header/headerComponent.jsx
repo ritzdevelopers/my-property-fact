@@ -37,22 +37,22 @@ const NewBadge = ({ isVisible }) => (
         animate={
           isVisible
             ? {
-                opacity: [0, 1, 1, 0],
-                y: [6, 0, 0, 6],
-                scale: [0.8, 1, 1, 0.8],
-              }
+              opacity: [0, 1, 1, 0],
+              y: [6, 0, 0, 6],
+              scale: [0.8, 1, 1, 0.8],
+            }
             : { opacity: 0, y: 6, scale: 0.8 }
         }
         transition={
           isVisible
             ? {
-                duration: 2.5,
-                repeat: Infinity,
-                repeatDelay: 0.5,
-                delay: i * 0.15,
-                times: [0, 0.12, 0.75, 0.9],
-                ease: "easeInOut",
-              }
+              duration: 2.5,
+              repeat: Infinity,
+              repeatDelay: 0.5,
+              delay: i * 0.15,
+              times: [0, 0.12, 0.75, 0.9],
+              ease: "easeInOut",
+            }
             : { duration: 0.2 }
         }
       >
@@ -69,6 +69,8 @@ const HeaderComponent = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("Detecting...");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -449,6 +451,49 @@ const HeaderComponent = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setSelectedCity("Delhi NCR");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          console.log("Coordinates:", coords.latitude, coords.longitude);
+
+          const response = await fetch(
+            `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch location");
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.region?.city) {
+            setSelectedCity(data.region.city);
+          } else {
+            setSelectedCity("Delhi NCR");
+          }
+        } catch (error) {
+          console.error("Location Error:", error);
+          setSelectedCity("Delhi NCR");
+        }
+      },
+      (error) => {
+        console.error("Geolocation Error:", error);
+        setSelectedCity("Delhi NCR");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000,
+      }
+    );
+  }, []);
+
   return (
     <>
       <div
@@ -492,16 +537,57 @@ const HeaderComponent = () => {
               )}
             </Link>
             {isHomePage ? (
-              <Link href="/city/delhi" className="mpf-header-location-pill" title="Browse Delhi NCR properties">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" stroke="currentColor" strokeWidth="1.8" />
-                  <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-                </svg>
-                <span>Delhi NCR</span>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                </svg>
-              </Link>
+              <div
+                className="mpf-header-location-dropdown"
+                onMouseEnter={() => setShowLocationDropdown(true)}
+                onMouseLeave={() => setShowLocationDropdown(false)}
+              >
+                <button
+                  type="button"
+                  className="mpf-header-location-pill"
+                  title="Browse Cities"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                    <circle
+                      cx="12"
+                      cy="10"
+                      r="2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                  </svg>
+
+                  <span>{selectedCity}</span>
+
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 9l6 6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+
+                {showLocationDropdown && (
+                  <div className="mpf-location-dropdown-menu">
+                    {cityList?.map((city) => (
+                      <Link
+                        key={city.id}
+                        href={`/city/${city.slugURL}`}
+                        className="mpf-location-dropdown-item"
+                      >
+                        {city.cityName}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             ) : null}
           </div>
           <nav className="d-none d-lg-flex flex-grow-1 justify-content-end align-items-center">
@@ -573,8 +659,8 @@ const HeaderComponent = () => {
                                   prefetch={false}
                                   onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/city/" + city.slugURL
-                                      ? "header-link-active"
-                                      : ""
+                                    ? "header-link-active"
+                                    : ""
                                     }`}
                                   title={`${city.cityName} properties`}
                                 >
@@ -671,8 +757,8 @@ const HeaderComponent = () => {
                                   href={`/builder/${builder.slugUrl}`}
                                   onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/builder/" + builder.slugUrl
-                                      ? "header-link-active"
-                                      : ""
+                                    ? "header-link-active"
+                                    : ""
                                     }`}
                                   title={`${builder.builderName} projects`}
                                 >

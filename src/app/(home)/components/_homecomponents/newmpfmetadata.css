@@ -420,6 +420,185 @@
   filter: brightness(1.06);
 }
 
+.premium-ribbon {
+    top: 12px !important;
+  left: 12px !important;
+  position: absolute !important;
+  /* top: 14px !important;
+  left: -12px !important; */
+
+  min-width: 135px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 22px;
+
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .3px;
+
+  background: var(--badge-bg) !important;
+
+  border-radius: 6px;
+
+  overflow: visible;
+
+  box-shadow:
+      0 12px 24px rgba(0,0,0,.18),
+      inset 0 2px 2px rgba(255,255,255,.35),
+      inset 0 -2px 2px rgba(0,0,0,.18);
+
+  transform: perspective(600px) rotateX(6deg);
+
+  animation: ribbonFloat 4s ease-in-out infinite;
+
+  z-index: 20;
+}
+
+.premium-ribbon::before{
+    content:"";
+
+    position:absolute;
+
+    left:-16px;
+    top:0;
+
+    width:18px;
+    height:100%;
+
+    background: var(--badge-bg);
+
+    clip-path:polygon(
+        100% 0,
+        0 50%,
+        100% 100%
+    );
+
+    box-shadow:
+        inset -2px 0 rgba(255,255,255,.25);
+}
+
+.premium-ribbon::after{
+    content:"";
+
+    position:absolute;
+
+    right:-16px;
+    top:0;
+
+    width:18px;
+    height:100%;
+
+    background: var(--badge-bg);
+
+    clip-path:polygon(
+        0 0,
+        100% 50%,
+        0 100%
+    );
+
+    box-shadow:
+        inset 2px 0 rgba(255,255,255,.25);
+}
+
+.premium-ribbon__text{
+
+    position:relative;
+
+    z-index:3;
+
+    text-shadow:
+        0 1px 2px rgba(0,0,0,.25);
+}
+
+.premium-ribbon__text::after{
+
+    content:"";
+
+    position:absolute;
+
+    top:-12px;
+    left:-60px;
+
+    width:35px;
+    height:60px;
+
+    transform:rotate(25deg);
+
+    background:rgba(255,255,255,.45);
+
+    filter:blur(8px);
+
+    animation:ribbonShine 4s infinite;
+}
+
+.premium-ribbon{
+    position: relative;
+}
+
+.premium-ribbon::selection{
+    background:transparent;
+}
+
+.premium-ribbon:before,
+.premium-ribbon:after{
+    z-index:1;
+}
+
+.premium-ribbon{
+    isolation:isolate;
+}
+
+.premium-ribbon::marker{
+    display:none;
+}
+
+.premium-ribbon{
+    background-image:
+        linear-gradient(
+            rgba(255,255,255,.22),
+            transparent 45%
+        ),
+        linear-gradient(
+            180deg,
+            #2fd067,
+            #1db653,
+            #15803d
+        );
+}
+
+@keyframes shine{
+
+    0%{
+        left:-120%;
+    }
+
+    45%{
+        left:130%;
+    }
+
+    100%{
+        left:130%;
+    }
+
+}
+
+@keyframes floatRibbon{
+
+    0%,100%{
+        transform:translateY(0);
+    }
+
+    50%{
+        transform:translateY(-2px);
+    }
+
+}
+
 .home-project-card__badge {
   position: absolute;
   left: 12px;

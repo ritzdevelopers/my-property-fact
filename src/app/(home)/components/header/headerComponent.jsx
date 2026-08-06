@@ -494,6 +494,39 @@ const HeaderComponent = () => {
     );
   }, []);
 
+  const timeoutRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setShowLocationDropdown(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setShowLocationDropdown(false);
+    }, 200);
+  };
+
+  const handleCityClick = (city) => {
+    console.log("Clicked city:", city);
+
+    setSelectedCity(city.cityName);
+    setShowLocationDropdown(false);
+
+    window.dispatchEvent(
+      new CustomEvent("cityChanged", {
+        detail: city,
+      })
+    );
+
+    document
+      .getElementById("recommended-projects")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  };
+
   return (
     <>
       <div
@@ -539,8 +572,8 @@ const HeaderComponent = () => {
             {isHomePage ? (
               <div
                 className="mpf-header-location-dropdown"
-                onMouseEnter={() => setShowLocationDropdown(true)}
-                onMouseLeave={() => setShowLocationDropdown(false)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
               >
                 <button
                   type="button"
@@ -577,13 +610,14 @@ const HeaderComponent = () => {
                 {showLocationDropdown && (
                   <div className="mpf-location-dropdown-menu">
                     {cityList?.map((city) => (
-                      <Link
+                      <button
                         key={city.id}
-                        href={`/city/${city.slugURL}`}
+                        type="button"
                         className="mpf-location-dropdown-item"
+                        onClick={() => handleCityClick(city)}
                       >
                         {city.cityName}
-                      </Link>
+                      </button>
                     ))}
                   </div>
                 )}

@@ -291,13 +291,15 @@ export default function HomeRecommendationCards({
                       decoding="async"
                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                     <span
-                      className="home-project-card__badge"
+                      className="home-project-card__badge premium-ribbon"
                       style={{
                         "--badge-bg": getBadgeColor(card.badge),
                         "--badge-color": "#fff",
                       }}
                     >
-                      {card.badge}
+                      <span className="premium-ribbon__text">
+                        {card.badge}
+                      </span>
                     </span>
                   </div>
 

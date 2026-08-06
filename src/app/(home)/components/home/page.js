@@ -216,7 +216,7 @@ export default async function HomePage() {
 
         {row(
           1,
-                    <RecommendedProjectsWithGeolocation
+          <RecommendedProjectsWithGeolocation
             title="New Property Launches"
             fallbackItems={slimRecommendedProperties}
             fallbackSubtitle={

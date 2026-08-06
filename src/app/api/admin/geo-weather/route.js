@@ -100,13 +100,22 @@ async function fetchWeather(lat, lon) {
   const url =
     `https://api.open-meteo.com/v1/forecast?latitude=${lat}` +
     `&longitude=${lon}` +
-    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,visibility` +
+    `&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,visibility,precipitation,rain,showers,is_day` +
     `&timezone=auto`;
-  const res = await fetch(url, { cache: "no-store" });
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: { Accept: "application/json" },
+  });
   if (!res.ok) return null;
   const wx = await res.json();
   const cur = wx?.current;
   if (!cur) return null;
+
+  const precipitation = Number(cur.precipitation) || 0;
+  const rain = Number(cur.rain) || 0;
+  const showers = Number(cur.showers) || 0;
+  const precipMm = Math.max(precipitation, rain, showers);
+
   return {
     temp: cur.temperature_2m,
     feelsLike: cur.apparent_temperature,
@@ -115,6 +124,9 @@ async function fetchWeather(lat, lon) {
     visibility:
       cur.visibility != null ? Math.round(cur.visibility / 1000) : null,
     code: cur.weather_code,
+    precipitation: precipMm,
+    isDay: cur.is_day === 1,
+    observedAt: cur.time || null,
   };
 }
 
@@ -166,11 +178,19 @@ export async function GET(request) {
       weather = await fetchWeather(geo.lat, geo.lon);
     }
 
-    return NextResponse.json({
-      success: true,
-      geo,
-      weather,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        geo,
+        weather,
+        fetchedAt: new Date().toISOString(),
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+        },
+      },
+    );
   } catch (e) {
     return NextResponse.json(
       { success: false, error: e.message || "Failed to resolve location" },

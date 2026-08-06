@@ -32,17 +32,30 @@ const WEATHER_BG = {
   snow: "/mpf-weather/snow.jpg",
 };
 
-function resolveCondition(code) {
+function resolveCondition(code, precipitation = 0) {
+  // Active precip wins even if WMO code still says overcast
+  if (precipitation > 0.2) {
+    if ([95, 96, 99].includes(code)) return "storm";
+    if ([71, 73, 75, 77, 85, 86].includes(code)) return "snow";
+    return "rain";
+  }
   if (code == null) return "cloudy";
   if (code === 0) return "sunny";
-  if (code === 1) return "partly";
-  if (code === 2 || code === 3) return "cloudy";
+  if (code === 1 || code === 2) return "partly";
+  if (code === 3) return "cloudy";
   if (code === 45 || code === 48) return "fog";
   if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82].includes(code))
     return "rain";
   if ([71, 73, 75, 77, 85, 86].includes(code)) return "snow";
   if ([95, 96, 99].includes(code)) return "storm";
   return "cloudy";
+}
+
+function resolveConditionLabel(code, precipitation = 0) {
+  if (precipitation > 0.2 && ![71, 73, 75, 77, 85, 86, 95, 96, 99].includes(code)) {
+    return precipitation >= 2.5 ? "Heavy Rain" : "Rain";
+  }
+  return conditionLabel(code);
 }
 
 function conditionLabel(code) {
@@ -105,7 +118,7 @@ function formatLocation(geo) {
   return parts.length ? parts.join(", ") : geo.country || "Unknown location";
 }
 
-function getBrowserPosition(timeoutMs = 8000) {
+function getBrowserPosition(timeoutMs = 8000, maximumAge = 60_000) {
   return new Promise((resolve) => {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
       resolve(null);
@@ -118,10 +131,12 @@ function getBrowserPosition(timeoutMs = 8000) {
           lon: pos.coords.longitude,
         }),
       () => resolve(null),
-      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge: 60_000 },
+      { enableHighAccuracy: true, timeout: timeoutMs, maximumAge },
     );
   });
 }
+
+const REFRESH_MS = 5 * 60 * 1000;
 
 function DetailsModal({ open, onClose, geo, weather }) {
   if (!open) return null;
@@ -205,7 +220,10 @@ function DetailsModal({ open, onClose, geo, weather }) {
               <span>Weather</span>
               <strong>
                 {weather
-                  ? `${Math.round(weather.temp)}°C · ${conditionLabel(weather.code)}`
+                  ? `${Math.round(weather.temp)}°C · ${resolveConditionLabel(
+                      weather.code,
+                      weather.precipitation ?? 0,
+                    )}`
                   : "—"}
               </strong>
             </div>
@@ -254,21 +272,31 @@ export function WeatherLocationBanner() {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [now, setNow] = React.useState(new Date());
   const [bgLoaded, setBgLoaded] = React.useState(false);
+  const gpsRef = React.useRef(null);
+  const hasLoadedRef = React.useRef(false);
 
   React.useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 30_000);
     return () => clearInterval(t);
   }, []);
 
-  const loadData = React.useCallback(async () => {
-    setLoading(true);
+  const loadData = React.useCallback(async ({ silent = false, forceGps = false } = {}) => {
+    if (!silent || !hasLoadedRef.current) setLoading(true);
     setError("");
     try {
-      const gps = await getBrowserPosition(7000);
+      const gps = await getBrowserPosition(
+        forceGps ? 10000 : 7000,
+        forceGps ? 0 : 120_000,
+      );
+      if (gps?.lat != null && gps?.lon != null) {
+        gpsRef.current = gps;
+      }
+
+      const coords = gpsRef.current;
       const qs =
-        gps?.lat != null && gps?.lon != null
-          ? `?lat=${gps.lat}&lon=${gps.lon}`
-          : "";
+        coords?.lat != null && coords?.lon != null
+          ? `?lat=${coords.lat}&lon=${coords.lon}&_=${Date.now()}`
+          : `?_=${Date.now()}`;
 
       const res = await fetch(`/api/admin/geo-weather${qs}`, {
         cache: "no-store",
@@ -281,8 +309,11 @@ export function WeatherLocationBanner() {
 
       setGeo(data.geo || null);
       setWeather(data.weather || null);
+      hasLoadedRef.current = true;
     } catch (e) {
-      setError(e.message || "Failed to load weather");
+      if (!hasLoadedRef.current) {
+        setError(e.message || "Failed to load weather");
+      }
     } finally {
       setLoading(false);
     }
@@ -290,9 +321,17 @@ export function WeatherLocationBanner() {
 
   React.useEffect(() => {
     void loadData();
+    const t = setInterval(() => void loadData({ silent: true }), REFRESH_MS);
+    const onFocus = () => void loadData({ silent: true });
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener("focus", onFocus);
+    };
   }, [loadData]);
 
-  const condition = weather ? resolveCondition(weather.code) : "cloudy";
+  const precip = weather?.precipitation ?? 0;
+  const condition = weather ? resolveCondition(weather.code, precip) : "cloudy";
   const locationLabel = formatLocation(geo);
   const bgSrc = WEATHER_BG[condition] || WEATHER_BG.cloudy;
   const isWet = condition === "rain" || condition === "storm";
@@ -332,7 +371,11 @@ export function WeatherLocationBanner() {
     return (
       <div className="mpf-wx-banner mpf-wx-banner--error">
         <p>{error}</p>
-        <button type="button" className="mpf-wx-ip__link" onClick={() => void loadData()}>
+        <button
+          type="button"
+          className="mpf-wx-ip__link"
+          onClick={() => void loadData({ forceGps: true })}
+        >
           Retry
         </button>
       </div>
@@ -374,7 +417,7 @@ export function WeatherLocationBanner() {
                 <button
                   type="button"
                   className="mpf-wx-banner__gps-btn"
-                  onClick={() => void loadData()}
+                  onClick={() => void loadData({ forceGps: true })}
                   title="Allow browser location for a more accurate city"
                 >
                   <Crosshair className="h-3 w-3" />
@@ -392,7 +435,9 @@ export function WeatherLocationBanner() {
                   {weather?.temp != null ? `${Math.round(weather.temp)}°C` : "—"}
                 </div>
                 <div className="mpf-wx-banner__cond">
-                  {weather ? conditionLabel(weather.code) : "Weather unavailable"}
+                  {weather
+                    ? resolveConditionLabel(weather.code, precip)
+                    : "Weather unavailable"}
                 </div>
               </div>
             </div>

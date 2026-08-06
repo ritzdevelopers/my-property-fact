@@ -89,8 +89,8 @@
 }
 
 .leftImage {
-    padding: 18px;
-    border: 1px solid #EAEAEA;
+    /* padding: 18px; */
+    /* border: 1px solid #EAEAEA; */
     transition: .45s;
     background: #fff;
 }

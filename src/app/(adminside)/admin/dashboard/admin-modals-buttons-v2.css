@@ -39,8 +39,9 @@
   position: relative;
   display: flex;
   align-items: center;
-  padding: 0 1.5rem !important;
-  height: 60px;
+  padding: 1rem 1.5rem !important;
+  min-height: 68px;
+  height: auto !important;
   border-bottom: 1px solid hsl(150 14% 92%) !important;
   background: #fff !important;
   overflow: visible;
@@ -161,11 +162,11 @@
 .modal-body .form-label,
 .modal-body label {
   display: block;
-  font-size: 0.75rem !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: hsl(152 25% 36%) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: #374151 !important;
   margin-bottom: 0.4rem !important;
 }
 
@@ -851,4 +852,270 @@ html[data-admin-theme="dark"] .admin-faq-accordion-body {
   background: #0a0a0a;
   color: #e5e7eb;
   border-top-color: #444444;
+}
+
+/* ══════════════════════════════════════════════════════════
+   MPF MODAL LAYOUT HELPERS (convenient form modals)
+   ══════════════════════════════════════════════════════════ */
+.mpf-modal .modal-content {
+  border-radius: 22px !important;
+}
+
+.mpf-modal .modal-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-right: 0.5rem;
+}
+
+.mpf-modal .modal-title small {
+  display: block;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  color: #6b7280 !important;
+  margin-top: 0.15rem;
+  line-height: 1.35;
+}
+
+.mpf-modal .modal-body {
+  padding: 1.25rem 1.5rem 1.1rem !important;
+  background: linear-gradient(180deg, #fbfbfc 0%, #fff 48%) !important;
+}
+
+.mpf-modal .modal-footer {
+  padding: 0.95rem 1.5rem !important;
+  background: #f8fafc !important;
+  border-top: 1px solid #eef1f4 !important;
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.mpf-modal__footer-split {
+  justify-content: space-between !important;
+}
+
+.mpf-modal__footer-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.mpf-modal__section {
+  padding: 1rem 1.05rem;
+  border-radius: 14px;
+  border: 1px solid #e8ecf2;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+  margin-bottom: 0.9rem;
+}
+
+.mpf-modal__section:last-child {
+  margin-bottom: 0;
+}
+
+.mpf-modal__section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.mpf-modal__grid {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mpf-modal__grid--2 {
+  grid-template-columns: 1.4fr 0.8fr;
+}
+
+@media (max-width: 640px) {
+  .mpf-modal__grid--2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mpf-modal .form-text,
+.mpf-modal .form-text.text-muted {
+  display: block;
+  margin-top: 0.35rem !important;
+  font-size: 0.74rem !important;
+  color: #6b7280 !important;
+  line-height: 1.4;
+}
+
+.mpf-modal .form-text code {
+  font-size: 0.72rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+  background: #f1f5f9;
+  color: #0f766e;
+}
+
+.mpf-modal__hint {
+  margin: 0 0 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  color: #1e40af;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.mpf-modal__card {
+  padding: 1rem 1.05rem;
+  border-radius: 14px;
+  border: 1px solid #e8ecf2;
+  background: #fff;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.mpf-modal__card--invalid {
+  border-color: #fecaca;
+  background: #fffafa;
+}
+
+.mpf-modal__card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.mpf-modal__card-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.mpf-modal__card-remove {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 9px !important;
+}
+
+.mpf-modal__card-remove span {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.mpf-modal__confirm p {
+  margin: 0 0 0.75rem;
+  color: #1f2937;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.mpf-modal__confirm ul {
+  margin: 0;
+  padding: 0.85rem 0.85rem 0.85rem 1.4rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef1f4;
+  color: #4b5563;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.mpf-modal__confirm li + li {
+  margin-top: 0.4rem;
+}
+
+.mpf-modal__empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  border: 1px dashed #e2e8f0;
+  background: #f8fafc;
+}
+
+.mpf-modal .btn-success,
+.mpf-modal__btn-primary {
+  min-width: 8.5rem;
+  border-radius: 11px !important;
+  font-weight: 700 !important;
+  padding: 0.55rem 1.1rem !important;
+  box-shadow: 0 6px 14px rgba(16, 185, 129, 0.22) !important;
+}
+
+.mpf-modal .btn-outline-secondary,
+.mpf-modal__btn-cancel {
+  border-radius: 11px !important;
+  font-weight: 600 !important;
+  padding: 0.55rem 1rem !important;
+  border-color: #d1d5db !important;
+  color: #374151 !important;
+  background: #fff !important;
+}
+
+.mpf-modal .btn-outline-secondary:hover,
+.mpf-modal__btn-cancel:hover {
+  background: #f3f4f6 !important;
+  border-color: #9ca3af !important;
+  color: #111827 !important;
+}
+
+.admin-faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-faq-card {
+  border: 1px solid #e8ecf2;
+  border-radius: 14px;
+  background: #fff;
+  padding: 0.95rem 1rem;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+}
+
+.admin-faq-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.admin-faq-card__question {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.4;
+}
+
+.admin-faq-card__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.admin-faq-card__answer {
+  margin: 0.65rem 0 0;
+  font-size: 0.86rem;
+  color: #4b5563;
+  line-height: 1.55;
+}
+
+.admin-faq-card__answer-label {
+  font-weight: 700;
+  color: #0f766e;
 }

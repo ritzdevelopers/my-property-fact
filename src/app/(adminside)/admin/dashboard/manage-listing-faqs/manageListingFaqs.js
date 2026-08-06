@@ -411,96 +411,140 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         <DataTable columns={columns} list={list} />
       </div>
 
-      <Modal size="lg" show={show} onHide={() => setShow(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
+      <Modal
+        size="lg"
+        show={show}
+        onHide={() => !showLoading && setShow(false)}
+        centered
+        backdrop="static"
+        className="mpf-modal"
+        dialogClassName="mpf-modal__dialog"
+      >
+        <Modal.Header closeButton={!showLoading}>
+          <Modal.Title>
+            {title}
+            <small>
+              {faqId > 0
+                ? "Update this FAQ for the selected listing page"
+                : "Attach a question & answer to a listing page"}
+            </small>
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <Form.Group controlId="selectPage" className="mb-3">
-              <Form.Label>Select Page</Form.Label>
-              <Form.Select
-                aria-label="Select listing page"
-                onChange={(e) => handlePageSlugChange(e.target.value)}
-                value={pageSlug}
-                required
-                disabled={faqId > 0}
-              >
-                <option value="">
-                  {slugOptions.length
-                    ? "Select Page"
-                    : "No pages loaded — enter slug below"}
-                </option>
-                {slugOptions.map((item) => (
-                  <option key={item.pageSlug} value={item.pageSlug}>
-                    {item.pageTitle}
-                  </option>
-                ))}
-              </Form.Select>
-              <Form.Control.Feedback type="invalid">
-                Page is required!
-              </Form.Control.Feedback>
-            </Form.Group>
+          <Form
+            id="listing-faq-form"
+            noValidate
+            validated={validated}
+            onSubmit={handleSubmit}
+          >
+            <div className="mpf-modal__section">
+              <p className="mpf-modal__section-title">Page target</p>
+              <div className="mpf-modal__grid mpf-modal__grid--2">
+                <Form.Group controlId="selectPage">
+                  <Form.Label>Select page</Form.Label>
+                  <Form.Select
+                    aria-label="Select listing page"
+                    onChange={(e) => handlePageSlugChange(e.target.value)}
+                    value={pageSlug}
+                    required
+                    disabled={faqId > 0}
+                  >
+                    <option value="">
+                      {slugOptions.length
+                        ? "Choose a listing page…"
+                        : "No pages loaded — enter slug"}
+                    </option>
+                    {slugOptions.map((item) => (
+                      <option key={item.pageSlug} value={item.pageSlug}>
+                        {item.pageTitle}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Control.Feedback type="invalid">
+                    Page is required
+                  </Form.Control.Feedback>
+                </Form.Group>
 
-            <Form.Group controlId="customPageSlug" className="mb-3">
-              <Form.Label>Or enter page slug manually</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="e.g. 3-bhk-in-noida, food-court-in-gurugram"
-                value={pageSlug}
-                onChange={(e) => handlePageSlugChange(e.target.value)}
-                disabled={faqId > 0}
-              />
-              <Form.Text className="text-muted">
-                Use the URL path without leading slash (e.g. new-projects-in-noida)
-              </Form.Text>
-            </Form.Group>
+                <Form.Group controlId="sortOrder">
+                  <Form.Label>Sort order</Form.Label>
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                  />
+                  <Form.Text>Lower numbers appear first</Form.Text>
+                </Form.Group>
+              </div>
 
-            <Form.Group controlId="sortOrder" className="mb-3">
-              <Form.Label>Sort Order</Form.Label>
-              <Form.Control
-                type="number"
-                min={0}
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value)}
-              />
-            </Form.Group>
+              <Form.Group controlId="customPageSlug" className="mt-3">
+                <Form.Label>Or enter page slug</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="e.g. 3-bhk-in-noida"
+                  value={pageSlug}
+                  onChange={(e) => handlePageSlugChange(e.target.value)}
+                  disabled={faqId > 0}
+                />
+                <Form.Text>
+                  URL path without a leading slash — e.g. <code>new-projects-in-noida</code>
+                </Form.Text>
+              </Form.Group>
+            </div>
 
-            <Form.Group controlId="question" className="mb-3">
-              <Form.Label>Question</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                placeholder="Enter Question"
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                Question is required!
-              </Form.Control.Feedback>
-            </Form.Group>
+            <div className="mpf-modal__section">
+              <p className="mpf-modal__section-title">FAQ content</p>
+              <Form.Group controlId="question" className="mb-3">
+                <Form.Label>Question</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  placeholder="What buyers usually ask…"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Question is required
+                </Form.Control.Feedback>
+              </Form.Group>
 
-            <Form.Group controlId="answer" className="mb-3">
-              <Form.Label>Answer</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={answer}
-                placeholder="Enter Answer"
-                onChange={(e) => setAnswer(e.target.value)}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                Answer is required!
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Button className="mt-3 btn btn-success" type="submit" disabled={showLoading}>
-              {buttonName} <LoadingSpinner show={showLoading} />
-            </Button>
+              <Form.Group controlId="answer">
+                <Form.Label>Answer</Form.Label>
+                <Form.Control
+                  as="textarea"
+                  rows={4}
+                  value={answer}
+                  placeholder="Clear, helpful answer…"
+                  onChange={(e) => setAnswer(e.target.value)}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  Answer is required
+                </Form.Control.Feedback>
+              </Form.Group>
+            </div>
           </Form>
         </Modal.Body>
+        <Modal.Footer>
+          <Button
+            type="button"
+            variant="outline-secondary"
+            className="mpf-modal__btn-cancel"
+            onClick={() => setShow(false)}
+            disabled={showLoading}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="listing-faq-form"
+            className="btn btn-success mpf-modal__btn-primary"
+            disabled={showLoading}
+          >
+            {buttonName || "Save FAQ"} <LoadingSpinner show={showLoading} />
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <Modal
@@ -509,16 +553,21 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         onHide={() => !bulkLoading && setShowBulk(false)}
         centered
         scrollable
+        backdrop="static"
+        className="mpf-modal"
+        dialogClassName="mpf-modal__dialog mpf-modal__dialog--xl"
       >
-        <Modal.Header closeButton>
-          <Modal.Title>Bulk Add FAQs (Pro)</Modal.Title>
+        <Modal.Header closeButton={!bulkLoading}>
+          <Modal.Title>
+            Bulk add FAQs
+            <small>Add several FAQs at once — each row can target a different page</small>
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="text-muted small mb-3">
-            Add multiple FAQs for different listing pages in one save. Each row
-            can target a different page.
-          </p>
-          <Form noValidate onSubmit={handleBulkSubmit}>
+          <Form id="listing-faq-bulk-form" noValidate onSubmit={handleBulkSubmit}>
+            <div className="mpf-modal__hint">
+              Tip: pick a page on FAQ #1 and we&apos;ll ask if you want the same page on every row.
+            </div>
             {bulkRows.map((row, index) => {
               const incomplete =
                 bulkValidated &&
@@ -530,46 +579,58 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
               return (
                 <div
                   key={index}
-                  className="border rounded p-3 mb-3"
-                  style={{
-                    background: incomplete ? "rgba(220,53,69,0.04)" : undefined,
-                  }}
+                  className={`mpf-modal__card${incomplete ? " mpf-modal__card--invalid" : ""}`}
                 >
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <strong className="small">FAQ #{index + 1}</strong>
+                  <div className="mpf-modal__card-head">
+                    <span className="mpf-modal__card-badge">FAQ #{index + 1}</span>
                     <Button
                       type="button"
                       variant="outline-danger"
                       size="sm"
+                      className="mpf-modal__card-remove"
                       onClick={() => removeBulkRow(index)}
-                      disabled={bulkRows.length <= 1}
+                      disabled={bulkRows.length <= 1 || bulkLoading}
                       title="Remove row"
                     >
                       <FontAwesomeIcon icon={faTrash} />
+                      <span>Remove</span>
                     </Button>
                   </div>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Page</Form.Label>
-                    <Form.Select
-                      value={row.pageSlug}
-                      onChange={(e) =>
-                        handleBulkPageSlugChange(index, e.target.value, {
-                          fromSelect: true,
-                        })
-                      }
-                      isInvalid={
-                        bulkValidated && !String(row.pageSlug || "").trim()
-                      }
-                    >
-                      <option value="">Select Page</option>
-                      {slugOptions.map((item) => (
-                        <option key={item.pageSlug} value={item.pageSlug}>
-                          {item.pageTitle}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  </Form.Group>
-                  <Form.Group className="mb-2">
+                  <div className="mpf-modal__grid mpf-modal__grid--2">
+                    <Form.Group>
+                      <Form.Label>Page</Form.Label>
+                      <Form.Select
+                        value={row.pageSlug}
+                        onChange={(e) =>
+                          handleBulkPageSlugChange(index, e.target.value, {
+                            fromSelect: true,
+                          })
+                        }
+                        isInvalid={
+                          bulkValidated && !String(row.pageSlug || "").trim()
+                        }
+                      >
+                        <option value="">Choose a listing page…</option>
+                        {slugOptions.map((item) => (
+                          <option key={item.pageSlug} value={item.pageSlug}>
+                            {item.pageTitle}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </Form.Group>
+                    <Form.Group>
+                      <Form.Label>Sort order</Form.Label>
+                      <Form.Control
+                        type="number"
+                        min={0}
+                        value={row.sortOrder}
+                        onChange={(e) =>
+                          updateBulkRow(index, { sortOrder: e.target.value })
+                        }
+                      />
+                    </Form.Group>
+                  </div>
+                  <Form.Group className="mt-3">
                     <Form.Label>Or enter page slug</Form.Label>
                     <Form.Control
                       type="text"
@@ -583,23 +644,12 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
                       }
                     />
                   </Form.Group>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Sort Order</Form.Label>
-                    <Form.Control
-                      type="number"
-                      min={0}
-                      value={row.sortOrder}
-                      onChange={(e) =>
-                        updateBulkRow(index, { sortOrder: e.target.value })
-                      }
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-2">
+                  <Form.Group className="mt-3">
                     <Form.Label>Question</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
-                      placeholder="Enter Question"
+                      placeholder="What buyers usually ask…"
                       value={row.question}
                       onChange={(e) =>
                         updateBulkRow(index, { question: e.target.value })
@@ -609,12 +659,12 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
                       }
                     />
                   </Form.Group>
-                  <Form.Group>
+                  <Form.Group className="mt-3">
                     <Form.Label>Answer</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={2}
-                      placeholder="Enter Answer"
+                      placeholder="Clear, helpful answer…"
                       value={row.answer}
                       onChange={(e) =>
                         updateBulkRow(index, { answer: e.target.value })
@@ -627,23 +677,38 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
                 </div>
               );
             })}
-            <div className="d-flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="outline-secondary"
-                onClick={addBulkRow}
-                disabled={bulkLoading}
-              >
-                + Add another FAQ
-              </Button>
-              <Button type="submit" className="btn btn-success" disabled={bulkLoading}>
-                Save {bulkRows.length} FAQ
-                {bulkRows.length === 1 ? "" : "s"}{" "}
-                <LoadingSpinner show={bulkLoading} />
-              </Button>
-            </div>
           </Form>
         </Modal.Body>
+        <Modal.Footer className="mpf-modal__footer-split">
+          <Button
+            type="button"
+            variant="outline-secondary"
+            onClick={addBulkRow}
+            disabled={bulkLoading}
+          >
+            + Add another FAQ
+          </Button>
+          <div className="mpf-modal__footer-actions">
+            <Button
+              type="button"
+              variant="outline-secondary"
+              onClick={() => setShowBulk(false)}
+              disabled={bulkLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              form="listing-faq-bulk-form"
+              className="btn btn-success"
+              disabled={bulkLoading}
+            >
+              Save {bulkRows.length} FAQ
+              {bulkRows.length === 1 ? "" : "s"}{" "}
+              <LoadingSpinner show={bulkLoading} />
+            </Button>
+          </div>
+        </Modal.Footer>
       </Modal>
 
       <Modal
@@ -655,56 +720,75 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         }}
         centered
         size="lg"
+        className="mpf-modal"
+        dialogClassName="mpf-modal__dialog"
       >
         <Modal.Header closeButton>
           <Modal.Title>
-            <DashboardHeader
-              buttonName={"+ Add FAQ"}
-              functionName={openAddModel}
-              heading={`FAQs — ${pageTitle || pageSlug}`}
-            />
+            FAQs — {pageTitle || pageSlug}
+            <small>{faqList.length} question{faqList.length === 1 ? "" : "s"} on this page</small>
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="admin-faq-list">
-            {faqList.map((item, index) => (
-              <div className="admin-faq-card" key={item.id ?? index}>
-                <div className="admin-faq-card__header">
-                  <p className="admin-faq-card__question">
-                    {`Q ${index + 1} - ${item.question}`}
-                  </p>
-                  <div className="admin-faq-card__actions">
-                    <Button
-                      variant="outline-primary"
-                      size="sm"
-                      onClick={() =>
-                        openEditModel({
-                          ...item,
-                          pageSlug,
-                          pageTitle,
-                        })
-                      }
-                    >
-                      Edit
-                    </Button>
-                    <span
-                      className="d-inline-flex align-items-center"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => openConfirmationBox(item.id)}
-                      role="presentation"
-                    >
-                      <AdminTableDeleteIcon />
-                    </span>
+            {faqList.length === 0 ? (
+              <div className="mpf-modal__empty">No FAQs on this page yet.</div>
+            ) : (
+              faqList.map((item, index) => (
+                <div className="admin-faq-card" key={item.id ?? index}>
+                  <div className="admin-faq-card__header">
+                    <p className="admin-faq-card__question">
+                      {`Q${index + 1}. ${item.question}`}
+                    </p>
+                    <div className="admin-faq-card__actions">
+                      <Button
+                        variant="outline-primary"
+                        size="sm"
+                        onClick={() =>
+                          openEditModel({
+                            ...item,
+                            pageSlug,
+                            pageTitle,
+                          })
+                        }
+                      >
+                        Edit
+                      </Button>
+                      <span
+                        className="d-inline-flex align-items-center"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => openConfirmationBox(item.id)}
+                        role="presentation"
+                      >
+                        <AdminTableDeleteIcon />
+                      </span>
+                    </div>
                   </div>
+                  <p className="admin-faq-card__answer">
+                    <span className="admin-faq-card__answer-label">A — </span>
+                    {item.answer}
+                  </p>
                 </div>
-                <p className="admin-faq-card__answer">
-                  <span className="admin-faq-card__answer-label">Ans - </span>
-                  {item.answer}
-                </p>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </Modal.Body>
+        <Modal.Footer>
+          <Button
+            type="button"
+            variant="outline-secondary"
+            onClick={() => {
+              setShowFaqList(false);
+              setPageSlug("");
+              setPageTitle("");
+            }}
+          >
+            Close
+          </Button>
+          <Button type="button" className="btn btn-success" onClick={openAddModel}>
+            + Add FAQ
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <Modal
@@ -712,28 +796,38 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         onHide={cancelPendingPageChange}
         centered
         backdrop="static"
+        className="mpf-modal"
+        dialogClassName="mpf-modal__dialog mpf-modal__dialog--sm"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Apply page to all FAQs?</Modal.Title>
+          <Modal.Title>
+            Apply page to all FAQs?
+            <small>Choose how this page selection should apply</small>
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="mb-2">
-            You selected{" "}
-            <strong>
-              {pendingPageChange?.pageTitle ||
-                pendingPageChange?.pageSlug ||
-                "this page"}
-            </strong>
-            .
-          </p>
-          <p className="mb-0 text-muted">
-            Choose <strong>Yes</strong> to select this same page on FAQ #2 and
-            every other row. Choose <strong>No</strong> to apply it only to this
-            FAQ and load that page&apos;s first FAQ.
-          </p>
+          <div className="mpf-modal__confirm">
+            <p>
+              You selected{" "}
+              <strong>
+                {pendingPageChange?.pageTitle ||
+                  pendingPageChange?.pageSlug ||
+                  "this page"}
+              </strong>
+              .
+            </p>
+            <ul>
+              <li>
+                <strong>Yes</strong> — use this page on FAQ #2 and every other row
+              </li>
+              <li>
+                <strong>No</strong> — apply only to this FAQ and load that page&apos;s first FAQ
+              </li>
+            </ul>
+          </div>
         </Modal.Body>
-        <Modal.Footer className="d-flex justify-content-center gap-2">
-          <Button variant="secondary" onClick={cancelPendingPageChange}>
+        <Modal.Footer>
+          <Button variant="outline-secondary" onClick={cancelPendingPageChange}>
             Cancel
           </Button>
           <Button variant="outline-primary" onClick={confirmUseFirstFaq}>

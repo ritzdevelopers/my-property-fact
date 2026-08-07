@@ -333,9 +333,9 @@ export default function BlogDetail({
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state
         setErrors({ phone: "" });
-        toast.success(response.message);
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong");

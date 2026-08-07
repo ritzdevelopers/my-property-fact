@@ -218,9 +218,9 @@ export default function CommonPopUpform({
         setValidated(false); // Reset validation state
         setFormData(intitalData);
         setErrors({ name: "", email: "", phone: "" });
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
       toast.error(error.data.message);

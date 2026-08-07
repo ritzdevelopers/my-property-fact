@@ -201,7 +201,7 @@ const settings = {
               <div className="text-center pt-3">
                 <Link
                   title="View all projects"
-                  className="btn text-white projects-view-all-btn btn-normal-color border-0"
+                  className="btn projects-view-all-btn btn-normal-color border-0"
                   href={`/projects/${url}`}
                 >
                   View all

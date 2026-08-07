@@ -62,29 +62,49 @@ export default function PropertyContainer({
 
   const getFeaturedBadgeStyle = (status) => {
     const defaultStyle = {
-      backgroundColor: "#FF5800",
-      textColor: "#ffffff",
+      backgroundColor: "#E11D48",
+      textColor: "#FFF7ED",
     };
 
     if (!status) {
       return defaultStyle;
     }
 
-
     const colorMap = {
-      "new launched": { backgroundColor: "#35A332", textColor: "#fff" },
-      "new launch": { backgroundColor: "#EC191C", textColor: "#1f2937" },
-      "ultra luxury": { backgroundColor: "#CC9848", textColor: "#ffffff" },
-      luxury: { backgroundColor: "#d32f2f", textColor: "#ffffff" },
-      "ready to move": { backgroundColor: "#c1e3e9", textColor: "#0c3d48" },
-      completed: { backgroundColor: "#c1e3e9", textColor: "#0c3d48" },
-      "under construction": { backgroundColor: "#e9e2ef", textColor: "#3d2f52" },
-      "possession soon": { backgroundColor: "#2563eb", textColor: "#ffffff" },
-      affordable: { backgroundColor: "#22c55e", textColor: "#ffffff" },
+      "new launched": { backgroundColor: "#E11D48", textColor: "#FFF7ED" },
+      "new launch": { backgroundColor: "#E11D48", textColor: "#FFF7ED" },
+      "ultra luxury": { backgroundColor: "#B45309", textColor: "#FFFBEB" },
+      luxury: { backgroundColor: "#B45309", textColor: "#FFFBEB" },
+      "ready to move": { backgroundColor: "#0891B2", textColor: "#ECFEFF" },
+      completed: { backgroundColor: "#0891B2", textColor: "#ECFEFF" },
+      "under construction": { backgroundColor: "#7C3AED", textColor: "#F5F3FF" },
+      "possession soon": { backgroundColor: "#2563EB", textColor: "#EFF6FF" },
+      affordable: { backgroundColor: "#0F766E", textColor: "#F0FDFA" },
     };
 
     const normalized = status.trim().toLowerCase();
     return colorMap[normalized] || defaultStyle;
+  };
+
+  const renderRibbonBadge = () => {
+    if (!data.projectStatusName) return null;
+    const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
+    return (
+      <span
+        className="home-project-card__ribbon-wrap home-featured-ribbon-wrap"
+        style={{
+          "--badge-bg": backgroundColor,
+          "--badge-ink": textColor,
+        }}
+        aria-label={data.projectStatusName}
+      >
+        <span className="home-project-card__ribbon-splash" aria-hidden />
+        <span className="home-project-card__badge home-project-card__ribbon home-featured-status-badge">
+          <span className="home-project-card__ribbon-shine" aria-hidden />
+          <span className="home-project-card__ribbon-text">{data.projectStatusName}</span>
+        </span>
+      </span>
+    );
   };
 
   const addressSummary = formatProjectAddress(data.projectAddress);
@@ -226,6 +246,61 @@ export default function PropertyContainer({
           <div className="home-featured-builder-meta">
             {buildFeaturedSubtitle()}
           </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Home featured rails: cinematic poster cards (match Popular Projects)
+  if (badgeVariant === "home-featured") {
+    return (
+      <Link
+        href={`/${data.slugURL}`}
+        className="home-project-card home-project-card--poster home-featured-poster-card"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`View details about ${data.projectName}`}
+        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+      >
+        <div className="home-project-card__media">
+          <img
+            src={imageSrc}
+            alt={projectCardImageAlt}
+            title={projectCardImageAlt}
+            className="home-project-card__image"
+            width={400}
+            height={360}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority="auto"
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
+        </div>
+
+        {renderRibbonBadge()}
+
+        <div className="home-project-card__overlay">
+          <div className="home-project-card__overlay-top">
+            <p className="home-project-card__price">{generatePrice(data.projectPrice)}</p>
+            <span className="home-project-card__cta">
+              Explore
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </div>
+          <h3 className="home-project-card__title">{data.projectName}</h3>
+          <p className="home-project-card__meta">
+            {data.propertyTypeName || buildFeaturedSubtitle()}
+          </p>
+          <p className="home-project-card__location">
+            <FontAwesomeIcon
+              icon={faLocationDot}
+              className="home-project-card__pin"
+              style={{ color: "#7dff9f" }}
+            />
+            <span>{addressSummary || "Location on project page"}</span>
+          </p>
         </div>
       </Link>
     );

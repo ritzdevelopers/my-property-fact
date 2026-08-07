@@ -173,30 +173,35 @@ export default function HomeRecommendationCards({
 
   if (!safeItems.length) return null;
 
-  const getBadgeColor = (badge) => {
+  const getBadgeStyle = (badge) => {
     const text = (badge || "").toLowerCase();
 
+    // Ribbon fill + ink (text) — high-contrast pairs that catch the eye
     if (text.includes("new")) {
-      return "#16A34A"; // Green
+      return { bg: "#E11D48", ink: "#FFF7ED" }; // vivid rose + warm ivory
     }
 
     if (text.includes("under")) {
-      return "#F59E0B"; // Orange
+      return { bg: "#7C3AED", ink: "#F5F3FF" }; // electric violet + soft lilac ink
     }
 
     if (text.includes("ready")) {
-      return "#2563EB"; // Blue
+      return { bg: "#0891B2", ink: "#ECFEFF" }; // cyan + ice
+    }
+
+    if (text.includes("ultra") || text.includes("luxury")) {
+      return { bg: "#B45309", ink: "#FFFBEB" }; // amber bronze + cream
     }
 
     if (text.includes("delivered")) {
-      return "#7C3AED"; // Purple
+      return { bg: "#0F766E", ink: "#F0FDFA" }; // teal + mint ink
     }
 
     if (text.includes("sold")) {
-      return "#DC2626"; // Red
+      return { bg: "#9F1239", ink: "#FFF1F2" }; // deep crimson + soft rose ink
     }
 
-    return badgeColor; // Default color
+    return { bg: badgeColor || "#E11D48", ink: "#FFF7ED" };
   };
 
   return (
@@ -269,6 +274,7 @@ export default function HomeRecommendationCards({
         <div className="home-projects-preview__track" style={trackStyle}>
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
+            const badgeStyle = getBadgeStyle(card.badge);
             const rowKey =
               kind === "mixed"
                 ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
@@ -277,11 +283,10 @@ export default function HomeRecommendationCards({
               <div key={rowKey} className="home-projects-preview__slide">
                 <Link
                   href={card.href}
-                  className="home-project-card"
+                  className="home-project-card home-project-card--poster"
                   title={card.title ? `View ${card.title}` : "View project details"}
                 >
                   <div className="home-project-card__media">
-                    {/** Keep title/alt explicit for SEO audits; avoid "/" placeholders. */}
                     <img
                       src={card.image}
                       alt={`${card.title} — real estate listing card image on My Property Fact`}
@@ -289,25 +294,43 @@ export default function HomeRecommendationCards({
                       className="home-project-card__image"
                       loading="lazy"
                       decoding="async"
-                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                    <span
-                      className="home-project-card__badge premium-ribbon"
-                      style={{
-                        "--badge-bg": getBadgeColor(card.badge),
-                        "--badge-color": "#fff",
-                      }}
-                    >
-                      <span className="premium-ribbon__text">
-                        {card.badge}
-                      </span>
-                    </span>
+                    />
                   </div>
 
-                  <div className="home-project-card__body">
+                  <span
+                    className="home-project-card__ribbon-wrap"
+                    style={{
+                      "--badge-bg": badgeStyle.bg,
+                      "--badge-ink": badgeStyle.ink,
+                    }}
+                    aria-label={card.badge}
+                  >
+                    <span className="home-project-card__ribbon-splash" aria-hidden />
+                    <span className="home-project-card__badge home-project-card__ribbon">
+                      <span className="home-project-card__ribbon-shine" aria-hidden />
+                      <span className="home-project-card__ribbon-text">{card.badge}</span>
+                    </span>
+                  </span>
+
+                  <div className="home-project-card__overlay">
+                    <div className="home-project-card__overlay-top">
+                      <p className="home-project-card__price">{card.price}</p>
+                      <span className="home-project-card__cta">
+                        Explore
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
                     <h3 className="home-project-card__title">{card.title}</h3>
                     <p className="home-project-card__meta">{card.meta}</p>
-                    <p className="home-project-card__location">{card.location}</p>
-                    <p className="home-project-card__price">{card.price}</p>
+                    <p className="home-project-card__location">
+                      <svg className="home-project-card__pin" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <path d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" stroke="currentColor" strokeWidth="1.8" />
+                        <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+                      </svg>
+                      {card.location}
+                    </p>
                   </div>
                 </Link>
               </div>

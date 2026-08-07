@@ -295,9 +295,11 @@
 
 .home-projects-preview__title {
   margin: 0;
-  font-size: clamp(28px, 3vw, 38px);
-  line-height: 1.1;
-  color: #000000;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: #1a1d23;
 }
 
 .home-projects-preview__sub {
@@ -308,17 +310,23 @@
 }
 
 .home-projects-preview__view-all {
-  color: #005032;
+  display: inline-flex;
+  align-items: center;
+  color: #0d5834;
   text-decoration: none;
   font-weight: 700;
   white-space: nowrap;
-  transition: color 0.18s ease;
+  transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .home-projects-preview__view-all:hover,
 .home-projects-preview__view-all:focus-visible {
-  color: #C9A24D;
+  color: #fff;
   text-decoration: none;
+}
+
+.home-projects-preview__view-all:active {
+  color: #fff;
 }
 
 .home-projects-preview__nav {
@@ -421,154 +429,52 @@
 }
 
 .premium-ribbon {
-    top: 12px !important;
+  top: 12px !important;
   left: 12px !important;
   position: absolute !important;
-  /* top: 14px !important;
-  left: -12px !important; */
-
-  min-width: 135px;
-  height: 32px;
-
-  display: flex;
+  min-width: 0;
+  height: auto;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  padding: 0 22px;
-
+  padding: 6px 11px;
   color: #fff !important;
   font-weight: 700;
-  font-size: 12px;
-  letter-spacing: .3px;
-
-  background: var(--badge-bg) !important;
-
-  border-radius: 6px;
-
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--badge-bg, #16a34a) !important;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
   overflow: visible;
-
   box-shadow:
-      0 12px 24px rgba(0,0,0,.18),
-      inset 0 2px 2px rgba(255,255,255,.35),
-      inset 0 -2px 2px rgba(0,0,0,.18);
-
-  transform: perspective(600px) rotateX(6deg);
-
-  animation: ribbonFloat 4s ease-in-out infinite;
-
+    0 6px 16px rgba(16, 18, 22, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.22) inset;
+  transform: none;
+  animation: none;
   z-index: 20;
+  isolation: isolate;
 }
 
-.premium-ribbon::before{
-    content:"";
-
-    position:absolute;
-
-    left:-16px;
-    top:0;
-
-    width:18px;
-    height:100%;
-
-    background: var(--badge-bg);
-
-    clip-path:polygon(
-        100% 0,
-        0 50%,
-        100% 100%
-    );
-
-    box-shadow:
-        inset -2px 0 rgba(255,255,255,.25);
+.premium-ribbon::before,
+.premium-ribbon::after {
+  display: none;
+  content: none;
 }
 
-.premium-ribbon::after{
-    content:"";
-
-    position:absolute;
-
-    right:-16px;
-    top:0;
-
-    width:18px;
-    height:100%;
-
-    background: var(--badge-bg);
-
-    clip-path:polygon(
-        0 0,
-        100% 50%,
-        0 100%
-    );
-
-    box-shadow:
-        inset 2px 0 rgba(255,255,255,.25);
+.premium-ribbon__text {
+  position: relative;
+  z-index: 3;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
 }
 
-.premium-ribbon__text{
-
-    position:relative;
-
-    z-index:3;
-
-    text-shadow:
-        0 1px 2px rgba(0,0,0,.25);
+.premium-ribbon__text::after {
+  display: none;
+  content: none;
 }
 
-.premium-ribbon__text::after{
-
-    content:"";
-
-    position:absolute;
-
-    top:-12px;
-    left:-60px;
-
-    width:35px;
-    height:60px;
-
-    transform:rotate(25deg);
-
-    background:rgba(255,255,255,.45);
-
-    filter:blur(8px);
-
-    animation:ribbonShine 4s infinite;
-}
-
-.premium-ribbon{
-    position: relative;
-}
-
-.premium-ribbon::selection{
-    background:transparent;
-}
-
-.premium-ribbon:before,
-.premium-ribbon:after{
-    z-index:1;
-}
-
-.premium-ribbon{
-    isolation:isolate;
-}
-
-.premium-ribbon::marker{
-    display:none;
-}
-
-.premium-ribbon{
-    background-image:
-        linear-gradient(
-            rgba(255,255,255,.22),
-            transparent 45%
-        ),
-        linear-gradient(
-            180deg,
-            #2fd067,
-            #1db653,
-            #15803d
-        );
+.premium-ribbon::selection {
+  background: transparent;
 }
 
 @keyframes shine{
@@ -604,16 +510,20 @@
   left: 12px;
   top: 12px;
   bottom: auto;
-  padding: 6px 10px;
-  border-radius: 0;
-  background: rgba(250, 248, 244, 0.92);
-  color: #141a1c;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--badge-bg, #16a34a);
+  color: #fff;
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 6px 16px rgba(16, 18, 22, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.22) inset;
   opacity: 1;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
 }
 

@@ -306,12 +306,13 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center center;
+  /* Keep balcony/couple visible; skyline stays on the left for copy */
+  object-position: 72% center;
 }
 
 .mpf-home-r26 .hero-banner-image--full {
   object-fit: cover !important;
-  object-position: center center !important;
+  object-position: 72% center !important;
 }
 
 .mpf-home-r26 .home-banner-overlay {

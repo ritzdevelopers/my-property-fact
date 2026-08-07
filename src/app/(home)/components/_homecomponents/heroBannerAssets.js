@@ -2,15 +2,15 @@
 export const BANNER_ALT = "My Property Fact — home";
 
 export const BANNER_DESKTOP = {
-  src: "/static/banners/mpf-home-hero-desktop.jpg",
+  src: "/static/banners/mpf-home-hero-desktop-v2.jpg",
   width: 1920,
-  height: 780,
+  height: 883,
 };
 
 export const BANNER_TABLET = {
-  src: "/static/banners/mpf-home-hero-tablet.jpg",
-  width: 768,
-  height: 312,
+  src: "/static/banners/mpf-home-hero-tablet-v2.jpg",
+  width: 1024,
+  height: 629,
 };
 
 export const BANNER_MOBILE = {

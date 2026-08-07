@@ -41,11 +41,11 @@
 }
 
 .hero-banner-frame-tablet {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1024 / 629;
 }
 
 .hero-banner-frame-desktop {
-  aspect-ratio: 1920 / 600;
+  aspect-ratio: 1920 / 883;
 }
 
 .hero-art-direction {
@@ -57,10 +57,10 @@
   background: #0d2a1c;
 }
 
-/* Tablet banner is square (768×768) */
+/* Tablet banner */
 @media (min-width: 768px) and (max-width: 991.98px) {
   .hero-art-direction {
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1024 / 629;
     max-height: min(72vh, 720px);
   }
 }
@@ -68,7 +68,7 @@
 /* Desktop wide banner */
 @media (min-width: 992px) {
   .hero-art-direction {
-    aspect-ratio: 1920 / 600;
+    aspect-ratio: 1920 / 883;
     max-height: none;
   }
 }

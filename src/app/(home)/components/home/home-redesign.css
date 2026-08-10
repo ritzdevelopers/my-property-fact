@@ -273,6 +273,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 /* ---------- Hero shell (SS: left copy + search, badge right) ---------- */
 .mpf-home-r26 .hero-section-wrapper {
+  position: relative;
+  /* Above the sections below so search dropdowns can hang past the banner */
+  z-index: 3;
   padding-bottom: 0 !important;
   margin-bottom: 0;
 }
@@ -286,7 +289,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   aspect-ratio: auto;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* Clip the cover image sideways but let dropdowns escape downwards */
+  overflow-x: clip;
+  overflow-y: visible;
   margin-top: 0;
 }
 
@@ -376,7 +381,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   background: none !important;
   -webkit-text-fill-color: #fff !important;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.28);
-  max-width: 18ch;
+  /* Wide enough to keep "Find Your Perfect Property in" on one line above
+     the typed city, so the heading reads as two lines on desktop. */
+  max-width: 28ch;
+  text-wrap: balance;
   margin: 0;
 }
 
@@ -582,6 +590,15 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .smart-search-sheet-head,
 .mpf-home-r26 .smart-search-sheet-backdrop {
   display: none;
+}
+
+/* Long option lists scroll inside the popover instead of stretching down
+   the page past the hero */
+.mpf-home-r26 .smart-search-property-panel,
+.mpf-home-r26 .smart-search-suggestions {
+  max-height: min(58vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .mpf-home-r26 .smart-search-hero-field {
@@ -1277,7 +1294,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
   .mpf-home-r26 .mpf-hero-copy .headgradient,
   .mpf-home-r26 .mpf-hero-copy .headgradient--sparkle {
-    max-width: 16ch;
+    max-width: 15ch;
   }
 
   /* Keep the longest city name on a single line on narrow phones */

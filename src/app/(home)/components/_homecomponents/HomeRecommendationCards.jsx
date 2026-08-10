@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import "./newmpfmetadata.css";
@@ -21,11 +21,15 @@ function formatProjectPrice(value) {
   if (value == null || value === "") return "Price on request";
   const strValue = String(value).trim();
   if (!strValue) return "Price on request";
-  if (/[a-zA-Z]/.test(strValue)) return strValue;
+  if (/[a-zA-Z]/.test(strValue)) {
+    // Keep custom labels; append * onwards when it's a priced string without it
+    if (/onwards/i.test(strValue) || /request/i.test(strValue)) return strValue;
+    return /[*]/.test(strValue) ? `${strValue} Onwards` : `${strValue}* Onwards`;
+  }
   const numericValue = Number.parseFloat(strValue.replace(/,/g, ""));
   if (!Number.isFinite(numericValue) || numericValue <= 0) return "Price on request";
-  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} Lakh`;
-  return `₹ ${numericValue} Cr`;
+  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`;
+  return `₹ ${numericValue} Cr* Onwards`;
 }
 
 function getProjectHref(project) {
@@ -96,7 +100,7 @@ function getCardPayload(item, kind) {
           .filter(Boolean)
           .join(" ") || "Property details available on listing page",
       location: source?.location || "Location not specified",
-      price: source?.price || "Price on request",
+      price: formatProjectPrice(source?.price),
     };
   }
 
@@ -118,8 +122,9 @@ function getCardPayload(item, kind) {
 }
 
 function getVisibleCount(viewportWidth) {
-  if (viewportWidth <= 576) return 2;
+  if (viewportWidth <= 480) return 1;
   if (viewportWidth <= 768) return 2;
+  if (viewportWidth <= 1024) return 3;
   return 4;
 }
 
@@ -138,11 +143,13 @@ export default function HomeRecommendationCards({
   );
   const [visibleCount, setVisibleCount] = useState(4);
   const [startIndex, setStartIndex] = useState(0);
+  const viewportRef = useRef(null);
 
   const maxStartIndex = Math.max(0, safeItems.length - visibleCount);
   const canSlide = safeItems.length > visibleCount;
   const trackStyle = {
     transform: `translateX(-${startIndex * (100 / visibleCount)}%)`,
+    "--preview-visible": visibleCount,
   };
 
   useEffect(() => {
@@ -163,11 +170,33 @@ export default function HomeRecommendationCards({
     setStartIndex((prev) => Math.min(prev, maxStartIndex));
   }, [maxStartIndex]);
 
+  /** Below the mobile breakpoint the rail is a native scroll-snap container,
+   *  so the arrows scroll it instead of driving the track transform. */
+  const scrollRailBy = useCallback((direction) => {
+    const viewport = viewportRef.current;
+    if (!viewport || viewport.scrollWidth <= viewport.clientWidth + 1) return false;
+
+    const slide = viewport.querySelector(".home-projects-preview__slide");
+    const step = slide?.getBoundingClientRect().width || viewport.clientWidth;
+    const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+    const target = viewport.scrollLeft + direction * step;
+
+    viewport.scrollTo({
+      left: direction > 0
+        ? (target > maxScroll - 1 ? 0 : target)
+        : (target < 1 ? maxScroll : target),
+      behavior: "smooth",
+    });
+    return true;
+  }, []);
+
   const handlePrev = () => {
+    if (scrollRailBy(-1)) return;
     setStartIndex((prev) => (prev <= 0 ? maxStartIndex : prev - 1));
   };
 
   const handleNext = () => {
+    if (scrollRailBy(1)) return;
     setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
   };
 
@@ -178,7 +207,7 @@ export default function HomeRecommendationCards({
 
     // Ribbon fill + ink (text) — high-contrast pairs that catch the eye
     if (text.includes("new")) {
-      return { bg: "#E11D48", ink: "#FFF7ED" }; // vivid rose + warm ivory
+      return { bg: "#EA580C", ink: "#FFF7ED" }; // vivid orange + warm ivory
     }
 
     if (text.includes("under")) {
@@ -198,10 +227,10 @@ export default function HomeRecommendationCards({
     }
 
     if (text.includes("sold")) {
-      return { bg: "#9F1239", ink: "#FFF1F2" }; // deep crimson + soft rose ink
+      return { bg: "#BE123C", ink: "#FFF1F2" }; // deep rose + soft rose ink
     }
 
-    return { bg: badgeColor || "#E11D48", ink: "#FFF7ED" };
+    return { bg: badgeColor || "#EA580C", ink: "#FFF7ED" };
   };
 
   return (
@@ -270,7 +299,7 @@ export default function HomeRecommendationCards({
         </div>
       </div>
 
-      <div className="home-projects-preview__viewport">
+      <div className="home-projects-preview__viewport" ref={viewportRef}>
         <div className="home-projects-preview__track" style={trackStyle}>
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);

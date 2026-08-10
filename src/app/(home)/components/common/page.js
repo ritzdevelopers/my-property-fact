@@ -62,7 +62,7 @@ export default function PropertyContainer({
 
   const getFeaturedBadgeStyle = (status) => {
     const defaultStyle = {
-      backgroundColor: "#E11D48",
+      backgroundColor: "#EA580C",
       textColor: "#FFF7ED",
     };
 
@@ -71,8 +71,8 @@ export default function PropertyContainer({
     }
 
     const colorMap = {
-      "new launched": { backgroundColor: "#E11D48", textColor: "#FFF7ED" },
-      "new launch": { backgroundColor: "#E11D48", textColor: "#FFF7ED" },
+      "new launched": { backgroundColor: "#EA580C", textColor: "#FFF7ED" },
+      "new launch": { backgroundColor: "#EA580C", textColor: "#FFF7ED" },
       "ultra luxury": { backgroundColor: "#B45309", textColor: "#FFFBEB" },
       luxury: { backgroundColor: "#B45309", textColor: "#FFFBEB" },
       "ready to move": { backgroundColor: "#0891B2", textColor: "#ECFEFF" },

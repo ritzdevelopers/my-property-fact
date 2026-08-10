@@ -23,12 +23,24 @@ export function sanitizeCityDescriptionHtml(html, cityName = "") {
   if (city) {
     const escapedCity = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     out = out.replace(
-      new RegExp(`<h[12][^>]*>\\s*About\\s+${escapedCity}\\s*<\\/h[12]>`, "gi"),
+      new RegExp(`<h[1-3][^>]*>\\s*About\\s+${escapedCity}\\s*<\\/h[1-3]>`, "gi"),
+      "",
+    );
+    // Drop CMS guide titles — the UI already shows a clean guide heading
+    out = out.replace(
+      new RegExp(
+        `<h[1-3][^>]*>\\s*Property\\s+in\\s+${escapedCity}[^<]*<\\/h[1-3]>`,
+        "gi",
+      ),
       "",
     );
   }
 
-  out = out.replace(/<h[12][^>]*>\s*About\s+[^<]+\s*<\/h[12]>/gi, "");
+  out = out.replace(/<h[1-3][^>]*>\s*About\s+[^<]+\s*<\/h[1-3]>/gi, "");
+  out = out.replace(
+    /<h[1-3][^>]*>\s*Property\s+in\s+[^<]+<\/h[1-3]>/gi,
+    "",
+  );
 
   return out.trim();
 }

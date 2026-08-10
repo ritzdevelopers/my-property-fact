@@ -80,23 +80,15 @@ export default function CityMonumentShowcase({ cityData, projectCount = 0 }) {
           </div>
         </div>
 
-        <div className="city-showcase__connector" aria-hidden="true">
-          <span className="city-showcase__connector-line" />
-          <span className="city-showcase__connector-arrow">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
-              <path
-                d="M12 5v14M5 13l7 7 7-7"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
-        </div>
-
         {/* City details — attached below the hero card */}
         <div className="city-showcase__details">
+          <div className="city-showcase__details-header">
+            <p className="city-showcase__eyebrow">City guide</p>
+            <h2 className="city-showcase__guide-title">
+              Property in {cityName}: Your Complete Guide
+            </h2>
+          </div>
+
           <div className="city-showcase__description-wrap">
             {description ? (
               <div

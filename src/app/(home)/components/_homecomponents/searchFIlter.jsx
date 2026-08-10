@@ -359,6 +359,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [suggestionsReady, setSuggestionsReady] = useState(true);
   const [heroCityId, setHeroCityId] = useState("");
   const [heroBudget, setHeroBudget] = useState("");
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
   const router = useRouter();
   const searchWrapRef = useRef(null);
@@ -402,6 +403,29 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     }, 4000);
     return () => clearInterval(timer);
   }, []);
+
+  // Mobile/tablet search sheet: lock page scroll, close on Escape, focus the input
+  useEffect(() => {
+    if (!mobileSearchOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMobileSearchOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    const focusTimer = window.setTimeout(() => {
+      cardRef.current?.querySelector(".smart-search-input")?.focus();
+    }, 120);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      window.clearTimeout(focusTimer);
+    };
+  }, [mobileSearchOpen]);
 
   useEffect(() => {
     if (trimmedInput.length < 2) {
@@ -640,6 +664,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
 
   const handleSuggestionSelect = (suggestion) => {
     setDropdownOpen(false);
+    setMobileSearchOpen(false);
     const label = suggestion.label;
 
     if (suggestion.kind === "intent") {
@@ -718,6 +743,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     e.preventDefault();
     const q = searchInput.trim();
     setDropdownOpen(false);
+    setMobileSearchOpen(false);
 
     if (!q) {
       const quickTab = resolveNavigationQuickTab({ activeTab });
@@ -989,8 +1015,71 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   );
 
   return (
-    <div className={`home-search-container container${isHomeHero ? " home-search-container--hero-ss" : ""}`}>
+    <div
+      className={`home-search-container container${isHomeHero ? " home-search-container--hero-ss" : ""}${
+        mobileSearchOpen ? " is-mobile-search-open" : ""
+      }`}
+    >
+      {isHomeHero ? (
+        <button
+          type="button"
+          className="smart-search-mobile-trigger"
+          onClick={() => setMobileSearchOpen(true)}
+          aria-label="Open search"
+        >
+          <svg
+            className="smart-search-mobile-trigger__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+            <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="smart-search-mobile-trigger__text">
+            Search projects, builders, locations
+          </span>
+          <span className="smart-search-mobile-trigger__go" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="16" cy="7" r="2.2" stroke="currentColor" strokeWidth="2" />
+              <circle cx="8" cy="17" r="2.2" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </span>
+        </button>
+      ) : null}
+
+      {isHomeHero && mobileSearchOpen ? (
+        <button
+          type="button"
+          className="smart-search-sheet-backdrop"
+          aria-label="Close search"
+          onClick={() => setMobileSearchOpen(false)}
+        />
+      ) : null}
+
       <div className="smart-search-card search-filter-shadow" ref={cardRef}>
+        {isHomeHero ? (
+          <div className="smart-search-sheet-head">
+            <span className="smart-search-sheet-grabber" aria-hidden />
+            <div className="smart-search-sheet-head__row">
+              <span className="smart-search-sheet-title">Search properties</span>
+              <button
+                type="button"
+                className="smart-search-sheet-close"
+                onClick={() => setMobileSearchOpen(false)}
+                aria-label="Close search"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         <div className="smart-search-tabs" role="tablist" aria-label="Property categories">
           {displayTabs.map((tab) => (
             <button
@@ -1017,46 +1106,48 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                   <span className="smart-search-hero-field__label">Search Projects, Builders, Locations</span>
                   <div className="smart-search-input-wrap">{searchInputField}</div>
                 </div>
-                <div className="smart-search-hero-field smart-search-hero-field--location">
-                  <span className="smart-search-hero-field__label">
-                    Location
-                  </span>
+                <div className="smart-search-hero-extras">
+                  <div className="smart-search-hero-field smart-search-hero-field--location">
+                    <span className="smart-search-hero-field__label">
+                      Location
+                    </span>
 
-                  <Select
-                    classNamePrefix="location-select"
-                    options={cityOptions}
-                    placeholder="Select Location"
-                    value={
-                      cityOptions.find((option) => option.value === heroCityId) || null
-                    }
-                    onChange={(selected) =>
-                      setHeroCityId(selected ? selected.value : "")
-                    }
-                    isSearchable
-                    maxMenuHeight={220}
-                    menuPlacement="auto"
-                  />
-                </div>
-                <div className="smart-search-hero-field smart-search-hero-field--type">
-                  <span className="smart-search-hero-field__label">Property Type</span>
-                  {propertyTypeTrigger}
-                </div>
-                <div className="smart-search-hero-field smart-search-hero-field--budget">
-                  <span className="smart-search-hero-field__label">Budget</span>
-                  <Select
-                    classNamePrefix="location-select"
-                    options={budgetOptions}
-                    placeholder="Min - Max"
-                    value={
-                      budgetOptions.find((option) => option.value === heroBudget) || null
-                    }
-                    onChange={(selected) =>
-                      setHeroBudget(selected ? selected.value : "")
-                    }
-                    isSearchable={false}
-                    maxMenuHeight={220}
-                    menuPlacement="auto"
-                  />
+                    <Select
+                      classNamePrefix="location-select"
+                      options={cityOptions}
+                      placeholder="Select Location"
+                      value={
+                        cityOptions.find((option) => option.value === heroCityId) || null
+                      }
+                      onChange={(selected) =>
+                        setHeroCityId(selected ? selected.value : "")
+                      }
+                      isSearchable
+                      maxMenuHeight={220}
+                      menuPlacement="auto"
+                    />
+                  </div>
+                  <div className="smart-search-hero-field smart-search-hero-field--type">
+                    <span className="smart-search-hero-field__label">Property Type</span>
+                    {propertyTypeTrigger}
+                  </div>
+                  <div className="smart-search-hero-field smart-search-hero-field--budget">
+                    <span className="smart-search-hero-field__label">Budget</span>
+                    <Select
+                      classNamePrefix="location-select"
+                      options={budgetOptions}
+                      placeholder="Min - Max"
+                      value={
+                        budgetOptions.find((option) => option.value === heroBudget) || null
+                      }
+                      onChange={(selected) =>
+                        setHeroBudget(selected ? selected.value : "")
+                      }
+                      isSearchable={false}
+                      maxMenuHeight={220}
+                      menuPlacement="auto"
+                    />
+                  </div>
                 </div>
                 {searchSubmitButton}
               </>

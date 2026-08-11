@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import { useState } from "react";
+import ProjectStatusRibbon from "./ProjectStatusRibbon";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
@@ -84,27 +85,6 @@ export default function PropertyContainer({
 
     const normalized = status.trim().toLowerCase();
     return colorMap[normalized] || defaultStyle;
-  };
-
-  const renderRibbonBadge = () => {
-    if (!data.projectStatusName) return null;
-    const { backgroundColor, textColor } = getFeaturedBadgeStyle(data.projectStatusName);
-    return (
-      <span
-        className="home-project-card__ribbon-wrap home-featured-ribbon-wrap"
-        style={{
-          "--badge-bg": backgroundColor,
-          "--badge-ink": textColor,
-        }}
-        aria-label={data.projectStatusName}
-      >
-        <span className="home-project-card__ribbon-splash" aria-hidden />
-        <span className="home-project-card__badge home-project-card__ribbon home-featured-status-badge">
-          <span className="home-project-card__ribbon-shine" aria-hidden />
-          <span className="home-project-card__ribbon-text">{data.projectStatusName}</span>
-        </span>
-      </span>
-    );
   };
 
   const addressSummary = formatProjectAddress(data.projectAddress);
@@ -275,9 +255,11 @@ export default function PropertyContainer({
             decoding="async"
             onError={() => setImageError(true)}
           />
+          <ProjectStatusRibbon
+            status={data.projectStatusName}
+            className="mpf-status-ribbon--compact"
+          />
         </div>
-
-        {renderRibbonBadge()}
 
         <div className="home-project-card__overlay">
           <div className="home-project-card__overlay-top">
@@ -294,11 +276,10 @@ export default function PropertyContainer({
             {data.propertyTypeName || buildFeaturedSubtitle()}
           </p>
           <p className="home-project-card__location">
-            <FontAwesomeIcon
-              icon={faLocationDot}
-              className="home-project-card__pin"
-              style={{ color: "#7dff9f" }}
-            />
+            <svg className="home-project-card__pin" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+              <path d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" stroke="currentColor" strokeWidth="1.8" />
+              <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+            </svg>
             <span>{addressSummary || "Location on project page"}</span>
           </p>
         </div>

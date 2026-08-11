@@ -2203,8 +2203,13 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .home-featured-section {
   margin-top: clamp(1.75rem, 3vw, 3rem);
   margin-bottom: clamp(1.25rem, 2.5vw, 2.25rem);
-  padding-top: 8px;
+  padding-top: clamp(20px, 3vw, 36px) !important;
+  padding-bottom: clamp(20px, 3vw, 36px);
   border-top: 0;
+  background: #fff;
+  /* Paint the white beyond the container gutters without widening the layout */
+  box-shadow: 0 0 0 100vmax #fff;
+  clip-path: inset(0 -100vmax);
 }
 
 .mpf-home-r26 .home-featured-section-title {
@@ -2238,7 +2243,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 /* Premier / featured rails — reuse poster card system */
 .mpf-home-r26 .home-featured-poster-card,
 .mpf-home-r26 .featured-page-slider .home-project-card--poster {
-  min-height: 360px;
+  min-height: clamp(260px, 42vw, 360px);
   box-shadow: none !important;
 }
 

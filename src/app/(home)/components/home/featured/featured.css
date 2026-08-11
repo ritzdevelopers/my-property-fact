@@ -6,7 +6,7 @@
 .featured-page-slider .home-project-card--poster {
   display: block;
   width: 100%;
-  min-height: 340px;
+  min-height: clamp(260px, 42vw, 360px);
   height: 100%;
   box-shadow: none !important;
 }

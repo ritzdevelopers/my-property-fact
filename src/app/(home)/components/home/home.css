@@ -2754,6 +2754,10 @@
 
 .home-testimonials-section {
   margin: 32px auto 24px;
+  background: #fff;
+  /* Paint the white beyond the container gutters without widening the layout */
+  box-shadow: 0 0 0 100vmax #fff;
+  clip-path: inset(0 -100vmax);
 }
 
 .home-testimonials-inner-container {
@@ -2808,12 +2812,10 @@
 .home-testimonial-card {
   position: relative;
   width: 100%;
-
-
   box-sizing: border-box;
 
-  background: #fff;
-  padding: 20px 20px 18px;
+  background: transparent;
+  padding: 0;
 
   display: flex !important;
   flex-direction: column;

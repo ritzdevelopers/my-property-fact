@@ -270,7 +270,7 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M7 4h10M7 8.5h10M7 4c4.5 0 6.5 1.8 6.5 4.5S11.5 13 7 13h1.5L16 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -300,7 +300,7 @@ export default function HeroSection({
                   <span>Hassle Free</span>
                 </span>
               </div>
-              <div className="mpf-value-strip__item">
+              {/* <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
                     <path d="M12 3l2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -310,7 +310,7 @@ export default function HeroSection({
                   <strong>RERA Approved</strong>
                   <span>All Projects</span>
                 </span>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

@@ -320,7 +320,6 @@ export default async function HomePage() {
             kind="project"
             locationIntent="latest-projects"
             viewAllHref="/projects"
-            badgeColor="#16A34A"
           />,
         )}
 

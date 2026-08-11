@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
 import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
@@ -92,8 +93,7 @@ function getCardPayload(item, kind) {
       image: getPropertyImage(source),
       badge:
         cleanMetaText(source?.constructionStatus) ||
-        cleanMetaText(source?.listingType) ||
-        "Property",
+        cleanMetaText(source?.listingType),
       title: cardTitle,
       meta:
         [source?.bedroom, source?.propertyTypeCategory || source?.subType]
@@ -110,8 +110,7 @@ function getCardPayload(item, kind) {
     href: getProjectHref(source),
     image: getProjectImage(source),
     badge:
-      (typeof source?.projectStatusName === "string" && source.projectStatusName.trim()) ||
-      "Project",
+      typeof source?.projectStatusName === "string" ? source.projectStatusName.trim() : "",
     title: cardTitle,
     meta:
       (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
@@ -135,7 +134,6 @@ export default function HomeRecommendationCards({
   kind,
   viewAllHref,
   className = "",
-  badgeColor = "#E84B7A",
 }) {
   const safeItems = useMemo(
     () => (Array.isArray(items) ? items.slice(0, 8) : []),
@@ -201,37 +199,6 @@ export default function HomeRecommendationCards({
   };
 
   if (!safeItems.length) return null;
-
-  const getBadgeStyle = (badge) => {
-    const text = (badge || "").toLowerCase();
-
-    // Ribbon fill + ink (text) — high-contrast pairs that catch the eye
-    if (text.includes("new")) {
-      return { bg: "#EA580C", ink: "#FFF7ED" }; // vivid orange + warm ivory
-    }
-
-    if (text.includes("under")) {
-      return { bg: "#7C3AED", ink: "#F5F3FF" }; // electric violet + soft lilac ink
-    }
-
-    if (text.includes("ready")) {
-      return { bg: "#0891B2", ink: "#ECFEFF" }; // cyan + ice
-    }
-
-    if (text.includes("ultra") || text.includes("luxury")) {
-      return { bg: "#B45309", ink: "#FFFBEB" }; // amber bronze + cream
-    }
-
-    if (text.includes("delivered")) {
-      return { bg: "#0F766E", ink: "#F0FDFA" }; // teal + mint ink
-    }
-
-    if (text.includes("sold")) {
-      return { bg: "#BE123C", ink: "#FFF1F2" }; // deep rose + soft rose ink
-    }
-
-    return { bg: badgeColor || "#EA580C", ink: "#FFF7ED" };
-  };
 
   return (
     <section
@@ -303,7 +270,6 @@ export default function HomeRecommendationCards({
         <div className="home-projects-preview__track" style={trackStyle}>
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
-            const badgeStyle = getBadgeStyle(card.badge);
             const rowKey =
               kind === "mixed"
                 ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
@@ -324,22 +290,11 @@ export default function HomeRecommendationCards({
                       loading="lazy"
                       decoding="async"
                     />
+                    <ProjectStatusRibbon
+                      status={card.badge}
+                      className="mpf-status-ribbon--compact"
+                    />
                   </div>
-
-                  <span
-                    className="home-project-card__ribbon-wrap"
-                    style={{
-                      "--badge-bg": badgeStyle.bg,
-                      "--badge-ink": badgeStyle.ink,
-                    }}
-                    aria-label={card.badge}
-                  >
-                    <span className="home-project-card__ribbon-splash" aria-hidden />
-                    <span className="home-project-card__badge home-project-card__ribbon">
-                      <span className="home-project-card__ribbon-shine" aria-hidden />
-                      <span className="home-project-card__ribbon-text">{card.badge}</span>
-                    </span>
-                  </span>
 
                   <div className="home-project-card__overlay">
                     <div className="home-project-card__overlay-top">

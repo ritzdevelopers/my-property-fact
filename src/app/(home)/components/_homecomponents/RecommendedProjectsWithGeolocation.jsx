@@ -13,7 +13,6 @@ export default function RecommendedProjectsWithGeolocation({
   kind = "mixed",
   /** API `intent`: `mixed` = projects + listings; `projects` = new launches near you; `latest-projects` = MPF projects only (newest, home Recommended Projects). */
   locationIntent = "mixed",
-  badgeColor = "#e84b7a",
 }) {
   const [items, setItems] = useState(fallbackItems);
   const [loading, setLoading] = useState(false);
@@ -124,7 +123,6 @@ console.log("Received city:", city);
         kind={kind}
         viewAllHref={viewAllHref}
         className={className}
-        badgeColor={badgeColor}
       />
     </section>
   );

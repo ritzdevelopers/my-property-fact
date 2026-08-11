@@ -11,6 +11,7 @@ import {
   DEFAULT_PROJECT_CARD_IMAGE,
   getProjectImageBaseUrl,
 } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./common.css";
 
 export default function PropertyContainer({
@@ -88,6 +89,7 @@ export default function PropertyContainer({
   };
 
   const addressSummary = formatProjectAddress(data.projectAddress);
+  const projectTitle = buildProjectDisplayName(data, "Project");
 
   const buildProjectLogoUrl = () => {
     const imageBase = getProjectImageBaseUrl();
@@ -186,8 +188,8 @@ export default function PropertyContainer({
         className="home-featured-project-card text-decoration-none text-dark"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`View details about ${data.projectName}`}
-        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+        aria-label={`View details about ${projectTitle}`}
+        title={projectTitle ? `View ${projectTitle}` : "View project details"}
       >
         <div className="home-featured-image-card">
           <img
@@ -228,7 +230,7 @@ export default function PropertyContainer({
           </div>
           <div className="home-featured-builder-info">
             <h3 className="home-featured-builder-name plus-jakarta-sans-semi-bold">
-              {data.projectName}
+              {projectTitle}
             </h3>
             <p className="home-featured-builder-meta plus-jakarta-sans-semi-bold">
               {buildFeaturedSubtitle()}
@@ -249,8 +251,8 @@ export default function PropertyContainer({
         className="rounded-4 custom-shadow d-flex flex-column justify-content-between bg-white text-decoration-none text-dark project-container overflow-hidden position-relative"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`View details about ${data.projectName}`}
-        title={data.projectName ? `View ${data.projectName}` : "View project details"}
+        aria-label={`View details about ${projectTitle}`}
+        title={projectTitle ? `View ${projectTitle}` : "View project details"}
       >
         <div className="w-100 project-image-container">
           <img
@@ -268,7 +270,7 @@ export default function PropertyContainer({
         </div>
         {renderStatusBadge()}
         <div className="mt-3 ms-3">
-          <h3 className="mb-2 h5 plus-jakarta-sans-semi-bold">{data.projectName}</h3>
+          <h3 className="mb-2 h5 plus-jakarta-sans-semi-bold">{projectTitle}</h3>
           <p className="mb-2 plus-jakarta-sans-semi-bold project-property-type-text">{data.propertyTypeName}</p>
           <p className="text-success d-flex gap-2 mb-0">
             <span className="plus-jakarta-sans-semi-bold"> {generatePrice(data.projectPrice)}</span>

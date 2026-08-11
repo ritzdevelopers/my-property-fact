@@ -217,6 +217,9 @@ export default function ProjectCard({
   const projectName = String(project.projectName || "Project").trim();
   const projectLinkTitle = projectName ? `View ${projectName}` : "View project details";
   const statusLabel = formatListingStatusLabel(project.projectStatusName);
+  const statusKey = statusLabel
+    ? statusLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+    : "";
   const hasMultipleSlides = slides.length > 1;
 
   const formatProjectPrice = (price) => {
@@ -302,7 +305,9 @@ export default function ProjectCard({
           ) : null}
 
           {statusLabel ? (
-            <span className="mpf-listing-image-status">{statusLabel}</span>
+            <div className="mpf-launch-ribbon" data-status={statusKey || undefined}>
+              <span className="mpf-launch-ribbon__text">{statusLabel}</span>
+            </div>
           ) : null}
         </div>
 

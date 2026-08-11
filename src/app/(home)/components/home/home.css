@@ -45,7 +45,7 @@
 }
 
 .hero-banner-frame-desktop {
-  aspect-ratio: 1920 / 883;
+  aspect-ratio: 1920 / 896;
 }
 
 .hero-art-direction {
@@ -68,7 +68,7 @@
 /* Desktop wide banner */
 @media (min-width: 992px) {
   .hero-art-direction {
-    aspect-ratio: 1920 / 883;
+    aspect-ratio: 1920 / 896;
     max-height: none;
   }
 }

@@ -82,7 +82,7 @@ body {
 }
 
 .hero-banner-frame-desktop {
-  aspect-ratio: 1920 / 883;
+  aspect-ratio: 1920 / 896;
 }
 
 .hero-banner-image {
@@ -106,7 +106,7 @@ body {
 
 @media (min-width: 992px) {
   .hero-art-direction {
-    aspect-ratio: 1920 / 883;
+    aspect-ratio: 1920 / 896;
   }
 
   .hero-banner-image--full {

@@ -1,21 +1,26 @@
-/* Completely new dashboard chrome — kills old forest-green hero */
+/* Completely new dashboard chrome — welcome + weather/IP banner */
 
 .mpf-dash-welcome {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  padding: 0 0 1rem;
-  margin: 0 0 1rem;
-  border-bottom: 1px solid #e6e8ec;
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.6fr);
+  align-items: stretch;
+  gap: 1.25rem;
+  padding: 0 0 0.25rem;
+  margin: 0 0 0.25rem;
+  border-bottom: none;
   background: transparent !important;
 }
 
+@media (max-width: 960px) {
+  .mpf-dash-welcome {
+    grid-template-columns: 1fr;
+  }
+}
+
 .mpf-dash-welcome--loading .mpf-dash-welcome__skel {
-  height: 72px;
+  height: 180px;
   width: 100%;
-  border-radius: 8px;
+  border-radius: 18px;
   background: linear-gradient(90deg, #f3f4f6, #eef0f3, #f3f4f6);
   background-size: 200% 100%;
   animation: mpf-skel 1.2s ease infinite;
@@ -26,70 +31,675 @@
   100% { background-position: -100% 0; }
 }
 
+.mpf-dash-welcome__left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.5rem 0;
+}
+
+.mpf-dash-welcome__eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
 .mpf-dash-welcome__title {
-  margin: 0.15rem 0 0.35rem;
-  font-size: 1.5rem;
+  margin: 0;
+  font-size: clamp(1.55rem, 2.6vw, 1.95rem);
   font-weight: 700;
-  color: #1c2430;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  color: #0f172a;
+  letter-spacing: -0.035em;
+  line-height: 1.15;
+}
+
+.mpf-dash-welcome__title span {
+  color: #2563eb;
+  font-weight: 700;
 }
 
 .mpf-dash-welcome__sub {
-  margin: 0 0 0.65rem;
-  font-size: 0.875rem;
-  color: #6b7280;
-  max-width: 36rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.9rem;
+  color: #64748b;
+  max-width: 26rem;
+  line-height: 1.45;
+  font-weight: 450;
 }
 
-.mpf-dash-welcome__chips {
+.mpf-dash-welcome__role {
+  color: #475569;
+  font-weight: 600;
+}
+
+.mpf-dash-welcome__right {
+  min-width: 0;
+}
+
+/* ============================================================
+   WEATHER + IP BANNER
+   ============================================================ */
+.mpf-wx-banner {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  min-height: 210px;
+  color: #fff;
+  background: #1a2332;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+  isolation: isolate;
+}
+
+.mpf-wx-banner--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 210px;
+  background:
+    linear-gradient(160deg, #1c2434 0%, #2a3348 55%, #1a2232 100%);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+}
+
+/* iOS-style activity indicator (Apple mobile spinner) */
+.mpf-apple-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.25rem;
+}
+
+.mpf-apple-loader__spinner {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.mpf-apple-loader__spinner span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 10px;
+  margin-left: -1.5px;
+  margin-top: -18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.95);
+  transform-origin: center 18px;
+  transform: rotate(calc(var(--i) * 30deg));
+  animation: mpf-apple-spoke 1s linear infinite;
+  animation-delay: calc(var(--i) * -0.0833s);
+  opacity: 0.15;
+}
+
+@keyframes mpf-apple-spoke {
+  0% { opacity: 1; }
+  100% { opacity: 0.15; }
+}
+
+.mpf-apple-loader__text {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.01em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-apple-loader__spinner span {
+    animation: none;
+    opacity: calc(0.25 + (var(--i) * 0.05));
+  }
+}
+
+.mpf-wx-banner--error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 120px;
+  background: #f8fafc;
+  color: #6b7280;
+  border: 1px solid #e6e8ec;
+  box-shadow: none;
+  font-size: 0.85rem;
+}
+
+/* Real photographic skyline — local assets (Unsplash is blocked) */
+.mpf-wx-banner__photo {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.06);
+  opacity: 0;
+  transition: opacity 0.45s ease, transform 10s ease;
+  pointer-events: none;
+}
+
+.mpf-wx-banner__photo.is-loaded {
+  opacity: 1;
+}
+
+.mpf-wx-banner:hover .mpf-wx-banner__photo.is-loaded {
+  transform: scale(1.12);
+}
+
+.mpf-wx-banner__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(110deg, rgba(8, 14, 28, 0.58) 0%, rgba(8, 14, 28, 0.28) 45%, rgba(8, 14, 28, 0.5) 100%);
+  pointer-events: none;
+}
+
+.mpf-wx-banner--rain .mpf-wx-banner__overlay,
+.mpf-wx-banner--storm .mpf-wx-banner__overlay {
+  background:
+    linear-gradient(110deg, rgba(10, 20, 40, 0.55) 0%, rgba(12, 24, 48, 0.3) 48%, rgba(8, 14, 28, 0.52) 100%);
+}
+
+.mpf-wx-banner--sunny .mpf-wx-banner__overlay {
+  background:
+    linear-gradient(110deg, rgba(12, 50, 90, 0.4) 0%, rgba(20, 70, 120, 0.18) 50%, rgba(10, 30, 60, 0.4) 100%);
+}
+
+/* Soft drifting cloud veils */
+.mpf-wx-clouds {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mpf-wx-clouds__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(28px);
+  opacity: 0.28;
+  background: rgba(255, 255, 255, 0.55);
+  animation: mpf-cloud-drift 18s ease-in-out infinite;
+}
+
+.mpf-wx-clouds__blob--1 {
+  width: 220px;
+  height: 90px;
+  top: 8%;
+  left: -10%;
+  animation-duration: 22s;
+}
+
+.mpf-wx-clouds__blob--2 {
+  width: 280px;
+  height: 110px;
+  top: 28%;
+  left: 30%;
+  opacity: 0.18;
+  animation-duration: 26s;
+  animation-delay: -6s;
+}
+
+.mpf-wx-clouds__blob--3 {
+  width: 200px;
+  height: 80px;
+  top: 12%;
+  right: -8%;
+  opacity: 0.22;
+  animation-duration: 20s;
+  animation-delay: -10s;
+}
+
+@keyframes mpf-cloud-drift {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(36px); }
+}
+
+/* Dense angled rain */
+.mpf-wx-rain,
+.mpf-wx-snow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mpf-wx-rain span {
+  position: absolute;
+  top: -18%;
+  left: var(--x, 50%);
+  width: 1.5px;
+  height: var(--h, 14px);
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.75));
+  border-radius: 2px;
+  opacity: 0.65;
+  transform: rotate(-18deg);
+  animation: mpf-rain-fall var(--d, 0.8s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+.mpf-wx-rain--heavy span {
+  opacity: 0.8;
+  width: 2px;
+}
+
+@keyframes mpf-rain-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(-18deg);
+    opacity: 0;
+  }
+  10% { opacity: 0.7; }
+  100% {
+    transform: translate3d(-28px, 240px, 0) rotate(-18deg);
+    opacity: 0;
+  }
+}
+
+.mpf-wx-snow span {
+  position: absolute;
+  top: -8%;
+  left: var(--x, 50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  animation: mpf-snow-fall 3.8s linear infinite;
+  animation-delay: calc(var(--i) * -0.12s);
+  opacity: 0.75;
+}
+
+@keyframes mpf-snow-fall {
+  to { transform: translateY(240px) translateX(22px); opacity: 0; }
+}
+
+.mpf-wx-sun-glow {
+  position: absolute;
+  top: -40px;
+  right: 18%;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 214, 102, 0.55) 0%, rgba(255, 180, 40, 0.12) 45%, transparent 70%);
+  animation: mpf-sun-pulse 4s ease-in-out infinite;
+}
+
+@keyframes mpf-sun-pulse {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+.mpf-wx-banner__content {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: 1.35fr 0.9fr;
+  gap: 1rem;
+  padding: 1.15rem 1.25rem 1.2rem;
+  min-height: 210px;
+}
+
+@media (max-width: 720px) {
+  .mpf-wx-banner__content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mpf-wx-banner__weather {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.mpf-wx-banner__loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+}
+
+.mpf-wx-banner__loc span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mpf-wx-banner__gps {
+  font-style: normal;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.12rem 0.4rem;
+  border-radius: 999px;
+  background: rgba(74, 222, 128, 0.2);
+  border: 1px solid rgba(74, 222, 128, 0.45);
+  color: #bbf7d0;
+}
+
+.mpf-wx-banner__gps-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 0.14rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid rgba(147, 197, 253, 0.5);
+  background: rgba(59, 130, 246, 0.22);
+  color: #bfdbfe;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.mpf-wx-banner__gps-btn:hover {
+  background: rgba(59, 130, 246, 0.35);
+  border-color: rgba(191, 219, 254, 0.7);
+}
+
+.mpf-wx-banner__main {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.mpf-wx-banner__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.mpf-wx-banner__temp {
+  font-size: clamp(2rem, 3.5vw, 2.55rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.mpf-wx-banner__cond {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.mpf-wx-banner__metrics {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
+  gap: 0.45rem 0.85rem;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.82);
 }
 
-.mpf-dash-chip {
+.mpf-wx-banner__metrics span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  white-space: nowrap;
+}
+
+.mpf-wx-banner__aside {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.mpf-wx-banner__clock {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
+}
+
+/* Glass IP card */
+.mpf-wx-ip {
+  width: 100%;
+  max-width: 250px;
+  padding: 0.85rem 0.95rem;
+  border-radius: 14px;
+  background: rgba(12, 18, 32, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+.mpf-wx-ip__label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mpf-wx-ip__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #86efac;
+}
+
+.mpf-wx-ip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55);
+  animation: mpf-live-pulse 1.8s ease infinite;
+}
+
+@keyframes mpf-live-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.55); }
+  70% { box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+
+.mpf-wx-ip__value {
+  margin-top: 0.35rem;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.mpf-wx-ip__isp {
+  margin-top: 0.3rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.78);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mpf-wx-ip__place {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mpf-wx-ip__link {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  font-size: 0.7rem;
+  margin-top: 0.7rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #93c5fd;
+  font-size: 0.75rem;
   font-weight: 600;
-  background: #f3f5e6;
-  color: #5a6b20;
-  border: 1px solid #d8dfb8;
+  cursor: pointer;
+  transition: color 0.15s ease, gap 0.15s ease;
 }
 
-.mpf-dash-chip--role {
-  background: #fff;
-  color: #374151;
-  border-color: #e6e8ec;
+.mpf-wx-ip__link:hover {
+  color: #bfdbfe;
+  gap: 0.45rem;
 }
 
-.mpf-dash-welcome__clock {
+/* Details modal */
+.mpf-wx-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
   display: flex;
-  align-items: flex-start;
-  gap: 0.55rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 8px;
-  border: 1px solid #e6e8ec;
-  background: #fafbfc;
-  color: #6b7280;
-  min-width: 140px;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
-.mpf-dash-welcome__time {
-  font-size: 1rem;
+.mpf-wx-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.mpf-wx-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(520px, 100%);
+  max-height: min(80vh, 640px);
+  overflow: auto;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e6e8ec;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  padding: 1.15rem 1.25rem 1.35rem;
+}
+
+.mpf-wx-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mpf-wx-modal__head h3 {
+  margin: 0;
+  font-size: 1.05rem;
   font-weight: 700;
   color: #1c2430;
-  line-height: 1.2;
 }
 
-.mpf-dash-welcome__date {
-  font-size: 0.75rem;
+.mpf-wx-modal__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  border: 1px solid #e6e8ec;
+  background: #f8fafc;
+  color: #4b5563;
+  cursor: pointer;
+}
+
+.mpf-wx-modal__close:hover {
+  background: #f1f5f9;
+}
+
+.mpf-wx-modal__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+  .mpf-wx-modal__grid { grid-template-columns: 1fr; }
+}
+
+.mpf-wx-modal__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.75rem 0.8rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #eef1f4;
+  color: #6b7280;
+}
+
+.mpf-wx-modal__item > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.mpf-wx-modal__item span {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: #9ca3af;
-  margin-top: 0.1rem;
+}
+
+.mpf-wx-modal__item strong {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1c2430;
+  word-break: break-word;
+}
+
+/* Keep clean white cards inside zoho workspace */
+.mpf-zoho-workspace .mpf-stat,
+.mpf-zoho-workspace .mpf-mini,
+.mpf-zoho-workspace .mpf-panel,
+.mpf-zoho-workspace .mpf-action {
+  background: #fff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+  border-color: #e8ecf1 !important;
 }
 
 /* Neutralize ANY leftover old hero classes if still referenced */
@@ -128,16 +738,6 @@
   box-shadow: none !important;
 }
 
-/* Stat cards — clean white Zoho cards */
-.mpf-zoho-workspace .mpf-stat,
-.mpf-zoho-workspace .admin-stat-card,
-.mpf-zoho-workspace [class*="stat-card"] {
-  background: #fff !important;
-  border: 1px solid #e6e8ec !important;
-  border-radius: 10px !important;
-  box-shadow: none !important;
-}
-
 /* Kill dark green gradients from old dashboard-home if any slip through */
 .mpf-zoho-workspace [class*="hero"],
 .mpf-zoho-workspace [class*="welcome-banner"],
@@ -153,5 +753,30 @@
   display: none !important;
 }
 
-.mpf-dash { gap: 1rem !important; }
-.mpf-dash > .mpf-dash-welcome { margin-bottom: 0; border-bottom: 1px solid #e6e8ec; padding-bottom: 1rem; }
+.mpf-dash { gap: 1.15rem !important; }
+.mpf-dash > .mpf-dash-welcome { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+
+/* Ensure workspace hero killers never wipe weather photo */
+.mpf-zoho-workspace .mpf-wx-banner,
+.mpf-zoho-workspace .mpf-wx-banner__photo,
+.admin-v2-shell .mpf-wx-banner,
+.admin-v2-shell .mpf-wx-banner__photo {
+  background-image: unset !important;
+  color: #fff !important;
+}
+
+.mpf-zoho-workspace .mpf-wx-banner {
+  background: #1a2332 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-wx-rain span,
+  .mpf-wx-snow span,
+  .mpf-wx-sun-glow,
+  .mpf-wx-clouds__blob,
+  .mpf-dash-welcome__wave,
+  .mpf-wx-banner:hover .mpf-wx-banner__photo {
+    animation: none !important;
+    transform: none !important;
+  }
+}

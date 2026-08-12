@@ -135,7 +135,7 @@ export default function ContactUs() {
         submitData
       );
       if (response.data.isSuccess === 1) {
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
         setFormData({
           name: "",
           email: "",

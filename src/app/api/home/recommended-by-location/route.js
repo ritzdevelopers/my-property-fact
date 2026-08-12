@@ -12,6 +12,12 @@ import {
   normalizePlaceToken,
   projectLatestTimestamp,
 } from "@/app/(home)/components/home/recommendedSpotlight";
+import {
+  DELHI_NCR_POPULAR_PROJECT_SLUGS,
+  isDelhiNcrRegion,
+  POPULAR_PROMO_MAX_ITEMS,
+  resolvePopularProjectsFromSlugs,
+} from "@/app/_global_components/popularRightNowProjects";
 
 function parseCoord(value) {
   const n = Number.parseFloat(String(value ?? ""));
@@ -297,7 +303,7 @@ export async function GET(request) {
     const lat = parseCoord(searchParams.get("lat"));
     const lon = parseCoord(searchParams.get("lon"));
     const _accuracyM = parseCoord(searchParams.get("accuracy"));
-    /** `mixed` = projects + public listings. `projects` = new-launch projects near coords. `latest-projects` = MPF projects only, newest-first (home Recommended Projects row). */
+    /** `mixed` = projects + public listings. `projects` = new-launch projects near coords. `latest-projects` = MPF projects only, newest-first (home Recommended Projects row). `popular-promo` = curated Delhi-NCR tick list or area projects for other cities (home Popular right now popup). */
     const intent = searchParams.get("intent") || "mixed";
     const selectedCity = (searchParams.get("city") || "").trim();
     if (!selectedCity) {
@@ -468,6 +474,67 @@ export async function GET(request) {
           city: region.city,
           state: region.state,
           source: region.source,
+          ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
+        },
+      });
+    }
+
+    if (intent === "popular-promo") {
+      const allProjects = normalizeProjectsArray(projects);
+      const inDelhiNcr = isDelhiNcrRegion(
+        region.city,
+        region.state,
+        geoTokens,
+        lat,
+        lon,
+      );
+
+      let items;
+      if (inDelhiNcr) {
+        items = resolvePopularProjectsFromSlugs(
+          allProjects,
+          DELHI_NCR_POPULAR_PROJECT_SLUGS,
+          POPULAR_PROMO_MAX_ITEMS,
+        );
+      } else {
+        const baseArgs = {
+          projects: allProjects,
+          excludeSlugSet: new Set(),
+          geoTokens,
+          limit: POPULAR_PROMO_MAX_ITEMS,
+        };
+
+        items = buildLatestProjectsForRegion({
+          ...baseArgs,
+          geoCity: region.city,
+          geoState: region.state,
+        });
+
+        if (items.length === 0 && region.state) {
+          items = buildLatestProjectsForRegion({
+            ...baseArgs,
+            geoCity: "",
+            geoState: region.state,
+          });
+        }
+
+        if (items.length === 0 && geoTokens.length > 0) {
+          items = buildLatestProjectsForRegion({
+            ...baseArgs,
+            geoCity: "",
+            geoState: "",
+          });
+        }
+      }
+
+      return NextResponse.json({
+        success: items.length > 0,
+        items,
+        region: {
+          city: region.city,
+          state: region.state,
+          source: region.source,
+          isDelhiNcr: inDelhiNcr,
           ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
         },
       });

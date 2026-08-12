@@ -106,7 +106,6 @@ export default function SideNav({ onLinkClick }) {
       dropdown6: [
         "/admin/dashboard/manage-home-banners",
         "/admin/dashboard/manage-testimonials",
-        "/admin/dashboard/manage-listing-faqs",
       ],
     };
 
@@ -118,8 +117,7 @@ export default function SideNav({ onLinkClick }) {
 
     if (
       isActive("/admin/dashboard/manage-home-banners") ||
-      isActive("/admin/dashboard/manage-testimonials") ||
-      isActive("/admin/dashboard/manage-listing-faqs")
+      isActive("/admin/dashboard/manage-testimonials")
     ) {
       setActiveSubDropdown("dropdown6-home-page");
     }
@@ -194,7 +192,7 @@ export default function SideNav({ onLinkClick }) {
             <span>Dashboard</span>
           </Link>
         </li>
-        {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEBSITE) && (
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS) && (
           <li
             className={
               isActive("/admin/dashboard/manage-listing-faqs") ? "active" : ""
@@ -311,7 +309,6 @@ export default function SideNav({ onLinkClick }) {
                 isDropdownActive([
                   "/admin/dashboard/manage-home-banners",
                   "/admin/dashboard/manage-testimonials",
-                  "/admin/dashboard/manage-listing-faqs",
                 ])
                 ? "active"
                 : ""
@@ -391,22 +388,6 @@ export default function SideNav({ onLinkClick }) {
                     </Link>
                   </li>
                 </ul>
-              </li>
-              <li
-                className={
-                  isActive("/admin/dashboard/manage-listing-faqs")
-                    ? "active"
-                    : ""
-                }
-              >
-                <Link
-                  title="Listing Page FAQs"
-                  href="/admin/dashboard/manage-listing-faqs"
-                  onClick={handleLinkClick}
-                >
-                  <FontAwesomeIcon icon={faCircleQuestion} className="admin-nav-ico" />
-                  <span>Listing Page FAQs</span>
-                </Link>
               </li>
             </ul>
           </li>

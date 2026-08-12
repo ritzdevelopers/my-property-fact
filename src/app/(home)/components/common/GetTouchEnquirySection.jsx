@@ -172,9 +172,9 @@ export default function GetTouchEnquirySection({
         });
         setErrors({ name: "", email: "", phone: "" });
         setValidated1(false);
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);

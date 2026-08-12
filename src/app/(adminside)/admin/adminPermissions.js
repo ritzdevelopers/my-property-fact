@@ -26,6 +26,7 @@ export function roleObjectsIncludeStaffAdmin(roleObjects) {
 
 export const ADMIN_PERMISSIONS = {
   MANAGE_WEBSITE: "MANAGE_WEBSITE",
+  MANAGE_LISTING_FAQS: "MANAGE_LISTING_FAQS",
   MANAGE_OPTIONS: "MANAGE_OPTIONS",
   MANAGE_PROJECTS: "MANAGE_PROJECTS",
   MANAGE_INSIGHTS: "MANAGE_INSIGHTS",
@@ -36,12 +37,36 @@ export const ADMIN_PERMISSIONS = {
   MANAGE_NEARBY_BENEFITS: "MANAGE_NEARBY_BENEFITS",
   MANAGE_PROPERTY_APPROVALS: "MANAGE_PROPERTY_APPROVALS",
   MANAGE_ENQUIRIES: "MANAGE_ENQUIRIES",
+  /** Pro: bulk-add FAQs across multiple listing pages. */
+  BULK_LISTING_FAQS: "BULK_LISTING_FAQS",
 };
 
-/** Default CMS permissions (all except enquiries). Used when assigning Admin role. */
+/** Permissions that Super Admin must grant explicitly (not in default CMS pack). */
+export const EXPLICIT_GRANT_PERMISSIONS = new Set([
+  ADMIN_PERMISSIONS.MANAGE_ENQUIRIES,
+  ADMIN_PERMISSIONS.BULK_LISTING_FAQS,
+]);
+
+/** Default CMS permissions (all except enquiries / pro features). Used when assigning Admin role. */
 export const DEFAULT_STAFF_ADMIN_PERMISSIONS = Object.values(
   ADMIN_PERMISSIONS,
-).filter((key) => key !== ADMIN_PERMISSIONS.MANAGE_ENQUIRIES);
+).filter((key) => !EXPLICIT_GRANT_PERMISSIONS.has(key));
+
+function isProPermissionDef(def) {
+  if (!def) return false;
+  if (def.pro === true || def.pro === "true") return true;
+  return String(def.key || "").toUpperCase() === ADMIN_PERMISSIONS.BULK_LISTING_FAQS;
+}
+
+export function splitPermissionDefinitions(definitions = []) {
+  const cms = [];
+  const pro = [];
+  for (const def of definitions) {
+    if (isProPermissionDef(def)) pro.push(def);
+    else cms.push(def);
+  }
+  return { cms, pro };
+}
 
 /** Labels for Manage Users permission checkboxes (fallback if API unavailable). */
 export const ADMIN_PERMISSION_DEFINITIONS = [
@@ -49,60 +74,85 @@ export const ADMIN_PERMISSION_DEFINITIONS = [
     key: ADMIN_PERMISSIONS.MANAGE_WEBSITE,
     label: "Manage website",
     description: "Home banners and similar site content",
+    pro: false,
+  },
+  {
+    key: ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
+    label: "Manage listing page FAQs",
+    description:
+      "FAQs for listing pages (city hubs, BHK, shops, food court, etc.)",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_OPTIONS,
     label: "Manage options",
     description:
       "Countries, states, cities, builders, project types, careers, etc.",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_PROJECTS,
     label: "Manage projects",
     description:
       "Projects, banners, galleries, FAQs, amenities, floor plans, Excel bulk upload",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_INSIGHTS,
     label: "Insight management",
     description:
       "City price data, locality scores, headers, insight categories, top developers",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_BLOGS,
     label: "Blog management",
     description: "Blogs and blog categories",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_WEB_STORIES,
     label: "Web story management",
     description: "Web stories and categories",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_AMENITIES,
     label: "Amenities",
     description: "Master amenities list",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_FEATURES,
     label: "Features",
     description: "Property features",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_NEARBY_BENEFITS,
     label: "Nearby benefits",
     description: "Location / nearby benefit content",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS,
     label: "Property approvals",
     description: "Review and approve user-submitted property listings",
+    pro: false,
   },
   {
     key: ADMIN_PERMISSIONS.MANAGE_ENQUIRIES,
     label: "Manage enquiries",
     description:
       "View leads and enquiries after entering the 4-digit code set by Super Admin",
+    pro: false,
+  },
+  {
+    key: ADMIN_PERMISSIONS.BULK_LISTING_FAQS,
+    label: "Bulk FAQ add",
+    description:
+      "Add multiple FAQs for various listing pages in one go",
+    pro: true,
   },
 ];
 
@@ -166,7 +216,10 @@ export function canAccessAdminPath(roles, permissions, pathname) {
   const rules = [
     ["/admin/dashboard/manage-home-banners", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
     ["/admin/dashboard/manage-testimonials", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
-    ["/admin/dashboard/manage-listing-faqs", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
+    [
+      "/admin/dashboard/manage-listing-faqs",
+      ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
+    ],
     [
       "/admin/dashboard/manage-countries",
       ADMIN_PERMISSIONS.MANAGE_OPTIONS,

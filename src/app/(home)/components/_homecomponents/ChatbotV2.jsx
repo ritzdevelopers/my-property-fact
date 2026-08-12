@@ -761,7 +761,11 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
       const isOk = payload.success || payload.isSuccess === 1;
       if (isOk) {
         setIsSuccess(true);
-        onSuccess(payload.reply, payload.followUp, payload.options);
+        onSuccess(
+          payload.reply || "Enquiry sent successfully. Our consultant will contact you within 24 hours.",
+          payload.followUp,
+          payload.options
+        );
       } else {
         setError(payload.message || "Submission failed.");
         setIsSubmitting(false);
@@ -777,8 +781,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     return (
       <div className={styles.customForm}>
         <div className={styles.formSuccess}>
-          Thank you for sharing your details. Our consultant will contact you
-          within 24 hours.
+          Enquiry sent successfully. Our consultant will contact you within 24 hours.
         </div>
       </div>
     );

@@ -45,7 +45,7 @@ export async function submitBlogEnquiryAction(formData) {
     const ok = data.isSuccess === 1;
     return {
       ok,
-      message: data.message || (ok ? "Submitted" : "Something went wrong"),
+      message: data.message || (ok ? "Enquiry sent successfully" : "Something went wrong"),
     };
   } catch (e) {
     return {

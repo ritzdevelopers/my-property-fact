@@ -529,6 +529,12 @@
   line-clamp: 1;
 }
 
+.city-projects-panel__grid .mpf-type-tag {
+  font-size: 10px;
+  padding: 2px 8px;
+  align-self: flex-end;
+}
+
 .city-projects-panel__grid .mpf-listing-location {
   font-size: 12px;
   white-space: nowrap;

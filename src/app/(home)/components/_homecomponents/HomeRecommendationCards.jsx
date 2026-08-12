@@ -82,12 +82,28 @@ function stripItemKind(item, kind) {
   return rest;
 }
 
+function getPropertyTypeTag(type) {
+  const normalized = String(type || "").toLowerCase().trim();
+  if (!normalized) return null;
+  const isCommercial = normalized.includes("commercial");
+  const isResidential = normalized.includes("residential");
+  // Only show when type clearly maps to commercial / residential buckets
+  if (!isCommercial && !isResidential) return null;
+  return {
+    label: isCommercial ? "Commercial" : "Residential",
+    className: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
+  };
+}
+
 function getCardPayload(item, kind) {
   const k = effectiveCardKind(item, kind);
   const source = stripItemKind(item, kind);
 
   if (k === "property") {
     const cardTitle = cleanMetaText(source?.title, "Property");
+    const category = cleanMetaText(
+      source?.propertyTypeCategory || source?.listingType || source?.subType,
+    );
     return {
       key: source?.id || source?.slug || source?.title,
       href: source?.slug ? `/properties/${source.slug}` : "/properties",
@@ -96,6 +112,7 @@ function getCardPayload(item, kind) {
         cleanMetaText(source?.constructionStatus) ||
         cleanMetaText(source?.listingType),
       title: cardTitle,
+      propertyType: category,
       meta:
         [source?.bedroom, source?.propertyTypeCategory || source?.subType]
           .filter(Boolean)
@@ -116,6 +133,7 @@ function getCardPayload(item, kind) {
     badge:
       typeof source?.projectStatusName === "string" ? source.projectStatusName.trim() : "",
     title: cardTitle,
+    propertyType: cleanMetaText(source?.propertyTypeName),
     meta:
       (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
       "Explore configurations on project page",
@@ -283,13 +301,12 @@ export default function HomeRecommendationCards({
                 <Link
                   href={card.href}
                   className="home-project-card home-project-card--poster"
-                  title={card.title ? `View ${card.title}` : "View project details"}
+                  aria-label={card.title ? `View details about ${card.title}` : "View project details"}
                 >
                   <div className="home-project-card__media">
                     <img
                       src={card.image}
                       alt={`${card.title} — real estate listing card image on My Property Fact`}
-                      title={`${card.title} — real estate listing card image on My Property Fact`}
                       className="home-project-card__image"
                       loading="lazy"
                       decoding="async"
@@ -310,7 +327,18 @@ export default function HomeRecommendationCards({
                         </svg>
                       </span>
                     </div>
-                    <h3 className="home-project-card__title">{card.title}</h3>
+                    <div className="home-project-card__title-row">
+                      <h3 className="home-project-card__title">{card.title}</h3>
+                      {(() => {
+                        const typeTag = getPropertyTypeTag(card.propertyType);
+                        if (!typeTag) return null;
+                        return (
+                          <span className={`mpf-type-tag ${typeTag.className}`}>
+                            {typeTag.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <p className="home-project-card__meta">{card.meta}</p>
                     <p className="home-project-card__location">
                       <svg className="home-project-card__pin" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>

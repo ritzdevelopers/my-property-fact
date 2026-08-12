@@ -89,6 +89,15 @@ export default function PropertyContainer({
 
   const addressSummary = formatProjectAddress(data.projectAddress);
   const projectTitle = buildProjectDisplayName(data, "Project");
+  const propertyTypeTag = (() => {
+    const normalized = String(data.propertyTypeName || "").toLowerCase().trim();
+    if (!normalized) return null;
+    const isCommercial = normalized.includes("commercial");
+    return {
+      label: isCommercial ? "Commercial" : "Residential",
+      className: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
+    };
+  })();
 
   const buildFeaturedSubtitle = () => {
     const config = String(data.projectConfiguration || "").trim();
@@ -172,7 +181,6 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
-        title={projectTitle ? `View ${projectTitle}` : "View project details"}
       >
         <div className="home-featured-image-card">
           <img
@@ -190,9 +198,16 @@ export default function PropertyContainer({
         </div>
 
         <div className="home-featured-card-content">
-          <h3 className="home-featured-builder-name">
-            {projectTitle}
-          </h3>
+          <div className="home-project-card__title-row">
+            <h3 className="home-featured-builder-name">
+              {projectTitle}
+            </h3>
+            {propertyTypeTag ? (
+              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
+                {propertyTypeTag.label}
+              </span>
+            ) : null}
+          </div>
 
           {/* <div className="home-featured-location">
             <img
@@ -226,13 +241,11 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
-        title={projectTitle ? `View ${projectTitle}` : "View project details"}
       >
         <div className="home-project-card__media">
           <img
             src={imageSrc}
             alt={projectCardImageAlt}
-            title={projectCardImageAlt}
             className="home-project-card__image"
             width={400}
             height={360}
@@ -257,7 +270,14 @@ export default function PropertyContainer({
               </svg>
             </span>
           </div>
-          <h3 className="home-project-card__title">{projectTitle}</h3>
+          <div className="home-project-card__title-row">
+            <h3 className="home-project-card__title">{projectTitle}</h3>
+            {propertyTypeTag ? (
+              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
+                {propertyTypeTag.label}
+              </span>
+            ) : null}
+          </div>
           <p className="home-project-card__meta">
             {data.propertyTypeName || buildFeaturedSubtitle()}
           </p>
@@ -281,13 +301,11 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
-        title={projectTitle ? `View ${projectTitle}` : "View project details"}
       >
         <div className="w-100 project-image-container">
           <img
             src={imageSrc}
             alt={projectCardImageAlt}
-            title={projectCardImageAlt}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             width={400}
             height={230}
@@ -299,7 +317,14 @@ export default function PropertyContainer({
         </div>
         {renderStatusBadge()}
         <div className="mt-3 ms-3">
-          <h3 className="mb-2 h5 plus-jakarta-sans-semi-bold">{projectTitle}</h3>
+          <div className="home-project-card__title-row mb-2">
+            <h3 className="mb-0 h5 plus-jakarta-sans-semi-bold">{projectTitle}</h3>
+            {propertyTypeTag ? (
+              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
+                {propertyTypeTag.label}
+              </span>
+            ) : null}
+          </div>
           <p className="mb-2 plus-jakarta-sans-semi-bold project-property-type-text">{data.propertyTypeName}</p>
           <p className="text-success d-flex gap-2 mb-0">
             <span className="plus-jakarta-sans-semi-bold"> {generatePrice(data.projectPrice)}</span>

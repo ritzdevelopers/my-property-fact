@@ -202,6 +202,14 @@
   --mpf-rb-font-lead: 10.5px;
 }
 
+/* Listing cards: tighter into the top-left corner and smaller overall */
+.mpf-status-ribbon--listing {
+  --mpf-rs-base: 0.72;
+  --mpf-rb-font: 11px;
+  --mpf-rb-font-lead: 9.5px;
+  filter: drop-shadow(0 4px 8px rgba(9, 15, 27, 0.3));
+}
+
 /* --------------------------------------------------------------------------
    Status colour schemes. One hue per stage of a project's life so the colour
    itself carries meaning: warm = just launched, blueprint blue = being built,

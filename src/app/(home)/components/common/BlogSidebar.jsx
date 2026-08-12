@@ -231,7 +231,6 @@ export default function BlogSidebar({
                       ? `${latestProject.projectName.trim()} — featured property on My Property Fact blog sidebar`
                       : "Featured property — My Property Fact blog sidebar"
                   }
-                  style={{ objectFit: "cover" }}
                 />
               </Link>
             ) : (
@@ -239,7 +238,6 @@ export default function BlogSidebar({
                 src="/static/generic-floorplan.jpg"
                 alt="Latest property placeholder — My Property Fact blog sidebar"
                 title="Latest property placeholder — My Property Fact blog sidebar"
-                style={{ objectFit: "cover" }}
               />
             )}
             <span className="latest-badge">Latest Property</span>

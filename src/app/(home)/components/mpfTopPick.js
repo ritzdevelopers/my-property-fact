@@ -3,6 +3,7 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./common.css";
 import "./mpfTopPick.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -121,7 +122,7 @@ export default function MpfTopPicks({ topProject }) {
               </div>
 
               <h3 className="mpf-tp__project plus-jakarta-sans-semi-bold">
-                {projectName}
+                {buildProjectDisplayName(topProject, projectName)}
               </h3>
               <p className="mpf-tp__addr">
                 <FontAwesomeIcon

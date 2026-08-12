@@ -50,7 +50,8 @@ export default async function BlogPage({ params }) {
 
   return (
     <>
-      <JsonLdScript data={[articleSchema, faqSchema]} />
+      <JsonLdScript data={articleSchema} />
+      <JsonLdScript data={faqSchema} />
       <BlogDetail
         blogDetail={blogDetail}
         sidebarRecentPosts={sidebarRecentPosts}

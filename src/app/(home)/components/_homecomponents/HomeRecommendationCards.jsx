@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
@@ -104,7 +105,10 @@ function getCardPayload(item, kind) {
     };
   }
 
-  const cardTitle = cleanMetaText(source?.projectName, "Project");
+  const cardTitle = buildProjectDisplayName(
+    { ...source, projectName: cleanMetaText(source?.projectName, "Project") },
+    "Project",
+  );
   return {
     key: source?.slugURL || source?.slugUrl || source?.projectName,
     href: getProjectHref(source),

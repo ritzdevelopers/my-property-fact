@@ -195,9 +195,7 @@ export default function NewContactUs() {
       );
 
       if (response.data.isSuccess === 1) {
-        toast.success(
-          response.data.message || "Enquiry submitted successfully!"
-        );
+        toast.success("Enquiry sent successfully");
         // Reset form
         setFormData({
           name: "",

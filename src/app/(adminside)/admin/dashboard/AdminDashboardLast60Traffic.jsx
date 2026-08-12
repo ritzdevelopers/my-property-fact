@@ -3,19 +3,12 @@
 import { useMemo } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import { useMatchMaxWidth } from "./useMatchMaxWidth";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faBolt,
-  faCalendarWeek,
-  faChartLine,
-} from "@fortawesome/free-solid-svg-icons";
+import { Activity, Clock3, Zap } from "lucide-react";
 
 function formatShortDate(isoDate) {
   if (!isoDate || typeof isoDate !== "string") return "";
   const parts = isoDate.split("-");
-  if (parts.length === 3) {
-    return `${parts[1]}/${parts[2]}`;
-  }
+  if (parts.length === 3) return `${parts[1]}/${parts[2]}`;
   return isoDate;
 }
 
@@ -32,31 +25,14 @@ function normalizeLivePayload(raw) {
   const visitsLast1Hour =
     Number(raw.visitsLast1Hour ?? raw.visits_last_1_hour ?? 0) || 0;
   const windowMinutes =
-    Number(raw.windowMinutes ?? raw.window_minutes ?? buckets.length) || buckets.length;
+    Number(raw.windowMinutes ?? raw.window_minutes ?? buckets.length) ||
+    buckets.length;
   return { buckets, visitsLast15, visitsLast1Hour, windowMinutes };
 }
 
-const CHART_LINE = "#0d9488";
-const CHART_FILL = "rgba(13, 148, 136, 0.12)";
+const CHART_LINE = "#2563eb";
+const CHART_FILL = "rgba(37, 99, 235, 0.12)";
 
-function TrafficKpiCard({ icon, label, value, sub }) {
-  return (
-    <div className="admin-dash-last60__kpi">
-      <div className="admin-dash-last60__kpi-icon" aria-hidden>
-        <FontAwesomeIcon icon={icon} />
-      </div>
-      <div className="admin-dash-last60__kpi-body">
-        <p className="admin-dash-last60__kpi-label">{label}</p>
-        <p className="admin-dash-last60__kpi-value">{value}</p>
-        {sub ? <p className="admin-dash-last60__kpi-sub">{sub}</p> : null}
-      </div>
-    </div>
-  );
-}
-
-/**
- * Last 60 minutes of public-site traffic — shown in the dashboard left column for super admins.
- */
 export default function AdminDashboardLast60Traffic({
   livePayload,
   liveLoading,
@@ -75,150 +51,153 @@ export default function AdminDashboardLast60Traffic({
     const maxV = rows.length ? Math.max(...rows.map((r) => r.views), 0) : 0;
     return {
       liveDataset: rows,
-      liveYMax: Math.max(5, Math.ceil(Math.max(maxV, 1) * 1.12)),
+      liveYMax: Math.max(4, Math.ceil(Math.max(maxV, 1) * 1.15)),
     };
   }, [liveNorm]);
 
-  const chartHeight = compactChart ? 190 : 220;
+  const chartHeight = compactChart ? 168 : 190;
   const chartMargins = compactChart
-    ? { top: 16, right: 4, bottom: 52, left: 2 }
-    : { top: 20, right: 8, bottom: 48, left: 6 };
-  const xTickSize = compactChart ? 7 : 8;
-  const yTickSize = compactChart ? 8 : 9;
-  const yAxisWidth = compactChart ? 34 : 40;
+    ? { top: 12, right: 4, bottom: 28, left: 2 }
+    : { top: 14, right: 8, bottom: 30, left: 4 };
+
+  if (liveLoading && !liveNorm && !liveError) {
+    return (
+      <div className="mpf-traffic" aria-busy="true">
+        <div className="mpf-skel-line" style={{ height: 72, borderRadius: 14 }} />
+        <div className="mpf-skel-line" style={{ height: 160, borderRadius: 14, marginTop: 12 }} />
+      </div>
+    );
+  }
+
+  if (liveError) {
+    return (
+      <div className="mpf-traffic mpf-traffic--error" role="alert">
+        <p className="mpf-traffic__err-title">Could not load live traffic</p>
+        <p className="mpf-traffic__err-msg">{liveError}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="admin-dash-last60">
-      <div className="admin-dash-last60__head">
+    <div className="mpf-traffic">
+      <div className="mpf-traffic__hero mpf-traffic__hero--blue">
         <div>
-          <h2 className="admin-dash-last60__title">Live traffic (last hour)</h2>
-          <p className="admin-dash-last60__sub">
-            People opening pages on your public site — not the admin panel. The big number is the
-            rolling last 60 minutes; the chart is one point per minute.
+          <p className="mpf-traffic__hero-label">Visits · last 60 min</p>
+          <p className="mpf-traffic__hero-value">
+            {(liveNorm?.visitsLast1Hour ?? 0).toLocaleString()}
           </p>
         </div>
-        {liveUpdatedAt instanceof Date && !Number.isNaN(liveUpdatedAt.getTime()) ? (
-          <p className="admin-dash-last60__updated" suppressHydrationWarning>
-            Last updated{" "}
-            {liveUpdatedAt.toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit",
-            })}
-          </p>
-        ) : null}
+        <div className="mpf-traffic__hero-meta">
+          {liveUpdatedAt instanceof Date && !Number.isNaN(liveUpdatedAt.getTime()) ? (
+            <span suppressHydrationWarning>
+              Updated{" "}
+              {liveUpdatedAt.toLocaleTimeString(undefined, {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+              })}
+            </span>
+          ) : (
+            <span>Live rolling window</span>
+          )}
+        </div>
       </div>
 
-      {liveNorm ? (
-        <>
-          <div className="admin-dash-last60__hero">
-            <p className="admin-dash-last60__hero-label">Visits in the last 60 minutes</p>
-            <p className="admin-dash-last60__hero-value">
-              {liveNorm.visitsLast1Hour.toLocaleString()}
+      <div className="mpf-traffic__kpis">
+        <div className="mpf-traffic__kpi">
+          <span className="mpf-traffic__kpi-icon mpf-traffic__kpi-icon--amber">
+            <Zap className="h-3.5 w-3.5" />
+          </span>
+          <div>
+            <p className="mpf-traffic__kpi-label">15 min</p>
+            <p className="mpf-traffic__kpi-value">
+              {(liveNorm?.visitsLast15 ?? 0).toLocaleString()}
             </p>
-            <p className="admin-dash-last60__hero-hint">Rolling total · updates while you stay here</p>
           </div>
-          <div className="admin-dash-last60__kpi-row">
-            <TrafficKpiCard
-              icon={faBolt}
-              label="Last 15 minutes"
-              value={liveNorm.visitsLast15.toLocaleString()}
-              sub="Short recent window"
-            />
-            <TrafficKpiCard
-              icon={faChartLine}
-              label="Last 60 minutes"
-              value={liveNorm.visitsLast1Hour.toLocaleString()}
-              sub="Matches the headline above"
-            />
-            <TrafficKpiCard
-              icon={faCalendarWeek}
-              label="Minutes on chart"
-              value={String(liveNorm.windowMinutes || liveDataset.length || 60)}
-              sub="One dot per minute"
-            />
+        </div>
+        <div className="mpf-traffic__kpi">
+          <span className="mpf-traffic__kpi-icon mpf-traffic__kpi-icon--blue">
+            <Activity className="h-3.5 w-3.5" />
+          </span>
+          <div>
+            <p className="mpf-traffic__kpi-label">60 min</p>
+            <p className="mpf-traffic__kpi-value">
+              {(liveNorm?.visitsLast1Hour ?? 0).toLocaleString()}
+            </p>
           </div>
-        </>
-      ) : null}
-
-      {liveError ? (
-        <div className="admin-dash-last60__err" role="alert">
-          <p className="admin-dash-last60__err-title">Could not load live traffic</p>
-          <p className="admin-dash-last60__err-msg">{liveError}</p>
         </div>
-      ) : null}
-
-      {liveLoading && !liveNorm && !liveError ? (
-        <div className="admin-dash-last60__skeleton" aria-busy="true">
-          <div className="admin-skel admin-dash-last60__skeleton-hero" />
-          <div className="admin-skel admin-dash-last60__skeleton-chart" />
+        <div className="mpf-traffic__kpi">
+          <span className="mpf-traffic__kpi-icon mpf-traffic__kpi-icon--slate">
+            <Clock3 className="h-3.5 w-3.5" />
+          </span>
+          <div>
+            <p className="mpf-traffic__kpi-label">Points</p>
+            <p className="mpf-traffic__kpi-value">
+              {String(liveNorm?.windowMinutes || liveDataset.length || 60)}
+            </p>
+          </div>
         </div>
-      ) : null}
+      </div>
 
-      {liveNorm && liveDataset.length > 0 ? (
-        <div className="admin-dash-last60__chart-wrap">
-          <p className="admin-dash-last60__chart-caption">
-            Vertical axis = how many visits happened in that minute (0 is the bottom line).
-          </p>
-          <div className="admin-dash-last60__chart">
-            <LineChart
+      {liveDataset.length > 0 ? (
+        <div className="mpf-traffic__chart">
+          <LineChart
             dataset={liveDataset}
             xAxis={[
               {
                 scaleType: "point",
                 dataKey: "tlabel",
-                tickLabelStyle: { fontSize: xTickSize, fill: "#6b7280" },
-                label: "Minute",
-                labelStyle: { fontSize: 10, fill: "#9ca3af", fontWeight: 600 },
+                tickLabelStyle: { fontSize: 7, fill: "#9ca3af" },
               },
             ]}
             yAxis={[
               {
                 min: 0,
                 max: liveYMax,
-                label: "Visits",
-                tickLabelStyle: { fontSize: yTickSize, fill: "#6b7280" },
-                labelStyle: { fontSize: 10, fill: "#9ca3af", fontWeight: 600 },
-                width: yAxisWidth,
+                tickLabelStyle: { fontSize: 8, fill: "#9ca3af" },
+                width: 28,
               },
             ]}
             series={[
               {
                 type: "line",
                 dataKey: "views",
-                label: "Visits this minute",
+                label: "Visits",
                 color: CHART_LINE,
                 area: true,
                 curve: "natural",
                 showMark: false,
                 valueFormatter: (v) =>
-                  v == null || Number.isNaN(v) ? "" : `${Number(v).toLocaleString()} views`,
+                  v == null || Number.isNaN(v)
+                    ? ""
+                    : `${Number(v).toLocaleString()} visits`,
               },
             ]}
             height={chartHeight}
             margin={chartMargins}
-            grid={{ vertical: true, horizontal: true }}
+            grid={{ vertical: false, horizontal: true }}
             hideLegend
-            axisHighlight={{ x: "line", y: "line" }}
+            axisHighlight={{ x: "line", y: "none" }}
             sx={{
               width: "100%",
+              "& .MuiChartsAxis-line": { stroke: "#e5e7eb" },
+              "& .MuiChartsAxis-tick": { stroke: "#e5e7eb" },
+              "& .MuiChartsGrid-line": { stroke: "#f1f5f9" },
               "& .MuiAreaElement-root": { fill: CHART_FILL },
               "& .MuiLineElement-root": {
-                strokeWidth: 2.2,
+                strokeWidth: 2.4,
                 stroke: CHART_LINE,
               },
             }}
           />
-          </div>
         </div>
-      ) : null}
-
-      {liveNorm && liveDataset.length === 0 && !liveLoading ? (
-        <div className="admin-dash-last60__empty">
+      ) : (
+        <div className="mpf-traffic__empty">
+          <Activity className="h-5 w-5" />
           <p>No visits in the last hour yet</p>
-          <p className="admin-dash-last60__empty-sub">When visitors browse the public site, counts will show here.</p>
+          <span>Public site traffic will appear here live.</span>
         </div>
-      ) : null}
+      )}
     </div>
   );
 }

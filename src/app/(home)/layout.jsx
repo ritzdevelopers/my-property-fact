@@ -40,8 +40,8 @@ const HeaderComponent = dynamic(
   }
 );
 
-const NewFooterDesign = dynamic(
-  () => import("./components/footer/NewFooterDesign").then((m) => m.default),
+const SiteFooter = dynamic(
+  () => import("./components/footer/SiteFooter").then((m) => m.default),
   { ssr: true, loading: () => <footer style={{ minHeight: 200 }} aria-busy="true" /> }
 );
 
@@ -67,7 +67,7 @@ export default function RootLayout({ children }) {
       <BootstrapDeferredStyles />
       <HeaderComponent />
       {children}
-      <NewFooterDesign />
+      <SiteFooter />
     </div>
   );
 }

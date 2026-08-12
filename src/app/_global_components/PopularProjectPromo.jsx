@@ -1,10 +1,10 @@
 import PopularProjectPromoClient from "./PopularProjectPromoClient";
+import { fetchAllProjects } from "@/app/_global_components/masterFunction";
 import {
-  fetchAllProjects,
-  fetchTopPicksProject,
-} from "@/app/_global_components/masterFunction";
-
-const MAX_PROJECTS = 5;
+  DELHI_NCR_POPULAR_PROJECT_SLUGS,
+  POPULAR_PROMO_MAX_ITEMS,
+  resolvePopularProjectsFromSlugs,
+} from "./popularRightNowProjects";
 
 function imageBaseUrl() {
   const raw = (process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
@@ -38,64 +38,24 @@ function toItem(project) {
 }
 
 /**
- * Picks several popular projects (server-side): Top Pick first, then more residential, then any.
+ * SSR fallback: Delhi-NCR curated tick projects before geolocation resolves.
  */
 export default async function PopularProjectPromo() {
   let all = [];
-  let top = null;
   try {
-    [all, top] = await Promise.all([
-      fetchAllProjects(),
-      fetchTopPicksProject().catch(() => null),
-    ]);
+    all = await fetchAllProjects();
   } catch {
     return null;
   }
   if (!Array.isArray(all) || all.length === 0) return null;
 
-  const items = [];
-  const seen = new Set();
-
-  if (top) {
-    const first = toItem(top);
-    if (first) {
-      items.push(first);
-      seen.add(first.key);
-    }
-  }
-
-  const residential = all.filter(
-    (p) =>
-      p?.propertyTypeName === "Residential" &&
-      (p?.slugURL || p?.slugUrl),
+  const curated = resolvePopularProjectsFromSlugs(
+    all,
+    DELHI_NCR_POPULAR_PROJECT_SLUGS,
+    POPULAR_PROMO_MAX_ITEMS,
   );
-  const shuffledResidential = [...residential].sort(() => Math.random() - 0.5);
 
-  for (const p of shuffledResidential) {
-    if (items.length >= MAX_PROJECTS) break;
-    const slug = p.slugURL || p.slugUrl;
-    if (seen.has(slug)) continue;
-    const item = toItem(p);
-    if (item) {
-      items.push(item);
-      seen.add(item.key);
-    }
-  }
-
-  if (items.length < MAX_PROJECTS) {
-    const shuffledAll = [...all].sort(() => Math.random() - 0.5);
-    for (const p of shuffledAll) {
-      if (items.length >= MAX_PROJECTS) break;
-      const slug = p?.slugURL || p?.slugUrl;
-      if (!slug || seen.has(slug)) continue;
-      const item = toItem(p);
-      if (item) {
-        items.push(item);
-        seen.add(item.key);
-      }
-    }
-  }
-
+  const items = curated.map(toItem).filter(Boolean);
   if (items.length === 0) return null;
 
   return <PopularProjectPromoClient items={items} showAfterMs={400} />;

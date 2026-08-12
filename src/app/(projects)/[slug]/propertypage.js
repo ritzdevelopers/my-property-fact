@@ -359,7 +359,7 @@ export default function Property({
         } else {
           setValidated(false);
         }
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
         toast.error(response.data.message);
       }

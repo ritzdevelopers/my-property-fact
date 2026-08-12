@@ -1219,6 +1219,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                     key={`${s.kind}-${s.label}-${idx}`}
                     type="button"
                     role="option"
+                    aria-selected={false}
                     className="smart-search-suggestion"
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => handleSuggestionSelect(s)}

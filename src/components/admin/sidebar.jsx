@@ -60,7 +60,7 @@ const navItems = [
     label: "Listing Page FAQs",
     icon: CircleHelp,
     href: "/admin/dashboard/manage-listing-faqs",
-    permission: "MANAGE_WEBSITE",
+    permission: "MANAGE_LISTING_FAQS",
   },
   {
     id: "property-approvals",
@@ -128,12 +128,6 @@ const navGroups = [
           { id: "banners", label: "Banners", href: "/admin/dashboard/manage-home-banners", icon: Image },
           { id: "testimonials", label: "Testimonials", href: "/admin/dashboard/manage-testimonials", icon: Star },
         ],
-      },
-      {
-        id: "listing-faqs-website",
-        label: "Listing Page FAQs",
-        href: "/admin/dashboard/manage-listing-faqs",
-        icon: CircleHelp,
       },
     ],
   },

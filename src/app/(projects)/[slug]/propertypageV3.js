@@ -41,6 +41,7 @@ import {
   scoreProjectSearchMatch,
 } from "../../_global_components/projectSearchUtils";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
@@ -980,7 +981,7 @@ export default function PropertyV3({
             <div className="pd3-summary__top">
               <div className="pd3-summary__titlewrap">
                 <div className="pd3-summary__title">
-                  <h1>{projectDetail.projectName}</h1>
+                  <h1>{buildProjectDisplayName(projectDetail)}</h1>
                 </div>
                 <div className="pd3-summary__location">
                   <FontAwesomeIcon icon={faLocationDot} />
@@ -1642,7 +1643,7 @@ export default function PropertyV3({
                 </div>
                 <div className="pd3-sim-grid">
                   {similarProjects.slice(0, 8).map((p) => {
-                    const simName = p.projectName || "Project";
+                    const simName = buildProjectDisplayName(p, "Project");
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
@@ -1667,7 +1668,7 @@ export default function PropertyV3({
                       </div>
                       <div className="pd3-sim-card__body">
                         <div className="pd3-sim-card__name">
-                          {p.projectName}
+                          {simName}
                         </div>
                         {p.projectAddress ? (
                           <div className="pd3-sim-card__addr">

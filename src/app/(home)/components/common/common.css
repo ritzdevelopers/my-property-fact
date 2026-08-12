@@ -683,9 +683,10 @@
 }
 
 .latest-property-image img{
-  width: auto;
-  height: auto;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  object-position: center;
   display: block;
 }
 
@@ -842,7 +843,7 @@
 
 .faq-title{
   text-align: center;
-  font-family: "plus-jakarta" !important;
+  font-family: "Inter", sans-serif !important;
   font-weight: 600;
   font-size: 36px;
   line-height: 38px;
@@ -852,7 +853,7 @@
 
 .faq-subtitle{
   text-align: center;
-  font-family: Inter;
+  font-family: sans-serif;
   font-weight: 400;
   font-size: 17px;
   line-height: 22px;
@@ -929,7 +930,7 @@
 }
 
 .faq-text{
-  font-family: "plus-jakarta" !important ;
+  font-family: Inter, sans-serif;
   font-size: 15px;
   font-weight: 500;
   line-height: 24px;
@@ -948,7 +949,7 @@
 .faq-question {
   flex: 1;
   margin: 0;
-  font-family: "plus-jakarta", system-ui, sans-serif !important;
+  font-family: "Inter", sans-serif !important;
   font-size: 15px;
   font-weight: 500;
   line-height: 24px;
@@ -985,7 +986,7 @@
 }
 
 .faq-answer{
-  font-family: "plus-jakarta" !important ;
+ font-family: sans-serif;
   font-size: 14px;
   line-height: 22px;
   color: #4B5563;

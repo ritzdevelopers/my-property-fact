@@ -23,6 +23,7 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import CommonPopUpform from "@/app/(home)/components/common/popupform";
 import { saveListingReturnState } from "@/lib/listingScrollRestore";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 
 const API_BASE = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
 
@@ -215,7 +216,8 @@ export default function ProjectCard({
 
   const isReraApproved = isMeaningfulReraNo(reraNo);
   const projectName = String(project.projectName || "Project").trim();
-  const projectLinkTitle = projectName ? `View ${projectName}` : "View project details";
+  const projectTitle = buildProjectDisplayName(project, "Project");
+  const projectLinkTitle = projectTitle ? `View ${projectTitle}` : "View project details";
   const statusLabel = formatListingStatusLabel(project.projectStatusName);
   const statusKey = statusLabel
     ? statusLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
@@ -315,11 +317,11 @@ export default function ProjectCard({
           href={`/${project.slugURL}`}
           className="mpf-listing-content"
           onClick={persistListingReturn}
-          aria-label={`View details about ${projectName}`}
+          aria-label={`View details about ${projectTitle}`}
           title={projectLinkTitle}
         >
           <div className="mpf-listing-header">
-            <h2 className="mpf-listing-title">{project.projectName}</h2>
+            <h2 className="mpf-listing-title">{projectTitle}</h2>
             <p className="mpf-listing-location">
               {formatAddress(project.projectAddress, project.cityName)}
             </p>

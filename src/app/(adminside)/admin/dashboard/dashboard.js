@@ -13,6 +13,7 @@ import {
   DashboardStatsGrid,
   QuickActionsCard,
   RecentActivityCard,
+  LeadsOverviewCard,
 } from "@/components/admin/dashboard/dashboard-stats";
 import { Activity } from "lucide-react";
 
@@ -265,80 +266,104 @@ export default function Dashboard({
         canManageWebStories={canManageWebStories}
       />
 
-      {quickLinks.length > 0 && <QuickActionsCard quickLinks={quickLinks} />}
-
-      {showDailyUserTrackingChart && (
-        <div className="mpf-split mpf-split--2-1">
-          <section className="mpf-panel">
-            <div className="mpf-panel__head">
-              <div>
-                <h2 className="mpf-panel__title">
-                  {showLiveTrafficAnalytics
-                    ? "Website Traffic Today"
-                    : "Daily User Tracking"}
-                </h2>
-                <p className="mpf-panel__sub">
-                  {showLiveTrafficAnalytics
-                    ? `Real visits by hour, refreshes every ${SITE_TRAFFIC_POLL_MS / 1000}s`
-                    : "Live traffic analytics are available to super admins"}
-                </p>
-              </div>
-              {showLiveTrafficAnalytics && (
-                <span className="mpf-live-badge">
-                  <span className="mpf-live-dot" />
-                  Live
-                </span>
-              )}
+      <div className="mpf-split mpf-split--2-1">
+        <section className="mpf-panel mpf-panel--growth">
+          <div className="mpf-panel__head">
+            <div>
+              <h2 className="mpf-panel__title">
+                {showLiveTrafficAnalytics ? "Growth Overview" : "Daily User Tracking"}
+              </h2>
+              <p className="mpf-panel__sub">
+                {showLiveTrafficAnalytics
+                  ? `Website traffic today · refreshes every ${SITE_TRAFFIC_POLL_MS / 1000}s`
+                  : "Live traffic analytics are available to super admins"}
+              </p>
             </div>
-            <div className="mpf-panel__body">
-              {!roleLoading && showLiveTrafficAnalytics ? (
-                <SiteTrafficTrendChart
-                  todayPayload={trafficToday}
-                  todayLoading={trafficTodayLoading}
-                  showSuperDetailsLink
-                />
-              ) : (
-                <div className="mpf-activity__empty" style={{ minHeight: 260 }}>
-                  <span className="mpf-activity__empty-icon">
-                    <Activity className="h-6 w-6" />
-                  </span>
-                  <p className="mpf-panel__title" style={{ fontSize: "0.95rem" }}>Coming Soon</p>
-                  <p className="mpf-panel__sub" style={{ maxWidth: "20rem", margin: "0.35rem auto 0" }}>
-                    Daily analytics and live traffic will appear here when enabled for your account.
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
-
-          <div>
-            {showLiveTrafficAnalytics ? (
-              <section className="mpf-panel h-full">
-                <div className="mpf-panel__head">
-                  <div>
-                    <h2 className="mpf-panel__title">Last 60 Minutes</h2>
-                    <p className="mpf-panel__sub">Live public site traffic</p>
-                  </div>
-                </div>
-                <div className="mpf-panel__body">
-                  <AdminDashboardLast60Traffic
-                    livePayload={trafficLive}
-                    liveLoading={trafficLiveLoading}
-                    liveError={trafficLiveErr}
-                    liveUpdatedAt={trafficLiveUpdatedAt}
-                  />
-                </div>
-              </section>
-            ) : (
-              <RecentActivityCard
-                activities={recentTasks}
-                loading={recentLoading}
-                displayName={displayName}
-              />
+            {showLiveTrafficAnalytics && (
+              <span className="mpf-live-badge">
+                <span className="mpf-live-dot" />
+                Live
+              </span>
             )}
           </div>
-        </div>
-      )}
+          <div className="mpf-panel__body">
+            {!roleLoading && showLiveTrafficAnalytics ? (
+              <SiteTrafficTrendChart
+                todayPayload={trafficToday}
+                todayLoading={trafficTodayLoading}
+                showSuperDetailsLink
+              />
+            ) : showDailyUserTrackingChart ? (
+              <div className="mpf-activity__empty" style={{ minHeight: 260 }}>
+                <span className="mpf-activity__empty-icon">
+                  <Activity className="h-6 w-6" />
+                </span>
+                <p className="mpf-panel__title" style={{ fontSize: "0.95rem" }}>
+                  Coming Soon
+                </p>
+                <p
+                  className="mpf-panel__sub"
+                  style={{ maxWidth: "20rem", margin: "0.35rem auto 0" }}
+                >
+                  Daily analytics and live traffic will appear here when enabled for your account.
+                </p>
+              </div>
+            ) : (
+              <div className="mpf-activity__empty" style={{ minHeight: 220 }}>
+                <span className="mpf-activity__empty-icon">
+                  <Activity className="h-6 w-6" />
+                </span>
+                <p className="mpf-panel__sub">Growth charts unlock with admin analytics access.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <LeadsOverviewCard
+          noOfEnquiries={noOfEnquiries}
+          noOfProjects={noOfProjects}
+          noOfBlogs={noOfBlogs}
+          noOfWebStories={noOfWebStories}
+          noOfCities={noOfCities}
+        />
+      </div>
+
+      <div className="mpf-split mpf-split--1-1">
+        {quickLinks.length > 0 ? (
+          <QuickActionsCard quickLinks={quickLinks} />
+        ) : (
+          <div />
+        )}
+
+        {showLiveTrafficAnalytics ? (
+          <section className="mpf-panel h-full">
+            <div className="mpf-panel__head">
+              <div>
+                <h2 className="mpf-panel__title">Last 60 Minutes</h2>
+                <p className="mpf-panel__sub">Live public site traffic</p>
+              </div>
+              <span className="mpf-live-badge">
+                <span className="mpf-live-dot" />
+                Live
+              </span>
+            </div>
+            <div className="mpf-panel__body">
+              <AdminDashboardLast60Traffic
+                livePayload={trafficLive}
+                liveLoading={trafficLiveLoading}
+                liveError={trafficLiveErr}
+                liveUpdatedAt={trafficLiveUpdatedAt}
+              />
+            </div>
+          </section>
+        ) : (
+          <RecentActivityCard
+            activities={recentTasks}
+            loading={recentLoading}
+            displayName={displayName}
+          />
+        )}
+      </div>
 
       {showLiveTrafficAnalytics && (
         <RecentActivityCard

@@ -1,5 +1,5 @@
 import "./builderpage.css";
-import PropertyContainer from "@/app/(home)/components/common/page";
+import PropertyContainer from "@/app/(home)/components/common/PropertyContainer";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 export default function BuilderPage({ builderDetail, projectsList }) {

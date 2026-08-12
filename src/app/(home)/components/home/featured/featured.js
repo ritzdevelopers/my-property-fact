@@ -2,7 +2,7 @@
 import Slider from "react-slick";
 import "./featured.css";
 import Link from "next/link";
-import PropertyContainer from "../../common/page";
+import PropertyContainer from "../../common/PropertyContainer";
 import { useMemo, useState, useEffect } from "react";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 

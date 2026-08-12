@@ -931,6 +931,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       </svg>
       <input
         type="search"
+        role="combobox"
         className="smart-search-input"
         value={searchInput}
         onChange={(e) => {
@@ -949,6 +950,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         aria-label="Search properties, projects, cities"
         aria-expanded={dropdownOpen}
         aria-controls="smart-search-suggestions"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
         autoComplete="off"
       />
       {searchInput ? (

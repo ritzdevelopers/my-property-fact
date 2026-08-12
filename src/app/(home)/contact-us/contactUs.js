@@ -13,6 +13,11 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 export default function ContactUs() {
   const [validated, setValidated] = useState(false);
   const [buttonName, setButtonName] = useState("Get a free service");
@@ -36,53 +41,9 @@ export default function ContactUs() {
     phone: "",
   });
 
-  //Validation functions
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    // Allow letters, spaces, hyphens, and apostrophes
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    // Remove spaces, dashes, and parentheses for validation
-    const cleanedPhone = phone.replace(/[\s\-\(\)]/g, "");
-    // Check if it's all digits
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-
-    if (cleanedPhone.length < 8 || cleanedPhone.length > 10) {
-      return "Phone number must be between 8 to 10 digits"
-    }
-    // If number is 10 digits then check Indian mobile rule
-    if (cleanedPhone.length === 10 && !/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-    return "";
-  };
+  const validateName = validateLeadName;
+  const validateEmail = validateLeadEmail;
+  const validatePhone = validateLeadPhone;
 
   //Handling form submit
   const handleSubmit = async (e) => {

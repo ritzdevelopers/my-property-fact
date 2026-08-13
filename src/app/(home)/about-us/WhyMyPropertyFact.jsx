@@ -13,13 +13,13 @@ export default function WhyMyPropertyFact({ platformStats }) {
     <>
       <div className="container-fluid position-relative why-mpf-section">
         <div className="why-mpf-section-top-imgae"></div>
-        <div>
+        {/* <div>
           <h2 className="text-center about-us-h2 plus-jakarta-sans-semi-bold">
             Why My Property Fact?
           </h2>
-        </div>
+        </div> */}
         <div className="container why-mpf-cards-section-container text-center z-index-2">
-          <div className="why-mpf-cards-section-container-inner">
+          {/* <div className="why-mpf-cards-section-container-inner">
             <div className="d-flex gap-5 align-items-center justify-content-between py-5">
               <div className="why-mpf-card">
                 <h3 className="why-mpf-card-title">Buyer-First, Not Brokered</h3>
@@ -60,12 +60,10 @@ export default function WhyMyPropertyFact({ platformStats }) {
               </div>
               <div className="d-flex flex-column gap-5 align-items-center image-contant-bottom-container">
                 <div className="why-mpf-card">
-                  {/* <div> */}
                     <h3 className="why-mpf-card-title">Tools You&apos;ll Use</h3>
                     <p className="why-mpf-card-text">
                     Scores, checklists, and calculators designed for busy families and first-time buyers. Save time, avoid paperwork traps, and buy once, buy right, with a practical system that fits real budgets, real commutes, and real life.
                     </p>
-                  {/* </div> */}
                 </div>
                 <div className="image-bottom-container">
                   <img
@@ -78,7 +76,7 @@ export default function WhyMyPropertyFact({ platformStats }) {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {platformStats ? (
             <MpfPlatformStatistics

@@ -1,0 +1,171 @@
+/* ===========================
+   SECTION
+=========================== */
+
+.commitment-section{
+    width:100%;
+    background:#F1F1F1;
+    padding:80px 20px;
+
+    animation:sectionFade 1s ease;
+}
+
+/* ===========================
+   CARD
+=========================== */
+
+.commitment-card{
+    max-width:1118px;
+    margin:0 auto;
+
+    background:#fff;
+    border-radius:20px;
+
+    padding:56px 140px;
+
+    text-align:center;
+
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+
+    transition:.45s ease;
+
+    animation:cardUp .9s ease;
+}
+
+.commitment-card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 25px 60px rgba(0,0,0,.15);
+}
+
+/* ===========================
+   TITLE
+=========================== */
+
+.commitment-title{
+    margin:0 0 28px;
+
+    font-size:36px;
+    font-weight:600;
+    line-height:1.1;
+
+    color:#000;
+}
+
+/* ===========================
+   TEXT
+=========================== */
+
+.commitment-content{
+    max-width:840px;
+    margin:0 auto 36px;
+}
+
+.commitment-content p{
+    margin:0 0 22px;
+
+    font-size:16px;
+    line-height:29px;
+
+    color:#666;
+}
+
+.commitment-content p:last-child{
+    margin-bottom:0;
+}
+
+.commitment-link{
+    color:#C58D18;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.commitment-link:hover{
+    text-decoration:underline;
+}
+
+/* ===========================
+   BUTTON
+=========================== */
+
+.commitment-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    width:170px;
+    height:48px;
+
+    border-radius:999px;
+
+    background:linear-gradient(180deg,#CDA958,#A28039);
+
+    color:#fff;
+    text-decoration:none;
+
+    font-size:16px;
+    font-weight:600;
+
+    transition:
+        background .4s ease,
+        transform .35s ease,
+        box-shadow .35s ease,
+        color .35s ease;
+}
+
+.commitment-btn:hover{
+    background:#0D5834;
+    color:#fff;
+    transform:translateY(-4px) scale(1.04);
+    box-shadow:0 16px 35px rgba(13,88,52,.35);
+}
+
+.commitment-btn:active{
+    transform:scale(.97);
+}
+
+/* ===========================
+   TABLET
+=========================== */
+
+@media (max-width:991px){
+
+    .commitment-card{
+        padding:45px 50px;
+    }
+
+    .commitment-title{
+        font-size:32px;
+    }
+
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media (max-width:767px){
+
+    .commitment-section{
+        padding:50px 16px;
+    }
+
+    .commitment-card{
+        padding:35px 24px;
+        border-radius:16px;
+    }
+
+    .commitment-title{
+        font-size:28px;
+    }
+
+    .commitment-content p{
+        font-size:15px;
+        line-height:27px;
+    }
+
+    .commitment-btn{
+        width:100%;
+        max-width:220px;
+    }
+
+}

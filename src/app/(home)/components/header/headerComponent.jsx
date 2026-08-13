@@ -820,7 +820,7 @@ const HeaderComponent = () => {
                     )}
                   </div>
                 </li>
-                <li className={`hasChild header-nav-about${isHomePage ? " header-nav-hide-home" : ""}`}>
+                <li className="hasChild header-nav-about">
                   <Link
                     href="/about-us"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/about-us" ? "header-link-active" : ""

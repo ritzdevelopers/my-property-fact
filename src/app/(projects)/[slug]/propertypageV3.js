@@ -420,7 +420,7 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex, primaryLcp }) {
             fetchPriority="low"
             width={600}
             height={400}
-           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
         </button>
         <button
           type="button"
@@ -438,7 +438,7 @@ function HeroMediaPrimary({ slides, totalCount, onOpenAtIndex, primaryLcp }) {
             fetchPriority="low"
             width={600}
             height={400}
-           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
           {moreCount > 0 ? (
             <span className="pd3-hero-more-overlay">
               <span className="pd3-hero-more-plus">+</span>
@@ -594,10 +594,10 @@ export default function PropertyV3({
 
   const builderSlug = String(
     projectDetail?.builder?.slugURL ||
-      projectDetail?.builder?.slugUrl ||
-      projectDetail?.builder?.slug ||
-      projectDetail?.builder?.builderSlug ||
-      "",
+    projectDetail?.builder?.slugUrl ||
+    projectDetail?.builder?.slug ||
+    projectDetail?.builder?.builderSlug ||
+    "",
   ).trim();
   const builderHref = builderSlug ? `/builder/${builderSlug}` : null;
   const topbarDeveloperLogo = projectDetail?.projectLogo
@@ -793,8 +793,8 @@ export default function PropertyV3({
       // Legacy/wrong saves used `/{city}` instead of `/city/{city}`.
       const citySlug = projectDetail?.city
         ? resolveCitySlug(
-            String(projectDetail.city).toLowerCase().replace(/\s+/g, "-"),
-          )
+          String(projectDetail.city).toLowerCase().replace(/\s+/g, "-"),
+        )
         : "";
       if (citySlug && saved.pathname === `/${citySlug}` && cityHref) {
         router.push(cityHref);
@@ -1220,9 +1220,8 @@ export default function PropertyV3({
                           type="button"
                           role="tab"
                           aria-selected={resolvedActiveBhk === bhk}
-                          className={`pd3-bhk-tab${
-                            resolvedActiveBhk === bhk ? " is-active" : ""
-                          }`}
+                          className={`pd3-bhk-tab${resolvedActiveBhk === bhk ? " is-active" : ""
+                            }`}
                           onClick={() => setActiveBhk(bhk)}
                         >
                           {bhk}
@@ -1353,7 +1352,7 @@ export default function PropertyV3({
                             alt={img.altTag || `Gallery image ${i + 1}`}
                             title={img.altTag || `Gallery image ${i + 1}`}
                             className="pd3-tile-img"
-                           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                         </button>
                       );
                     })}
@@ -1385,18 +1384,18 @@ export default function PropertyV3({
                 </div>
                 {(projectDetail.locationDescription ||
                   projectDetail.locationDesc) && (
-                  <div
-                    className="pd3-card__body"
-                    style={{ marginBottom: 16 }}
-                    dangerouslySetInnerHTML={{
-                      __html: sanitizeHtml(
-                        projectDetail.locationDescription ||
+                    <div
+                      className="pd3-card__body"
+                      style={{ marginBottom: 16 }}
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(
+                          projectDetail.locationDescription ||
                           projectDetail.locationDesc ||
                           "",
-                      ),
-                    }}
-                  />
-                )}
+                        ),
+                      }}
+                    />
+                  )}
                 {locationBenefits.length ? (
                   <div className="pd3-loc-grid">
                     {locationBenefits.map((b, i) => {
@@ -1468,7 +1467,7 @@ export default function PropertyV3({
                         src={projectImageSrc(projectDetail.locationMap)}
                         alt="Project location map"
                         title="Project location map"
-                       style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   </div>
                 ) : null}
@@ -1647,15 +1646,16 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
+                      title={`View ${simName}`}
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"
-                      aria-label={`View details about ${simName}`}
                     >
                       <div className="pd3-sim-card__img">
                         <img
                           src={buildProjectImageUrl(p, { preferThumbnail: true })}
                           alt={simImgMeta}
+                          title={simImgMeta}
                           loading="lazy"
                           decoding="async"
                          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
@@ -1667,7 +1667,7 @@ export default function PropertyV3({
                       </div>
                       <div className="pd3-sim-card__body">
                         <div className="pd3-sim-card__name">
-                          {simName}
+                          {p.projectName}
                         </div>
                         {p.projectAddress ? (
                           <div className="pd3-sim-card__addr">

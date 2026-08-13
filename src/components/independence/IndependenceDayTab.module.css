@@ -1,0 +1,192 @@
+.wrapper {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 9998;
+  pointer-events: none;
+}
+
+.tab {
+  position: relative;
+
+  width: 58px;
+  min-height: 190px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  padding: 14px 7px;
+
+  border-radius: 0 20px 20px 0;
+
+  /* Indian Flag */
+  background: linear-gradient(
+    180deg,
+    #ff9933 0%,
+    #ff9933 30%,
+    #ffffff 30%,
+    #ffffff 70%,
+    #138808 70%,
+    #138808 100%
+  );
+
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-left: none;
+
+  box-shadow:
+    4px 8px 25px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+
+  overflow: hidden;
+}
+
+/* Shine animation */
+.shine {
+  position: absolute;
+  top: -20%;
+  left: -80px;
+
+  width: 35px;
+  height: 150%;
+
+  background: rgba(255, 255, 255, 0.35);
+
+  transform: rotate(18deg);
+
+  animation: shine 4s ease-in-out infinite;
+
+  pointer-events: none;
+}
+
+@keyframes shine {
+  0% {
+    left: -80px;
+  }
+
+  45%,
+  100% {
+    left: 100px;
+  }
+}
+
+/* Flag */
+.flag {
+  position: relative;
+  z-index: 2;
+
+  font-size: 20px;
+  line-height: 1;
+
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.18));
+}
+
+/* Main vertical text */
+.text {
+  position: relative;
+  z-index: 2;
+
+  writing-mode: vertical-rl;
+
+  font-family: "Outfit", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  color: #0d5834;
+
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9),
+    0 2px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Jai Hind */
+.jaiHind {
+  position: relative;
+  z-index: 2;
+
+  font-family: "Outfit", sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+
+  color: #0d5834;
+
+  letter-spacing: 0.5px;
+
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+}
+
+/* Desktop */
+@media (min-width: 992px) {
+  .tab {
+    width: 62px;
+    min-height: 205px;
+    border-radius: 0 22px 22px 0;
+  }
+
+  .flag {
+    font-size: 22px;
+  }
+
+  .text {
+    font-size: 15px;
+  }
+
+  .jaiHind {
+    font-size: 11px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 991px) {
+  .tab {
+    width: 52px;
+    min-height: 175px;
+    border-radius: 0 18px 18px 0;
+  }
+
+  .flag {
+    font-size: 18px;
+  }
+
+  .text {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+  .wrapper {
+    top: auto;
+    bottom: 150px;
+    transform: none;
+  }
+
+  .tab {
+    width: 46px;
+    min-height: 150px;
+    padding: 10px 5px;
+    gap: 6px;
+    border-radius: 0 15px 15px 0;
+  }
+
+  .flag {
+    font-size: 16px;
+  }
+
+  .text {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+  }
+
+  .jaiHind {
+    font-size: 9px;
+  }
+}

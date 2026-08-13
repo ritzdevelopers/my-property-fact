@@ -1,0 +1,32 @@
+.corner {
+  pointer-events: none;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  z-index: 45;
+  width: 120px;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (min-width: 640px) {
+  .corner {
+    width: 145px;
+  }
+}
+
+@media (min-width: 768px) {
+  .corner {
+    width: 165px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .corner {
+    width: 185px;
+  }
+}

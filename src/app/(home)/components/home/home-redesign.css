@@ -211,7 +211,7 @@ body:has(.mpf-home-r26) .mpf-header-phone__copy small {
   font-weight: 500;
 }
 
-body:has(.mpf-home-r26) .mpf-header-callback-btn {
+/* body:has(.mpf-home-r26) .mpf-header-callback-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -251,6 +251,81 @@ body:has(.mpf-home-r26) .mpf-header-callback-btn:active {
   transform: translateY(0);
   background: #094a2b !important;
   color: #fff !important;
+} */
+
+body:has(.mpf-home-r26) .mpf-header-callback-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 11px 20px;
+  border-radius: 999px;
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+
+  /* 🇮🇳 Indian Flag */
+    background: linear-gradient(
+      135deg,
+      rgba(255, 149, 43, 0.95) 0%,
+      rgba(255, 255, 255, 0.95) 48%,
+      rgba(19, 136, 8, 0.95) 100%
+    ) !important;
+
+  color: #0d5834 !important;
+
+  font-family: var(--mpf-sans, "Outfit", sans-serif);
+  font-weight: 650;
+  font-size: 0.86rem;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  white-space: nowrap;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 6px 18px rgba(13, 88, 52, 0.25);
+
+  transition:
+    background 200ms var(--mpf-ease, ease),
+    box-shadow 200ms var(--mpf-ease, ease),
+    transform 200ms var(--mpf-ease, ease),
+    color 200ms var(--mpf-ease, ease);
+}
+
+body:has(.mpf-home-r26) .mpf-header-callback-btn:hover {
+  background: linear-gradient(
+    90deg,
+    #e88924 0%,
+    #FF9933 30%,
+    #FFFFFF 50%,
+    #FFFFFF 52%,
+    #138808 70%,
+    #0f7607 100%
+  ) !important;
+
+  color: #0d5834 !important;
+  border-color: rgba(255, 255, 255, 0.7);
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 8px 22px rgba(13, 88, 52, 0.35);
+
+  transform: translateY(-1px);
+}
+
+body:has(.mpf-home-r26) .mpf-header-callback-btn:active {
+  transform: translateY(0);
+
+  background: linear-gradient(
+    90deg,
+    #e88924 0%,
+    #FF9933 32%,
+    #FFFFFF 50%,
+    #FFFFFF 52%,
+    #138808 68%,
+    #0f7607 100%
+  ) !important;
+
+  color: #0d5834 !important;
 }
 
 body:has(.mpf-home-r26) .header:not(.header--home-ss) .header-links li:last-child a {
@@ -453,6 +528,63 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     padding: 14px 18px;
     max-width: 260px;
     border-radius: 14px;
+
+    /* Indian Flag: Saffron → White → Green */
+    background: linear-gradient(
+      135deg,
+      rgba(255, 153, 51, 0.95) 0%,
+      rgba(255, 255, 255, 0.95) 48%,
+      rgba(19, 136, 8, 0.95) 100%
+    );
+
+    border: 1px solid rgba(255, 255, 255, 0.5);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    color: #111;
+    font-size: 0.88rem;
+    line-height: 1.4;
+
+    box-shadow:
+      0 8px 30px rgba(0, 0, 0, 0.18),
+      0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .mpf-home-r26 .mpf-hero-badge__icon {
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(255, 255, 255, 0.7);
+    color: #0d5834;
+
+    border: 2px solid rgba(13, 88, 52, 0.25);
+  }
+
+  .mpf-home-r26 .mpf-hero-badge__text {
+    color: #111;
+  }
+
+  .mpf-home-r26 .mpf-hero-badge__text strong {
+    color: #0d5834;
+    font-weight: 700;
+  }
+  
+  /* .mpf-home-r26 .mpf-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    align-self: center;
+    margin-top: 24px;
+    padding: 14px 18px;
+    max-width: 260px;
+    border-radius: 14px;
     background: rgba(12, 14, 18, 0.72);
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(10px);
@@ -477,7 +609,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .mpf-hero-badge__text strong {
     color: var(--mpf-green-bright);
     font-weight: 700;
-  }
+  } */
 }
 
 @keyframes mpfHeroReveal {

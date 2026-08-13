@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getPublicApiBase } from "@/lib/publicApiBase";
+import { isSuspectedScanPath, scanProbeKind } from "@/lib/scanPathUtils";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowsRotate,
@@ -63,6 +64,29 @@ function mapsHref(lat, lon) {
   const b = Number(lon);
   if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
   return `https://www.google.com/maps?q=${a},${b}`;
+}
+
+function normalizePathLabel(raw) {
+  if (!raw || typeof raw !== "string") return { path: "—", isScan: false, kind: null };
+  const isScanPrefixed = raw.startsWith("SCAN ");
+  const path = isScanPrefixed ? raw.slice(5) : raw;
+  const kind = scanProbeKind(path);
+  const isScan = isScanPrefixed || Boolean(kind) || isSuspectedScanPath(path);
+  return { path, isScan, kind: kind || (isScan ? "PROBE" : null) };
+}
+
+function PathCell({ raw }) {
+  const { path, isScan, kind } = normalizePathLabel(raw);
+  return (
+    <div className={`ip-tracker__path-row${isScan ? " ip-tracker__path-row--scan" : ""}`}>
+      {isScan && kind ? (
+        <span className="super-tracking__pill super-tracking__pill--fail ip-tracker__probe-pill">
+          {kind}
+        </span>
+      ) : null}
+      <span className="super-tracking__mono">{path}</span>
+    </div>
+  );
 }
 
 /**
@@ -235,7 +259,7 @@ export default function IpTrackerOverview({
               ) : null}
             </>
           )}
-          <label className="ip-tracker__toggle">
+          <label className={`ip-tracker__toggle${scansOnly ? " ip-tracker__toggle--on" : ""}`}>
             <input
               type="checkbox"
               checked={scansOnly}
@@ -244,15 +268,24 @@ export default function IpTrackerOverview({
                 setScansOnly(e.target.checked);
               }}
             />
-            Scanners only
+            Scanners only (.env / .git / .aws / wp-*)
           </label>
         </div>
+        <p className="super-tracking__muted ip-tracker__hint">
+          Tip: &quot;Amazon / AWS EC2&quot; in Location is the hosting ISP (crawler), not a{" "}
+          <code>/.aws</code> file scan. Toggle <strong>Scanners only</strong> for{" "}
+          <code>/.env</code>, <code>/.git</code>, <code>/.aws</code> probes. If those still
+          never appear, Cloudflare or nginx is blocking them before tracking — check
+          Cloudflare → Security → Events, or proxy probes to Next (see deploy note).
+        </p>
       </div>
 
       <div className="super-tracking__panel">
         <div className="super-tracking__panel-head">
           <FontAwesomeIcon icon={faGlobe} style={{ marginRight: 8 }} />
-          IPs (last 7 days) — hit count &amp; what they scanned
+          {scansOnly
+            ? "Scanner IPs (last 7 days) — .env / .git / .aws / wp probes"
+            : "IPs (last 7 days) — hit count & what they scanned / visited"}
         </div>
         {loading && !ips ? (
           <div className="super-tracking__muted" style={{ padding: "1rem" }}>
@@ -311,9 +344,7 @@ export default function IpTrackerOverview({
                       <td className="super-tracking__mono">{formatWhen(row.lastSeen)}</td>
                       <td className="ip-tracker__paths">
                         {(row.recentPaths || []).slice(0, 5).map((p) => (
-                          <div key={p} className="super-tracking__mono">
-                            {p}
-                          </div>
+                          <PathCell key={p} raw={p} />
                         ))}
                       </td>
                       <td>
@@ -387,14 +418,16 @@ export default function IpTrackerOverview({
                 </tr>
               </thead>
               <tbody>
-                {(detailEvents.content || []).map((row) => (
+                {(detailEvents.content || []).map((row) => {
+                  const kind = row.scan ? scanProbeKind(row.path) || "PROBE" : null;
+                  return (
                   <tr key={row.id}>
                     <td className="super-tracking__mono">{formatWhen(row.occurredAt)}</td>
                     <td className="super-tracking__mono">{row.path}</td>
                     <td>
                       {row.scan ? (
                         <span className="super-tracking__pill super-tracking__pill--fail">
-                          SCAN
+                          {kind || "SCAN"}
                         </span>
                       ) : (
                         "—"
@@ -406,7 +439,8 @@ export default function IpTrackerOverview({
                       {(row.userAgent || "").length > 48 ? "…" : ""}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -428,16 +462,20 @@ export default function IpTrackerOverview({
                 </tr>
               </thead>
               <tbody>
-                {events.content.map((row) => (
+                {events.content.map((row) => {
+                  const kind = row.scan ? scanProbeKind(row.path) || "PROBE" : null;
+                  return (
                   <tr key={row.id}>
                     <td className="super-tracking__mono">{formatWhen(row.occurredAt)}</td>
                     <td className="super-tracking__mono">{row.ip}</td>
-                    <td className="super-tracking__mono">{row.path}</td>
+                    <td>
+                      <PathCell raw={row.scan ? `SCAN ${row.path}` : row.path} />
+                    </td>
                     <td>{row.locationLabel || "—"}</td>
                     <td>
                       {row.scan ? (
                         <span className="super-tracking__pill super-tracking__pill--fail">
-                          SCAN
+                          {kind || "SCAN"}
                         </span>
                       ) : (
                         <span className="super-tracking__pill super-tracking__pill--ok">
@@ -446,7 +484,8 @@ export default function IpTrackerOverview({
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>

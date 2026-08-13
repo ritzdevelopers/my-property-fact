@@ -4,14 +4,9 @@
  */
 
 import { getPublicApiBase } from "./publicApiBase";
+import { isSuspectedScanPath } from "./scanPathUtils";
 
-const SCAN_RE =
-  /(\.env|\.git|\/\.aws|wp-admin|wp-login|phpmyadmin|xmlrpc|cgi-bin|actuator|\/vendor\/phpunit|\/\.svn|\/\.hg|\.bak$|\.sql($|\?)|credentials|id_rsa|docker-compose|\/adminer|\/telescope|\/debug|server-status|\.DS_Store|web\.config|phpinfo)/i;
-
-export function isSuspectedScanPath(pathname) {
-  if (!pathname || typeof pathname !== "string") return false;
-  return SCAN_RE.test(pathname);
-}
+export { isSuspectedScanPath, scanProbeKind } from "./scanPathUtils";
 
 /**
  * Report a hit to the backend IP tracker. Never throws; never blocks the response.

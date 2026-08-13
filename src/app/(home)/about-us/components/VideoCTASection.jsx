@@ -3,7 +3,7 @@
 import "./style/VideoCTASection.css";
 
 const youtubeUrl =
-  "https://www.youtube.com/embed/s2skans2dP4?rel=0&modestbranding=1";
+  "https://www.youtube.com/embed/jKLAEVW-PGo?start=14&rel=0&modestbranding=1";
 
 export default function VideoCTASection() {
   return (

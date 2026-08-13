@@ -25,25 +25,25 @@ export const timelineData = [
   },
   {
     year: "2020",
-    image: "/about/timeline/2016.webp",
+    image: "/about/timeline/2020.png",
     description:
       "Embraced virtual property tours and online consultations, allowing customers to explore and evaluate projects from anywhere.",
   },
   {
     year: "2021",
-    image: "/about/timeline/2017.webp",
+    image: "/about/timeline/2021.png",
     description:
       "Strengthened our market presence through partnerships with top developers while expanding our reach across key residential and commercial markets.",
   },
   {
     year: "2022",
-    image: "/about/timeline/2018.webp",
+    image: "/about/timeline/2022.png",
     description:
       "Enhanced the customer experience with verified listings, smarter digital solutions, and expert guidance for every property need.",
   },
   {
     year: "2023",
-    image: "/about/timeline/2019.webp",
+    image: "/about/timeline/2023.png",
     description:
       "Achieved new milestones through successful project launches, stronger client relationships, and innovative real estate marketing initiatives.",
   },

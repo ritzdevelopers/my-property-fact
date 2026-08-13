@@ -643,7 +643,7 @@ const HeaderComponent = () => {
                     aria-haspopup="true"
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      {isHomePage ? "Locations" : "Cities"}
+                      Cities
                     </span>
                   </button>
                   <div className="dropdown dropdown-lg z-3 city-dropdown">

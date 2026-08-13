@@ -1042,7 +1042,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
             <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <span className="smart-search-mobile-trigger__text">
-            Search projects, builders, locations
+            Search projects, builders, cities
           </span>
           <span className="smart-search-mobile-trigger__go" aria-hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -1106,19 +1106,19 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
             {isHomeHero ? (
               <>
                 <div className="smart-search-hero-field smart-search-hero-field--search">
-                  <span className="smart-search-hero-field__label">Search Projects, Builders, Locations</span>
+                  <span className="smart-search-hero-field__label">Search Projects, Builders, Cities</span>
                   <div className="smart-search-input-wrap">{searchInputField}</div>
                 </div>
                 <div className="smart-search-hero-extras">
                   <div className="smart-search-hero-field smart-search-hero-field--location">
                     <span className="smart-search-hero-field__label">
-                      Location
+                      City
                     </span>
 
                     <Select
                       classNamePrefix="location-select"
                       options={cityOptions}
-                      placeholder="Select Location"
+                      placeholder="Select City"
                       value={
                         cityOptions.find((option) => option.value === heroCityId) || null
                       }

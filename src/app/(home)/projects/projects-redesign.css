@@ -1215,29 +1215,39 @@
   margin-bottom: 10px;
 }
 
+.mpf-listing-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
 .mpf-listing-title {
   font-size: 20px;
   font-weight: 700;
   color: var(--mpf-gray-900);
-  margin: 0 0 6px;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.35;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .mpf-type-tag {
   display: inline-flex;
   align-items: center;
   flex: 0 0 auto;
-  align-self: flex-end;
-  padding: 4px 12px;
+  margin-top: 3px;
+  padding: 3px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.3px;
-  line-height: 1.2;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
   white-space: nowrap;
   text-transform: capitalize;
 }
@@ -2377,10 +2387,16 @@
     -webkit-line-clamp: 2;
   }
 
+  .mpf-listing-title-row {
+    gap: 6px;
+    margin-bottom: 4px;
+    align-items: center;
+  }
+
   .mpf-type-tag {
-    font-size: 10px;
-    padding: 3px 10px;
-    align-self: flex-end;
+    font-size: 9px;
+    padding: 1px 6px;
+    margin-top: 0;
   }
 
   .mpf-listing-location {

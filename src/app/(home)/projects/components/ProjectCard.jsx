@@ -317,7 +317,10 @@ export default function ProjectCard({
           aria-label={`View details about ${projectTitle}`}
         >
           <div className="mpf-listing-header">
-            <h2 className="mpf-listing-title">{projectTitle}</h2>
+            <div className="mpf-listing-title-row">
+              <h2 className="mpf-listing-title">{projectTitle}</h2>
+              <PropertyTypeTag type={project.propertyTypeName} />
+            </div>
             <p className="mpf-listing-location">
               {formatAddress(project.projectAddress, project.cityName)}
             </p>
@@ -381,7 +384,6 @@ export default function ProjectCard({
         </Link>
 
         <div className="mpf-listing-actions">
-          <PropertyTypeTag type={project.propertyTypeName} />
           <button
             type="button"
             className="mpf-btn-contact mpf-btn-contact--secondary"

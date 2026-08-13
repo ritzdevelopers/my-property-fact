@@ -49,7 +49,7 @@
 
 .contact-expert-title {
   align-self: stretch;
-  color: var(--textone, #0d5834);
+  color: var(--textone, #000);
   text-align: center;
   font-family: Lato, system-ui, -apple-system, sans-serif;
   font-size: 36px;
@@ -236,7 +236,7 @@ a.contact-expert-email-card:focus-visible {
 }
 
 .contact-expert-address-title {
-  color: var(--textone, #0d5834);
+  color: var(--textone, #000);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-style: normal;
@@ -267,7 +267,7 @@ a.contact-expert-email-card:focus-visible {
 }
 
 .contact-expert-phone-title {
-  color: var(--textone, #0d5834);
+  color: var(--textone, #000);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-style: normal;
@@ -278,7 +278,7 @@ a.contact-expert-email-card:focus-visible {
 
 .contact-expert-phone-number {
   display: inline-block;
-  color: var(--primarycolor, #0d5834);
+  color: var(--primarycolor, #000);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-style: normal;
@@ -316,7 +316,7 @@ a.contact-expert-email-card:focus-visible {
 }
 
 .contact-expert-email-title {
-  color: var(--textone, #0d5834);
+  color: var(--textone, #000);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   font-size: 16px;
   font-style: normal;
@@ -791,7 +791,7 @@ a.contact-expert-email-card:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background: #0d5834;
+  background: #b08f4d;
   color: #fff !important;
   border: none;
   border-radius: 10px;
@@ -803,7 +803,7 @@ a.contact-expert-email-card:focus-visible {
 }
 
 .contact-expert-submit:hover:not(:disabled) {
-  background: #b08f4d;
+  background: #0d5834;
 }
 
 .contact-expert-submit:active:not(:disabled) {

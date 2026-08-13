@@ -1,0 +1,157 @@
+.statsSection {
+    background: #F1F1F1;
+    padding: 55px 20px;
+}
+
+.statsContainer {
+    max-width: 1120px;
+    margin: 0 auto;
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+}
+
+.statCard {
+    position: relative;
+    background: #fff;
+    border: 1px solid rgba(13, 88, 52, 0.08);
+    border-radius: 16px;
+    padding: 22px 16px;
+    text-align: center;
+    overflow: hidden;
+    transition: all .35s ease;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.04);
+}
+
+.statCard::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0d5834, #C9A24D);
+    transition: .35s ease;
+    transform: translateX(-50%);
+}
+
+.statCard:hover {
+    transform: translateY(-6px);
+    border-color: rgba(201, 162, 77, .35);
+    box-shadow: 0 18px 40px rgba(13, 88, 52, .10);
+}
+
+.statCard:hover::after {
+    width: 100%;
+}
+
+.iconBox {
+    width: 82px;
+    height: 82px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+        180deg,
+        rgba(201, 162, 77, .12),
+        rgba(13, 88, 52, .06)
+    );
+}
+
+.iconBox img {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.statCard h3 {
+    margin: 0;
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+    color: #0c2e23;
+}
+
+.statCard h4 {
+    margin-top: 12px;
+    font-size: 22px;
+    font-weight: 600;
+    color: #0d5834;
+}
+
+@media (max-width: 1024px) {
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+
+    .statsSection {
+        padding: 40px 16px;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+    }
+
+    .statCard {
+        padding: 18px 12px;
+        border-radius: 14px;
+    }
+
+    .iconBox {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 14px;
+    }
+
+    .iconBox img {
+        width: 34px;
+        height: 34px;
+    }
+
+    .statCard h3 {
+        font-size: 30px;
+    }
+
+    .statCard h4 {
+        margin-top: 10px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 380px) {
+
+    .statsGrid {
+        gap: 10px;
+    }
+
+    .statCard {
+        padding: 16px 10px;
+    }
+
+    .iconBox {
+        width: 56px;
+        height: 56px;
+    }
+
+    .iconBox img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .statCard h3 {
+        font-size: 26px;
+    }
+
+    .statCard h4 {
+        font-size: 16px;
+    }
+}

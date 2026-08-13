@@ -1,0 +1,50 @@
+:root{
+    --primary:#0B5D3B;
+    --secondary:#D4A63D;
+    --text:#1F2937;
+    --light:#F8FAFC;
+    --border:#E5E7EB;
+    --radius:20px;
+    --container:1280px;
+}
+
+.about-page{
+    background:#fff;
+    color:var(--text);
+    overflow:hidden;
+}
+
+.section-container{
+    width:100%;
+    max-width:var(--container);
+    margin:0 auto;
+    padding:80px 20px;
+}
+
+/* Laptop */
+@media (max-width:1200px){
+    .section-container{
+        padding:70px 20px;
+    }
+}
+
+/* Tablet */
+@media (max-width:992px){
+    .section-container{
+        padding:60px 18px;
+    }
+}
+
+/* Mobile */
+@media (max-width:768px){
+    .section-container{
+        padding:40px 16px;
+    }
+}
+
+/* Small Mobile */
+@media (max-width:480px){
+    .section-container{
+        padding:30px 14px;
+    }
+}

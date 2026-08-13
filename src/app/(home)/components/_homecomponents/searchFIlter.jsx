@@ -1200,6 +1200,46 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                 <div className="smart-search-input-wrap">
                   {searchInputField}
                 </div>
+            <div className="smart-search-input-wrap">
+              <svg className="smart-search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                className="smart-search-input"
+                role="combobox"
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setSuggestionsReady(false);
+                  setDropdownOpen(true);
+                }}
+                onFocus={() => {
+                  if (trimmedInput.length >= 2) setDropdownOpen(true);
+                }}
+                placeholder={PLACEHOLDER_EXAMPLES[placeholderIdx]}
+                aria-label="Search properties, projects, cities"
+                aria-expanded={dropdownOpen}
+                aria-controls="smart-search-suggestions"
+                aria-autocomplete="list"
+                autoComplete="off"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  className="smart-search-clear"
+                  onClick={() => {
+                    setSearchInput("");
+                    setDebouncedSearch("");
+                    setDropdownOpen(false);
+                  }}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
 
                 {searchSubmitButton}
               </>

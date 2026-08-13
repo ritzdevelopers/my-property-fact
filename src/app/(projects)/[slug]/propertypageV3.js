@@ -41,6 +41,7 @@ import {
   scoreProjectSearchMatch,
 } from "../../_global_components/projectSearchUtils";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
@@ -980,12 +981,7 @@ export default function PropertyV3({
             <div className="pd3-summary__top">
               <div className="pd3-summary__titlewrap">
                 <div className="pd3-summary__title">
-                  <h1>
-                    {projectDetail.projectName} |{" "}
-                    {[projectDetail.projectLocality, projectDetail.city]
-                      .filter(Boolean)
-                      .join(", ")}
-                  </h1>
+                  <h1>{buildProjectDisplayName(projectDetail)}</h1>
                 </div>
                 <div className="pd3-summary__location">
                   <FontAwesomeIcon icon={faLocationDot} />
@@ -1646,46 +1642,46 @@ export default function PropertyV3({
                 </div>
                 <div className="pd3-sim-grid">
                   {similarProjects.slice(0, 8).map((p) => {
-                    const simName = p.projectName || "Project";
+                    const simName = buildProjectDisplayName(p, "Project");
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
-                      <Link
-                        title={`View ${simName}`}
-                        key={p.id || p.slugURL}
-                        href={`/${p.slugURL}`}
-                        className="pd3-sim-card"
-                      >
-                        <div className="pd3-sim-card__img">
-                          <img
-                            src={buildProjectImageUrl(p, { preferThumbnail: true })}
-                            alt={simImgMeta}
-                            title={simImgMeta}
-                            loading="lazy"
-                            decoding="async"
-                            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-                          {p.projectStatusName ? (
-                            <span className="pd3-sim-card__badge">
-                              {p.projectStatusName}
-                            </span>
-                          ) : null}
+                    <Link
+                      title={`View ${simName}`}
+                      key={p.id || p.slugURL}
+                      href={`/${p.slugURL}`}
+                      className="pd3-sim-card"
+                    >
+                      <div className="pd3-sim-card__img">
+                        <img
+                          src={buildProjectImageUrl(p, { preferThumbnail: true })}
+                          alt={simImgMeta}
+                          title={simImgMeta}
+                          loading="lazy"
+                          decoding="async"
+                         style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                        {p.projectStatusName ? (
+                          <span className="pd3-sim-card__badge">
+                            {p.projectStatusName}
+                          </span>
+                        ) : null}
+                      </div>
+                      <div className="pd3-sim-card__body">
+                        <div className="pd3-sim-card__name">
+                          {p.projectName}
                         </div>
-                        <div className="pd3-sim-card__body">
-                          <div className="pd3-sim-card__name">
-                            {p.projectName}
+                        {p.projectAddress ? (
+                          <div className="pd3-sim-card__addr">
+                            {p.projectAddress}
                           </div>
-                          {p.projectAddress ? (
-                            <div className="pd3-sim-card__addr">
-                              {p.projectAddress}
-                            </div>
-                          ) : null}
-                          {p.projectPrice ? (
-                            <div className="pd3-sim-card__price">
-                              {generatePrice(p.projectPrice)}
-                            </div>
-                          ) : null}
-                        </div>
-                      </Link>
-                    );
+                        ) : null}
+                        {p.projectPrice ? (
+                          <div className="pd3-sim-card__price">
+                            {generatePrice(p.projectPrice)}
+                          </div>
+                        ) : null}
+                      </div>
+                    </Link>
+                  );
                   })}
                 </div>
               </section>

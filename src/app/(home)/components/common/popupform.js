@@ -8,6 +8,12 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import { buildEnquirySubmitData, warmUpLiveLocation } from "@/lib/leadTracker";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 import "./popupform.css";
 
 /** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */
@@ -61,6 +67,7 @@ export default function CommonPopUpform({
     email: "",
     phone: "",
     message: "",
+    userLocation: "",
     enquiryFrom: "",
     projectLink: "",
     pageName: "",
@@ -78,52 +85,9 @@ export default function CommonPopUpform({
     phone: "",
   });
 
-  //Validation functions (aligned with contact us page)
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
-    }
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-
-    if (/^(\d)\1{9}$/.test(cleanedPhone)) {
-      return "Please enter a valid phone number";
-    }
-    return "";
-  };
+  const validateName = validateLeadName;
+  const validateEmail = validateLeadEmail;
+  const validatePhone = validateLeadPhone;
 
   //Handlechanging input fields
   const handleChange = (e) => {
@@ -167,6 +131,11 @@ export default function CommonPopUpform({
     }
   }, [show]);
 
+  // Ask for live GPS when enquiry popup opens (browser Allow/Block prompt)
+  useEffect(() => {
+    if (show) warmUpLiveLocation();
+  }, [show]);
+
   //handle form submit
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -201,12 +170,26 @@ export default function CommonPopUpform({
       setShowLoading(true);
       setButtonName("");
       // Build payload metadata based on source page
-      const submitData = {
-        ...formData,
-        enquiryFrom: from === "Project Detail" ? (data?.projectName || "Project Detail") : "Home Page",
-        projectLink: from === "Project Detail" ? `${process.env.NEXT_PUBLIC_UI_URL}${pathname}` : `${process.env.NEXT_PUBLIC_UI_URL}`,
-        pageName: from === "Project Detail" ? "Project Detail" : "Home",
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          enquiryFrom: from === "Project Detail" ? (data?.projectName || "Project Detail") : "Home Page",
+          projectLink: from === "Project Detail" ? `${process.env.NEXT_PUBLIC_UI_URL}${pathname}` : `${process.env.NEXT_PUBLIC_UI_URL}`,
+          pageName: from === "Project Detail" ? "Project Detail" : "Home",
+        },
+        from === "Project Detail"
+          ? {
+              property: {
+                property_name: data?.projectName ?? null,
+                project: data?.projectName ?? null,
+                builder: data?.builderName ?? null,
+                city: data?.cityName ?? null,
+                locality: data?.location ?? null,
+              },
+              userLocation: formData.userLocation?.trim() || null,
+            }
+          : { userLocation: formData.userLocation?.trim() || null },
+      );
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
         submitData
@@ -218,12 +201,16 @@ export default function CommonPopUpform({
         setValidated(false); // Reset validation state
         setFormData(intitalData);
         setErrors({ name: "", email: "", phone: "" });
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
-      toast.error(error.data.message);
+      const message =
+        error?.response?.data?.message ??
+        error?.message ??
+        "An error occurred. Please try again.";
+      toast.error(message);
       console.error("Error submitting form:", error);
     } finally {
       setShowLoading(false);
@@ -421,6 +408,17 @@ export default function CommonPopUpform({
                     Please provide a valid message.
                   </Form.Control.Feedback>
                 </Form.Group>
+                <Form.Group className="mb-3" controlId="user_location">
+                  <Form.Control
+                    className="enquiry-popup-input"
+                    type="text"
+                    placeholder="Your location (optional) e.g. 640/3 Jagriti Vihar, Meerut"
+                    value={formData.userLocation}
+                    onChange={(e) => handleChange(e)}
+                    name="userLocation"
+                    autoComplete="street-address"
+                  />
+                </Form.Group>
                 <Button
                   type="submit"
                   className="fw-bold border-0 enquiry-popup-submit enquiry-popup-submit--callback"
@@ -532,6 +530,23 @@ export default function CommonPopUpform({
                       value={formData.message}
                       onChange={(e) => handleChange(e)}
                       name="message"
+                    />
+                  </Form.Group>
+                  <Form.Group
+                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
+                    controlId="user_location_home"
+                  >
+                    <Form.Label className="enquiry-popup-home__label">
+                      Your location <span className="enquiry-popup-home__optional">(optional)</span>
+                    </Form.Label>
+                    <Form.Control
+                      className="enquiry-popup-input enquiry-popup-input--home"
+                      type="text"
+                      placeholder="e.g. 640/3 Jagriti Vihar, Meerut"
+                      value={formData.userLocation}
+                      onChange={(e) => handleChange(e)}
+                      name="userLocation"
+                      autoComplete="street-address"
                     />
                   </Form.Group>
                 </div>

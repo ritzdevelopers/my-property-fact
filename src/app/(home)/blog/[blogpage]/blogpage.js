@@ -14,6 +14,7 @@ import LeadFormPopupTrigger from "../../components/_homecomponents/LeadFormPopup
 import "../../components/common/common.css";
 import detailStyles from "./blogpage.module.css";
 import { submitBlogEnquiryAction } from "../actions";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 const RELATED_BLOGS_SOCIAL = [
   {
@@ -248,6 +249,8 @@ export default function BlogDetail({
 
   //Validation errors state
   const [errors, setErrors] = useState({
+    name: "",
+    email: "",
     phone: "",
   });
   const [showAllCategories, setShowAllCategories] = useState(false);
@@ -276,48 +279,31 @@ export default function BlogDetail({
     : categoriesList.slice(0, initialCategoriesCount);
   const hasMoreCategories = categoriesList.length > initialCategoriesCount;
 
-  //Validation function for phone
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    // Remove spaces, dashes, and parentheses for validation
-    const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    // Check if it's all digits
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-    // Check length (exactly 10 digits)
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
-    }
-    // Check if first digit is between 6-9
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-    return "";
-  };
-
   //handle form submit
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
 
-    // Validate phone
-    const phoneError = validatePhone(formData.phone);
+    const nameError = validateLeadName(formData.name);
+    const emailError = validateLeadEmail(formData.email);
+    const phoneError = validateLeadPhone(formData.phone);
     const newErrors = {
+      name: nameError,
+      email: emailError,
       phone: phoneError,
     };
     setErrors(newErrors);
 
-    // Check if form is valid
     const isFormValid =
       form.checkValidity() &&
+      !nameError &&
+      !emailError &&
       !phoneError;
 
     if (!isFormValid) {
       setValidated(true);
       event.stopPropagation();
+      toast.error(nameError || emailError || phoneError || "Please fill all fields correctly!");
       return;
     }
 
@@ -328,14 +314,15 @@ export default function BlogDetail({
       formData.enquiryFrom = blogDetail.blogTitle.replace(/\u00A0/g, " ")
       formData.projectLink = process.env.NEXT_PUBLIC_UI_URL + pathname;
       formData.pageName = "Blog Page";
-      const response = await submitBlogEnquiryAction(formData);
+      const payload = await buildEnquirySubmitData(formData);
+      const response = await submitBlogEnquiryAction(payload);
       if (response.ok) {
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state
-        setErrors({ phone: "" });
-        toast.success(response.message);
+        setErrors({ name: "", email: "", phone: "" });
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.message);
+        toast.error(response.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
       toast.error(error?.message || "Something went wrong");
@@ -366,8 +353,13 @@ export default function BlogDetail({
   //Handle blur validation
   const handleBlur = (e) => {
     const { name, value } = e.target;
-    if (name === "phone") {
-      const error = validatePhone(value);
+    if (name === "name" || name === "email" || name === "phone") {
+      const error =
+        name === "name"
+          ? validateLeadName(value)
+          : name === "email"
+            ? validateLeadEmail(value)
+            : validateLeadPhone(value);
       setErrors((prev) => ({
         ...prev,
         [name]: error,
@@ -543,10 +535,12 @@ export default function BlogDetail({
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      isInvalid={!!errors.name || (validated && !formData.name.trim())}
                       required
                     />
                     <Form.Control.Feedback type="invalid">
-                      Please enter your name.
+                      {errors.name || "Please enter your name."}
                     </Form.Control.Feedback>
                   </Form.Group>
 
@@ -557,10 +551,12 @@ export default function BlogDetail({
                       name="email"
                       value={formData.email}
                       onChange={handleChange}
+                      onBlur={handleBlur}
+                      isInvalid={!!errors.email || (validated && !formData.email.trim())}
                       required
                     />
                     <Form.Control.Feedback type="invalid">
-                      Please enter a valid email address.
+                      {errors.email || "Please enter a valid email address."}
                     </Form.Control.Feedback>
                   </Form.Group>
 

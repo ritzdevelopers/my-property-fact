@@ -2,12 +2,18 @@
 
 import { useId, useState } from "react";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { usePathname } from "next/navigation";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
+import {
+  validateLeadEmail as validateEmail,
+  validateLeadName as validateName,
+  validateLeadPhone as validatePhone,
+} from "@/lib/leadValidation";
 import "./getTouchEnquirySection.css";
 
 const GET_IN_TOUCH_POINTS = [
@@ -22,35 +28,6 @@ const DEFAULT_HOME_COPY =
 
 const DEFAULT_PROJECT_COPY =
   "If you have any additional queries regarding the project or would like to take the next step in your investment journey, you can fill out this query form and our team will be happy to assist you with what you need.";
-
-function validateName(name) {
-  if (!name.trim()) return "Name is required";
-  if (name.trim().length < 2) return "Name must be at least 2 characters";
-  const nameRegex = /^[a-zA-Z\s'-]+$/;
-  if (!nameRegex.test(name.trim())) {
-    return "Name can only contain letters, spaces, hyphens, and apostrophes";
-  }
-  return "";
-}
-
-function validateEmail(email) {
-  if (!email.trim()) return "Email is required";
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.trim())) return "Please enter a valid email address";
-  return "";
-}
-
-function validatePhone(phone) {
-  if (!phone.trim()) return "Phone number is required";
-  const cleaned = phone.toString().replace(/[\s\-\(\)]/g, "");
-  if (!/^\d+$/.test(cleaned)) {
-    return "Phone number can only contain digits, spaces, dashes, and parentheses";
-  }
-  if (cleaned.length !== 10) return "Phone number must be exactly 10 digits";
-  if (!/^[6-9]/.test(cleaned)) return "Phone number must start with 6, 7, 8, or 9";
-  if (/^(\d)\1{9}$/.test(cleaned)) return "Please enter a valid phone number";
-  return "";
-}
 
 /**
  * V2-style “Get in Touch” enquiry block (propertyV2 / propertypageV2).
@@ -135,12 +112,24 @@ export default function GetTouchEnquirySection({
 
     try {
       setShowLoading(true);
-      const submitData = {
-        ...formData,
-        enquiryFrom,
-        projectLink: `${baseUrl}${pathname || "/"}`,
-        pageName: projectDetail ? "Project Detail" : "Home",
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          enquiryFrom,
+          projectLink: `${baseUrl}${pathname || "/"}`,
+          pageName: projectDetail ? "Project Detail" : "Home",
+        },
+        projectDetail
+          ? {
+              property: {
+                property_name: projectDetail.projectName ?? null,
+                project: projectDetail.projectName ?? null,
+                builder: projectDetail.builderName ?? null,
+                city: projectDetail.cityName ?? null,
+              },
+            }
+          : undefined,
+      );
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
@@ -159,9 +148,9 @@ export default function GetTouchEnquirySection({
         });
         setErrors({ name: "", email: "", phone: "" });
         setValidated1(false);
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
-        toast.error(response.data.message);
+        toast.error(response.data.message || "Failed to send enquiry. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);

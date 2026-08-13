@@ -21,18 +21,18 @@ export const DELHI_NCR_CITY_NAMES = [
 export const DELHI_NCR_POPULAR_PROJECT_SLUGS = [
   "eldeco-la-vida-bella",
   "splendor-onyx-blue",
-  "ats-homekraft-happy-trails", // ATS Homecraft (Noida Extension)
-  "eldeco-aamantran", // Eldeco Amantran
+  "ats-homekraft-happy-trails", 
+  "eldeco-aamantran",   
   "m3m-the-cullinan",
-  "eldeco-7-peaks-residences", // Eldeco 7 Peaks
-  "eldeco-edge", // Eldeco EOE
+  "eldeco-7-peaks-residences", 
+  "eldeco-edge", 
   "smartworld-elie-saab",
   "m3m-the-line-sector-72-noida",
   "ats-pristine",
   "arihant-arden",
   "gaur-city-center",
-  "exotica-132", // Exotica One32 Noida
-  "m3m-elie-saab-sector-98-noida", // M3M Elie Saab Sector 98 (add slug when live in CMS)
+  "exotica-132", 
+  "m3m-elie-saab-sector-98-noida", 
 ];
 
 export const POPULAR_PROMO_MAX_ITEMS = 20;

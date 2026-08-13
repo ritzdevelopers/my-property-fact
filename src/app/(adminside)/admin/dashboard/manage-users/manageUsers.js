@@ -26,9 +26,11 @@ import {
   ADMIN_PERMISSIONS,
   ADMIN_PERMISSION_DEFINITIONS,
   DEFAULT_STAFF_ADMIN_PERMISSIONS,
+  EXPLICIT_GRANT_PERMISSIONS,
   isStaffAdminRoleName,
   roleListIncludesStaffAdmin,
   roleObjectsIncludeStaffAdmin,
+  splitPermissionDefinitions,
 } from "../../adminPermissions";
 
 
@@ -266,6 +268,12 @@ export default function ManageUsers({ users: initialUsers }) {
       ),
     [roles],
   );
+
+  const { cms: cmsPermissionDefinitions, pro: proPermissionDefinitions } =
+    useMemo(
+      () => splitPermissionDefinitions(permissionDefinitions),
+      [permissionDefinitions],
+    );
 
   const openCreateModal = () => {
     setEditingUser(null);
@@ -1621,7 +1629,16 @@ export default function ManageUsers({ users: initialUsers }) {
                           setPermissionsTouched(true);
                           setFormData((prev) => ({
                             ...prev,
-                            adminPermissions: [...DEFAULT_STAFF_ADMIN_PERMISSIONS],
+                            adminPermissions: [
+                              ...new Set([
+                                ...(prev.adminPermissions || []).filter((k) =>
+                                  EXPLICIT_GRANT_PERMISSIONS.has(
+                                    String(k).toUpperCase(),
+                                  ),
+                                ),
+                                ...DEFAULT_STAFF_ADMIN_PERMISSIONS,
+                              ]),
+                            ],
                           }));
                         }}
                       >
@@ -1645,7 +1662,7 @@ export default function ManageUsers({ users: initialUsers }) {
                       </Button>
                     </div>
                     <div className="admin-modal-check-scroll admin-modal-check-scroll-lg">
-                      {permissionDefinitions.map((def) => {
+                      {cmsPermissionDefinitions.map((def) => {
                         const key = def.key;
                         const checked = (formData.adminPermissions || [])
                           .map((x) => String(x).toUpperCase())
@@ -1671,6 +1688,56 @@ export default function ManageUsers({ users: initialUsers }) {
                         );
                       })}
                     </div>
+                    {proPermissionDefinitions.length > 0 ? (
+                      <>
+                        <div className="admin-modal-section-title mt-3">
+                          Pro features
+                        </div>
+                        <Form.Text className="text-muted d-block mb-2">
+                          Visible only to Super Admin. Grant explicitly — not
+                          included in default CMS access.
+                        </Form.Text>
+                        <div className="admin-modal-check-scroll">
+                          {proPermissionDefinitions.map((def) => {
+                            const key = def.key;
+                            const checked = (formData.adminPermissions || [])
+                              .map((x) => String(x).toUpperCase())
+                              .includes(String(key).toUpperCase());
+                            return (
+                              <Form.Check
+                                key={key}
+                                type="checkbox"
+                                id={`perm-pro-${key}`}
+                                label={
+                                  <span>
+                                    <strong>{def.label}</strong>
+                                    <span
+                                      className="badge ms-2"
+                                      style={{
+                                        background: "#1b2e24",
+                                        fontSize: "0.65rem",
+                                        verticalAlign: "middle",
+                                      }}
+                                    >
+                                      PRO
+                                    </span>
+                                    {def.description ? (
+                                      <span className="text-muted small d-block">
+                                        {def.description}
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                }
+                                checked={checked}
+                                onChange={() =>
+                                  handleAdminPermissionToggle(key)
+                                }
+                              />
+                            );
+                          })}
+                        </div>
+                      </>
+                    ) : null}
                     <Form.Text className="text-muted">
                       Only applies to users with the Admin role. Super Admin always has full access.
                     </Form.Text>
@@ -1764,6 +1831,11 @@ export default function ManageUsers({ users: initialUsers }) {
                     (d) =>
                       String(d.key).toUpperCase() === String(key).toUpperCase(),
                   );
+                  const isPro =
+                    def?.pro === true ||
+                    def?.pro === "true" ||
+                    String(key).toUpperCase() ===
+                      ADMIN_PERMISSIONS.BULK_LISTING_FAQS;
                   return (
                     <li
                       key={key}
@@ -1772,6 +1844,18 @@ export default function ManageUsers({ users: initialUsers }) {
                     >
                       <div className="fw-semibold">
                         {def?.label || key}
+                        {isPro ? (
+                          <span
+                            className="badge ms-2"
+                            style={{
+                              background: "#1b2e24",
+                              fontSize: "0.65rem",
+                              verticalAlign: "middle",
+                            }}
+                          >
+                            PRO
+                          </span>
+                        ) : null}
                       </div>
                       {def?.description ? (
                         <div className="text-muted small mt-1">

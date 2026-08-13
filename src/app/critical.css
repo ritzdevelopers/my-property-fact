@@ -78,11 +78,11 @@ body {
 }
 
 .hero-banner-frame-tablet {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1024 / 629;
 }
 
 .hero-banner-frame-desktop {
-  aspect-ratio: 1920 / 600;
+  aspect-ratio: 1920 / 883;
 }
 
 .hero-banner-image {
@@ -98,9 +98,15 @@ body {
   overflow: hidden;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 768px) and (max-width: 991.98px) {
   .hero-art-direction {
-    aspect-ratio: 1920 / 600;
+    aspect-ratio: 1024 / 629;
+  }
+}
+
+@media (min-width: 992px) {
+  .hero-art-direction {
+    aspect-ratio: 1920 / 883;
   }
 
   .hero-banner-image--full {

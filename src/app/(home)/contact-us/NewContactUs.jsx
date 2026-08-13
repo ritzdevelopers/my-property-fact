@@ -3,8 +3,14 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import "./contact.css";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { toast } from "react-toastify";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 
 /** Static spotlight card (no projects API on contact page). */
 const CONTACT_SPOTLIGHT = {
@@ -43,57 +49,9 @@ export default function NewContactUs() {
     phone: "",
   });
 
-  //Validation functions
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    // Allow letters, spaces, hyphens, and apostrophes
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    let cleanedPhone = phone.replace(/[\s\-\(\)]/g, "");
-    if (cleanedPhone.startsWith("+91")) {
-      cleanedPhone = cleanedPhone.slice(3);
-    } else if (cleanedPhone.startsWith("91") && cleanedPhone.length >= 12) {
-      cleanedPhone = cleanedPhone.slice(2);
-    }
-    // Check if it's all digits
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, parentheses, or +91";
-    }
-    // Check length (exactly 10 digits)
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits (after country code)";
-    }
-    // Check if first digit is between 6-9
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-    return "";
-  };
+  const validateName = validateLeadName;
+  const validateEmail = validateLeadEmail;
+  const validatePhone = validateLeadPhone;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -167,7 +125,7 @@ export default function NewContactUs() {
 
     try {
       // Prepare enquiry data
-      const enquiryData = {
+      const enquiryData = await buildEnquirySubmitData({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -181,7 +139,7 @@ export default function NewContactUs() {
           }${pathname}`,
         status: "PENDING",
         id: 0, // Required for new enquiry
-      };
+      });
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
@@ -194,9 +152,7 @@ export default function NewContactUs() {
       );
 
       if (response.data.isSuccess === 1) {
-        toast.success(
-          response.data.message || "Enquiry submitted successfully!"
-        );
+        toast.success("Enquiry sent successfully");
         // Reset form
         setFormData({
           name: "",

@@ -902,3 +902,135 @@
   height: 2.25rem;
   border-radius: 10px;
 }
+
+/* —— IP Tracker tab —— */
+.ip-tracker__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ip-tracker__stat {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(160deg, #f8fafc 0%, #fff 70%);
+}
+
+.ip-tracker__stat--scan {
+  border-color: #fecaca;
+  background: linear-gradient(160deg, #fef2f2 0%, #fff 70%);
+}
+
+.ip-tracker__stat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.ip-tracker__stat-value {
+  margin-top: 0.35rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0f172a;
+}
+
+.ip-tracker__stat--scan .ip-tracker__stat-value {
+  color: #b91c1c;
+}
+
+.ip-tracker__loc {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  color: #334155;
+  font-size: 0.85rem;
+}
+
+.ip-tracker__loc svg {
+  margin-top: 0.2rem;
+  color: #0d9488;
+  flex-shrink: 0;
+}
+
+.ip-tracker__map {
+  display: inline-block;
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #0d9488;
+  text-decoration: none;
+}
+
+.ip-tracker__map:hover {
+  text-decoration: underline;
+}
+
+.ip-tracker__paths {
+  max-width: 22rem;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.ip-tracker__path-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin-bottom: 0.2rem;
+}
+
+.ip-tracker__path-row--scan .super-tracking__mono {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.ip-tracker__probe-pill {
+  flex-shrink: 0;
+  font-size: 0.65rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.ip-tracker__ua {
+  max-width: 12rem;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.ip-tracker__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+  margin-left: auto;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.ip-tracker__toggle--on {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.ip-tracker__hint {
+  margin: 0.65rem 1rem 0.85rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.ip-tracker__hint code {
+  font-size: 0.72rem;
+  padding: 0.05rem 0.25rem;
+  border-radius: 4px;
+  background: #f1f5f9;
+}

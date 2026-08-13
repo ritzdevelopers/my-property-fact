@@ -200,7 +200,7 @@
   align-items: center;
   justify-content: center;
 
-  border: 3px solid var(--enquire-peach);
+  border: none;
   border-radius: 30px;
   cursor: pointer;
   overflow: visible;
@@ -285,9 +285,10 @@
 }
 
 .lead-form-popup-trigger--home-beside-chat:hover {
-  background: #e8e8e8;
-  color: var(--enquire-peach);
-  box-shadow: 0 0 25px var(--enquire-peach-glow);
+  background: #0f6a1f;
+  color: #fff;
+  border: none;
+  box-shadow: 0 8px 20px rgba(13, 88, 52, 0.35);
   transform: scale(1.02);
 }
 

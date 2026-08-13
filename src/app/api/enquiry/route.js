@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
+import { validateLeadFields } from '@/lib/leadValidation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -8,24 +9,17 @@ export async function POST(request) {
         const body = await request.json();
         const { sessionId, name, mobile, email, project } = body;
 
-        // Validation
-        if (!name || name.length < 3) {
+        const validation = validateLeadFields({
+            name,
+            email,
+            phone: mobile,
+        });
+        if (!validation.isValid) {
             return NextResponse.json(
-                { success: false, message: 'Name must be at least 3 characters.' },
-                { status: 400 }
-            );
-        }
-
-        if (!/^[6-9]\d{9}$/.test(mobile)) {
-            return NextResponse.json(
-                { success: false, message: 'Please enter a valid 10-digit mobile number.' },
-                { status: 400 }
-            );
-        }
-
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            return NextResponse.json(
-                { success: false, message: 'Please enter a valid email address.' },
+                {
+                    success: false,
+                    message: validation.name || validation.email || validation.phone,
+                },
                 { status: 400 }
             );
         }

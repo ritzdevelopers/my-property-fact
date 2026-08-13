@@ -67,6 +67,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const [dismissed, setDismissed] = useState(false);
   /** On `/`, defer promo until the entry loader (WebsiteGateway) finishes or is skipped (SPA). */
   const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
+  /** On home, wait until user scrolls past the hero before showing the promo. */
+  const [scrolledPastHero, setScrolledPastHero] = useState(!isHome);
   const [ready, setReady] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
@@ -99,10 +101,77 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   }, [isHome]);
 
   useEffect(() => {
-    if (list.length === 0 || hideByRoute || dismissed || !gatewayRevealDone) return undefined;
+    if (!isHome) {
+      setScrolledPastHero(true);
+      return undefined;
+    }
+
+    if (!gatewayRevealDone) return undefined;
+
+    const hero =
+      document.getElementById("mpf-home-hero") ||
+      document.querySelector(".hero-section-wrapper");
+    if (!hero) {
+      setScrolledPastHero(true);
+      return undefined;
+    }
+
+    const updateFromEntry = (entry) => {
+      const pastHero =
+        !entry.isIntersecting ||
+        entry.intersectionRatio < 0.12 ||
+        entry.boundingClientRect.bottom < window.innerHeight * 0.22;
+      setScrolledPastHero(pastHero);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry) updateFromEntry(entry);
+      },
+      { threshold: [0, 0.12, 0.25, 0.5], rootMargin: "0px 0px -8% 0px" },
+    );
+
+    observer.observe(hero);
+
+    const onScroll = () => {
+      const rect = hero.getBoundingClientRect();
+      const pastHero =
+        rect.bottom < window.innerHeight * 0.28 || rect.top < -rect.height * 0.55;
+      setScrolledPastHero(pastHero);
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [isHome, gatewayRevealDone]);
+
+  useEffect(() => {
+    if (list.length === 0 || hideByRoute || dismissed || !gatewayRevealDone) {
+      setReady(false);
+      return undefined;
+    }
+    if (isHome && !scrolledPastHero) {
+      setReady(false);
+      return undefined;
+    }
     const t = window.setTimeout(() => setReady(true), showAfterMs);
     return () => window.clearTimeout(t);
-  }, [list.length, hideByRoute, dismissed, showAfterMs, gatewayRevealDone]);
+  }, [
+    list.length,
+    hideByRoute,
+    dismissed,
+    showAfterMs,
+    gatewayRevealDone,
+    isHome,
+    scrolledPastHero,
+  ]);
 
   useEffect(() => {
     if (hideByRoute || dismissed) return;

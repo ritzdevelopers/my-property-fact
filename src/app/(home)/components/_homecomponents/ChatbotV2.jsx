@@ -9,6 +9,7 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 import { usePathname, useRouter } from "next/navigation";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/gif 2.gif";
@@ -706,16 +707,19 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || formData.name.trim().length < 3) {
-      setError("Name must be at least 3 characters.");
+    const nameError = validateLeadName(formData.name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
-    if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ""))) {
-      setError("Please enter a valid 10-digit mobile number.");
+    const phoneError = validateLeadPhone(formData.phone);
+    if (phoneError) {
+      setError(phoneError);
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Please enter a valid email address.");
+    const emailError = validateLeadEmail(formData.email);
+    if (emailError) {
+      setError(emailError);
       return;
     }
 
@@ -723,22 +727,32 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const submitData = {
-        ...formData,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.replace(/\D/g, "").slice(-10),
-        message: formData.message || `Enquiry for ${projectName || "project"} from Chatbot`,
-        enquiryFrom: "Chatbot",
-        projectLink: projectLink || (() => {
-          const base = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
-          return projectName
-            ? `${base}/${String(projectName).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`
-            : `${base}/`;
-        })(),
-        pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
-        sessionId,
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.replace(/\D/g, "").slice(-10),
+          message: formData.message || `Enquiry for ${projectName || "project"} from Chatbot`,
+          enquiryFrom: "Chatbot",
+          projectLink: projectLink || (() => {
+            const base = (process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
+            return projectName
+              ? `${base}/${String(projectName).toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")}`
+              : `${base}/`;
+          })(),
+          pageName: projectName ? `Chatbot - ${projectName}` : "Chatbot - Home",
+          sessionId,
+        },
+        projectName
+          ? {
+              property: {
+                property_name: projectName,
+                project: projectName,
+              },
+            }
+          : undefined,
+      );
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}enquiry/post`, {
         method: "POST",
@@ -750,7 +764,11 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
       const isOk = payload.success || payload.isSuccess === 1;
       if (isOk) {
         setIsSuccess(true);
-        onSuccess(payload.reply, payload.followUp, payload.options);
+        onSuccess(
+          payload.reply || "Enquiry sent successfully. Our consultant will contact you within 24 hours.",
+          payload.followUp,
+          payload.options
+        );
       } else {
         setError(payload.message || "Submission failed.");
         setIsSubmitting(false);
@@ -766,8 +784,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     return (
       <div className={styles.customForm}>
         <div className={styles.formSuccess}>
-          Thank you for sharing your details. Our consultant will contact you
-          within 24 hours.
+          Enquiry sent successfully. Our consultant will contact you within 24 hours.
         </div>
       </div>
     );

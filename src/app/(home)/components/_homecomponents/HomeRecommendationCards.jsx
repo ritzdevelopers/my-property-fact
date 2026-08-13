@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
@@ -21,11 +23,15 @@ function formatProjectPrice(value) {
   if (value == null || value === "") return "Price on request";
   const strValue = String(value).trim();
   if (!strValue) return "Price on request";
-  if (/[a-zA-Z]/.test(strValue)) return strValue;
+  if (/[a-zA-Z]/.test(strValue)) {
+    // Keep custom labels; append * onwards when it's a priced string without it
+    if (/onwards/i.test(strValue) || /request/i.test(strValue)) return strValue;
+    return /[*]/.test(strValue) ? `${strValue} Onwards` : `${strValue}* Onwards`;
+  }
   const numericValue = Number.parseFloat(strValue.replace(/,/g, ""));
   if (!Number.isFinite(numericValue) || numericValue <= 0) return "Price on request";
-  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} Lakh`;
-  return `₹ ${numericValue} Cr`;
+  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`;
+  return `₹ ${numericValue} Cr* Onwards`;
 }
 
 function getProjectHref(project) {
@@ -76,39 +82,58 @@ function stripItemKind(item, kind) {
   return rest;
 }
 
+function getPropertyTypeTag(type) {
+  const normalized = String(type || "").toLowerCase().trim();
+  if (!normalized) return null;
+  const isCommercial = normalized.includes("commercial");
+  const isResidential = normalized.includes("residential");
+  // Only show when type clearly maps to commercial / residential buckets
+  if (!isCommercial && !isResidential) return null;
+  return {
+    label: isCommercial ? "Commercial" : "Residential",
+    className: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
+  };
+}
+
 function getCardPayload(item, kind) {
   const k = effectiveCardKind(item, kind);
   const source = stripItemKind(item, kind);
 
   if (k === "property") {
     const cardTitle = cleanMetaText(source?.title, "Property");
+    const category = cleanMetaText(
+      source?.propertyTypeCategory || source?.listingType || source?.subType,
+    );
     return {
       key: source?.id || source?.slug || source?.title,
       href: source?.slug ? `/properties/${source.slug}` : "/properties",
       image: getPropertyImage(source),
       badge:
         cleanMetaText(source?.constructionStatus) ||
-        cleanMetaText(source?.listingType) ||
-        "Property",
+        cleanMetaText(source?.listingType),
       title: cardTitle,
+      propertyType: category,
       meta:
         [source?.bedroom, source?.propertyTypeCategory || source?.subType]
           .filter(Boolean)
           .join(" ") || "Property details available on listing page",
       location: source?.location || "Location not specified",
-      price: source?.price || "Price on request",
+      price: formatProjectPrice(source?.price),
     };
   }
 
-  const cardTitle = cleanMetaText(source?.projectName, "Project");
+  const cardTitle = buildProjectDisplayName(
+    { ...source, projectName: cleanMetaText(source?.projectName, "Project") },
+    "Project",
+  );
   return {
     key: source?.slugURL || source?.slugUrl || source?.projectName,
     href: getProjectHref(source),
     image: getProjectImage(source),
     badge:
-      (typeof source?.projectStatusName === "string" && source.projectStatusName.trim()) ||
-      "Project",
+      typeof source?.projectStatusName === "string" ? source.projectStatusName.trim() : "",
     title: cardTitle,
+    propertyType: cleanMetaText(source?.propertyTypeName),
     meta:
       (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
       "Explore configurations on project page",
@@ -118,8 +143,9 @@ function getCardPayload(item, kind) {
 }
 
 function getVisibleCount(viewportWidth) {
-  if (viewportWidth <= 576) return 2;
+  if (viewportWidth <= 480) return 1;
   if (viewportWidth <= 768) return 2;
+  if (viewportWidth <= 1024) return 3;
   return 4;
 }
 
@@ -137,11 +163,13 @@ export default function HomeRecommendationCards({
   );
   const [visibleCount, setVisibleCount] = useState(4);
   const [startIndex, setStartIndex] = useState(0);
+  const viewportRef = useRef(null);
 
   const maxStartIndex = Math.max(0, safeItems.length - visibleCount);
   const canSlide = safeItems.length > visibleCount;
   const trackStyle = {
     transform: `translateX(-${startIndex * (100 / visibleCount)}%)`,
+    "--preview-visible": visibleCount,
   };
 
   useEffect(() => {
@@ -162,11 +190,33 @@ export default function HomeRecommendationCards({
     setStartIndex((prev) => Math.min(prev, maxStartIndex));
   }, [maxStartIndex]);
 
+  /** Below the mobile breakpoint the rail is a native scroll-snap container,
+   *  so the arrows scroll it instead of driving the track transform. */
+  const scrollRailBy = useCallback((direction) => {
+    const viewport = viewportRef.current;
+    if (!viewport || viewport.scrollWidth <= viewport.clientWidth + 1) return false;
+
+    const slide = viewport.querySelector(".home-projects-preview__slide");
+    const step = slide?.getBoundingClientRect().width || viewport.clientWidth;
+    const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+    const target = viewport.scrollLeft + direction * step;
+
+    viewport.scrollTo({
+      left: direction > 0
+        ? (target > maxScroll - 1 ? 0 : target)
+        : (target < 1 ? maxScroll : target),
+      behavior: "smooth",
+    });
+    return true;
+  }, []);
+
   const handlePrev = () => {
+    if (scrollRailBy(-1)) return;
     setStartIndex((prev) => (prev <= 0 ? maxStartIndex : prev - 1));
   };
 
   const handleNext = () => {
+    if (scrollRailBy(1)) return;
     setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
   };
 
@@ -238,7 +288,7 @@ export default function HomeRecommendationCards({
         </div>
       </div>
 
-      <div className="home-projects-preview__viewport">
+      <div className="home-projects-preview__viewport" ref={viewportRef}>
         <div className="home-projects-preview__track" style={trackStyle}>
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
@@ -250,27 +300,53 @@ export default function HomeRecommendationCards({
               <div key={rowKey} className="home-projects-preview__slide">
                 <Link
                   href={card.href}
-                  className="home-project-card"
-                  title={card.title ? `View ${card.title}` : "View project details"}
+                  className="home-project-card home-project-card--poster"
+                  aria-label={card.title ? `View details about ${card.title}` : "View project details"}
                 >
                   <div className="home-project-card__media">
-                    {/** Keep title/alt explicit for SEO audits; avoid "/" placeholders. */}
                     <img
                       src={card.image}
                       alt={`${card.title} — real estate listing card image on My Property Fact`}
-                      title={`${card.title} — real estate listing card image on My Property Fact`}
                       className="home-project-card__image"
                       loading="lazy"
                       decoding="async"
-                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-                    <span className="home-project-card__badge">{card.badge}</span>
+                    />
+                    <ProjectStatusRibbon
+                      status={card.badge}
+                      className="mpf-status-ribbon--compact"
+                    />
                   </div>
 
-                  <div className="home-project-card__body">
-                    <h3 className="home-project-card__title">{card.title}</h3>
+                  <div className="home-project-card__overlay">
+                    <div className="home-project-card__overlay-top">
+                      <p className="home-project-card__price">{card.price}</p>
+                      <span className="home-project-card__cta">
+                        Explore
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
+                    <div className="home-project-card__title-row">
+                      <h3 className="home-project-card__title">{card.title}</h3>
+                      {(() => {
+                        const typeTag = getPropertyTypeTag(card.propertyType);
+                        if (!typeTag) return null;
+                        return (
+                          <span className={`mpf-type-tag ${typeTag.className}`}>
+                            {typeTag.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <p className="home-project-card__meta">{card.meta}</p>
-                    <p className="home-project-card__location">{card.location}</p>
-                    <p className="home-project-card__price">{card.price}</p>
+                    <p className="home-project-card__location">
+                      <svg className="home-project-card__pin" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+                        <path d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" stroke="currentColor" strokeWidth="1.8" />
+                        <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+                      </svg>
+                      {card.location}
+                    </p>
                   </div>
                 </Link>
               </div>

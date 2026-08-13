@@ -3,6 +3,7 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./common.css";
 import "./mpfTopPick.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -121,7 +122,7 @@ export default function MpfTopPicks({ topProject }) {
               </div>
 
               <h3 className="mpf-tp__project plus-jakarta-sans-semi-bold">
-                {projectName}
+                {buildProjectDisplayName(topProject, projectName)}
               </h3>
               <p className="mpf-tp__addr">
                 <FontAwesomeIcon
@@ -163,23 +164,20 @@ export default function MpfTopPicks({ topProject }) {
                 href={`/${slugURL}`}
                 className="mpf-tp__cta btn-normal-color plus-jakarta-sans-semi-bold"
                 aria-label={`View ${projectName} — floor plans, pricing, and details`}
-                title={`View ${projectName}`}
               >
                 <span>Explore {projectName}</span>
                 <RiArrowRightSLine aria-hidden />
               </Link>
             </div>
 
-            <Link
-              href={`/${slugURL}`}
-              className="mpf-tp__figure"
-              aria-label={`Open ${projectName} — view photos and full details`}
-              title={topPicksBannerAlt}
-            >
+              <Link
+                href={`/${slugURL}`}
+                className="mpf-tp__figure"
+                aria-label={`Open ${projectName} — view photos and full details`}
+              >
               <img
                 src={bannerImageSrc}
                 alt={topPicksBannerAlt}
-                title={topPicksBannerAlt}
                 className="mpf-tp__img"
                 loading="lazy"
                 fetchPriority="low"

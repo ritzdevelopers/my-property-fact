@@ -6,6 +6,7 @@ import { getPublicApiBase } from "@/lib/publicApiBase";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import "./super-tracking.css";
 import WebsiteTrafficOverview from "./WebsiteTrafficOverview";
+import IpTrackerOverview from "./IpTrackerOverview";
 
 function adminAuthHeaders() {
   return {};
@@ -129,7 +130,7 @@ function getAuditActorParts(row) {
 
 export default function SuperTrackingPage() {
   const { isSuperAdmin, loading: roleLoading } = useAdminRole();
-  const [tab, setTab] = useState("traffic");
+  const [tab, setTab] = useState("iptrack");
 
   const [traffic, setTraffic] = useState(null);
   const [trafficErr, setTrafficErr] = useState("");
@@ -275,6 +276,12 @@ export default function SuperTrackingPage() {
 
   useEffect(() => {
     if (roleLoading || !isSuperAdmin) return;
+    if (tab !== "iptrack") return;
+    loadRevealStatus();
+  }, [roleLoading, isSuperAdmin, tab, loadRevealStatus]);
+
+  useEffect(() => {
+    if (roleLoading || !isSuperAdmin) return;
     if (tab !== "traffic") return;
 
     let cancelled = false;
@@ -342,6 +349,15 @@ export default function SuperTrackingPage() {
         <button
           type="button"
           role="tab"
+          aria-selected={tab === "iptrack"}
+          className={`super-tracking__tab${tab === "iptrack" ? " super-tracking__tab--active" : ""}`}
+          onClick={() => setTab("iptrack")}
+        >
+          IP tracker
+        </button>
+        <button
+          type="button"
+          role="tab"
           aria-selected={tab === "traffic"}
           className={`super-tracking__tab${tab === "traffic" ? " super-tracking__tab--active" : ""}`}
           onClick={() => setTab("traffic")}
@@ -355,6 +371,17 @@ export default function SuperTrackingPage() {
         <Link href="/admin/dashboard/search-reports">Search Reports</Link> for weekly/monthly
         keyword, property, and blog search analytics (Excel export included).
       </p>
+
+      {tab === "iptrack" && (
+        <IpTrackerOverview
+          ipRevealed={ipRevealed}
+          trafficPin={trafficPin}
+          setTrafficPin={setTrafficPin}
+          trafficPinErr={trafficPinErr}
+          trafficPinLoading={trafficPinLoading}
+          onUnlockIp={unlockTrafficIp}
+        />
+      )}
 
       {tab === "traffic" && (
         <WebsiteTrafficOverview

@@ -1,4 +1,4 @@
-import HomePage from "./components/home/page";
+import HomePage from "./components/home/HomePage";
 import HomeIntroMotion from "./components/home/HomeIntroMotion";
 import HeroLcpPreloads from "./components/_homecomponents/HeroLcpPreloads";
 import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";

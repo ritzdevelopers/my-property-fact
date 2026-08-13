@@ -443,29 +443,57 @@ export const fetchCityDetailsBySlug = cache(async (slug) => {
   }
 });
 
-// fetching blogs list from api
+const EMPTY_BLOGS_PAGE = {
+  content: [],
+  totalPages: 0,
+  total: 0,
+  totalCount: 0,
+};
+
+// fetching blogs list from api — never throw (Vercel build / API outages must not fail prerender)
 export const fetchBlogs = cache(async (page, size, search = "", fromSegment = "blog") => {
-  const res = await fetch(
-    `${apiUrl}blog/get?page=${page}&size=${size}&from=${fromSegment}&search=${search}`,
-    {
-      next: { revalidate: 60 },
-    },
-  );
-  if (!res.ok) throw new Error("Failed to fetch blogs");
-  const blogsData = await res.json();
-  // Handle different response structures: could be array, object with data array, or object with total
-  const blogsArray = Array.isArray(blogsData)
-    ? blogsData
-    : blogsData?.data || blogsData?.blogs || [];
-  const total = blogsData?.total || blogsData?.totalCount || blogsArray.length;
-  return blogsData;
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return EMPTY_BLOGS_PAGE;
+  }
+  try {
+    const res = await fetch(
+      `${apiUrl}blog/get?page=${page}&size=${size}&from=${fromSegment}&search=${search}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
+    if (!res.ok) {
+      console.error("Failed to fetch blogs:", res.status);
+      return EMPTY_BLOGS_PAGE;
+    }
+    const blogsData = await res.json();
+    // Handle different response structures: could be array, object with data array, or object with total
+    if (Array.isArray(blogsData)) {
+      return {
+        content: blogsData,
+        totalPages: 1,
+        total: blogsData.length,
+        totalCount: blogsData.length,
+      };
+    }
+    return blogsData ?? EMPTY_BLOGS_PAGE;
+  } catch (error) {
+    console.error("Error fetching blogs:", error);
+    return EMPTY_BLOGS_PAGE;
+  }
 });
 
 /** Latest blogs in API order — same as `/blog` page 1 and sidebar recent posts. */
 export const fetchLatestBlogs = cache(async (limit = 3) => {
-  const data = await fetchBlogs(0, limit, "");
-  const list = data?.content ?? [];
-  return Array.isArray(list) ? list.slice(0, limit) : [];
+  try {
+    const data = await fetchBlogs(0, limit, "");
+    const list = data?.content ?? [];
+    return Array.isArray(list) ? list.slice(0, limit) : [];
+  } catch (error) {
+    console.error("Error fetching latest blogs:", error);
+    return [];
+  }
 });
 
 /** Single blog by slug — server-side fetch (use in RSC / generateMetadata). */
@@ -487,62 +515,101 @@ export const fetchBlogBySlug = cache(async (slug) => {
 
 /** Full blog list for admin-style endpoints — cached; call only from server / server actions. */
 export const fetchBlogGetAll = cache(async () => {
-  if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL is not defined");
-  const res = await fetch(`${apiUrl}blog/get-all`, {
-    next: { revalidate: 60 },
-  });
-  if (!res.ok) throw new Error("Failed to fetch blogs");
-  return res.json();
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return [];
+  }
+  try {
+    const res = await fetch(`${apiUrl}blog/get-all`, {
+      next: { revalidate: 60 },
+    });
+    if (!res.ok) {
+      console.error("Failed to fetch blogs (get-all):", res.status);
+      return [];
+    }
+    return res.json();
+  } catch (error) {
+    console.error("Error fetching blogs (get-all):", error);
+    return [];
+  }
 });
 
 //Get projects in parts
 export const getProjectsInPart = cache(async (page, size, category = "All") => {
-  const project = await fetch(
-    `${apiUrl}projects/get-projects-in-parts?page=${page}&size=${size}`,
-    {
-      next: { revalidate: 60 },
-    },
-  );
-  if (!project.ok) throw new Error("Failed to fetch blogs");
-  const projectPartData = await project.json();
-  switch (category) {
-    case "Commercial":
-      projectPartData.filter((item) => item.propertyTypeName === category);
-      break;
-    case "Residential":
-      projectPartData.filter((item) => item.propertyTypeName === category);
-      break;
-    case "New Launch":
-      projectPartData.filter((item) => item.propertyTypeName === category);
-      break;
-    default:
-      projectPartData;
-      break;
+  if (!apiUrl) return [];
+  try {
+    const project = await fetch(
+      `${apiUrl}projects/get-projects-in-parts?page=${page}&size=${size}`,
+      {
+        next: { revalidate: 60 },
+      },
+    );
+    if (!project.ok) {
+      console.error("Failed to fetch projects in parts:", project.status);
+      return [];
+    }
+    const projectPartData = await project.json();
+    if (!Array.isArray(projectPartData)) return projectPartData;
+    switch (category) {
+      case "Commercial":
+      case "Residential":
+      case "New Launch":
+        return projectPartData.filter((item) => item.propertyTypeName === category);
+      default:
+        return projectPartData;
+    }
+  } catch (error) {
+    console.error("Error fetching projects in parts:", error);
+    return [];
   }
-  return projectPartData;
 });
 
 //Fetch all benefits from server
 export const fetchAllBenefits = cache(async () => {
-  const benefits = await fetch(`${process.env.NEXT_PUBLIC_API_URL}benefit`, {
-    method: "Get",
-  });
-  if (!benefits.ok) throw new Error("Failed to fetch benefits");
-  const benefitData = await benefits.json();
-  return benefitData;
+  const base = process.env.NEXT_PUBLIC_API_URL;
+  if (!base) return [];
+  try {
+    const benefits = await fetch(`${base}benefit`, {
+      method: "GET",
+      next: { revalidate: 60 },
+    });
+    if (!benefits.ok) {
+      console.error("Failed to fetch benefits:", benefits.status);
+      return [];
+    }
+    return benefits.json();
+  } catch (error) {
+    console.error("Error fetching benefits:", error);
+    return [];
+  }
 });
 
 //Fetch all webstories from server
 export const fetchAllStories = cache(async () => {
-  const stories = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}web-story-category/get-all`,
-    {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return [];
+  }
+  try {
+    const stories = await fetch(`${apiUrl}web-story-category/get-all`, {
       next: { revalidate: 60 },
-    },
-  );
-  if (!stories.ok) throw new Error("Failed to fetch stories");
-  const storiesData = await stories.json();
-  return storiesData.reverse();
+    });
+    if (!stories.ok) {
+      console.error("Failed to fetch stories:", stories.status);
+      return [];
+    }
+    const contentType = stories.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      console.error("Stories API returned non-JSON:", contentType);
+      return [];
+    }
+    const storiesData = await stories.json();
+    return Array.isArray(storiesData) ? storiesData.reverse() : [];
+  } catch (error) {
+    console.error("Error fetching stories:", error);
+    return [];
+  }
 });
 
 // Getting top project (weekly rotation from all projects)
@@ -610,7 +677,10 @@ function sortByLatest(a, b) {
 
 /** Fetches the current Top Pick. Featured builder rotates every 4 days; we show that builder's latest project only. */
 export const fetchTopPicksProject = cache(async () => {
-  if (!apiUrl) throw new Error("NEXT_PUBLIC_API_URL is not defined");
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return null;
+  }
   const allProjects = await fetchAllProjects();
   const pinnedProject = Array.isArray(allProjects)
     ? allProjects.find((project) => project.slugURL === TOP_PICKS_PROJECT_SLUG)

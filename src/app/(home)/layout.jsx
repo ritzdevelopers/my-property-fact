@@ -2,6 +2,21 @@ import "./bootstrap-critical.css";
 import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { Fraunces, Outfit } from "next/font/google";
+
+const mpfDisplay = Fraunces({
+  subsets: ["latin"],
+  variable: "--mpf-font-display",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
+
+const mpfSans = Outfit({
+  subsets: ["latin"],
+  variable: "--mpf-font-sans",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
 
 const HeaderComponent = dynamic(
   () => import("./components/header/headerComponent").then((m) => m.default),
@@ -25,8 +40,8 @@ const HeaderComponent = dynamic(
   }
 );
 
-const NewFooterDesign = dynamic(
-  () => import("./components/footer/NewFooterDesign").then((m) => m.default),
+const SiteFooter = dynamic(
+  () => import("./components/footer/SiteFooter").then((m) => m.default),
   { ssr: true, loading: () => <footer style={{ minHeight: 200 }} aria-busy="true" /> }
 );
 
@@ -48,11 +63,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <>
+    <div className={`${mpfDisplay.variable} ${mpfSans.variable}`}>
       <BootstrapDeferredStyles />
       <HeaderComponent />
       {children}
-      <NewFooterDesign />
-    </>
+      <SiteFooter />
+    </div>
   );
 }

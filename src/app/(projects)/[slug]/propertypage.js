@@ -22,6 +22,7 @@ import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowDown,
@@ -39,6 +40,11 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
 import { formatDistanceKm } from "@/lib/utils";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 import { Col, Row, Modal } from "react-bootstrap";
 import { usePathname, notFound } from "next/navigation";
 
@@ -82,52 +88,9 @@ export default function Property({
   });
 
   //Validation functions
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    // Allow letters, spaces, hyphens, and apostrophes
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    // Remove spaces, dashes, and parentheses for validation
-    const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    // Check if it's all digits
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-    // Check length (exactly 10 digits)
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
-    }
-    // Check if first digit is between 6-9
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-    return "";
-  };
+  const validateName = validateLeadName;
+  const validateEmail = validateLeadEmail;
+  const validatePhone = validateLeadPhone;
 
   //Handling answer div
   const toggleAnswer = (index) => {
@@ -315,12 +278,24 @@ export default function Property({
     try {
       setShowLoading(true);
       // Make API request
-      const submitData = {
-        ...formData,
-        enquiryFrom: projectDetail.projectName,
-        projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
-        pageName: "Project Detail",
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          enquiryFrom: projectDetail.projectName,
+          projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
+          pageName: "Project Detail",
+        },
+        {
+          property: {
+            property_name: projectDetail.projectName ?? null,
+            project: projectDetail.projectName ?? null,
+            builder: projectDetail.builderName ?? null,
+            city: projectDetail.cityName ?? null,
+            locality: projectDetail.location ?? null,
+            bhk: projectDetail.propertyType ?? null,
+          },
+        },
+      );
 
       const response = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "enquiry/post",
@@ -346,7 +321,7 @@ export default function Property({
         } else {
           setValidated(false);
         }
-        toast.success(response.data.message);
+        toast.success("Enquiry sent successfully");
       } else {
         toast.error(response.data.message);
       }

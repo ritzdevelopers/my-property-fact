@@ -632,6 +632,18 @@ async function processEnquiry({ name, mobile, email, project, sessionId }) {
     };
   }
 
+  const { validateLeadFields } = await import("../../lib/leadValidation.js");
+  const validation = validateLeadFields({ name, email, phone: mobile });
+  if (!validation.isValid) {
+    return {
+      status: 400,
+      data: {
+        success: false,
+        message: validation.name || validation.email || validation.phone,
+      },
+    };
+  }
+
   const session = sessions[sessionId] || { data: {} };
   const { type, city, budget } = session.data || {};
 

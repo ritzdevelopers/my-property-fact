@@ -1,5 +1,5 @@
 "use client";
-import PropertyContainer from "@/app/(home)/components/common/page";
+import PropertyContainer from "@/app/(home)/components/common/PropertyContainer";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import {
   ProjectListingPaginationControls,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import PropertyContainer from "@/app/(home)/components/common/page";
+import PropertyContainer from "@/app/(home)/components/common/PropertyContainer";
 import "../project.css";
 import {
   LISTING_PAGE_SIZE,

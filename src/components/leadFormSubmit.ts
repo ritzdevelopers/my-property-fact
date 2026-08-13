@@ -1,9 +1,11 @@
 import type { FormEvent } from "react";
+import {
+  normalizeIndianPhone,
+  validateLeadFields,
+} from "@/lib/leadValidation";
 
 const GOOGLE_SCRIPT_WEB_APP_URL =
   "https://script.google.com/macros/s/AKfycbwmyV0vWMVp31JQZU8rYaa5WUIb-YRifqoPH76FzebgTmxuzSCfuibN-9O40-ogRy7-tA/exec";
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const INDIAN_MOBILE_REGEX = /^[6-9]\d{9}$/;
 
 function getCurrentDateTime() {
   const now = new Date();
@@ -19,20 +21,6 @@ function getCurrentDateTime() {
     date: `${day}-${month}-${year}`,
     time: `${formattedHours}:${minutes} ${period}`,
   };
-}
-
-function normalizeIndianPhone(phone: string) {
-  const digits = phone.replace(/\D/g, "");
-
-  if (digits.length === 12 && digits.startsWith("91")) {
-    return digits.slice(2);
-  }
-
-  if (digits.length === 11 && digits.startsWith("0")) {
-    return digits.slice(1);
-  }
-
-  return digits;
 }
 
 function generateUniqueLeadId() {
@@ -66,24 +54,11 @@ function validateLeadFormData(formData: {
   email: string;
   phone: string;
 }) {
-  if (!formData.name) {
-    throw new Error("Please enter your name.");
-  }
-
-  if (!formData.email) {
-    throw new Error("Please enter your email.");
-  }
-
-  if (!EMAIL_REGEX.test(formData.email)) {
-    throw new Error("Please enter a valid email address.");
-  }
-
-  if (!formData.phone) {
-    throw new Error("Please enter your phone number.");
-  }
-
-  if (!INDIAN_MOBILE_REGEX.test(formData.phone)) {
-    throw new Error("Please enter a valid Indian mobile number.");
+  const validation = validateLeadFields(formData);
+  if (!validation.isValid) {
+    throw new Error(
+      validation.name || validation.email || validation.phone || "Invalid lead details.",
+    );
   }
 }
 

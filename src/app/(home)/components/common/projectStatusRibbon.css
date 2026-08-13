@@ -1,0 +1,388 @@
+/* ==========================================================================
+   Project status corner ribbon
+   Shared by the projects listing card and the home recommendation cards.
+   Geometry is derived from --mpf-rs (scale) so breakpoints only resize that
+   one value; colours come from the [data-status] blocks near the bottom.
+   ========================================================================== */
+.mpf-status-ribbon {
+  /* --mpf-rs-base = per-card size, --mpf-rs-bp = breakpoint size */
+  --mpf-rs-base: 1;
+  --mpf-rs-bp: 1;
+  --mpf-rs: calc(var(--mpf-rs-base) * var(--mpf-rs-bp));
+  --mpf-rb-box: calc(184px * var(--mpf-rs));
+  --mpf-rb-band-w: calc(240px * var(--mpf-rs));
+  --mpf-rb-band-h: calc(50px * var(--mpf-rs));
+  --mpf-rb-offset: calc(58px * var(--mpf-rs));
+  --mpf-rb-fold-size: calc(26px * var(--mpf-rs));
+  /* Where the band's outer edge meets the card edges (sin 45° = 0.7071) */
+  --mpf-rb-edge: calc(var(--mpf-rb-offset) * 2 + var(--mpf-rb-band-h) * 0.7071);
+  --mpf-rb-font: 13.5px;
+  --mpf-rb-font-lead: 11.5px;
+
+  /* Default = New Launched (warm vermilion) */
+  --mpf-rb-from: #ff9f45;
+  --mpf-rb-mid: #f0560c;
+  --mpf-rb-to: #c62f02;
+  --mpf-rb-fold: #832000;
+  --mpf-rb-ink: #ffffff;
+  --mpf-rb-ink-shadow: rgba(0, 0, 0, 0.42);
+  --mpf-rb-glow: rgba(176, 52, 0, 0.45);
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 11;
+  width: var(--mpf-rb-box);
+  height: var(--mpf-rb-box);
+  overflow: hidden;
+  pointer-events: none;
+  border-top-left-radius: inherit;
+  filter: drop-shadow(0 6px 12px rgba(9, 15, 27, 0.35));
+}
+
+/* Swallowtail ends: the underside of the ribbon where it folds around the
+   card edge. Each sits flush against the band's outer edge and flares out to
+   the card border, so the band reads as one strip tied around the corner. */
+.mpf-status-ribbon::before,
+.mpf-status-ribbon::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  background: linear-gradient(
+    135deg,
+    var(--mpf-rb-fold) 0%,
+    color-mix(in srgb, var(--mpf-rb-fold) 72%, #000) 100%
+  );
+}
+
+.mpf-status-ribbon::before {
+  left: 0;
+  top: calc(var(--mpf-rb-edge) - var(--mpf-rb-fold-size));
+  width: var(--mpf-rb-fold-size);
+  height: calc(var(--mpf-rb-fold-size) * 2);
+  clip-path: polygon(0 50%, 100% 0, 28% 50%, 0 100%);
+}
+
+.mpf-status-ribbon::after {
+  top: 0;
+  left: calc(var(--mpf-rb-edge) - var(--mpf-rb-fold-size));
+  width: calc(var(--mpf-rb-fold-size) * 2);
+  height: var(--mpf-rb-fold-size);
+  clip-path: polygon(50% 0, 0 100%, 50% 28%, 100% 0);
+}
+
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .mpf-status-ribbon::before,
+  .mpf-status-ribbon::after {
+    background: var(--mpf-rb-fold);
+  }
+}
+
+.mpf-status-ribbon__band {
+  position: absolute;
+  z-index: 2;
+  left: calc(var(--mpf-rb-offset) - var(--mpf-rb-band-w) / 2);
+  top: calc(var(--mpf-rb-offset) - var(--mpf-rb-band-h) / 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mpf-rb-band-w);
+  height: var(--mpf-rb-band-h);
+  overflow: hidden;
+  transform: rotate(-45deg);
+  background: linear-gradient(
+    172deg,
+    var(--mpf-rb-from) 0%,
+    var(--mpf-rb-mid) 54%,
+    var(--mpf-rb-to) 100%
+  );
+  /* Extruded thickness + cast shadow + glossy inner edges */
+  box-shadow:
+    0 calc(3px * var(--mpf-rs)) 0 var(--mpf-rb-fold),
+    0 calc(9px * var(--mpf-rs)) calc(16px * var(--mpf-rs)) var(--mpf-rb-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.28);
+  transition: transform 260ms ease, filter 260ms ease;
+}
+
+/* Top gloss */
+.mpf-status-ribbon__band::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 52% 0;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.34) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Shaded underside so the band reads as folded material */
+.mpf-status-ribbon__band::after {
+  content: "";
+  position: absolute;
+  inset: 62% 0 0 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.26) 100%);
+}
+
+.mpf-status-ribbon__shine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -45%;
+  width: 38%;
+  opacity: 0;
+  transform: skewX(-18deg);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.mpf-status-ribbon__text {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  max-width: 88%;
+}
+
+.mpf-status-ribbon__line {
+  font-size: var(--mpf-rb-font);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--mpf-rb-ink);
+  text-shadow: 0 1px 2px var(--mpf-rb-ink-shadow);
+}
+
+.mpf-status-ribbon__line:first-child:not(:only-child) {
+  font-size: var(--mpf-rb-font-lead);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  opacity: 0.92;
+}
+
+/* Hover: a small lift off the card plus a single pass of light */
+:hover > .mpf-status-ribbon .mpf-status-ribbon__band {
+  transform: rotate(-45deg) translateY(calc(-2px * var(--mpf-rs)));
+  filter: saturate(1.06) brightness(1.04);
+}
+
+:hover > .mpf-status-ribbon .mpf-status-ribbon__shine {
+  animation: mpf-status-ribbon-shine 900ms ease forwards;
+}
+
+@keyframes mpf-status-ribbon-shine {
+  0% {
+    left: -45%;
+    opacity: 0;
+  }
+
+  25% {
+    opacity: 0.9;
+  }
+
+  100% {
+    left: 110%;
+    opacity: 0;
+  }
+}
+
+/* For smaller media, e.g. the home carousel poster cards */
+.mpf-status-ribbon--compact {
+  --mpf-rs-base: 0.9;
+  --mpf-rb-font: 12.5px;
+  --mpf-rb-font-lead: 10.5px;
+}
+
+/* Listing cards: tighter into the top-left corner and smaller overall */
+.mpf-status-ribbon--listing {
+  --mpf-rs-base: 0.72;
+  --mpf-rb-font: 11px;
+  --mpf-rb-font-lead: 9.5px;
+  filter: drop-shadow(0 4px 8px rgba(9, 15, 27, 0.3));
+}
+
+/* --------------------------------------------------------------------------
+   Status colour schemes. One hue per stage of a project's life so the colour
+   itself carries meaning: warm = just launched, blueprint blue = being built,
+   brand green = ready, gold = premium, graphite = closed.
+   -------------------------------------------------------------------------- */
+.mpf-status-ribbon[data-status="under-construction"] {
+  --mpf-rb-from: #7ba7f0;
+  --mpf-rb-mid: #2f5fc4;
+  --mpf-rb-to: #1c3f92;
+  --mpf-rb-fold: #122a63;
+  --mpf-rb-glow: rgba(23, 55, 130, 0.45);
+}
+
+/* Brand green — matches the price pill and CTAs */
+.mpf-status-ribbon[data-status="ready-to-move"] {
+  --mpf-rb-from: #43cd7d;
+  --mpf-rb-mid: #17a34a;
+  --mpf-rb-to: #0d5834;
+  --mpf-rb-fold: #073b22;
+  --mpf-rb-glow: rgba(11, 78, 44, 0.45);
+}
+
+.mpf-status-ribbon[data-status="possession-soon"] {
+  --mpf-rb-from: #5fd8cb;
+  --mpf-rb-mid: #0d9488;
+  --mpf-rb-to: #0b6f66;
+  --mpf-rb-fold: #064a44;
+  --mpf-rb-glow: rgba(11, 111, 102, 0.45);
+}
+
+.mpf-status-ribbon[data-status="ultra-luxury"] {
+  --mpf-rb-from: #f4dfa4;
+  --mpf-rb-mid: #c9a24d;
+  --mpf-rb-to: #9a7524;
+  --mpf-rb-fold: #5f4712;
+  --mpf-rb-ink: #2c2004;
+  --mpf-rb-ink-shadow: rgba(255, 255, 255, 0.38);
+  --mpf-rb-glow: rgba(124, 93, 24, 0.42);
+}
+
+.mpf-status-ribbon[data-status="sold-out"] {
+  --mpf-rb-from: #a4b1c2;
+  --mpf-rb-mid: #64748b;
+  --mpf-rb-to: #47556b;
+  --mpf-rb-fold: #2c3644;
+  --mpf-rb-glow: rgba(51, 65, 85, 0.45);
+}
+
+/* --------------------------------------------------------------------------
+   Under-construction image treatment. At rest: a blueprint grid + cool site
+   tint over the photo. On hover the card enters "site preview" mode — the
+   grid deepens and a hazard tape stretches across the photo.
+   -------------------------------------------------------------------------- */
+.mpf-status-treatment {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  background-image:
+    linear-gradient(rgba(206, 228, 255, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(206, 228, 255, 0.14) 1px, transparent 1px),
+    radial-gradient(
+      130% 90% at 12% 0%,
+      rgba(9, 26, 54, 0.44) 0%,
+      rgba(9, 26, 54, 0.16) 46%,
+      rgba(5, 16, 34, 0.3) 100%
+    );
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+}
+
+/* Hazard tape — hidden until hover */
+.mpf-status-treatment::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: 52%;
+  height: clamp(16px, 8%, 26px);
+  opacity: 0;
+  transform: rotate(-4deg) scaleY(0.55);
+  background: repeating-linear-gradient(
+    -45deg,
+    #f7c948 0 11px,
+    #17181c 11px 22px
+  );
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+/* Deeper blueprint wash — also hover only */
+.mpf-status-treatment::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background:
+    linear-gradient(rgba(150, 200, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(150, 200, 255, 0.16) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(6, 22, 48, 0.34) 0%, rgba(6, 22, 48, 0.12) 100%);
+  background-size: 13px 13px, 13px 13px, 100% 100%;
+  transition: opacity 300ms ease;
+}
+
+:hover > .mpf-status-treatment::before {
+  opacity: 0.94;
+  transform: rotate(-4deg) scaleY(1);
+}
+
+:hover > .mpf-status-treatment::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Responsive scaling
+   -------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .mpf-status-ribbon {
+    --mpf-rs-bp: 0.9;
+    --mpf-rb-font: 12px;
+    --mpf-rb-font-lead: 10px;
+    filter: drop-shadow(0 5px 10px rgba(9, 15, 27, 0.32));
+  }
+
+  .mpf-status-treatment {
+    background-size: 22px 22px, 22px 22px, 100% 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .mpf-status-ribbon {
+    --mpf-rs-bp: 0.78;
+    --mpf-rb-font: 10.5px;
+    --mpf-rb-font-lead: 9px;
+  }
+
+  .mpf-status-ribbon__line {
+    letter-spacing: 0.05em;
+  }
+
+  .mpf-status-ribbon__line:first-child:not(:only-child) {
+    letter-spacing: 0.12em;
+  }
+
+  .mpf-status-treatment {
+    background-size: 18px 18px, 18px 18px, 100% 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-status-ribbon__band {
+    transition: none;
+  }
+
+  :hover > .mpf-status-ribbon .mpf-status-ribbon__band {
+    transform: rotate(-45deg);
+    filter: none;
+  }
+
+  :hover > .mpf-status-ribbon .mpf-status-ribbon__shine {
+    animation: none;
+  }
+
+  .mpf-status-treatment::before,
+  .mpf-status-treatment::after {
+    transition: opacity 120ms linear;
+  }
+
+  :hover > .mpf-status-treatment::before {
+    transform: rotate(-4deg);
+  }
+}

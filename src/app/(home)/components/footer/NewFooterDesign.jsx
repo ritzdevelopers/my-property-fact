@@ -13,7 +13,11 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import FooterCityLinksSection from "./FooterCityLinksSection";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
-export default function NewFooterDesign({ compactTop = false, cityList: cityListProp }) {
+export default function NewFooterDesign({
+  compactTop = false,
+  cityList: cityListProp,
+  showNewsletter = true,
+}) {
   useDeferredStylesheet(() => import("./newfooter.css"));
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
@@ -47,36 +51,38 @@ export default function NewFooterDesign({ compactTop = false, cityList: cityList
   };
   return (
     <div>
-      <div className="new-footer-design">
+      <div className={`new-footer-design${showNewsletter ? "" : " no-newsletter"}`}>
         {/* Newsletter Section */}
-        {/* <div className="container newslettermaxwidth">
-          <div className="new-design-footer-top newsletter-background">
-            <div className="new-design-footer-top-left newsletterbox-left newsletter-text">
-              <div className="newlatter-heading">
-                Join My Newsletter
-              </div>
-              <p className="newsletter-paragraph">
-                Receive fresh articles straight in your inbox, every Friday morning.
-                I also share interesting finds from the internet!
-              </p>
-              <form onSubmit={handleSubmit}>
-                <div className="newsletter-form">
-                  <input type="email" placeholder="Your email address…"
-                    value={email} onChange={(e) => setEmail(e.target.value)}
-                    className="newsletter-input" />
-                  <button className="newsletter-button btn-normal-color newletterbutton"
-                    type="submit" disabled={loading}
-                   >
-                    {loading ? "Subscribing..." : "Subscribe"}
-                  </button>
+        {showNewsletter ? (
+          <div className="container newslettermaxwidth">
+            <div className="new-design-footer-top newsletter-background">
+              <div className="new-design-footer-top-left newsletterbox-left newsletter-text">
+                <div className="newlatter-heading">
+                  Join My Newsletter
                 </div>
-              </form>
-            </div>
-            <div className="new-design-footer-top-right newsletterbox-right" style={{ marginTop: "-6%" }}>
-              <img src="/static/footer/newsletter1.png" title="Corporate park" alt="Corporate park" className="center-img" />
+                <p className="newsletter-paragraph">
+                  Receive fresh articles straight in your inbox, every Friday morning.
+                  I also share interesting finds from the internet!
+                </p>
+                <form onSubmit={handleSubmit}>
+                  <div className="newsletter-form">
+                    <input type="email" placeholder="Your email address…"
+                      value={email} onChange={(e) => setEmail(e.target.value)}
+                      className="newsletter-input" />
+                    <button className="newsletter-button btn-normal-color newletterbutton"
+                      type="submit" disabled={loading}
+                     >
+                      {loading ? "Subscribing..." : "Subscribe"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div className="new-design-footer-top-right newsletterbox-right" style={{ marginTop: "-6%" }}>
+                <img src="/static/footer/newsletter1.png" title="Corporate park" alt="Corporate park" className="center-img" />
+              </div>
             </div>
           </div>
-        </div> */}
+        ) : null}
         <div className="footer-city-links-container">
           <FooterCityLinksSection cityList={cityList} />
         </div>

@@ -299,50 +299,55 @@ export default function NoidaProjectsSection() {
     setOpenFaqId((prev) => (prev === faqId ? null : faqId));
   };
 
+  // Hidden for now — flip to true to restore Popular Real Estate Destinations
+  const showDestinations = false;
+
   return (
     <section className="container noida-projects-section">
-      <div className="noida-projects-container">
-        <div className="noida-projects-content">
-          <div className="noida-projects-header">
-            <h2 className="plus-jakarta-sans-semi-bold text-center my-5">
-              Popular Real Estate Destinations
-            </h2>
-          </div>
-          <div className="city-cards-slider-wrapper">
-            <Swiper
-              modules={[Autoplay]}
-              autoplay={{
-                delay: 5000,
-                disableOnInteraction: false,
-                pauseOnMouseEnter: true,
-                waitForTransition: false,
-              }}
-              loop={swiperSlides.length > 1}
-              roundLengths
-              watchSlidesProgress
-              watchOverflow={false}
-              centerInsufficientSlides={false}
-              spaceBetween={8}
-              speed={800}
-              slidesPerView={3}
-              breakpoints={{
-                0: { slidesPerView: 1, spaceBetween: 8 },
-                768: { slidesPerView: 2, spaceBetween: 8 },
-                992: { slidesPerView: 3, spaceBetween: 8 },
-              }}
-              preventClicks
-              preventClicksPropagation
-              className="city-cards-swiper"
-            >
-              {swiperSlides.map((city, index) => (
-                <SwiperSlide key={`${city.id}-${index}`}>
-                  <CityCard city={city} />
-                </SwiperSlide>
-              ))}
-            </Swiper>
+      {showDestinations && (
+        <div className="noida-projects-container">
+          <div className="noida-projects-content">
+            <div className="noida-projects-header">
+              <h2 className="plus-jakarta-sans-semi-bold text-center my-5">
+                Popular Real Estate Destinations
+              </h2>
+            </div>
+            <div className="city-cards-slider-wrapper">
+              <Swiper
+                modules={[Autoplay]}
+                autoplay={{
+                  delay: 5000,
+                  disableOnInteraction: false,
+                  pauseOnMouseEnter: true,
+                  waitForTransition: false,
+                }}
+                loop={swiperSlides.length > 1}
+                roundLengths
+                watchSlidesProgress
+                watchOverflow={false}
+                centerInsufficientSlides={false}
+                spaceBetween={8}
+                speed={800}
+                slidesPerView={3}
+                breakpoints={{
+                  0: { slidesPerView: 1, spaceBetween: 8 },
+                  768: { slidesPerView: 2, spaceBetween: 8 },
+                  992: { slidesPerView: 3, spaceBetween: 8 },
+                }}
+                preventClicks
+                preventClicksPropagation
+                className="city-cards-swiper"
+              >
+                {swiperSlides.map((city, index) => (
+                  <SwiperSlide key={`${city.id}-${index}`}>
+                    <CityCard city={city} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="destination-faq" id="home-faq">
         <div className="destination-faq__inner">

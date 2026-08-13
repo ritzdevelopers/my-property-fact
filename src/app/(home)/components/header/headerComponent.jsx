@@ -37,22 +37,22 @@ const NewBadge = ({ isVisible }) => (
         animate={
           isVisible
             ? {
-                opacity: [0, 1, 1, 0],
-                y: [6, 0, 0, 6],
-                scale: [0.8, 1, 1, 0.8],
-              }
+              opacity: [0, 1, 1, 0],
+              y: [6, 0, 0, 6],
+              scale: [0.8, 1, 1, 0.8],
+            }
             : { opacity: 0, y: 6, scale: 0.8 }
         }
         transition={
           isVisible
             ? {
-                duration: 2.5,
-                repeat: Infinity,
-                repeatDelay: 0.5,
-                delay: i * 0.15,
-                times: [0, 0.12, 0.75, 0.9],
-                ease: "easeInOut",
-              }
+              duration: 2.5,
+              repeat: Infinity,
+              repeatDelay: 0.5,
+              delay: i * 0.15,
+              times: [0, 0.12, 0.75, 0.9],
+              ease: "easeInOut",
+            }
             : { duration: 0.2 }
         }
       >
@@ -69,6 +69,8 @@ const HeaderComponent = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("Detecting...");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -449,39 +451,184 @@ const HeaderComponent = () => {
     }
   }, []);
 
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setSelectedCity("Delhi NCR");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        try {
+          console.log("Coordinates:", coords.latitude, coords.longitude);
+
+          const response = await fetch(
+            `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch location");
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.region?.city) {
+            setSelectedCity(data.region.city);
+          } else {
+            setSelectedCity("Delhi NCR");
+          }
+        } catch (error) {
+          console.error("Location Error:", error);
+          setSelectedCity("Delhi NCR");
+        }
+      },
+      (error) => {
+        console.error("Geolocation Error:", error);
+        setSelectedCity("Delhi NCR");
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 300000,
+      }
+    );
+  }, []);
+
+  const timeoutRef = useRef(null);
+
+  const handleMouseEnter = () => {
+    clearTimeout(timeoutRef.current);
+    setShowLocationDropdown(true);
+  };
+
+  const handleMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setShowLocationDropdown(false);
+    }, 200);
+  };
+
+  const handleCityClick = (city) => {
+    console.log("Clicked city:", city);
+
+    setSelectedCity(city.cityName);
+    setShowLocationDropdown(false);
+
+    window.dispatchEvent(
+      new CustomEvent("cityChanged", {
+        detail: city,
+      })
+    );
+
+    document
+      .getElementById("recommended-projects")
+      ?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+  };
+
   return (
     <>
       <div
-        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isScrolled ? "fixed-header" : ""
+        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss" : ""} ${isScrolled ? "fixed-header" : ""
           } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
-        <div className="container d-flex justify-content-between align-items-center">
-          <div className="mpf-logo d-flex align-items-center gap-4">
+        <div className={`container d-flex justify-content-between align-items-center${isHomePage ? " header-home-ss__container" : ""}`}>
+          <div className="mpf-logo d-flex align-items-center gap-3">
             <Link
               href="/"
               onClick={() => window.scrollTo({ top: 0, left: 0, behavior: "instant" })}
               title="My Property Fact Home"
               aria-label="My Property Fact Home"
+              className={isHomePage ? "mpf-header-brand" : undefined}
               {...(logoOpensInNewTab
                 ? { target: "_blank", rel: "noopener noreferrer" }
                 : {})}
             >
-              <img loading="eager"
-                src="/logo.webp"
-                alt="My Property Fact logo — main site header"
-                title="My Property Fact logo — main site header"
-                height={74}
-                width={80}
-                fetchPriority="low"
-                decoding="async"
-              />
+              {isHomePage ? (
+                <img
+                  loading="eager"
+                  src="/logo.webp"
+                  alt="My Property Fact logo — main site header"
+                  title="My Property Fact logo — main site header"
+                  className="mpf-header-logo-img"
+                  height={58}
+                  width={62}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              ) : (
+                <img loading="eager"
+                  src="/logo.webp"
+                  alt="My Property Fact logo — main site header"
+                  title="My Property Fact logo — main site header"
+                  height={74}
+                  width={80}
+                  fetchPriority="low"
+                  decoding="async"
+                />
+              )}
             </Link>
+            {isHomePage ? (
+              <div
+                className="mpf-header-location-dropdown"
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+              >
+                <button
+                  type="button"
+                  className="mpf-header-location-pill"
+                  title="Browse Cities"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                    <circle
+                      cx="12"
+                      cy="10"
+                      r="2.5"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                    />
+                  </svg>
+
+                  <span>{selectedCity}</span>
+
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                      d="M6 9l6 6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </button>
+
+                {showLocationDropdown && (
+                  <div className="mpf-location-dropdown-menu">
+                    {cityList?.map((city) => (
+                      <button
+                        key={city.id}
+                        type="button"
+                        className="mpf-location-dropdown-item"
+                        onClick={() => handleCityClick(city)}
+                      >
+                        {city.cityName}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
           </div>
           <nav className="d-none d-lg-flex flex-grow-1 justify-content-end align-items-center">
-            <div className="menu position-relative">
+            <div className={`menu position-relative${isHomePage ? " header-home-ss__menu" : ""}`}>
               <ul className="d-flex gap-5 m-0 align-items-center header-links list-unstyled fw-bold">
                 <li
-                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  className={`hasChild header-nav-cities${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
                   onMouseEnter={() => {
                     setIsDropdownHovered(true);
                     setIsNavDropdownDismissed(false);
@@ -546,8 +693,8 @@ const HeaderComponent = () => {
                                   prefetch={false}
                                   onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/city/" + city.slugURL
-                                      ? "header-link-active"
-                                      : ""
+                                    ? "header-link-active"
+                                    : ""
                                     }`}
                                   title={`${city.cityName} properties`}
                                 >
@@ -577,7 +724,7 @@ const HeaderComponent = () => {
                   </div>
                 </li>
                 <li
-                  className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                  className={`hasChild header-nav-builders${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
                   onMouseEnter={() => {
                     setIsDropdownHovered(true);
                     setIsNavDropdownDismissed(false);
@@ -644,8 +791,8 @@ const HeaderComponent = () => {
                                   href={`/builder/${builder.slugUrl}`}
                                   onClick={handleNavDropdownLinkClick}
                                   className={`text-light text-decoration-none plus-jakarta-sans-semi-bold ${pathname === "/builder/" + builder.slugUrl
-                                      ? "header-link-active"
-                                      : ""
+                                    ? "header-link-active"
+                                    : ""
                                     }`}
                                   title={`${builder.builderName} projects`}
                                 >
@@ -673,7 +820,7 @@ const HeaderComponent = () => {
                     )}
                   </div>
                 </li>
-                <li className="hasChild">
+                <li className={`hasChild header-nav-about${isHomePage ? " header-nav-hide-home" : ""}`}>
                   <Link
                     href="/about-us"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/about-us" ? "header-link-active" : ""
@@ -685,297 +832,23 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                {isBlogTypeRoute && (
-                  <li
-                    className={`hasChild${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
-                    onMouseEnter={() => {
-                      setIsDropdownHovered(true);
-                      setIsNavDropdownDismissed(false);
-                    }}
-                    onMouseLeave={handleNavDropdownMouseLeave}
-                  >
+                {/* {isHomePage ? (
+                  <li className="hasChild header-nav-resources">
                     <Link
-                      href="/projects"
-                      className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${isProjectTypeRoute ? "header-link-active" : ""
-                        }`}
-                      title="Browse projects"
+                      href="/blog"
+                      className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold d-inline-flex align-items-center gap-1${isBlogTypeRoute ? " header-link-active" : ""}`}
+                      title="Resources"
                     >
-                      <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
-                        Projects
+                      <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
+                        Resources
                       </span>
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                      </svg>
                     </Link>
-                    <div
-                      className="dropdown dropdown-lg projects-dropdown z-3"
-                      ref={projectsDropdownRef}
-                    >
-                      {!isMounted || !projectTypes?.length ? (
-                        <div className="d-flex align-items-center justify-content-center p-3">
-                          <Spinner animation="border" variant="light" />
-                        </div>
-                      ) : (
-                        <>
-                          <div className="city-dropdown-content">
-                            <div className="city-dropdown-left">
-                              <Link
-                                href="/projects/commercial"
-                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
-                                prefetch={true}
-                                onClick={handleNavDropdownLinkClick}
-                                title="Commercial projects"
-                              >
-                                Commercial
-                              </Link>
-                              <Link
-                                href="/projects/residential"
-                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
-                                prefetch={true}
-                                onClick={handleNavDropdownLinkClick}
-                                title="Residential projects"
-                              >
-                                Residential
-                              </Link>
-                              <Link
-                                href="/projects/new-launches"
-                                className="city-dropdown-item with-badge plus-jakarta-sans-semi-bold"
-                                prefetch={true}
-                                onClick={handleNavDropdownLinkClick}
-                                title="New launch projects"
-                              >
-                                New Launches{" "}
-                                <NewBadge isVisible={isDropdownHovered} />
-                              </Link>
-                              <Link
-                                href="/blog"
-                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
-                                onClick={handleNavDropdownLinkClick}
-                                title="Articles and news"
-                              >
-                                Articles &amp; News
-                              </Link>
-                            </div>
-                            <div className="city-dropdown-right projects-search-section">
-                              <div className="projects-search-wrapper">
-                                {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
-                                  <>
-                                    <p className="projects-search-title plus-jakarta-sans-semi-bold">
-                                      Search Your Dream Home
-                                    </p>
-                                    <div className="projects-search-container">
-                                      <div className="projects-search-input-wrapper">
-                                        <FontAwesomeIcon
-                                          icon={faSearch}
-                                          className="projects-search-icon"
-                                        />
-                                        <input
-                                          ref={projectSearchInputRef}
-                                          type="text"
-                                          placeholder="Search"
-                                          className="projects-search-input"
-                                          value={projectSearchInput}
-                                          onChange={(e) =>
-                                            setProjectSearchInput(e.target.value)
-                                          }
-                                          onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                              e.preventDefault();
-                                              handleExploreClick();
-                                            }
-                                          }}
-                                        />
-                                        <button
-                                          className="projects-explore-btn"
-                                          onClick={handleExploreClick}
-                                        >
-                                          Explore
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-                                {projectSearchQuery.trim().length >= 2 && (
-                                  <div className="projects-search-results-wrapper">
-                                    {isSearchingProjects ? (
-                                      <div className="projects-search-loader-box">
-                                        <Spinner
-                                          animation="border"
-                                          variant="light"
-                                          className="projects-search-loader-spinner"
-                                        />
-                                        <span className="projects-search-loader-text">
-                                          Searching projects...
-                                        </span>
-                                      </div>
-                                    ) : projectSearchResults.length > 0 ? (
-                                      <>
-                                        <div className="projects-search-results-header">
-                                          <span className="projects-search-results-label">
-                                            Projects
-                                          </span>
-                                          <div className="projects-search-results-header-search">
-                                            <FontAwesomeIcon
-                                              icon={faSearch}
-                                              className="projects-search-results-header-search-icon"
-                                            />
-                                            <input
-                                              type="text"
-                                              className="projects-search-results-header-input"
-                                              value={projectSearchInput}
-                                              onChange={(e) =>
-                                                setProjectSearchInput(e.target.value)
-                                              }
-                                              onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                  e.preventDefault();
-                                                  handleExploreClick();
-                                                }
-                                              }}
-                                              placeholder="Search"
-                                              aria-label="Edit search"
-                                            />
-                                            <button
-                                              type="button"
-                                              className="projects-search-back-link"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleBackToSearch();
-                                              }}
-                                              title="Clear and start new search"
-                                            >
-                                              New search
-                                            </button>
-                                          </div>
-                                        </div>
-                                        <div className="projects-search-horizontal-slider">
-                                          {projectSearchResults.length > 2 && (
-                                            <button
-                                              type="button"
-                                              className="projects-search-arrow projects-search-arrow-left"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSearchResultsSlideIndex((i) =>
-                                                  Math.max(0, i - 1)
-                                                );
-                                              }}
-                                              disabled={searchResultsSlideIndex === 0}
-                                              aria-label="Previous projects"
-                                            >
-                                              <FontAwesomeIcon icon={faChevronLeft} />
-                                            </button>
-                                          )}
-                                          <div
-                                            className="projects-search-cards-track"
-                                            style={{
-                                              "--slide-index": searchResultsSlideIndex,
-                                            }}
-                                          >
-                                            {projectSearchResults.map((project) => {
-                                              const projectId = project.id || project.slugURL;
-                                              const searchProjectLabel =
-                                                project.projectName || project.name || "Project";
-                                              const searchProjectImgMeta = `${searchProjectLabel} — project banner preview, My Property Fact search`;
-                                              return (
-                                                <div
-                                                  key={projectId}
-                                                  className="project-search-card"
-                                                  onClick={() => handleProjectClick(project)}
-                                                  role="button"
-                                                  tabIndex={0}
-                                                  onKeyDown={(e) => {
-                                                    if (e.key === "Enter" || e.key === " ") {
-                                                      e.preventDefault();
-                                                      handleProjectClick(project);
-                                                    }
-                                                  }}
-                                                  aria-label={`View ${searchProjectLabel} (opens in new tab)`}
-                                                >
-                                                  <div className="project-search-card-image">
-                                                    <img
-                                                      src={getProjectImageSrc(project)}
-                                                      alt={searchProjectImgMeta}
-                                                      title={searchProjectImgMeta}
-                                                      width={200}
-                                                      height={140}
-                                                      loading="lazy"
-                                                      decoding="async"
-                                                      onError={() => handleImageError(projectId)}
-                                                    />
-                                                  </div>
-                                                  <div className="project-search-card-body">
-                                                    <p className="project-search-card-title plus-jakarta-sans-semi-bold mb-0">
-                                                      {[project.projectName || project.name, project.cityName]
-                                                        .filter(Boolean)
-                                                        .join(" ")}
-                                                    </p>
-                                                    {(project.projectAddress || project.cityName) && (
-                                                      <p className="project-search-card-location">
-                                                        {project.projectAddress || project.cityName}
-                                                      </p>
-                                                    )}
-                                                    {project.projectPrice != null && project.projectPrice !== "" && (
-                                                      <p className="project-search-card-price text-success plus-jakarta-sans-semi-bold">
-                                                        {formatProjectPrice(project.projectPrice)}
-                                                      </p>
-                                                    )}
-                                                  </div>
-                                                </div>
-                                              );
-                                            })}
-                                          </div>
-                                          {projectSearchResults.length > 2 && (
-                                            <button
-                                              type="button"
-                                              className="projects-search-arrow projects-search-arrow-right"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                const maxSlide = Math.ceil(
-                                                  projectSearchResults.length / 2
-                                                ) - 1;
-                                                setSearchResultsSlideIndex((i) =>
-                                                  Math.min(maxSlide, i + 1)
-                                                );
-                                              }}
-                                              disabled={
-                                                searchResultsSlideIndex >=
-                                                Math.ceil(projectSearchResults.length / 2) - 1
-                                              }
-                                              aria-label="Next projects"
-                                            >
-                                              <FontAwesomeIcon icon={faChevronRight} />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </>
-                                    ) : projectSearchQuery.trim().length >= 2 ? (
-                                      <div className="projects-no-results">
-                                        No projects found matching &quot;
-                                        {projectSearchQuery}&quot;
-                                      </div>
-                                    ) : null}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="dropdown-footer-bar city-dropdown-footer-bar">
-                            <div className="dropdown-footer-left">
-                              <span className="dropdown-footer-label">Contact Us</span>
-                              <span className="dropdown-footer-phone">
-                                <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
-                                8920024793
-                              </span>
-                            </div>
-                            <div className="dropdown-footer-right-wrapper">
-                              <p className="dropdown-footer-right">
-                                Email us at social@mypropertyfact.com
-                              </p>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
                   </li>
-                )}
-                <li className="hasChild">
+                ) : null} */}
+                <li className="hasChild header-nav-blog">
                   <Link
                     href="/blog"
                     className={`text-light py-3  text-decoration-none plus-jakarta-sans-semi-bold${isBlogTypeRoute ? "header-link-active" : ""
@@ -987,7 +860,7 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                <li className="hasChild">
+                <li className={`hasChild header-nav-join${isHomePage ? " header-nav-hide-home" : ""}`}>
                   <Link
                     href="/join-our-team"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/join-our-team" ? "header-link-active" : ""
@@ -999,20 +872,36 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                <li className="hasChild">
+                <li className="hasChild header-nav-contact">
                   <Link
                     href="/contact-us"
                     className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${pathname === "/contact-us" ? "header-link-active" : ""
                       }`}
-                    title="Contact Us"
+                    title={isHomePage ? "Contact" : "Contact Us"}
                   >
                     <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
-                      Contact Us
+                      {isHomePage ? "Contact" : "Contact Us"}
                     </span>
                   </Link>
                 </li>
               </ul>
             </div>
+            {isHomePage ? (
+              <div className="mpf-header-home-actions d-none d-lg-flex align-items-center">
+                <a href="tel:+918920024793" className="mpf-header-phone" title="Sales enquiry">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="mpf-header-phone__copy">
+                    <strong>+91 8920 024 793</strong>
+                    <small>Sales Enquiry</small>
+                  </span>
+                </a>
+                <Link href="/contact-us" className="mpf-header-callback-btn" title="Request callback">
+                  Request Callback
+                </Link>
+              </div>
+            ) : null}
             {/* Hidden until portal launch (next month)
             <button
               type="button"
@@ -1382,59 +1271,6 @@ const HeaderComponent = () => {
                     </span>
                   </Link>
                 </li>
-                {isBlogTypeRoute && (
-                  <li
-                    className={`mb-hasChild ${activeDropdown === "projects" ? "active" : ""
-                      }`}
-                  >
-                    <div className="mobile-menu-item mobile-menu-item--split">
-                      <Link
-                        href="/projects"
-                        onClick={openMenu}
-                        className={`text-decoration-none mobile-menu-item__label${isProjectTypeRoute ? " header-link-active" : ""}`}
-                        title="Browse all projects"
-                      >
-                        <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 3 }}>
-                          Projects
-                        </span>
-                      </Link>
-                      <button
-                        type="button"
-                        className="mobile-menu-item__toggle"
-                        onClick={() => openMenuMobile("projects")}
-                        aria-expanded={activeDropdown === "projects"}
-                        aria-controls="mobile-projects-submenu"
-                        aria-label="Show project types"
-                        title="Show project types"
-                      >
-                        <FontAwesomeIcon
-                          icon={faChevronDown}
-                          className={`mobile-dropdown-icon ${activeDropdown === "projects" ? "rotate" : ""}`}
-                        />
-                      </button>
-                    </div>
-                    <div
-                      id="mobile-projects-submenu"
-                      className={`dropdown mobile-dropdown ${activeDropdown === "projects" ? "activeHeader" : ""
-                        }`}
-                    >
-                      <ul className="list-inline list-unstyled">
-                        {(isMounted ? projectTypes : [])?.map((project) => (
-                          <li key={project.id}>
-                            <Link
-                              href={`/projects/${project.slugUrl}`}
-                              onClick={openMenu}
-                              className="text-decoration-none"
-                              title={`${project.projectTypeName} projects`}
-                            >
-                              {project.projectTypeName}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </li>
-                )}
               </ul>
             </div>
             <div className="smallMenuList">

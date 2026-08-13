@@ -1310,6 +1310,7 @@ export default function ProjectsRedesigned({
                   aria-expanded={searchDropdownOpen}
                   aria-controls="mpf-project-search-dropdown"
                   aria-autocomplete="list"
+                  aria-haspopup="listbox"
                   autoComplete="off"
                 />
                 {searchInput ? (
@@ -1558,7 +1559,7 @@ export default function ProjectsRedesigned({
               </div>
             </FilterSection>
 
-            <FilterSection title="Location" defaultOpen={false}>
+            <FilterSection title="Cities" defaultOpen={false}>
               <div className="mpf-checkbox-list mpf-checkbox-scrollable">
                 {(cities || []).map((city, idx) => (
                   <label key={idx} className="mpf-checkbox-item">

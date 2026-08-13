@@ -49,19 +49,19 @@ export const timelineData = [
   },
   {
     year: "2024",
-    image: "/about/timeline/2016.webp",
+    image: "/about/timeline/2024.jpg",
     description:
       "Focused on premium developments, sustainable communities, and technology-driven solutions to elevate the property buying experience.",
   },
   {
     year: "2025",
-    image: "/about/timeline/2017.webp",
+    image: "/about/timeline/2025.jpg",
     description:
       "Expanded our network while introducing intelligent property recommendations powered by market insights and customer preferences.",
   },
   {
     year: "2026",
-    image: "/about/timeline/2018.webp",
+    image: "/about/timeline/2026.jpg",
     description:
       "Continuing to shape the future of real estate with innovation, trust, and customer-first solutions that connect people with their ideal properties.",
   },

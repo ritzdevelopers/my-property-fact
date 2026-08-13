@@ -80,52 +80,9 @@ export default function CommonPopUpform({
     phone: "",
   });
 
-  //Validation functions (aligned with contact us page)
-  const validateName = (name) => {
-    if (!name.trim()) {
-      return "Name is required";
-    }
-    if (name.trim().length < 2) {
-      return "Name must be at least 2 characters";
-    }
-    const nameRegex = /^[a-zA-Z\s'-]+$/;
-    if (!nameRegex.test(name.trim())) {
-      return "Name can only contain letters, spaces, hyphens, and apostrophes";
-    }
-    return "";
-  };
-
-  const validateEmail = (email) => {
-    if (!email.trim()) {
-      return "Email is required";
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.trim())) {
-      return "Please enter a valid email address";
-    }
-    return "";
-  };
-
-  const validatePhone = (phone) => {
-    if (!phone.trim()) {
-      return "Phone number is required";
-    }
-    const cleanedPhone = phone.toString().replace(/[\s\-\(\)]/g, "");
-    if (!/^\d+$/.test(cleanedPhone)) {
-      return "Phone number can only contain digits, spaces, dashes, and parentheses";
-    }
-    if (cleanedPhone.length !== 10) {
-      return "Phone number must be exactly 10 digits";
-    }
-    if (!/^[6-9]/.test(cleanedPhone)) {
-      return "Phone number must start with 6, 7, 8, or 9";
-    }
-
-    if (/^(\d)\1{9}$/.test(cleanedPhone)) {
-      return "Please enter a valid phone number";
-    }
-    return "";
-  };
+  const validateName = validateLeadName;
+  const validateEmail = validateLeadEmail;
+  const validatePhone = validateLeadPhone;
 
   //Handlechanging input fields
   const handleChange = (e) => {

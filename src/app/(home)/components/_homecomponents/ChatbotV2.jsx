@@ -707,16 +707,19 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || formData.name.trim().length < 3) {
-      setError("Name must be at least 3 characters.");
+    const nameError = validateLeadName(formData.name);
+    if (nameError) {
+      setError(nameError);
       return;
     }
-    if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ""))) {
-      setError("Please enter a valid 10-digit mobile number.");
+    const phoneError = validateLeadPhone(formData.phone);
+    if (phoneError) {
+      setError(phoneError);
       return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError("Please enter a valid email address.");
+    const emailError = validateLeadEmail(formData.email);
+    if (emailError) {
+      setError(emailError);
       return;
     }
 

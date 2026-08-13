@@ -1,6 +1,7 @@
 "use server";
 
 import { fetchBlogGetAll } from "@/app/_global_components/masterFunction";
+import { validateLeadFields } from "@/lib/leadValidation";
 
 function normalizeBlogListPayload(raw) {
   if (Array.isArray(raw)) return raw;
@@ -35,6 +36,19 @@ export async function submitBlogEnquiryAction(formData) {
   if (!apiUrl) {
     return { ok: false, message: "Server configuration error" };
   }
+
+  const validation = validateLeadFields({
+    name: formData?.name,
+    email: formData?.email,
+    phone: formData?.phone,
+  });
+  if (!validation.isValid) {
+    return {
+      ok: false,
+      message: validation.name || validation.email || validation.phone,
+    };
+  }
+
   try {
     const res = await fetch(`${apiUrl}enquiry/post`, {
       method: "POST",

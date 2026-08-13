@@ -62,15 +62,15 @@ export default function BuilderPage({ builderDetail, projectsList }) {
           <LoadingSpinner show={loading} />
         </div>
       ) : (
-        <div className="container my-3 pb-5">
+        <div className="container my-3 pb-5 builder-projects-section">
           <h2 className="builder-projects-heading mb-4">
             Projects by {builderDetail?.builderName || "this builder"}
           </h2>
-          <div className="row g-3">
+          <div className="row g-3 builder-projects-grid">
             {builderDetail.projectList.length > 0 ? (
               builderDetail.projectList.map((item, index) => (
-                <div key={index} className="col-12 col-sm-6 col-md-4">
-                  <PropertyContainer data={item} />
+                <div key={index} className="col-12 col-sm-6 col-md-4 builder-projects-grid__item">
+                  <PropertyContainer data={item} badgeVariant="home-featured" />
                 </div>
               ))
             ) : (

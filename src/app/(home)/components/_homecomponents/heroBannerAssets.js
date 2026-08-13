@@ -2,19 +2,19 @@
 export const BANNER_ALT = "My Property Fact — home";
 
 export const BANNER_DESKTOP = {
-  src: "/static/banners/creative-model.jpg",
+  src: "/static/banners/creative.jpg",
   width: 1920,
   height: 883,
 };
 
 export const BANNER_TABLET = {
-  src: "/static/banners/creative-model.jpg",
+  src: "/static/banners/creative.jpg",
   width: 1024,
   height: 629,
 };
 
 export const BANNER_MOBILE = {
-  src: "/static/banners/creative-model.jpg",
+  src: "/static/banners/creative.jpg",
   width: 458,
   height: 810,
 };

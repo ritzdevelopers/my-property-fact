@@ -14,11 +14,7 @@ import LeadFormPopupTrigger from "../../components/_homecomponents/LeadFormPopup
 import "../../components/common/common.css";
 import detailStyles from "./blogpage.module.css";
 import { submitBlogEnquiryAction } from "../actions";
-import {
-  validateLeadEmail,
-  validateLeadName,
-  validateLeadPhone,
-} from "@/lib/leadValidation";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 const RELATED_BLOGS_SOCIAL = [
   {
@@ -318,7 +314,8 @@ export default function BlogDetail({
       formData.enquiryFrom = blogDetail.blogTitle.replace(/\u00A0/g, " ")
       formData.projectLink = process.env.NEXT_PUBLIC_UI_URL + pathname;
       formData.pageName = "Blog Page";
-      const response = await submitBlogEnquiryAction(formData);
+      const payload = await buildEnquirySubmitData(formData);
+      const response = await submitBlogEnquiryAction(payload);
       if (response.ok) {
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state

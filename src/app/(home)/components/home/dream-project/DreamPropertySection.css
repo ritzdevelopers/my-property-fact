@@ -55,18 +55,23 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 100px;
-  background: #0d5834;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #148a3d 0%, #0d5834 100%);
   color: #fff;
-  font-family: "Lato", var(--heaing-font), sans-serif;
-  font-size: 16px;
+  font-family: "Outfit", var(--mpf-font-sans, var(--heaing-font)), sans-serif;
+  font-size: 13px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 700;
   line-height: normal;
-  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  text-transform: none;
   text-decoration: none;
-  transition: background 0.3s ease, transform 0.3s ease;
+  transition: background 0.3s ease, transform 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
   margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 8px 20px rgba(13, 88, 52, 0.28);
 }
 
 .dream-city-wave {
@@ -145,15 +150,16 @@
 .dream-city-icon-circle {
   width: 120px;
   height: 120px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 0;
+  background: #f2efe9;
+  border: 1px solid rgba(20, 26, 28, 0.1);
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 22px;
   box-sizing: border-box;
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  transition: border-color 0.3s ease, transform 0.3s ease, background 0.3s ease;
   overflow: hidden;
 }
 
@@ -165,7 +171,9 @@
 }
 
 .dream-city-item:hover .dream-city-icon-circle {
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  box-shadow: none;
+  border-color: #0d5c63;
+  background: #e7e2d8;
   transform: scale(1.04);
 }
 
@@ -182,10 +190,19 @@
 
 
 .dream-see-all-button:hover {
-  background: #0a4629;
+  background: linear-gradient(180deg, #1a9d47 0%, #0f6a1f 100%);
   color: #fff;
   text-decoration: none;
   transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 12px 26px rgba(13, 88, 52, 0.34);
+}
+
+.dream-see-all-button:active {
+  background: #094a2b;
+  color: #fff;
+  transform: translateY(0);
 }
 
 @media (max-width: 992px) {

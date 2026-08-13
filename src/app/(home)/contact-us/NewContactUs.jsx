@@ -3,6 +3,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import "./contact.css";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { toast } from "react-toastify";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 import {
@@ -124,7 +125,7 @@ export default function NewContactUs() {
 
     try {
       // Prepare enquiry data
-      const enquiryData = {
+      const enquiryData = await buildEnquirySubmitData({
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
@@ -138,7 +139,7 @@ export default function NewContactUs() {
           }${pathname}`,
         status: "PENDING",
         id: 0, // Required for new enquiry
-      };
+      });
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,

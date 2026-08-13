@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import SiteDataShell from "./_global_components/SiteDataShell";
+import LeadTrackerInit from "@/components/LeadTrackerInit";
 import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
@@ -149,6 +150,7 @@ export default function RootLayout({ children }) {
         </noscript>
 
         <SiteDataShell>
+          <LeadTrackerInit />
           {children}
           <LazyBelowFold />
         </SiteDataShell>

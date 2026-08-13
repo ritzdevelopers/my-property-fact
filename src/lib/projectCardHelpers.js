@@ -13,6 +13,77 @@ export function formatListingStatusLabel(status) {
   return String(status || "").trim();
 }
 
+/**
+ * Ribbon presets keyed off the raw `projectStatusName`. `lines` drives the two-row
+ * corner ribbon; `key` drives the colour scheme + image treatment via `data-status`.
+ * Order matters — the first matching entry wins.
+ */
+const STATUS_RIBBON_PRESETS = [
+  {
+    key: "under-construction",
+    lines: ["Under", "Construction"],
+    match: (s) => s.includes("under construction") || s.includes("ongoing"),
+  },
+  {
+    key: "new-launched",
+    lines: ["New", "Launched"],
+    match: (s) => s.includes("new launch"),
+  },
+  {
+    key: "ready-to-move",
+    lines: ["Ready", "To Move"],
+    match: (s) => s.includes("ready") || s.includes("completed") || s.includes("delivered"),
+  },
+  {
+    key: "possession-soon",
+    lines: ["Possession", "Soon"],
+    match: (s) => s.includes("possession"),
+  },
+  {
+    key: "ultra-luxury",
+    lines: ["Ultra", "Luxury"],
+    match: (s) => s.includes("luxury"),
+  },
+  {
+    key: "sold-out",
+    lines: ["Sold", "Out"],
+    match: (s) => s.includes("sold"),
+  },
+];
+
+function toStatusKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * Resolves any project/property status into the data the corner ribbon needs.
+ * Returns `null` when there is no status to show.
+ */
+export function resolveProjectStatusRibbon(status) {
+  const raw = String(status ?? "").trim();
+  if (!raw) return null;
+
+  const normalized = raw.toLowerCase();
+  const preset = STATUS_RIBBON_PRESETS.find((entry) => entry.match(normalized));
+  if (preset) {
+    return {
+      key: preset.key,
+      label: formatListingStatusLabel(raw) || raw,
+      lines: preset.lines,
+    };
+  }
+
+  const words = raw.split(/\s+/).filter(Boolean);
+  return {
+    key: toStatusKey(raw),
+    label: raw,
+    lines: words.length > 1 ? [words[0], words.slice(1).join(" ")] : [raw],
+  };
+}
+
 export function loadNearbyBenefitCatalog() {
   if (!nearbyCatalogPromise && API_BASE) {
     nearbyCatalogPromise = fetch(`${API_BASE}nearby-benefit/get-all`)

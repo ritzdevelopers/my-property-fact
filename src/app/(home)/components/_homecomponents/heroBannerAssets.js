@@ -2,22 +2,22 @@
 export const BANNER_ALT = "My Property Fact — home";
 
 export const BANNER_DESKTOP = {
-  src: "/static/banners/mpf banner-01 (5).jpg",
+  src: "/static/banners/creative.jpg",
   width: 1920,
-  height: 600,
+  height: 883,
 };
 
 export const BANNER_TABLET = {
-  src: "/static/banners/mpf banner-03 (2).jpg",
-  width: 768,
-  height: 768,
+  src: "/static/banners/creative.jpg",
+  width: 1024,
+  height: 629,
 };
 
 export const BANNER_MOBILE = {
-  src: "/static/banners/mpf banner-05 (2).jpg",
+  src: "/static/banners/creative.jpg",
   width: 458,
   height: 810,
 };
 
-export const HERO_IMAGE_QUALITY = 68;
+export const HERO_IMAGE_QUALITY = 70;
 export const HERO_IMAGE_SIZES = "100vw";

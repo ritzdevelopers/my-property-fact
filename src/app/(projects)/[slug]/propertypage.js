@@ -22,6 +22,7 @@ import { Autoplay, EffectFade, Navigation } from "swiper/modules";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowDown,
@@ -277,12 +278,24 @@ export default function Property({
     try {
       setShowLoading(true);
       // Make API request
-      const submitData = {
-        ...formData,
-        enquiryFrom: projectDetail.projectName,
-        projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
-        pageName: "Project Detail",
-      };
+      const submitData = await buildEnquirySubmitData(
+        {
+          ...formData,
+          enquiryFrom: projectDetail.projectName,
+          projectLink: process.env.NEXT_PUBLIC_UI_URL + pathname,
+          pageName: "Project Detail",
+        },
+        {
+          property: {
+            property_name: projectDetail.projectName ?? null,
+            project: projectDetail.projectName ?? null,
+            builder: projectDetail.builderName ?? null,
+            city: projectDetail.cityName ?? null,
+            locality: projectDetail.location ?? null,
+            bhk: projectDetail.propertyType ?? null,
+          },
+        },
+      );
 
       const response = await axios.post(
         process.env.NEXT_PUBLIC_API_URL + "enquiry/post",

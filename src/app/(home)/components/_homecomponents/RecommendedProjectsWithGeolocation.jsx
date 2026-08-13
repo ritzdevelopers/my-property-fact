@@ -15,6 +15,7 @@ export default function RecommendedProjectsWithGeolocation({
   locationIntent = "mixed",
 }) {
   const [items, setItems] = useState(fallbackItems);
+  const [loading, setLoading] = useState(false);
   const [subtitle, setSubtitle] = useState(fallbackSubtitle);
   const attemptedRef = useRef(false);
   const geoAppliedRef = useRef(false);
@@ -70,14 +71,59 @@ export default function RecommendedProjectsWithGeolocation({
     );
   }, [locationIntent]);
 
+  useEffect(() => {
+    const handleCityChanged = async (e) => {
+      const city = e.detail;
+console.log("Received city:", city);
+      if (!city) return;
+
+      setLoading(true);
+
+      try {
+        const q = new URLSearchParams({
+          city: city.cityName,
+          intent: locationIntent,
+        });
+
+        const res = await fetch(
+          `/api/home/recommended-by-location?${q.toString()}`
+        );
+
+        const data = await res.json();
+
+        if (data.success) {
+          setItems(data.items);
+
+          setSubtitle(
+            `Explore New Residential & Commercial Properties near ${city.cityName}`
+          );
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    window.addEventListener("cityChanged", handleCityChanged);
+
+    return () =>
+      window.removeEventListener(
+        "cityChanged",
+        handleCityChanged
+      );
+  }, []);
+
   return (
-    <HomeRecommendationCards
-      title={title}
-      subtitle={subtitle}
-      items={items}
-      kind={kind}
-      viewAllHref={viewAllHref}
-      className={className}
-    />
+    <section id="recommended-projects">
+      <HomeRecommendationCards
+        title={title}
+        subtitle={subtitle}
+        items={items}
+        kind={kind}
+        viewAllHref={viewAllHref}
+        className={className}
+      />
+    </section>
   );
 }

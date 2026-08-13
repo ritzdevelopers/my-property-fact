@@ -107,7 +107,6 @@ export function sanitizeCityDescriptionHtml(html, cityName = "") {
     /<h[1-3][^>]*>\s*Property\s+in\s+[^<]+<\/h[1-3]>/gi,
     "",
   );
-
   out = stripLeadingTitleParagraph(out.trim());
   out = addLinkTitles(out);
 

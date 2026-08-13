@@ -305,24 +305,50 @@ export async function GET(request) {
     const _accuracyM = parseCoord(searchParams.get("accuracy"));
     /** `mixed` = projects + public listings. `projects` = new-launch projects near coords. `latest-projects` = MPF projects only, newest-first (home Recommended Projects row). `popular-promo` = curated Delhi-NCR tick list or area projects for other cities (home Popular right now popup). */
     const intent = searchParams.get("intent") || "mixed";
-
-    if (lat == null || lon == null || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-      return NextResponse.json(
-        { success: false, message: "Valid lat and lon are required" },
-        { status: 400 },
-      );
+    const selectedCity = (searchParams.get("city") || "").trim();
+    if (!selectedCity) {
+      if (
+        lat == null ||
+        lon == null ||
+        lat < -90 ||
+        lat > 90 ||
+        lon < -180 ||
+        lon > 180
+      ) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Valid lat and lon are required",
+          },
+          { status: 400 }
+        );
+      }
     }
 
-    let rawRegion = await reverseGeocodeFull(lat, lon);
-    if (!rawRegion) {
-      return NextResponse.json({
-        success: false,
-        message: "Could not resolve location",
-        items: [],
-      });
+    let rawRegion;
+
+    if (selectedCity) {
+      rawRegion = {
+        city: selectedCity,
+        state: "",
+        source: "dropdown",
+        geoTokens: [normalizePlaceToken(selectedCity)],
+      };
+    } else {
+      rawRegion = await reverseGeocodeFull(lat, lon);
+
+      if (!rawRegion) {
+        return NextResponse.json({
+          success: false,
+          message: "Could not resolve location",
+          items: [],
+        });
+      }
     }
 
-    const regionBiased = correctNcrBias(lat, lon, rawRegion);
+    const regionBiased = selectedCity
+  ? rawRegion
+  : correctNcrBias(lat, lon, rawRegion);
     let geoTokens = mergeGeoTokens(
       regionBiased.geoTokens,
       regionBiased.city,

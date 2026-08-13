@@ -15,13 +15,13 @@ import {
 } from "@/lib/projectImageUrl";
 import { formatDistanceKm } from "@/lib/utils";
 import {
-  formatListingStatusLabel,
   loadNearbyBenefitCatalog,
   resolveBuilderFromList,
   resolveNearbyBenefitMeta,
 } from "@/lib/projectCardHelpers";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import CommonPopUpform from "@/app/(home)/components/common/popupform";
+import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
 import { saveListingReturnState } from "@/lib/listingScrollRestore";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 
@@ -40,16 +40,24 @@ function isMeaningfulReraNo(value) {
   );
 }
 
-const PropertyTypeRibbon = ({ type }) => {
+function getPropertyTypeMeta(type) {
   const normalized = (type || "").toLowerCase().trim();
+  if (!normalized) return null;
   const isCommercial = normalized.includes("commercial");
-  const label = isCommercial ? "Commercial" : "Residential";
-  const ribbonClass = isCommercial ? "mpf-ribbon--commercial" : "mpf-ribbon--residential";
+  return {
+    label: isCommercial ? "Commercial" : "Residential",
+    tagClass: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
+  };
+}
+
+const PropertyTypeTag = ({ type }) => {
+  const meta = getPropertyTypeMeta(type);
+  if (!meta) return null;
 
   return (
-    <div className={`mpf-ribbon-wrapper ${ribbonClass}`}>
-      <div className="mpf-ribbon">{label}</div>
-    </div>
+    <span className={`mpf-type-tag ${meta.tagClass}`}>
+      {meta.label}
+    </span>
   );
 };
 
@@ -217,8 +225,6 @@ export default function ProjectCard({
   const isReraApproved = isMeaningfulReraNo(reraNo);
   const projectName = String(project.projectName || "Project").trim();
   const projectTitle = buildProjectDisplayName(project, "Project");
-  const projectLinkTitle = projectTitle ? `View ${projectTitle}` : "View project details";
-  const statusLabel = formatListingStatusLabel(project.projectStatusName);
   const hasMultipleSlides = slides.length > 1;
 
   const formatProjectPrice = (price) => {
@@ -255,7 +261,6 @@ export default function ProjectCard({
                 key={`${src}-${index}`}
                 src={imageErrors[index] ? DEFAULT_PROJECT_CARD_IMAGE : src}
                 alt={`${projectName} — photo ${index + 1}`}
-                title={projectName}
                 className={`mpf-listing-slider__img${
                   index === activeSlide ? " is-active" : ""
                 }`}
@@ -290,10 +295,6 @@ export default function ProjectCard({
             ) : null}
           </div>
 
-          {project.propertyTypeName ? (
-            <PropertyTypeRibbon type={project.propertyTypeName} />
-          ) : null}
-
           {isReraApproved ? (
             <span className="mpf-rera-badge" title={`RERA: ${reraNo}`}>
               <svg className="mpf-rera-shield" viewBox="0 0 24 24" fill="currentColor">
@@ -303,9 +304,10 @@ export default function ProjectCard({
             </span>
           ) : null}
 
-          {statusLabel ? (
-            <span className="mpf-listing-image-status">{statusLabel}</span>
-          ) : null}
+          <ProjectStatusRibbon
+            status={project.projectStatusName}
+            className="mpf-status-ribbon--listing"
+          />
         </div>
 
         <Link
@@ -313,10 +315,12 @@ export default function ProjectCard({
           className="mpf-listing-content"
           onClick={persistListingReturn}
           aria-label={`View details about ${projectTitle}`}
-          title={projectLinkTitle}
         >
           <div className="mpf-listing-header">
-            <h2 className="mpf-listing-title">{projectTitle}</h2>
+            <div className="mpf-listing-title-row">
+              <h2 className="mpf-listing-title">{projectTitle}</h2>
+              <PropertyTypeTag type={project.propertyTypeName} />
+            </div>
             <p className="mpf-listing-location">
               {formatAddress(project.projectAddress, project.cityName)}
             </p>
@@ -392,7 +396,6 @@ export default function ProjectCard({
             href={`/${project.slugURL}`}
             className="mpf-btn-contact"
             onClick={persistListingReturn}
-            title={projectLinkTitle}
           >
             Click to Explore
           </Link>

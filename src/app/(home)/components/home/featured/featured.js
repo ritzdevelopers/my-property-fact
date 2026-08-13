@@ -2,7 +2,7 @@
 import Slider from "react-slick";
 import "./featured.css";
 import Link from "next/link";
-import PropertyContainer from "../../common/page";
+import PropertyContainer from "../../common/PropertyContainer";
 import { useMemo, useState, useEffect } from "react";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
@@ -98,58 +98,52 @@ export default function Featured({
 
   // Show arrows for Featured, Similar, and Residential/Commercial (autoPlay true)
   const showArrows = autoPlay || type === "Featured" || type === "Similar";
-  const settings = useMemo(
-    () => ({
-      dots: false,
-      infinite: filteredProjects.length > (isHomeFeaturedShowcase ? 2 : 3),
-      speed: 500,
-      autoplay: autoPlay,
-      autoplaySpeed: 5000,
-      arrows: showArrows,
-      nextArrow: showArrows && filteredProjects.length > 1 ? <NextArrow /> : null,
-      prevArrow: showArrows && filteredProjects.length > 1 ? <PrevArrow /> : null,
-      slidesToShow: isHomeFeaturedShowcase ? 2 : 3,
-      slidesToScroll: 1,
-      responsive: [
-        {
-          breakpoint: 1200,
-          settings: {
-            slidesToShow: isHomeFeaturedShowcase ? 2 : 3,
-            slidesToScroll: 1,
-          },
-        },
-        {
-          breakpoint: 992,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-          },
-        },
-        {
-          breakpoint: 768,
-          settings: {
-            slidesToShow: 2,
-            slidesToScroll: 1,
-          },
-        },
-        {
-          breakpoint: 576,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-          },
-        },
-        {
-          breakpoint: 375,
-          settings: {
-            slidesToShow: 1,
-            slidesToScroll: 1,
-          },
-        },
-      ],
-    }),
-    [filteredProjects.length, autoPlay, type, showArrows, isHomeFeaturedShowcase],
-  );
+const settings = {
+  dots: false,
+  infinite: filteredProjects.length > 6,
+  speed: 500,
+  autoplay: autoPlay,
+  autoplaySpeed: 5000,
+  arrows: showArrows,
+  nextArrow: showArrows && filteredProjects.length > 1 ? <NextArrow /> : null,
+  prevArrow: showArrows && filteredProjects.length > 1 ? <PrevArrow /> : null,
+
+  slidesToShow: isHomeFeaturedShowcase ? 6 : 3,
+  slidesToScroll: 1,
+
+  responsive: [
+    {
+      breakpoint: 1400,
+      settings: {
+        slidesToShow: 5,
+      },
+    },
+    {
+      breakpoint: 1200,
+      settings: {
+        slidesToShow: 4,
+      },
+    },
+    {
+      breakpoint: 992,
+      settings: {
+        slidesToShow: 3,
+      },
+    },
+    {
+      breakpoint: 768,
+      settings: {
+        slidesToShow: 2,
+      },
+    },
+    {
+      breakpoint: 576,
+      settings: {
+        slidesToShow: 1,
+      },
+    },
+  ],
+};
 
   // Memoized section title
   const sectionTitle = useMemo(() => {
@@ -207,7 +201,7 @@ export default function Featured({
               <div className="text-center pt-3">
                 <Link
                   title="View all projects"
-                  className="btn text-white projects-view-all-btn btn-normal-color border-0"
+                  className="btn projects-view-all-btn btn-normal-color border-0"
                   href={`/projects/${url}`}
                 >
                   View all

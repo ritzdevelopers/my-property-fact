@@ -1647,16 +1647,15 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
-                      title={`View ${simName}`}
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"
+                      aria-label={`View details about ${simName}`}
                     >
                       <div className="pd3-sim-card__img">
                         <img
                           src={buildProjectImageUrl(p, { preferThumbnail: true })}
                           alt={simImgMeta}
-                          title={simImgMeta}
                           loading="lazy"
                           decoding="async"
                          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>

@@ -9,6 +9,11 @@ import {
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
 import { buildEnquirySubmitData, warmUpLiveLocation } from "@/lib/leadTracker";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 import "./popupform.css";
 
 /** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */

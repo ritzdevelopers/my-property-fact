@@ -1,7 +1,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import NewsViews from "./new-views/page";
-import SocialFeedPage from "./social-feed/page";
+import NewsViews from "./new-views/NewsViews";
+import SocialFeedPage from "./social-feed/SocialFeedPage";
 import HeroSection from "../_homecomponents/heroSection";
 import FeaturedPage from "./featured/FeaturedPage";
 import {

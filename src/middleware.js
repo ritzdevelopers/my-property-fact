@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { canAccessAdminPath } from "./app/(adminside)/admin/adminPermissions";
 import { getPublicApiBase } from "./lib/publicApiBase";
+import { reportIpTrackHit } from "./lib/reportIpTrackHit";
 import { ELDECO_LANDING_BASE_PATH } from "./components/eldecoPaths";
 import {
   isDefinitelyInvalidPublicPath,
@@ -115,6 +116,9 @@ function legacyWebStoryRedirect(req) {
 
 export async function middleware(req) {
   const path = req.nextUrl.pathname;
+
+  // Track scanners / probe paths before any rewrite (bots rarely run JS).
+  reportIpTrackHit(req, path);
 
   const webStoryRedirect = legacyWebStoryRedirect(req);
   if (webStoryRedirect) {

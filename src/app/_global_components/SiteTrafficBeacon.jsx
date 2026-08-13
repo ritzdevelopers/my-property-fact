@@ -21,12 +21,31 @@ function clientSessionIdForTraffic() {
   }
 }
 
+/** Read cached device GPS from lead tracker (if the user already allowed location). */
+function readCachedDeviceGps() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("mpf_gps_location");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const lat = Number(parsed?.latitude);
+    const lon = Number(parsed?.longitude);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+    return { latitude: lat, longitude: lon };
+  } catch {
+    return null;
+  }
+}
+
 function postTraffic(payload) {
   const base = getPublicApiBase();
   if (!base) return;
+  const gps = readCachedDeviceGps();
   const body = JSON.stringify({
     ...payload,
     clientSessionId: clientSessionIdForTraffic() || undefined,
+    ...(gps || {}),
   });
   const url = `${base}public/site-traffic`;
   const opts = {
@@ -56,6 +75,7 @@ function postTraffic(payload) {
 
 /**
  * Records public route views: completed visits send path + dwellMs when navigating away or closing the tab.
+ * Also feeds the IP tracker (with device GPS when available).
  */
 export default function SiteTrafficBeacon() {
   const pathname = usePathname();

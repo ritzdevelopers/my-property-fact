@@ -161,6 +161,29 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
+.mpf-header-logo-swap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+}
+
+.mpf-header-logo-swap .mpf-header-logo-img--color-text {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.header--on-light .mpf-header-logo-swap .mpf-header-logo-img--color-text {
+  opacity: 1;
+}
+
+.header--on-light .mpf-header-logo-swap .mpf-header-logo-img--black-text {
+  opacity: 0;
+}
+
 .mpf-header-location-dropdown {
   position: relative;
 }

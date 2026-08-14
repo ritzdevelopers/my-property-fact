@@ -27,6 +27,9 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 
+const LOGO_ON_LIGHT = "/logo_flag_color.png";
+const LOGO_ON_DARK = "/logo_flag_color_dark.png";
+
 const I80_MARQUEE_ITEMS = [
   "80th Independence Day",
   "Celebrating 80 Years of Freedom",
@@ -623,20 +626,32 @@ const HeaderComponent = () => {
                 : {})}
             >
               {isHomePage ? (
-                <img
-                  loading="eager"
-                  src="/logo_flag_color.png"
-                  alt="My Property Fact logo — main site header"
-                  title="My Property Fact logo — main site header"
-                  className="mpf-header-logo-img"
-                  height={58}
-                  width={62}
-                  fetchPriority="high"
-                  decoding="async"
-                />
+                <span className="mpf-header-logo-swap">
+                  <img
+                    loading="eager"
+                    src={LOGO_ON_LIGHT}
+                    alt="My Property Fact logo — main site header"
+                    title="My Property Fact logo — main site header"
+                    className="mpf-header-logo-img mpf-header-logo-img--black-text"
+                    height={58}
+                    width={62}
+                    fetchPriority="high"
+                    decoding="async"
+                  />
+                  <img
+                    loading="eager"
+                    src={LOGO_ON_DARK}
+                    alt=""
+                    aria-hidden="true"
+                    className="mpf-header-logo-img mpf-header-logo-img--color-text"
+                    height={58}
+                    width={62}
+                    decoding="async"
+                  />
+                </span>
               ) : (
                 <img loading="eager"
-                  src="/logo_flag_color.png"
+                  src={LOGO_ON_DARK}
                   alt="My Property Fact logo — main site header"
                   title="My Property Fact logo — main site header"
                   height={74}

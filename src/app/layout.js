@@ -37,7 +37,7 @@ export const metadata = {
     description:
       "Looking to buy or invest in property? Explore trusted listings, price trends & expert advice on My Property Fact.",
     images: {
-      url: `${siteUrl}/logo.webp`,
+      url: `${siteUrl}/logo_flag_color.png`,
       alt: "My Property Fact",
     },
   },
@@ -51,7 +51,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: `${siteUrl}/logo.webp`,
+        url: `${siteUrl}/logo_flag_color.png`,
         alt: "MyPropertyFact - Real Estate Insights Platform",
       },
     ],
@@ -64,7 +64,7 @@ const organizationJsonLd = {
   "@type": "Organization",
   name: "My Property Fact",
   url: siteUrl,
-  logo: `${siteUrl}/logo.webp`,
+  logo: `${siteUrl}/logo_flag_color.png`,
   description:
     "Explore flats, residential & commercial properties across India on MyPropertyFact: NCR, Delhi, Faridabad, Noida, & top Indian cities with verified listings and top developers.",
   sameAs: [

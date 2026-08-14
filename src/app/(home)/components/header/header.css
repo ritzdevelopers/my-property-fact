@@ -1,6 +1,6 @@
 .header {
   position: fixed;
-  top: 0;
+  top: var(--mpf-i80-marquee-h, 34px);
   left: 0;
   width: 100%;
   z-index: 9999;
@@ -15,9 +15,108 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.header ul,
+.header-links {
+  list-style: none;
+  padding-left: 0;
+}
+
 /* Hide header when scrolling down, show when scrolling up */
 .header.header-hidden {
   transform: translateY(-100%);
+}
+
+/* Independence Day ticker — stays pinned even when the header hides on scroll */
+.mpf-i80-marquee {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  height: var(--mpf-i80-marquee-h, 34px);
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #f3e6c8;
+  background-image: url("/static/banners/mpf-i80-marquee-bg.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 1px 0 rgba(15, 46, 98, 0.14);
+}
+
+.mpf-i80-marquee__track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  align-items: center;
+  animation: mpf-i80-marquee 32s linear infinite;
+}
+
+.mpf-i80-marquee:hover .mpf-i80-marquee__track {
+  animation-play-state: paused;
+}
+
+.mpf-i80-marquee__seq {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.mpf-i80-marquee__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0 1.35rem;
+  font-family: var(--mpf-font-sans, "Outfit", "Segoe UI", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #0f2e62;
+  text-shadow: 0 1px 0 rgba(255, 250, 241, 0.72);
+}
+
+.mpf-i80-marquee__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0f2e62;
+  box-shadow: 0 0 0 2px rgba(15, 46, 98, 0.16);
+  flex-shrink: 0;
+}
+
+@keyframes mpf-i80-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (max-width: 767.98px) {
+  :root {
+    --mpf-i80-marquee-h: 30px;
+  }
+
+  .mpf-i80-marquee__item {
+    font-size: 0.64rem;
+    letter-spacing: 0.12em;
+    padding: 0 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-i80-marquee__track {
+    animation: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mpf-i80-marquee__seq[aria-hidden="true"] {
+    display: none;
+  }
 }
 
 /* Laptop and big screens: align logo with container content below (slightly less shift) */
@@ -693,7 +792,7 @@ button.header-nav-dropdown-trigger {
 
 .menu ul li.hasChild .dropdown.dropdown-lg {
   position: fixed;
-  top: 92px;
+  top: calc(92px + var(--mpf-i80-marquee-h, 34px));
   left: 50%;
   transform: translateX(-50%) translateY(-10px);
 

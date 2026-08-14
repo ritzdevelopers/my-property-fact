@@ -13,7 +13,7 @@ import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot.gif";
-const CHATBOT_HEADER_LOGO = "/logo.webp";
+const CHATBOT_HEADER_LOGO = "/logo_flag_color.png";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -294,7 +294,7 @@ export default function ChatbotV2() {
     <>
       <button
         type="button"
-        className={styles.launcher}
+        className={`${styles.launcher} mpf-chatbot-launcher`}
         onClick={toggleChat}
         aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
         title={isOpen ? "Close chat" : "Open My Property Fact chat"}

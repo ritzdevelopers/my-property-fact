@@ -27,6 +27,42 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 
+const I80_MARQUEE_ITEMS = [
+  "80th Independence Day",
+  "Celebrating 80 Years of Freedom",
+  "15 August 2026",
+  "Proud to be Indian",
+];
+
+const IndependenceMarquee = () => {
+  const sequence = (
+    <div className="mpf-i80-marquee__seq">
+      {I80_MARQUEE_ITEMS.map((text) => (
+        <span key={text} className="mpf-i80-marquee__item">
+          <span className="mpf-i80-marquee__dot" aria-hidden />
+          {text}
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="mpf-i80-marquee" role="region" aria-label="80th Independence Day">
+      <div className="mpf-i80-marquee__track">
+        {sequence}
+        <div className="mpf-i80-marquee__seq" aria-hidden="true">
+          {I80_MARQUEE_ITEMS.map((text) => (
+            <span key={`dup-${text}`} className="mpf-i80-marquee__item">
+              <span className="mpf-i80-marquee__dot" aria-hidden />
+              {text}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const NewBadge = ({ isVisible }) => (
   <span className="city-dropdown-badge">
     {["N", "e", "w"].map((char, i) => (
@@ -98,6 +134,7 @@ const HeaderComponent = () => {
   const logoOpensInNewTab = !isHomePage;
   //Defining scroll variable
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isOverLightSection, setIsOverLightSection] = useState(false);
   const [isConditionalHeader, setIsConditionalHeader] = useState(false);
   const [headerVisible, setHeaderVisible] = useState(true); // hide on scroll down, show on scroll up
   // Project search state
@@ -277,6 +314,45 @@ const HeaderComponent = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  // Dark header once the white "Property Search" band reaches it.
+  useEffect(() => {
+    if (!isHomePage) {
+      setIsOverLightSection(false);
+      return undefined;
+    }
+
+    let raf = 0;
+    const update = () => {
+      const section = document.querySelector(".transform-home-section");
+      const header = document.querySelector(".header");
+      if (!section || !header) {
+        setIsOverLightSection(false);
+        return;
+      }
+      const marquee = document.querySelector(".mpf-i80-marquee");
+      const marqueeH = marquee?.offsetHeight || 0;
+      const expectedBottom = marqueeH + header.offsetHeight;
+      const sectionTop = section.getBoundingClientRect().top;
+      setIsOverLightSection(sectionTop <= expectedBottom + 8);
+    };
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        update();
+      });
+    };
+
+    update();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [isHomePage]);
 
   const openMenu = () => {
     const menuButtons = document.getElementsByClassName("menuBtn");
@@ -529,9 +605,10 @@ const HeaderComponent = () => {
 
   return (
     <>
+      <IndependenceMarquee />
       <div
         className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss" : ""} ${isScrolled ? "fixed-header" : ""
-          } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
+          } ${isOverLightSection ? "header--on-light" : ""} ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
         <div className={`container d-flex justify-content-between align-items-center${isHomePage ? " header-home-ss__container" : ""}`}>
           <div className="mpf-logo d-flex align-items-center gap-3">
@@ -548,7 +625,7 @@ const HeaderComponent = () => {
               {isHomePage ? (
                 <img
                   loading="eager"
-                  src="/logo.webp"
+                  src="/logo_flag_color.png"
                   alt="My Property Fact logo — main site header"
                   title="My Property Fact logo — main site header"
                   className="mpf-header-logo-img"
@@ -559,7 +636,7 @@ const HeaderComponent = () => {
                 />
               ) : (
                 <img loading="eager"
-                  src="/logo.webp"
+                  src="/logo_flag_color.png"
                   alt="My Property Fact logo — main site header"
                   title="My Property Fact logo — main site header"
                   height={74}
@@ -642,9 +719,7 @@ const HeaderComponent = () => {
                     title="Browse cities — open city menu"
                     aria-haspopup="true"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      Cities
-                    </span>
+                    Cities
                   </button>
                   <div className="dropdown dropdown-lg z-3 city-dropdown">
                     {!isMounted || !cityList?.length ? (
@@ -738,9 +813,7 @@ const HeaderComponent = () => {
                     title="Browse builders — open builder menu"
                     aria-haspopup="true"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
-                      Builders
-                    </span>
+                    Builders
                   </button>
                   <div className="dropdown dropdown-lg z-3 builder-dropdown">
                     {!isMounted || builderList.length === 0 ? (
@@ -827,9 +900,7 @@ const HeaderComponent = () => {
                       }`}
                     title="About Us"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
-                      About Us
-                    </span>
+                    About Us
                   </Link>
                 </li>
                 {/* {isHomePage ? (
@@ -839,9 +910,7 @@ const HeaderComponent = () => {
                       className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold d-inline-flex align-items-center gap-1${isBlogTypeRoute ? " header-link-active" : ""}`}
                       title="Resources"
                     >
-                      <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
-                        Resources
-                      </span>
+                      Resources
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                         <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                       </svg>
@@ -855,9 +924,7 @@ const HeaderComponent = () => {
                       }`}
                     title="Blog"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
-                      Blog
-                    </span>
+                    Blog
                   </Link>
                 </li>
                 <li className={`hasChild header-nav-join${isHomePage ? " header-nav-hide-home" : ""}`}>
@@ -867,9 +934,7 @@ const HeaderComponent = () => {
                       }`}
                     title="Join Our Team"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Join Our Team
-                    </span>
+                    Join Our Team
                   </Link>
                 </li>
                 <li className="hasChild header-nav-contact">
@@ -879,9 +944,7 @@ const HeaderComponent = () => {
                       }`}
                     title={isHomePage ? "Contact" : "Contact Us"}
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
-                      {isHomePage ? "Contact" : "Contact Us"}
-                    </span>
+                    {isHomePage ? "Contact" : "Contact Us"}
                   </Link>
                 </li>
               </ul>
@@ -948,7 +1011,7 @@ const HeaderComponent = () => {
                 : {})}
             >
               <img
-                src="/logo.webp"
+                src="/logo_flag_color.png"
                 alt="My Property Fact logo — site header mobile menu"
                 title="My Property Fact logo — site header mobile menu"
                 height={50}
@@ -1188,9 +1251,7 @@ const HeaderComponent = () => {
                     aria-expanded={activeDropdown === "city"}
                     aria-controls="mobile-city-submenu"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 0 }}>
-                      Cities
-                    </span>
+                    Cities
                     <FontAwesomeIcon
                       icon={faChevronDown}
                       className={`mobile-dropdown-icon ${activeDropdown === "city" ? "rotate" : ""}`}
@@ -1230,9 +1291,7 @@ const HeaderComponent = () => {
                     aria-expanded={activeDropdown === "builder"}
                     aria-controls="mobile-builder-submenu"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 1 }}>
-                      Builders
-                    </span>
+                    Builders
                     <FontAwesomeIcon
                       icon={faChevronDown}
                       className={`mobile-dropdown-icon ${activeDropdown === "builder" ? "rotate" : ""}`}
@@ -1266,9 +1325,7 @@ const HeaderComponent = () => {
                     onClick={openMenu}
                     title="About Us"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 2 }}>
-                      About Us
-                    </span>
+                    About Us
                   </Link>
                 </li>
               </ul>
@@ -1282,9 +1339,7 @@ const HeaderComponent = () => {
                     onClick={openMenu}
                     title="Blog"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 4 }}>
-                      Blog
-                    </span>
+                    Blog
                   </Link>
                 </li>
                 <li>
@@ -1294,9 +1349,7 @@ const HeaderComponent = () => {
                     onClick={openMenu}
                     title="Join Our Team"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 5 }}>
-                      Join Our Team
-                    </span>
+                    Join Our Team
                   </Link>
                 </li>
                 <li>
@@ -1306,9 +1359,7 @@ const HeaderComponent = () => {
                     onClick={openMenu}
                     title="Contact Us"
                   >
-                    <span className="mpf-gateway-reveal-target--header" style={{ "--mpf-yank-i": 6 }}>
-                      Contact us
-                    </span>
+                    Contact us
                   </Link>
                 </li>
                 {/* Hidden until portal launch (next month)

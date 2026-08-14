@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const IMAGE_BASE_URL = `${process.env.NEXT_PUBLIC_IMAGE_URL}properties`;
-const CHATBOT_LOGO_SRC = "/logo.webp";
+const CHATBOT_LOGO_SRC = "/logo_flag_color.png";
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);

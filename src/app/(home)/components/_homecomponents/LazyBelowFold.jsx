@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   isHomeGatewayRevealDone,
@@ -69,6 +69,39 @@ export default function LazyBelowFold() {
     const onHidden = () => setGatewayRevealDone(true);
     window.addEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
     return () => window.removeEventListener(MPF_GATEWAY_HIDDEN_EVENT, onHidden);
+  }, [isHome]);
+
+  useLayoutEffect(() => {
+    if (!isHome) return undefined;
+
+    const HIDE = "mpf-hide-home-fabs";
+    const mq = window.matchMedia("(max-width: 767.98px)");
+    const root = document.documentElement;
+
+    const sync = () => {
+      if (!mq.matches) {
+        root.classList.remove(HIDE);
+        return;
+      }
+      const hero = document.getElementById("mpf-home-hero");
+      if (!hero) {
+        root.classList.remove(HIDE);
+        return;
+      }
+      const pastHero = hero.getBoundingClientRect().bottom <= 96;
+      root.classList.toggle(HIDE, !pastHero);
+    };
+
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    mq.addEventListener("change", sync);
+    return () => {
+      root.classList.remove(HIDE);
+      window.removeEventListener("scroll", sync);
+      window.removeEventListener("resize", sync);
+      mq.removeEventListener("change", sync);
+    };
   }, [isHome]);
 
   if (shouldHideGlobalFloatingUi(pathname)) return null;

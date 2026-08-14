@@ -96,7 +96,7 @@ export const metadata = {
   manifest: '/manifest.json',
   icons: {
     icon: [
-      { url: '/logo.webp', sizes: 'any', type: 'image/png' },
+      { url: '/logo_flag_color.png', sizes: 'any', type: 'image/png' },
     ],
   },
   other: {

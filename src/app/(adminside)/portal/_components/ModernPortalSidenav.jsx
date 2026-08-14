@@ -119,7 +119,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
           <CSidebarBrand>
             <div className="brand-container">
               <img
-                src="/logo.webp"
+                src="/logo_flag_color.png"
                 alt="portal-logo"
                 height={40}
                 width={40}

@@ -10,6 +10,8 @@
   --text-font: "Inter", "sans-serif";
   --btn-background: linear-gradient(180deg, #453106 0%, #E6A315 100%);
   --btn-normal-color: #C9A24D;
+  --mpf-i80-marquee-h: 34px;
+  --mpf-site-header-height: calc(92px + var(--mpf-i80-marquee-h));
 }
 
 /* Critical Layout */
@@ -38,9 +40,24 @@ body {
 }
 
 /* Header Critical Styles */
-.header {
+.mpf-i80-marquee {
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  height: var(--mpf-i80-marquee-h);
+  overflow: hidden;
+  background-color: #f3e6c8;
+  background-image: url("/static/banners/mpf-i80-marquee-bg.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.header {
+  position: fixed;
+  top: var(--mpf-i80-marquee-h);
   left: 0;
   width: 100%;
   z-index: 9999;
@@ -48,6 +65,15 @@ body {
   backdrop-filter: blur(20px) saturate(140%);
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Kill default ul discs before deferred Bootstrap / header.css arrive */
+.header ul,
+.header-links,
+.header .list-unstyled {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
 }
 
 .home-banner {

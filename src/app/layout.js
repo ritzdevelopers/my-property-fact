@@ -106,7 +106,7 @@ const textFont = Inter({
   display: "swap",
 });
 
-const INDEPENDENCE_THEME = true;
+const INDEPENDENCE_THEME = false;
 
 export default function RootLayout({ children }) {
   const organizationJsonLdHtml = serializeJsonLd(organizationJsonLd);

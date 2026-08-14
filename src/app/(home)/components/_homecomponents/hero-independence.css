@@ -171,43 +171,39 @@
   flex: 0 0 auto;
   align-self: flex-start;
   margin-top: 2px;
-  padding: 14px 20px;
-  border-radius: 50%;
+  padding: 8px 12px 10px;
+  border-radius: 28px;
   background: radial-gradient(closest-side,
-      rgba(255, 253, 248, 0.9) 0%,
-      rgba(255, 253, 248, 0.66) 58%,
+      rgba(255, 253, 248, 0.78) 0%,
+      rgba(255, 253, 248, 0.42) 62%,
       rgba(255, 253, 248, 0) 100%);
   animation: i80EmblemIn 900ms var(--i80-ease) both;
 }
 
 #mpf-home-hero.mpf-hero--i80 .i80-emblem {
-  display: block;
-  width: clamp(190px, 20vw, 268px);
-  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: clamp(118px, 11vw, 152px);
+  margin: 0;
   font-family: var(--mpf-font-sans, "Outfit", "Segoe UI", sans-serif);
-  filter: drop-shadow(0 12px 28px rgba(120, 78, 20, 0.16));
 }
 
-#mpf-home-hero.mpf-hero--i80 .i80-emblem__th {
-  font-size: 21px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+#mpf-home-hero.mpf-hero--i80 .i80-emblem__mark {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
 }
 
 #mpf-home-hero.mpf-hero--i80 .i80-emblem__label {
-  font-size: 23px;
+  margin: 2px 0 0;
+  font-size: 0.58rem;
   font-weight: 700;
-  letter-spacing: 2.6px;
-}
-
-#mpf-home-hero.mpf-hero--i80 .i80-emblem__years {
-  font-size: 16.5px;
-  font-weight: 600;
-  letter-spacing: 2.2px;
-}
-
-#mpf-home-hero.mpf-hero--i80 .i80-emblem__dot {
-  fill: var(--i80-saffron);
+  letter-spacing: 0.18em;
+  color: var(--i80-navy);
+  text-align: center;
+  white-space: nowrap;
 }
 
 @keyframes i80EmblemIn {
@@ -566,7 +562,7 @@
 /* ---------- Tablet ---------- */
 @media (max-width: 1199.98px) {
   #mpf-home-hero.mpf-hero--i80 .i80-emblem {
-    width: clamp(160px, 21vw, 220px);
+    width: clamp(108px, 13vw, 132px);
   }
 }
 
@@ -614,7 +610,12 @@
   }
 
   #mpf-home-hero.mpf-hero--i80 .i80-emblem {
-    width: 156px;
+    width: 108px;
+  }
+
+  #mpf-home-hero.mpf-hero--i80 .i80-emblem__label {
+    font-size: 0.48rem;
+    letter-spacing: 0.12em;
   }
 
   #mpf-home-hero.mpf-hero--i80 .home-search-container,

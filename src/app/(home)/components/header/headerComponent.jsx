@@ -31,20 +31,34 @@ const LOGO_ON_LIGHT = "/logo_flag_color.png";
 const LOGO_ON_DARK = "/logo_flag_color_dark.png";
 
 const I80_MARQUEE_ITEMS = [
-  "80th Independence Day",
-  "Celebrating 80 Years of Freedom",
-  "15 August 2026",
-  "Proud to be Indian",
+  { text: "Independence Day", mark: true },
+  { text: "Celebrating 80 Years of Freedom" },
+  { text: "15 August 2026" },
+  { text: "Proud to be Indian" },
 ];
+
+const MarqueeItem = ({ text, mark }) => (
+  <span className="mpf-i80-marquee__item">
+    {mark ? (
+      <img
+        className="mpf-i80-marquee__mark"
+        src="/static/banners/mpf-i80-emblem.webp"
+        alt=""
+        width={44}
+        height={36}
+      />
+    ) : (
+      <span className="mpf-i80-marquee__dot" aria-hidden />
+    )}
+    {text}
+  </span>
+);
 
 const IndependenceMarquee = () => {
   const sequence = (
     <div className="mpf-i80-marquee__seq">
-      {I80_MARQUEE_ITEMS.map((text) => (
-        <span key={text} className="mpf-i80-marquee__item">
-          <span className="mpf-i80-marquee__dot" aria-hidden />
-          {text}
-        </span>
+      {I80_MARQUEE_ITEMS.map((item) => (
+        <MarqueeItem key={item.text} {...item} />
       ))}
     </div>
   );
@@ -54,11 +68,8 @@ const IndependenceMarquee = () => {
       <div className="mpf-i80-marquee__track">
         {sequence}
         <div className="mpf-i80-marquee__seq" aria-hidden="true">
-          {I80_MARQUEE_ITEMS.map((text) => (
-            <span key={`dup-${text}`} className="mpf-i80-marquee__item">
-              <span className="mpf-i80-marquee__dot" aria-hidden />
-              {text}
-            </span>
+          {I80_MARQUEE_ITEMS.map((item) => (
+            <MarqueeItem key={`dup-${item.text}`} {...item} />
           ))}
         </div>
       </div>

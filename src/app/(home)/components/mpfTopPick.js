@@ -82,8 +82,14 @@ export default function MpfTopPicks({ topProject }) {
                 Featured pick
               </span>
               <span className="mpf-tp__i80-badge">
-                <span className="mpf-tp__i80-badge-chakra" aria-hidden="true" />
-                80th Independence Day Spotlight
+                <img
+                  className="mpf-tp__i80-badge-mark"
+                  src="/static/banners/mpf-i80-emblem.webp"
+                  alt=""
+                  width={48}
+                  height={39}
+                />
+                Independence Day Spotlight
               </span>
             </div>
             <h2 className="mpf-tp__title plus-jakarta-sans-semi-bold">

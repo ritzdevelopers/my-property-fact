@@ -86,6 +86,14 @@
   flex-shrink: 0;
 }
 
+.mpf-i80-marquee__mark {
+  width: auto;
+  height: 22px;
+  display: block;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 1px rgba(255, 250, 241, 0.7));
+}
+
 @keyframes mpf-i80-marquee {
   from {
     transform: translate3d(0, 0, 0);

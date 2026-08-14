@@ -3,19 +3,19 @@ export const BANNER_ALT =
   "Modern Indian residential towers and landscaped homes at sunrise — My Property Fact celebrating 80 years of independence";
 
 export const BANNER_DESKTOP = {
-  src: "/static/banners/mpf-i80-hero-desktop.jpg",
+  src: "/static/banners/aazadi_desktop.jpeg",
   width: 1920,
   height: 1093,
 };
 
 export const BANNER_TABLET = {
-  src: "/static/banners/mpf-i80-hero-tablet.jpg",
+  src: "/static/banners/aazadi_tablet.jpeg",
   width: 1024,
   height: 630,
 };
 
 export const BANNER_MOBILE = {
-  src: "/static/banners/mpf-i80-hero-mobile.jpg",
+  src: "/static/banners/aazadi_mobile.jpeg",
   width: 720,
   height: 1622,
 };

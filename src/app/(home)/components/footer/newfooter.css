@@ -1323,3 +1323,63 @@ letter-spacing: 0%;
 .newsletter-thankyou-btn:hover {
     color: #ffffff;
 }
+
+/* =========================================================
+   INDEPENDENCE FOOTER BACKGROUND IMAGE
+   ========================================================= */
+
+.independence-theme .new-footer-design-container-fluid {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background image */
+.independence-theme .new-footer-design-container-fluid::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background-image: url("/independence/image.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  opacity: 0.10;
+
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keep footer content above image */
+.independence-theme .new-footer-design-container-fluid > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Subscribe button */
+.independence-theme .newletterbutton {
+  background: linear-gradient(
+    135deg,
+    #ff9933 0%,
+    #ffffff 50%,
+    #138808 100%
+  );
+
+  color: #0d5834;
+  border: 1px solid rgba(19, 136, 8, 0.2);
+
+  box-shadow:
+    0 6px 18px rgba(19, 136, 8, 0.16);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.independence-theme .newletterbutton:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(19, 136, 8, 0.24);
+}

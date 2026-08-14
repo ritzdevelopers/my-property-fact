@@ -264,12 +264,10 @@ body:has(.mpf-home-r26) .mpf-header-callback-btn {
   border: 1px solid rgba(255, 255, 255, 0.5);
 
   /* 🇮🇳 Indian Flag */
-    background: linear-gradient(
-      135deg,
+  background: linear-gradient(135deg,
       rgba(255, 149, 43, 0.95) 0%,
       rgba(255, 255, 255, 0.95) 48%,
-      rgba(19, 136, 8, 0.95) 100%
-    ) !important;
+      rgba(19, 136, 8, 0.95) 100%) !important;
 
   color: #0d5834 !important;
 
@@ -292,15 +290,13 @@ body:has(.mpf-home-r26) .mpf-header-callback-btn {
 }
 
 body:has(.mpf-home-r26) .mpf-header-callback-btn:hover {
-  background: linear-gradient(
-    90deg,
-    #e88924 0%,
-    #FF9933 30%,
-    #FFFFFF 50%,
-    #FFFFFF 52%,
-    #138808 70%,
-    #0f7607 100%
-  ) !important;
+  background: linear-gradient(90deg,
+      #e88924 0%,
+      #FF9933 30%,
+      #FFFFFF 50%,
+      #FFFFFF 52%,
+      #138808 70%,
+      #0f7607 100%) !important;
 
   color: #0d5834 !important;
   border-color: rgba(255, 255, 255, 0.7);
@@ -315,15 +311,13 @@ body:has(.mpf-home-r26) .mpf-header-callback-btn:hover {
 body:has(.mpf-home-r26) .mpf-header-callback-btn:active {
   transform: translateY(0);
 
-  background: linear-gradient(
-    90deg,
-    #e88924 0%,
-    #FF9933 32%,
-    #FFFFFF 50%,
-    #FFFFFF 52%,
-    #138808 68%,
-    #0f7607 100%
-  ) !important;
+  background: linear-gradient(90deg,
+      #e88924 0%,
+      #FF9933 32%,
+      #FFFFFF 50%,
+      #FFFFFF 52%,
+      #138808 68%,
+      #0f7607 100%) !important;
 
   color: #0d5834 !important;
 }
@@ -466,11 +460,26 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 /* The typed city sits on its own reserved line so the heading never reflows
    while characters are added/removed. */
 .mpf-home-r26 .mpf-hero-highlight {
-  color: var(--mpf-green-bright) !important;
-  -webkit-text-fill-color: var(--mpf-green-bright) !important;
   display: block;
   white-space: nowrap;
   min-height: 1.08em;
+
+  background: linear-gradient(to bottom,
+      #ff9933 0%,
+      #ff9933 40%,
+      #ffffff 40%,
+      #ffffff 66%,
+      #138808 66%,
+      #138808 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
 .mpf-home-r26 .mpf-hero-verified {
@@ -530,12 +539,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     border-radius: 14px;
 
     /* Indian Flag: Saffron → White → Green */
-    background: linear-gradient(
-      135deg,
-      rgba(255, 153, 51, 0.95) 0%,
-      rgba(255, 255, 255, 0.95) 48%,
-      rgba(19, 136, 8, 0.95) 100%
-    );
+    background: linear-gradient(135deg,
+        rgba(255, 153, 51, 0.95) 0%,
+        rgba(255, 255, 255, 0.95) 48%,
+        rgba(19, 136, 8, 0.95) 100%);
 
     border: 1px solid rgba(255, 255, 255, 0.5);
 
@@ -575,7 +582,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     color: #0d5834;
     font-weight: 700;
   }
-  
+
   /* .mpf-home-r26 .mpf-hero-badge {
     display: inline-flex;
     align-items: center;
@@ -860,6 +867,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 /* Tablet — 2-column field grid */
 @media (max-width: 1023.98px) {
+
   /* Legacy rules float the search card out of flow — keep it inline and inside the gutters */
   .mpf-home-r26 .home-search-container,
   .mpf-home-r26 .home-search-container.container {
@@ -1020,18 +1028,14 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     gap: 6px;
     scroll-snap-type: x proximity;
     scroll-padding-left: 14px;
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      #000 0,
-      #000 calc(100% - 34px),
-      rgba(0, 0, 0, 0.15) 100%
-    );
-    mask-image: linear-gradient(
-      90deg,
-      #000 0,
-      #000 calc(100% - 34px),
-      rgba(0, 0, 0, 0.15) 100%
-    );
+    -webkit-mask-image: linear-gradient(90deg,
+        #000 0,
+        #000 calc(100% - 34px),
+        rgba(0, 0, 0, 0.15) 100%);
+    mask-image: linear-gradient(90deg,
+        #000 0,
+        #000 calc(100% - 34px),
+        rgba(0, 0, 0, 0.15) 100%);
   }
 
   .mpf-home-r26 .is-mobile-search-open .smart-search-tab {
@@ -1143,6 +1147,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .mpf-home-r26 .home-search-container.is-mobile-search-open .smart-search-card,
   .mpf-home-r26 .smart-search-sheet-backdrop {
     animation: none !important;
@@ -1151,6 +1156,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 /* Mobile — single-column stack */
 @media (max-width: 767.98px) {
+
   /* Nothing may exceed the viewport width on phones */
   .mpf-home-r26 {
     overflow-x: clip;
@@ -1200,18 +1206,14 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     gap: 7px;
     scroll-snap-type: x proximity;
     /* Fade the trailing edge so the row reads as scrollable */
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      #000 0,
-      #000 calc(100% - 32px),
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      90deg,
-      #000 0,
-      #000 calc(100% - 32px),
-      transparent 100%
-    );
+    -webkit-mask-image: linear-gradient(90deg,
+        #000 0,
+        #000 calc(100% - 32px),
+        transparent 100%);
+    mask-image: linear-gradient(90deg,
+        #000 0,
+        #000 calc(100% - 32px),
+        transparent 100%);
   }
 
   .mpf-home-r26 .smart-search-trending .smart-search-chip {
@@ -1743,7 +1745,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   box-sizing: border-box;
 }
 
-.mpf-home-r26 .home-projects-preview__slide > .home-project-card {
+.mpf-home-r26 .home-projects-preview__slide>.home-project-card {
   width: 100%;
 }
 
@@ -1791,13 +1793,11 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   inset: 0;
   z-index: 1;
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       rgba(8, 12, 16, 0.1) 0%,
       rgba(8, 12, 16, 0.12) 38%,
       rgba(8, 12, 16, 0.55) 68%,
-      rgba(6, 10, 14, 0.94) 100%
-    );
+      rgba(6, 10, 14, 0.94) 100%);
   transition: background 320ms var(--mpf-ease);
   pointer-events: none;
 }
@@ -1805,13 +1805,11 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .home-project-card:hover .home-project-card__media::after,
 .mpf-home-r26 .home-project-card:focus-visible .home-project-card__media::after {
   background:
-    linear-gradient(
-      180deg,
+    linear-gradient(180deg,
       rgba(8, 12, 16, 0.12) 0%,
       rgba(8, 36, 22, 0.22) 40%,
       rgba(6, 28, 18, 0.62) 68%,
-      rgba(4, 18, 12, 0.96) 100%
-    );
+      rgba(4, 18, 12, 0.96) 100%);
 }
 
 .mpf-home-r26 .home-project-card__image {
@@ -1905,13 +1903,11 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   transform: none !important;
   animation: none;
   /* Left fishtail notch + square right end that overhangs the card */
-  clip-path: polygon(
-    11px 0,
-    100% 0,
-    100% 100%,
-    11px 100%,
-    0 50%
-  );
+  clip-path: polygon(11px 0,
+      100% 0,
+      100% 100%,
+      11px 100%,
+      0 50%);
   filter: none;
   overflow: visible !important;
   isolation: isolate;
@@ -2110,6 +2106,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (max-width: 1024px) {
+
   .mpf-home-r26 .home-project-card,
   .mpf-home-r26 .home-project-card--poster {
     min-height: 300px;
@@ -2117,6 +2114,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (max-width: 768px) {
+
   .mpf-home-r26 .home-project-card,
   .mpf-home-r26 .home-project-card--poster {
     min-height: 228px;
@@ -2217,6 +2215,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (max-width: 480px) {
+
   /* Compact card with a clear peek of the next one */
   .mpf-home-r26 .home-projects-preview__slide {
     flex: 0 0 72% !important;
@@ -2253,6 +2252,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .mpf-home-r26 .home-project-card__image,
   .mpf-home-r26 .home-project-card__cta {
     transition: none !important;
@@ -2419,7 +2419,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   padding-bottom: 0.5rem !important;
 }
 
-.mpf-home-r26 .featured-page-slider .slick-slide > div {
+.mpf-home-r26 .featured-page-slider .slick-slide>div {
   height: 100%;
 }
 

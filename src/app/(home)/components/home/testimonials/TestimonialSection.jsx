@@ -637,6 +637,15 @@ export default function TestimonialSection() {
             width: 40px !important;
           }
         }
+          /* Independence Day full section background */
+:global(.independence-theme) .home-testimonials-section {
+  background: linear-gradient(
+    135deg,
+    rgba(250, 166, 83, 0.95) 0%,
+    rgba(255, 255, 255, 0.98) 48%,
+    rgba(43, 174, 32, 0.95) 100%
+  ) !important;
+}
       `}</style>
     </section>
   );

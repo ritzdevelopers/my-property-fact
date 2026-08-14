@@ -337,3 +337,51 @@
     -webkit-mask-image: none;
   }
 }
+
+/* =========================================================
+   INDEPENDENCE DAY - POPULAR CITIES BACKGROUND
+   ========================================================= */
+
+.independence-theme .popular-cities-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: transparent !important;
+}
+
+/* Background image */
+.independence-theme .popular-cities-section::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background-image: url("/independence/ai-text-image.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  opacity: 1;
+
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* White overlay */
+.independence-theme .popular-cities-section::after {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: rgba(255, 255, 255, 0.78);
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Content above image + overlay */
+.independence-theme .popular-cities-section > * {
+  position: relative;
+  z-index: 1;
+}

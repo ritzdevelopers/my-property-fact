@@ -106,6 +106,8 @@ const textFont = Inter({
   display: "swap",
 });
 
+const INDEPENDENCE_THEME = true;
+
 export default function RootLayout({ children }) {
   const organizationJsonLdHtml = serializeJsonLd(organizationJsonLd);
   const websiteJsonLdHtml = serializeJsonLd(websiteJsonLd);
@@ -127,7 +129,7 @@ export default function RootLayout({ children }) {
         ) : null}
       </head>
       <body
-        className={`${headingFont.variable} ${textFont.variable} ${accentFont.variable}`}
+        className={`${headingFont.variable} ${textFont.variable} ${accentFont.variable} ${INDEPENDENCE_THEME ? "independence-theme" : "default-theme"}`}
         suppressHydrationWarning={true}
       >
         <noscript>

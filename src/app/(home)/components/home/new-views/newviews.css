@@ -241,3 +241,67 @@
     line-height: 1.25;
   }
 }
+
+/* =========================================================
+   INDEPENDENCE DAY THEME - WEB STORIES HOVER
+   ========================================================= */
+
+.independence-theme .flip-card-back {
+  background:
+    linear-gradient(
+      135deg,
+      #ff9933 0%,
+      #ffb866 18%,
+      #ffffff 48%,
+      #ffffff 52%,
+      #7fcb73 82%,
+      #138808 100%
+    ) !important;
+
+  color: #102a43 !important;
+
+  border: 1px solid rgba(19, 136, 8, 0.25);
+
+  box-shadow:
+    inset 0 0 30px rgba(255, 255, 255, 0.25),
+    0 10px 25px rgba(19, 136, 8, 0.15);
+}
+
+/* Story title */
+.independence-theme .flip-card-back-title {
+  color: #0d5834 !important;
+  font-weight: 700;
+}
+
+/* Description */
+.independence-theme .flip-card-back p {
+  color: #17202a !important;
+}
+
+/* Small tricolor accent at the top */
+.independence-theme .flip-card-back::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  /* background: linear-gradient(
+    90deg,
+    #ff9933 0%,
+    #ffffff 50%,
+    #138808 100%
+  ); */
+
+  border-radius: 12px 12px 0 0;
+}
+
+/* Hover shadow */
+.independence-theme .flip-card:hover {
+  filter: drop-shadow(
+    0 12px 22px rgba(19, 136, 8, 0.18)
+  );
+}

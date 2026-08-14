@@ -8,7 +8,7 @@
   --mpf-green-dark: #064e3b;
   --mpf-blue: #1e40af;
   /* Header height (JS updates this on /projects) */
-  --mpf-site-header-height: 92px;
+  --mpf-site-header-height: calc(92px + var(--mpf-i80-marquee-h, 34px));
   --mpf-gray-50: #f9fafb;
   --mpf-gray-100: #f3f4f6;
   --mpf-gray-200: #e5e7eb;

@@ -59,7 +59,7 @@ const calculateProfileCompletion = (profile) => {
   if (profile.location && profile.location.trim()) filledFields++;
   if (profile.bio && profile.bio.trim()) filledFields++;
   if (profile.experience && profile.experience.trim()) filledFields++;
-  if (profile.avatar && profile.avatar.trim() && profile.avatar !== "/logo.webp")
+  if (profile.avatar && profile.avatar.trim() && profile.avatar !== "/logo_flag_color.png")
     filledFields++;
 
   return Math.round((filledFields / totalFields) * 100);

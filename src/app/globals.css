@@ -597,49 +597,6 @@ body.gateway-open {
   }
 }
 
-/* After home gateway: yank animation — header nav text only (not hero/body). */
-.mpf-gateway-reveal-target--header {
-  display: inline-block;
-  transform-origin: 50% 100%;
-}
-
-@keyframes mpf-text-yank-up {
-  0% {
-    opacity: 0;
-    transform: translate3d(0, clamp(32px, 6vh, 72px), 0) rotate3d(0, 0, 1, -2.2deg) scaleY(0.9);
-  }
-  40% {
-    opacity: 1;
-    transform: translate3d(0, clamp(-12px, -1.8vh, -4px), 0) rotate3d(0, 0, 1, 0.9deg) scaleY(1.05);
-  }
-  70% {
-    transform: translate3d(0, 5px, 0) rotate3d(0, 0, 1, -0.35deg) scaleY(0.98);
-  }
-  100% {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) rotate3d(0, 0, 1, 0deg) scaleY(1);
-  }
-}
-
-body.gateway-open .mpf-gateway-reveal-target--header {
-  opacity: 0;
-  transform: translate3d(0, clamp(28px, 5vh, 56px), 0);
-}
-
-body.mpf-post-gateway-reveal .mpf-gateway-reveal-target--header {
-  animation: mpf-text-yank-up 1.55s cubic-bezier(0.2, 0.88, 0.32, 1.05) both;
-  animation-delay: calc(var(--mpf-yank-i, 0) * 110ms);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body.gateway-open .mpf-gateway-reveal-target--header,
-  body.mpf-post-gateway-reveal .mpf-gateway-reveal-target--header {
-    opacity: 1 !important;
-    transform: none !important;
-    animation: none !important;
-  }
-}
-
 /* Desktop h2 font size */
 @media (min-width: 1024px) {
   h2 {
@@ -651,7 +608,7 @@ body.mpf-post-gateway-reveal .mpf-gateway-reveal-target--header {
 /* Blog sidebar (right): sticky so it stays visible while scrolling the main content */
 .sidebar-sticky-wrapper {
   position: sticky;
-  top: 110px;
+  top: calc(110px + var(--mpf-i80-marquee-h, 34px));
   align-self: flex-start;
 }
 

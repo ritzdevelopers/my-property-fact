@@ -525,3 +525,157 @@
     transform: scale(1.02);
   }
 }
+
+/* ==========================================================================
+   80th Independence Day spotlight
+   Premium tricolor accents + glow — real estate card stays the hero.
+   ========================================================================== */
+.mpf-tp--i80 {
+  --i80-saffron: #e0740b;
+  --i80-saffron-bright: #f59a2b;
+  --i80-green: #0b5c2e;
+  --i80-green-bright: #17843f;
+  --i80-navy: #123a78;
+}
+
+.mpf-tp--i80 .mpf-tp__band {
+  background:
+    radial-gradient(1200px 280px at 8% 0%, rgba(245, 154, 43, 0.14), transparent 62%),
+    radial-gradient(900px 240px at 92% 100%, rgba(23, 132, 63, 0.1), transparent 58%),
+    linear-gradient(180deg, #fffaf1 0%, #ffffff 42%, #ffffff 100%);
+}
+
+.mpf-tp--i80 .mpf-tp__kicker-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 0.55rem;
+}
+
+.mpf-tp--i80 .mpf-tp__kicker {
+  margin-bottom: 0;
+}
+
+.mpf-tp--i80 .mpf-tp__i80-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(224, 116, 11, 0.28);
+  color: var(--i80-green);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(224, 116, 11, 0.12);
+}
+
+.mpf-tp--i80 .mpf-tp__i80-badge-mark {
+  width: 34px;
+  height: auto;
+  flex: 0 0 auto;
+  display: block;
+}
+
+.mpf-tp--i80 .mpf-tp__card {
+  position: relative;
+  isolation: isolate;
+  border-color: rgba(224, 116, 11, 0.18);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 18px 44px rgba(86, 58, 18, 0.1),
+    0 0 36px rgba(245, 154, 43, 0.22),
+    0 0 48px rgba(23, 132, 63, 0.16);
+  animation: mpf-tp-i80-glow 4.2s ease-in-out infinite;
+}
+
+.mpf-tp--i80 .mpf-tp__i80-trim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  z-index: 3;
+  background: linear-gradient(90deg,
+    var(--i80-saffron-bright) 0%,
+    #fff 48%,
+    var(--i80-green-bright) 100%);
+  pointer-events: none;
+}
+
+.mpf-tp--i80 .mpf-tp__i80-mark {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(255, 252, 246, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.16);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.mpf-tp--i80 .mpf-tp__i80-mark span {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  background: linear-gradient(90deg, var(--i80-saffron) 0%, var(--i80-green) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.mpf-tp--i80 .mpf-tp__i80-mark small {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--i80-navy);
+}
+
+.mpf-tp--i80 .mpf-tp__cta.btn-normal-color,
+.mpf-tp--i80 .mpf-tp__cta {
+  box-shadow: 0 8px 22px rgba(11, 92, 46, 0.32);
+}
+
+@keyframes mpf-tp-i80-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+      0 18px 44px rgba(86, 58, 18, 0.1),
+      0 0 28px rgba(245, 154, 43, 0.18),
+      0 0 40px rgba(23, 132, 63, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+      0 22px 50px rgba(86, 58, 18, 0.14),
+      0 0 48px rgba(245, 154, 43, 0.32),
+      0 0 64px rgba(23, 132, 63, 0.22);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-tp--i80 .mpf-tp__card {
+    animation: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .mpf-tp--i80 .mpf-tp__i80-mark {
+    left: 8px;
+    bottom: 8px;
+    padding: 6px 10px;
+  }
+}

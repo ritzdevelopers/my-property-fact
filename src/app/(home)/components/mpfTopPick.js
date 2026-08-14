@@ -62,7 +62,7 @@ export default function MpfTopPicks({ topProject }) {
       ? `${imageBase}properties/${slugURL}/${projectLogo}`
       : projectLogo?.startsWith("http")
         ? projectLogo
-        : "/logo.webp";
+        : "/logo_flag_color.png";
 
   const builderLogoAlt = builderName
     ? `${builderName} — builder logo, My Property Fact Top Picks`
@@ -72,24 +72,37 @@ export default function MpfTopPicks({ topProject }) {
     : "Top Picks featured project banner — My Property Fact";
 
   return (
-    <div className="mpf-tp">
+    <div className="mpf-tp mpf-tp--i80">
       <div className="mpf-tp__band">
         <section className="container pt-0 pt-lg-2 top-space">
           <div className="mpf-tp__wrap">
           <header className="mpf-tp__head">
-            <span className="mpf-tp__kicker" aria-hidden="true">
-              Featured pick
-            </span>
+            <div className="mpf-tp__kicker-row">
+              <span className="mpf-tp__kicker" aria-hidden="true">
+                Featured pick
+              </span>
+              <span className="mpf-tp__i80-badge">
+                <img
+                  className="mpf-tp__i80-badge-mark"
+                  src="/static/banners/mpf-i80-emblem.webp"
+                  alt=""
+                  width={48}
+                  height={39}
+                />
+                Independence Day Spotlight
+              </span>
+            </div>
             <h2 className="mpf-tp__title plus-jakarta-sans-semi-bold">
               My Property Fact&apos;s Top Picks
             </h2>
             <p className="mpf-tp__sub">
               A curated, verified project we spotlight for buyers and investors on
-              MPF
+              MPF, celebrating 80 years of India&apos;s growth.
             </p>
           </header>
 
           <div className="mpf-tp__card">
+            <span className="mpf-tp__i80-trim" aria-hidden="true" />
             <div className="mpf-tp__main">
               <div className="mpf-tp__dev">
                 <div className="mpf-tp__logo">

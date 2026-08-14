@@ -10,7 +10,7 @@ export const setDemoUserData = () => {
     experience: "5 years",
     location: "Gurgaon, Haryana",
     bio: "Experienced real estate agent specializing in residential properties in Gurgaon. Committed to helping clients find their dream homes.",
-    avatar: "/logo.webp",
+    avatar: "/logo_flag_color.png",
     verified: true,
     rating: 4.8,
     totalDeals: 127,

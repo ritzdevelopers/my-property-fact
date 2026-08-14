@@ -68,22 +68,15 @@ body:has(.mpf-home-r26) {
 }
 
 /* ---------- Home header (SS transparent + green CTA) ---------- */
-body:has(.mpf-home-r26) .header--home-ss:not(.fixed-header) {
+body:has(.mpf-home-r26) .header--home-ss,
+body:has(.mpf-home-r26) .header:not(.header--home-ss) {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
 }
 
-body:has(.mpf-home-r26) .header:not(.header--home-ss):not(.fixed-header) {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
-}
-
-body:has(.mpf-home-r26) .header.fixed-header,
-body:has(.mpf-home-r26) .header--home-ss.fixed-header {
+body:has(.mpf-home-r26) .header.header--on-light {
   background: rgba(20, 23, 28, 0.96) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
@@ -342,7 +335,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  padding: 108px 16px 36px;
+  padding: calc(108px + var(--mpf-i80-marquee-h, 34px)) 16px 36px;
   max-width: 1240px;
   width: 100%;
   margin: 0 auto;
@@ -1277,7 +1270,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 
   .mpf-home-r26 .mpf-hero-shell {
-    padding: 88px 12px 96px;
+    padding: calc(88px + var(--mpf-i80-marquee-h, 34px)) 12px 96px;
   }
 
   /* No grow, so the odd chip on the last row stays half-width and centres */
@@ -2183,6 +2176,24 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   padding: 0;
 }
 
+.mpf-home-r26 .mpf-tp--i80 .mpf-tp__band {
+  background:
+    radial-gradient(1200px 280px at 8% 0%, rgba(245, 154, 43, 0.14), transparent 62%),
+    radial-gradient(900px 240px at 92% 100%, rgba(23, 132, 63, 0.1), transparent 58%),
+    #fff;
+  border-top-color: rgba(224, 116, 11, 0.16);
+  border-bottom-color: rgba(11, 92, 46, 0.14);
+}
+
+.mpf-home-r26 .mpf-tp--i80 .mpf-tp__card {
+  border: 1px solid rgba(224, 116, 11, 0.2);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
+    0 18px 44px rgba(86, 58, 18, 0.1),
+    0 0 36px rgba(245, 154, 43, 0.22),
+    0 0 48px rgba(23, 132, 63, 0.16) !important;
+}
+
 .mpf-home-r26 .mpf-tp__main {
   padding: 1.35rem 1.5rem;
 }
@@ -2688,6 +2699,22 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 
   body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
     transform: none;
+  }
+}
+
+/* Phone: keep enquire + chatbot off the hero; they appear after you scroll past it */
+@media (max-width: 767.98px) {
+  html.mpf-hide-home-fabs .lead-form-popup-trigger--home-beside-chat,
+  html.mpf-hide-home-fabs .mpf-chatbot-launcher {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(10px);
+  }
+
+  .mpf-chatbot-launcher,
+  body:has(.mpf-home-r26) .lead-form-popup-trigger--home-beside-chat {
+    transition: opacity 220ms ease, transform 220ms ease, visibility 220ms ease;
   }
 }
 

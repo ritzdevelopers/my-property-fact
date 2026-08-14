@@ -13,7 +13,7 @@
   background: #fff;
   color: var(--a3-ink);
   overflow-x: clip;
-  padding-top: 72px;
+  padding-top: calc(72px + var(--mpf-i80-marquee-h, 34px));
 }
 
 /* ---------- shared ---------- */

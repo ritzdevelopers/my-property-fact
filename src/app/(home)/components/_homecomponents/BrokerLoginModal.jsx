@@ -399,7 +399,7 @@ export default function BrokerLoginModal({
 
         <div className="broker-login-modal-auth" ref={authPanelRef}>
           <div className="broker-login-modal-brand">
-            <img src="/logo.webp" alt="" className="broker-login-modal-logo" />
+            <img src="/logo_flag_color.png" alt="" className="broker-login-modal-logo" />
             <h2 id="broker-login-modal-title">
               {step === "persona" ? "Post a Property Free" : "Sign in to continue"}
             </h2>

@@ -82,13 +82,6 @@ export default function MpfTopPicks({ topProject }) {
                 Featured pick
               </span>
               <span className="mpf-tp__i80-badge">
-                <img
-                  className="mpf-tp__i80-badge-mark"
-                  src="/static/banners/mpf-i80-emblem.webp"
-                  alt=""
-                  width={48}
-                  height={39}
-                />
                 Independence Day Spotlight
               </span>
             </div>

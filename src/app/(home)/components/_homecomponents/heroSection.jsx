@@ -4,7 +4,6 @@ import Link from "next/link";
 import { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import SearchFilter from "./searchFIlter";
-import IndependenceEmblem from "./IndependenceEmblem";
 import "../home/home.css";
 import "./newmpfmetadata.css";
 import "./hero-independence.css";
@@ -211,9 +210,6 @@ export default function HeroSection({
                     <span className="i80-copy-rule__chakra" />
                     <span className="i80-copy-rule__green" />
                   </span>
-                </div>
-                <div className="i80-emblem-wrap">
-                  <IndependenceEmblem />
                 </div>
               </div>
               <SearchFilter

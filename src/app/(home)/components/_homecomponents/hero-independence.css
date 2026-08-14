@@ -165,65 +165,6 @@
   background: var(--i80-navy);
 }
 
-/* ---------- "80" emblem ---------- */
-/* Soft ivory halo keeps the navy lettering legible over the blue sky */
-#mpf-home-hero.mpf-hero--i80 .i80-emblem-wrap {
-  flex: 0 0 auto;
-  align-self: flex-start;
-  margin-top: 2px;
-  padding: 8px 12px 10px;
-  border-radius: 28px;
-  background: radial-gradient(closest-side,
-      rgba(255, 253, 248, 0.78) 0%,
-      rgba(255, 253, 248, 0.42) 62%,
-      rgba(255, 253, 248, 0) 100%);
-  animation: i80EmblemIn 900ms var(--i80-ease) both;
-}
-
-#mpf-home-hero.mpf-hero--i80 .i80-emblem {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: clamp(118px, 11vw, 152px);
-  margin: 0;
-  font-family: var(--mpf-font-sans, "Outfit", "Segoe UI", sans-serif);
-}
-
-#mpf-home-hero.mpf-hero--i80 .i80-emblem__mark {
-  display: block;
-  width: 100%;
-  height: auto;
-  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.28));
-}
-
-#mpf-home-hero.mpf-hero--i80 .i80-emblem__label {
-  margin: 2px 0 0;
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  color: var(--i80-navy);
-  text-align: center;
-  white-space: nowrap;
-}
-
-@keyframes i80EmblemIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.96);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem-wrap {
-    animation: none;
-  }
-}
-
 /* ---------- Search card ---------- */
 #mpf-home-hero.mpf-hero--i80 .home-search-container {
   margin-top: 10px !important;
@@ -560,12 +501,6 @@
 }
 
 /* ---------- Tablet ---------- */
-@media (max-width: 1199.98px) {
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem {
-    width: clamp(108px, 13vw, 132px);
-  }
-}
-
 @media (max-width: 991.98px) {
   #mpf-home-hero.mpf-hero--i80 .mpf-hero-banner {
     min-height: clamp(640px, 92vh, 820px);
@@ -601,21 +536,6 @@
     justify-content: space-between;
     gap: 16px;
     padding-bottom: 14px;
-  }
-
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem-wrap {
-    order: 0;
-    margin-left: auto;
-    align-self: flex-start;
-  }
-
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem {
-    width: 108px;
-  }
-
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem__label {
-    font-size: 0.48rem;
-    letter-spacing: 0.12em;
   }
 
   #mpf-home-hero.mpf-hero--i80 .home-search-container,
@@ -678,10 +598,6 @@
     flex-direction: column;
     gap: 0;
     padding-bottom: 6px;
-  }
-
-  #mpf-home-hero.mpf-hero--i80 .i80-emblem-wrap {
-    display: none;
   }
 
   #mpf-home-hero.mpf-hero--i80 .home-search-container,

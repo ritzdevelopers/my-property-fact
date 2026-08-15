@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
@@ -9,65 +8,21 @@ import "./newmpfmetadata.css";
 import {
   BANNER_ALT,
   BANNER_DESKTOP,
-  BANNER_MOBILE,
-  BANNER_TABLET,
-  HERO_IMAGE_QUALITY,
-  HERO_IMAGE_SIZES,
+  RAKHI_CAMPAIGN,
 } from "./heroBannerAssets";
-import { Typewriter } from "react-simple-typewriter";
 
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
 
 function HeroBannerPicture() {
-  const common = {
-    alt: BANNER_ALT,
-    sizes: HERO_IMAGE_SIZES,
-    quality: HERO_IMAGE_QUALITY,
-  };
-
-  const {
-    props: { srcSet: mobileSrcSet },
-  } = getImageProps({
-    ...common,
-    src: BANNER_MOBILE.src,
-    width: BANNER_MOBILE.width,
-    height: BANNER_MOBILE.height,
-  });
-
-  const {
-    props: { srcSet: tabletSrcSet },
-  } = getImageProps({
-    ...common,
-    src: BANNER_TABLET.src,
-    width: BANNER_TABLET.width,
-    height: BANNER_TABLET.height,
-  });
-
-  const {
-    props: { src: desktopSrc, srcSet: desktopSrcSet, sizes, ...desktopRest },
-  } = getImageProps({
-    ...common,
-    src: BANNER_DESKTOP.src,
-    width: BANNER_DESKTOP.width,
-    height: BANNER_DESKTOP.height,
-  });
-
   return (
     <div className="position-relative home-banner hero-banner-responsive-images hero-art-direction">
       <picture>
-        <source media="(max-width: 767.98px)" srcSet={mobileSrcSet} sizes={sizes} />
-        <source
-          media="(min-width: 768px) and (max-width: 991.98px)"
-          srcSet={tabletSrcSet}
-          sizes={sizes}
-        />
         <img
-          {...desktopRest}
-          src={desktopSrc}
-          srcSet={desktopSrcSet}
-          sizes={sizes}
+          src={BANNER_DESKTOP.src}
           alt={BANNER_ALT}
           title={BANNER_ALT}
+          width={BANNER_DESKTOP.width}
+          height={BANNER_DESKTOP.height}
           className="hero-banner-image hero-banner-image--full"
           loading="eager"
           fetchPriority="high"
@@ -184,7 +139,7 @@ export default function HeroSection({
       <section
         id="mpf-home-hero"
         ref={heroBannerRef}
-        className="position-relative hero-section-wrapper"
+        className="position-relative hero-section-wrapper mpf-hero--rakhi"
         aria-label="Hero Banner"
       >
         <div className="mpf-hero-banner position-relative">
@@ -197,54 +152,24 @@ export default function HeroSection({
             <div className="mpf-hero-main">
               <div className="mpf-hero-content">
                 <div className="mpf-hero-copy">
-                  <h1 className="headgradient headgradient--sparkle" data-text={title}>
-                    {title.includes("Across India") ? (
-                      <>
-                        Find Your Perfect Property in
-                        <span className="mpf-hero-highlight"> Across
-                          <Typewriter
-                            words={[
-                              " Delhi NCR",
-                              " Bangalore",
-                              " Mumbai",
-                              " Hyderabad",
-                              " Pune",
-                              " Chennai",
-                              " Noida",
-                              " Gurugram",
-                              " Ahmedabad",
-                              " Kolkata"
-                            ]} loop={0}
-                            cursor
-                            cursorStyle="|"
-                            typeSpeed={90}
-                            deleteSpeed={50}
-                            delaySpeed={1800}
-                          />
-                        </span>
-                        {/* {" | Buy & Invest"} */}
-                      </>
-                    ) : (
-                      title
-                    )}
+                  <p className="mpf-rakhi-kicker">
+                    <span className="mpf-rakhi-kicker__rule" aria-hidden="true" />
+                    {RAKHI_CAMPAIGN.kicker}
+                    <span className="mpf-rakhi-kicker__rule" aria-hidden="true" />
+                  </p>
+                  <h1 className="headgradient headgradient--sparkle mpf-rakhi-headline">
+                    <span className="mpf-rakhi-headline__lead">{RAKHI_CAMPAIGN.headlineLead}</span>
+                    <span className="mpf-rakhi-headline__line">
+                      {RAKHI_CAMPAIGN.headlineMid}{" "}
+                      <span className="mpf-hero-highlight">{RAKHI_CAMPAIGN.headlineAccent}</span>
+                    </span>
                   </h1>
-                  <p className="headsub">
-                    Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.
+                  <p className="headsub mpf-rakhi-sub">
+                    {RAKHI_CAMPAIGN.subtitleBefore}{" "}
+                    <em>{RAKHI_CAMPAIGN.subtitleGold[0]}</em> and{" "}
+                    <em>{RAKHI_CAMPAIGN.subtitleGold[1]}</em> {RAKHI_CAMPAIGN.subtitleAfter}
                   </p>
                 </div>
-                <aside className="mpf-hero-badge" aria-label="Property insights">
-                  <span className="mpf-hero-badge__icon" aria-hidden>
-                    <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                      <path
-                        d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </span>
-                  <span className="mpf-hero-badge__text">
-                    <strong>Verified listings</strong>, price trends &amp; expert insights
-                  </span>
-                </aside>
               </div>
               <SearchFilter
                 projectTypeList={projectTypeList}

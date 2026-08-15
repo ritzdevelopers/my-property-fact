@@ -209,8 +209,8 @@ export default async function HomePage() {
           <HeroSection
             projectTypeList={projectTypeList}
             cityList={cityList}
-            title="Find Flats & Property Across India | Buy & Invest"
-            subtitle="Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights."
+            title="Find Flats & Property Across India | Celebrate Rakshabandhan"
+            subtitle="This Rakshabandhan, gift your sibling not just love, but a secure and beautiful tomorrow."
           />,
         )}
 

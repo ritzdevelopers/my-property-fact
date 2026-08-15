@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
+import { RAKHI_CAMPAIGN } from "../_homecomponents/heroBannerAssets";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -530,9 +531,27 @@ const HeaderComponent = () => {
   return (
     <>
       <div
-        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss" : ""} ${isScrolled ? "fixed-header" : ""
+        className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss header--rakhi" : ""} ${isScrolled ? "fixed-header" : ""
           } ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
       >
+        {isHomePage ? (
+          <div className="mpf-rakhi-ticker" role="note">
+            <div className="mpf-rakhi-ticker__track">
+              {[0, 1].map((loop) => (
+                <p key={`rakhi-ticker-${loop}`} className="mpf-rakhi-ticker__line">
+                  <span className="mpf-rakhi-ticker__ornament" aria-hidden="true" />
+                  {RAKHI_CAMPAIGN.ticker.map((part, index) => (
+                    <span key={`${loop}-${part}`}>
+                      {index > 0 ? <span className="mpf-rakhi-ticker__dot">•</span> : null}
+                      {part}
+                    </span>
+                  ))}
+                  <span className="mpf-rakhi-ticker__ornament" aria-hidden="true" />
+                </p>
+              ))}
+            </div>
+          </div>
+        ) : null}
         <div className={`container d-flex justify-content-between align-items-center${isHomePage ? " header-home-ss__container" : ""}`}>
           <div className="mpf-logo d-flex align-items-center gap-3">
             <Link

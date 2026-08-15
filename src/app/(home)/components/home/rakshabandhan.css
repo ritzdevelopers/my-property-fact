@@ -1,0 +1,297 @@
+/* ==========================================================================
+   Rakshabandhan 2026 home theme
+   Gold + forest green over the existing charcoal UI
+   ========================================================================== */
+
+body:has(.mpf-home-r26) {
+  --mpf-gold: #d4af37;
+  --mpf-gold-deep: #b45309;
+  --mpf-gold-soft: #f6e7b2;
+  --mpf-gold-bright: #f0d36b;
+}
+
+/* ---------- Announcement ticker (lives in the fixed header) ---------- */
+body:has(.mpf-home-r26) .header--home-ss.header--rakhi:not(.fixed-header),
+body:has(.mpf-home-r26) .header--rakhi {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  background: linear-gradient(
+    to bottom,
+    rgba(8, 6, 4, 0.72),
+    rgba(10, 12, 10, 0.28)
+  ) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.22) !important;
+}
+
+body:has(.mpf-home-r26) .header--home-ss.header--rakhi.fixed-header,
+body:has(.mpf-home-r26) .header--rakhi.fixed-header {
+  background: rgba(12, 10, 8, 0.96) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18) !important;
+}
+
+body:has(.mpf-home-r26) .header--rakhi > .container,
+body:has(.mpf-home-r26) .header--rakhi .header-home-ss__container {
+  width: 100%;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+@media (min-width: 992px) {
+  body:has(.mpf-home-r26) .header--rakhi > .container,
+  body:has(.mpf-home-r26) .header--rakhi .header-home-ss__container {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  body:has(.mpf-home-r26) .header--rakhi .header-nav-about {
+    order: 1;
+  }
+
+  body:has(.mpf-home-r26) .header--rakhi .header-nav-builders {
+    order: 2;
+  }
+
+  body:has(.mpf-home-r26) .header--rakhi .header-nav-cities {
+    order: 3;
+  }
+
+  body:has(.mpf-home-r26) .header--rakhi .header-nav-blog {
+    order: 4;
+  }
+
+  body:has(.mpf-home-r26) .header--rakhi .header-nav-contact {
+    order: 5;
+  }
+}
+
+.mpf-rakhi-ticker {
+  width: 100%;
+  overflow: hidden;
+  background: linear-gradient(90deg, #c2410c 0%, #9f1239 42%, #14532d 100%);
+  color: #fff8e7;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+}
+
+.mpf-rakhi-ticker__track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  width: 100%;
+  padding: 7px 12px;
+}
+
+.mpf-rakhi-ticker__line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--mpf-font-sans, "Outfit", sans-serif);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mpf-rakhi-ticker__line:last-child {
+  display: none;
+}
+
+.mpf-rakhi-ticker__dot {
+  margin: 0 6px;
+  color: #f6e7b2;
+  opacity: 0.9;
+}
+
+.mpf-rakhi-ticker__ornament {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  background: #f6e7b2;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  opacity: 0.92;
+}
+
+@media (max-width: 991.98px) {
+  .mpf-rakhi-ticker__track {
+    justify-content: flex-start;
+    width: max-content;
+    gap: 36px;
+    animation: mpfRakhiMarquee 22s linear infinite;
+  }
+
+  .mpf-rakhi-ticker__line:last-child {
+    display: inline-flex;
+  }
+}
+
+@keyframes mpfRakhiMarquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-rakhi-ticker__track {
+    animation: none;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .mpf-rakhi-ticker__line:last-child {
+    display: none;
+  }
+}
+
+/* ---------- Hero art + overlay ---------- */
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-banner {
+  min-height: 760px;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .home-banner.hero-art-direction picture img.hero-banner-image,
+.mpf-home-r26 .mpf-hero--rakhi .hero-banner-image--full {
+  object-fit: cover !important;
+  object-position: 68% center !important;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .home-banner-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(8, 6, 4, 0.78) 0%,
+      rgba(12, 8, 4, 0.52) 22%,
+      rgba(18, 10, 6, 0.22) 40%,
+      rgba(8, 6, 4, 0.06) 58%,
+      transparent 76%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(8, 6, 4, 0.32) 0%,
+      rgba(8, 6, 4, 0.04) 42%,
+      rgba(8, 6, 4, 0.4) 100%
+    );
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-shell {
+  position: relative;
+  padding: 148px 16px 28px;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-content {
+  display: block;
+  padding-bottom: 18px;
+  max-width: 640px;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-copy {
+  max-width: 36rem;
+}
+
+.mpf-rakhi-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  font-family: var(--mpf-font-script, "Great Vibes", cursive);
+  font-size: clamp(1.35rem, 2.2vw, 1.85rem);
+  color: var(--mpf-gold-bright);
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+}
+
+.mpf-rakhi-kicker__rule {
+  width: 36px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mpf-gold-bright), transparent);
+  opacity: 0.8;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-rakhi-headline,
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-copy .headgradient {
+  font-family: var(--mpf-font-display, "Fraunces", Georgia, serif) !important;
+  font-size: clamp(2.05rem, 4.6vw, 3.55rem) !important;
+  font-weight: 700 !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.02em;
+  max-width: 14ch;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.mpf-rakhi-headline__lead,
+.mpf-rakhi-headline__line {
+  display: block;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-hero-highlight {
+  display: inline;
+  color: #3dcf63 !important;
+  -webkit-text-fill-color: #3dcf63 !important;
+  white-space: normal;
+  min-height: 0;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-rakhi-sub {
+  margin-top: 14px !important;
+  max-width: 32rem;
+  font-size: clamp(0.95rem, 1.4vw, 1.08rem) !important;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-rakhi-sub em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--mpf-gold-bright);
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .home-search-container {
+  margin-top: 20px;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-value-strip {
+  padding-top: 10px;
+}
+
+.mpf-home-r26 .mpf-hero--rakhi .mpf-value-strip__icon {
+  color: var(--mpf-gold-bright);
+  background: rgba(212, 175, 55, 0.14);
+  border-color: rgba(212, 175, 55, 0.32);
+}
+
+@media (max-width: 991.98px) {
+  .mpf-home-r26 .mpf-hero--rakhi .mpf-hero-banner {
+    min-height: clamp(640px, 96vh, 860px);
+  }
+
+  .mpf-home-r26 .mpf-hero--rakhi .mpf-hero-shell {
+    padding: 122px 12px 88px;
+  }
+
+  .mpf-home-r26 .mpf-hero--rakhi .home-banner.hero-art-direction picture img.hero-banner-image,
+  .mpf-home-r26 .mpf-hero--rakhi .hero-banner-image--full {
+    object-position: 72% 28% !important;
+  }
+
+  .mpf-home-r26 .mpf-hero--rakhi .mpf-rakhi-headline,
+  .mpf-home-r26 .mpf-hero--rakhi .mpf-hero-copy .headgradient {
+    max-width: 12ch;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .mpf-home-r26 .mpf-hero--rakhi .mpf-hero-banner {
+    min-height: min(100vh, 780px);
+  }
+
+  .mpf-rakhi-kicker__rule {
+    width: 22px;
+  }
+}

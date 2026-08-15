@@ -2,7 +2,8 @@ import "./bootstrap-critical.css";
 import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Fraunces, Outfit } from "next/font/google";
+import { Fraunces, Great_Vibes, Outfit } from "next/font/google";
+import "./components/home/rakshabandhan.css";
 
 const mpfDisplay = Fraunces({
   subsets: ["latin"],
@@ -16,6 +17,13 @@ const mpfSans = Outfit({
   variable: "--mpf-font-sans",
   display: "swap",
   weight: ["400", "500", "600", "700"],
+});
+
+const mpfScript = Great_Vibes({
+  subsets: ["latin"],
+  variable: "--mpf-font-script",
+  display: "swap",
+  weight: "400",
 });
 
 const HeaderComponent = dynamic(
@@ -63,7 +71,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <div className={`${mpfDisplay.variable} ${mpfSans.variable}`}>
+    <div className={`${mpfDisplay.variable} ${mpfSans.variable} ${mpfScript.variable}`}>
       <BootstrapDeferredStyles />
       <HeaderComponent />
       {children}

@@ -1,14 +1,5 @@
 "use client";
-import { useState } from "react";
-import { createPortal } from "react-dom";
 import Link from "next/link";
-import {
-  faInstagram,
-  faLinkedin,
-  faXTwitter,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import FooterCityLinksSection from "./FooterCityLinksSection";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
@@ -16,73 +7,14 @@ import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 export default function NewFooterDesign({
   compactTop = false,
   cityList: cityListProp,
-  showNewsletter = true,
 }) {
   useDeferredStylesheet(() => import("./newfooter.css"));
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
 
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [showThankYouModal, setShowThankYouModal] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-
-    try {
-      setLoading(true);
-      await fetch(
-        "https://script.google.com/macros/s/AKfycby8ZetPUFIP_lYQ_Fhs_A8mAWu0o5UQwOkhffb3jG8ZjOrImDW9W_W2z-H115PRfRBa/exec",
-        {
-          method: "POST",
-          body: JSON.stringify({ email }),
-        }
-      );
-
-      setEmail("");
-      setShowThankYouModal(true);
-    } catch (error) {
-      console.log(error);
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <div>
-      <div className={`new-footer-design${showNewsletter ? "" : " no-newsletter"}`}>
-        {/* Newsletter Section */}
-        {showNewsletter ? (
-          <div className="container newslettermaxwidth">
-            <div className="new-design-footer-top newsletter-background">
-              <div className="new-design-footer-top-left newsletterbox-left newsletter-text">
-                <div className="newlatter-heading">
-                  Join My Newsletter
-                </div>
-                <p className="newsletter-paragraph">
-                  Receive fresh articles straight in your inbox, every Friday morning.
-                  I also share interesting finds from the internet!
-                </p>
-                <form onSubmit={handleSubmit}>
-                  <div className="newsletter-form">
-                    <input type="email" placeholder="Your email address…"
-                      value={email} onChange={(e) => setEmail(e.target.value)}
-                      className="newsletter-input" />
-                    <button className="newsletter-button btn-normal-color newletterbutton"
-                      type="submit" disabled={loading}
-                     >
-                      {loading ? "Subscribing..." : "Subscribe"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-              <div className="new-design-footer-top-right newsletterbox-right" style={{ marginTop: "-6%" }}>
-                <img src="/static/footer/newsletter1.png" title="Corporate park" alt="Corporate park" className="center-img" />
-              </div>
-            </div>
-          </div>
-        ) : null}
+      <div className="new-footer-design no-newsletter">
         <div className="footer-city-links-container">
           <FooterCityLinksSection cityList={cityList} />
         </div>
@@ -300,46 +232,6 @@ export default function NewFooterDesign({
         </button>
       )} */}
       </div>
-
-      {showThankYouModal &&
-        createPortal(
-          <div
-            className="newsletter-thankyou-overlay"
-            onClick={() => setShowThankYouModal(false)}
-            role="presentation"
-          >
-            <div
-              className="newsletter-thankyou-modal"
-              onClick={(e) => e.stopPropagation()}
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="newsletter-thankyou-title"
-            >
-              <button
-                type="button"
-                className="newsletter-thankyou-close"
-                onClick={() => setShowThankYouModal(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-              <h3 id="newsletter-thankyou-title" className="newsletter-thankyou-title">
-                Thank You for Subscribing
-              </h3>
-              <p className="newsletter-thankyou-text">
-                You&apos;re all set! Look out for fresh articles in your inbox every Friday morning.
-              </p>
-              <button
-                type="button"
-                className="newsletter-thankyou-btn btn-normal-color"
-                onClick={() => setShowThankYouModal(false)}
-              >
-                Close
-              </button>
-            </div>
-          </div>,
-          document.body
-        )}
     </div>
   );
 }

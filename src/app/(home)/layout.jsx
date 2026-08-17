@@ -31,7 +31,7 @@ const HeaderComponent = dynamic(
             title="My Property Fact — home"
             width={80}
             height={74}
-            fetchPriority="low"
+            fetchPriority="high"
             decoding="async"
           />
         </Link>

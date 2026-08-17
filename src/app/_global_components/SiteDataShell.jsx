@@ -1,4 +1,4 @@
-import { Suspense, cache } from "react";
+import { cache } from "react";
 import Providers from "./providers/Providers";
 import { SiteDataProvider } from "./contexts/SiteDataContext";
 import { fetchSiteMetaFromApi } from "./siteData/fetchSiteDataApi";
@@ -17,9 +17,7 @@ export default async function SiteDataShell({ children }) {
 
   return (
     <Providers>
-      <Suspense fallback={null}>
-        <SiteDataProvider initialData={initialSiteData}>{children}</SiteDataProvider>
-      </Suspense>
+      <SiteDataProvider initialData={initialSiteData}>{children}</SiteDataProvider>
     </Providers>
   );
 }

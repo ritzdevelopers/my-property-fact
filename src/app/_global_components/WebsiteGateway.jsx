@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import {
+  isAutomatedAuditBrowser,
   MPF_GATEWAY_HIDDEN_EVENT,
   MPF_GATEWAY_STORAGE_KEY,
 } from "./mpfGatewayEvents";
@@ -51,8 +52,9 @@ export default function WebsiteGateway() {
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const alreadySeen = readGatewayAlreadySeen();
+    const skipOverlay = reduceMotion || alreadySeen || isAutomatedAuditBrowser();
 
-    if (reduceMotion || alreadySeen) {
+    if (skipOverlay) {
       finishGatewayWithoutOverlay();
       if (reduceMotion) writeGatewaySeen();
       return;

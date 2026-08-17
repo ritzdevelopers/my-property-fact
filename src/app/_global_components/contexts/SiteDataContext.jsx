@@ -7,6 +7,7 @@ import {
   useEffect,
   useCallback,
   useMemo,
+  Suspense,
 } from "react";
 import { useSearchParams } from "next/navigation";
 import { projectMatchesCityFilter } from "../cityAliasUtils";
@@ -71,8 +72,33 @@ function hasProjectCatalog(data) {
   return Array.isArray(data?.projectList) && data.projectList.length > 0;
 }
 
-export function SiteDataProvider({ children, initialData = null }) {
+/**
+ * Keep useSearchParams in a nested boundary so the rest of the app can SSR.
+ * Wrapping the whole tree caused Lighthouse mobile NO_FCP (blank first paint).
+ */
+function QueryFiltersFromSearchParams({ onFiltersFromUrl }) {
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!searchParams) return;
+
+    const propertyType = searchParams.get("propertyType") || "";
+    const propertyLocation = searchParams.get("propertyLocation") || "";
+    const budget = searchParams.get("budget") || "";
+
+    if (!propertyType && !propertyLocation && !budget) return;
+
+    onFiltersFromUrl({
+      propertyType,
+      propertyLocation,
+      budget,
+    });
+  }, [searchParams, onFiltersFromUrl]);
+
+  return null;
+}
+
+export function SiteDataProvider({ children, initialData = null }) {
   const initialHasProjects = hasProjectCatalog(initialData);
 
   const [cityList, setCityList] = useState(() =>
@@ -179,22 +205,6 @@ export function SiteDataProvider({ children, initialData = null }) {
       cancelled = true;
     };
   }, [initialData, initialHasProjects]);
-
-  useEffect(() => {
-    if (!searchParams) return;
-
-    const propertyType = searchParams.get("propertyType") || "";
-    const propertyLocation = searchParams.get("propertyLocation") || "";
-    const budget = searchParams.get("budget") || "";
-
-    if (!propertyType && !propertyLocation && !budget) return;
-
-    setQueryFiltersState({
-      propertyType,
-      propertyLocation,
-      budget,
-    });
-  }, [searchParams]);
 
   const setProjectFilters = useCallback((nextFilters) => {
     setProjectFiltersState((previous) => ({
@@ -459,6 +469,9 @@ export function SiteDataProvider({ children, initialData = null }) {
 
   return (
     <SiteDataContext.Provider value={value}>
+      <Suspense fallback={null}>
+        <QueryFiltersFromSearchParams onFiltersFromUrl={setQueryFilters} />
+      </Suspense>
       {children}
     </SiteDataContext.Provider>
   );

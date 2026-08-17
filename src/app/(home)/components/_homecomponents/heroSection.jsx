@@ -14,9 +14,72 @@ import {
   HERO_IMAGE_QUALITY,
   HERO_IMAGE_SIZES,
 } from "./heroBannerAssets";
-import { Typewriter } from "react-simple-typewriter";
 
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
+
+const HERO_TYPED_CITIES = [
+  "Delhi NCR",
+  "Bangalore",
+  "Mumbai",
+  "Hyderabad",
+  "Pune",
+  "Chennai",
+  "Noida",
+  "Gurugram",
+  "Ahmedabad",
+  "Kolkata",
+];
+
+function HeroCityTypewriter() {
+  const [index, setIndex] = useState(0);
+  const [text, setText] = useState(HERO_TYPED_CITIES[0]);
+  const [phase, setPhase] = useState("hold");
+
+  useEffect(() => {
+    const current = HERO_TYPED_CITIES[index];
+    let delay = 90;
+
+    if (phase === "hold") {
+      delay = 1800;
+    } else if (phase === "delete") {
+      delay = 50;
+    }
+
+    const timer = window.setTimeout(() => {
+      if (phase === "hold") {
+        setPhase("delete");
+        return;
+      }
+      if (phase === "delete") {
+        if (text.length <= 0) {
+          setIndex((i) => (i + 1) % HERO_TYPED_CITIES.length);
+          setPhase("type");
+          return;
+        }
+        setText(current.slice(0, text.length - 1));
+        return;
+      }
+      const nextCity = HERO_TYPED_CITIES[index];
+      if (text === nextCity) {
+        setPhase("hold");
+        return;
+      }
+      setText(nextCity.slice(0, text.length + 1));
+    }, delay);
+
+    return () => window.clearTimeout(timer);
+  }, [index, phase, text]);
+
+  return (
+    <>
+      {" "}
+      {text}
+      <span className="mpf-hero-cursor" aria-hidden>
+        |
+      </span>
+    </>
+  );
+}
 
 function HeroBannerPicture() {
   const common = {
@@ -73,7 +136,7 @@ function HeroBannerPicture() {
           className="hero-banner-image hero-banner-image--full"
           loading="eager"
           fetchPriority="high"
-          decoding="async"
+          decoding="sync"
         />
       </picture>
     </div>
@@ -204,25 +267,7 @@ export default function HeroSection({
                       <>
                         Find Your Perfect Property in
                         <span className="mpf-hero-highlight"> Across
-                          <Typewriter
-                            words={[
-                              " Delhi NCR",
-                              " Bangalore",
-                              " Mumbai",
-                              " Hyderabad",
-                              " Pune",
-                              " Chennai",
-                              " Noida",
-                              " Gurugram",
-                              " Ahmedabad",
-                              " Kolkata"
-                            ]} loop={0}
-                            cursor
-                            cursorStyle="|"
-                            typeSpeed={90}
-                            deleteSpeed={50}
-                            delaySpeed={1800}
-                          />
+                          <HeroCityTypewriter />
                         </span>
                       </>
                     ) : (

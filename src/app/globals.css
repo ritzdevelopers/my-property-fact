@@ -509,7 +509,7 @@ body.gateway-open {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  animation: mpf-gateway-fade-in 420ms ease-out both;
+  opacity: 1;
 }
 
 .mpf-gateway-overlay--exit {

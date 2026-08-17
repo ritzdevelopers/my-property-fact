@@ -351,7 +351,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   text-align: left;
   padding: 0;
   pointer-events: none;
-  animation: mpfHeroReveal 800ms var(--mpf-ease) both;
+  opacity: 1;
 }
 
 .mpf-hero-content {
@@ -389,6 +389,19 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   display: block;
   white-space: nowrap;
   min-height: 1.08em;
+}
+
+.mpf-home-r26 .mpf-hero-cursor {
+  display: inline-block;
+  margin-left: 1px;
+  font-weight: 400;
+  animation: mpfHeroCursor 1s step-end infinite;
+}
+
+@keyframes mpfHeroCursor {
+  50% {
+    opacity: 0;
+  }
 }
 
 .mpf-home-r26 .mpf-hero-verified {
@@ -470,18 +483,6 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .mpf-hero-badge__text strong {
     color: var(--mpf-green-bright);
     font-weight: 700;
-  }
-}
-
-@keyframes mpfHeroReveal {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -2703,6 +2704,7 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 @media (prefers-reduced-motion: reduce) {
 
   .mpf-home-r26 .mpf-hero-copy,
+  .mpf-home-r26 .mpf-hero-cursor,
   .mpf-home-r26 .home-project-card,
   .mpf-home-r26 .hero-banner-image--full {
     animation: none !important;

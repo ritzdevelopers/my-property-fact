@@ -73,7 +73,7 @@ const HeaderComponent = () => {
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const [selectedCity, setSelectedCity] = useState("Detecting...");
+  const [selectedCity, setSelectedCity] = useState("Delhi NCR");
   const pathname = usePathname();
   const router = useRouter();
 
@@ -493,8 +493,15 @@ const HeaderComponent = () => {
   }, []);
 
   useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("mpf_header_city");
+      if (saved) setSelectedCity(saved);
+    } catch {
+      /* ignore */
+    }
+
     if (!navigator.geolocation) {
-      setSelectedCity("Delhi NCR");
+      setSelectedCity((current) => current || "Delhi NCR");
       return;
     }
 
@@ -515,6 +522,11 @@ const HeaderComponent = () => {
 
           if (data.success && data.region?.city) {
             setSelectedCity(data.region.city);
+            try {
+              window.localStorage.setItem("mpf_header_city", data.region.city);
+            } catch {
+              /* ignore */
+            }
           } else {
             setSelectedCity("Delhi NCR");
           }

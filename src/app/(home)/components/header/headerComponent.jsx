@@ -27,45 +27,8 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 
-const LOGO_ON_LIGHT = "/logo_flag_color.png";
-const LOGO_ON_DARK = "/logo_flag_color_dark.png";
-
-const I80_MARQUEE_ITEMS = [
-  "Independence Day",
-  "Celebrating 80 Years of Freedom",
-  "15 August 2026",
-  "Proud to be Indian",
-];
-
-const MarqueeItem = ({ text }) => (
-  <span className="mpf-i80-marquee__item">
-    <span className="mpf-i80-marquee__dot" aria-hidden />
-    {text}
-  </span>
-);
-
-const IndependenceMarquee = () => {
-  const sequence = (
-    <div className="mpf-i80-marquee__seq">
-      {I80_MARQUEE_ITEMS.map((text) => (
-        <MarqueeItem key={text} text={text} />
-      ))}
-    </div>
-  );
-
-  return (
-    <div className="mpf-i80-marquee" role="region" aria-label="80th Independence Day">
-      <div className="mpf-i80-marquee__track">
-        {sequence}
-        <div className="mpf-i80-marquee__seq" aria-hidden="true">
-          {I80_MARQUEE_ITEMS.map((text) => (
-            <MarqueeItem key={`dup-${text}`} text={text} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
+const LOGO_ON_LIGHT = "/logo.webp";
+const LOGO_ON_DARK = "/logo.webp";
 
 const NewBadge = ({ isVisible }) => (
   <span className="city-dropdown-badge">
@@ -334,9 +297,7 @@ const HeaderComponent = () => {
         setIsOverLightSection(false);
         return;
       }
-      const marquee = document.querySelector(".mpf-i80-marquee");
-      const marqueeH = marquee?.offsetHeight || 0;
-      const expectedBottom = marqueeH + header.offsetHeight;
+      const expectedBottom = header.offsetHeight;
       const sectionTop = section.getBoundingClientRect().top;
       setIsOverLightSection(sectionTop <= expectedBottom + 8);
     };
@@ -609,7 +570,6 @@ const HeaderComponent = () => {
 
   return (
     <>
-      <IndependenceMarquee />
       <div
         className={`d-flex justify-content-between align-items-center px-2 px-lg-4 header ${isHomePage ? "header--home-ss" : ""} ${isScrolled ? "fixed-header" : ""
           } ${isOverLightSection ? "header--on-light" : ""} ${isPropertiesRoute ? "properties-header" : ""} ${isProjectTypeRoute || isCityRoute || isBuilderRoute ? "projects-header" : ""} ${isAboutUsRoute ? "about-us-header" : ""} ${pathname.includes("/properties/") ? "conditional-header" : ""} ${!headerVisible ? "header-hidden" : ""}`}
@@ -1027,7 +987,7 @@ const HeaderComponent = () => {
                 : {})}
             >
               <img
-                src="/logo_flag_color.png"
+                src="/logo.webp"
                 alt="My Property Fact logo — site header mobile menu"
                 title="My Property Fact logo — site header mobile menu"
                 height={50}

@@ -608,7 +608,7 @@ body.gateway-open {
 /* Blog sidebar (right): sticky so it stays visible while scrolling the main content */
 .sidebar-sticky-wrapper {
   position: sticky;
-  top: calc(110px + var(--mpf-i80-marquee-h, 34px));
+  top: 110px;
   align-self: flex-start;
 }
 

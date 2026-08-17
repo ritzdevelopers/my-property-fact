@@ -13,7 +13,7 @@ import { buildEnquirySubmitData } from "@/lib/leadTracker";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot.gif";
-const CHATBOT_HEADER_LOGO = "/logo_flag_color.png";
+const CHATBOT_HEADER_LOGO = "/logo.webp";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;

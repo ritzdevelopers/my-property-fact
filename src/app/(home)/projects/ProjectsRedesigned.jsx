@@ -217,11 +217,9 @@ export default function ProjectsRedesigned({
 
     let raf = null;
     const compute = () => {
-      const marquee = document.querySelector(".mpf-i80-marquee");
-      const extra = Math.round(marquee?.getBoundingClientRect?.().height || 0);
       const rect = header.getBoundingClientRect?.();
       const hRaw = rect?.height || header.offsetHeight || 0;
-      const h = Math.max(0, Math.round(hRaw) + extra);
+      const h = Math.max(0, Math.round(hRaw));
       if (h) root.style.setProperty("--mpf-site-header-height", `${h}px`);
     };
     const schedule = () => {

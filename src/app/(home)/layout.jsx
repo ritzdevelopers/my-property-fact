@@ -23,12 +23,10 @@ const HeaderComponent = dynamic(
   {
     ssr: true,
     loading: () => (
-      <>
-        <div className="mpf-i80-marquee" aria-hidden />
-        <header className="d-flex justify-content-between align-items-center px-2 px-lg-4 header" style={{ minHeight: 74, top: "var(--mpf-i80-marquee-h, 34px)" }}>
+      <header className="d-flex justify-content-between align-items-center px-2 px-lg-4 header" style={{ minHeight: 74 }}>
         <Link title="My Property Fact Home" href="/" aria-label="My Property Fact Home">
           <img loading="eager"
-            src="/logo_flag_color.png"
+            src="/logo.webp"
             alt="My Property Fact — home"
             title="My Property Fact — home"
             width={80}
@@ -38,7 +36,6 @@ const HeaderComponent = dynamic(
           />
         </Link>
       </header>
-      </>
     ),
   }
 );

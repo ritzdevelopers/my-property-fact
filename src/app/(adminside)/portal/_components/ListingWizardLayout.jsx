@@ -114,7 +114,7 @@ export default function ListingWizardLayout({
     <div className="lw-shell">
       <header className="lw-header">
         <div className="lw-header__brand">
-          <img src="/logo_flag_color.png" alt="My Property Fact" className="lw-header__logo" />
+          <img src="/logo.webp" alt="My Property Fact" className="lw-header__logo" />
           <span className="lw-header__title">Post Property</span>
         </div>
         <div className="lw-header__user">

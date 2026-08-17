@@ -10,8 +10,6 @@
   --text-font: "Inter", "sans-serif";
   --btn-background: linear-gradient(180deg, #453106 0%, #E6A315 100%);
   --btn-normal-color: #C9A24D;
-  --mpf-i80-marquee-h: 34px;
-  --mpf-site-header-height: calc(92px + var(--mpf-i80-marquee-h));
 }
 
 /* Critical Layout */
@@ -40,24 +38,9 @@ body {
 }
 
 /* Header Critical Styles */
-.mpf-i80-marquee {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10000;
-  height: var(--mpf-i80-marquee-h);
-  overflow: hidden;
-  background-color: #f3e6c8;
-  background-image: url("/static/banners/mpf-i80-marquee-bg.png");
-  background-size: 100% 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
 .header {
   position: fixed;
-  top: var(--mpf-i80-marquee-h);
+  top: 0;
   left: 0;
   width: 100%;
   z-index: 9999;

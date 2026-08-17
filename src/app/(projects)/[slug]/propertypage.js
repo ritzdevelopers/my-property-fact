@@ -723,7 +723,7 @@ const addNearbyImageIcon = (benefit) => {
                     aria-label="My Property Fact home (opens in a new tab)"
                   >
                     <img
-                      src="/logo_flag_color.png"
+                      src="/logo.webp"
                       alt="My Property Fact logo — project page mobile menu"
                       title="My Property Fact logo — project page mobile menu"
                       width={50}
@@ -829,7 +829,7 @@ const addNearbyImageIcon = (benefit) => {
                 aria-label="My Property Fact home (opens in a new tab)"
               >
                 <img
-                  src="/logo_flag_color.png"
+                  src="/logo.webp"
                   alt="My Property Fact logo — project page header"
                   title="My Property Fact logo — project page header"
                   width={70}

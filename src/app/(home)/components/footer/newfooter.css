@@ -2,41 +2,26 @@
     --footer-ink: #ffffff;
     --footer-muted: rgba(255, 255, 255, 0.92);
     --footer-accent: #ffd56a;
-    background-color: #1a140c;
+    background: #111111;
+    background-size: cover;
     width: 100%;
     position: relative;
     z-index: 10;
     isolation: isolate;
     padding: 60px 0 15px;
-    overflow: hidden;
 }
 
 .new-footer-design-container-fluid.compact-top {
     padding-top: 24px;
 }
-
 .new-footer-design-container-fluid::before {
-    content: "";
+    content: '';
     position: absolute;
-    inset: -16px;
-    z-index: -2;
-    pointer-events: none;
-    background-color: #1a140c;
-    background-image: url("/static/banners/mpf-i80-hero-desktop.jpg");
-    background-size: cover;
-    background-position: center 62%;
-    background-repeat: no-repeat;
-    filter: blur(5px) saturate(1.05);
-    transform: scale(1.04);
-}
-
-.new-footer-design-container-fluid::after {
-    content: "";
-    position: absolute;
-    inset: 0;
+    width: 100%;
+    height: 100%;
     z-index: -1;
-    pointer-events: none;
-    background: rgba(12, 10, 8, 0.58);
+    top: 0;
+    left: 0;
 }
 
 .new-design-container {
@@ -714,27 +699,8 @@ letter-spacing: 0%;
     position: relative;
     max-width: 90%;
     margin: 0 auto;
-    padding: 28px 20px 0;
+    padding: 20px 20px 0;
     text-align: center;
-}
-
-.footer-disclaimer-copyright::before {
-    content: "";
-    display: block;
-    height: 4px;
-    width: 100%;
-    margin: 0 auto 24px;
-    border-radius: 999px;
-    background: linear-gradient(
-        90deg,
-        #ff9933 0%,
-        #ff9933 33.333%,
-        #ffffff 33.333%,
-        #ffffff 66.666%,
-        #138808 66.666%,
-        #138808 100%
-    );
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
 }
 
 .disclaimer-text {

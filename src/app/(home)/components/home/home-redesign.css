@@ -335,7 +335,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  padding: calc(108px + var(--mpf-i80-marquee-h, 34px)) 16px 36px;
+  padding: 108px 16px 36px;
   max-width: 1240px;
   width: 100%;
   margin: 0 auto;
@@ -1270,7 +1270,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 
   .mpf-home-r26 .mpf-hero-shell {
-    padding: calc(88px + var(--mpf-i80-marquee-h, 34px)) 12px 96px;
+    padding: 88px 12px 96px;
   }
 
   /* No grow, so the odd chip on the last row stays half-width and centres */
@@ -2174,24 +2174,6 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   overflow: hidden;
   gap: 0;
   padding: 0;
-}
-
-.mpf-home-r26 .mpf-tp--i80 .mpf-tp__band {
-  background:
-    radial-gradient(1200px 280px at 8% 0%, rgba(245, 154, 43, 0.14), transparent 62%),
-    radial-gradient(900px 240px at 92% 100%, rgba(23, 132, 63, 0.1), transparent 58%),
-    #fff;
-  border-top-color: rgba(224, 116, 11, 0.16);
-  border-bottom-color: rgba(11, 92, 46, 0.14);
-}
-
-.mpf-home-r26 .mpf-tp--i80 .mpf-tp__card {
-  border: 1px solid rgba(224, 116, 11, 0.2);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
-    0 18px 44px rgba(86, 58, 18, 0.1),
-    0 0 36px rgba(245, 154, 43, 0.22),
-    0 0 48px rgba(23, 132, 63, 0.16) !important;
 }
 
 .mpf-home-r26 .mpf-tp__main {

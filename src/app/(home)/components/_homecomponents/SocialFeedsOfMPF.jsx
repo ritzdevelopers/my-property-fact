@@ -415,7 +415,7 @@ export default function SocialFeedsOfMPF() {
                 <div className="video-popup-top-bar">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/logo_flag_color.png"
+                    src="/logo.webp"
                     alt=""
                     width={28}
                     height={28}

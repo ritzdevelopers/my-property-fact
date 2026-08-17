@@ -28,7 +28,7 @@ export default function PortalSideNav() {
           <CSidebarHeader className="border-bottom">
             <CSidebarBrand>
               <img
-                src="/logo_flag_color.png"
+                src="/logo.webp"
                 alt="portal-logo"
                 height={100}
                 width={100}
@@ -81,7 +81,7 @@ export default function PortalSideNav() {
                 caret={false}
               >
                 <img
-                  src="/logo_flag_color.png"
+                  src="/logo.webp"
                   alt="user-icon"
                   height={50}
                   width={50}

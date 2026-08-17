@@ -96,7 +96,7 @@ export default function NewFooterDesign({
               <div className="new-design-footer-top-left-content">
                 <div className="new-design-footer-top-left-logo">
                   <img
-                    src="/logo_flag_color_dark.png"
+                    src="/logo.webp"
                     alt="My Property Fact logo — site footer"
                     title="My Property Fact logo — site footer"
                     width={113}

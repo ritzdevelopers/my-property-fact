@@ -234,7 +234,7 @@ function resolveProjectImage(project, siteUrl) {
     return `${imageBase}properties/${slug}/${imageFile}`;
   }
 
-  return `${siteUrl.replace(/\/$/, "")}/logo_flag_color.png`;
+  return `${siteUrl.replace(/\/$/, "")}/logo.webp`;
 }
 
 export function buildProductJsonLd(project, siteUrl = DEFAULT_SITE_URL) {
@@ -368,7 +368,7 @@ export function buildBlogArticleJsonLd(blog, siteUrl = DEFAULT_SITE_URL) {
       url: `${base}/`,
       logo: {
         "@type": "ImageObject",
-        url: `${base}/logo_flag_color.png`,
+        url: `${base}/logo.webp`,
         width: 200,
         height: 60,
       },

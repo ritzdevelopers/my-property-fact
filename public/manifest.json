@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/logo_flag_color.png",
+      "src": "/logo.webp",
       "sizes": "any",
       "type": "image/png"
     }

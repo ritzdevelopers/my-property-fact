@@ -328,15 +328,13 @@ export default async function HomePage() {
 
           {row(
             8,
-            <div className="container">
-              <FeaturedPage
-                title="Explore Our Premier Residential Projects"
-                autoPlay={true}
-                allFeaturedProperties={[]}
-                residentialProjects={slimResidential}
-                commercialProjects={slimCommercial}
-              />
-            </div>,
+            <FeaturedPage
+              title="Explore Our Premier Residential Projects"
+              autoPlay={true}
+              allFeaturedProperties={[]}
+              residentialProjects={slimResidential}
+              commercialProjects={slimCommercial}
+            />,
           )}
 
           {row(9, <NewsViews title="Realty Updates Web Stories" />)}

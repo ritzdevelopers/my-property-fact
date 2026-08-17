@@ -243,17 +243,19 @@ export default function PropertyContainer({
         aria-label={`View details about ${projectTitle}`}
       >
         <div className="home-project-card__media">
-          <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            className="home-project-card__image"
-            width={400}
-            height={360}
-            loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority="auto"
-            decoding="async"
-            onError={() => setImageError(true)}
-          />
+          <div className="home-project-card__image-wrap">
+            <img
+              src={imageSrc}
+              alt={projectCardImageAlt}
+              className="home-project-card__image"
+              width={400}
+              height={360}
+              loading={imagePriority ? "eager" : "lazy"}
+              fetchPriority="auto"
+              decoding="async"
+              onError={() => setImageError(true)}
+            />
+          </div>
           <ProjectStatusRibbon
             status={data.projectStatusName}
             className="mpf-status-ribbon--compact"

@@ -2091,6 +2091,11 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     scroll-snap-align: start;
   }
 
+  .mpf-home-r26 .featured-page-slider .featured-poster-slide,
+  .mpf-home-r26 .featured-page-slider .slick-slide > div:has(.home-project-card--poster) {
+    padding-right: 10px !important;
+  }
+
   .mpf-home-r26 .home-projects-preview__nav-btn {
     width: 36px;
     height: 36px;
@@ -2103,6 +2108,11 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     flex: 0 0 72% !important;
     max-width: 72% !important;
     padding-right: 10px;
+  }
+
+  .mpf-home-r26 .featured-page-slider .featured-poster-slide,
+  .mpf-home-r26 .featured-page-slider .slick-slide > div:has(.home-project-card--poster) {
+    padding-right: 10px !important;
   }
 
   .mpf-home-r26 .home-project-card,
@@ -2289,11 +2299,16 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   color: var(--mpf-green);
 }
 
-/* Premier / featured rails — reuse poster card system */
+/* Premier / featured rails — same card size as Popular Projects */
 .mpf-home-r26 .home-featured-poster-card,
 .mpf-home-r26 .featured-page-slider .home-project-card--poster {
-  min-height: clamp(260px, 42vw, 360px);
+  width: 100%;
   box-shadow: none !important;
+}
+
+.mpf-home-r26 .featured-page-slider .featured-poster-slide,
+.mpf-home-r26 .featured-page-slider .slick-slide > div:has(.home-project-card--poster) {
+  padding: 0 clamp(10px, 1.6vw, 18px) 0 0 !important;
 }
 
 .mpf-home-r26 .featured-page-slider .px-2.pb-3 {

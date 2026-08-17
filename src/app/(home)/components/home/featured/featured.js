@@ -98,51 +98,46 @@ export default function Featured({
 
   // Show arrows for Featured, Similar, and Residential/Commercial (autoPlay true)
   const showArrows = autoPlay || type === "Featured" || type === "Similar";
+  const premierRailSettings = {
+    slidesToShow: 4,
+    infinite: filteredProjects.length > 4,
+    responsive: [
+      {
+        breakpoint: 1025,
+        settings: { slidesToShow: 3 },
+      },
+      {
+        breakpoint: 769,
+        settings: { slidesToShow: 2 },
+      },
+      {
+        breakpoint: 481,
+        settings: { slidesToShow: 1.35 },
+      },
+    ],
+  };
+  const showcaseSettings = {
+    slidesToShow: 6,
+    infinite: filteredProjects.length > 6,
+    responsive: [
+      { breakpoint: 1400, settings: { slidesToShow: 5 } },
+      { breakpoint: 1200, settings: { slidesToShow: 4 } },
+      { breakpoint: 992, settings: { slidesToShow: 3 } },
+      { breakpoint: 768, settings: { slidesToShow: 2 } },
+      { breakpoint: 576, settings: { slidesToShow: 1 } },
+    ],
+  };
+  const layoutSettings = isHomeFeaturedShowcase ? showcaseSettings : premierRailSettings;
 const settings = {
   dots: false,
-  infinite: filteredProjects.length > 6,
   speed: 500,
   autoplay: autoPlay,
   autoplaySpeed: 5000,
   arrows: showArrows,
   nextArrow: showArrows && filteredProjects.length > 1 ? <NextArrow /> : null,
   prevArrow: showArrows && filteredProjects.length > 1 ? <PrevArrow /> : null,
-
-  slidesToShow: isHomeFeaturedShowcase ? 6 : 3,
   slidesToScroll: 1,
-
-  responsive: [
-    {
-      breakpoint: 1400,
-      settings: {
-        slidesToShow: 5,
-      },
-    },
-    {
-      breakpoint: 1200,
-      settings: {
-        slidesToShow: 4,
-      },
-    },
-    {
-      breakpoint: 992,
-      settings: {
-        slidesToShow: 3,
-      },
-    },
-    {
-      breakpoint: 768,
-      settings: {
-        slidesToShow: 2,
-      },
-    },
-    {
-      breakpoint: 576,
-      settings: {
-        slidesToShow: 1,
-      },
-    },
-  ],
+  ...layoutSettings,
 };
 
   // Memoized section title
@@ -227,7 +222,7 @@ const settings = {
                     className={
                       isHomeFeaturedShowcase
                         ? "featured-showcase-slide"
-                        : "px-2 pb-3"
+                        : "featured-poster-slide"
                     }
                   >
                     <PropertyContainer

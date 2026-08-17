@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
 import "./newmpfmetadata.css";
+import "./hero-independence.css";
 import {
   BANNER_ALT,
   BANNER_DESKTOP,
@@ -14,7 +15,6 @@ import {
   HERO_IMAGE_QUALITY,
   HERO_IMAGE_SIZES,
 } from "./heroBannerAssets";
-import { Typewriter } from "react-simple-typewriter";
 
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
 
@@ -29,6 +29,7 @@ function HeroBannerPicture() {
     props: { srcSet: mobileSrcSet },
   } = getImageProps({
     ...common,
+    quality: 88,
     src: BANNER_MOBILE.src,
     width: BANNER_MOBILE.width,
     height: BANNER_MOBILE.height,
@@ -38,6 +39,7 @@ function HeroBannerPicture() {
     props: { srcSet: tabletSrcSet },
   } = getImageProps({
     ...common,
+    quality: 88,
     src: BANNER_TABLET.src,
     width: BANNER_TABLET.width,
     height: BANNER_TABLET.height,
@@ -81,8 +83,6 @@ function HeroBannerPicture() {
 export default function HeroSection({
   projectTypeList,
   cityList,
-  title = "Find Flats & Property Across India | Buy & Invest",
-  subtitle = "Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.",
 }) {
   const normalizeTypeName = (value = "") => value.trim().toLowerCase();
   const headingTypes = new Set([
@@ -184,7 +184,7 @@ export default function HeroSection({
       <section
         id="mpf-home-hero"
         ref={heroBannerRef}
-        className="position-relative hero-section-wrapper"
+        className="position-relative hero-section-wrapper mpf-hero--i80"
         aria-label="Hero Banner"
       >
         <div className="mpf-hero-banner position-relative">
@@ -197,54 +197,20 @@ export default function HeroSection({
             <div className="mpf-hero-main">
               <div className="mpf-hero-content">
                 <div className="mpf-hero-copy">
-                  <h1 className="headgradient headgradient--sparkle" data-text={title}>
-                    {title.includes("Across India") ? (
-                      <>
-                        Find Your Perfect Property in
-                        <span className="mpf-hero-highlight"> Across
-                          <Typewriter
-                            words={[
-                              " Delhi NCR",
-                              " Bangalore",
-                              " Mumbai",
-                              " Hyderabad",
-                              " Pune",
-                              " Chennai",
-                              " Noida",
-                              " Gurugram",
-                              " Ahmedabad",
-                              " Kolkata"
-                            ]} loop={0}
-                            cursor
-                            cursorStyle="|"
-                            typeSpeed={90}
-                            deleteSpeed={50}
-                            delaySpeed={1800}
-                          />
-                        </span>
-                        {/* {" | Buy & Invest"} */}
-                      </>
-                    ) : (
-                      title
-                    )}
-                  </h1>
-                  <p className="headsub">
-                    Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.
+                  <p className="i80-heading">
+                    <span className="i80-heading__eyebrow">Celebrating</span>
+                    <span className="i80-heading__saffron">80 Years</span>
+                    <span className="i80-heading__green">of Independence</span>
                   </p>
+                  <h1 className="headsub">
+                    Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.
+                  </h1>
+                  <span className="i80-copy-rule" aria-hidden>
+                    <span className="i80-copy-rule__saffron" />
+                    <span className="i80-copy-rule__chakra" />
+                    <span className="i80-copy-rule__green" />
+                  </span>
                 </div>
-                <aside className="mpf-hero-badge" aria-label="Property insights">
-                  <span className="mpf-hero-badge__icon" aria-hidden>
-                    <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                      <path
-                        d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zM8 13c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zM16 13c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </span>
-                  <span className="mpf-hero-badge__text">
-                    <strong>Verified listings</strong>, price trends &amp; expert insights
-                  </span>
-                </aside>
               </div>
               <SearchFilter
                 projectTypeList={projectTypeList}

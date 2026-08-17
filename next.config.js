@@ -260,7 +260,7 @@ const nextConfig = {
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
 
-    qualities: [45, 60, 65, 68, 70, 75, 100],
+    qualities: [45, 60, 65, 68, 70, 75, 88, 100],
     // Cache optimized images longer so repeat visits aren't re-rushed through the optimizer.
     minimumCacheTTL: 60 * 60 * 24 * 30,
     deviceSizes: [640, 750, 828, 1080, 1200, 1400, 1920, 2048, 3840],

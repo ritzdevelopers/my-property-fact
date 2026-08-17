@@ -67,8 +67,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const [dismissed, setDismissed] = useState(false);
   /** On `/`, defer promo until the entry loader (WebsiteGateway) finishes or is skipped (SPA). */
   const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
-  /** On home, wait until user scrolls past the hero before showing the promo. */
-  const [scrolledPastHero, setScrolledPastHero] = useState(!isHome);
+  /** On home, wait until the user scrolls down before showing the promo. */
+  const [scrolledPastHero, setScrolledPastHero] = useState(false);
   const [ready, setReady] = useState(false);
   const [activeIdx, setActiveIdx] = useState(0);
   const [displayIdx, setDisplayIdx] = useState(0);
@@ -106,51 +106,19 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
       return undefined;
     }
 
-    if (!gatewayRevealDone) return undefined;
-
-    const hero =
-      document.getElementById("mpf-home-hero") ||
-      document.querySelector(".hero-section-wrapper");
-    if (!hero) {
-      setScrolledPastHero(true);
-      return undefined;
-    }
-
-    const updateFromEntry = (entry) => {
-      const pastHero =
-        !entry.isIntersecting ||
-        entry.intersectionRatio < 0.12 ||
-        entry.boundingClientRect.bottom < window.innerHeight * 0.22;
-      setScrolledPastHero(pastHero);
+    const SHOW_AFTER_SCROLL_PX = Math.max(360, Math.round(window.innerHeight * 0.45));
+    const update = () => {
+      setScrolledPastHero(window.scrollY >= SHOW_AFTER_SCROLL_PX);
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry) updateFromEntry(entry);
-      },
-      { threshold: [0, 0.12, 0.25, 0.5], rootMargin: "0px 0px -8% 0px" },
-    );
-
-    observer.observe(hero);
-
-    const onScroll = () => {
-      const rect = hero.getBoundingClientRect();
-      const pastHero =
-        rect.bottom < window.innerHeight * 0.28 || rect.top < -rect.height * 0.55;
-      setScrolledPastHero(pastHero);
-    };
-
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
     return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
     };
-  }, [isHome, gatewayRevealDone]);
+  }, [isHome]);
 
   useEffect(() => {
     if (list.length === 0 || hideByRoute || dismissed || !gatewayRevealDone) {

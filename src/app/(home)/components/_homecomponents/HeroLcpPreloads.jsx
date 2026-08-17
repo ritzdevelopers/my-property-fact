@@ -22,6 +22,7 @@ export default function HeroLcpPreloads() {
     props: { srcSet: mobileSrcSet, sizes: mobileSizes },
   } = getImageProps({
     ...common,
+    quality: 88,
     src: BANNER_MOBILE.src,
     width: BANNER_MOBILE.width,
     height: BANNER_MOBILE.height,
@@ -31,6 +32,7 @@ export default function HeroLcpPreloads() {
     props: { srcSet: tabletSrcSet, sizes: tabletSizes },
   } = getImageProps({
     ...common,
+    quality: 88,
     src: BANNER_TABLET.src,
     width: BANNER_TABLET.width,
     height: BANNER_TABLET.height,

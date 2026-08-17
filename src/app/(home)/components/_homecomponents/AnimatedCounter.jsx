@@ -8,7 +8,7 @@ export default function AnimatedCounter({ targetValue, suffix = "+" }) {
     if (typeof value === "string") {
       // Remove commas and any non-numeric characters except decimal point
       const numericStr = value.replace(/[^\d.]/g, "");
-      return parseInt(numericStr, 10) || 0;
+      return parseInt(numericStr, 10) || 0; 
     }
     return value || 0;
   };

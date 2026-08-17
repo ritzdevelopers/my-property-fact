@@ -58,5 +58,5 @@ export default async function PopularProjectPromo() {
   const items = curated.map(toItem).filter(Boolean);
   if (items.length === 0) return null;
 
-  return <PopularProjectPromoClient items={items} showAfterMs={400} />;
+  return <PopularProjectPromoClient items={items} showAfterMs={200} />;
 }

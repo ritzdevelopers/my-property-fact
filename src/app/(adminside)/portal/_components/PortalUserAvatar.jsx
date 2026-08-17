@@ -7,7 +7,7 @@ export default function PortalUserAvatar({ userData, size = "md", className = ""
   const initials = getUserInitials(userData);
   const avatarUrl = userData?.avatar;
 
-  if (avatarUrl && avatarUrl !== "/logo.webp") {
+  if (avatarUrl && avatarUrl !== "/logo_flag_color.png") {
     return (
       <img
         src={avatarUrl}

@@ -1,25 +1,42 @@
 .new-footer-design-container-fluid {
-    background: #111111;
-    background-size: cover;
+    --footer-ink: #ffffff;
+    --footer-muted: rgba(255, 255, 255, 0.92);
+    --footer-accent: #ffd56a;
+    background-color: #1a140c;
     width: 100%;
     position: relative;
     z-index: 10;
     isolation: isolate;
     padding: 60px 0 15px;
+    overflow: hidden;
 }
 
 .new-footer-design-container-fluid.compact-top {
     padding-top: 24px;
 }
+
 .new-footer-design-container-fluid::before {
-    content: '';
+    content: "";
     position: absolute;
-    width: 100%;
-    height: 100%;
-    /* background: linear-gradient(180deg, rgba(24, 25, 30, 0.7) 0%, #203D1E 100%); */
+    inset: -16px;
+    z-index: -2;
+    pointer-events: none;
+    background-color: #1a140c;
+    background-image: url("/static/banners/mpf-i80-hero-desktop.jpg");
+    background-size: cover;
+    background-position: center 62%;
+    background-repeat: no-repeat;
+    filter: blur(5px) saturate(1.05);
+    transform: scale(1.04);
+}
+
+.new-footer-design-container-fluid::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     z-index: -1;
-    top: 0;
-    left: 0;
+    pointer-events: none;
+    background: rgba(12, 10, 8, 0.58);
 }
 
 .new-design-container {
@@ -27,14 +44,15 @@
     max-width: 90%;
     margin: 0 auto;
     padding: 0 20px;
-    color: #ffffff;
+    color: var(--footer-ink);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 /* Top Section */
 .new-design-footer-top {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 50px;
+    margin-bottom: 8px;
     gap: 28px;
 }
 
@@ -55,19 +73,19 @@
 }
 
 .company-name {
-    color: #ffffff;
+    color: var(--footer-ink);
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 15px;
 }
 
 .company-description {
-    color: #ffffff;
+    color: var(--footer-ink);
     font-size: 14px;
     line-height: 1.6;
     margin-bottom: 25px;
-    opacity: 0.9;
-    
+    opacity: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7), 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 .contact-details {
@@ -99,17 +117,18 @@
 }
 
 .contact-label {
-    color: #ffffff;
+    color: var(--footer-accent);
     font-size: 12px;
-    font-weight: 400;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 .contact-value {
-    color: #ffffff;
+    color: var(--footer-ink);
     font-size: 14px;
-    opacity: 0.9;
+    opacity: 1;
 }
 
 .new-design-footer-top-right {
@@ -183,7 +202,6 @@
     gap: 60px;
     margin-bottom: 50px;
     padding-top: 30px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-middle-left,
@@ -192,11 +210,12 @@
 }
 
 .footer-section-heading {
-    color: #ffffff;
+    color: var(--footer-accent);
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
     margin-bottom: 20px;
     text-transform: capitalize;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 .newlatter-heading {
 font-family: Lato;
@@ -423,33 +442,33 @@ letter-spacing: 0%;
 
 .footer-links li a,
 .footer-links li .footer-link {
-    color: #ffffff;
+    color: var(--footer-ink);
     font-size: 14px;
     text-decoration: none;
-    opacity: 0.9;
-    transition: opacity 0.3s ease, color 0.3s ease;
+    opacity: 1;
+    transition: color 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75), 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 
 .footer-links li a:hover,
 .footer-links li .footer-link:hover {
-    opacity: 1;
-    color: #D4AF37;
+    color: var(--footer-accent);
 }
 
 /* Privacy Policy Button Styling */
 .privacy-policy-btn {
-    color: #ffffff;
+    color: var(--footer-ink);
     font-size: 14px;
     text-decoration: none;
-    opacity: 0.9;
-    transition: opacity 0.3s ease, color 0.3s ease;
+    opacity: 1;
+    transition: color 0.3s ease;
     width: 100%;
     text-align: left;
 }
 
 .privacy-policy-btn:hover {
     opacity: 1;
-    color: #D4AF37;
+    color: var(--footer-accent);
 }
 
 /* Animation for newly loaded cities */
@@ -485,7 +504,6 @@ letter-spacing: 0%;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 28px 32px;
     padding-top: 30px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-bottom-column {
@@ -693,25 +711,47 @@ letter-spacing: 0%;
 
 /* Disclaimer and Copyright */
 .footer-disclaimer-copyright {
-    padding-top: 20px;
+    position: relative;
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 28px 20px 0;
     text-align: center;
 }
 
+.footer-disclaimer-copyright::before {
+    content: "";
+    display: block;
+    height: 4px;
+    width: 100%;
+    margin: 0 auto 24px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        #ff9933 0%,
+        #ff9933 33.333%,
+        #ffffff 33.333%,
+        #ffffff 66.666%,
+        #138808 66.666%,
+        #138808 100%
+    );
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.28);
+}
+
 .disclaimer-text {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--footer-muted);
     font-size: 12px;
     line-height: 1.6;
     margin-bottom: 20px;
     max-width: 900px;
     margin-left: auto;
     margin-right: auto;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.75);
 }
 
 .copyright-text {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--footer-ink);
     font-size: 14px;
     padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Scroll to Top Button */
@@ -806,7 +846,7 @@ letter-spacing: 0%;
     .new-design-footer-top {
         flex-direction: column;
         gap: 40px;
-        margin-bottom: 40px;
+        margin-bottom: 8px;
     }
     
     .new-design-footer-top-left {
@@ -879,7 +919,7 @@ letter-spacing: 0%;
     }
     
     .new-design-footer-top {
-        margin-bottom: 30px;
+        margin-bottom: 8px;
     }
     
     .company-name {
@@ -1024,7 +1064,7 @@ letter-spacing: 0%;
     
     .new-design-footer-top {
         gap: 30px;
-        margin-bottom: 25px;
+        margin-bottom: 8px;
     }
     
     .new-design-footer-top-left-logo {
@@ -1157,7 +1197,12 @@ letter-spacing: 0%;
     }
     
     .footer-disclaimer-copyright {
-        padding-top: 15px;
+        padding: 20px 12px 0;
+    }
+
+    .footer-disclaimer-copyright::before {
+        margin-bottom: 16px;
+        height: 3px;
     }
     
     .disclaimer-text {

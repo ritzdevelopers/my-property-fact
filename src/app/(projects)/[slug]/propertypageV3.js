@@ -877,7 +877,7 @@ export default function PropertyV3({
           >
             <span className="pd3-topbar__logo-chip">
               <img loading="eager"
-                src="/logo.webp"
+                src="/logo_flag_color.png"
                 alt="My Property Fact"
                 title="My Property Fact"
                 width={252}

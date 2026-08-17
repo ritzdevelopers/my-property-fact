@@ -121,6 +121,29 @@ export function resolveBlogFaqItemsForSchema(blog) {
   return normalizeFaqItems(extractFaqsFromBlogHtml(html));
 }
 
+/** City detail APIs may expose FAQs under different keys. */
+export function resolveCityFaqRawList(city) {
+  if (!city || typeof city !== "object") return [];
+  const raw =
+    city.faqs ??
+    city.faqList ??
+    city.cityFaqs ??
+    city.cityFaqList ??
+    city.data?.faqs ??
+    city.data?.faqList ??
+    [];
+  return Array.isArray(raw) ? raw : [];
+}
+
+/** Normalized FAQ items for city-page JSON-LD — API fields first, then CMS HTML. */
+export function resolveCityFaqItemsForSchema(city) {
+  const fromApi = normalizeFaqItems(resolveCityFaqRawList(city));
+  if (fromApi.length) return fromApi;
+
+  const html = city?.cityDescription ?? city?.data?.cityDescription ?? "";
+  return normalizeFaqItems(extractFaqsFromBlogHtml(html));
+}
+
 /** Project detail APIs may expose FAQs under different keys. */
 export function resolveProjectFaqRawList(project) {
   if (!project || typeof project !== "object") return [];

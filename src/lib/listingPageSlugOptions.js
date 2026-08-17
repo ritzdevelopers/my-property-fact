@@ -62,6 +62,11 @@ export function buildListingPageSlugOptions(cityList = [], projects = []) {
     const placeLabel = locationLabel(cityName, stateName);
     if (!citySlug) continue;
 
+    options.push({
+      pageSlug: citySlug,
+      pageTitle: `Property in ${placeLabel}`,
+    });
+
     for (const hub of LISTING_HUB_PREFIXES) {
       options.push({
         pageSlug: `${hub.prefix}${citySlug}`,

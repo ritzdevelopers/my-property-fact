@@ -7,6 +7,12 @@ import {
 } from "@/app/_global_components/cityAliasUtils";
 import { fetchCityDetailsBySlug, isKnownCitySlug } from "@/app/_global_components/masterFunction";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
+import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
+import {
+  buildFaqJsonLd,
+  resolveCityFaqItemsForSchema,
+} from "@/app/_global_components/jsonLd/buildJsonLd";
+import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
 
 export const dynamic = "force-dynamic";
 
@@ -91,19 +97,28 @@ export default async function AllCityProjects({ params }) {
     redirect(`/city/${canonicalSlug}`);
   }
   const slugToCheck = await ensureKnownCityOrNotFound(cityname);
-  const cityData = await fetchCityDataWithAliases(slugToCheck);
+  const [cityData, listingFaqs] = await Promise.all([
+    fetchCityDataWithAliases(slugToCheck),
+    fetchListingPageFaqsBySlug(slugToCheck),
+  ]);
   if (!cityData) {
     notFound();
   }
 
   const { projectList: _projectList, ...cityMeta } = cityData;
   const projectList = slimProjectListForListing(cityData.projectList || []);
+  const faqItems = listingFaqs.length
+    ? listingFaqs
+    : resolveCityFaqItemsForSchema(cityMeta);
 
   return (
-    <CityPage
-      citySlug={slugToCheck}
-      cityData={cityMeta}
-      initialProjects={projectList}
-    />
+    <>
+      <JsonLdScript data={buildFaqJsonLd(faqItems)} />
+      <CityPage
+        citySlug={slugToCheck}
+        cityData={cityMeta}
+        initialProjects={projectList}
+      />
+    </>
   );
 }

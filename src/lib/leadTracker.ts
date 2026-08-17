@@ -9,7 +9,7 @@ const STORAGE = {
   sessionStart: "mpf_session_start",
   utm: "mpf_utm_first_touch",
   journey: "mpf_lead_journey",
-  geo: "mpf_lead_geo",
+  geo: "mpf_lead_geo",  
   gps: "mpf_gps_location",
   pages: "mpf_pages_visited",
   entryPage: "mpf_entry_page",

@@ -2,9 +2,13 @@
    PROJECT STATUS RIBBON
    ========================================================================== */
 
-.mpf-status-ribbon {
+.mpf-status-ribbon,
+.mpf-status-ribbon__fold {
   --mpf-rb-color: #f55722;
+  --mpf-rb-fold: color-mix(in srgb, var(--mpf-rb-color) 82%, #4a1608);
+}
 
+.mpf-status-ribbon {
   position: absolute;
   top: 12px;
   right: 0;
@@ -16,9 +20,10 @@
   pointer-events: none;
   overflow: visible;
 
-  transform: translateX(12px);
+  /* Sit on the card face — the wrap behind is the fold layer */
+  transform: none;
 
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.16));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
 }
 
 /* ==========================================================================
@@ -107,21 +112,33 @@
    ========================================================================== */
 
 .mpf-status-ribbon__fold {
-  --mpf-rb-fold: #d93f16;
-
   position: absolute;
 
-  top: 27px;
-  right: 0;
+  top: 12px;
+  right: -7px;
 
   width: 16px;
-  height: 9px;
+  height: 27px;
 
-  z-index: 2;
+  z-index: 0;
   pointer-events: none;
 
   background: var(--mpf-rb-fold);
 
+  /* Back flap: ~9px tucked under the card, ~7px peeking out */
+  clip-path: none;
+  border-radius: 0 1px 1px 0;
+}
+
+/* Tail that hangs down from the peeking wrap */
+.mpf-status-ribbon__fold::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 7px;
+  height: 7px;
+  background: color-mix(in srgb, var(--mpf-rb-color) 68%, #3a1008);
   clip-path: polygon(0 0, 100% 0, 0 100%);
 }
 
@@ -132,44 +149,82 @@
 .mpf-status-ribbon[data-status="under-construction"],
 .mpf-status-ribbon__fold[data-status="under-construction"] {
   --mpf-rb-color: #2563eb;
-  --mpf-rb-fold: #1d4ed8;
 }
 
 
 .mpf-status-ribbon[data-status="ready-to-move"],
 .mpf-status-ribbon__fold[data-status="ready-to-move"] {
   --mpf-rb-color: #16a34a;
-  --mpf-rb-fold: #15803d;
 }
 
 
 .mpf-status-ribbon[data-status="possession-soon"],
 .mpf-status-ribbon__fold[data-status="possession-soon"] {
   --mpf-rb-color: #0d9488;
-  --mpf-rb-fold: #0f766e;
 }
 
 
 .mpf-status-ribbon[data-status="ultra-luxury"],
 .mpf-status-ribbon__fold[data-status="ultra-luxury"] {
   --mpf-rb-color: #c9972b;
-  --mpf-rb-fold: #a16207;
 }
 
 
 .mpf-status-ribbon[data-status="sold-out"],
 .mpf-status-ribbon__fold[data-status="sold-out"] {
   --mpf-rb-color: #64748b;
-  --mpf-rb-fold: #475569;
 }
 
 
-/* ==========================================================================
-   DEFAULT FOLD COLOR
-   ========================================================================== */
+@supports not (background: color-mix(in srgb, red 50%, blue)) {
+  .mpf-status-ribbon,
+  .mpf-status-ribbon__fold {
+    --mpf-rb-fold: #e04a1c;
+  }
 
-.mpf-status-ribbon__fold {
-  background: var(--mpf-rb-fold, #d93f16);
+  .mpf-status-ribbon__fold::after {
+    background: #c43d16;
+  }
+
+  .mpf-status-ribbon__fold[data-status="under-construction"] {
+    --mpf-rb-fold: #1d4ed8;
+  }
+
+  .mpf-status-ribbon__fold[data-status="under-construction"]::after {
+    background: #1e40af;
+  }
+
+  .mpf-status-ribbon__fold[data-status="ready-to-move"] {
+    --mpf-rb-fold: #15803d;
+  }
+
+  .mpf-status-ribbon__fold[data-status="ready-to-move"]::after {
+    background: #166534;
+  }
+
+  .mpf-status-ribbon__fold[data-status="possession-soon"] {
+    --mpf-rb-fold: #0f766e;
+  }
+
+  .mpf-status-ribbon__fold[data-status="possession-soon"]::after {
+    background: #115e59;
+  }
+
+  .mpf-status-ribbon__fold[data-status="ultra-luxury"] {
+    --mpf-rb-fold: #b8861f;
+  }
+
+  .mpf-status-ribbon__fold[data-status="ultra-luxury"]::after {
+    background: #a16207;
+  }
+
+  .mpf-status-ribbon__fold[data-status="sold-out"] {
+    --mpf-rb-fold: #475569;
+  }
+
+  .mpf-status-ribbon__fold[data-status="sold-out"]::after {
+    background: #334155;
+  }
 }
 
 
@@ -192,7 +247,7 @@
   width: 122px;
   height: 29px;
 
-  transform: translateX(12px);
+  transform: none;
 }
 
 
@@ -201,6 +256,13 @@
   height: 29px;
 
   padding: 0 10px;
+}
+
+.mpf-status-ribbon__fold.mpf-status-ribbon--listing {
+  top: 14px;
+  right: -7px;
+  width: 16px;
+  height: 29px;
 }
 
 
@@ -215,7 +277,7 @@
   width: max-content;
   height: 27px;
 
-  transform: translateX(12px);
+  transform: none;
 }
 
 .mpf-status-ribbon--compact .mpf-status-ribbon__band {
@@ -231,11 +293,11 @@
    ========================================================================== */
 
 .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
-  top: 39px;
-  right: 0;
+  top: 12px;
+  right: -7px;
 
   width: 16px;
-  height: 9px;
+  height: 27px;
 }
 
 
@@ -300,6 +362,19 @@
   will-change: transform;
 }
 
+/* Poster cards fill the whole tile — round all four corners on the
+   image clip layer only. Media stays overflow:visible so the ribbon
+   is not clipped. */
+.home-project-card--poster .home-project-card__media,
+.home-project-card--poster .home-project-card__image-wrap,
+.home-project-card--poster .home-project-card__image {
+  border-radius: 20px;
+}
+
+.home-project-card--poster .home-project-card__image-wrap {
+  z-index: 1;
+}
+
 /* ==========================================================================
    RESPONSIVE
    ========================================================================== */
@@ -309,7 +384,7 @@
     top: 10px;
     width: max-content;
     height: 26px;
-    transform: translateX(9px);
+    transform: none;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__band {
@@ -319,9 +394,10 @@
   }
 
   .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
-    top: 26px;
-    width: 15px;
-    height: 8px;
+    top: 10px;
+    right: -6px;
+    width: 14px;
+    height: 26px;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__line {
@@ -335,7 +411,7 @@
     top: 8px;
     width: max-content;
     height: 24px;
-    transform: translateX(7px);
+    transform: none;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__band {
@@ -343,11 +419,11 @@
     height: 24px;
     padding: 0 10px;
   }
-
   .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
-    top: 24px;
-    width: 14px;
-    height: 7px;
+    top: 8px;
+    right: -5px;
+    width: 12px;
+    height: 24px;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__line {

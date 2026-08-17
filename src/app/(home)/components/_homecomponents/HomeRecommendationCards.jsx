@@ -303,19 +303,22 @@ export default function HomeRecommendationCards({
                   className="home-project-card home-project-card--poster"
                   aria-label={card.title ? `View details about ${card.title}` : "View project details"}
                 >
-                  <div className="home-project-card__media">
-                    <img
-                      src={card.image}
-                      alt={`${card.title} — real estate listing card image on My Property Fact`}
-                      className="home-project-card__image"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                    <ProjectStatusRibbon
-                      status={card.badge}
-                      className="mpf-status-ribbon--compact"
-                    />
-                  </div>
+<div className="home-project-card__media">
+  <div className="home-project-card__image-wrap">
+    <img
+      src={card.image}
+      alt={`${card.title} — real estate listing card image on My Property Fact`}
+      className="home-project-card__image"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+
+  <ProjectStatusRibbon
+    status={card.badge}
+    className="mpf-status-ribbon--compact"
+  />
+</div>
 
                   <div className="home-project-card__overlay">
                     <div className="home-project-card__overlay-top">

@@ -6,6 +6,11 @@ const CARD_THUMBNAIL_OVERRIDES = {
   "eldeco-7-peaks-residences": "/static/projects/eldeco-7-peaks-residences.jpg",
   "ace-verdea": "/static/projects/ace-verdea.jpg",
   "ace-verde": "/static/projects/ace-verdea.jpg",
+  "ace-yxp": "/static/projects/ace-yxp.jpg",
+  "experion-saatori": "/static/projects/experion-saatori.jpg",
+  "smartworld-elie-saab": "/static/projects/smartworld-elie-saab.jpg",
+  "rg-pleiaddes": "/static/projects/rg-pleiaddes.jpg",
+  "clove-county": "/static/projects/clove-county.jpg",
 };
 
 function getProjectSlug(project) {

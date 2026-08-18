@@ -6,7 +6,6 @@ import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
 import PropertyTypeTag from "@/app/(home)/components/common/PropertyTypeTag";
 import LuxuryPricePlaque from "@/app/(home)/components/common/LuxuryPricePlaque";
-import UnderConstructionHoverOverlay from "@/app/(home)/components/common/UnderConstructionHoverOverlay";
 import "@/app/(home)/components/common/luxuryPropertyCard.css";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./newmpfmetadata.css";
@@ -349,7 +348,6 @@ export default function HomeRecommendationCards({
                       </span>
                     </div>
                   </div>
-                  <UnderConstructionHoverOverlay status={card.badge} />
                 </Link>
               </div>
             );

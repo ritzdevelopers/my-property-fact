@@ -9,7 +9,6 @@ import { useState } from "react";
 import ProjectStatusRibbon from "./ProjectStatusRibbon";
 import PropertyTypeTag from "./PropertyTypeTag";
 import LuxuryPricePlaque from "./LuxuryPricePlaque";
-import UnderConstructionHoverOverlay from "./UnderConstructionHoverOverlay";
 import "./luxuryPropertyCard.css";
 import {
   buildProjectImageUrl,
@@ -285,7 +284,6 @@ export default function PropertyContainer({
             </span>
           </div>
         </div>
-        <UnderConstructionHoverOverlay status={data.projectStatusName} />
       </Link>
     );
   }

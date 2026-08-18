@@ -1,16 +1,31 @@
 import { normalizeIndianPhone } from "@/lib/leadValidation";
 
+function readSmsEnv(name) {
+  const value = process.env[name];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getSmsConfig() {
+  const apiUrl = readSmsEnv("SMS_API_URL");
+  const apiKey = readSmsEnv("SMS_API_KEY");
+  const senderId = readSmsEnv("SMS_SENDER_ID");
+
+  return { apiUrl, apiKey, senderId, isConfigured: Boolean(apiUrl && apiKey && senderId) };
+}
+
 function buildSmsMessage(otp) {
   return `${otp} is your MPF Portal verification code. Don't share your code with anyone. Team CONTENAISSANCE`;
 }
 
 export async function sendLeadOtpSms(phone, otp) {
-  const apiUrl = process.env.SMS_API_URL;
-  const apiKey = process.env.SMS_API_KEY;
-  const senderId = process.env.SMS_SENDER_ID;
+  const { apiUrl, apiKey, senderId, isConfigured } = getSmsConfig();
 
-  if (!apiUrl || !apiKey || !senderId) {
-    throw new Error("SMS service is not configured");
+  if (!isConfigured) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[lead-otp] SMS not configured — dev OTP:", otp, "for", phone);
+      return { success: true, devBypass: true };
+    }
+    throw new Error("OTP service is temporarily unavailable. Please try again later.");
   }
 
   const number = normalizeIndianPhone(phone);
@@ -29,7 +44,8 @@ export async function sendLeadOtpSms(phone, otp) {
   const body = await response.text();
 
   if (!response.ok) {
-    throw new Error("Failed to send OTP SMS");
+    console.error("[lead-otp] SMS provider error:", response.status, body.slice(0, 200));
+    throw new Error("Could not send OTP. Please try again.");
   }
 
   return { success: true, providerResponse: body.trim() };

@@ -22,6 +22,7 @@ import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot.gif";
 const CHATBOT_HEADER_LOGO = "/logo.webp";
+const PROMPT_DISMISS_KEY = "mpf-chat-prompt-dismissed";
 
 function createSessionId() {
   return `${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
@@ -73,19 +74,58 @@ export default function ChatbotV2() {
   const [placeholder, setPlaceholder] = useState("Please select an option");
   const [showScrollHint, setShowScrollHint] = useState(false);
   const [hasShownOpenTyping, setHasShownOpenTyping] = useState(false);
+  /** hidden → typing (three dots) → expanded (full invite dialog) */
+  const [promptPhase, setPromptPhase] = useState("hidden");
   const messagesContainerRef = useRef(null);
   const latestProjectMessageRef = useRef(null);
   const messagesEndRef = useRef(null);
   const openTypingTimeoutRef = useRef(null);
+  const promptTypingTimeoutRef = useRef(null);
 
   useEffect(() => {
     setSessionId(createSessionId());
   }, []);
 
   useEffect(() => {
+    if (isOpen) {
+      setPromptPhase("hidden");
+      return undefined;
+    }
+
+    if (
+      typeof sessionStorage !== "undefined" &&
+      sessionStorage.getItem(PROMPT_DISMISS_KEY)
+    ) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => setPromptPhase("typing"), 2500);
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (promptPhase !== "typing") return undefined;
+
+    promptTypingTimeoutRef.current = window.setTimeout(() => {
+      setPromptPhase("expanded");
+      promptTypingTimeoutRef.current = null;
+    }, 1200);
+
+    return () => {
+      if (promptTypingTimeoutRef.current) {
+        window.clearTimeout(promptTypingTimeoutRef.current);
+        promptTypingTimeoutRef.current = null;
+      }
+    };
+  }, [promptPhase]);
+
+  useEffect(() => {
     return () => {
       if (openTypingTimeoutRef.current) {
         clearTimeout(openTypingTimeoutRef.current);
+      }
+      if (promptTypingTimeoutRef.current) {
+        clearTimeout(promptTypingTimeoutRef.current);
       }
     };
   }, []);
@@ -150,6 +190,32 @@ export default function ChatbotV2() {
     }, 900);
   };
 
+  const dismissPrompt = () => {
+    if (promptTypingTimeoutRef.current) {
+      clearTimeout(promptTypingTimeoutRef.current);
+      promptTypingTimeoutRef.current = null;
+    }
+    setPromptPhase("hidden");
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem(PROMPT_DISMISS_KEY, "1");
+    }
+  };
+
+  const openChat = () => {
+    if (promptTypingTimeoutRef.current) {
+      clearTimeout(promptTypingTimeoutRef.current);
+      promptTypingTimeoutRef.current = null;
+    }
+    setPromptPhase("hidden");
+    if (typeof sessionStorage !== "undefined") {
+      sessionStorage.setItem(PROMPT_DISMISS_KEY, "1");
+    }
+    setIsOpen(true);
+    if (!hasShownOpenTyping && messages.length === 0) {
+      startOpenTypingIntro();
+    }
+  };
+
   const toggleChat = () => {
     if (isOpen) {
       if (openTypingTimeoutRef.current) {
@@ -161,10 +227,7 @@ export default function ChatbotV2() {
       return;
     }
 
-    setIsOpen(true);
-    if (!hasShownOpenTyping && messages.length === 0) {
-      startOpenTypingIntro();
-    }
+    openChat();
   };
 
   const resetChatOnClient = () => {
@@ -300,41 +363,133 @@ export default function ChatbotV2() {
 
   return (
     <>
-      <button
-        type="button"
-        className={`${styles.launcher} mpf-chatbot-launcher`}
-        onClick={toggleChat}
-        aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
-        title={isOpen ? "Close chat" : "Open My Property Fact chat"}
-      >
-        {!isOpen ? (
-          // eslint-disable-next-line @next/next/no-img-element -- GIF animation requires native img
-          <img
-            src={CHATBOT_LAUNCHER_LOGO}
-            alt="Open My Property Fact chat — assistant"
-            title="Open My Property Fact chat"
-            width={78}
-            height={78}
-            className={styles.launcherGif}
-            draggable={false}
-          />
-        ) : (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+      <div className={`${styles.launcherWrap} mpf-chatbot-launcher`}>
+        {!isOpen && promptPhase === "typing" ? (
+          <div
+            className={styles.promptTypingBubble}
+            aria-live="polite"
+            aria-label="Assistant is typing"
           >
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        )}
-      </button>
+            <span className={styles.promptDot} />
+            <span className={styles.promptDot} />
+            <span className={styles.promptDot} />
+          </div>
+        ) : null}
+
+        {!isOpen && promptPhase === "expanded" ? (
+          <div
+            className={styles.promptBubble}
+            role="dialog"
+            aria-label="Chat invitation"
+            aria-live="polite"
+          >
+            <button
+              type="button"
+              className={styles.promptClose}
+              onClick={dismissPrompt}
+              aria-label="Dismiss chat invitation"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            <div className={styles.promptHeader}>
+              <div className={styles.promptAvatar}>
+                <img
+                  src={CHATBOT_HEADER_LOGO}
+                  alt=""
+                  width={32}
+                  height={30}
+                  aria-hidden
+                />
+              </div>
+              <div className={styles.promptHeaderText}>
+                <div className={styles.promptTitle}>MPF Assistant</div>
+                <div className={styles.promptSubtitle}>Typically replies instantly</div>
+              </div>
+            </div>
+
+            <p className={styles.promptMessage}>Hi there! 👋 Need help with anything?</p>
+
+            <button
+              type="button"
+              className={styles.promptReplyBtn}
+              onClick={openChat}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              Reply
+            </button>
+          </div>
+        ) : null}
+
+        <button
+          type="button"
+          className={styles.launcher}
+          onClick={toggleChat}
+          aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
+          title={isOpen ? "Close chat" : "Open My Property Fact chat"}
+        >
+          {!isOpen ? (
+            // eslint-disable-next-line @next/next/no-img-element -- GIF animation requires native img
+            <img
+              src={CHATBOT_LAUNCHER_LOGO}
+              alt="Open My Property Fact chat — assistant"
+              title="Open My Property Fact chat"
+              width={78}
+              height={78}
+              className={styles.launcherGif}
+              draggable={false}
+            />
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          )}
+
+          {!isOpen && promptPhase !== "hidden" ? (
+            <span className={styles.launcherBadge} aria-hidden="true">
+              1
+            </span>
+          ) : null}
+        </button>
+      </div>
 
       <div className={`${styles.container} ${!isOpen ? styles.hidden : ""}`}>
         <div className={styles.header}>

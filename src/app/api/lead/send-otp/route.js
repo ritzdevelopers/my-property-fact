@@ -20,7 +20,11 @@ export async function POST(request) {
     });
   } catch (error) {
     const message = error?.message || "Could not send OTP. Please try again.";
-    const status = message.includes("wait") ? 429 : 500;
+    const status = message.includes("wait")
+      ? 429
+      : message.includes("temporarily unavailable")
+        ? 503
+        : 500;
     return NextResponse.json({ success: false, message }, { status });
   }
 }

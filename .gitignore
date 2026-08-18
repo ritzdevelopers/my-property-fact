@@ -11,6 +11,7 @@
 !.yarn/versions
 
 .env.local
+.env.production.local
 
 # testing
 /coverage

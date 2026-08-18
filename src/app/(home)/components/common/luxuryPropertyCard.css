@@ -789,6 +789,10 @@ a.mpf-lux-card__frame:focus-visible {
 }
 
 .mpf-lux-card--poster .mpf-lux-card__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   gap: 12px;
   margin-top: 8px;
   padding-top: 10px;

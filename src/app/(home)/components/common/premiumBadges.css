@@ -9,9 +9,9 @@
 .mpf-type-tag {
   --mpf-badge-top: #ffffff;
   --mpf-badge-base: #edf0f4;
-  --mpf-badge-ring: rgba(184, 145, 44, 0.55);
+  --mpf-badge-ring: rgba(13, 88, 52, 0.45);
   --mpf-badge-accent: #0c5030;
-  --mpf-badge-icon: #b8912c;
+  --mpf-badge-icon: #2f8f52;
   --mpf-badge-shadow: rgba(15, 23, 42, 0.16);
 
   position: relative;
@@ -60,15 +60,15 @@
 }
 
 .mpf-type-tag--residential {
-  --mpf-badge-ring: rgba(184, 145, 44, 0.55);
+  --mpf-badge-ring: rgba(13, 88, 52, 0.45);
   --mpf-badge-accent: #0c5030;
-  --mpf-badge-icon: #b8912c;
+  --mpf-badge-icon: #2f8f52;
 }
 
 .mpf-type-tag--commercial {
-  --mpf-badge-ring: rgba(59, 130, 246, 0.5);
-  --mpf-badge-accent: #1c3a8f;
-  --mpf-badge-icon: #2f6bdd;
+  --mpf-badge-ring: rgba(13, 88, 52, 0.45);
+  --mpf-badge-accent: #0c5030;
+  --mpf-badge-icon: #2f8f52;
 }
 
 .mpf-type-tag__icon {
@@ -76,6 +76,13 @@
   height: 11px;
   flex: 0 0 auto;
   fill: var(--mpf-badge-icon);
+}
+
+.mpf-type-tag__icon--img {
+  object-fit: contain;
+  fill: unset;
+  filter: brightness(0) saturate(100%) invert(46%) sepia(49%) saturate(638%)
+    hue-rotate(105deg) brightness(93%) contrast(89%);
 }
 
 .mpf-type-tag:hover {
@@ -123,14 +130,10 @@
   );
 }
 
-.mpf-type-tag--on-media.mpf-type-tag--residential {
-  --mpf-badge-ring: rgba(214, 178, 92, 0.55);
-  --mpf-badge-icon: #e8c98a;
-}
-
+.mpf-type-tag--on-media.mpf-type-tag--residential,
 .mpf-type-tag--on-media.mpf-type-tag--commercial {
-  --mpf-badge-ring: rgba(125, 185, 255, 0.55);
-  --mpf-badge-icon: #9ec8ff;
+  --mpf-badge-ring: rgba(125, 255, 159, 0.45);
+  --mpf-badge-icon: #8ecf7a;
 }
 
 .mpf-type-tag--on-media:hover {
@@ -160,22 +163,19 @@
   height: 12px;
 }
 
-.mpf-type-tag--listing.mpf-type-tag--residential {
+.mpf-type-tag--listing .mpf-type-tag__icon--img {
+  width: 12px;
+  height: 12px;
+}
+
+.mpf-type-tag--listing.mpf-type-tag--residential,
+.mpf-type-tag--listing.mpf-type-tag--commercial {
   --mpf-badge-top: #f3fbf5;
   --mpf-badge-base: #e2f3e8;
   --mpf-badge-ring: rgba(13, 88, 52, 0.38);
   --mpf-badge-accent: #0a4a2c;
   --mpf-badge-icon: #2f8f52;
   --mpf-badge-shadow: rgba(13, 88, 52, 0.16);
-}
-
-.mpf-type-tag--listing.mpf-type-tag--commercial {
-  --mpf-badge-top: #f2f7ff;
-  --mpf-badge-base: #dde9fc;
-  --mpf-badge-ring: rgba(37, 99, 235, 0.38);
-  --mpf-badge-accent: #1e3a8a;
-  --mpf-badge-icon: #2563eb;
-  --mpf-badge-shadow: rgba(37, 99, 235, 0.16);
 }
 
 .mpf-listing-card.mpf-lux-card .mpf-type-tag--listing {

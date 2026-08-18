@@ -374,6 +374,7 @@ export default function CityProjectsPanel({
                     project={item}
                     imagePriority={index < 3}
                     variant="poster"
+                    showUnderConstructionOverlay={false}
                   />
                 ))
               ) : (

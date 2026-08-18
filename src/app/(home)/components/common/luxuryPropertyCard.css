@@ -315,9 +315,9 @@ a.mpf-lux-card__frame:focus-visible {
 .mpf-type-tag.mpf-type-tag--lux {
   --mpf-badge-top: rgba(8, 16, 14, 0.42);
   --mpf-badge-base: rgba(6, 12, 10, 0.55);
-  --mpf-badge-ring: rgba(212, 175, 55, 0.55);
+  --mpf-badge-ring: rgba(61, 154, 85, 0.55);
   --mpf-badge-accent: #f6f1e4;
-  --mpf-badge-icon: #e4c56a;
+  --mpf-badge-icon: #8ecf7a;
   --mpf-badge-shadow: transparent;
 
   position: relative;
@@ -337,7 +337,7 @@ a.mpf-lux-card__frame:focus-visible {
   -webkit-backdrop-filter: blur(10px) saturate(140%);
   backdrop-filter: blur(10px) saturate(140%);
   box-shadow:
-    inset 0 0 0 1px rgba(212, 175, 55, 0.5),
+    inset 0 0 0 1px rgba(61, 154, 85, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
@@ -347,6 +347,11 @@ a.mpf-lux-card__frame:focus-visible {
     rgba(255, 255, 255, 0.14) 0%,
     rgba(255, 255, 255, 0) 100%
   );
+}
+
+.mpf-type-tag--lux .mpf-type-tag__icon--img {
+  filter: brightness(0) saturate(100%) invert(78%) sepia(21%) saturate(687%)
+    hue-rotate(76deg) brightness(98%) contrast(92%);
 }
 
 .mpf-lux-card__title-row,

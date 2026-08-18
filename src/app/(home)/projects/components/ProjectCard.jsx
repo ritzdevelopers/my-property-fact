@@ -255,6 +255,7 @@ export default function ProjectCard({
   imagePriority = false,
   variant = "horizontal",
   onGetDetails,
+  showUnderConstructionOverlay = true,
 }) {
   const [slides, setSlides] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -437,7 +438,9 @@ export default function ProjectCard({
           <ProjectCardActionBar />
         </div>
 
-        <UnderConstructionHoverOverlay status={project.projectStatusName} />
+        {showUnderConstructionOverlay ? (
+          <UnderConstructionHoverOverlay status={project.projectStatusName} />
+        ) : null}
       </Link>
     );
   }

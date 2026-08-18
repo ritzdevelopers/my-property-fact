@@ -68,6 +68,7 @@ export default function HeroIntroSection() {
             <img
               src="/about/about_us_section.jpg"
               alt="Building"
+              title="Building"
             />
 
           </div>
@@ -76,7 +77,7 @@ export default function HeroIntroSection() {
 
             <p className="introText">
               At{" "}
-              <Link href="/" className="introText-link">
+              <Link href="/" className="introText-link" title="My Property Fact">
                 My Property Fact
               </Link>
               , transparency, trust, and innovation are at the heart of everything we do. By combining technology, reliable data, and expert guidance, we make every stage of your real estate journey - from discovery to decision - simpler, smarter, and more transparent. <br /><br />
@@ -87,6 +88,7 @@ export default function HeroIntroSection() {
               <img
                 src="/about/about_us_banner.jpg"
                 alt="Property"
+                title="Property"
               />
             </div>
           </div>

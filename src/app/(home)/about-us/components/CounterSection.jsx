@@ -78,6 +78,7 @@ export default function CounterSection({
                 <Image
                   src={item.image}
                   alt={item.alt}
+                  title={item.alt}
                   width={28}
                   height={28}
                 />

@@ -71,7 +71,7 @@ export default function TimelineSection() {
                 duration: 0.6,
               }}
             >
-              <img src={item.image} alt={item.year} />
+              <img src={item.image} alt={item.year} title={item.year} />
             </motion.div>
 
           </AnimatePresence>

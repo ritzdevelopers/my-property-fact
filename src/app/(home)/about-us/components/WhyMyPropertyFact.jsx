@@ -27,6 +27,7 @@ export default function WhyMyPropertyFact() {
               target="_blank"
               rel="noopener noreferrer"
               className="commitment-link"
+              title="mypropertyfact.in"
             >
               mypropertyfact.in
             </Link>{" "}

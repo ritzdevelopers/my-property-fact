@@ -20,25 +20,25 @@ export default function NewMpfMetaDataContainer({ propertyTypes, projects, build
   const [statistics, setStatistics] = useState([
     {
       image: "/static/footer/icon1.svg",
-      alt: "Cities covered — statistic icon",
+      alt: "Cities covered",
       number: cities.length > 0 ? cities.length : 0,
       label: "Cities",
     },
     {
       image: "/static/footer/icon2.svg",
-      alt: "Verified builders — statistic icon",
+      alt: "Verified builders",
       number: builders.length > 0 ? builders.length : 0,
       label: "Builders",
     },
     {
       image: "/static/footer/icon3.svg",
-      alt: "Listed projects — statistic icon",
+      alt: "Listed projects",
       number: projects.length > 0 ? projects.length : 0,
       label: "Projects",
     },
     {
       image: "/static/footer/icon4.svg",
-      alt: "Property units — statistic icon",
+      alt: "Property units",
       number: "10,030",
       label: "Units",
     },

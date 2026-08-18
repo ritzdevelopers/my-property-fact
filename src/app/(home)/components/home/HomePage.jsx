@@ -19,6 +19,10 @@ import {
   buildNewLaunchProjectsForRegion,
   buildSubtitleNewLaunchesNear,
 } from "./recommendedSpotlight";
+import {
+  isDelhiNcrProject,
+  scopeHomeProjectsToDelhiNcr,
+} from "@/app/_global_components/popularRightNowProjects";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import TestimonialSection from "./testimonials/TestimonialSection";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
@@ -54,21 +58,7 @@ const VaastuStripSection = dynamic(
 );
 // import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
 
-/** Alternates by calendar day (IST): e.g. one day Delhi, next Noida — SSR fallback before geolocation. */
-const DAILY_RECOMMENDED_PROJECT_CITIES = ["Delhi", "Noida"];
-
-function getDailyRecommendedProjectCityLabel() {
-  const ymd = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-  const [y, m, d] = ymd.split("-").map(Number);
-  const middayUtcMs = Date.UTC(y, m - 1, d, 12, 0, 0);
-  const dayOrdinal = Math.floor(middayUtcMs / 86400000);
-  return DAILY_RECOMMENDED_PROJECT_CITIES[dayOrdinal % 2];
-}
+const HOME_NCR_LABEL = "Delhi NCR";
 
 async function fetchHomeTestimonials() {
   try {
@@ -137,9 +127,7 @@ export default async function HomePage() {
       return logoOverride ? { ...project, projectLogo: logoOverride } : project;
     })
     .filter(Boolean);
-  // top cities
-  const topCities = ["Noida", "Delhi", "Ghaziabad"];
-  // Residential: slug-ordered first, then rest from getAllProjects (Residential type)
+  // Residential: slug-ordered first, then rest from Delhi-NCR projects
   const residentialFirst = residentialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
     .filter(Boolean);
@@ -148,13 +136,12 @@ export default async function HomePage() {
       p.propertyTypeName === "Residential" &&
       p.slugURL &&
       !residentialSlugs.includes(p.slugURL) &&
-      p.cityName &&
-      topCities.includes(p.cityName)
+      isDelhiNcrProject(p)
   ).slice(0, 20);
 
   const residentialProjects = [...residentialFirst, ...residentialRest];
 
-  // Commercial: slug-ordered first, then rest from getAllProjects (Commercial type)
+  // Commercial: slug-ordered first, then rest from Delhi-NCR projects
   const commercialFirst = commercialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
     .filter(Boolean);
@@ -163,28 +150,32 @@ export default async function HomePage() {
       p.propertyTypeName === "Commercial" &&
       p.slugURL &&
       !commercialSlugs.includes(p.slugURL) &&
-      p.cityName &&
-      topCities.includes(p.cityName)
+      isDelhiNcrProject(p)
   ).slice(0, 20);
   const commercialProjects = [...commercialFirst, ...commercialRest];
 
-  const dailyCityLabel = getDailyRecommendedProjectCityLabel();
+  const ncrHomeScope = scopeHomeProjectsToDelhiNcr({
+    projects,
+    city: HOME_NCR_LABEL,
+  });
 
   const recommendedProperties = buildNewLaunchProjectsForRegion({
-    projects,
+    projects: ncrHomeScope.projects,
     excludeSlugSet: new Set(),
-    geoCity: dailyCityLabel,
-    geoState: "",
+    geoCity: ncrHomeScope.geoCity,
+    geoState: ncrHomeScope.geoState,
+    geoTokens: ncrHomeScope.geoTokens,
     limit: 8,
   });
 
   const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
 
   const recommendedProjects = buildLatestProjectsForRegion({
-    projects,
+    projects: ncrHomeScope.projects,
     excludeSlugSet: firstSlugs,
-    geoCity: dailyCityLabel,
-    geoState: "",
+    geoCity: ncrHomeScope.geoCity,
+    geoState: ncrHomeScope.geoState,
+    geoTokens: ncrHomeScope.geoTokens,
     limit: 8,
   });
 
@@ -218,7 +209,7 @@ export default async function HomePage() {
             title="New Property Launches"
             fallbackItems={slimRecommendedProperties}
             fallbackSubtitle={
-              buildSubtitleNewLaunchesNear(dailyCityLabel, "").trim() ||
+              buildSubtitleNewLaunchesNear(HOME_NCR_LABEL, "").trim() ||
               "Explore New Residential & Commercial Properties"
             }
             kind="project"
@@ -314,7 +305,7 @@ export default async function HomePage() {
           <RecommendedProjectsWithGeolocation
             title="Popular Projects"
             fallbackItems={slimRecommendedProjects}
-            fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${dailyCityLabel}`}
+            fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${HOME_NCR_LABEL}`}
             kind="project"
             locationIntent="latest-projects"
             viewAllHref="/projects"

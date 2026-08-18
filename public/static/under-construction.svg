@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" fill="none">
+  <defs>
+    <linearGradient id="ucGold" x1="90" y1="60" x2="630" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7EDD6"/>
+      <stop offset="0.5" stop-color="#D4AF37"/>
+      <stop offset="1" stop-color="#B8942C"/>
+    </linearGradient>
+  </defs>
+  <g transform="rotate(-16 360 200)">
+    <rect x="86" y="132" width="548" height="136" rx="10" fill="rgba(7,14,11,0.62)" stroke="url(#ucGold)" stroke-width="5"/>
+    <rect x="102" y="148" width="516" height="104" rx="5" stroke="url(#ucGold)" stroke-width="1.4" opacity="0.75"/>
+    <text x="360" y="194" text-anchor="middle" fill="url(#ucGold)" font-family="Georgia, 'Times New Roman', serif" font-size="28" font-weight="700" letter-spacing="10">UNDER</text>
+    <text x="360" y="232" text-anchor="middle" fill="#F6F1E4" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="600" letter-spacing="7">CONSTRUCTION</text>
+  </g>
+</svg>

@@ -1,10 +1,28 @@
 export const DEFAULT_PROJECT_CARD_IMAGE = "/static/no_image.png";
 
+/** Local card art that should win over CMS thumbnail/banner on listing cards. */
+const CARD_THUMBNAIL_OVERRIDES = {
+  "fab-luxe-residences": "/static/projects/fab-luxe-residences.jpg",
+  "eldeco-7-peaks-residences": "/static/projects/eldeco-7-peaks-residences.jpg",
+  "ace-verdea": "/static/projects/ace-verdea.jpg",
+  "ace-verde": "/static/projects/ace-verdea.jpg",
+};
+
+function getProjectSlug(project) {
+  return String(project?.slugURL || project?.slugUrl || "").trim();
+}
+
+export function getCardThumbnailOverride(project) {
+  const slug = getProjectSlug(project);
+  return slug ? CARD_THUMBNAIL_OVERRIDES[slug] || "" : "";
+}
+
 export function getProjectImageFilename(project, { preferThumbnail = true } = {}) {
   if (!project || typeof project !== "object") return "";
 
   if (preferThumbnail) {
     return (
+      getCardThumbnailOverride(project) ||
       project.projectThumbnailImage ||
       project.projectBannerImage ||
       project.bannerImage ||
@@ -47,6 +65,11 @@ export function buildProjectImageUrl(
   project,
   { preferThumbnail = true, fallback = DEFAULT_PROJECT_CARD_IMAGE } = {},
 ) {
+  if (preferThumbnail) {
+    const override = getCardThumbnailOverride(project);
+    if (override) return override;
+  }
+
   const filename = getProjectImageFilename(project, { preferThumbnail });
   if (!filename) return fallback;
 
@@ -54,7 +77,7 @@ export function buildProjectImageUrl(
     return filename;
   }
 
-  const slug = project?.slugURL || project?.slugUrl;
+  const slug = getProjectSlug(project);
   const base = getProjectImageBaseUrl();
   if (!base || !slug) return fallback;
 

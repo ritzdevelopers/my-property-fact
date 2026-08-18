@@ -1,0 +1,227 @@
+/* ==========================================================================
+   CARD TAG SYSTEM
+   Three roles, never the same material twice on one card:
+     1. Type chip  — pearl plate (white cards) / smoked glass (photos)
+     2. Status     — curved 3D ribbon, one unique colour per status
+     3. Price      — gold typography, not a filled pill
+   ========================================================================== */
+
+.mpf-type-tag {
+  --mpf-badge-top: #ffffff;
+  --mpf-badge-base: #edf0f4;
+  --mpf-badge-ring: rgba(184, 145, 44, 0.55);
+  --mpf-badge-accent: #0c5030;
+  --mpf-badge-icon: #b8912c;
+  --mpf-badge-shadow: rgba(15, 23, 42, 0.16);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  padding: 4px 10px 5px 8px;
+  border: 0;
+  border-radius: 999px 999px 999px 9px;
+  background: linear-gradient(
+    177deg,
+    var(--mpf-badge-top) 0%,
+    var(--mpf-badge-base) 100%
+  );
+  color: var(--mpf-badge-accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.24px;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-transform: capitalize;
+  isolation: isolate;
+  box-shadow:
+    inset 0 0 0 1px var(--mpf-badge-ring),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 0 rgba(15, 23, 42, 0.09),
+    0 1px 1px rgba(15, 23, 42, 0.1),
+    0 3px 8px -3px var(--mpf-badge-shadow);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.mpf-type-tag::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 45%;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mpf-type-tag--residential {
+  --mpf-badge-ring: rgba(184, 145, 44, 0.55);
+  --mpf-badge-accent: #0c5030;
+  --mpf-badge-icon: #b8912c;
+}
+
+.mpf-type-tag--commercial {
+  --mpf-badge-ring: rgba(59, 130, 246, 0.5);
+  --mpf-badge-accent: #1c3a8f;
+  --mpf-badge-icon: #2f6bdd;
+}
+
+.mpf-type-tag__icon {
+  width: 11px;
+  height: 11px;
+  flex: 0 0 auto;
+  fill: var(--mpf-badge-icon);
+}
+
+.mpf-type-tag:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px var(--mpf-badge-ring),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 0 rgba(15, 23, 42, 0.1),
+    0 2px 3px rgba(15, 23, 42, 0.12),
+    0 6px 14px -5px var(--mpf-badge-shadow);
+}
+
+/* --------------------------------------------------------------------------
+   ON-PHOTO TYPE CHIP
+   Lives top-left of the image so the title stays clean and the status
+   ribbon owns the top-right. Smoked glass, not a green fill.
+   -------------------------------------------------------------------------- */
+
+.mpf-type-tag--on-media,
+.home-project-card--poster .mpf-type-tag--on-media {
+  --mpf-badge-top: rgba(18, 22, 30, 0.55);
+  --mpf-badge-base: rgba(8, 11, 18, 0.72);
+  --mpf-badge-accent: #ffffff;
+  --mpf-badge-shadow: rgba(3, 6, 12, 0.42);
+
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 22;
+  align-self: auto;
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+  box-shadow:
+    inset 0 0 0 1px var(--mpf-badge-ring),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.32),
+    0 2px 10px -2px var(--mpf-badge-shadow);
+}
+
+.mpf-type-tag--on-media::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.mpf-type-tag--on-media.mpf-type-tag--residential {
+  --mpf-badge-ring: rgba(214, 178, 92, 0.55);
+  --mpf-badge-icon: #e8c98a;
+}
+
+.mpf-type-tag--on-media.mpf-type-tag--commercial {
+  --mpf-badge-ring: rgba(125, 185, 255, 0.55);
+  --mpf-badge-icon: #9ec8ff;
+}
+
+.mpf-type-tag--on-media:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 0 0 1px var(--mpf-badge-ring),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.34),
+    0 5px 14px -4px var(--mpf-badge-shadow);
+}
+
+/* --------------------------------------------------------------------------
+   LISTING ROW TYPE CHIP — pearl plate on white card body
+   -------------------------------------------------------------------------- */
+
+.mpf-type-tag--listing {
+  padding: 5px 12px 6px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 999px;
+}
+
+.mpf-type-tag--listing .mpf-type-tag__icon {
+  width: 12px;
+  height: 12px;
+}
+
+.mpf-type-tag--listing.mpf-type-tag--residential {
+  --mpf-badge-top: #f3fbf5;
+  --mpf-badge-base: #e2f3e8;
+  --mpf-badge-ring: rgba(13, 88, 52, 0.38);
+  --mpf-badge-accent: #0a4a2c;
+  --mpf-badge-icon: #2f8f52;
+  --mpf-badge-shadow: rgba(13, 88, 52, 0.16);
+}
+
+.mpf-type-tag--listing.mpf-type-tag--commercial {
+  --mpf-badge-top: #f2f7ff;
+  --mpf-badge-base: #dde9fc;
+  --mpf-badge-ring: rgba(37, 99, 235, 0.38);
+  --mpf-badge-accent: #1e3a8a;
+  --mpf-badge-icon: #2563eb;
+  --mpf-badge-shadow: rgba(37, 99, 235, 0.16);
+}
+
+.mpf-listing-card.mpf-lux-card .mpf-type-tag--listing {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   POSTER PRICE
+   Gold figure, not a filled green pill — price is the commercial hook,
+   status is the flag, type is the chip. Three materials, one card.
+   -------------------------------------------------------------------------- */
+
+.home-project-card--poster .home-project-card__price {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: #f3dca3;
+  font-size: clamp(0.92rem, 1.8vw, 1.05rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-shadow:
+    0 1px 0 rgba(80, 58, 8, 0.35),
+    0 2px 10px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 900px) {
+  .mpf-type-tag--on-media {
+    top: 10px;
+    left: 10px;
+    font-size: 9px;
+    padding: 3px 8px 4px 7px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-type-tag {
+    transition: none;
+  }
+
+  .mpf-type-tag:hover,
+  .mpf-type-tag--on-media:hover {
+    transform: none;
+  }
+}

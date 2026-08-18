@@ -170,10 +170,12 @@ export default function ManageProjects({
     return /\.zip$/i.test(file.name || "");
   };
   const handleCountryChange = (e) => {
-    const countryId = parseInt(e.target.value);
+    const countryId = parseInt(e.target.value, 10) || 0;
     setFormData((prev) => ({
       ...prev,
-      countryId: countryId,
+      countryId,
+      stateId: 0,
+      cityId: 0,
     }));
     const country = countryData?.find((c) => c.id === countryId);
     setStates(country ? country?.stateList : []);
@@ -181,10 +183,11 @@ export default function ManageProjects({
   };
 
   const handleStateChange = (e) => {
-    const stateId = parseInt(e.target.value);
+    const stateId = parseInt(e.target.value, 10) || 0;
     setFormData((prev) => ({
       ...prev,
-      stateId: stateId,
+      stateId,
+      cityId: 0,
     }));
     const state = states.find((s) => s.id === stateId);
     setCities(state ? state.cityList : []);
@@ -243,6 +246,9 @@ export default function ManageProjects({
       projectLogo: null,
       projectThumbnail: null,
       builderId: project.builder?.id ?? 0,
+      cityId: project.cityId || 0,
+      stateId: project.stateId || 0,
+      countryId: project.countryId || 0,
       locationMapPreview: project.locationMap && imageBase
         ? `${imageBase}${project.locationMap}`
         : null,
@@ -347,7 +353,19 @@ export default function ManageProjects({
     }
 
     // Append DTO as JSON
-    const dto = { ...formData };
+    const toId = (value) => {
+      const n = Number(value);
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    };
+    const dto = {
+      ...formData,
+      cityId: toId(formData.cityId),
+      stateId: toId(formData.stateId),
+      countryId: toId(formData.countryId),
+      builderId: toId(formData.builderId),
+      propertyTypeId: toId(formData.propertyTypeId),
+      projectStatusId: toId(formData.projectStatusId),
+    };
     delete dto.projectLogo;
     delete dto.locationMap;
     delete dto.projectThumbnail;
@@ -454,7 +472,7 @@ export default function ManageProjects({
       label: "City",
       name: "cityId",
       type: "select",
-      required: true,
+      required: false,
       colSize: 6,
       options: cities,
       valueKey: "id",
@@ -928,7 +946,7 @@ export default function ManageProjects({
                   ) : field.type === "select" ? (
                     <Form.Select
                       name={field.name}
-                      value={formData[field.name] ?? ""}
+                      value={formData[field.name] || ""}
                       onChange={field.onChange || handleChange}
                       disabled={field.disabled}
                       required={field.required}

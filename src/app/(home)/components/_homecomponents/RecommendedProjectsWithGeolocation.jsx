@@ -93,9 +93,9 @@ console.log("Received city:", city);
 
         if (data.success) {
           setItems(data.items);
-
           setSubtitle(
-            `Explore New Residential & Commercial Properties near ${city.cityName}`
+            (typeof data.subtitle === "string" && data.subtitle.trim()) ||
+              `Explore New Residential & Commercial Properties near ${city.cityName}`,
           );
         }
       } catch (err) {

@@ -6,6 +6,9 @@ let nearbyCatalogPromise = null;
 export function formatListingStatusLabel(status) {
   const normalized = String(status || "").toLowerCase().trim();
   if (normalized.includes("under construction")) return "Under Construction";
+  if (normalized.includes("pre launch") || normalized.includes("pre-launch")) {
+    return "Pre Launch";
+  }
   if (normalized.includes("new launch") || normalized.includes("new launched")) {
     return "New Launch";
   }
@@ -23,6 +26,11 @@ const STATUS_RIBBON_PRESETS = [
     key: "under-construction",
     lines: ["Under", "Construction"],
     match: (s) => s.includes("under construction") || s.includes("ongoing"),
+  },
+  {
+    key: "pre-launch",
+    lines: ["Pre", "Launch"],
+    match: (s) => s.includes("pre launch") || s.includes("pre-launch"),
   },
   {
     key: "new-launched",
@@ -82,6 +90,10 @@ export function resolveProjectStatusRibbon(status) {
     label: raw,
     lines: words.length > 1 ? [words[0], words.slice(1).join(" ")] : [raw],
   };
+}
+
+export function isUnderConstructionStatus(status) {
+  return resolveProjectStatusRibbon(status)?.key === "under-construction";
 }
 
 export function loadNearbyBenefitCatalog() {

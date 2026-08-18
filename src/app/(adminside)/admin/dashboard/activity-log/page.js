@@ -7,8 +7,35 @@ import { AdminLoader } from "@/components/admin/admin-loader";
 import DashboardHeader from "../common-model/dashboardHeader";
 import "./activity-log.css";
 
+/** Earliest day stored in admin_audit_log on production. */
+const AUDIT_LOG_STARTED = "2026-07-19";
+
 function adminAuthHeaders() {
   return {};
+}
+
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function toDateInputValue(d) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+}
+
+function todayIso() {
+  return toDateInputValue(new Date());
+}
+
+function formatDayHeading(iso) {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return iso;
+  return new Date(y, m - 1, d).toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 /** Spring/Jackson may serialize LocalDateTime as an array [y, mo, d, h, mi, s, ns]. */
@@ -31,12 +58,10 @@ function parseOccurredAt(raw) {
 
 function formatWhenParts(raw) {
   const d = parseOccurredAt(raw);
-  if (!d) return { date: "—", time: "", relative: "" };
-  const pad = (n) => String(n).padStart(2, "0");
-  const date = `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
-  const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  const relative = formatRelative(d);
-  return { date, time, relative };
+  if (!d) return { date: "—", time: "", relative: "", iso: "" };
+  const date = `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()}`;
+  const time = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  return { date, time, relative: formatRelative(d), iso: toDateInputValue(d) };
 }
 
 function formatRelative(d) {
@@ -50,6 +75,27 @@ function formatRelative(d) {
   const days = Math.floor(hours / 24);
   if (days < 7) return `${days}d ago`;
   return "";
+}
+
+function titleCaseWords(s) {
+  return String(s || "")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatAdminPage(path) {
+  if (!path || typeof path !== "string") return "";
+  const noQuery = path.trim().split("?")[0];
+  if (!noQuery) return "";
+  const parts = noQuery.split("/").filter(Boolean);
+  if (parts.length === 0) return noQuery;
+  const last = parts[parts.length - 1];
+  if (/^\d+$/.test(last) && parts.length >= 2) {
+    return titleCaseWords(parts[parts.length - 2]);
+  }
+  return titleCaseWords(last);
 }
 
 /** Parse legacy "User Name (email) — Action" when structured fields are missing. */
@@ -91,11 +137,16 @@ function normalizeRow(row) {
     (typeof row?.action === "string" && row.action.trim()) ||
     (typeof row?.taskLabel === "string" && row.taskLabel.trim()) ||
     legacy.action;
+  const clientAdminPage =
+    (typeof row?.clientAdminPage === "string" && row.clientAdminPage.trim()) ||
+    (typeof row?.client_admin_page === "string" && row.client_admin_page.trim()) ||
+    "";
   return {
     ...row,
     actorName,
     actorEmail,
     action,
+    clientAdminPage,
     httpMethod: String(row?.httpMethod || "").toUpperCase(),
     success: row?.success !== false,
   };
@@ -114,6 +165,14 @@ function classifyAction(row) {
     return { key: "delete", label: "Delete", tone: "danger" };
   }
   if (
+    action.includes("login") ||
+    action.includes("logout") ||
+    action.includes("session") ||
+    action.includes("sign")
+  ) {
+    return { key: "auth", label: "Auth", tone: "gold" };
+  }
+  if (
     method === "POST" ||
     method === "PUT" ||
     method === "PATCH" ||
@@ -125,14 +184,6 @@ function classifyAction(row) {
     action.includes("upload")
   ) {
     return { key: "change", label: "Change", tone: "green" };
-  }
-  if (
-    action.includes("login") ||
-    action.includes("logout") ||
-    action.includes("session") ||
-    action.includes("sign")
-  ) {
-    return { key: "auth", label: "Auth", tone: "gold" };
   }
   return { key: "view", label: "View", tone: "blue" };
 }
@@ -146,6 +197,26 @@ function initials(name, email) {
   return src.slice(0, 2).toUpperCase();
 }
 
+function groupRowsByActor(rows) {
+  const groups = [];
+  const index = new Map();
+  for (const row of rows) {
+    const key = String(row.actorUserId || row.actorEmail || row.actorName || "unknown");
+    if (!index.has(key)) {
+      const g = {
+        key,
+        actorName: row.actorName || "Unknown",
+        actorEmail: row.actorEmail || "",
+        rows: [],
+      };
+      index.set(key, g);
+      groups.push(g);
+    }
+    index.get(key).rows.push(row);
+  }
+  return groups;
+}
+
 const QUICK_FILTERS = [
   { id: "all", label: "All" },
   { id: "today", label: "Today" },
@@ -155,6 +226,8 @@ const QUICK_FILTERS = [
   { id: "auth", label: "Auth" },
 ];
 
+const KIND_FILTERS = new Set(["view", "change", "delete", "auth"]);
+
 export default function ActivityLogPage() {
   const { isSuperAdmin, loading: roleLoading } = useAdminRole();
   const [rows, setRows] = useState([]);
@@ -163,7 +236,8 @@ export default function ActivityLogPage() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [userSearch, setUserSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [q, setQ] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [quickFilter, setQuickFilter] = useState("all");
@@ -171,12 +245,38 @@ export default function ActivityLogPage() {
 
   const base = getPublicApiBase();
 
+  const kindParam = KIND_FILTERS.has(quickFilter) ? quickFilter : "";
+  const resolvedFrom = quickFilter === "today" ? todayIso() : fromDate;
+  const resolvedTo =
+    quickFilter === "today" ? todayIso() : toDate || fromDate || "";
+  const singleDay = Boolean(resolvedFrom && resolvedFrom === resolvedTo);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      const next = searchInput.trim();
+      setQ((prev) => {
+        if (prev !== next) {
+          setPage(0);
+        }
+        return next;
+      });
+    }, 300);
+    return () => window.clearTimeout(t);
+  }, [searchInput]);
+
   const load = useCallback(async () => {
     if (!base || !isSuperAdmin) return;
     setLoading(true);
     setErr("");
     try {
-      const url = `${base}admin/management/activities?page=${page}&size=${pageSize}`;
+      const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("size", String(pageSize));
+      if (resolvedFrom) params.set("from", resolvedFrom);
+      if (resolvedTo) params.set("to", resolvedTo);
+      if (q) params.set("q", q);
+      if (kindParam) params.set("kind", kindParam);
+      const url = `${base}admin/management/activities?${params.toString()}`;
       const res = await fetch(url, {
         headers: { ...adminAuthHeaders(), Accept: "application/json" },
         credentials: "include",
@@ -206,7 +306,7 @@ export default function ActivityLogPage() {
     } finally {
       setLoading(false);
     }
-  }, [base, isSuperAdmin, page]);
+  }, [base, isSuperAdmin, page, resolvedFrom, resolvedTo, q, kindParam]);
 
   useEffect(() => {
     if (!roleLoading && isSuperAdmin) {
@@ -214,41 +314,7 @@ export default function ActivityLogPage() {
     }
   }, [roleLoading, isSuperAdmin, load]);
 
-  const filteredRows = useMemo(() => {
-    const q = userSearch.trim().toLowerCase();
-    const from = fromDate ? new Date(`${fromDate}T00:00:00`) : null;
-    const to = toDate ? new Date(`${toDate}T23:59:59.999`) : null;
-    const startOfToday = new Date();
-    startOfToday.setHours(0, 0, 0, 0);
-
-    return rows.filter((row) => {
-      const kind = classifyAction(row);
-      if (quickFilter === "today") {
-        const occurredAt = parseOccurredAt(row.occurredAt ?? row.occurred_at);
-        if (!occurredAt || occurredAt < startOfToday) return false;
-      } else if (quickFilter !== "all" && kind.key !== quickFilter) {
-        return false;
-      }
-
-      const hay = [
-        row.actorName,
-        row.actorEmail,
-        row.action,
-        row.event,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
-      if (q && !hay.includes(q)) return false;
-
-      if (!from && !to) return true;
-      const occurredAt = parseOccurredAt(row.occurredAt ?? row.occurred_at);
-      if (!occurredAt) return false;
-      if (from && occurredAt < from) return false;
-      if (to && occurredAt > to) return false;
-      return true;
-    });
-  }, [rows, userSearch, fromDate, toDate, quickFilter]);
+  const actorGroups = useMemo(() => groupRowsByActor(rows), [rows]);
 
   const summary = useMemo(() => {
     const counts = { view: 0, change: 0, delete: 0, auth: 0 };
@@ -257,24 +323,48 @@ export default function ActivityLogPage() {
       if (counts[k] != null) counts[k] += 1;
     });
     return {
-      total: rows.length,
+      total: totalElements,
+      people: actorGroups.length,
       ...counts,
-      shown: filteredRows.length,
     };
-  }, [rows, filteredRows]);
+  }, [rows, actorGroups, totalElements]);
+
+  const selectDay = (iso) => {
+    if (!iso) return;
+    setQuickFilter("all");
+    setFromDate(iso);
+    setToDate(iso);
+    setPage(0);
+  };
 
   const clearFilters = () => {
-    setUserSearch("");
+    setSearchInput("");
+    setQ("");
     setFromDate("");
     setToDate("");
     setQuickFilter("all");
+    setPage(0);
   };
 
   const hasActiveFilters =
-    Boolean(userSearch.trim()) ||
+    Boolean(searchInput.trim()) ||
     Boolean(fromDate) ||
     Boolean(toDate) ||
     quickFilter !== "all";
+
+  const emptyHint = (() => {
+    if (rows.length > 0) return "";
+    if (resolvedFrom && resolvedFrom < AUDIT_LOG_STARTED) {
+      return `Admin action logging started on 19 July 2026. Pick a date on or after that to see who did what.`;
+    }
+    if (singleDay) {
+      return `No admin activity recorded on ${formatDayHeading(resolvedFrom)}.`;
+    }
+    if (hasActiveFilters) {
+      return "No activity matches the selected filters.";
+    }
+    return "No activity recorded yet.";
+  })();
 
   if (roleLoading) {
     return <AdminLoader fullPage label="Loading activity…" size="lg" />;
@@ -295,13 +385,20 @@ export default function ActivityLogPage() {
         pageStyle="executivePlain"
       />
       <p className="activity-log__lead">
-        See who did what — name, action, and time at a glance.
+        Pick any date to see who did what — name, action, admin page, and time.
+        Click a date on a row to open that day.
       </p>
 
       <div className="activity-log__metrics" aria-label="Activity summary">
         <div className="activity-log__metric">
           <span className="activity-log__metric-value">{summary.total}</span>
-          <span className="activity-log__metric-label">On this page</span>
+          <span className="activity-log__metric-label">
+            {singleDay ? "This date" : "Matching"}
+          </span>
+        </div>
+        <div className="activity-log__metric">
+          <span className="activity-log__metric-value">{summary.people}</span>
+          <span className="activity-log__metric-label">People</span>
         </div>
         <div className="activity-log__metric activity-log__metric--blue">
           <span className="activity-log__metric-value">{summary.view}</span>
@@ -330,7 +427,15 @@ export default function ActivityLogPage() {
               role="tab"
               aria-selected={quickFilter === f.id}
               className={`activity-log__chip${quickFilter === f.id ? " is-active" : ""}${f.id !== "all" && f.id !== "today" ? ` activity-log__chip--${f.id}` : ""}`}
-              onClick={() => setQuickFilter(f.id)}
+              onClick={() => {
+                setQuickFilter(f.id);
+                setPage(0);
+                if (f.id === "today") {
+                  const t = todayIso();
+                  setFromDate(t);
+                  setToDate(t);
+                }
+              }}
             >
               {f.label}
             </button>
@@ -338,30 +443,49 @@ export default function ActivityLogPage() {
         </div>
 
         <div className="activity-log__filters">
+          <label className="activity-log__date-wrap">
+            <span>Date</span>
+            <input
+              id="activity-from-date"
+              type="date"
+              className="activity-log__date"
+              value={quickFilter === "today" ? todayIso() : fromDate}
+              max={todayIso()}
+              onChange={(e) => {
+                const v = e.target.value;
+                setQuickFilter("all");
+                setFromDate(v);
+                if (!toDate || toDate === fromDate) setToDate(v);
+                setPage(0);
+              }}
+              aria-label="Activity date"
+            />
+          </label>
+          <label className="activity-log__date-wrap">
+            <span>To</span>
+            <input
+              id="activity-to-date"
+              type="date"
+              className="activity-log__date"
+              value={quickFilter === "today" ? todayIso() : toDate}
+              min={fromDate || undefined}
+              max={todayIso()}
+              onChange={(e) => {
+                setQuickFilter("all");
+                setToDate(e.target.value);
+                setPage(0);
+              }}
+              aria-label="To date"
+            />
+          </label>
           <input
             id="activity-user-search"
             type="search"
             className="activity-log__search"
-            value={userSearch}
-            onChange={(e) => setUserSearch(e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search name, email, or action…"
             aria-label="Search activity"
-          />
-          <input
-            id="activity-from-date"
-            type="date"
-            className="activity-log__date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            aria-label="From date"
-          />
-          <input
-            id="activity-to-date"
-            type="date"
-            className="activity-log__date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            aria-label="To date"
           />
           {hasActiveFilters ? (
             <button
@@ -377,8 +501,30 @@ export default function ActivityLogPage() {
 
       <div className="activity-log__meta-row">
         <span>
-          Showing <strong>{summary.shown}</strong>
-          {totalElements > 0 ? <> of <strong>{totalElements}</strong></> : null}
+          {singleDay ? (
+            <>
+              <strong>{formatDayHeading(resolvedFrom)}</strong>
+              {totalElements > 0 ? (
+                <>
+                  {" "}
+                  · {totalElements} action{totalElements === 1 ? "" : "s"}
+                  {summary.people > 0 ? (
+                    <>
+                      {" "}
+                      by {summary.people} {summary.people === 1 ? "person" : "people"}
+                    </>
+                  ) : null}
+                </>
+              ) : null}
+            </>
+          ) : (
+            <>
+              Showing <strong>{rows.length}</strong>
+              {totalElements > 0 ? (
+                <> of <strong>{totalElements}</strong></>
+              ) : null}
+            </>
+          )}
         </span>
         <button
           type="button"
@@ -396,58 +542,121 @@ export default function ActivityLogPage() {
         <AdminLoader fullPage label="Loading activity…" size="lg" />
       ) : null}
 
-      {!loading && !err && filteredRows.length === 0 ? (
-        <p className="activity-log__empty">
-          {rows.length > 0
-            ? "No activity matches the selected filters."
-            : "No activity recorded yet."}
-        </p>
+      {!loading && !err && rows.length === 0 ? (
+        <p className="activity-log__empty">{emptyHint}</p>
       ) : null}
 
-      {!loading && filteredRows.length > 0 ? (
+      {!loading && rows.length > 0 ? (
         <>
-          <div className="activity-log__list" role="list">
-            {filteredRows.map((row, i) => {
-              const key = `${row.occurredAt ?? "x"}-${row.actorEmail ?? ""}-${i}`;
-              const when = formatWhenParts(row.occurredAt ?? row.occurred_at);
-              const kind = classifyAction(row);
-              const name = row.actorName || "Unknown";
-              const email = row.actorEmail || "";
-              return (
-                <article
-                  key={key}
-                  className={`activity-log__row activity-log__row--${kind.tone}`}
+          {singleDay ? (
+            <div className="activity-log__people" role="list">
+              {actorGroups.map((group) => (
+                <section
+                  key={group.key}
+                  className="activity-log__person"
                   role="listitem"
                 >
-                  <div className="activity-log__avatar" aria-hidden>
-                    {initials(name, email)}
-                  </div>
-
-                  <div className="activity-log__who">
-                    <div className="activity-log__name">{name}</div>
-                    {email ? (
-                      <div className="activity-log__email">{email}</div>
-                    ) : null}
-                  </div>
-
-                  <div className="activity-log__what">
-                    <span className={`activity-log__badge activity-log__badge--${kind.tone}`}>
-                      {kind.label}
+                  <header className="activity-log__person-head">
+                    <div className="activity-log__avatar" aria-hidden>
+                      {initials(group.actorName, group.actorEmail)}
+                    </div>
+                    <div className="activity-log__who">
+                      <div className="activity-log__name">{group.actorName}</div>
+                      {group.actorEmail ? (
+                        <div className="activity-log__email">{group.actorEmail}</div>
+                      ) : null}
+                    </div>
+                    <span className="activity-log__person-count">
+                      {group.rows.length} action{group.rows.length === 1 ? "" : "s"}
                     </span>
-                    <span className="activity-log__action">{row.action}</span>
-                  </div>
+                  </header>
+                  <ul className="activity-log__person-actions">
+                    {group.rows.map((row, i) => {
+                      const when = formatWhenParts(row.occurredAt ?? row.occurred_at);
+                      const kind = classifyAction(row);
+                      const where = formatAdminPage(row.clientAdminPage);
+                      return (
+                        <li
+                          key={row.id ?? `${group.key}-${i}`}
+                          className={`activity-log__person-action activity-log__person-action--${kind.tone}`}
+                        >
+                          <time className="activity-log__action-time" dateTime={when.iso}>
+                            {when.time || "—"}
+                          </time>
+                          <span className={`activity-log__badge activity-log__badge--${kind.tone}`}>
+                            {kind.label}
+                          </span>
+                          <div className="activity-log__action-copy">
+                            <span className="activity-log__action">{row.action}</span>
+                            {where ? (
+                              <span className="activity-log__where">{where}</span>
+                            ) : null}
+                            {row.success === false ? (
+                              <span className="activity-log__failed">Failed</span>
+                            ) : null}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          ) : (
+            <div className="activity-log__list" role="list">
+              {rows.map((row, i) => {
+                const key = row.id ?? `${row.occurredAt ?? "x"}-${row.actorEmail ?? ""}-${i}`;
+                const when = formatWhenParts(row.occurredAt ?? row.occurred_at);
+                const kind = classifyAction(row);
+                const name = row.actorName || "Unknown";
+                const email = row.actorEmail || "";
+                const where = formatAdminPage(row.clientAdminPage);
+                return (
+                  <article
+                    key={key}
+                    className={`activity-log__row activity-log__row--${kind.tone}`}
+                    role="listitem"
+                  >
+                    <div className="activity-log__avatar" aria-hidden>
+                      {initials(name, email)}
+                    </div>
 
-                  <div className="activity-log__when" title={when.date + " " + when.time}>
-                    <span className="activity-log__when-date">{when.date}</span>
-                    <span className="activity-log__when-time">{when.time}</span>
-                    {when.relative ? (
-                      <span className="activity-log__when-rel">{when.relative}</span>
-                    ) : null}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                    <div className="activity-log__who">
+                      <div className="activity-log__name">{name}</div>
+                      {email ? (
+                        <div className="activity-log__email">{email}</div>
+                      ) : null}
+                    </div>
+
+                    <div className="activity-log__what">
+                      <span className={`activity-log__badge activity-log__badge--${kind.tone}`}>
+                        {kind.label}
+                      </span>
+                      <span className="activity-log__action">{row.action}</span>
+                      {where ? (
+                        <span className="activity-log__where">{where}</span>
+                      ) : null}
+                    </div>
+
+                    <div className="activity-log__when" title={when.date + " " + when.time}>
+                      <button
+                        type="button"
+                        className="activity-log__when-date"
+                        onClick={() => selectDay(when.iso)}
+                        title={`Show all activity on ${when.date}`}
+                      >
+                        {when.date}
+                      </button>
+                      <span className="activity-log__when-time">{when.time}</span>
+                      {when.relative ? (
+                        <span className="activity-log__when-rel">{when.relative}</span>
+                      ) : null}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
 
           {totalPages > 1 ? (
             <div className="activity-log__pager">

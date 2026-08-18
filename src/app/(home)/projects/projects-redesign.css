@@ -924,6 +924,123 @@
   letter-spacing: 0.01em;
 }
 
+/* Listing card / route skeletons (config filter navigation) */
+@keyframes mpf-skel-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.mpf-skel-block,
+.mpf-skel-line {
+  background: linear-gradient(90deg, #eef1f4 0%, #f7f8fa 45%, #eef1f4 90%);
+  background-size: 200% 100%;
+  animation: mpf-skel-shimmer 1.2s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.mpf-listing-card--skel .mpf-listing-card-link {
+  pointer-events: none;
+}
+
+.mpf-listing-card--skel .mpf-listing-image {
+  background: #eef1f4;
+}
+
+.mpf-skel-line {
+  display: block;
+  height: 14px;
+}
+
+.mpf-skel-line--title {
+  width: 68%;
+  height: 22px;
+  margin-bottom: 12px;
+}
+
+.mpf-skel-line--sub {
+  width: 46%;
+  height: 12px;
+  margin-bottom: 18px;
+}
+
+.mpf-skel-line--config {
+  width: 58%;
+  height: 12px;
+  margin-bottom: 14px;
+}
+
+.mpf-skel-line--price {
+  width: 38%;
+  height: 20px;
+  margin-bottom: 16px;
+}
+
+.mpf-skel-line--meta {
+  width: 72%;
+  height: 12px;
+}
+
+.mpf-skel-line--btn {
+  width: 100%;
+  height: 40px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.mpf-listing-route-skel {
+  min-height: 100vh;
+  background: #fff;
+  padding-top: 0;
+}
+
+.mpf-listing-route-skel__topbar {
+  height: var(--mpf-site-header-height, 74px);
+  background: #0d5834;
+}
+
+.mpf-listing-route-skel .mpf-page-hero {
+  padding: 18px 0 8px;
+}
+
+.mpf-skel-line--crumb {
+  width: 180px;
+  height: 10px;
+  margin-bottom: 14px;
+}
+
+.mpf-skel-line--heading {
+  width: min(420px, 70%);
+  height: 28px;
+  margin-bottom: 10px;
+}
+
+.mpf-skel-line--count {
+  width: 110px;
+  height: 12px;
+  margin-bottom: 18px;
+}
+
+.mpf-listing-route-skel__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mpf-skel-line--side-title {
+  width: 48%;
+  height: 12px;
+  margin-top: 8px;
+}
+
+.mpf-skel-line--side {
+  width: 100%;
+  height: 16px;
+}
+
 .mpf-loader-dots {
   display: inline-flex;
   align-items: flex-end;
@@ -1058,12 +1175,6 @@
    src/app/(home)/components/common/projectStatusRibbon.css (shared with the
    home recommendation cards) — only the layout hand-off stays here. */
 
-/* Keep the RERA badge clear of the ribbon when both are present */
-.mpf-rera-badge:has(~ .mpf-status-ribbon) {
-  top: auto;
-  bottom: 10px;
-}
-
 .mpf-listing-image img {
   width: 100%;
   height: 100%;
@@ -1072,41 +1183,78 @@
 }
 
 
-/* RERA Shield Badge */
+/* RERA Shield Badge — curved corner ribbon that follows the image's
+   bottom-left radius instead of floating as a rectangular sticker. */
 .mpf-rera-badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  bottom: 0;
+  left: 0;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  background: linear-gradient(135deg, #0d5834 0%, #064e3b 100%);
-  border-radius: 6px;
+  gap: 6px;
+  padding: 7px 15px 7px 11px;
+  background: linear-gradient(
+    172deg,
+    rgba(23, 160, 102, 0.95) 0%,
+    rgba(13, 88, 52, 0.94) 52%,
+    rgba(6, 52, 32, 0.96) 100%
+  );
+  -webkit-backdrop-filter: blur(7px) saturate(135%);
+  backdrop-filter: blur(7px) saturate(135%);
+  /* Matches the image radius at the corner it sits in, sweeps open on top */
+  border-radius: 0 16px 4px 10px;
+  border: 0;
   font-size: 11px;
   font-weight: 700;
   color: #ffffff;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   box-shadow:
-    0 4px 12px rgba(6, 78, 59, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+    inset 0 0 0 1px rgba(212, 175, 55, 0.4),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.26),
+    inset -2px 0 0 rgba(0, 0, 0, 0.18),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.26),
+    0 -2px 10px rgba(4, 38, 24, 0.3);
+  transition: transform 180ms ease, box-shadow 180ms ease;
   z-index: 5;
 }
 
+/* Glossy sweep across the raised face */
+.mpf-rera-badge::before {
+  content: "";
+  position: absolute;
+  inset: 1.5px 3px auto 1.5px;
+  height: 46%;
+  border-radius: 0 14px 999px 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
 .mpf-rera-shield {
-  width: 16px;
-  height: 16px;
+  position: relative;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.26));
 }
 
 .mpf-rera-badge:hover {
-  transform: translateY(-1px);
   box-shadow:
-    0 6px 16px rgba(6, 78, 59, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    inset 0 0 0 1px rgba(212, 175, 55, 0.5),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.3),
+    inset -2px 0 0 rgba(0, 0, 0, 0.2),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.28),
+    0 -3px 14px rgba(4, 38, 24, 0.36);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-rera-badge {
+    transition: none;
+  }
 }
 
 /* Photo Count Badge */
@@ -1237,31 +1385,11 @@
   flex: 1 1 auto;
 }
 
+/* Badge chrome lives in
+   src/app/(home)/components/common/premiumBadges.css — only the listing-side
+   alignment stays here. */
 .mpf-type-tag {
-  display: inline-flex;
-  align-items: center;
-  flex: 0 0 auto;
   margin-top: 3px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  line-height: 1.15;
-  white-space: nowrap;
-  text-transform: capitalize;
-}
-
-.mpf-type-tag--commercial {
-  color: #4338ca;
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
-}
-
-.mpf-type-tag--residential {
-  color: #166534;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
 }
 
 .mpf-listing-location {
@@ -1848,156 +1976,6 @@
 }
 
 /* ==========================================================================
-   Related to your search (internal listing pages)
-   ========================================================================== */
-.mpf-related-search {
-  background: linear-gradient(180deg, #ffffff 0%, var(--mpf-gray-50) 100%);
-  border-top: 1px solid var(--mpf-gray-200);
-  border-bottom: 1px solid var(--mpf-gray-200);
-  padding: 22px 0 22px;
-}
-
-.mpf-related-search__inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 16px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(17, 24, 39, 0.06);
-  border-radius: 16px;
-  padding-top: 16px;
-  padding-bottom: 16px;
-  box-shadow: 0 14px 40px rgba(17, 24, 39, 0.06);
-}
-
-.mpf-related-search__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
-  padding: 0 12px;
-}
-
-.mpf-related-search__title {
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--mpf-gray-900);
-  letter-spacing: -0.2px;
-}
-
-.mpf-related-search__subtitle {
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--mpf-gray-500);
-}
-
-.mpf-related-search__toggle {
-  border: 1px solid rgba(13, 88, 52, 0.18);
-  background: rgba(13, 88, 52, 0.08);
-  color: var(--mpf-green-dark);
-  border-radius: 999px;
-  padding: 7px 12px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 140ms ease, border-color 140ms ease, transform 140ms ease;
-}
-
-.mpf-related-search__toggle:hover {
-  background: rgba(13, 88, 52, 0.12);
-  border-color: rgba(13, 88, 52, 0.28);
-  transform: translateY(-1px);
-}
-
-.mpf-related-search__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  padding: 0 12px;
-}
-
-.mpf-related-search__col {
-  background: #ffffff;
-  border: 1px solid rgba(17, 24, 39, 0.08);
-  border-radius: 14px;
-  padding: 12px 12px 10px;
-  box-shadow: 0 10px 24px rgba(17, 24, 39, 0.05);
-}
-
-.mpf-related-search__colTitle {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--mpf-gray-800);
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  margin-bottom: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px dashed rgba(17, 24, 39, 0.12);
-  position: relative;
-}
-
-.mpf-related-search__colTitle::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 34px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--mpf-green) 0%, rgba(13, 88, 52, 0.1) 100%);
-  border-radius: 999px;
-}
-
-.mpf-related-search__list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.mpf-related-search__item {
-  min-width: 0;
-}
-
-.mpf-related-search__link {
-  color: var(--mpf-gray-700);
-  text-decoration: none;
-  font-size: 12px;
-  line-height: 1.2;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 6px 8px;
-  border-radius: 10px;
-  transition: background 140ms ease, color 140ms ease, transform 140ms ease;
-}
-
-.mpf-related-search__link::before {
-  content: "•";
-  color: rgba(13, 88, 52, 0.7);
-  flex: 0 0 auto;
-}
-
-.mpf-related-search__link:hover {
-  color: var(--mpf-green);
-  background: rgba(13, 88, 52, 0.06);
-  transform: translateX(2px);
-  text-decoration: none;
-}
-
-@media (max-width: 900px) {
-  .mpf-related-search__grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-}
-
-/* ==========================================================================
    Mobile Filter Drawer
    ========================================================================== */
 .mpf-mobile-drawer-overlay {
@@ -2395,8 +2373,13 @@
 
   .mpf-type-tag {
     font-size: 9px;
-    padding: 1px 6px;
+    padding: 3px 8px 4px 7px;
     margin-top: 0;
+  }
+
+  .mpf-type-tag__icon {
+    width: 10px;
+    height: 10px;
   }
 
   .mpf-listing-location {
@@ -2470,11 +2453,10 @@
   }
 
   .mpf-rera-badge {
-    top: 6px;
-    left: 6px;
-    padding: 4px 8px;
+    padding: 5px 11px 5px 8px;
+    border-radius: 0 13px 3px 10px;
     font-size: 9px;
-    gap: 3px;
+    gap: 4px;
   }
 
   .mpf-rera-shield {
@@ -2582,21 +2564,6 @@
     height: 32px;
     padding: 0 8px;
     font-size: 12px;
-  }
-
-  .mpf-related-search__inner {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
-
-  .mpf-related-search__header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .mpf-related-search__link {
-    white-space: normal;
   }
 }
 
@@ -2750,11 +2717,10 @@
   }
 
   .mpf-rera-badge {
-    top: 6px;
-    left: 6px;
-    padding: 4px 8px;
+    padding: 5px 11px 5px 8px;
+    border-radius: 0 13px 3px 10px;
     font-size: 9px;
-    gap: 3px;
+    gap: 4px;
   }
 
   .mpf-rera-shield {

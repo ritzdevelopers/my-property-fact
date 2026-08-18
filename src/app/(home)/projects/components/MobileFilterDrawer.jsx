@@ -44,6 +44,7 @@ export default function MobileFilterDrawer({
   configurationOptions = [],
   activeFiltersCount = 0,
   activePropertyTab = "all",
+  hideCityFilter = false,
 }) {
   useEffect(() => {
     if (isOpen) {
@@ -109,6 +110,7 @@ export default function MobileFilterDrawer({
             </div>
           </FilterSection>
 
+          {!hideCityFilter ? (
           <FilterSection title="Location">
             <select
               value={filters.city}
@@ -123,6 +125,7 @@ export default function MobileFilterDrawer({
               ))}
             </select>
           </FilterSection>
+          ) : null}
 
           <FilterSection title="Budget Range">
             <div className="mpf-mobile-budget-grid">

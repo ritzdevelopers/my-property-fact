@@ -111,21 +111,8 @@
   transform: translateX(0);
 }
 
-.featured-page-slider .home-project-card--poster .mpf-type-tag--residential,
-.featured-page-slider .home-project-card--poster:hover .mpf-type-tag--residential,
-.featured-page-slider .home-project-card--poster:focus-visible .mpf-type-tag--residential {
-  color: #dcfce7;
-  background: rgba(22, 101, 52, 0.88);
-  border: 1px solid rgba(167, 243, 208, 0.45);
-}
-
-.featured-page-slider .home-project-card--poster .mpf-type-tag--commercial,
-.featured-page-slider .home-project-card--poster:hover .mpf-type-tag--commercial,
-.featured-page-slider .home-project-card--poster:focus-visible .mpf-type-tag--commercial {
-  color: #e0e7ff;
-  background: rgba(67, 56, 202, 0.88);
-  border: 1px solid rgba(199, 210, 254, 0.45);
-}
+/* Badge chrome lives in
+   src/app/(home)/components/common/premiumBadges.css. */
 
 .home-featured-project-card {
   display: flex;

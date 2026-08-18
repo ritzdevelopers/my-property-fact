@@ -4,6 +4,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
+import PropertyTypeTag from "@/app/(home)/components/common/PropertyTypeTag";
+import LuxuryPricePlaque from "@/app/(home)/components/common/LuxuryPricePlaque";
+import UnderConstructionHoverOverlay from "@/app/(home)/components/common/UnderConstructionHoverOverlay";
+import "@/app/(home)/components/common/luxuryPropertyCard.css";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./newmpfmetadata.css";
 
@@ -82,17 +86,10 @@ function stripItemKind(item, kind) {
   return rest;
 }
 
-function getPropertyTypeTag(type) {
+// Only show when type clearly maps to commercial / residential buckets
+function hasPropertyTypeTag(type) {
   const normalized = String(type || "").toLowerCase().trim();
-  if (!normalized) return null;
-  const isCommercial = normalized.includes("commercial");
-  const isResidential = normalized.includes("residential");
-  // Only show when type clearly maps to commercial / residential buckets
-  if (!isCommercial && !isResidential) return null;
-  return {
-    label: isCommercial ? "Commercial" : "Residential",
-    className: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
-  };
+  return normalized.includes("commercial") || normalized.includes("residential");
 }
 
 function getCardPayload(item, kind) {
@@ -300,7 +297,7 @@ export default function HomeRecommendationCards({
               <div key={rowKey} className="home-projects-preview__slide">
                 <Link
                   href={card.href}
-                  className="home-project-card home-project-card--poster"
+                  className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster"
                   aria-label={card.title ? `View details about ${card.title}` : "View project details"}
                 >
 <div className="home-project-card__media">
@@ -314,33 +311,20 @@ export default function HomeRecommendationCards({
     />
   </div>
 
+  <LuxuryPricePlaque price={card.price} />
+
   <ProjectStatusRibbon
     status={card.badge}
-    className="mpf-status-ribbon--compact"
+    className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
   />
 </div>
 
                   <div className="home-project-card__overlay">
-                    <div className="home-project-card__overlay-top">
-                      <p className="home-project-card__price">{card.price}</p>
-                      <span className="home-project-card__cta">
-                        Explore
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
-                    </div>
                     <div className="home-project-card__title-row">
                       <h3 className="home-project-card__title">{card.title}</h3>
-                      {(() => {
-                        const typeTag = getPropertyTypeTag(card.propertyType);
-                        if (!typeTag) return null;
-                        return (
-                          <span className={`mpf-type-tag ${typeTag.className}`}>
-                            {typeTag.label}
-                          </span>
-                        );
-                      })()}
+                      {hasPropertyTypeTag(card.propertyType) ? (
+                        <PropertyTypeTag type={card.propertyType} className="mpf-type-tag--lux" />
+                      ) : null}
                     </div>
                     <p className="home-project-card__meta">{card.meta}</p>
                     <p className="home-project-card__location">
@@ -350,7 +334,22 @@ export default function HomeRecommendationCards({
                       </svg>
                       {card.location}
                     </p>
+                    <div className="mpf-lux-card__bar">
+                      <span className="mpf-lux-card__action">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="15" height="15">
+                          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" strokeWidth="1.7" />
+                          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+                        </svg>
+                        <span>View Details</span>
+                      </span>
+                      <span className="mpf-lux-card__go" aria-hidden="true">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
+                  <UnderConstructionHoverOverlay status={card.badge} />
                 </Link>
               </div>
             );

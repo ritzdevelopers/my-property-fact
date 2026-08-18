@@ -17,6 +17,7 @@ import {
   isDelhiNcrRegion,
   POPULAR_PROMO_MAX_ITEMS,
   resolvePopularProjectsFromSlugs,
+  scopeHomeProjectsToDelhiNcr,
 } from "@/app/_global_components/popularRightNowProjects";
 
 function parseCoord(value) {
@@ -375,50 +376,33 @@ export async function GET(request) {
 
     if (intent === "projects") {
       const newLaunchProjects = normalizeProjectsArray(projects).filter(isNewLaunchProject);
-      const list = [...newLaunchProjects]
-        .filter((p) => p?.slugURL && p?.projectName)
-        .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
-      const recommendedTop = list.slice(0, 8);
-      const excludeSlugSet = new Set(recommendedTop.map((p) => p.slugURL));
-
-      const baseArgs = {
+      const ncrScope = scopeHomeProjectsToDelhiNcr({
         projects: newLaunchProjects,
-        excludeSlugSet,
+        city: region.city,
+        state: region.state,
         geoTokens,
-        limit: 8,
-      };
-
-      let items = buildNewLaunchProjectsForRegion({
-        ...baseArgs,
-        geoCity: region.city,
-        geoState: region.state,
+        lat,
+        lon,
       });
 
-      if (items.length === 0 && region.state) {
-        items = buildNewLaunchProjectsForRegion({
-          ...baseArgs,
-          geoCity: "",
-          geoState: region.state,
-        });
-      }
+      const items = buildNewLaunchProjectsForRegion({
+        projects: ncrScope.projects,
+        excludeSlugSet: new Set(),
+        geoCity: ncrScope.geoCity,
+        geoState: ncrScope.geoState,
+        geoTokens: ncrScope.geoTokens,
+        limit: 8,
+      });
 
-      if (items.length === 0 && geoTokens.length > 0) {
-        items = buildNewLaunchProjectsForRegion({
-          ...baseArgs,
-          geoCity: "",
-          geoState: "",
-        });
-      }
-
-      let subtitle = buildSubtitleNewLaunchesNear(region.city, region.state).trim();
-      if (!subtitle) subtitle = "New launch projects near you";
+      let subtitle = buildSubtitleNewLaunchesNear(ncrScope.label, "").trim();
+      if (!subtitle) subtitle = "Explore New Residential & Commercial Properties near Delhi NCR";
 
       return NextResponse.json({
         success: items.length > 0,
         items,
         subtitle,
         region: {
-          city: region.city,
+          city: ncrScope.label,
           state: region.state,
           source: region.source,
           ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
@@ -427,51 +411,33 @@ export async function GET(request) {
     }
 
     if (intent === "latest-projects") {
-      const list = normalizeProjectsArray(projects);
-      const projectsSortedLatest = [...list]
-        .filter((p) => p?.slugURL && p?.projectName)
-        .sort((a, b) => projectLatestTimestamp(b) - projectLatestTimestamp(a));
-      const recommendedTop = projectsSortedLatest.slice(0, 8);
-      const excludeSlugSet = new Set(recommendedTop.map((p) => p.slugURL));
-
-      const baseArgs = {
-        projects,
-        excludeSlugSet,
+      const ncrScope = scopeHomeProjectsToDelhiNcr({
+        projects: normalizeProjectsArray(projects),
+        city: region.city,
+        state: region.state,
         geoTokens,
-        limit: 8,
-      };
-
-      let items = buildLatestProjectsForRegion({
-        ...baseArgs,
-        geoCity: region.city,
-        geoState: region.state,
+        lat,
+        lon,
       });
 
-      if (items.length === 0 && region.state) {
-        items = buildLatestProjectsForRegion({
-          ...baseArgs,
-          geoCity: "",
-          geoState: region.state,
-        });
-      }
+      const items = buildLatestProjectsForRegion({
+        projects: ncrScope.projects,
+        excludeSlugSet: new Set(),
+        geoCity: ncrScope.geoCity,
+        geoState: ncrScope.geoState,
+        geoTokens: ncrScope.geoTokens,
+        limit: 8,
+      });
 
-      if (items.length === 0 && geoTokens.length > 0) {
-        items = buildLatestProjectsForRegion({
-          ...baseArgs,
-          geoCity: "",
-          geoState: "",
-        });
-      }
-
-      let subtitle = buildSubtitleLatestProjectsNear(region.city, region.state).trim();
-      if (!subtitle) subtitle = "Explore the Best-Selling Properties Today nearby you";
+      let subtitle = buildSubtitleLatestProjectsNear(ncrScope.label, "").trim();
+      if (!subtitle) subtitle = "Explore the Best-Selling Properties Today nearby Delhi NCR";
 
       return NextResponse.json({
         success: items.length > 0,
         items,
         subtitle,
         region: {
-          city: region.city,
+          city: ncrScope.label,
           state: region.state,
           source: region.source,
           ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),

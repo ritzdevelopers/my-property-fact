@@ -1,11 +1,18 @@
 /* ==========================================================================
    PROJECT STATUS RIBBON
+   Curved 3D ribbon: raised face + darker return fold behind the card edge.
    ========================================================================== */
 
 .mpf-status-ribbon,
 .mpf-status-ribbon__fold {
-  --mpf-rb-color: #f55722;
-  --mpf-rb-fold: color-mix(in srgb, var(--mpf-rb-color) 82%, #4a1608);
+  --mpf-rb-top: #17a066;
+  --mpf-rb-mid: #0d5834;
+  --mpf-rb-base: #073d24;
+  --mpf-rb-edge: rgba(212, 175, 55, 0.5);
+  --mpf-rb-fold: #06351f;
+  --mpf-rb-tail: #042516;
+  --mpf-rb-text: #ffffff;
+  --mpf-rb-shadow: rgba(5, 40, 26, 0.38);
 }
 
 .mpf-status-ribbon {
@@ -23,7 +30,9 @@
   /* Sit on the card face — the wrap behind is the fold layer */
   transform: none;
 
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.18));
+  filter:
+    drop-shadow(0 1px 1px var(--mpf-rb-shadow))
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16));
 }
 
 /* ==========================================================================
@@ -36,19 +45,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
 
   width: max-content;
   min-width: 0;
-  height: 27px;
+  height: 100%;
 
-  padding: 0 14px;
+  padding: 0 13px 0 11px;
 
-  background: var(--mpf-rb-color);
+  background: linear-gradient(
+    177deg,
+    var(--mpf-rb-top) 0%,
+    var(--mpf-rb-mid) 55%,
+    var(--mpf-rb-base) 100%
+  );
 
-  color: #fff;
+  color: var(--mpf-rb-text);
 
   border: 0;
-  border-radius: 0;
+  /* Curved leading edge, squared trailing edge where the fold wraps */
+  border-radius: 999px 5px 5px 999px;
+
+  box-shadow:
+    inset 0 0 0 1px var(--mpf-rb-edge),
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.26),
+    inset 0 -1.5px 0 rgba(0, 0, 0, 0.3);
 
   overflow: visible;
 
@@ -69,6 +90,37 @@
   display: none !important;
 }
 
+/* Glossy top light — low contrast so the label stays crisp */
+.mpf-status-ribbon__band::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px 5px auto 2px;
+  height: 44%;
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.24) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   ICON
+   ========================================================================== */
+
+.mpf-status-ribbon__icon {
+  position: relative;
+  z-index: 5;
+
+  width: 11px;
+  height: 11px;
+
+  flex: 0 0 auto;
+
+  fill: currentColor;
+  opacity: 0.95;
+}
 
 /* ==========================================================================
    TEXT
@@ -95,7 +147,7 @@
   margin: 0;
   padding: 0;
 
-  color: #fff;
+  color: var(--mpf-rb-text);
 
   font-size: 10px;
   font-weight: 800;
@@ -115,19 +167,24 @@
   position: absolute;
 
   top: 12px;
-  right: -7px;
+  right: -6px;
 
-  width: 16px;
+  width: 14px;
   height: 27px;
 
   z-index: 0;
   pointer-events: none;
 
-  background: var(--mpf-rb-fold);
+  background: linear-gradient(
+    177deg,
+    var(--mpf-rb-fold) 0%,
+    var(--mpf-rb-tail) 100%
+  );
 
-  /* Back flap: ~9px tucked under the card, ~7px peeking out */
   clip-path: none;
-  border-radius: 0 1px 1px 0;
+  border-radius: 0 6px 6px 0;
+
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 /* Tail that hangs down from the peeking wrap */
@@ -136,97 +193,97 @@
   position: absolute;
   top: 100%;
   right: 0;
-  width: 7px;
-  height: 7px;
-  background: color-mix(in srgb, var(--mpf-rb-color) 68%, #3a1008);
+  width: 6px;
+  height: 6px;
+  background: var(--mpf-rb-tail);
   clip-path: polygon(0 0, 100% 0, 0 100%);
+  border-bottom-left-radius: 3px;
 }
 
 /* ==========================================================================
    STATUS COLORS
    ========================================================================== */
 
-.mpf-status-ribbon[data-status="under-construction"],
-.mpf-status-ribbon__fold[data-status="under-construction"] {
-  --mpf-rb-color: #2563eb;
+/* Brass plaque — keeps the launch flag off the card's green price pill */
+.mpf-status-ribbon[data-status="new-launched"],
+.mpf-status-ribbon__fold[data-status="new-launched"] {
+  --mpf-rb-top: #f2d693;
+  --mpf-rb-mid: #cea23e;
+  --mpf-rb-base: #a87c1b;
+  --mpf-rb-edge: rgba(255, 248, 222, 0.6);
+  --mpf-rb-fold: #8a6413;
+  --mpf-rb-tail: #6b4c0d;
+  --mpf-rb-text: #2a1e05;
+  --mpf-rb-shadow: rgba(84, 60, 8, 0.34);
 }
 
+.mpf-status-ribbon[data-status="pre-launch"],
+.mpf-status-ribbon__fold[data-status="pre-launch"] {
+  --mpf-rb-top: #3d68ee;
+  --mpf-rb-mid: #1e3a8a;
+  --mpf-rb-base: #142a63;
+  --mpf-rb-edge: rgba(125, 185, 255, 0.55);
+  --mpf-rb-fold: #122354;
+  --mpf-rb-tail: #0d1a41;
+  --mpf-rb-shadow: rgba(16, 33, 82, 0.4);
+}
+
+.mpf-status-ribbon[data-status="under-construction"],
+.mpf-status-ribbon__fold[data-status="under-construction"] {
+  --mpf-rb-top: #3f6ff0;
+  --mpf-rb-mid: #1e40af;
+  --mpf-rb-base: #16317f;
+  --mpf-rb-edge: rgba(125, 185, 255, 0.5);
+  --mpf-rb-fold: #142a6b;
+  --mpf-rb-tail: #0f2053;
+  --mpf-rb-shadow: rgba(16, 33, 82, 0.4);
+}
 
 .mpf-status-ribbon[data-status="ready-to-move"],
 .mpf-status-ribbon__fold[data-status="ready-to-move"] {
-  --mpf-rb-color: #16a34a;
+  --mpf-rb-top: #22b46b;
+  --mpf-rb-mid: #127a3f;
+  --mpf-rb-base: #0b5c2e;
+  --mpf-rb-edge: rgba(212, 175, 55, 0.42);
+  --mpf-rb-fold: #094c26;
+  --mpf-rb-tail: #06381c;
+  --mpf-rb-shadow: rgba(6, 56, 28, 0.38);
 }
-
 
 .mpf-status-ribbon[data-status="possession-soon"],
 .mpf-status-ribbon__fold[data-status="possession-soon"] {
-  --mpf-rb-color: #0d9488;
+  --mpf-rb-top: #17b3a5;
+  --mpf-rb-mid: #0d7c72;
+  --mpf-rb-base: #095e57;
+  --mpf-rb-edge: rgba(153, 246, 228, 0.4);
+  --mpf-rb-fold: #084f4a;
+  --mpf-rb-tail: #063b37;
+  --mpf-rb-shadow: rgba(6, 59, 55, 0.38);
 }
 
-
+/* Onyx with a gilt hairline — the most restrained, highest-end of the set */
 .mpf-status-ribbon[data-status="ultra-luxury"],
 .mpf-status-ribbon__fold[data-status="ultra-luxury"] {
-  --mpf-rb-color: #c9972b;
+  --mpf-rb-top: #2c323e;
+  --mpf-rb-mid: #171c25;
+  --mpf-rb-base: #0e1219;
+  --mpf-rb-edge: rgba(230, 198, 122, 0.55);
+  --mpf-rb-fold: #0b0f15;
+  --mpf-rb-tail: #06080c;
+  --mpf-rb-text: #edd6a1;
+  --mpf-rb-shadow: rgba(4, 6, 10, 0.45);
 }
-
 
 .mpf-status-ribbon[data-status="sold-out"],
 .mpf-status-ribbon__fold[data-status="sold-out"] {
-  --mpf-rb-color: #64748b;
+  --mpf-rb-top: #7d8ca1;
+  --mpf-rb-mid: #4d5a6b;
+  --mpf-rb-base: #3a4553;
+  --mpf-rb-edge: rgba(226, 232, 240, 0.34);
+  --mpf-rb-fold: #333d49;
+  --mpf-rb-tail: #262e38;
+  --mpf-rb-shadow: rgba(30, 41, 59, 0.38);
 }
-
-
-@supports not (background: color-mix(in srgb, red 50%, blue)) {
-  .mpf-status-ribbon,
-  .mpf-status-ribbon__fold {
-    --mpf-rb-fold: #e04a1c;
-  }
-
-  .mpf-status-ribbon__fold::after {
-    background: #c43d16;
-  }
-
-  .mpf-status-ribbon__fold[data-status="under-construction"] {
-    --mpf-rb-fold: #1d4ed8;
-  }
-
-  .mpf-status-ribbon__fold[data-status="under-construction"]::after {
-    background: #1e40af;
-  }
-
-  .mpf-status-ribbon__fold[data-status="ready-to-move"] {
-    --mpf-rb-fold: #15803d;
-  }
-
-  .mpf-status-ribbon__fold[data-status="ready-to-move"]::after {
-    background: #166534;
-  }
-
-  .mpf-status-ribbon__fold[data-status="possession-soon"] {
-    --mpf-rb-fold: #0f766e;
-  }
-
-  .mpf-status-ribbon__fold[data-status="possession-soon"]::after {
-    background: #115e59;
-  }
-
-  .mpf-status-ribbon__fold[data-status="ultra-luxury"] {
-    --mpf-rb-fold: #b8861f;
-  }
-
-  .mpf-status-ribbon__fold[data-status="ultra-luxury"]::after {
-    background: #a16207;
-  }
-
-  .mpf-status-ribbon__fold[data-status="sold-out"] {
-    --mpf-rb-fold: #475569;
-  }
-
-  .mpf-status-ribbon__fold[data-status="sold-out"]::after {
-    background: #334155;
-  }
-}
-
 
 /* ==========================================================================
    REMOVE OLD EFFECTS
@@ -236,7 +293,6 @@
   display: none !important;
 }
 
-
 /* ==========================================================================
    LISTING
    ========================================================================== */
@@ -244,27 +300,25 @@
 .mpf-status-ribbon--listing {
   top: 14px;
 
-  width: 122px;
+  width: max-content;
   height: 29px;
 
   transform: none;
 }
 
-
 .mpf-status-ribbon--listing .mpf-status-ribbon__band {
-  width: 122px;
+  width: max-content;
   height: 29px;
 
-  padding: 0 10px;
+  padding: 0 13px 0 11px;
 }
 
 .mpf-status-ribbon__fold.mpf-status-ribbon--listing {
   top: 14px;
-  right: -7px;
-  width: 16px;
+  right: -6px;
+  width: 14px;
   height: 29px;
 }
-
 
 /* ==========================================================================
    COMPACT
@@ -284,9 +338,8 @@
   width: max-content;
   height: 27px;
 
-  padding: 0 14px;
+  padding: 0 12px 0 10px;
 }
-
 
 /* ==========================================================================
    COMPACT FOLD
@@ -294,12 +347,11 @@
 
 .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
   top: 12px;
-  right: -7px;
+  right: -6px;
 
-  width: 16px;
+  width: 14px;
   height: 27px;
 }
-
 
 /* ==========================================================================
    MEDIA
@@ -390,18 +442,23 @@
   .mpf-status-ribbon--compact .mpf-status-ribbon__band {
     width: max-content;
     height: 26px;
-    padding: 0 12px;
+    padding: 0 11px 0 9px;
   }
 
   .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
     top: 10px;
-    right: -6px;
-    width: 14px;
+    right: -5px;
+    width: 12px;
     height: 26px;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__line {
     font-size: 9px;
+  }
+
+  .mpf-status-ribbon--compact .mpf-status-ribbon__icon {
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -417,16 +474,27 @@
   .mpf-status-ribbon--compact .mpf-status-ribbon__band {
     width: max-content;
     height: 24px;
-    padding: 0 10px;
+    padding: 0 10px 0 8px;
   }
   .mpf-status-ribbon__fold.mpf-status-ribbon--compact {
     top: 8px;
     right: -5px;
-    width: 12px;
+    width: 11px;
     height: 24px;
   }
 
   .mpf-status-ribbon--compact .mpf-status-ribbon__line {
     font-size: 8px;
+  }
+
+  .mpf-status-ribbon--compact .mpf-status-ribbon__icon {
+    width: 9px;
+    height: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-status-ribbon__band {
+    transition: none;
   }
 }

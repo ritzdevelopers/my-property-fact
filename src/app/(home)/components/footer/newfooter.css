@@ -329,17 +329,19 @@ letter-spacing: 0%;
 .footer-city-links-container {
     max-width: 90%;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 56px 20px 56px;
 }
 
-/* Without the newsletter above it, the city links need their own top gap.
 .new-footer-design.no-newsletter .footer-city-links-container {
-    padding-top: 64px;
-} */
+    padding-top: 56px;
+    padding-bottom: 56px;
+}
 
 @media (max-width: 768px) {
+    .footer-city-links-container,
     .new-footer-design.no-newsletter .footer-city-links-container {
-        padding-top: 36px;
+        padding-top: 40px;
+        padding-bottom: 40px;
     }
 }
 
@@ -349,7 +351,6 @@ letter-spacing: 0%;
     align-items: stretch;
     gap: 16px 20px;
     width: 100%;
-    padding-bottom: 40px;
 }
 
 .footer-city-links-section .footer-bottom-column {

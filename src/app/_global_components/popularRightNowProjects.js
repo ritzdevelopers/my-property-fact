@@ -54,6 +54,60 @@ export function isLikelyDelhiNcrCoords(lat, lon) {
   return lat >= 28.2 && lat <= 28.95 && lon >= 76.75 && lon <= 77.75;
 }
 
+export function isDelhiNcrUmbrellaLabel(city) {
+  const n = norm(city);
+  return n === "ncr" || n === "delhi ncr" || n.includes("delhi ncr");
+}
+
+export function isDelhiNcrProject(project) {
+  if (!project || typeof project !== "object") return false;
+  return isDelhiNcrRegion(
+    project.cityName,
+    project.stateName,
+    [project.projectLocality, project.projectAddress, project.cityName].filter(Boolean),
+  );
+}
+
+export function filterDelhiNcrProjects(projects) {
+  return (Array.isArray(projects) ? projects : []).filter(isDelhiNcrProject);
+}
+
+/**
+ * Home project rails stay inside Delhi-NCR.
+ * A specific NCR city (Noida, Gurugram, …) still ranks first; anything else
+ * (Delhi NCR umbrella, or a city outside NCR) uses the full NCR pool.
+ */
+export function scopeHomeProjectsToDelhiNcr({
+  projects,
+  city,
+  state,
+  geoTokens = [],
+  lat = null,
+  lon = null,
+} = {}) {
+  const ncrProjects = filterDelhiNcrProjects(projects);
+  const inNcr = isDelhiNcrRegion(city, state, geoTokens, lat, lon);
+  const specificNcrCity = inNcr && !isDelhiNcrUmbrellaLabel(city);
+
+  if (specificNcrCity) {
+    return {
+      projects: ncrProjects,
+      geoCity: city,
+      geoState: state || "",
+      geoTokens: Array.isArray(geoTokens) ? geoTokens : [],
+      label: String(city || "").trim() || "Delhi NCR",
+    };
+  }
+
+  return {
+    projects: ncrProjects,
+    geoCity: "",
+    geoState: "",
+    geoTokens: [...DELHI_NCR_CITY_NAMES, "NCR"],
+    label: "Delhi NCR",
+  };
+}
+
 export function isDelhiNcrRegion(city, state, geoTokens = [], lat = null, lon = null) {
   const cityNorm = norm(city);
   const stateNorm = norm(state);

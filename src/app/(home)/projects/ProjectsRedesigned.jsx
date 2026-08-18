@@ -38,14 +38,18 @@ import {
   extractTypesFromProjectConfiguration,
   projectMatchesListingHubCategory,
 } from "@/lib/listingFloorValidation";
+import { isListingOriginPath } from "@/lib/listingProjectsViewConfig";
 import { trackSearchEvent } from "@/lib/trackSearchEvent";
 
 import {
   scrollToProjectListings,
 } from "@/app/_global_components/projectListingPagination";
-import { consumeListingReturnState } from "@/lib/listingScrollRestore";
+import { consumeListingReturnState, consumeListingOriginPath, peekListingOriginPath, saveListingOriginPath } from "@/lib/listingScrollRestore";
 import ProjectCard from "./components/ProjectCard";
+import ListingCardSkeleton from "./components/ListingCardSkeleton";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
+import CommonPopUpform from "@/app/(home)/components/common/popupform";
+import "@/app/(home)/components/common/popupform.css";
 import "./projects-redesign.css";
 
 const EMPTY_FILTERS = {
@@ -140,6 +144,8 @@ export default function ProjectsRedesigned({
   pageIntro = "",
   showBreadcrumb = true,
   hubCategory = "",
+  lockCity = false,
+  initialProjects = [],
 } = {}) {
   const isPropertyTypeLocked =
     initialActiveTab === "commercial" || initialActiveTab === "residential";
@@ -174,6 +180,8 @@ export default function ProjectsRedesigned({
   const [isSortPending, startSortTransition] = useTransition();
   const [isListingsPinPending, startListingsPinTransition] = useTransition();
   const [listingsLoaderVisible, setListingsLoaderVisible] = useState(false);
+  const [showLeadPopup, setShowLeadPopup] = useState(false);
+  const [leadPopupProject, setLeadPopupProject] = useState(null);
   const scrollAfterLoaderRef = useRef(false);
   const listingsLoaderHideAtRef = useRef(0);
   const listingsLoaderTimerRef = useRef(null);
@@ -194,7 +202,6 @@ export default function ProjectsRedesigned({
     }
   }, []);
 
-  const [relatedExpanded, setRelatedExpanded] = useState(false);
   const searchWrapRef = useRef(null);
   const listingsRef = useRef(null);
 
@@ -287,6 +294,35 @@ export default function ProjectsRedesigned({
     clearQueryFilters();
   }, [queryFilters, propertyTypes, cities, clearQueryFilters, isPropertyTypeLocked]);
 
+  useEffect(() => {
+    if (!lockCity) return;
+    setFilters((prev) => ({
+      ...prev,
+      city: initialCity || prev.city,
+      bhkType: initialBhkType || "",
+      configType: initialConfigType || "",
+    }));
+    setActiveTab(initialActiveTab);
+    setCurrentPage(1);
+  }, [initialActiveTab, initialBhkType, initialCity, initialConfigType, lockCity]);
+
+  useEffect(() => {
+    if (!lockCity || (!initialConfigType && !initialBhkType)) return;
+    if (peekListingOriginPath()) return;
+    if (typeof document === "undefined") return;
+    try {
+      const referrer = new URL(document.referrer);
+      if (
+        referrer.origin === window.location.origin &&
+        isListingOriginPath(referrer.pathname)
+      ) {
+        saveListingOriginPath(referrer.pathname);
+      }
+    } catch {
+      // ignore invalid referrer
+    }
+  }, [initialBhkType, initialConfigType, lockCity]);
+
   const handleFilterChange = (key, value) => {
     const willToggleTo = filters[key] === value ? "" : value;
 
@@ -327,12 +363,26 @@ export default function ProjectsRedesigned({
       return;
     }
 
+    if (key === "city" && lockCity) return;
+
     setFilters((prev) => ({ ...prev, [key]: prev[key] === value ? "" : value }));
     setCurrentPage(1);
   };
 
   const handleClearFilters = () => {
-    setFilters(EMPTY_FILTERS);
+    if (lockCity && pathname) {
+      const returnPath = resolveListingReturnPath();
+      if (returnPath && pathname !== returnPath) {
+        consumeListingOriginPath();
+        router.push(returnPath, { scroll: false });
+        return;
+      }
+    }
+
+    setFilters({
+      ...EMPTY_FILTERS,
+      city: lockCity ? initialCity || "" : "",
+    });
     setActiveTab(isPropertyTypeLocked ? initialActiveTab : "all");
     setSortBy("relevance");
     setSearchInput("");
@@ -343,6 +393,17 @@ export default function ProjectsRedesigned({
     setActiveQuickFilter("");
     setCurrentPage(1);
   };
+
+  const openLeadForm = useCallback((project) => {
+    if (!project) return;
+    setLeadPopupProject(project);
+    setShowLeadPopup(true);
+  }, []);
+
+  const handleLeadPopupClose = useCallback((open) => {
+    setShowLeadPopup(Boolean(open));
+    if (!open) setLeadPopupProject(null);
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -397,12 +458,7 @@ export default function ProjectsRedesigned({
   const isHubPage = Boolean(hubUrlCategorySegment);
   const isNewLaunchHubPage = hubUrlCategorySegment === "new-projects";
   const isListingPage = isHubPage || Boolean(pathname && pathname.includes("-in-"));
-
-  const relatedCityLabel = useMemo(() => {
-    const c = String(filters.city || initialCity || "").trim();
-    if (!c) return "";
-    return c.replace(/\b\w/g, (ch) => ch.toUpperCase());
-  }, [filters.city, initialCity]);
+  const cityLocked = Boolean(lockCity && initialCity);
 
   const isCommercialContext = useMemo(() => {
     const hub = String(hubUrlCategorySegment || "");
@@ -443,9 +499,13 @@ export default function ProjectsRedesigned({
   );
 
   const baseProjectsBeforeQuickFilter = useMemo(() => {
-    const source = Array.isArray(allProjectsList) ? allProjectsList : [];
+    const source = allProjectsList?.length
+      ? allProjectsList
+      : Array.isArray(initialProjects)
+        ? initialProjects
+        : [];
     return source.filter((item) => matchesListingContext(item));
-  }, [allProjectsList, matchesListingContext]);
+  }, [allProjectsList, initialProjects, matchesListingContext]);
 
   const projectsAfterQuickFilter = useMemo(() => {
     if (!activeQuickFilter) return baseProjectsBeforeQuickFilter;
@@ -766,95 +826,105 @@ export default function ProjectsRedesigned({
   }, [normalizeConfigType, projectsAfterQuickFilter]);
 
   const configurationFilterOptions = useMemo(() => {
-    const residential = (isHubPage ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS).map(
-      (value) => ({
+    const toBhkOpts = (values) =>
+      values.map((value) => ({
         kind: "bhk",
         value,
         label: value,
-      }),
+      }));
+    const toConfigOpts = (opts) =>
+      opts.map((opt) => ({
+        kind: "config",
+        value: opt.key,
+        label: opt.label,
+      }));
+
+    // Dedicated pages like /kiosk-in-delhi only expose that config (same as live).
+    if (initialConfigType) {
+      const selected =
+        availableConfigTypeOptions.find((opt) => opt.key === initialConfigType) ||
+        DEFAULT_COMMERCIAL_FILTER_OPTIONS.find((opt) => opt.key === initialConfigType);
+      const label = selected?.label
+        || String(initialConfigType)
+          .replace(/-/g, " ")
+          .replace(/\b\w/g, (char) => char.toUpperCase());
+      return [{ kind: "config", value: initialConfigType, label }];
+    }
+
+    const useLiveOptions = isHubPage || isListingPage;
+    const residential = toBhkOpts(
+      useLiveOptions ? availableBhkOptions : RESIDENTIAL_CONFIG_OPTIONS,
+    );
+    const commercial = toConfigOpts(
+      useLiveOptions ? availableConfigTypeOptions : DEFAULT_COMMERCIAL_FILTER_OPTIONS,
     );
 
-    const commercialSource = isHubPage
-      ? availableConfigTypeOptions
-      : DEFAULT_COMMERCIAL_FILTER_OPTIONS;
-
-    const commercial = commercialSource.map((opt) => ({
-      kind: "config",
-      value: opt.key,
-      label: opt.label,
-    }));
-
-    if (activeTab === "residential") return residential;
+    if (initialBhkType || activeTab === "residential") return residential;
     if (activeTab === "commercial") return commercial;
     return [...residential, ...commercial];
-  }, [activeTab, availableBhkOptions, availableConfigTypeOptions, isHubPage]);
+  }, [
+    activeTab,
+    availableBhkOptions,
+    availableConfigTypeOptions,
+    initialBhkType,
+    initialConfigType,
+    isHubPage,
+    isListingPage,
+  ]);
 
   const citySlugForUrl = useMemo(() => {
     const c = String(filters.city || initialCity || "").trim();
     return c ? c.replace(/\s+/g, "-").toLowerCase() : "";
   }, [filters.city, initialCity]);
 
-  const relatedGroups = useMemo(() => {
-    if (!isListingPage || !citySlugForUrl || !relatedCityLabel) return [];
+  const listingHubPath = useMemo(() => {
+    if (!citySlugForUrl) return "";
+    switch (hubUrlCategorySegment) {
+      case "new-projects":
+        return `/new-projects-in-${citySlugForUrl}`;
+      case "apartments":
+        return `/apartments-in-${citySlugForUrl}`;
+      case "flats":
+        return `/flats-in-${citySlugForUrl}`;
+      case "commercial":
+        return `/commercial-property-in-${citySlugForUrl}`;
+      case "offices-and-shop":
+        return `/offices-and-shop-in-${citySlugForUrl}`;
+      default:
+        if (initialConfigType) return `/commercial-property-in-${citySlugForUrl}`;
+        if (initialBhkType) return `/apartments-in-${citySlugForUrl}`;
+        return "";
+    }
+  }, [citySlugForUrl, hubUrlCategorySegment, initialBhkType, initialConfigType]);
 
-    const cap = relatedExpanded ? 14 : 6;
-    const dedupe = (arr) => Array.from(new Map(arr.map((x) => [x.href, x])).values());
-
-    const buildBhkHref = (bhkLabel) => {
-      const m = String(bhkLabel).match(/^(\d+)\s*BHK/i);
-      const n = m?.[1];
-      if (!n) return null;
-      const floorSlug = `${n}-bhk`;
-      return hubUrlCategorySegment && hubUrlCategorySegment !== "flats"
-        ? `/${floorSlug}-${hubUrlCategorySegment}-in-${citySlugForUrl}`
-        : `/${floorSlug}-in-${citySlugForUrl}`;
-    };
-
-    const otherBhkLinks = (isCommercialContext ? [] : availableBhkOptions)
-      .filter((b) => b && b !== filters.bhkType)
-      .map((b) => {
-        const href = buildBhkHref(b);
-        return href ? { href, label: `${b} in ${relatedCityLabel}` } : null;
-      })
-      .filter(Boolean)
-      .slice(0, cap);
-
-    const otherCommercialTypeLinks = availableConfigTypeOptions
-      .filter((o) => o?.key && o.key !== filters.configType)
-      .map((o) => ({ href: `/${o.key}-in-${citySlugForUrl}`, label: `${o.label} in ${relatedCityLabel}` }))
-      .slice(0, cap);
-
-    const exploreLinks = dedupe([
-      { href: `/flats-in-${citySlugForUrl}`, label: `Flats in ${relatedCityLabel}` },
-      { href: `/apartments-in-${citySlugForUrl}`, label: `Apartments in ${relatedCityLabel}` },
-      { href: `/new-projects-in-${citySlugForUrl}`, label: `New Projects in ${relatedCityLabel}` },
-      { href: `/commercial-property-in-${citySlugForUrl}`, label: `Commercial Property in ${relatedCityLabel}` },
-    ])
-      .filter((l) => l.href !== pathname)
-      .slice(0, cap);
-
-    const groups = [];
-    if (otherBhkLinks.length) groups.push({ title: `Other BHKs in ${relatedCityLabel}`, links: otherBhkLinks });
-    if (otherCommercialTypeLinks.length) groups.push({ title: `Commercial options in ${relatedCityLabel}`, links: otherCommercialTypeLinks });
-    if (exploreLinks.length) groups.push({ title: `Explore ${relatedCityLabel}`, links: exploreLinks });
-    return groups;
-  }, [
-    availableBhkOptions,
-    availableConfigTypeOptions,
-    citySlugForUrl,
-    filters.bhkType,
-    filters.configType,
-    hubUrlCategorySegment,
-    isCommercialContext,
-    isListingPage,
-    pathname,
-    relatedCityLabel,
-    relatedExpanded,
-  ]);
+  const resolveListingReturnPath = useCallback(() => {
+    const origin = peekListingOriginPath();
+    if (
+      origin &&
+      isListingOriginPath(origin) &&
+      origin.includes(`-in-${citySlugForUrl}`)
+    ) {
+      return origin;
+    }
+    return listingHubPath;
+  }, [citySlugForUrl, listingHubPath]);
 
   const pushHubTypeToPath = useCallback(
     ({ nextBhkType = "", nextConfigType = "" }) => {
       if (!isListingPage || !citySlugForUrl) return;
+
+      if (!nextBhkType && !nextConfigType) {
+        const returnPath = resolveListingReturnPath();
+        if (returnPath && pathname !== returnPath) {
+          consumeListingOriginPath();
+          router.push(returnPath, { scroll: false });
+        }
+        return;
+      }
+
+      if (isListingOriginPath(pathname)) {
+        saveListingOriginPath(pathname);
+      }
 
       // config types (food-court, kiosk...) -> /food-court-in-delhi
       if (nextConfigType) {
@@ -880,7 +950,7 @@ export default function ProjectsRedesigned({
         router.push(path, { scroll: false });
       }
     },
-    [citySlugForUrl, hubUrlCategorySegment, isListingPage, router],
+    [citySlugForUrl, hubUrlCategorySegment, isListingPage, pathname, resolveListingReturnPath, router],
   );
 
   const filteredProjects = useMemo(() => {
@@ -1018,7 +1088,7 @@ export default function ProjectsRedesigned({
       tags.push({ key: "configType", label: configLabel, kind: "configType" });
     }
 
-    if (filters.city) {
+    if (filters.city && !cityLocked) {
       tags.push({ key: "city", label: filters.city, kind: "city" });
     }
 
@@ -1039,10 +1109,14 @@ export default function ProjectsRedesigned({
     }
 
     return tags;
-  }, [activeTab, configurationFilterOptions, filters, isNewLaunchHubPage, isPropertyTypeLocked, sortBy]);
+  }, [activeTab, cityLocked, configurationFilterOptions, filters, isNewLaunchHubPage, isPropertyTypeLocked, sortBy]);
 
-  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
-  const isLoading = siteDataLoading;
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (!value) return false;
+    if (cityLocked && key === "city") return false;
+    return true;
+  }).length;
+  const isLoading = siteDataLoading && !(Array.isArray(initialProjects) && initialProjects.length);
   const hasAnyAppliedFilter =
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
@@ -1559,6 +1633,7 @@ export default function ProjectsRedesigned({
               </div>
             </FilterSection>
 
+            {!cityLocked ? (
             <FilterSection title="Cities" defaultOpen={false}>
               <div className="mpf-checkbox-list mpf-checkbox-scrollable">
                 {(cities || []).map((city, idx) => (
@@ -1573,6 +1648,7 @@ export default function ProjectsRedesigned({
                 ))}
               </div>
             </FilterSection>
+            ) : null}
           </aside>
 
           {/* Listings */}
@@ -1586,16 +1662,8 @@ export default function ProjectsRedesigned({
             )}
 
             {!isLoading && showListingsAreaLoader && (
-              <div className="mpf-listings-loader" aria-live="polite" aria-busy="true" role="status">
-                <p className="mpf-listings-loader__text">
-                  Applying filters
-                  <span className="mpf-loader-dots" aria-hidden="true">
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                  </span>
-                </p>
+              <div className="mpf-listings-skel-wrap" aria-live="polite" aria-busy="true" role="status">
+                <ListingCardSkeleton count={3} />
               </div>
             )}
 
@@ -1619,6 +1687,7 @@ export default function ProjectsRedesigned({
                     key={project.id || idx}
                     project={project}
                     imagePriority={idx < 2}
+                    onGetDetails={openLeadForm}
                   />
                 ))}
               </div>
@@ -1661,45 +1730,6 @@ export default function ProjectsRedesigned({
         </div>
       </div>
 
-      {relatedGroups.length > 0 && (
-        <section className="mpf-related-search" aria-label="Related to your search">
-          <div className="mpf-related-search__inner">
-            <div className="mpf-related-search__header">
-              <div>
-                <div className="mpf-related-search__title">Related to your search</div>
-                <div className="mpf-related-search__subtitle">
-                  Nearby options based on what you selected
-                </div>
-              </div>
-              <button
-                type="button"
-                className="mpf-related-search__toggle"
-                onClick={() => setRelatedExpanded((v) => !v)}
-              >
-                {relatedExpanded ? "View less" : "View more"}
-              </button>
-            </div>
-
-            <div className="mpf-related-search__grid">
-              {relatedGroups.map((g) => (
-                <div key={g.title} className="mpf-related-search__col">
-                  <div className="mpf-related-search__colTitle">{g.title}</div>
-                  <ul className="mpf-related-search__list">
-                    {g.links.map((l) => (
-                      <li key={l.href} className="mpf-related-search__item">
-                        <Link href={l.href} prefetch={false} className="mpf-related-search__link">
-                          {l.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Mobile Filter Drawer */}
       <MobileFilterDrawer
         isOpen={isMobileFilterOpen}
@@ -1708,13 +1738,21 @@ export default function ProjectsRedesigned({
         onFilterChange={handleFilterChange}
         onClearFilters={handleClearFilters}
         onApplyFilters={() => setIsMobileFilterOpen(false)}
-        cities={cities || []}
+        cities={cityLocked ? [] : cities || []}
+        hideCityFilter={cityLocked}
         propertyTypes={propertyTypes || []}
         projectStatuses={projectStatuses || []}
         budgetOptions={budgetOptions}
         configurationOptions={configurationFilterOptions}
         activeFiltersCount={activeFiltersCount}
         activePropertyTab={activeTab}
+      />
+
+      <CommonPopUpform
+        show={showLeadPopup}
+        handleClose={handleLeadPopupClose}
+        from="Project Detail"
+        data={leadPopupProject}
       />
     </div>
   );

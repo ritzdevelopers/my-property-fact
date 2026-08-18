@@ -7,6 +7,10 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import ProjectStatusRibbon from "./ProjectStatusRibbon";
+import PropertyTypeTag from "./PropertyTypeTag";
+import LuxuryPricePlaque from "./LuxuryPricePlaque";
+import UnderConstructionHoverOverlay from "./UnderConstructionHoverOverlay";
+import "./luxuryPropertyCard.css";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
@@ -89,15 +93,7 @@ export default function PropertyContainer({
 
   const addressSummary = formatProjectAddress(data.projectAddress);
   const projectTitle = buildProjectDisplayName(data, "Project");
-  const propertyTypeTag = (() => {
-    const normalized = String(data.propertyTypeName || "").toLowerCase().trim();
-    if (!normalized) return null;
-    const isCommercial = normalized.includes("commercial");
-    return {
-      label: isCommercial ? "Commercial" : "Residential",
-      className: isCommercial ? "mpf-type-tag--commercial" : "mpf-type-tag--residential",
-    };
-  })();
+  const propertyTypeName = String(data.propertyTypeName || "").trim();
 
   const buildFeaturedSubtitle = () => {
     const config = String(data.projectConfiguration || "").trim();
@@ -202,11 +198,7 @@ export default function PropertyContainer({
             <h3 className="home-featured-builder-name">
               {projectTitle}
             </h3>
-            {propertyTypeTag ? (
-              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
-                {propertyTypeTag.label}
-              </span>
-            ) : null}
+            <PropertyTypeTag type={propertyTypeName} />
           </div>
 
           {/* <div className="home-featured-location">
@@ -237,7 +229,7 @@ export default function PropertyContainer({
     return (
       <Link
         href={`/${data.slugURL}`}
-        className="home-project-card home-project-card--poster home-featured-poster-card"
+        className="home-project-card home-project-card--poster home-featured-poster-card mpf-lux-card mpf-lux-card--poster"
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
@@ -256,29 +248,17 @@ export default function PropertyContainer({
               onError={() => setImageError(true)}
             />
           </div>
+          <LuxuryPricePlaque price={data.projectPrice} />
           <ProjectStatusRibbon
             status={data.projectStatusName}
-            className="mpf-status-ribbon--compact"
+            className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
           />
         </div>
 
         <div className="home-project-card__overlay">
-          <div className="home-project-card__overlay-top">
-            <p className="home-project-card__price">{generatePrice(data.projectPrice)}</p>
-            <span className="home-project-card__cta">
-              Explore
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </span>
-          </div>
           <div className="home-project-card__title-row">
             <h3 className="home-project-card__title">{projectTitle}</h3>
-            {propertyTypeTag ? (
-              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
-                {propertyTypeTag.label}
-              </span>
-            ) : null}
+            <PropertyTypeTag type={propertyTypeName} className="mpf-type-tag--lux" />
           </div>
           <p className="home-project-card__meta">
             {data.propertyTypeName || buildFeaturedSubtitle()}
@@ -290,7 +270,22 @@ export default function PropertyContainer({
             </svg>
             <span>{addressSummary || "Location on project page"}</span>
           </p>
+          <div className="mpf-lux-card__bar">
+            <span className="mpf-lux-card__action">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="15" height="15">
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" strokeWidth="1.7" />
+                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+              </svg>
+              <span>View Details</span>
+            </span>
+            <span className="mpf-lux-card__go" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+          </div>
         </div>
+        <UnderConstructionHoverOverlay status={data.projectStatusName} />
       </Link>
     );
   }
@@ -321,11 +316,7 @@ export default function PropertyContainer({
         <div className="mt-3 ms-3">
           <div className="home-project-card__title-row mb-2">
             <h3 className="mb-0 h5 plus-jakarta-sans-semi-bold">{projectTitle}</h3>
-            {propertyTypeTag ? (
-              <span className={`mpf-type-tag ${propertyTypeTag.className}`}>
-                {propertyTypeTag.label}
-              </span>
-            ) : null}
+            <PropertyTypeTag type={propertyTypeName} />
           </div>
           <p className="mb-2 plus-jakarta-sans-semi-bold project-property-type-text">{data.propertyTypeName}</p>
           <p className="text-success d-flex gap-2 mb-0">

@@ -366,17 +366,14 @@ export default function CityProjectsPanel({
               </div>
             ) : null}
 
-            <div className="city-projects-panel__grid" ref={listingsRef}>
+            <div className="city-projects-panel__grid mpf-listing-poster-grid" ref={listingsRef}>
               {pageItems.length > 0 ? (
                 pageItems.map((item, index) => (
                   <ProjectCard
-                    key={
-                      item?.id != null
-                        ? String(item.id)
-                        : `city-project-${index}`
-                    }
+                    key={item?.id != null ? String(item.id) : `city-project-${index}`}
                     project={item}
                     imagePriority={index < 3}
+                    variant="poster"
                   />
                 ))
               ) : (

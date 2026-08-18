@@ -41,6 +41,6 @@ export async function gateLeadFormOtp(leadOtp, phone) {
   return {
     ok: false,
     tone: "error",
-    message: leadOtp.error || "Please verify your mobile number with OTP.",
+    message: leadOtp.error || "Invalid code. Please try again.",
   };
 }

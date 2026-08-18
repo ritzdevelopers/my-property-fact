@@ -15,6 +15,8 @@ export function useLeadOtp(phone) {
   const [error, setError] = useState("");
   const [resendSeconds, setResendSeconds] = useState(0);
   const timerRef = useRef(null);
+  /** Prevents re-verifying the same wrong 4-digit code in a loop. */
+  const lastAutoVerifyOtpRef = useRef("");
 
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
@@ -42,6 +44,7 @@ export function useLeadOtp(phone) {
     setOtpSent(false);
     setIsVerified(false);
     setError("");
+    lastAutoVerifyOtpRef.current = "";
     clearTimer();
     setResendSeconds(0);
   }, [phone, clearTimer]);
@@ -85,9 +88,15 @@ export function useLeadOtp(phone) {
     try {
       await verifyLeadOtpClient(phone, otp);
       setIsVerified(true);
+      lastAutoVerifyOtpRef.current = "";
       return true;
     } catch (err) {
-      setError(err.message || "Invalid OTP");
+      const message = String(err?.message || "");
+      setError(
+        /invalid/i.test(message)
+          ? "Invalid code. Please try again."
+          : message || "Invalid code. Please try again.",
+      );
       return false;
     } finally {
       setVerifying(false);
@@ -95,9 +104,19 @@ export function useLeadOtp(phone) {
   }, [phone, otp]);
 
   useEffect(() => {
-    if (otp.length === 4 && otpSent && !isVerified && !verifying) {
-      verifyOtp();
+    if (otp.length < 4) {
+      lastAutoVerifyOtpRef.current = "";
+      return;
     }
+    if (!otpSent || isVerified || verifying || otp.length !== 4) {
+      return;
+    }
+    if (lastAutoVerifyOtpRef.current === otp) {
+      return;
+    }
+
+    lastAutoVerifyOtpRef.current = otp;
+    verifyOtp();
   }, [otp, otpSent, isVerified, verifying, verifyOtp]);
 
   const reset = useCallback(() => {
@@ -105,6 +124,7 @@ export function useLeadOtp(phone) {
     setOtpSent(false);
     setIsVerified(false);
     setError("");
+    lastAutoVerifyOtpRef.current = "";
     clearTimer();
     setResendSeconds(0);
   }, [clearTimer]);

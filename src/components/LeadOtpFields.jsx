@@ -132,7 +132,11 @@ export default function LeadOtpFields({
           </p>
         ) : null}
 
-        {error ? <p className="lead-otp-panel__error">{error}</p> : null}
+        {error && !verifying ? (
+          <p className="lead-otp-panel__error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
         <div className="lead-otp-panel__actions">
           <button

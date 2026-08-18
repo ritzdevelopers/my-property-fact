@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import axios from "axios";
 import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { usePathname } from "next/navigation";
@@ -17,11 +17,11 @@ import {
   getLeadFormHeroAlt,
   getLeadFormHeroImage,
 } from "@/lib/leadFormImages";
-import LeadOtpFields from "@/components/LeadOtpFields";
-import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import LeadFormSplitLayout from "@/components/LeadFormSplitLayout";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import { gateLeadFormOtp } from "@/lib/leadFormOtpGate";
+import { leadFormOtpActiveClass, leadFormSplitOtpActiveClass } from "@/lib/leadFormOtpUi";
 import "@/components/leadFormSplitLayout.css";
 import "./getTouchEnquirySection.css";
 
@@ -68,6 +68,7 @@ export default function GetTouchEnquirySection({
   const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [validated1, setValidated1] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
+  const formRef = useRef(null);
   const leadOtp = useLeadOtp(formData.phone);
 
   const heroImageSrc = getLeadFormHeroImage({ projectDetail });
@@ -112,11 +113,6 @@ export default function GetTouchEnquirySection({
       return;
     }
 
-    if (!leadOtp.isVerified) {
-      toast.error("Please verify your mobile number with OTP before submitting.");
-      return;
-    }
-
     const baseUrl = process.env.NEXT_PUBLIC_UI_URL || "";
     const enquiryFrom =
       projectDetail?.projectName || "Home Page";
@@ -124,18 +120,12 @@ export default function GetTouchEnquirySection({
     try {
       setShowLoading(true);
 
-      const otpVerified = await ensureLeadOtpVerified({
-        phone: formData.phone,
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      if (!otpVerified) {
-        if (!leadOtp.otpSent) {
-          toast.info("OTP sent to your mobile number. Enter it to continue.");
-        } else if (leadOtp.error) {
-          toast.error(leadOtp.error);
+      const otpGate = await gateLeadFormOtp(leadOtp, formData.phone);
+      if (!otpGate.ok) {
+        if (otpGate.tone === "info") {
+          toast.info(otpGate.message);
+        } else {
+          toast.error(otpGate.message);
         }
         return;
       }
@@ -193,27 +183,30 @@ export default function GetTouchEnquirySection({
 
   const formContent = (
     <>
-      <div className="get-touch-point-list" role="list">
-        {GET_IN_TOUCH_POINTS.map((point) => (
-          <span key={point} className="get-touch-point-item" role="listitem">
-            <span className="get-touch-point-icon">
-              <img
-                src="/icon/verify.svg"
-                alt=""
-                width={12}
-                height={12}
-                aria-hidden
-              />
+      {!leadOtp.otpSent ? (
+        <div className="get-touch-point-list" role="list">
+          {GET_IN_TOUCH_POINTS.map((point) => (
+            <span key={point} className="get-touch-point-item" role="listitem">
+              <span className="get-touch-point-icon">
+                <img
+                  src="/icon/verify.svg"
+                  alt=""
+                  width={12}
+                  height={12}
+                  aria-hidden
+                />
+              </span>
+              <span>{point}</span>
             </span>
-            <span>{point}</span>
-          </span>
-        ))}
-      </div>
+          ))}
+        </div>
+      ) : null}
 
       <Form
+        ref={formRef}
         noValidate
         validated={validated1}
-        className="lead-form-fields"
+        className={`lead-form-fields ${leadFormOtpActiveClass(leadOtp)}`.trim()}
         onSubmit={handleSubmit}
         aria-labelledby={`mpf-get-touch-title${uid}`}
       >
@@ -235,85 +228,74 @@ export default function GetTouchEnquirySection({
           </Form.Control.Feedback>
         </Form.Group>
 
+        <Form.Group controlId={`${uid}-name`}>
+          <Form.Control
+            className="lead-form-input"
+            type="text"
+            placeholder="Full Name"
+            value={formData.name || ""}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name="name"
+            isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
+            required
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.name || "Please provide a valid name."}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group controlId={`${uid}-email`}>
+          <Form.Control
+            className="lead-form-input"
+            type="email"
+            placeholder="Email Id"
+            value={formData.email || ""}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name="email"
+            isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
+            required
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.email || "Please provide a valid email."}
+          </Form.Control.Feedback>
+        </Form.Group>
+
+        <Form.Group className="lead-form-field--full" controlId={`${uid}-message`}>
+          <Form.Control
+            className="lead-form-input lead-form-textarea"
+            as="textarea"
+            rows={2}
+            placeholder="Message"
+            value={formData.message || ""}
+            onChange={handleChange}
+            name="message"
+            required
+          />
+          <Form.Control.Feedback type="invalid">
+            Please provide a valid message.
+          </Form.Control.Feedback>
+        </Form.Group>
+
         <div className="lead-form-field--full">
-          <LeadOtpFields
+          <LeadFormOtpStep
             phone={formData.phone}
-            otp={leadOtp.otp}
-            onOtpChange={leadOtp.setOtp}
-            otpSent={leadOtp.otpSent}
-            isVerified={leadOtp.isVerified}
-            sending={leadOtp.sending}
-            verifying={leadOtp.verifying}
-            error={leadOtp.error}
-            resendSeconds={leadOtp.resendSeconds}
-            onSendOtp={leadOtp.sendOtp}
+            leadOtp={leadOtp}
             variant="bootstrap"
             inputClassName="lead-form-input"
+            autoSubmitFormRef={formRef}
           />
         </div>
 
-        <LeadFormLockedSection locked={leadOtp.formLocked} className="lead-form-field--full">
-          <div className="lead-form-fields">
-            <Form.Group controlId={`${uid}-name`}>
-              <Form.Control
-                className="lead-form-input"
-                type="text"
-                placeholder="Full Name"
-                value={formData.name || ""}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="name"
-                isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.name || "Please provide a valid name."}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group controlId={`${uid}-email`}>
-              <Form.Control
-                className="lead-form-input"
-                type="email"
-                placeholder="Email Id"
-                value={formData.email || ""}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                name="email"
-                isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                {errors.email || "Please provide a valid email."}
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Form.Group className="lead-form-field--full" controlId={`${uid}-message`}>
-              <Form.Control
-                className="lead-form-input lead-form-textarea"
-                as="textarea"
-                rows={2}
-                placeholder="Message"
-                value={formData.message || ""}
-                onChange={handleChange}
-                name="message"
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                Please provide a valid message.
-              </Form.Control.Feedback>
-            </Form.Group>
-
-            <Button
-              className="lead-form-submit"
-              type="submit"
-              disabled={showLoading || leadOtp.formLocked}
-            >
-              Submit Enquiry
-              <LoadingSpinner show={showLoading} />
-            </Button>
-          </div>
-        </LeadFormLockedSection>
+        <Button
+          className="lead-form-submit"
+          type="submit"
+          disabled={showLoading || leadOtp.verifying}
+        >
+          Submit Enquiry
+          <LoadingSpinner show={showLoading} />
+        </Button>
       </Form>
     </>
   );
@@ -328,6 +310,7 @@ export default function GetTouchEnquirySection({
       title={title}
       subtitle={copy}
       mediaOverlay
+      className={leadFormSplitOtpActiveClass(leadOtp)}
     >
       {formContent}
     </LeadFormSplitLayout>

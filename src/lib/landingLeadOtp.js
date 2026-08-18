@@ -1,23 +1,34 @@
-import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import { gateLeadFormOtp } from "@/lib/leadFormOtpGate";
 
 /**
  * Gate landing-page lead submission behind mobile OTP verification.
  * Returns true when verified; false when OTP was just sent or verification failed.
  */
 export async function verifyLandingLeadOtp(leadOtp, phone) {
-  return ensureLeadOtpVerified({
-    phone,
-    otp: leadOtp.otp,
-    isVerified: leadOtp.isVerified,
-    sendOtp: leadOtp.sendOtp,
-    verifyOtp: leadOtp.verifyOtp,
-  });
+  const result = await gateLeadFormOtp(leadOtp, phone);
+  return result.ok;
 }
 
-export function getLandingOtpErrorMessage(leadOtp) {
-  if (leadOtp.isVerified) return "";
-  if (!leadOtp.otpSent && !leadOtp.otp.trim()) {
-    return "OTP sent to your mobile number. Enter it and submit again.";
+export function getLandingOtpFeedback(leadOtp) {
+  if (leadOtp.isVerified) {
+    return { tone: "success", message: "" };
   }
-  return leadOtp.error || "Please verify your mobile number with OTP.";
+  if (leadOtp.error) {
+    return { tone: "error", message: leadOtp.error };
+  }
+  if (leadOtp.otpSent && !leadOtp.otp.trim()) {
+    return {
+      tone: "info",
+      message: "Enter the 4-digit OTP sent to your mobile, then submit again.",
+    };
+  }
+  return {
+    tone: "info",
+    message: "OTP sent to your mobile. Enter the 4-digit code below.",
+  };
+}
+
+/** @deprecated Use getLandingOtpFeedback */
+export function getLandingOtpErrorMessage(leadOtp) {
+  return getLandingOtpFeedback(leadOtp).message;
 }

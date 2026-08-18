@@ -5,8 +5,9 @@ import { useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import { OPEN_LEAD_POPUP_EVENT } from "./LeadPopup";
-import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import styles from "./page.module.css";
 
 const stats = [
@@ -102,7 +103,7 @@ function Section2() {
               Request a Call Back
             </h2>
 
-            <form onSubmit={handleSubmit} className=" flex flex-col gap-2 justify-center items-center lg:justify-start lg:items-start" noValidate>
+            <form id="section2-lead-form" onSubmit={handleSubmit} className={` flex flex-col gap-2 justify-center items-center lg:justify-start lg:items-start ${leadFormOtpActiveClass(leadOtp)}`.trim()} noValidate>
               <input
                 type="text"
                 name="name"
@@ -127,24 +128,12 @@ function Section2() {
                 onChange={(e) => setPhone(e.target.value)}
                 className="h-12 w-full bg-neutral-100 px-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
-              <LeadOtpFields
-                phone={phone}
-                otp={leadOtp.otp}
-                onOtpChange={leadOtp.setOtp}
-                otpSent={leadOtp.otpSent}
-                isVerified={leadOtp.isVerified}
-                sending={leadOtp.sending}
-                verifying={leadOtp.verifying}
-                error={leadOtp.error}
-                resendSeconds={leadOtp.resendSeconds}
-                onSendOtp={leadOtp.sendOtp}
-                className="w-full"
-              />
               <textarea
                 name="message"
                 placeholder="Message"
                 className="h-20 w-full resize-none bg-neutral-100 px-4 py-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
+              <LeadFormOtpStep phone={phone} leadOtp={leadOtp} className="w-full" autoSubmitFormId="section2-lead-form" />
 
               {formError ? (
                 <p className={`${styles.paragraph} text-[13px] font-[400] text-red-600`}>

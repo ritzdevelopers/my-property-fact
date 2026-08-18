@@ -80,3 +80,174 @@
     flex-direction: row;
   }
 }
+
+/* Submit-flow OTP panel — dedicated white area for 4-digit code */
+.lead-otp-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1rem 1.125rem;
+  margin-top: 0.25rem;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+  animation: leadOtpPanelIn 0.35s ease both;
+}
+
+@keyframes leadOtpPanelIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lead-otp-panel__header {
+  margin-bottom: 0.875rem;
+}
+
+.lead-otp-panel__title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.lead-otp-panel__subtitle {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.lead-otp-panel__digits {
+  display: flex;
+  gap: 0.625rem;
+  justify-content: center;
+  margin-bottom: 0.75rem;
+}
+
+.lead-otp-panel__digit {
+  width: 3rem;
+  height: 3rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #111827;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.lead-otp-panel__digit:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.lead-otp-panel__digit:disabled {
+  opacity: 0.65;
+}
+
+.lead-otp-panel__status {
+  margin: 0 0 0.5rem;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #2563eb;
+}
+
+.lead-otp-panel__status--loading {
+  font-weight: 600;
+}
+
+.lead-otp-panel__error {
+  margin: 0 0 0.5rem;
+  text-align: center;
+  color: #dc2626;
+  font-size: 0.8125rem;
+}
+
+.lead-otp-panel__actions {
+  display: flex;
+  justify-content: center;
+}
+
+.lead-otp-panel__resend {
+  border: none;
+  background: transparent;
+  color: #1e3a5f;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lead-otp-panel__resend:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.lead-otp-panel--bootstrap {
+  border-radius: 10px;
+}
+
+/* OTP-only view: hide all form fields except the code panel */
+.lead-form--otp-active > :not(.lead-form-otp-step) {
+  display: none !important;
+}
+
+.lead-form--otp-active {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+}
+
+.lead-form--otp-active .lead-form-otp-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lead-otp-panel--solo {
+  margin-top: 0;
+  padding: 1.5rem 1.25rem;
+  border: none;
+  box-shadow: none;
+  width: 100%;
+}
+
+.lead-form-split--otp-active .lead-form-split__eyebrow,
+.lead-form-split--otp-active .lead-form-split__title,
+.lead-form-split--otp-active .lead-form-split__subtitle {
+  display: none;
+}
+
+.lead-form-split--otp-active .lead-form-split__panel-logo {
+  margin-bottom: 0.5rem;
+}
+
+.lead-form-split--otp-active .lead-form-split__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.lead-form-split--otp-active + .lead-form-footer,
+.lead-form-split--otp-active .lead-form-footer {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lead-otp-panel {
+    animation: none;
+  }
+}

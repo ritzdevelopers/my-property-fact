@@ -114,7 +114,10 @@ export function useLeadOtp(phone) {
     setOtp,
     otpSent,
     isVerified,
-    formLocked: !isVerified,
+    /** @deprecated Fields are never locked — OTP runs after submit. */
+    formLocked: false,
+    /** Show OTP input only after the user submits and SMS is sent. */
+    showOtpStep: otpSent && !isVerified,
     sending,
     verifying,
     error,

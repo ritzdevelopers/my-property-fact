@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
@@ -14,11 +14,14 @@ import {
   getLeadFormHeroAlt,
   getLeadFormHeroImage,
 } from "@/lib/leadFormImages";
-import LeadOtpFields from "@/components/LeadOtpFields";
-import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import LeadFormSplitLayout from "@/components/LeadFormSplitLayout";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import { gateLeadFormOtp } from "@/lib/leadFormOtpGate";
+import {
+  leadFormOtpActiveClass,
+  leadFormSplitOtpActiveClass,
+} from "@/lib/leadFormOtpUi";
 import "./popupform.css";
 
 export default function CommonPopUpform({
@@ -42,6 +45,7 @@ export default function CommonPopUpform({
   };
   const [formData, setFormData] = useState(intitalData);
   const [showLoading, setShowLoading] = useState(false);
+  const formRef = useRef(null);
 
   const [errors, setErrors] = useState({
     name: "",
@@ -125,26 +129,15 @@ export default function CommonPopUpform({
       return;
     }
 
-    if (!leadOtp.isVerified) {
-      toast.error("Please verify your mobile number with OTP before submitting.");
-      return;
-    }
-
     try {
       setShowLoading(true);
 
-      const otpVerified = await ensureLeadOtpVerified({
-        phone: formData.phone,
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      if (!otpVerified) {
-        if (!leadOtp.otpSent) {
-          toast.info("OTP sent to your mobile number. Enter it to continue.");
-        } else if (leadOtp.error) {
-          toast.error(leadOtp.error);
+      const otpGate = await gateLeadFormOtp(leadOtp, formData.phone);
+      if (!otpGate.ok) {
+        if (otpGate.tone === "info") {
+          toast.info(otpGate.message);
+        } else {
+          toast.error(otpGate.message);
         }
         return;
       }
@@ -239,12 +232,14 @@ export default function CommonPopUpform({
         title={heroTitle}
         subtitle={heroSubtitle}
         onClose={closeModal}
+        className={leadFormSplitOtpActiveClass(leadOtp)}
       >
         <Form
+          ref={formRef}
           noValidate
           validated={validated}
           onSubmit={handleSubmit}
-          className="lead-form-fields"
+          className={`lead-form-fields ${leadFormOtpActiveClass(leadOtp)}`.trim()}
         >
           <Form.Group className="lead-form-field--full" controlId="phone_number">
             <Form.Control
@@ -264,94 +259,84 @@ export default function CommonPopUpform({
             </Form.Control.Feedback>
           </Form.Group>
 
-          <div className="lead-form-field--full">
-            <LeadOtpFields
-              phone={formData.phone}
-              otp={leadOtp.otp}
-              onOtpChange={leadOtp.setOtp}
-              otpSent={leadOtp.otpSent}
-              isVerified={leadOtp.isVerified}
-              sending={leadOtp.sending}
-              verifying={leadOtp.verifying}
-              error={leadOtp.error}
-              resendSeconds={leadOtp.resendSeconds}
-              onSendOtp={leadOtp.sendOtp}
-              variant="bootstrap"
-              inputClassName="lead-form-input"
+          <Form.Group controlId="full_name">
+            <Form.Control
+              className="lead-form-input"
+              type="text"
+              placeholder="Full Name"
+              value={formData.name}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              name="name"
+              isInvalid={!!errors.name || (validated && !formData.name.trim())}
+              required
             />
-          </div>
+            <Form.Control.Feedback type="invalid">
+              {errors.name || "Please provide a valid name."}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-          <LeadFormLockedSection locked={leadOtp.formLocked} className="lead-form-field--full">
-            <div className="lead-form-fields">
-              <Form.Group controlId="full_name">
-                <Form.Control
-                  className="lead-form-input"
-                  type="text"
-                  placeholder="Full Name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="name"
-                  isInvalid={!!errors.name || (validated && !formData.name.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.name || "Please provide a valid name."}
-                </Form.Control.Feedback>
-              </Form.Group>
+          <Form.Group controlId="email_id">
+            <Form.Control
+              className="lead-form-input"
+              type="email"
+              placeholder="Email Address"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              name="email"
+              isInvalid={!!errors.email || (validated && !formData.email.trim())}
+              required
+            />
+            <Form.Control.Feedback type="invalid">
+              {errors.email || "Please provide a valid email."}
+            </Form.Control.Feedback>
+          </Form.Group>
 
-              <Form.Group controlId="email_id">
-                <Form.Control
-                  className="lead-form-input"
-                  type="email"
-                  placeholder="Email Address"
-                  value={formData.email}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="email"
-                  isInvalid={!!errors.email || (validated && !formData.email.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.email || "Please provide a valid email."}
-                </Form.Control.Feedback>
-              </Form.Group>
+          <Form.Group className="lead-form-field--full" controlId="message">
+            <Form.Control
+              className="lead-form-input lead-form-textarea"
+              as="textarea"
+              rows={2}
+              placeholder="Message (optional)"
+              value={formData.message}
+              onChange={handleChange}
+              name="message"
+            />
+          </Form.Group>
 
-              <Form.Group className="lead-form-field--full" controlId="message">
-                <Form.Control
-                  className="lead-form-input lead-form-textarea"
-                  as="textarea"
-                  rows={2}
-                  placeholder="Message (optional)"
-                  value={formData.message}
-                  onChange={handleChange}
-                  name="message"
-                />
-              </Form.Group>
+          <Form.Group className="lead-form-field--full" controlId="user_location">
+            <Form.Control
+              className="lead-form-input"
+              type="text"
+              placeholder="Your location (optional)"
+              value={formData.userLocation}
+              onChange={handleChange}
+              name="userLocation"
+              autoComplete="street-address"
+            />
+          </Form.Group>
 
-              <Form.Group className="lead-form-field--full" controlId="user_location">
-                <Form.Control
-                  className="lead-form-input"
-                  type="text"
-                  placeholder="Your location (optional)"
-                  value={formData.userLocation}
-                  onChange={handleChange}
-                  name="userLocation"
-                  autoComplete="street-address"
-                />
-              </Form.Group>
+          <LeadFormOtpStep
+            phone={formData.phone}
+            leadOtp={leadOtp}
+            variant="bootstrap"
+            inputClassName="lead-form-input"
+            className="lead-form-field--full"
+            autoSubmitFormRef={formRef}
+          />
 
-              <Button
-                type="submit"
-                className="lead-form-submit"
-                disabled={showLoading || leadOtp.formLocked}
-              >
-                Request a Callback <LoadingSpinner show={showLoading} />
-              </Button>
-            </div>
-          </LeadFormLockedSection>
+          <Button
+            type="submit"
+            className="lead-form-submit lead-form-field--full"
+            disabled={showLoading || leadOtp.verifying}
+          >
+            Request a Callback <LoadingSpinner show={showLoading} />
+          </Button>
         </Form>
-        <p className="lead-form-footer">Ready to help — we usually respond within one business day.</p>
+        {!leadOtp.otpSent ? (
+          <p className="lead-form-footer">Ready to help — we usually respond within one business day.</p>
+        ) : null}
       </LeadFormSplitLayout>
     </Modal>
   );

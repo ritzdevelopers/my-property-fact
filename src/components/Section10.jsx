@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
-import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import styles from "./page.module.css";
 
 function Section10() {
@@ -44,7 +45,7 @@ function Section10() {
               Request a Call Back
             </h2>
 
-            <form onSubmit={handleSubmit} className="w-full space-y-[8px]" noValidate>
+            <form id="section10-lead-form" onSubmit={handleSubmit} className={`w-full space-y-[8px] ${leadFormOtpActiveClass(leadOtp)}`.trim()} noValidate>
               <input
                 type="text"
                 name="name"
@@ -69,23 +70,12 @@ function Section10() {
                 onChange={(e) => setPhone(e.target.value)}
                 className="h-[55px] w-full rounded-[5px] bg-[#f5f5f5] px-[14px] text-[16px] font-[400] placeholder:text-[#222222] text-[#222] outline-none"
               />
-              <LeadOtpFields
-                phone={phone}
-                otp={leadOtp.otp}
-                onOtpChange={leadOtp.setOtp}
-                otpSent={leadOtp.otpSent}
-                isVerified={leadOtp.isVerified}
-                sending={leadOtp.sending}
-                verifying={leadOtp.verifying}
-                error={leadOtp.error}
-                resendSeconds={leadOtp.resendSeconds}
-                onSendOtp={leadOtp.sendOtp}
-              />
               <textarea
                 name="message"
                 placeholder="Message"
                 className="h-[140px] w-full resize-none rounded-[3px] bg-[#f5f5f5] px-[14px] py-[13px] text-[16px] font-[400] placeholder:text-[#222222] text-[#222] outline-none"
               />
+              <LeadFormOtpStep phone={phone} leadOtp={leadOtp} autoSubmitFormId="section10-lead-form" />
 
               {formError ? (
                 <p className={`${styles.paragraph} text-[13px] font-[400] text-red-600`}>

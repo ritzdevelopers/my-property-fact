@@ -15,12 +15,10 @@ import "../../components/common/common.css";
 import detailStyles from "./blogpage.module.css";
 import { submitBlogEnquiryAction } from "../actions";
 import { buildEnquirySubmitData } from "@/lib/leadTracker";
-import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
-import {
-  getLandingOtpErrorMessage,
-  verifyLandingLeadOtp,
-} from "@/lib/landingLeadOtp";
+import { gateLeadFormOtp } from "@/lib/leadFormOtpGate";
+import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import {
   validateLeadEmail,
   validateLeadName,
@@ -182,6 +180,7 @@ export default function BlogDetail({
   const [formData, setFormData] = useState(initialFormData);
   const [validated, setValidated] = useState(false);
   const leadOtp = useLeadOtp(formData.phone);
+  const blogFormRef = useRef(null);
   const pathname = usePathname();
   const contentCardRef = useRef(null);
   const tocNavRef = useRef(null);
@@ -319,9 +318,13 @@ export default function BlogDetail({
       return;
     }
 
-    const verified = await verifyLandingLeadOtp(leadOtp, formData.phone);
-    if (!verified) {
-      toast.error(getLandingOtpErrorMessage(leadOtp));
+    const otpGate = await gateLeadFormOtp(leadOtp, formData.phone);
+    if (!otpGate.ok) {
+      if (otpGate.tone === "info") {
+        toast.info(otpGate.message);
+      } else {
+        toast.error(otpGate.message);
+      }
       return;
     }
 
@@ -542,10 +545,12 @@ export default function BlogDetail({
                   Get in Touch
                 </div>
                 <Form
+                  ref={blogFormRef}
                   noValidate
                   validated={validated}
                   onSubmit={handleSubmit}
                   aria-labelledby="blog-detail-get-in-touch"
+                  className={`lead-form-fields ${leadFormOtpActiveClass(leadOtp)}`.trim()}
                 >
                   <Form.Group className="mb-3" controlId="name">
                     <Form.Control
@@ -595,20 +600,6 @@ export default function BlogDetail({
                     </Form.Control.Feedback>
                   </Form.Group>
 
-                  <LeadOtpFields
-                    phone={formData.phone}
-                    otp={leadOtp.otp}
-                    onOtpChange={leadOtp.setOtp}
-                    otpSent={leadOtp.otpSent}
-                    isVerified={leadOtp.isVerified}
-                    sending={leadOtp.sending}
-                    verifying={leadOtp.verifying}
-                    error={leadOtp.error}
-                    resendSeconds={leadOtp.resendSeconds}
-                    onSendOtp={leadOtp.sendOtp}
-                    className="mb-3"
-                  />
-
                   <Form.Group className="mb-3" controlId="message">
                     <Form.Control
                       as="textarea"
@@ -619,6 +610,13 @@ export default function BlogDetail({
                       onChange={handleChange}
                     />
                   </Form.Group>
+
+                  <LeadFormOtpStep
+                    phone={formData.phone}
+                    leadOtp={leadOtp}
+                    className="mb-3"
+                    autoSubmitFormRef={blogFormRef}
+                  />
 
                   <Button
                     type="submit"

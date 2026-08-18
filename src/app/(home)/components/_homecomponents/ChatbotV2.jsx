@@ -15,9 +15,10 @@ import {
   validateLeadName,
   validateLeadPhone,
 } from "@/lib/leadValidation";
-import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormOtpStep from "@/components/LeadFormOtpStep";
 import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import { gateLeadFormOtp } from "@/lib/leadFormOtpGate";
+import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot.gif";
@@ -891,19 +892,9 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     setIsSubmitting(true);
 
     try {
-      const otpVerified = await ensureLeadOtpVerified({
-        phone: formData.phone,
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      if (!otpVerified) {
-        if (!leadOtp.otpSent) {
-          setError("OTP sent to your mobile. Enter it and submit again.");
-        } else {
-          setError(leadOtp.error || "Please verify OTP before submitting.");
-        }
+      const otpGate = await gateLeadFormOtp(leadOtp, formData.phone);
+      if (!otpGate.ok) {
+        setError(otpGate.message);
         setIsSubmitting(false);
         return;
       }
@@ -973,59 +964,59 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
   }
 
   return (
-    <div className={styles.customForm}>
-      <div className={styles.formTitle}>
-        Please share your details for
-        <br />
-        <strong>{projectName}</strong>
-      </div>
-      <input
-        type="text"
-        className={styles.formInput}
-        placeholder="Full Name *"
-        value={formData.name}
-        onChange={(e) => handleChange("name", e.target.value)}
-      />
-      <input
-        type="tel"
-        className={styles.formInput}
-        placeholder="Mobile Number (10 digits) *"
-        maxLength="10"
-        value={formData.phone}
-        onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
-      />
-      <LeadOtpFields
+    <div className={`${styles.customForm} ${leadFormOtpActiveClass(leadOtp)}`.trim()}>
+      {!leadOtp.otpSent ? (
+        <div className={styles.formTitle}>
+          Please share your details for
+          <br />
+          <strong>{projectName}</strong>
+        </div>
+      ) : null}
+      {!leadOtp.otpSent ? (
+        <>
+          <input
+            type="text"
+            className={styles.formInput}
+            placeholder="Full Name *"
+            value={formData.name}
+            onChange={(e) => handleChange("name", e.target.value)}
+          />
+          <input
+            type="tel"
+            className={styles.formInput}
+            placeholder="Mobile Number (10 digits) *"
+            maxLength="10"
+            value={formData.phone}
+            onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+            disabled={leadOtp.isVerified}
+          />
+          <input
+            type="email"
+            className={styles.formInput}
+            placeholder="Email ID *"
+            value={formData.email}
+            onChange={(e) => handleChange("email", e.target.value)}
+          />
+          <textarea
+            className={styles.formInput}
+            placeholder="Message (optional)"
+            rows={3}
+            value={formData.message}
+            onChange={(e) => handleChange("message", e.target.value)}
+            style={{ resize: "vertical", minHeight: "60px" }}
+          />
+        </>
+      ) : null}
+      <LeadFormOtpStep
         phone={formData.phone}
-        otp={leadOtp.otp}
-        onOtpChange={leadOtp.setOtp}
-        otpSent={leadOtp.otpSent}
-        isVerified={leadOtp.isVerified}
-        sending={leadOtp.sending}
-        verifying={leadOtp.verifying}
-        error={leadOtp.error}
-        resendSeconds={leadOtp.resendSeconds}
-        onSendOtp={leadOtp.sendOtp}
+        leadOtp={leadOtp}
         className={styles.chatOtpFields}
-      />
-      <input
-        type="email"
-        className={styles.formInput}
-        placeholder="Email ID *"
-        value={formData.email}
-        onChange={(e) => handleChange("email", e.target.value)}
-      />
-      <textarea
-        className={styles.formInput}
-        placeholder="Message (optional)"
-        rows={3}
-        value={formData.message}
-        onChange={(e) => handleChange("message", e.target.value)}
-        style={{ resize: "vertical", minHeight: "60px" }}
+        onVerified={handleSubmit}
       />
       <button
         className={styles.submitBtn}
         onClick={handleSubmit}
-        disabled={isSubmitting}
+        disabled={isSubmitting || leadOtp.otpSent}
       >
         {isSubmitting ? "Submitting... ⏳" : "Submit"}
       </button>

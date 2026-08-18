@@ -1,9 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
+import LeadOtpFields from '@/components/LeadOtpFields';
+import { useLeadOtp } from '@/hooks/useLeadOtp';
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from '@/lib/landingLeadOtp';
+import { normalizeIndianPhone } from '@/lib/leadValidation';
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/a/macros/ritzmediaworld.com/s/AKfycbxQfo3z2oSU6WNkTJfqJQDsk7mQa7ZX-xPn5AZIaLhHXabRY4bUHi99ETeGtylw0Ka0/exec';
 
@@ -65,6 +72,21 @@ async function handleCRMData(formData) {
 
 function Page({ sheet_name }) {
   const sheetName = sheet_name ?? 'Google Display';
+  const [callbackPhone, setCallbackPhone] = useState('');
+  const [modalPhone, setModalPhone] = useState('');
+  const callbackLeadOtp = useLeadOtp(callbackPhone);
+  const modalLeadOtp = useLeadOtp(modalPhone);
+  const callbackPhoneRef = useRef(callbackPhone);
+  const modalPhoneRef = useRef(modalPhone);
+  const callbackLeadOtpRef = useRef(callbackLeadOtp);
+  const modalLeadOtpRef = useRef(modalLeadOtp);
+
+  useEffect(() => {
+    callbackPhoneRef.current = callbackPhone;
+    modalPhoneRef.current = modalPhone;
+    callbackLeadOtpRef.current = callbackLeadOtp;
+    modalLeadOtpRef.current = modalLeadOtp;
+  }, [callbackPhone, modalPhone, callbackLeadOtp, modalLeadOtp]);
 
   useEffect(() => {
     function openContactModal() {
@@ -92,6 +114,14 @@ function Page({ sheet_name }) {
       const form = event.target;
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn?.textContent;
+      const phone = normalizeIndianPhone(callbackPhoneRef.current) || callbackPhoneRef.current;
+
+      const verified = await verifyLandingLeadOtp(callbackLeadOtpRef.current, phone);
+      if (!verified) {
+        alert(getLandingOtpErrorMessage(callbackLeadOtpRef.current));
+        return;
+      }
+
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Submitting...';
@@ -125,6 +155,14 @@ function Page({ sheet_name }) {
       const submitBtn = document.getElementById('modal-submit-btn');
       const submitText = document.getElementById('modal-submit-text');
       const submitLoading = document.getElementById('modal-submit-loading');
+      const phone = normalizeIndianPhone(modalPhoneRef.current) || modalPhoneRef.current;
+
+      const verified = await verifyLandingLeadOtp(modalLeadOtpRef.current, phone);
+      if (!verified) {
+        alert(getLandingOtpErrorMessage(modalLeadOtpRef.current));
+        return;
+      }
+
       if (submitBtn) submitBtn.disabled = true;
       if (submitText) submitText.classList.add('hidden');
       if (submitLoading) submitLoading.classList.remove('hidden');
@@ -1486,7 +1524,23 @@ function Page({ sheet_name }) {
                                 <label htmlFor="callback-phone" className="sr-only">Phone No.</label>
                                 <input type="tel" id="callback-phone" name="phone" placeholder="Phone No. *"
                                     required
+                                    value={callbackPhone}
+                                    onChange={(e) => setCallbackPhone(e.target.value)}
                                     className="w-full bg-[#F5F5F5] text-[#000000] placeholder:text-gray-600 rounded-[10px] px-3 xs:px-4 py-2.5 xs:py-3 sm:py-3.5 text-[13px] xs:text-[14px] sm:text-[15px] font-opensans border-none outline-none focus:ring-2 focus:ring-[#A27140]/30"/>
+                            </div>
+                            <div className="sm:col-span-3">
+                                <LeadOtpFields
+                                    phone={callbackPhone}
+                                    otp={callbackLeadOtp.otp}
+                                    onOtpChange={callbackLeadOtp.setOtp}
+                                    otpSent={callbackLeadOtp.otpSent}
+                                    isVerified={callbackLeadOtp.isVerified}
+                                    sending={callbackLeadOtp.sending}
+                                    verifying={callbackLeadOtp.verifying}
+                                    error={callbackLeadOtp.error}
+                                    resendSeconds={callbackLeadOtp.resendSeconds}
+                                    onSendOtp={callbackLeadOtp.sendOtp}
+                                />
                             </div>
                             <div>
                                 <label htmlFor="callback-email" className="sr-only">Email</label>
@@ -1611,7 +1665,23 @@ function Page({ sheet_name }) {
                 <div>
                     <label htmlFor="modal-phone" className="sr-only">Phone No.</label>
                     <input type="tel" id="modal-phone" name="phone" placeholder="Phone No. *" required
+                        value={modalPhone}
+                        onChange={(e) => setModalPhone(e.target.value)}
                         className="w-full bg-[#F5F5F5] text-[#000000] placeholder:text-gray-600 rounded-[10px] px-3 xs:px-4 py-2.5 xs:py-3 sm:py-3.5 text-[13px] xs:text-[14px] sm:text-[15px] font-opensans border-none outline-none focus:ring-2 focus:ring-[#A27140]/30"/>
+                </div>
+                <div>
+                    <LeadOtpFields
+                        phone={modalPhone}
+                        otp={modalLeadOtp.otp}
+                        onOtpChange={modalLeadOtp.setOtp}
+                        otpSent={modalLeadOtp.otpSent}
+                        isVerified={modalLeadOtp.isVerified}
+                        sending={modalLeadOtp.sending}
+                        verifying={modalLeadOtp.verifying}
+                        error={modalLeadOtp.error}
+                        resendSeconds={modalLeadOtp.resendSeconds}
+                        onSendOtp={modalLeadOtp.sendOtp}
+                    />
                 </div>
                 <div>
                     <label htmlFor="modal-message" className="sr-only">Message</label>

@@ -36,6 +36,7 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import NotFound from "../../not-found";
 import Featured from "../../(home)/components/home/featured/featured";
+import CommonPopUpform from "../../(home)/components/common/popupform";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { toast } from "react-toastify";
 import { sanitizeHtml } from "../../_global_components/sanitize";
@@ -45,7 +46,7 @@ import {
   validateLeadName,
   validateLeadPhone,
 } from "@/lib/leadValidation";
-import { Col, Row, Modal } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import { usePathname, notFound } from "next/navigation";
 
 export default function Property({
@@ -1531,99 +1532,12 @@ const addNearbyImageIcon = (benefit) => {
         </div>
       )}
 
-      <Modal
+      <CommonPopUpform
         show={showPopUp}
-        onHide={() => setShowPopUp(false)}
-        centered
-        className="enquiry-popup"
-        dialogClassName="enquiry-popup-dialog"
-      >
-        <button
-          type="button"
-          className="btn-close enquiry-popup-close"
-          aria-label="Close"
-          onClick={() => setShowPopUp(false)}
-        />
-        <p className="enquiry-popup-subtitle px-3 px-md-4 mb-0">
-          Share your details and our team will contact you shortly.
-        </p>
-        <Form
-          noValidate
-          validated={validated}
-          onSubmit={(e) => handleSubmit(e, "top_form")}
-          className="enquiry-popup-form p-3 p-md-4 pt-3"
-        >
-          <Form.Group className="mb-3" controlId="full_name_popup">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="text"
-              placeholder="Full name"
-              value={formData.name || ""}
-              onChange={(e) => handleChange(e)}
-              onBlur={handleBlur}
-              name="name"
-              isInvalid={!!errors.name || (validated && !formData.name.trim())}
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.name || "Please provide a valid name."}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="email_id_popup">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="email"
-              placeholder="Email id"
-              value={formData.email || ""}
-              onChange={(e) => handleChange(e)}
-              onBlur={handleBlur}
-              name="email"
-              isInvalid={!!errors.email || (validated && !formData.email.trim())}
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.email || "Please provide a valid email."}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="phone_number_popup">
-            <Form.Control
-              className="enquiry-popup-input"
-              type="tel"
-              placeholder="Phone Number"
-              value={formData.phone || ""}
-              onChange={(e) => handleChange(e)}
-              onBlur={handleBlur}
-              name="phone"
-              isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              {errors.phone || "Please provide a valid phone number."}
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Form.Group className="mb-3" controlId="message_popup">
-            <Form.Control
-              className="enquiry-popup-input"
-              as="textarea"
-              rows={3}
-              placeholder="Message"
-              value={formData.message || ""}
-              onChange={(e) => handleChange(e)}
-              name="message"
-            />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid message.
-            </Form.Control.Feedback>
-          </Form.Group>
-          <Button
-            type="submit"
-            className="fw-bold border-0 enquiry-popup-submit"
-            disabled={showLoading}
-          >
-            Submit Enquiry <LoadingSpinner show={showLoading} />
-          </Button>
-        </Form>
-      </Modal>
+        handleClose={setShowPopUp}
+        from="Project Detail"
+        data={projectDetail}
+      />
     </>
   );
 }

@@ -4,6 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
 import styles from "./page.module.css";
 
 const STORAGE_KEY = "eldeco-lead-form-submitted";
@@ -15,6 +18,8 @@ function LeadPopup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   useEffect(() => {
     const hasSubmitted = window.localStorage.getItem(STORAGE_KEY) === "true";
@@ -56,7 +61,13 @@ function LeadPopup() {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event);
+      const data = await handleLeadFormSubmit(event, {
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        otpSent: leadOtp.otpSent,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
       console.log(data);
       window.localStorage.setItem(STORAGE_KEY, "true");
       setIsSubmitted(true);
@@ -98,6 +109,33 @@ function LeadPopup() {
 
         <form onSubmit={handleSubmit} className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2" noValidate>
           <input
+            type="tel"
+            name="phone"
+            required
+            inputMode="numeric"
+            placeholder="Phone Number *"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            disabled={leadOtp.isVerified}
+            className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35] sm:col-span-2"
+          />
+          <div className="sm:col-span-2">
+            <LeadOtpFields
+              phone={phone}
+              otp={leadOtp.otp}
+              onOtpChange={leadOtp.setOtp}
+              otpSent={leadOtp.otpSent}
+              isVerified={leadOtp.isVerified}
+              sending={leadOtp.sending}
+              verifying={leadOtp.verifying}
+              error={leadOtp.error}
+              resendSeconds={leadOtp.resendSeconds}
+              onSendOtp={leadOtp.sendOtp}
+            />
+          </div>
+          <LeadFormLockedSection locked={leadOtp.formLocked} className="sm:col-span-2">
+          <div className="grid gap-x-6 gap-y-5 sm:grid-cols-2">
+          <input
             type="text"
             name="name"
             required
@@ -110,14 +148,6 @@ function LeadPopup() {
             required
             placeholder="Email Address *"
             className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35]"
-          />
-          <input
-            type="tel"
-            name="phone"
-            required
-            inputMode="numeric"
-            placeholder="Phone Number *"
-            className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35] sm:col-span-2"
           />
           <textarea
             name="message"
@@ -133,7 +163,7 @@ function LeadPopup() {
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || leadOtp.formLocked}
             className="h-11 rounded-[4px] bg-[#c59c35] px-8 text-[16px] font-[600] text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-70 sm:col-span-2 sm:w-fit"
           >
             {isSubmitting ? "Submitting..." : "Submit Enquiry"}
@@ -142,6 +172,8 @@ function LeadPopup() {
           <p className={`${styles.paragraph} text-[13px] md:text-[16px] font-[400] leading-relaxed text-neutral-500 sm:col-span-2`}>
             By submitting, you agree to be contacted regarding Eldeco project details.
           </p>
+          </div>
+          </LeadFormLockedSection>
         </form>
       </div>
     </div>

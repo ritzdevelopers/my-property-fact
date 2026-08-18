@@ -4,11 +4,19 @@ import React, { useState, useRef } from "react";
 import contactImg from "../assets/kimaya-creative.jpeg";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function ContactForm() {
   const router = useRouter();
   const [status, setStatus] = useState("");
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
   const formRef = useRef();
 
   const handleCaptchaChange = (token) => setCaptchaToken(token);
@@ -20,11 +28,17 @@ export default function ContactForm() {
       return;
     }
 
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      setStatus(getLandingOtpErrorMessage(leadOtp));
+      return;
+    }
+
     const formData = new FormData(formRef.current);
     const data = {
       name: formData.get("name"),
       email: formData.get("email"),
-      phone: formData.get("phone"),
+      phone,
       message: formData.get("message"),
     };
 
@@ -127,7 +141,24 @@ export default function ContactForm() {
                     id="phone"
                     className="form-control"
                     placeholder="123-456-7890"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <LeadOtpFields
+                    phone={phone}
+                    otp={leadOtp.otp}
+                    onOtpChange={leadOtp.setOtp}
+                    otpSent={leadOtp.otpSent}
+                    isVerified={leadOtp.isVerified}
+                    sending={leadOtp.sending}
+                    verifying={leadOtp.verifying}
+                    error={leadOtp.error}
+                    resendSeconds={leadOtp.resendSeconds}
+                    onSendOtp={leadOtp.sendOtp}
                   />
                 </div>
 

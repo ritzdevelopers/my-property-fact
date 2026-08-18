@@ -2,6 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 const MainSection = () => {
   const router = useRouter();
@@ -14,6 +20,7 @@ const MainSection = () => {
   });
 
   const [status, setStatus] = useState("");
+  const leadOtp = useLeadOtp(formData.phone);
 
   const handleChange = (e) => {
     setFormData({
@@ -24,6 +31,13 @@ const MainSection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.phone);
+    if (!verified) {
+      setStatus(getLandingOtpErrorMessage(leadOtp));
+      return;
+    }
+
     setStatus("Submitting...");
 
     try {
@@ -100,6 +114,20 @@ const MainSection = () => {
                 placeholder="Phone"
                 style={{ padding: "15px 30px" }}
                 required
+              />
+            </div>
+            <div className="mb-3">
+              <LeadOtpFields
+                phone={formData.phone}
+                otp={leadOtp.otp}
+                onOtpChange={leadOtp.setOtp}
+                otpSent={leadOtp.otpSent}
+                isVerified={leadOtp.isVerified}
+                sending={leadOtp.sending}
+                verifying={leadOtp.verifying}
+                error={leadOtp.error}
+                resendSeconds={leadOtp.resendSeconds}
+                onSendOtp={leadOtp.sendOtp}
               />
             </div>
             <div className="mb-3">

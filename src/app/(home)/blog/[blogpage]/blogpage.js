@@ -15,6 +15,17 @@ import "../../components/common/common.css";
 import detailStyles from "./blogpage.module.css";
 import { submitBlogEnquiryAction } from "../actions";
 import { buildEnquirySubmitData } from "@/lib/leadTracker";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
 
 const RELATED_BLOGS_SOCIAL = [
   {
@@ -170,6 +181,7 @@ export default function BlogDetail({
   };
   const [formData, setFormData] = useState(initialFormData);
   const [validated, setValidated] = useState(false);
+  const leadOtp = useLeadOtp(formData.phone);
   const pathname = usePathname();
   const contentCardRef = useRef(null);
   const tocNavRef = useRef(null);
@@ -307,6 +319,12 @@ export default function BlogDetail({
       return;
     }
 
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.phone);
+    if (!verified) {
+      toast.error(getLandingOtpErrorMessage(leadOtp));
+      return;
+    }
+
     try {
       setShowLoading(true);
       setButtonName("");
@@ -320,6 +338,7 @@ export default function BlogDetail({
         setFormData(initialFormData); // Reset form data
         setValidated(false); // Reset validation state
         setErrors({ name: "", email: "", phone: "" });
+        leadOtp.reset();
         toast.success("Enquiry sent successfully");
       } else {
         toast.error(response.message || "Failed to send enquiry. Please try again.");
@@ -575,6 +594,20 @@ export default function BlogDetail({
                       {errors.phone || "Please enter a valid phone number."}
                     </Form.Control.Feedback>
                   </Form.Group>
+
+                  <LeadOtpFields
+                    phone={formData.phone}
+                    otp={leadOtp.otp}
+                    onOtpChange={leadOtp.setOtp}
+                    otpSent={leadOtp.otpSent}
+                    isVerified={leadOtp.isVerified}
+                    sending={leadOtp.sending}
+                    verifying={leadOtp.verifying}
+                    error={leadOtp.error}
+                    resendSeconds={leadOtp.resendSeconds}
+                    onSendOtp={leadOtp.sendOtp}
+                    className="mb-3"
+                  />
 
                   <Form.Group className="mb-3" controlId="message">
                     <Form.Control

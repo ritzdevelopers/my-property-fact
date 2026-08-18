@@ -3,12 +3,19 @@
 import { useState, useEffect, useRef } from "react";
 import bg from "../assets/hero_bg.webp";
 import { useRouter } from "next/navigation";
-import { set } from "jodit/esm/core/helpers";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function PopUpForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [buttonText, setButtonText] = useState("Submit");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
   const overlayRef = useRef(null);
   const containerRef = useRef(null);
   const formRef = useRef(null);
@@ -54,7 +61,7 @@ export default function PopUpForm() {
     const formData = {
       name: form.name.value.trim(),
       email: form.email.value.trim(),
-      phone: form.phone.value.trim(),
+      phone: phone.trim(),
       message: form.message.value.trim(),
     };
 
@@ -78,6 +85,12 @@ export default function PopUpForm() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       alert("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      alert(getLandingOtpErrorMessage(leadOtp));
       return;
     }
 
@@ -197,6 +210,23 @@ export default function PopUpForm() {
                       name="phone"
                       placeholder="10-digit phone number"
                       required
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <LeadOtpFields
+                      phone={phone}
+                      otp={leadOtp.otp}
+                      onOtpChange={leadOtp.setOtp}
+                      otpSent={leadOtp.otpSent}
+                      isVerified={leadOtp.isVerified}
+                      sending={leadOtp.sending}
+                      verifying={leadOtp.verifying}
+                      error={leadOtp.error}
+                      resendSeconds={leadOtp.resendSeconds}
+                      onSendOtp={leadOtp.sendOtp}
                     />
                   </div>
 

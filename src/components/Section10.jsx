@@ -4,18 +4,28 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
 import styles from "./page.module.css";
 
 function Section10() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   const handleSubmit = async (event) => {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event);
+      const data = await handleLeadFormSubmit(event, {
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        otpSent: leadOtp.otpSent,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
       console.log(data);
       router.push(ELDECO_THANK_YOU_PATH);
     } catch (err) {
@@ -55,7 +65,21 @@ function Section10() {
                 required
                 inputMode="numeric"
                 placeholder="Phone Number *"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="h-[55px] w-full rounded-[5px] bg-[#f5f5f5] px-[14px] text-[16px] font-[400] placeholder:text-[#222222] text-[#222] outline-none"
+              />
+              <LeadOtpFields
+                phone={phone}
+                otp={leadOtp.otp}
+                onOtpChange={leadOtp.setOtp}
+                otpSent={leadOtp.otpSent}
+                isVerified={leadOtp.isVerified}
+                sending={leadOtp.sending}
+                verifying={leadOtp.verifying}
+                error={leadOtp.error}
+                resendSeconds={leadOtp.resendSeconds}
+                onSendOtp={leadOtp.sendOtp}
               />
               <textarea
                 name="message"

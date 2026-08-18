@@ -10,6 +10,12 @@ import {
   faMessage,
 } from "@fortawesome/free-solid-svg-icons";
 import { number } from "framer-motion";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbzPGcu-_n28K8ZrRudpWfoZJ6a2F2EtvDq_Vlnin9RCTfw_A6lx986V-66fE-VyVRDZ7A/exec";
 
@@ -24,6 +30,7 @@ export default function ContactForm({ formType = "hero", className = "" }) {
     PHONE: "",
     MESSAGE: "",
   });
+  const leadOtp = useLeadOtp(formData.PHONE);
 
   const validateNumber = (number) => {
     if (!number.trim()) {
@@ -77,6 +84,14 @@ export default function ContactForm({ formType = "hero", className = "" }) {
         alert(emailError);
         return;
       }
+
+      const verified = await verifyLandingLeadOtp(leadOtp, formData.PHONE);
+      if (!verified) {
+        setIsSubmitting(false);
+        alert(getLandingOtpErrorMessage(leadOtp));
+        return;
+      }
+
       const submitData = {
         sheetName: sheetName,
         Name: formData.FIRSTNAME,
@@ -125,6 +140,21 @@ export default function ContactForm({ formType = "hero", className = "" }) {
       [e.target.name]: e.target.value,
     });
   };
+
+  const otpFields = (
+    <LeadOtpFields
+      phone={formData.PHONE}
+      otp={leadOtp.otp}
+      onOtpChange={leadOtp.setOtp}
+      otpSent={leadOtp.otpSent}
+      isVerified={leadOtp.isVerified}
+      sending={leadOtp.sending}
+      verifying={leadOtp.verifying}
+      error={leadOtp.error}
+      resendSeconds={leadOtp.resendSeconds}
+      onSendOtp={leadOtp.sendOtp}
+    />
+  );
 
   if (formType === "hero") {
     return (
@@ -193,6 +223,7 @@ export default function ContactForm({ formType = "hero", className = "" }) {
                       onChange={handleChange}
                     />
                   </div>
+                  <div className="form-field-wrapper mb-3">{otpFields}</div>
                   <div className="form-field-wrapper mb-3">
                     <div className="field-icon-wrapper">
                       <FontAwesomeIcon icon={faMessage} />
@@ -280,6 +311,7 @@ export default function ContactForm({ formType = "hero", className = "" }) {
             onChange={handleChange}
           />
         </div>
+        <div className="form-group">{otpFields}</div>
         <div className="form-group">
           <textarea
             name="MESSAGE"
@@ -354,6 +386,7 @@ export default function ContactForm({ formType = "hero", className = "" }) {
           />
         </label>
       </div>
+      <div className="modal-form-group">{otpFields}</div>
       <div className="modal-form-group">
         <label className="form-field-label">
           <FontAwesomeIcon icon={faMessage} className="form-field-icon" />

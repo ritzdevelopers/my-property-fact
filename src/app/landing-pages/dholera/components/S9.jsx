@@ -4,6 +4,12 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useModal } from "../layout";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -76,6 +82,7 @@ function S9() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const leadOtp = useLeadOtp(formData.Phone);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -118,6 +125,12 @@ function S9() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(formData.Phone.replace(/\D/g, ""))) {
       setSubmitMessage("❌ Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.Phone);
+    if (!verified) {
+      setSubmitMessage(`❌ ${getLandingOtpErrorMessage(leadOtp)}`);
       return;
     }
 
@@ -427,6 +440,21 @@ function S9() {
                       e.target.style.borderColor = "#e0e0e0";
                       e.target.style.boxShadow = "none";
                     }}
+                  />
+                </div>
+
+                <div style={{ width: "100%" }}>
+                  <LeadOtpFields
+                    phone={formData.Phone}
+                    otp={leadOtp.otp}
+                    onOtpChange={leadOtp.setOtp}
+                    otpSent={leadOtp.otpSent}
+                    isVerified={leadOtp.isVerified}
+                    sending={leadOtp.sending}
+                    verifying={leadOtp.verifying}
+                    error={leadOtp.error}
+                    resendSeconds={leadOtp.resendSeconds}
+                    onSendOtp={leadOtp.sendOtp}
                   />
                 </div>
 

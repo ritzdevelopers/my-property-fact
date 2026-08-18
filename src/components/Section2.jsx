@@ -5,6 +5,8 @@ import { useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import { OPEN_LEAD_POPUP_EVENT } from "./LeadPopup";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
 import styles from "./page.module.css";
 
 const stats = [
@@ -18,12 +20,20 @@ function Section2() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   const handleSubmit = async (event) => {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event);
+      const data = await handleLeadFormSubmit(event, {
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        otpSent: leadOtp.otpSent,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
       console.log(data);
       router.push(ELDECO_THANK_YOU_PATH);
     } catch (err) {
@@ -113,7 +123,22 @@ function Section2() {
                 required
                 inputMode="numeric"
                 placeholder="Phone Number *"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="h-12 w-full bg-neutral-100 px-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
+              />
+              <LeadOtpFields
+                phone={phone}
+                otp={leadOtp.otp}
+                onOtpChange={leadOtp.setOtp}
+                otpSent={leadOtp.otpSent}
+                isVerified={leadOtp.isVerified}
+                sending={leadOtp.sending}
+                verifying={leadOtp.verifying}
+                error={leadOtp.error}
+                resendSeconds={leadOtp.resendSeconds}
+                onSendOtp={leadOtp.sendOtp}
+                className="w-full"
               />
               <textarea
                 name="message"

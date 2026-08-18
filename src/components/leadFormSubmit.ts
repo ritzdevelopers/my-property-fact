@@ -3,9 +3,35 @@ import {
   normalizeIndianPhone,
   validateLeadFields,
 } from "@/lib/leadValidation";
+import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
 
 const GOOGLE_SCRIPT_WEB_APP_URL =
   "https://script.google.com/macros/s/AKfycbwmyV0vWMVp31JQZU8rYaa5WUIb-YRifqoPH76FzebgTmxuzSCfuibN-9O40-ogRy7-tA/exec";
+
+export type LeadOtpContext = {
+  otp: string;
+  isVerified: boolean;
+  otpSent?: boolean;
+  sendOtp: () => Promise<boolean>;
+  verifyOtp: () => Promise<boolean>;
+};
+
+async function requireLeadOtp(phone: string, otpContext: LeadOtpContext) {
+  const verified = await ensureLeadOtpVerified({
+    phone,
+    otp: otpContext.otp,
+    isVerified: otpContext.isVerified,
+    sendOtp: otpContext.sendOtp,
+    verifyOtp: otpContext.verifyOtp,
+  });
+
+  if (!verified) {
+    if (!otpContext.otpSent && !otpContext.otp.trim()) {
+      throw new Error("OTP sent to your mobile number. Enter it and submit again.");
+    }
+    throw new Error("Please verify your mobile number with OTP before submitting.");
+  }
+}
 
 function getCurrentDateTime() {
   const now = new Date();
@@ -89,6 +115,7 @@ async function postToRitzGoogleCrm(payload: {
 
 export async function handleLeadFormSubmit(
   event: FormEvent<HTMLFormElement>,
+  otpContext?: LeadOtpContext,
 ) {
   event.preventDefault();
 
@@ -106,6 +133,10 @@ export async function handleLeadFormSubmit(
   };
 
   validateLeadFormData(formData);
+
+  if (otpContext) {
+    await requireLeadOtp(formData.phone, otpContext);
+  }
 
   const uniqueId = generateUniqueLeadId();
   const utm = getUtmFields();

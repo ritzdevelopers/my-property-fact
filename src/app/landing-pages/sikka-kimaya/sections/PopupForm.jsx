@@ -5,6 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/Kimaya_Greens_Hero_Image.jpg";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function PopupForm() {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +27,7 @@ export default function PopupForm() {
     phone: "",
     message: "",
   });
+  const leadOtp = useLeadOtp(formData.phone);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsOpen(true), 1000);
@@ -74,6 +81,12 @@ export default function PopupForm() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(cleanedPhone)) {
       setStatus("Phone number must be exactly 10 digits starting with 6, 7, 8, or 9.");
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.phone);
+    if (!verified) {
+      setStatus(getLandingOtpErrorMessage(leadOtp));
       return;
     }
 
@@ -190,6 +203,21 @@ export default function PopupForm() {
                       className="form-control rounded-3"
                       value={formData.phone}
                       onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="mb-3">
+                    <LeadOtpFields
+                      phone={formData.phone}
+                      otp={leadOtp.otp}
+                      onOtpChange={leadOtp.setOtp}
+                      otpSent={leadOtp.otpSent}
+                      isVerified={leadOtp.isVerified}
+                      sending={leadOtp.sending}
+                      verifying={leadOtp.verifying}
+                      error={leadOtp.error}
+                      resendSeconds={leadOtp.resendSeconds}
+                      onSendOtp={leadOtp.sendOtp}
                     />
                   </div>
 

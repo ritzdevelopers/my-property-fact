@@ -6,7 +6,6 @@ import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { usePathname } from "next/navigation";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { Col, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import {
@@ -14,6 +13,16 @@ import {
   validateLeadName as validateName,
   validateLeadPhone as validatePhone,
 } from "@/lib/leadValidation";
+import {
+  getLeadFormHeroAlt,
+  getLeadFormHeroImage,
+} from "@/lib/leadFormImages";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import LeadFormSplitLayout from "@/components/LeadFormSplitLayout";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import "@/components/leadFormSplitLayout.css";
 import "./getTouchEnquirySection.css";
 
 const GET_IN_TOUCH_POINTS = [
@@ -24,17 +33,15 @@ const GET_IN_TOUCH_POINTS = [
 ];
 
 const DEFAULT_HOME_COPY =
-  "If you have any queries about listings, LOCATE scores, or expert guidance on buying or investing, fill out this form and our team will get back to you shortly.";
+  "Queries about listings, LOCATE scores, or expert guidance on buying or investing.";
 
 const DEFAULT_PROJECT_COPY =
-  "If you have any additional queries regarding the project or would like to take the next step in your investment journey, you can fill out this query form and our team will be happy to assist you with what you need.";
+  "Get pricing, floor plans, payment plans, and site visit slots from our property expert.";
 
 /**
- * V2-style “Get in Touch” enquiry block (propertyV2 / propertypageV2).
- * @param {Object} [props.projectDetail] — When set, copy + metadata follow project page.
- * @param {boolean} [props.embeddedInParallax] — Render inner only (parent is `.parallax-strip-overlay`).
- * @param {string} [props.title]
- * @param {string} [props.bodyCopy]
+ * “Get in Touch” enquiry block — split hero + compact single-view form.
+ * @param {Object} [props.projectDetail] — When set, uses project image + metadata.
+ * @param {boolean} [props.embeddedInParallax] — Render inside property parallax overlay.
  */
 export default function GetTouchEnquirySection({
   projectDetail = null,
@@ -61,12 +68,11 @@ export default function GetTouchEnquirySection({
   const [errors, setErrors] = useState({ name: "", email: "", phone: "" });
   const [validated1, setValidated1] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
-  const isLegacy = variant === "legacy";
-  const wrapperClass = `mpf-get-touch-enquiry${isLegacy ? " mpf-get-touch-enquiry--legacy" : ""}`;
-  const titleClass = `get-touch-title${isLegacy ? " get-touch-title--legacy" : ""}`;
-  const copyClass = `get-touch-copy${isLegacy ? " get-touch-copy--legacy" : ""}`;
-  const pointListClass = `get-touch-point-list${isLegacy ? " get-touch-point-list--legacy" : ""}`;
-  const pointItemClass = `get-touch-point-item${isLegacy ? " get-touch-point-item--legacy" : ""}`;
+  const leadOtp = useLeadOtp(formData.phone);
+
+  const heroImageSrc = getLeadFormHeroImage({ projectDetail });
+  const heroImageAlt = getLeadFormHeroAlt({ projectDetail });
+  const layoutVariant = embeddedInParallax ? "embedded" : "inline";
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -106,12 +112,34 @@ export default function GetTouchEnquirySection({
       return;
     }
 
+    if (!leadOtp.isVerified) {
+      toast.error("Please verify your mobile number with OTP before submitting.");
+      return;
+    }
+
     const baseUrl = process.env.NEXT_PUBLIC_UI_URL || "";
     const enquiryFrom =
       projectDetail?.projectName || "Home Page";
 
     try {
       setShowLoading(true);
+
+      const otpVerified = await ensureLeadOtpVerified({
+        phone: formData.phone,
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
+      if (!otpVerified) {
+        if (!leadOtp.otpSent) {
+          toast.info("OTP sent to your mobile number. Enter it to continue.");
+        } else if (leadOtp.error) {
+          toast.error(leadOtp.error);
+        }
+        return;
+      }
+
       const submitData = await buildEnquirySubmitData(
         {
           ...formData,
@@ -148,6 +176,7 @@ export default function GetTouchEnquirySection({
         });
         setErrors({ name: "", email: "", phone: "" });
         setValidated1(false);
+        leadOtp.reset();
         toast.success("Enquiry sent successfully");
       } else {
         toast.error(response.data.message || "Failed to send enquiry. Please try again.");
@@ -162,23 +191,18 @@ export default function GetTouchEnquirySection({
     }
   };
 
-  const inner = (
-    <div className="get-touch-overlay-inner">
-      <h2 className={titleClass} id={`mpf-get-touch-title${uid}`}>
-        {title}
-      </h2>
-      <p className={copyClass}>{copy}</p>
-
-      <div className={pointListClass}>
+  const formContent = (
+    <>
+      <div className="get-touch-point-list" role="list">
         {GET_IN_TOUCH_POINTS.map((point) => (
-          <span key={point} className={pointItemClass}>
+          <span key={point} className="get-touch-point-item" role="listitem">
             <span className="get-touch-point-icon">
               <img
                 src="/icon/verify.svg"
-                alt="Verified point — Get in touch section"
-                title="Verified point — Get in touch section"
+                alt=""
                 width={12}
                 height={12}
+                aria-hidden
               />
             </span>
             <span>{point}</span>
@@ -186,104 +210,143 @@ export default function GetTouchEnquirySection({
         ))}
       </div>
 
-      <div className="project-detail-contact-form get-touch-form-wrap">
-        <Form
-          noValidate
-          validated={validated1}
-          className="w-100"
-          onSubmit={handleSubmit}
-        >
-          <Row className="g-2">
-            <Col md={4}>
-              <Form.Group className="mb-2" controlId={`${uid}-name`}>
-                <Form.Control
-                  type="text"
-                  placeholder="Full Name"
-                  value={formData.name || ""}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="name"
-                  isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.name || "Please provide a valid name."}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
+      <Form
+        noValidate
+        validated={validated1}
+        className="lead-form-fields"
+        onSubmit={handleSubmit}
+        aria-labelledby={`mpf-get-touch-title${uid}`}
+      >
+        <Form.Group className="lead-form-field--full" controlId={`${uid}-phone`}>
+          <Form.Control
+            className="lead-form-input"
+            type="tel"
+            placeholder="Phone Number"
+            value={formData.phone || ""}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            name="phone"
+            isInvalid={!!errors.phone || (validated1 && !formData.phone.trim())}
+            disabled={leadOtp.isVerified}
+            required
+          />
+          <Form.Control.Feedback type="invalid">
+            {errors.phone || "Please provide a valid phone number."}
+          </Form.Control.Feedback>
+        </Form.Group>
 
-            <Col md={4}>
-              <Form.Group className="mb-2" controlId={`${uid}-email`}>
-                <Form.Control
-                  type="email"
-                  placeholder="Email Id"
-                  value={formData.email || ""}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="email"
-                  isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.email || "Please provide a valid email."}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
+        <div className="lead-form-field--full">
+          <LeadOtpFields
+            phone={formData.phone}
+            otp={leadOtp.otp}
+            onOtpChange={leadOtp.setOtp}
+            otpSent={leadOtp.otpSent}
+            isVerified={leadOtp.isVerified}
+            sending={leadOtp.sending}
+            verifying={leadOtp.verifying}
+            error={leadOtp.error}
+            resendSeconds={leadOtp.resendSeconds}
+            onSendOtp={leadOtp.sendOtp}
+            variant="bootstrap"
+            inputClassName="lead-form-input"
+          />
+        </div>
 
-            <Col md={4}>
-              <Form.Group className="mb-2" controlId={`${uid}-phone`}>
-                <Form.Control
-                  type="tel"
-                  placeholder="Phone Number"
-                  value={formData.phone || ""}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  name="phone"
-                  isInvalid={!!errors.phone || (validated1 && !formData.phone.trim())}
-                  required
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.phone || "Please provide a valid phone number."}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
+        <LeadFormLockedSection locked={leadOtp.formLocked} className="lead-form-field--full">
+          <div className="lead-form-fields">
+            <Form.Group controlId={`${uid}-name`}>
+              <Form.Control
+                className="lead-form-input"
+                type="text"
+                placeholder="Full Name"
+                value={formData.name || ""}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="name"
+                isInvalid={!!errors.name || (validated1 && !formData.name.trim())}
+                required
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.name || "Please provide a valid name."}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-          <Form.Group className="mb-2" controlId={`${uid}-message`}>
-            <Form.Control
-              as="textarea"
-              rows={4}
-              placeholder="Message"
-              value={formData.message || ""}
-              onChange={handleChange}
-              name="message"
-              required
-            />
-            <Form.Control.Feedback type="invalid">
-              Please provide a valid message.
-            </Form.Control.Feedback>
-          </Form.Group>
+            <Form.Group controlId={`${uid}-email`}>
+              <Form.Control
+                className="lead-form-input"
+                type="email"
+                placeholder="Email Id"
+                value={formData.email || ""}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                name="email"
+                isInvalid={!!errors.email || (validated1 && !formData.email.trim())}
+                required
+              />
+              <Form.Control.Feedback type="invalid">
+                {errors.email || "Please provide a valid email."}
+              </Form.Control.Feedback>
+            </Form.Group>
 
-          <Button
-            className="btn btn-background text-white border-0 w-100 py-3 text-capitalize get-touch-submit-btn"
-            type="submit"
-            disabled={showLoading}
-          >
-            Submit
-            <LoadingSpinner show={showLoading} />
-          </Button>
-        </Form>
-      </div>
-    </div>
+            <Form.Group className="lead-form-field--full" controlId={`${uid}-message`}>
+              <Form.Control
+                className="lead-form-input lead-form-textarea"
+                as="textarea"
+                rows={2}
+                placeholder="Message"
+                value={formData.message || ""}
+                onChange={handleChange}
+                name="message"
+                required
+              />
+              <Form.Control.Feedback type="invalid">
+                Please provide a valid message.
+              </Form.Control.Feedback>
+            </Form.Group>
+
+            <Button
+              className="lead-form-submit"
+              type="submit"
+              disabled={showLoading || leadOtp.formLocked}
+            >
+              Submit Enquiry
+              <LoadingSpinner show={showLoading} />
+            </Button>
+          </div>
+        </LeadFormLockedSection>
+      </Form>
+    </>
+  );
+
+  const splitLayout = (
+    <LeadFormSplitLayout
+      variant={layoutVariant}
+      imageSrc={heroImageSrc}
+      imageAlt={heroImageAlt}
+      badge={projectDetail?.projectName || null}
+      eyebrow={projectDetail ? "Project enquiry" : "My Property Fact"}
+      title={title}
+      subtitle={copy}
+      mediaOverlay
+    >
+      {formContent}
+    </LeadFormSplitLayout>
   );
 
   if (embeddedInParallax) {
-    return inner;
+    return (
+      <div className="get-touch-parallax-shell">
+        {splitLayout}
+      </div>
+    );
   }
 
   return (
-    <section className={wrapperClass} aria-labelledby={`mpf-get-touch-title${uid}`}>
-      {inner}
+    <section
+      className="mpf-get-touch-enquiry mpf-get-touch-enquiry--split"
+      aria-labelledby={`mpf-get-touch-title${uid}`}
+    >
+      <div className="get-touch-section-inner">{splitLayout}</div>
     </section>
   );
 }

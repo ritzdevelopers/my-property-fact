@@ -1,11 +1,33 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import ScrollTrigger from 'gsap/ScrollTrigger'
 import styles from "./page.module.css";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
+
 export default function HomePage() {
+  const [popupPhone, setPopupPhone] = useState("");
+  const [expertPhone, setExpertPhone] = useState("");
+  const popupLeadOtp = useLeadOtp(popupPhone);
+  const expertLeadOtp = useLeadOtp(expertPhone);
+  const popupPhoneRef = useRef(popupPhone);
+  const expertPhoneRef = useRef(expertPhone);
+  const popupLeadOtpRef = useRef(popupLeadOtp);
+  const expertLeadOtpRef = useRef(expertLeadOtp);
+
+  useEffect(() => {
+    popupPhoneRef.current = popupPhone;
+    expertPhoneRef.current = expertPhone;
+    popupLeadOtpRef.current = popupLeadOtp;
+    expertLeadOtpRef.current = expertLeadOtp;
+  }, [popupPhone, expertPhone, popupLeadOtp, expertLeadOtp]);
   
   useEffect(() => {
     // Initialize a new Lenis instance for smooth scrolling
@@ -185,7 +207,7 @@ gsap.ticker.lagSmoothing(0);
         return overlay;
       };
 
-      const handleFormSubmit = (formId, btnId, statusId) => {
+      const handleFormSubmit = (formId, btnId, statusId, phoneRef, leadOtpRef) => {
         const form = document.getElementById(formId);
         const btn = document.getElementById(btnId);
         const status = document.getElementById(statusId);
@@ -196,7 +218,7 @@ gsap.ticker.lagSmoothing(0);
           e.preventDefault();
 
           const name = form.name.value.trim();
-          const contact = form.contact.value.trim();
+          const contact = phoneRef.current;
           const email = form.email.value.trim();
 
           if (!name || !contact || !email) {
@@ -217,6 +239,15 @@ gsap.ticker.lagSmoothing(0);
 
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             status.textContent = "Please enter a valid email address.";
+            status.style.color = "#dc2626";
+            status.style.fontSize = "14px";
+            status.classList.remove("hidden");
+            return;
+          }
+
+          const verified = await verifyLandingLeadOtp(leadOtpRef.current, contact);
+          if (!verified) {
+            status.textContent = getLandingOtpErrorMessage(leadOtpRef.current);
             status.style.color = "#dc2626";
             status.style.fontSize = "14px";
             status.classList.remove("hidden");
@@ -348,8 +379,8 @@ gsap.ticker.lagSmoothing(0);
         cleanupFns.push(() => form.removeEventListener("submit", submitHandler));
       };
 
-      handleFormSubmit("contactForm", "contactBtn", "contactStatus");
-      handleFormSubmit("expertForm", "expertBtn", "expertStatus");
+      handleFormSubmit("contactForm", "contactBtn", "contactStatus", popupPhoneRef, popupLeadOtpRef);
+      handleFormSubmit("expertForm", "expertBtn", "expertStatus", expertPhoneRef, expertLeadOtpRef);
 
       const splitTextToSpans = (id) => {
         const el = document.getElementById(id);
@@ -678,6 +709,20 @@ gsap.ticker.lagSmoothing(0);
               placeholder="Mobile Number"
               className={styles.formControl}
               required
+              value={popupPhone}
+              onChange={(e) => setPopupPhone(e.target.value)}
+            />
+            <LeadOtpFields
+              phone={popupPhone}
+              otp={popupLeadOtp.otp}
+              onOtpChange={popupLeadOtp.setOtp}
+              otpSent={popupLeadOtp.otpSent}
+              isVerified={popupLeadOtp.isVerified}
+              sending={popupLeadOtp.sending}
+              verifying={popupLeadOtp.verifying}
+              error={popupLeadOtp.error}
+              resendSeconds={popupLeadOtp.resendSeconds}
+              onSendOtp={popupLeadOtp.sendOtp}
             />
             <input
               name="email"
@@ -1136,6 +1181,20 @@ gsap.ticker.lagSmoothing(0);
                 placeholder="Mobile Number"
                 className={styles.contactInput}
                 required
+                value={expertPhone}
+                onChange={(e) => setExpertPhone(e.target.value)}
+              />
+              <LeadOtpFields
+                phone={expertPhone}
+                otp={expertLeadOtp.otp}
+                onOtpChange={expertLeadOtp.setOtp}
+                otpSent={expertLeadOtp.otpSent}
+                isVerified={expertLeadOtp.isVerified}
+                sending={expertLeadOtp.sending}
+                verifying={expertLeadOtp.verifying}
+                error={expertLeadOtp.error}
+                resendSeconds={expertLeadOtp.resendSeconds}
+                onSendOtp={expertLeadOtp.sendOtp}
               />
               <input
                 name="email"

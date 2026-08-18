@@ -1,22 +1,37 @@
 "use client";
 import { useState } from "react";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function FormPopup({ setFormPopup, frmName }) {
   const [isLoading, setIsLoading] = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   const closePopup = () => setShowPopup(false);
 
   const leadController = async (e) => {
     e.preventDefault();
     const form = e.target;
+
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      setPopupMessage(getLandingOtpErrorMessage(leadOtp));
+      return;
+    }
+
     setIsLoading(true);
 
     const date = new Date();
     const params = new URLSearchParams();
     params.append("Name", form.Name.value);
     params.append("Email", form.Email.value);
-    params.append("Phone", form.Phone.value);
+    params.append("Phone", phone);
     params.append("Message", form.Message?.value || "No Message");
     params.append("Date", date.toLocaleDateString("en-US"));
     params.append(
@@ -136,6 +151,20 @@ export default function FormPopup({ setFormPopup, frmName }) {
                 placeholder="Phone Number*"
                 pattern="[0-9]{10}"
                 title="Please enter a valid 10-digit phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <LeadOtpFields
+                phone={phone}
+                otp={leadOtp.otp}
+                onOtpChange={leadOtp.setOtp}
+                otpSent={leadOtp.otpSent}
+                isVerified={leadOtp.isVerified}
+                sending={leadOtp.sending}
+                verifying={leadOtp.verifying}
+                error={leadOtp.error}
+                resendSeconds={leadOtp.resendSeconds}
+                onSendOtp={leadOtp.sendOtp}
               />
               <textarea
                 required

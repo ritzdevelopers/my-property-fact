@@ -1,8 +1,36 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 function Home() {
+    const [floatingPhone, setFloatingPhone] = useState("");
+    const [contactPhone, setContactPhone] = useState("");
+    const [popupPhone, setPopupPhone] = useState("");
+    const floatingLeadOtp = useLeadOtp(floatingPhone);
+    const contactLeadOtp = useLeadOtp(contactPhone);
+    const popupLeadOtp = useLeadOtp(popupPhone);
+    const floatingPhoneRef = useRef(floatingPhone);
+    const contactPhoneRef = useRef(contactPhone);
+    const popupPhoneRef = useRef(popupPhone);
+    const floatingLeadOtpRef = useRef(floatingLeadOtp);
+    const contactLeadOtpRef = useRef(contactLeadOtp);
+    const popupLeadOtpRef = useRef(popupLeadOtp);
+
+    useEffect(() => {
+        floatingPhoneRef.current = floatingPhone;
+        contactPhoneRef.current = contactPhone;
+        popupPhoneRef.current = popupPhone;
+        floatingLeadOtpRef.current = floatingLeadOtp;
+        contactLeadOtpRef.current = contactLeadOtp;
+        popupLeadOtpRef.current = popupLeadOtp;
+    }, [floatingPhone, contactPhone, popupPhone, floatingLeadOtp, contactLeadOtp, popupLeadOtp]);
+
     useEffect(() => {
         const runNavbarScripts = () => {
             if (typeof window === "undefined" || !window.$) return null;
@@ -296,30 +324,36 @@ function Home() {
         const closeBtn = document.getElementById("closeEnquiryPopup");
         const popupOverlay = document.getElementById("enquiryPopup");
         const cleanups = [];
-        const onFloatingSubmit = function (e) {
+        const onFloatingSubmit = async function (e) {
             e.preventDefault();
             const name = document.getElementById("floatingName")?.value?.trim() || "";
-            const contact = document.getElementById("floatingContact")?.value?.trim() || "";
+            const contact = floatingPhoneRef.current;
             const email = document.getElementById("floatingEmail")?.value?.trim() || "";
             if (!validateForm(name, contact, email, "floating")) return;
+            const verified = await verifyLandingLeadOtp(floatingLeadOtpRef.current, contact);
+            if (!verified) { alert(getLandingOtpErrorMessage(floatingLeadOtpRef.current)); return; }
             const sb = this.querySelector("button[type=\"submit\"]");
             submitToGoogleSheet({ name, contact, email, message: document.getElementById("floatingMessage")?.value?.trim() || "", project: "", Date: new Date().toISOString() }, sb, this);
         };
-        const onContactSubmit = function (e) {
+        const onContactSubmit = async function (e) {
             e.preventDefault();
             const name = document.getElementById("contactName")?.value?.trim() || "";
-            const contact = document.getElementById("contactMobile")?.value?.trim() || "";
+            const contact = contactPhoneRef.current;
             const email = document.getElementById("contactEmail")?.value?.trim() || "";
             if (!validateForm(name, contact, email, "contact")) return;
+            const verified = await verifyLandingLeadOtp(contactLeadOtpRef.current, contact);
+            if (!verified) { alert(getLandingOtpErrorMessage(contactLeadOtpRef.current)); return; }
             const sb = this.querySelector("button[type=\"submit\"]");
             submitToGoogleSheet({ name, contact, email, message: document.getElementById("contactMessage")?.value?.trim() || "", project: "", Date: new Date().toISOString() }, sb, this);
         };
-        const onPopupSubmit = function (e) {
+        const onPopupSubmit = async function (e) {
             e.preventDefault();
             const name = document.getElementById("popupName")?.value?.trim() || "";
-            const contact = document.getElementById("popupContact")?.value?.trim() || "";
+            const contact = popupPhoneRef.current;
             const email = document.getElementById("popupEmail")?.value?.trim() || "";
             if (!validateForm(name, contact, email, "popup")) return;
+            const verified = await verifyLandingLeadOtp(popupLeadOtpRef.current, contact);
+            if (!verified) { alert(getLandingOtpErrorMessage(popupLeadOtpRef.current)); return; }
             const sb = this.querySelector("button[type=\"submit\"]");
             submitToGoogleSheet({ name, contact, email, message: document.getElementById("popupMessage")?.value?.trim() || "", project: "", Date: new Date().toISOString() }, sb, this, { downloadBrochureAfterSuccess: true });
         };
@@ -469,10 +503,22 @@ function Home() {
                             style={{ color: '#dc3545', fontSize: '12px', marginTop: -10, marginBottom: 10, display: 'none' }}>Name
                             is required</div>
 
-                        <input type="tel" id="floatingContact" placeholder="Mobile Number" required />
+                        <input type="tel" id="floatingContact" placeholder="Mobile Number" required value={floatingPhone} onChange={(e) => setFloatingPhone(e.target.value)} />
                         <div className="error-message" id="floatingContactError"
                             style={{ color: '#dc3545', fontSize: '12px', marginTop: -10, marginBottom: 10, display: 'none' }}>
                             Valid mobile number is required (10 digits)</div>
+                        <LeadOtpFields
+                            phone={floatingPhone}
+                            otp={floatingLeadOtp.otp}
+                            onOtpChange={floatingLeadOtp.setOtp}
+                            otpSent={floatingLeadOtp.otpSent}
+                            isVerified={floatingLeadOtp.isVerified}
+                            sending={floatingLeadOtp.sending}
+                            verifying={floatingLeadOtp.verifying}
+                            error={floatingLeadOtp.error}
+                            resendSeconds={floatingLeadOtp.resendSeconds}
+                            onSendOtp={floatingLeadOtp.sendOtp}
+                        />
 
                         <input type="email" id="floatingEmail" placeholder="Email Address" required />
                         <div className="error-message" id="floatingEmailError"
@@ -1155,7 +1201,7 @@ function Home() {
                                     </div>
                                     <div className="form-group col-md-4">
                                         <input type="text" id="contactMobile" className="form-control custom-input"
-                                            placeholder="Mobile No." />
+                                            placeholder="Mobile No." value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
                                         <div className="error-message" id="contactMobileError"
                                             style={{ color: '#dc3545', fontSize: '12px', marginTop: 5, display: 'none' }}>Valid
                                             mobile number is required (10 digits)</div>
@@ -1167,6 +1213,21 @@ function Home() {
                                             style={{ color: '#dc3545', fontSize: '12px', marginTop: 5, display: 'none' }}>Valid email
                                             address is required</div>
                                     </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <LeadOtpFields
+                                        phone={contactPhone}
+                                        otp={contactLeadOtp.otp}
+                                        onOtpChange={contactLeadOtp.setOtp}
+                                        otpSent={contactLeadOtp.otpSent}
+                                        isVerified={contactLeadOtp.isVerified}
+                                        sending={contactLeadOtp.sending}
+                                        verifying={contactLeadOtp.verifying}
+                                        error={contactLeadOtp.error}
+                                        resendSeconds={contactLeadOtp.resendSeconds}
+                                        onSendOtp={contactLeadOtp.sendOtp}
+                                    />
                                 </div>
 
                                 <div className="form-group">
@@ -1195,8 +1256,20 @@ function Home() {
                             <input type="text" id="popupName" placeholder="Name" required />
                             <div className="error-message" id="popupNameError">Name is required</div>
 
-                            <input type="tel" id="popupContact" placeholder="Mobile Number" required />
+                            <input type="tel" id="popupContact" placeholder="Mobile Number" required value={popupPhone} onChange={(e) => setPopupPhone(e.target.value)} />
                             <div className="error-message" id="popupContactError">Valid mobile number is required (10 digits)</div>
+                            <LeadOtpFields
+                                phone={popupPhone}
+                                otp={popupLeadOtp.otp}
+                                onOtpChange={popupLeadOtp.setOtp}
+                                otpSent={popupLeadOtp.otpSent}
+                                isVerified={popupLeadOtp.isVerified}
+                                sending={popupLeadOtp.sending}
+                                verifying={popupLeadOtp.verifying}
+                                error={popupLeadOtp.error}
+                                resendSeconds={popupLeadOtp.resendSeconds}
+                                onSendOtp={popupLeadOtp.sendOtp}
+                            />
 
                             <input type="email" id="popupEmail" placeholder="Email Address" required />
                             <div className="error-message" id="popupEmailError">Valid email address is required</div>

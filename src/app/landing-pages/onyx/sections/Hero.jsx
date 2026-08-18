@@ -3,6 +3,12 @@
 import { useState } from "react";
 import bgImage from "../assets/hero_bg.webp";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function Hero() {
   const [buttonText, setButtonText] = useState("Submit");
@@ -13,6 +19,7 @@ export default function Hero() {
     phone: "",
     message: "",
   });
+  const leadOtp = useLeadOtp(formData.phone);
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -41,6 +48,12 @@ export default function Hero() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(phone)) {
       alert("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.phone);
+    if (!verified) {
+      alert(getLandingOtpErrorMessage(leadOtp));
       return;
     }
 
@@ -200,6 +213,20 @@ export default function Hero() {
                     onChange={handleChange}
                     required
                     className="form-control"
+                  />
+                </div>
+                <div className="mb-3">
+                  <LeadOtpFields
+                    phone={formData.phone}
+                    otp={leadOtp.otp}
+                    onOtpChange={leadOtp.setOtp}
+                    otpSent={leadOtp.otpSent}
+                    isVerified={leadOtp.isVerified}
+                    sending={leadOtp.sending}
+                    verifying={leadOtp.verifying}
+                    error={leadOtp.error}
+                    resendSeconds={leadOtp.resendSeconds}
+                    onSendOtp={leadOtp.sendOtp}
                   />
                 </div>
                 <div className="mb-3">

@@ -3,6 +3,12 @@ import React, { useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { FaTimes } from "react-icons/fa";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function EnquiryModal({ isOpen, onClose, formType = "Enquiry" }) {
   const router = useRouter();
@@ -15,6 +21,7 @@ export default function EnquiryModal({ isOpen, onClose, formType = "Enquiry" }) 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const leadOtp = useLeadOtp(formData.Phone);
 
   const modalRef = React.useRef(null);
   const overlayRef = React.useRef(null);
@@ -103,6 +110,12 @@ export default function EnquiryModal({ isOpen, onClose, formType = "Enquiry" }) 
     e.preventDefault();
 
     if (!validateForm()) {
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, formData.Phone);
+    if (!verified) {
+      setSubmitMessage(`❌ ${getLandingOtpErrorMessage(leadOtp)}`);
       return;
     }
 
@@ -385,6 +398,21 @@ export default function EnquiryModal({ isOpen, onClose, formType = "Enquiry" }) 
                     {errors.Phone}
                   </span>
                 )}
+              </div>
+
+              <div>
+                <LeadOtpFields
+                  phone={formData.Phone}
+                  otp={leadOtp.otp}
+                  onOtpChange={leadOtp.setOtp}
+                  otpSent={leadOtp.otpSent}
+                  isVerified={leadOtp.isVerified}
+                  sending={leadOtp.sending}
+                  verifying={leadOtp.verifying}
+                  error={leadOtp.error}
+                  resendSeconds={leadOtp.resendSeconds}
+                  onSendOtp={leadOtp.sendOtp}
+                />
               </div>
 
               {/* Third Row: Message Field (Optional) */}

@@ -11,6 +11,16 @@ import {
   validateLeadName,
   validateLeadPhone,
 } from "@/lib/leadValidation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import LeadFormSplitLayout from "@/components/LeadFormSplitLayout";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
+import {
+  getLeadFormHeroAlt,
+  getLeadFormHeroImage,
+} from "@/lib/leadFormImages";
+import "@/components/leadFormSplitLayout.css";
 
 /** Static spotlight card (no projects API on contact page). */
 const CONTACT_SPOTLIGHT = {
@@ -52,6 +62,7 @@ export default function NewContactUs() {
   const validateName = validateLeadName;
   const validateEmail = validateLeadEmail;
   const validatePhone = validateLeadPhone;
+  const leadOtp = useLeadOtp(formData.phone);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -121,9 +132,30 @@ export default function NewContactUs() {
       return;
     }
 
+    if (!leadOtp.isVerified) {
+      toast.error("Please verify your mobile number with OTP before submitting.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const otpVerified = await ensureLeadOtpVerified({
+        phone: formData.phone,
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
+      if (!otpVerified) {
+        if (!leadOtp.otpSent) {
+          toast.info("OTP sent to your mobile number. Enter it to continue.");
+        } else if (leadOtp.error) {
+          toast.error(leadOtp.error);
+        }
+        return;
+      }
+
       // Prepare enquiry data
       const enquiryData = await buildEnquirySubmitData({
         name: formData.name,
@@ -167,6 +199,7 @@ export default function NewContactUs() {
           phone: "",
         });
         setValidated(false);
+        leadOtp.reset();
       } else {
         toast.error(
           response.data.message || "Failed to submit enquiry. Please try again."
@@ -362,100 +395,113 @@ export default function NewContactUs() {
             </div>
 
             <div className="col-12 col-lg-8 contact-expert-form-column">
-              <div className="contact-expert-form-shell">
-              <div className="contact-expert-form-card">
-                <p className="contact-expert-form-heading">Send a Message</p>
-                <p className="contact-expert-form-lead">
-                  Fill out the form below and one of our property consultants
-                  will reach out shortly.
-                </p>
+              <LeadFormSplitLayout
+                variant="contact"
+                className="contact-expert-split-form"
+                imageSrc={getLeadFormHeroImage()}
+                imageAlt={getLeadFormHeroAlt()}
+                eyebrow="My Property Fact"
+                title="Send a Message"
+                subtitle="Fill out the form and one of our property consultants will reach out shortly."
+              >
                 <form
-                  className="contact-expert-form"
+                  className="lead-form-fields contact-expert-lead-form"
                   onSubmit={handleSubmit}
                   noValidate
                 >
-                  <div className="row g-3">
-                    <div className="col-md-6">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-name"
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        id="contact-expert-name"
-                        type="text"
-                        name="name"
-                        className={`contact-expert-input contact-expert-input--body ${errors.name ? "is-invalid" : ""
-                          }`}
-                        placeholder="Enter Your Name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.name && (
-                        <span className="contact-expert-error">{errors.name}</span>
-                      )}
-                    </div>
-                    <div className="col-md-6">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-phone"
-                      >
-                        Phone Number
-                      </label>
-                      <input
-                        id="contact-expert-phone"
-                        type="tel"
-                        name="phone"
-                        className={`contact-expert-input contact-expert-input--body ${errors.phone ? "is-invalid" : ""
-                          }`}
-                        placeholder="+91 00000 00000"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.phone && (
-                        <span className="contact-expert-error">{errors.phone}</span>
-                      )}
-                    </div>
-                    <div className="col-12">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-email"
-                      >
-                        Email Address
-                      </label>
-                      <input
-                        id="contact-expert-email"
-                        type="email"
-                        name="email"
-                        className={`contact-expert-input ${errors.email ? "is-invalid" : ""
-                          }`}
-                        placeholder="Enter Your Email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        onBlur={handleBlur}
-                        required
-                      />
-                      {errors.email && (
-                        <span className="contact-expert-error">{errors.email}</span>
-                      )}
-                    </div>
-                    <div className="col-12">
-                      <fieldset className="contact-expert-interest-fieldset">
-                        <legend className="contact-expert-label contact-expert-interest-legend">
+                  <div className="lead-form-field--full">
+                    <label className="lead-form-label" htmlFor="contact-expert-phone">
+                      Phone Number
+                    </label>
+                    <input
+                      id="contact-expert-phone"
+                      type="tel"
+                      name="phone"
+                      className={`lead-form-input ${errors.phone ? "is-invalid" : ""}`}
+                      placeholder="+91 00000 00000"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      onBlur={handleBlur}
+                      disabled={leadOtp.isVerified}
+                      required
+                    />
+                    {errors.phone ? (
+                      <span className="contact-expert-error">{errors.phone}</span>
+                    ) : null}
+                  </div>
+
+                  <div className="lead-form-field--full">
+                    <label className="lead-form-label" htmlFor="contact-expert-otp">
+                      Verify Mobile
+                    </label>
+                    <LeadOtpFields
+                      phone={formData.phone}
+                      otp={leadOtp.otp}
+                      onOtpChange={leadOtp.setOtp}
+                      otpSent={leadOtp.otpSent}
+                      isVerified={leadOtp.isVerified}
+                      sending={leadOtp.sending}
+                      verifying={leadOtp.verifying}
+                      error={leadOtp.error}
+                      resendSeconds={leadOtp.resendSeconds}
+                      onSendOtp={leadOtp.sendOtp}
+                      inputClassName="lead-form-input"
+                    />
+                  </div>
+
+                  <LeadFormLockedSection locked={leadOtp.formLocked} className="lead-form-field--full">
+                    <div className="lead-form-fields">
+                      <div>
+                        <label className="lead-form-label" htmlFor="contact-expert-name">
+                          Full Name
+                        </label>
+                        <input
+                          id="contact-expert-name"
+                          type="text"
+                          name="name"
+                          className={`lead-form-input ${errors.name ? "is-invalid" : ""}`}
+                          placeholder="Enter Your Name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.name ? (
+                          <span className="contact-expert-error">{errors.name}</span>
+                        ) : null}
+                      </div>
+
+                      <div>
+                        <label className="lead-form-label" htmlFor="contact-expert-email">
+                          Email Address
+                        </label>
+                        <input
+                          id="contact-expert-email"
+                          type="email"
+                          name="email"
+                          className={`lead-form-input ${errors.email ? "is-invalid" : ""}`}
+                          placeholder="Enter Your Email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          onBlur={handleBlur}
+                          required
+                        />
+                        {errors.email ? (
+                          <span className="contact-expert-error">{errors.email}</span>
+                        ) : null}
+                      </div>
+
+                      <div className="lead-form-field--full" role="group" aria-labelledby="contact-expert-interest-label">
+                        <p id="contact-expert-interest-label" className="lead-form-label">
                           Interested In
-                        </legend>
-                        <div className="contact-expert-radio-group">
+                        </p>
+                        <div className="contact-expert-radio-group contact-expert-radio-group--compact">
                           {INTEREST_OPTIONS.map((opt, i) => {
                             const inputId = `contact-expert-interest-${i}`;
                             return (
                               <label
                                 key={opt}
-                                className="contact-expert-radio"
+                                className="contact-expert-radio contact-expert-radio--compact"
                                 htmlFor={inputId}
                                 title={opt}
                               >
@@ -475,47 +521,36 @@ export default function NewContactUs() {
                             );
                           })}
                         </div>
-                      </fieldset>
-                    </div>
-                    <div className="col-12">
-                      <label
-                        className="contact-expert-label"
-                        htmlFor="contact-expert-message"
+                      </div>
+
+                      <div className="lead-form-field--full">
+                        <label className="lead-form-label" htmlFor="contact-expert-message">
+                          Your Message
+                        </label>
+                        <textarea
+                          id="contact-expert-message"
+                          name="message"
+                          className="lead-form-input lead-form-textarea"
+                          placeholder="How can we help you?"
+                          rows={2}
+                          value={formData.message}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="lead-form-submit"
+                        disabled={isSubmitting || leadOtp.formLocked}
+                        title="Submit your inquiry — sends this form to My Property Fact"
                       >
-                        Your Message
-                      </label>
-                      <textarea
-                        id="contact-expert-message"
-                        name="message"
-                        className="contact-expert-textarea"
-                        placeholder="How can we help you?"
-                        rows={4}
-                        value={formData.message}
-                        onChange={handleChange}
-                        required
-                      />
+                        {isSubmitting ? "Sending…" : "Send Enquiry"}
+                      </button>
                     </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="contact-expert-submit"
-                    disabled={isSubmitting}
-                    title="Submit your inquiry — sends this form to My Property Fact"
-                  >
-                    <span>{isSubmitting ? "Sending…" : "Send Inquiry"}</span>
-                    <img
-                      src="/static/icon/enquiry.svg"
-                      alt="Enquiry icon — submits this form"
-                      title="Enquiry icon — submits this form"
-                      width={19}
-                      height={16}
-                      className="contact-expert-submit-icon"
-                      aria-hidden
-                    />
-                  </button>
+                  </LeadFormLockedSection>
                 </form>
-              </div>
-              </div>
+              </LeadFormSplitLayout>
             </div>
           </div>
         </div>
@@ -590,6 +625,20 @@ export default function NewContactUs() {
                     {errors.phone && (
                       <span className="error-message">{errors.phone}</span>
                     )}
+                  </div>
+                  <div className="col-md-6">
+                    <LeadOtpFields
+                      phone={formData.phone}
+                      otp={leadOtp.otp}
+                      onOtpChange={leadOtp.setOtp}
+                      otpSent={leadOtp.otpSent}
+                      isVerified={leadOtp.isVerified}
+                      sending={leadOtp.sending}
+                      verifying={leadOtp.verifying}
+                      error={leadOtp.error}
+                      resendSeconds={leadOtp.resendSeconds}
+                      onSendOtp={leadOtp.sendOtp}
+                    />
                   </div>
                   <div className="col-md-6">
                     <input

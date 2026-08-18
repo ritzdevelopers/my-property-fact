@@ -3,6 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import LeadOtpFields from '@/components/LeadOtpFields';
+import { useLeadOtp } from '@/hooks/useLeadOtp';
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from '@/lib/landingLeadOtp';
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState('menu'); // Initialize with the default active tab
   const handleTabClick = (tabId) => {
@@ -12,6 +19,10 @@ export default function Home() {
   const formRef2 = useRef(null);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [sidebarPhone, setSidebarPhone] = useState('');
+  const [modalPhone, setModalPhone] = useState('');
+  const sidebarLeadOtp = useLeadOtp(sidebarPhone);
+  const modalLeadOtp = useLeadOtp(modalPhone);
 
   const scriptURL =
     'https://script.google.com/macros/s/AKfycbzixiVyziEnKNKnS72yHhzwzOoDLuMjyFf2xqOPh0hHaru2kld7-LV1pUtZpAYKXR0/exec';
@@ -19,11 +30,11 @@ export default function Home() {
   const isValidMobile = (mobile) => /^[6-9]\d{9}$/.test(mobile);
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const handleSubmit = async (e, formRef) => {
+  const handleSubmit = async (e, formRef, leadOtp, phone) => {
     e.preventDefault();
 
     const form = formRef.current;
-    const mobileNo = form.qMobileNo.value.trim();
+    const mobileNo = phone.trim();
     const email = form.qEmailID.value.trim();
     if (!isValidMobile(mobileNo)) {
       alert('Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.');
@@ -32,6 +43,12 @@ export default function Home() {
 
     if (!isValidEmail(email)) {
       alert('Please enter a valid email address.');
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      alert(getLandingOtpErrorMessage(leadOtp));
       return;
     }
 
@@ -399,7 +416,7 @@ export default function Home() {
                     id="form1"
                     name="submit-to-google-sheet-form-1"
                     ref={formRef1}
-                    onSubmit={(e) => handleSubmit(e, formRef1)}
+                    onSubmit={(e) => handleSubmit(e, formRef1, sidebarLeadOtp, sidebarPhone)}
                   >
                     <input
                       type="text"
@@ -417,6 +434,20 @@ export default function Home() {
                       id="qMobileNo"
                       minLength="10"
                       required
+                      value={sidebarPhone}
+                      onChange={(e) => setSidebarPhone(e.target.value)}
+                    />
+                    <LeadOtpFields
+                      phone={sidebarPhone}
+                      otp={sidebarLeadOtp.otp}
+                      onOtpChange={sidebarLeadOtp.setOtp}
+                      otpSent={sidebarLeadOtp.otpSent}
+                      isVerified={sidebarLeadOtp.isVerified}
+                      sending={sidebarLeadOtp.sending}
+                      verifying={sidebarLeadOtp.verifying}
+                      error={sidebarLeadOtp.error}
+                      resendSeconds={sidebarLeadOtp.resendSeconds}
+                      onSendOtp={sidebarLeadOtp.sendOtp}
                     />
                     <input
                       type="email"
@@ -1159,7 +1190,7 @@ export default function Home() {
                   id="form1"
                   name="submit-to-google-sheet-form-1"
                   ref={formRef2}
-                  onSubmit={(e) => handleSubmit(e, formRef2)}
+                  onSubmit={(e) => handleSubmit(e, formRef2, modalLeadOtp, modalPhone)}
                   className="space-y-4"
                 >
                   <input
@@ -1178,6 +1209,20 @@ export default function Home() {
                     id="qMobileNo"
                     minLength="10"
                     required
+                    value={modalPhone}
+                    onChange={(e) => setModalPhone(e.target.value)}
+                  />
+                  <LeadOtpFields
+                    phone={modalPhone}
+                    otp={modalLeadOtp.otp}
+                    onOtpChange={modalLeadOtp.setOtp}
+                    otpSent={modalLeadOtp.otpSent}
+                    isVerified={modalLeadOtp.isVerified}
+                    sending={modalLeadOtp.sending}
+                    verifying={modalLeadOtp.verifying}
+                    error={modalLeadOtp.error}
+                    resendSeconds={modalLeadOtp.resendSeconds}
+                    onSendOtp={modalLeadOtp.sendOtp}
                   />
                   <input
                     type="email"

@@ -10,6 +10,14 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 
 import { usePathname, useRouter } from "next/navigation";
 import { buildEnquirySubmitData } from "@/lib/leadTracker";
+import {
+  validateLeadEmail,
+  validateLeadName,
+  validateLeadPhone,
+} from "@/lib/leadValidation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
 
 /** Animated GIF must load via `<img>` (next/image optimizes away animation). File: `public/static/icon/chatbot.gif`. */
 const CHATBOT_LAUNCHER_LOGO = "/static/icon/chatbot.gif";
@@ -701,6 +709,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const pathName = usePathname();
+  const leadOtp = useLeadOtp(formData.phone);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -727,6 +736,23 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
     setIsSubmitting(true);
 
     try {
+      const otpVerified = await ensureLeadOtpVerified({
+        phone: formData.phone,
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
+      if (!otpVerified) {
+        if (!leadOtp.otpSent) {
+          setError("OTP sent to your mobile. Enter it and submit again.");
+        } else {
+          setError(leadOtp.error || "Please verify OTP before submitting.");
+        }
+        setIsSubmitting(false);
+        return;
+      }
+
       const submitData = await buildEnquirySubmitData(
         {
           ...formData,
@@ -764,6 +790,7 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
       const isOk = payload.success || payload.isSuccess === 1;
       if (isOk) {
         setIsSuccess(true);
+        leadOtp.reset();
         onSuccess(
           payload.reply || "Enquiry sent successfully. Our consultant will contact you within 24 hours.",
           payload.followUp,
@@ -811,6 +838,19 @@ function LeadForm({ projectName, projectLink, sessionId, onSuccess }) {
         maxLength="10"
         value={formData.phone}
         onChange={(e) => handleChange("phone", e.target.value.replace(/\D/g, "").slice(0, 10))}
+      />
+      <LeadOtpFields
+        phone={formData.phone}
+        otp={leadOtp.otp}
+        onOtpChange={leadOtp.setOtp}
+        otpSent={leadOtp.otpSent}
+        isVerified={leadOtp.isVerified}
+        sending={leadOtp.sending}
+        verifying={leadOtp.verifying}
+        error={leadOtp.error}
+        resendSeconds={leadOtp.resendSeconds}
+        onSendOtp={leadOtp.sendOtp}
+        className={styles.chatOtpFields}
       />
       <input
         type="email"

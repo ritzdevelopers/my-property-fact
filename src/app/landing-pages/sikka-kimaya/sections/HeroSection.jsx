@@ -4,10 +4,18 @@ import React, { useState } from "react";
 import bannerImg from "../assets/Kimaya_Greens_Hero_Image.jpg";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useRouter } from "next/navigation";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function HeroSection() {
   const router = useRouter();
   const [captchaToken, setCaptchaToken] = useState(null);
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   const handleCaptchaChange = (token) => {
     setCaptchaToken(token);
@@ -21,10 +29,16 @@ export default function HeroSection() {
       return;
     }
 
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      alert(getLandingOtpErrorMessage(leadOtp));
+      return;
+    }
+
     const form = e.target;
     const data = {
       name: form[0].value,
-      phone: form[1].value,
+      phone,
       email: form[2].value,
       message: form[3].value,
     };
@@ -94,9 +108,26 @@ export default function HeroSection() {
             <div className="mb-3">
               <input
                 type="tel"
+                name="phone"
                 placeholder="Enter Your Mobile Number"
                 className="form-control"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
+              />
+            </div>
+            <div className="mb-3">
+              <LeadOtpFields
+                phone={phone}
+                otp={leadOtp.otp}
+                onOtpChange={leadOtp.setOtp}
+                otpSent={leadOtp.otpSent}
+                isVerified={leadOtp.isVerified}
+                sending={leadOtp.sending}
+                verifying={leadOtp.verifying}
+                error={leadOtp.error}
+                resendSeconds={leadOtp.resendSeconds}
+                onSendOtp={leadOtp.sendOtp}
               />
             </div>
             <div className="mb-3">

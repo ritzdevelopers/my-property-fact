@@ -16,8 +16,8 @@ export default function WhyMyPropertyFact() {
           <p>
             We&apos;re committed to transparency, innovation, and reliability. By
             harnessing the power of technology and a dedicated support team, we
-            aim to make the entire real estate journey—from initial search to
-            final closing—as smooth and rewarding as possible.
+            aim to make the entire real estate journey, from initial search to
+            final closing, as smooth and rewarding as possible.
           </p>
 
           <p>
@@ -41,7 +41,7 @@ export default function WhyMyPropertyFact() {
           href="/contact-us"
           className="commitment-btn"
         >
-          Read More
+          Contact Us
         </Link>
 
       </div>

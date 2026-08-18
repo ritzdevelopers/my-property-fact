@@ -2,6 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import {
+  getLandingOtpErrorMessage,
+  verifyLandingLeadOtp,
+} from "@/lib/landingLeadOtp";
 
 export default function Contact() {
   const formRef = useRef(null);
@@ -10,6 +16,8 @@ export default function Contact() {
   const router = useRouter();
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [buttonText, setButtonText] = useState("Enquire Now");
+  const [phone, setPhone] = useState("");
+  const leadOtp = useLeadOtp(phone);
 
   const handleDownloadClick = (e) => {
     e.preventDefault();
@@ -39,7 +47,7 @@ export default function Contact() {
     const formData = {
       name: form.name.value.trim(),
       email: form.email.value.trim(),
-      phone: form.phone.value.trim(),
+      phone: phone.trim(),
       message: form.message.value.trim(),
     };
 
@@ -65,6 +73,12 @@ export default function Contact() {
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(formData.phone)) {
       alert("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    const verified = await verifyLandingLeadOtp(leadOtp, phone);
+    if (!verified) {
+      alert(getLandingOtpErrorMessage(leadOtp));
       return;
     }
 
@@ -190,6 +204,23 @@ export default function Contact() {
                   placeholder="10-digit mobile number"
                   required
                   className="form-control"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-3">
+                <LeadOtpFields
+                  phone={phone}
+                  otp={leadOtp.otp}
+                  onOtpChange={leadOtp.setOtp}
+                  otpSent={leadOtp.otpSent}
+                  isVerified={leadOtp.isVerified}
+                  sending={leadOtp.sending}
+                  verifying={leadOtp.verifying}
+                  error={leadOtp.error}
+                  resendSeconds={leadOtp.resendSeconds}
+                  onSendOtp={leadOtp.sendOtp}
                 />
               </div>
 

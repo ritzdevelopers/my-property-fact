@@ -1,63 +1,31 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import { usePathname } from "next/navigation";
-import {
-  buildProjectImageUrl,
-  DEFAULT_PROJECT_CARD_IMAGE,
-} from "@/lib/projectImageUrl";
 import { buildEnquirySubmitData, warmUpLiveLocation } from "@/lib/leadTracker";
 import {
   validateLeadEmail,
   validateLeadName,
   validateLeadPhone,
 } from "@/lib/leadValidation";
+import {
+  getLeadFormHeroAlt,
+  getLeadFormHeroImage,
+} from "@/lib/leadFormImages";
+import LeadOtpFields from "@/components/LeadOtpFields";
+import LeadFormLockedSection from "@/components/LeadFormLockedSection";
+import LeadFormSplitLayout from "@/components/LeadFormSplitLayout";
+import { useLeadOtp } from "@/hooks/useLeadOtp";
+import { ensureLeadOtpVerified } from "@/lib/leadOtpClient";
 import "./popupform.css";
-
-/** End of headline: “Start Your Journey to the …” — typewriter cycles these in the enquiry popup (split layout). */
-const ENQUIRY_JOURNEY_PHRASES = [
-  "Perfect Space!",
-  "Ideal Property",
-  "Perfect Investment!",
-  "Perfect Workspace!",
-  "Perfect Location!",
-  "Ideal Space!",
-  "Perfect Office!",
-  "Ideal Residence!",
-  "Perfect Property!",
-];
-
-const ENQUIRY_JOURNEY_TYPE_MS = 68;
-const ENQUIRY_JOURNEY_DELETE_MS = 42;
-/** Pause when a phrase is fully typed, before backspacing. */
-const ENQUIRY_JOURNEY_PAUSE_END_MS = 2200;
-/** Short pause after clearing before typing the next phrase. */
-const ENQUIRY_JOURNEY_GAP_MS = 380;
-
-function getProjectImageSrc(data) {
-  if (!data?.slugURL) return DEFAULT_PROJECT_CARD_IMAGE;
-
-  const desktopHero = data.desktopImages?.[0]?.desktopImage;
-  if (desktopHero) {
-    const imageBase = process.env.NEXT_PUBLIC_IMAGE_URL || "";
-    if (/^https?:\/\//i.test(desktopHero) || desktopHero.startsWith("/")) {
-      return desktopHero;
-    }
-    return `${imageBase}properties/${data.slugURL}/${desktopHero}`;
-  }
-
-  return buildProjectImageUrl(data, { preferThumbnail: true });
-}
 
 export default function CommonPopUpform({
   show,
   handleClose,
   from,
   data,
-  /** When true with `from="Project Detail"`, uses the simple enquiry modal (no animated headline). */
-  skipAnimatedHeadline = false,
 }) {
   const [validated, setValidated] = useState(false);
   const pathname = usePathname();
@@ -74,11 +42,7 @@ export default function CommonPopUpform({
   };
   const [formData, setFormData] = useState(intitalData);
   const [showLoading, setShowLoading] = useState(false);
-  const [buttonName, setButtonName] = useState("Submit Enquiry");
-  const [journeyTypedText, setJourneyTypedText] = useState("");
-  const journeyTypeTimerRef = useRef(null);
 
-  //Validation errors state
   const [errors, setErrors] = useState({
     name: "",
     email: "",
@@ -88,8 +52,8 @@ export default function CommonPopUpform({
   const validateName = validateLeadName;
   const validateEmail = validateLeadEmail;
   const validatePhone = validateLeadPhone;
+  const leadOtp = useLeadOtp(formData.phone);
 
-  //Handlechanging input fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
@@ -97,7 +61,6 @@ export default function CommonPopUpform({
       [name]: value,
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({
         ...prev,
@@ -106,7 +69,6 @@ export default function CommonPopUpform({
     }
   };
 
-  //Handle blur validation
   const handleBlur = (e) => {
     const { name, value } = e.target;
     let error = "";
@@ -122,26 +84,23 @@ export default function CommonPopUpform({
     }
   };
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!show) {
       setFormData(intitalData);
       setValidated(false);
       setErrors({ name: "", email: "", phone: "" });
+      leadOtp.reset();
     }
   }, [show]);
 
-  // Ask for live GPS when enquiry popup opens (browser Allow/Block prompt)
   useEffect(() => {
     if (show) warmUpLiveLocation();
   }, [show]);
 
-  //handle form submit
   const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
 
-    // Validate all fields (aligned with contact us page)
     const nameError = validateName(formData.name);
     const emailError = validateEmail(formData.email);
     const phoneError = validatePhone(formData.phone);
@@ -166,10 +125,30 @@ export default function CommonPopUpform({
       return;
     }
 
+    if (!leadOtp.isVerified) {
+      toast.error("Please verify your mobile number with OTP before submitting.");
+      return;
+    }
+
     try {
       setShowLoading(true);
-      setButtonName("");
-      // Build payload metadata based on source page
+
+      const otpVerified = await ensureLeadOtpVerified({
+        phone: formData.phone,
+        otp: leadOtp.otp,
+        isVerified: leadOtp.isVerified,
+        sendOtp: leadOtp.sendOtp,
+        verifyOtp: leadOtp.verifyOtp,
+      });
+      if (!otpVerified) {
+        if (!leadOtp.otpSent) {
+          toast.info("OTP sent to your mobile number. Enter it to continue.");
+        } else if (leadOtp.error) {
+          toast.error(leadOtp.error);
+        }
+        return;
+      }
+
       const submitData = await buildEnquirySubmitData(
         {
           ...formData,
@@ -194,13 +173,12 @@ export default function CommonPopUpform({
         `${process.env.NEXT_PUBLIC_API_URL}enquiry/post`,
         submitData
       );
-      // Check if response is successful
       if (response.data.isSuccess === 1) {
-        // onSuccess();
         closeModal();
-        setValidated(false); // Reset validation state
+        setValidated(false);
         setFormData(intitalData);
         setErrors({ name: "", email: "", phone: "" });
+        leadOtp.reset();
         toast.success("Enquiry sent successfully");
       } else {
         toast.error(response.data.message || "Failed to send enquiry. Please try again.");
@@ -214,77 +192,23 @@ export default function CommonPopUpform({
       console.error("Error submitting form:", error);
     } finally {
       setShowLoading(false);
-      setButtonName("Submit Enquiry");
     }
   };
 
   const isProjectDetail = from === "Project Detail" && data?.slugURL;
-  const useSplitLayout =
-    (isProjectDetail && !skipAnimatedHeadline) || from === "Home Page";
-  const isHomeSplit = !isProjectDetail && useSplitLayout;
-
-  useEffect(() => {
-    const clearTimer = () => {
-      if (journeyTypeTimerRef.current) {
-        clearTimeout(journeyTypeTimerRef.current);
-        journeyTypeTimerRef.current = null;
-      }
-    };
-
-    if (!show || !useSplitLayout) {
-      clearTimer();
-      setJourneyTypedText("");
-      return undefined;
-    }
-
-    let phraseIdx = 0;
-    let pos = 0;
-    let deleting = false;
-
-    const runTick = () => {
-      const full = ENQUIRY_JOURNEY_PHRASES[phraseIdx];
-      if (!deleting) {
-        if (pos < full.length) {
-          pos += 1;
-          setJourneyTypedText(full.slice(0, pos));
-          journeyTypeTimerRef.current = setTimeout(
-            runTick,
-            ENQUIRY_JOURNEY_TYPE_MS,
-          );
-        } else {
-          journeyTypeTimerRef.current = setTimeout(() => {
-            deleting = true;
-            runTick();
-          }, ENQUIRY_JOURNEY_PAUSE_END_MS);
-        }
-      } else if (pos > 0) {
-        pos -= 1;
-        setJourneyTypedText(full.slice(0, pos));
-        journeyTypeTimerRef.current = setTimeout(
-          runTick,
-          ENQUIRY_JOURNEY_DELETE_MS,
-        );
-      } else {
-        deleting = false;
-        phraseIdx = (phraseIdx + 1) % ENQUIRY_JOURNEY_PHRASES.length;
-        journeyTypeTimerRef.current = setTimeout(
-          runTick,
-          ENQUIRY_JOURNEY_GAP_MS,
-        );
-      }
-    };
-
-    setJourneyTypedText("");
-    journeyTypeTimerRef.current = setTimeout(runTick, ENQUIRY_JOURNEY_GAP_MS);
-
-    return () => {
-      clearTimer();
-    };
-  }, [show, useSplitLayout]);
-  const popupImageSrc = isProjectDetail
-    ? getProjectImageSrc(data)
-    : "/static/icon/enquiry.png";
-  const popupImageAlt = isProjectDetail ? data?.projectName || "Project" : "Enquiry";
+  const heroImageSrc = getLeadFormHeroImage({
+    projectDetail: isProjectDetail ? data : null,
+  });
+  const heroImageAlt = getLeadFormHeroAlt({
+    projectDetail: isProjectDetail ? data : null,
+  });
+  const heroBadge = isProjectDetail ? data?.projectName : null;
+  const heroTitle = isProjectDetail
+    ? "Enquire About This Property"
+    : "Start Your Property Journey";
+  const heroSubtitle = isProjectDetail
+    ? "Share your details and our expert will call you with pricing, floor plans, and site visit slots."
+    : "Tell us what you need , residential, commercial, or investment , and we will call you back shortly.";
 
   const closeModal = () => {
     handleClose(false);
@@ -297,275 +221,138 @@ export default function CommonPopUpform({
   };
 
   return (
-    <>
-      <Modal
-        show={show}
-        onHide={closeModal}
-        centered
-        restoreFocus={false}
-        backdropClassName="enquiry-popup-backdrop"
-        className={`enquiry-popup ${useSplitLayout ? "enquiry-popup--split" : "enquiry-popup--home"}`}
-        dialogClassName={`enquiry-popup-dialog ${!useSplitLayout ? "enquiry-popup-dialog--home" : ""}`}
+    <Modal
+      show={show}
+      onHide={closeModal}
+      centered
+      restoreFocus={false}
+      backdropClassName="enquiry-popup-backdrop"
+      className="enquiry-popup enquiry-popup--split-v2"
+      dialogClassName="enquiry-popup-dialog enquiry-popup-dialog--split-v2"
+    >
+      <LeadFormSplitLayout
+        variant="modal"
+        imageSrc={heroImageSrc}
+        imageAlt={heroImageAlt}
+        badge={heroBadge}
+        eyebrow={isProjectDetail ? "Project enquiry" : "My Property Fact"}
+        title={heroTitle}
+        subtitle={heroSubtitle}
+        onClose={closeModal}
       >
-        {useSplitLayout ? (
-          <>
-        <button
-          type="button"
-          className="btn-close enquiry-popup-close"
-          aria-label="Close"
-          onClick={closeModal}
-        />
-          <div className={`enquiry-popup-split ${isHomeSplit ? "enquiry-popup-split--home" : ""}`}>
-            <div className={`enquiry-popup-image ${isHomeSplit ? "enquiry-popup-image--home" : ""}`}>
-              <img
-                src={popupImageSrc}
-                alt={popupImageAlt}
-                className={`enquiry-popup-image-img ${isHomeSplit ? "enquiry-popup-image-img--home" : ""}`}
-               style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
-            </div>
-            <div className="enquiry-popup-form-wrap">
-              <p className="enquiry-popup-intro">
-                We offer various property listings for you to explore.
-              </p>
-              <h2 className="enquiry-popup-title-main">
-                <span className="enquiry-popup-title-regular">Start Your Journey to the </span>
-                <span className="enquiry-popup-title-accent-wrap">
-                  <span className="enquiry-popup-title-accent">
-                    {journeyTypedText}
-                  </span>
-                  <span
-                    className="enquiry-popup-title-cursor"
-                    aria-hidden="true"
-                  />
-                  <div className="enquiry-popup-title-highlight" aria-hidden="true" />
-                </span>
-              </h2>
-              <Form
-                noValidate
-                validated={validated}
-                onSubmit={handleSubmit}
-                className="enquiry-popup-form"
-              >
-                <Form.Group className="mb-3" controlId="full_name">
-                  <Form.Control
-                    className="enquiry-popup-input"
-                    type="text"
-                    placeholder="Full Name"
-                    value={formData.name}
-                    onChange={(e) => handleChange(e)}
-                    onBlur={handleBlur}
-                    name="name"
-                    isInvalid={!!errors.name || (validated && !formData.name.trim())}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.name || "Please provide a valid name."}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="email_id">
-                  <Form.Control
-                    className="enquiry-popup-input"
-                    type="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={(e) => handleChange(e)}
-                    onBlur={handleBlur}
-                    name="email"
-                    isInvalid={!!errors.email || (validated && !formData.email.trim())}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.email || "Please provide a valid email."}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="phone_number">
-                  <Form.Control
-                    className="enquiry-popup-input"
-                    type="tel"
-                    placeholder="Phone Number"
-                    value={formData.phone}
-                    onChange={(e) => handleChange(e)}
-                    onBlur={handleBlur}
-                    name="phone"
-                    isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-                    required
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {errors.phone || "Please provide a valid phone number."}
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="message">
-                  <Form.Control
-                    className="enquiry-popup-input"
-                    as="textarea"
-                    rows={3}
-                    placeholder="Message"
-                    value={formData.message}
-                    onChange={(e) => handleChange(e)}
-                    name="message"
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    Please provide a valid message.
-                  </Form.Control.Feedback>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="user_location">
-                  <Form.Control
-                    className="enquiry-popup-input"
-                    type="text"
-                    placeholder="Your location (optional) e.g. 640/3 Jagriti Vihar, Meerut"
-                    value={formData.userLocation}
-                    onChange={(e) => handleChange(e)}
-                    name="userLocation"
-                    autoComplete="street-address"
-                  />
-                </Form.Group>
-                <Button
-                  type="submit"
-                  className="fw-bold border-0 enquiry-popup-submit enquiry-popup-submit--callback"
-                  disabled={showLoading}
-                >
-                  Request a Callback <LoadingSpinner show={showLoading} />
-                </Button>
-              </Form>
-              <p className="enquiry-popup-footer">Ready to help! Fill the form, and we&apos;ll call soon.</p>
-            </div>
-          </div>
-          </>
-        ) : (
-          <div className="enquiry-popup-home">
-            <button
-              type="button"
-              className="btn-close enquiry-popup-home__close"
-              aria-label="Close"
-              onClick={closeModal}
+        <Form
+          noValidate
+          validated={validated}
+          onSubmit={handleSubmit}
+          className="lead-form-fields"
+        >
+          <Form.Group className="lead-form-field--full" controlId="phone_number">
+            <Form.Control
+              className="lead-form-input"
+              type="tel"
+              placeholder="Phone Number"
+              value={formData.phone}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              name="phone"
+              isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
+              disabled={leadOtp.isVerified}
+              required
             />
-            <div className="enquiry-popup-home__header">
-              <span className="enquiry-popup-home__eyebrow">We&apos;re here to help</span>
-              <h2 id="enquiry-popup-home-title" className="enquiry-popup-home__title">
-                Tell us how we can reach you
-              </h2>
-              <p className="enquiry-popup-home__lead">
-                A quick note is enough — our team usually responds within one business day.
-              </p>
-            </div>
-            <div className="enquiry-popup-home__body">
-              <Form
-                noValidate
-                validated={validated}
-                onSubmit={handleSubmit}
-                className="enquiry-popup-form enquiry-popup-home__form"
-                aria-labelledby="enquiry-popup-home-title"
-              >
-                <div className="enquiry-popup-home__grid">
-                  <Form.Group className="enquiry-popup-home__field" controlId="full_name_home">
-                    <Form.Label className="enquiry-popup-home__label">Full name</Form.Label>
-                    <Form.Control
-                      className="enquiry-popup-input enquiry-popup-input--home"
-                      type="text"
-                      placeholder="e.g. Rahul Sharma"
-                      value={formData.name}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="name"
-                      isInvalid={!!errors.name || (validated && !formData.name.trim())}
-                      required
-                      autoComplete="name"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.name || "Please provide a valid name."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group className="enquiry-popup-home__field" controlId="email_id_home">
-                    <Form.Label className="enquiry-popup-home__label">Email</Form.Label>
-                    <Form.Control
-                      className="enquiry-popup-input enquiry-popup-input--home"
-                      type="email"
-                      placeholder="name@email.com"
-                      value={formData.email}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="email"
-                      isInvalid={!!errors.email || (validated && !formData.email.trim())}
-                      required
-                      autoComplete="email"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.email || "Please provide a valid email."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group
-                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
-                    controlId="phone_number_home"
-                  >
-                    <Form.Label className="enquiry-popup-home__label">Mobile number</Form.Label>
-                    <Form.Control
-                      className="enquiry-popup-input enquiry-popup-input--home"
-                      type="tel"
-                      placeholder="10-digit mobile number"
-                      value={formData.phone}
-                      onChange={(e) => handleChange(e)}
-                      onBlur={handleBlur}
-                      name="phone"
-                      isInvalid={!!errors.phone || (validated && !formData.phone.trim())}
-                      required
-                      autoComplete="tel"
-                      inputMode="numeric"
-                    />
-                    <Form.Control.Feedback type="invalid">
-                      {errors.phone || "Please provide a valid phone number."}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                  <Form.Group
-                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
-                    controlId="message_home"
-                  >
-                    <Form.Label className="enquiry-popup-home__label">
-                      Message <span className="enquiry-popup-home__optional">(optional)</span>
-                    </Form.Label>
-                    <Form.Control
-                      className="enquiry-popup-input enquiry-popup-input--home enquiry-popup-input--textarea"
-                      as="textarea"
-                      rows={3}
-                      placeholder="Budget, location, or anything we should know…"
-                      value={formData.message}
-                      onChange={(e) => handleChange(e)}
-                      name="message"
-                    />
-                  </Form.Group>
-                  <Form.Group
-                    className="enquiry-popup-home__field enquiry-popup-home__field--full"
-                    controlId="user_location_home"
-                  >
-                    <Form.Label className="enquiry-popup-home__label">
-                      Your location <span className="enquiry-popup-home__optional">(optional)</span>
-                    </Form.Label>
-                    <Form.Control
-                      className="enquiry-popup-input enquiry-popup-input--home"
-                      type="text"
-                      placeholder="e.g. 640/3 Jagriti Vihar, Meerut"
-                      value={formData.userLocation}
-                      onChange={(e) => handleChange(e)}
-                      name="userLocation"
-                      autoComplete="street-address"
-                    />
-                  </Form.Group>
-                </div>
-                <Button
-                  type="submit"
-                  className="enquiry-popup-submit enquiry-popup-submit--home"
-                  disabled={showLoading}
-                >
-                  <span className="enquiry-popup-submit__text">{buttonName}</span>
-                  <LoadingSpinner show={showLoading} />
-                </Button>
-                <p className="enquiry-popup-home__trust" role="status">
-                  Your details are used only to respond to this enquiry.
-                </p>
-              </Form>
-            </div>
+            <Form.Control.Feedback type="invalid">
+              {errors.phone || "Please provide a valid phone number."}
+            </Form.Control.Feedback>
+          </Form.Group>
+
+          <div className="lead-form-field--full">
+            <LeadOtpFields
+              phone={formData.phone}
+              otp={leadOtp.otp}
+              onOtpChange={leadOtp.setOtp}
+              otpSent={leadOtp.otpSent}
+              isVerified={leadOtp.isVerified}
+              sending={leadOtp.sending}
+              verifying={leadOtp.verifying}
+              error={leadOtp.error}
+              resendSeconds={leadOtp.resendSeconds}
+              onSendOtp={leadOtp.sendOtp}
+              variant="bootstrap"
+              inputClassName="lead-form-input"
+            />
           </div>
-        )}
-      </Modal>
-    </>
+
+          <LeadFormLockedSection locked={leadOtp.formLocked} className="lead-form-field--full">
+            <div className="lead-form-fields">
+              <Form.Group controlId="full_name">
+                <Form.Control
+                  className="lead-form-input"
+                  type="text"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="name"
+                  isInvalid={!!errors.name || (validated && !formData.name.trim())}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.name || "Please provide a valid name."}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group controlId="email_id">
+                <Form.Control
+                  className="lead-form-input"
+                  type="email"
+                  placeholder="Email Address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  name="email"
+                  isInvalid={!!errors.email || (validated && !formData.email.trim())}
+                  required
+                />
+                <Form.Control.Feedback type="invalid">
+                  {errors.email || "Please provide a valid email."}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <Form.Group className="lead-form-field--full" controlId="message">
+                <Form.Control
+                  className="lead-form-input lead-form-textarea"
+                  as="textarea"
+                  rows={2}
+                  placeholder="Message (optional)"
+                  value={formData.message}
+                  onChange={handleChange}
+                  name="message"
+                />
+              </Form.Group>
+
+              <Form.Group className="lead-form-field--full" controlId="user_location">
+                <Form.Control
+                  className="lead-form-input"
+                  type="text"
+                  placeholder="Your location (optional)"
+                  value={formData.userLocation}
+                  onChange={handleChange}
+                  name="userLocation"
+                  autoComplete="street-address"
+                />
+              </Form.Group>
+
+              <Button
+                type="submit"
+                className="lead-form-submit"
+                disabled={showLoading || leadOtp.formLocked}
+              >
+                Request a Callback <LoadingSpinner show={showLoading} />
+              </Button>
+            </div>
+          </LeadFormLockedSection>
+        </Form>
+        <p className="lead-form-footer">Ready to help — we usually respond within one business day.</p>
+      </LeadFormSplitLayout>
+    </Modal>
   );
 }

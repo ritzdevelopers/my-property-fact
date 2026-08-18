@@ -1,0 +1,126 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { validateLeadPhone } from "@/lib/leadValidation";
+import { sendLeadOtp, verifyLeadOtpClient } from "@/lib/leadOtpClient";
+
+const RESEND_SECONDS = 30;
+
+export function useLeadOtp(phone) {
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState("");
+  const [resendSeconds, setResendSeconds] = useState(0);
+  const timerRef = useRef(null);
+
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  const startCooldown = useCallback(() => {
+    clearTimer();
+    setResendSeconds(RESEND_SECONDS);
+    timerRef.current = setInterval(() => {
+      setResendSeconds((prev) => {
+        if (prev <= 1) {
+          clearTimer();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  }, [clearTimer]);
+
+  useEffect(() => {
+    setOtp("");
+    setOtpSent(false);
+    setIsVerified(false);
+    setError("");
+    clearTimer();
+    setResendSeconds(0);
+  }, [phone, clearTimer]);
+
+  useEffect(() => () => clearTimer(), [clearTimer]);
+
+  const sendOtp = useCallback(async () => {
+    const phoneError = validateLeadPhone(phone);
+    if (phoneError) {
+      setError(phoneError);
+      return false;
+    }
+    if (resendSeconds > 0) {
+      setError(`Please wait ${resendSeconds}s before resending OTP`);
+      return false;
+    }
+
+    setSending(true);
+    setError("");
+    try {
+      await sendLeadOtp(phone);
+      setOtpSent(true);
+      startCooldown();
+      return true;
+    } catch (err) {
+      setError(err.message || "Could not send OTP");
+      return false;
+    } finally {
+      setSending(false);
+    }
+  }, [phone, resendSeconds, startCooldown]);
+
+  const verifyOtp = useCallback(async () => {
+    if (!String(otp || "").trim()) {
+      setError("Please enter the OTP");
+      return false;
+    }
+
+    setVerifying(true);
+    setError("");
+    try {
+      await verifyLeadOtpClient(phone, otp);
+      setIsVerified(true);
+      return true;
+    } catch (err) {
+      setError(err.message || "Invalid OTP");
+      return false;
+    } finally {
+      setVerifying(false);
+    }
+  }, [phone, otp]);
+
+  useEffect(() => {
+    if (otp.length === 4 && otpSent && !isVerified && !verifying) {
+      verifyOtp();
+    }
+  }, [otp, otpSent, isVerified, verifying, verifyOtp]);
+
+  const reset = useCallback(() => {
+    setOtp("");
+    setOtpSent(false);
+    setIsVerified(false);
+    setError("");
+    clearTimer();
+    setResendSeconds(0);
+  }, [clearTimer]);
+
+  return {
+    otp,
+    setOtp,
+    otpSent,
+    isVerified,
+    formLocked: !isVerified,
+    sending,
+    verifying,
+    error,
+    resendSeconds,
+    sendOtp,
+    verifyOtp,
+    reset,
+  };
+}

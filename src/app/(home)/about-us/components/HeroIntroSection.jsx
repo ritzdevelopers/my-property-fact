@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import "./style/HeroIntroSection.css";
 
@@ -52,10 +53,11 @@ export default function HeroIntroSection() {
       <div className="heroIntro-container">
 
         <h1
+          id="mpf-page-heading"
           ref={headingRef}
           className={`heroHeading ${active ? "active" : ""}`}
         >
-          Why Trust MPF?
+          Real Estate Without the Guesswork
           <span></span>
         </h1>
 
@@ -73,7 +75,11 @@ export default function HeroIntroSection() {
           <div className="rightContent">
 
             <p className="introText">
-              At My Property Fact, transparency, trust, and innovation are at the heart of everything we do. By combining technology, reliable data, and expert guidance, we make every stage of your real estate journey - from discovery to decision - simpler, smarter, and more transparent. <br /><br />
+              At{" "}
+              <Link href="/" className="introText-link">
+                My Property Fact
+              </Link>
+              , transparency, trust, and innovation are at the heart of everything we do. By combining technology, reliable data, and expert guidance, we make every stage of your real estate journey - from discovery to decision - simpler, smarter, and more transparent. <br /><br />
               Whether you&apos;re buying, renting, or investing, My Property Fact is here to help you explore with confidence and make property decisions you can truly trust.
             </p>
 
@@ -87,8 +93,8 @@ export default function HeroIntroSection() {
 
         </div>
 
-        <h2 className="bottomHeading">
-          Real Estate Without the Guesswork.
+        <h2 id="why-trust-mpf-heading" className="bottomHeading">
+          Why Trust My Property Fact?
         </h2>
 
         <p className="bottomDescription">

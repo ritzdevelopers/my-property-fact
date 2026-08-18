@@ -21,7 +21,7 @@ export default function VideoCTASection() {
 
         <div className="videoContent">
           <h2 className="videoTitle heading">
-            <span>Turn Your Property Into An</span>
+            <span>Turn Your Property Into an</span>
             <span>Opportunity</span>
           </h2>
         </div>

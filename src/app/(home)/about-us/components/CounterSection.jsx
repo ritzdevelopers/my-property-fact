@@ -47,7 +47,7 @@ export default function CounterSection({
   ];
 
   return (
-    <section className="statsSection">
+    <section className="statsSection" aria-labelledby="why-trust-mpf-heading">
       <div className="statsContainer" ref={ref}>
         <div className="statsGrid">
           {stats.map((item, index) => (
@@ -83,7 +83,7 @@ export default function CounterSection({
                 />
               </div>
 
-              <h3>
+              <p className="statNumber">
                 {inView ? (
                   <CountUp
                     start={0}
@@ -96,9 +96,9 @@ export default function CounterSection({
                   "0"
                 )}
                 +
-              </h3>
+              </p>
 
-              <h4>{item.label}</h4>
+              <h3>{item.label}</h3>
             </motion.div>
           ))}
         </div>

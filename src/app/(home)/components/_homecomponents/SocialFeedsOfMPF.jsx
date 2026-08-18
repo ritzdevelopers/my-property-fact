@@ -5,7 +5,9 @@ import { Navigation, Pagination } from "swiper/modules";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
-export default function SocialFeedsOfMPF() {
+export default function SocialFeedsOfMPF({
+  sectionTitle = "Social Feeds from MPF on Instagram",
+}) {
   useDeferredStylesheet(() =>
     Promise.all([
       import("swiper/css"),
@@ -249,7 +251,7 @@ export default function SocialFeedsOfMPF() {
         <div className="container-fluid">
           <div className="section-header-wrapper mb-lg-5">
             <h2 className="text-center mb-0 plus-jakarta-sans-semi-bold">
-              Social Feeds from MPF on Instagram
+              {sectionTitle}
             </h2>
 
           </div>

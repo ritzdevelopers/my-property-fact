@@ -18,8 +18,8 @@ export default function AboutPageV2() {
       <WhyChooseSection />
       <TimelineSection />
       <WhyMyPropertyFact />
-      <VaastuStripSection />
-      <SocialFeedsOfMPF />
+      <VaastuStripSection ariaLabelledBy="our-commitment-heading" />
+      <SocialFeedsOfMPF sectionTitle="Social Feeds from My Property Fact on Instagram" />
     </main>
   );
 }

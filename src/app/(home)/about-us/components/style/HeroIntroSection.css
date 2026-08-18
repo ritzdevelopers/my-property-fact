@@ -121,6 +121,16 @@
     color: #5F6672;
 }
 
+.introText-link {
+    color: #0d5834;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.introText-link:hover {
+    text-decoration: underline;
+}
+
 .rightImageFrame {
     width: 100%;
     padding: 18px;

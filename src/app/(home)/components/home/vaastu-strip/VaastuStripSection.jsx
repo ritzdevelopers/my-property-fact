@@ -74,7 +74,7 @@ const STRIP_GAP = 18;
 const STRIP_SCROLL_STEP = STRIP_CARD_WIDTH + STRIP_GAP;
 const DESKTOP_BREAKPOINT = 992;
 
-export default function VaastuStripSection() {
+export default function VaastuStripSection({ ariaLabelledBy } = {}) {
   useDeferredStylesheet(() => import("./VaastuStripSection.css"));
 
   const [isOpen, setIsOpen] = useState(false);
@@ -305,7 +305,10 @@ export default function VaastuStripSection() {
   }, [isOpen]);
 
   return (
-    <section className="vaastu-strip-section">
+    <section
+      className="vaastu-strip-section"
+      {...(ariaLabelledBy ? { "aria-labelledby": ariaLabelledBy } : {})}
+    >
       <div className="container">
         <div className="vaastu-strip-carousel">
           {isDesktop && (

@@ -69,7 +69,7 @@
     object-fit: contain;
 }
 
-.statCard h3 {
+.statCard .statNumber {
     margin: 0;
     font-size: 42px;
     font-weight: 700;
@@ -77,7 +77,7 @@
     color: #0c2e23;
 }
 
-.statCard h4 {
+.statCard h3 {
     margin-top: 12px;
     font-size: 22px;
     font-weight: 600;
@@ -117,11 +117,11 @@
         height: 34px;
     }
 
-    .statCard h3 {
+    .statCard .statNumber {
         font-size: 30px;
     }
 
-    .statCard h4 {
+    .statCard h3 {
         margin-top: 10px;
         font-size: 18px;
     }
@@ -147,11 +147,11 @@
         height: 30px;
     }
 
-    .statCard h3 {
+    .statCard .statNumber {
         font-size: 26px;
     }
 
-    .statCard h4 {
+    .statCard h3 {
         font-size: 16px;
     }
 }

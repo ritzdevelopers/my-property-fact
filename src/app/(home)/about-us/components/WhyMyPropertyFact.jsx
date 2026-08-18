@@ -8,7 +8,7 @@ export default function WhyMyPropertyFact() {
     <section className="commitment-section">
       <div className="commitment-card">
 
-        <h2 className="commitment-title">
+        <h2 id="our-commitment-heading" className="commitment-title">
           Our Commitment
         </h2>
 

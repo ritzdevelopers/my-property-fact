@@ -100,9 +100,9 @@ export default function TimelineSection() {
                   duration: 0.45,
                 }}
               >
-                <h2 className="timeline-year heading">
+                <p className="timeline-year heading">
                   {item.year}
-                </h2>
+                </p>
 
                 <p className="timeline-description paragraph">
                   {item.description}

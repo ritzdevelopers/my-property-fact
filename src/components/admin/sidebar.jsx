@@ -77,6 +77,13 @@ const navItems = [
     superAdminOnly: true,
   },
   {
+    id: "manage-portal-users",
+    label: "Manage Portal Users",
+    icon: Users,
+    href: "/admin/dashboard/manage-portal-users",
+    superAdminOnly: true,
+  },
+  {
     id: "pending-permissions",
     label: "Pending Permissions",
     icon: UserCog,

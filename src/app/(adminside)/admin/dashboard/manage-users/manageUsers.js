@@ -131,8 +131,23 @@ function UserVerifiedBadge({ verified }) {
   );
 }
 
-function UserTypeBadge({ userCategory }) {
-  const category = normalizeUserCategory(userCategory);
+function UserTypeBadge({ user }) {
+  const roleNamesUpper = (user?.roles || [])
+    .map((r) => String(r?.roleName ?? "").toUpperCase())
+    .filter(Boolean);
+
+  // Portal users are assigned BROKER/OWNER roles during portal OTP registration.
+  // Manage Users table should show "Portal User" regardless of userCategory.
+  const isPortalUser = roleNamesUpper.includes("BROKER") || roleNamesUpper.includes("OWNER");
+  if (isPortalUser) {
+    return (
+      <span className="mu-user-type-badge mu-user-type-badge--portal">
+        Portal User
+      </span>
+    );
+  }
+
+  const category = normalizeUserCategory(user?.userCategory);
   const toneClass =
     category === "TEST_USER"
       ? "mu-user-type-badge--test"
@@ -147,7 +162,7 @@ function UserTypeBadge({ userCategory }) {
   );
 }
 
-export default function ManageUsers({ users: initialUsers }) {
+export default function ManageUsers({ users: initialUsers, pageHeading = "Manage Users" }) {
   const router = useRouter();
   const { isSuperAdmin, currentUserId } = useAdminRole();
   const [users, setUsers] = useState(initialUsers || []);
@@ -911,7 +926,7 @@ export default function ManageUsers({ users: initialUsers }) {
 
   return (
     <div className="container-fluid px-0">
-      <DashboardHeader heading="Manage Users" pageStyle="executivePlain" />
+      <DashboardHeader heading={pageHeading} pageStyle="executivePlain" />
 
       <div className="mt-2 manage-users-page">
         <div
@@ -1083,7 +1098,7 @@ export default function ManageUsers({ users: initialUsers }) {
                         )}
                       </td>
                       <td>
-                        <UserTypeBadge userCategory={user.userCategory} />
+                        <UserTypeBadge user={user} />
                       </td>
                       {isSuperAdmin ? (
                         <>

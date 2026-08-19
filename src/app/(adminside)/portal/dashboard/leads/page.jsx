@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Modal } from "react-bootstrap";
 import {
   AlertCircle,
@@ -340,10 +341,10 @@ export default function LeadsPage() {
                 Clear filters
               </button>
             ) : (
-              <a href="/portal/dashboard/listings?action=add" className="brk-btn brk-btn--primary">
+              <Link href="/portal/dashboard/listings?action=add" className="brk-btn brk-btn--primary">
                 <Plus size={15} />
                 Add a listing
-              </a>
+              </Link>
             )}
           </div>
         ) : (

@@ -32,6 +32,7 @@ import {
   roleObjectsIncludeStaffAdmin,
   splitPermissionDefinitions,
 } from "../../adminPermissions";
+import { isPortalManagedUser } from "@/lib/isPortalManagedUser";
 
 
 
@@ -45,6 +46,7 @@ const USER_CATEGORY_LABELS = {
   APP_USER: "App User",
   ADMIN_USER: "Admin User",
   TEST_USER: "Test User",
+  PORTAL_USER: "Portal User",
 };
 
 function normalizeUserCategory(value) {
@@ -132,14 +134,7 @@ function UserVerifiedBadge({ verified }) {
 }
 
 function UserTypeBadge({ user }) {
-  const roleNamesUpper = (user?.roles || [])
-    .map((r) => String(r?.roleName ?? "").toUpperCase())
-    .filter(Boolean);
-
-  // Portal users are assigned BROKER/OWNER roles during portal OTP registration.
-  // Manage Users table should show "Portal User" regardless of userCategory.
-  const isPortalUser = roleNamesUpper.includes("BROKER") || roleNamesUpper.includes("OWNER");
-  if (isPortalUser) {
+  if (isPortalManagedUser(user)) {
     return (
       <span className="mu-user-type-badge mu-user-type-badge--portal">
         Portal User
@@ -162,7 +157,11 @@ function UserTypeBadge({ user }) {
   );
 }
 
-export default function ManageUsers({ users: initialUsers, pageHeading = "Manage Users" }) {
+export default function ManageUsers({
+  users: initialUsers,
+  pageHeading = "Manage Users",
+  portalOnly = false,
+}) {
   const router = useRouter();
   const { isSuperAdmin, currentUserId } = useAdminRole();
   const [users, setUsers] = useState(initialUsers || []);
@@ -259,7 +258,10 @@ export default function ManageUsers({ users: initialUsers, pageHeading = "Manage
           usersRes.status === 200 &&
           Array.isArray(usersRes.data)
         ) {
-          setUsers(usersRes.data);
+          const next = portalOnly
+            ? usersRes.data.filter(isPortalManagedUser)
+            : usersRes.data;
+          setUsers(next);
         }
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -272,7 +274,7 @@ export default function ManageUsers({ users: initialUsers, pageHeading = "Manage
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [portalOnly]);
 
   const isCreateMode = !formData.id;
 
@@ -790,7 +792,9 @@ export default function ManageUsers({ users: initialUsers, pageHeading = "Manage
         adminApiWithAuth(),
       );
       if (usersRes.status === 200 && Array.isArray(usersRes.data)) {
-        setUsers(usersRes.data);
+        setUsers(
+          portalOnly ? usersRes.data.filter(isPortalManagedUser) : usersRes.data,
+        );
       }
     } catch (e) {
       console.error(e);
@@ -1008,7 +1012,7 @@ export default function ManageUsers({ users: initialUsers, pageHeading = "Manage
               </>
             ) : null}
           </span>
-          {isSuperAdmin ? (
+          {isSuperAdmin && !portalOnly ? (
             <Button
               type="button"
               className="manage-users-create-btn ms-auto"

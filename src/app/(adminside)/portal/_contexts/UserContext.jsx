@@ -98,14 +98,22 @@ export const UserProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout API error:", err);
     } finally {
-      Cookies.remove("userData");
-      Cookies.remove("token");
-      Cookies.remove("refreshToken");
-      // Full reload so middleware re-runs and no portal state survives the session.
+      const cookieOpts = { path: "/" };
+      Cookies.remove("userData", cookieOpts);
+      Cookies.remove("token", cookieOpts);
+      Cookies.remove("refreshToken", cookieOpts);
+      // Always land on the public homepage — never /portal.
+      const homeUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/`
+          : "/";
+      const target = redirectTo && redirectTo !== "/portal" && !String(redirectTo).startsWith("/portal")
+        ? redirectTo
+        : "/";
       if (typeof window !== "undefined") {
-        window.location.assign(redirectTo);
+        window.location.replace(target === "/" ? homeUrl : target);
       } else {
-        router.push(redirectTo);
+        router.replace(target === "/" ? "/" : target);
       }
     }
   };

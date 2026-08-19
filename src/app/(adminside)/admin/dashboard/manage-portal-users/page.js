@@ -1,6 +1,7 @@
 import axios from "axios";
 import ManageUsers from "../manage-users/manageUsers";
 import { cookies } from "next/headers";
+import { isPortalManagedUser } from "@/lib/isPortalManagedUser";
 
 export const dynamic = "force-dynamic";
 
@@ -25,17 +26,16 @@ const fetchAllUsers = async () => {
   }
 };
 
-function isPortalUser(user) {
-  const roleNamesUpper = (user?.roles || [])
-    .map((r) => String(r?.roleName ?? "").toUpperCase())
-    .filter(Boolean);
-  return roleNamesUpper.includes("BROKER") || roleNamesUpper.includes("OWNER");
-}
-
 export default async function ManagePortalUsersPage() {
   const users = await fetchAllUsers();
-  const portalUsers = users.filter(isPortalUser);
+  const portalUsers = users.filter(isPortalManagedUser);
 
-  return <ManageUsers users={portalUsers} pageHeading="Manage Portal Users" />;
+  return (
+    <ManageUsers
+      users={portalUsers}
+      pageHeading="Manage Portal Users"
+      portalOnly
+    />
+  );
 }
 

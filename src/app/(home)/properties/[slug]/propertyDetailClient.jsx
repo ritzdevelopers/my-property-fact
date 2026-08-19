@@ -2,35 +2,36 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Zoom } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/zoom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPhone,
   faMapMarkerAlt,
   faCheck,
+  faUser,
+  faBriefcase,
+  faShieldHalved,
+  faHouseChimney,
   faXmark,
-  faHome,
-  faBuilding,
-  faCompass,
-  faBirthdayCake,
-  faRocket,
-  faVolumeMute,
   faCircleInfo,
   faSearchPlus,
   faSearchMinus,
   faChevronLeft,
   faChevronRight,
   faExpand,
+  faCamera,
+  faVideo,
+  faRulerCombined,
+  faBed,
+  faBath,
+  faIndianRupeeSign,
+  faBuilding,
+  faClock,
+  faStar,
+  faRoad,
 } from "@fortawesome/free-solid-svg-icons";
 import {
   Spinner,
   Alert,
-  Badge,
   Button,
   Modal,
   Form,
@@ -39,8 +40,24 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 import "./property-detail.css";
+import "./property-listing-pdp.css";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+function resolveListerType(property) {
+  const raw = String(
+    property?.listerType ||
+      property?.userType ||
+      property?.postedBy ||
+      "",
+  ).toUpperCase();
+  if (/BROKER|DEALER|AGENT/.test(raw)) return "BROKER";
+  if (/OWNER/.test(raw)) return "OWNER";
+  if (property?.userExperience || Number(property?.userTotalDeals) > 0) {
+    return "BROKER";
+  }
+  return "OWNER";
+}
 
 export default function PropertyDetailClient({
   slug: slugProp,
@@ -61,12 +78,11 @@ export default function PropertyDetailClient({
   const [relatedProperties, setRelatedProperties] = useState(
     initialRelatedProperties,
   );
-  const [imageIndex, setImageIndex] = useState(0);
-  const [mediaTab, setMediaTab] = useState("Property");
   const [showImageLightbox, setShowImageLightbox] = useState(false);
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
   const [lightboxZoom, setLightboxZoom] = useState(1);
-  const [showPriceDetails, setShowPriceDetails] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [descExpanded, setDescExpanded] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: "",
@@ -153,6 +169,11 @@ export default function PropertyDetailClient({
       })()
     : null;
 
+  useEffect(() => {
+    document.body.classList.add("mpf-pdp-listing");
+    return () => document.body.classList.remove("mpf-pdp-listing");
+  }, []);
+
   // Smooth scroll behavior
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -162,7 +183,7 @@ export default function PropertyDetailClient({
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const headerOffset = 100; // Offset for fixed header if any
+      const headerOffset = 156; // site header + sticky section tabs
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition =
         elementPosition + window.pageYOffset - headerOffset;
@@ -179,13 +200,13 @@ export default function PropertyDetailClient({
     const handleScroll = () => {
       const sections = [
         { id: "overview-section", tab: "Overview" },
-        { id: "society-section", tab: "Society" },
+        { id: "dealer-section", tab: "Dealer Details" },
         { id: "price-trends-section", tab: "Price Trends" },
         { id: "locality-section", tab: "Explore Locality" },
-        { id: "recommendation-section", tab: "Recommendation" },
+        { id: "recommendation-section", tab: "Articles" },
       ];
 
-      const scrollPosition = window.scrollY + 150; // Offset for better detection
+      const scrollPosition = window.scrollY + 180;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = document.getElementById(sections[i].id);
@@ -489,6 +510,20 @@ export default function PropertyDetailClient({
     return property.nearbyBenefits;
   };
 
+  const openLightbox = (index = 0) => {
+    setLightboxImageIndex(index);
+    setLightboxZoom(1);
+    setShowImageLightbox(true);
+  };
+
+  const relatedSlugOf = (related) =>
+    related?.title
+      ? `${related.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "")}-${related.id}`
+      : String(related?.id ?? "");
+
   if (loading) {
     return (
       <div className="container my-5">
@@ -533,1095 +568,680 @@ export default function PropertyDetailClient({
   if (property.city) locationParts.push(property.city);
   if (property.pincode) locationParts.push(property.pincode);
 
-  return (
-    <div className="property-detail-page mt-5">
-      {/* Header Section */}
-      <div className="property-header-section mt-5 pt-4">
-        <div className="container">
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 py-3">
-            <div className="flex-grow-1">
-              {property.title && (
-                <h1 className="property-header-title mb-2">{property.title}</h1>
-              )}
-              <div className="d-flex align-items-center flex-wrap gap-3 mb-2">
-                <h2 className="property-header-price mb-0">
-                  {formatPrice(property.totalPrice)}
-                  {getBedroomLabel(property.bedrooms) &&
-                    ` • ${getBedroomLabel(property.bedrooms)}`}
-                  {property.bathrooms ? ` • ${property.bathrooms} Baths` : ""}
-                </h2>
-              </div>
-              {locationParts.filter(Boolean).length > 0 && (
-                <div className="property-header-location mb-2">
-                  <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />
-                  <span>{locationParts.filter(Boolean).join(", ")}</span>
-                </div>
-              )}
-              <div className="d-flex align-items-center flex-wrap gap-3">
-                {property.reraId && (
-                  <div className="rera-status">
-                    <span>RERA: </span>
-                    <a
-                      href={
-                        property.reraState
-                          ? `http://${property.reraState.toLowerCase()}-rera.in/projects`
-                          : "#"
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {property.reraId}
-                    </a>
-                  </div>
-                )}
-                {property.status && (
-                  <Badge
-                    bg={
-                      property.status.toLowerCase().includes("ready")
-                        ? "success"
-                        : "warning"
-                    }
-                    className="modern-badge"
-                    style={{
-                      background: property.status
-                        .toLowerCase()
-                        .includes("ready")
-                        ? "linear-gradient(135deg, #10b981 0%, #059669 100%)"
-                        : "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
-                      border: "none",
-                      padding: "0.5rem 1rem",
-                      borderRadius: "20px",
-                      fontWeight: "600",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                    }}
-                  >
-                    {property.status}
-                  </Badge>
-                )}
-                {property.transaction && (
-                  <Badge
-                    bg="info"
-                    className="modern-badge"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                      border: "none",
-                      padding: "0.5rem 1rem",
-                      borderRadius: "20px",
-                      fontWeight: "600",
-                      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-                    }}
-                  >
-                    For {property.transaction}
-                  </Badge>
-                )}
-              </div>
-            </div>
-            <div className="d-flex flex-column gap-2">
-              <Button
-                variant="primary"
-                className="contact-dealer-btn"
-                onClick={() => setShowContactModal(true)}
-              >
-                <FontAwesomeIcon icon={faPhone} className="me-2" />
-                Contact Owner
-              </Button>
-            </div>
-          </div>
+  const locationLabel = locationParts.filter(Boolean).join(", ");
+  const primaryArea =
+    property.superBuiltUpArea ||
+    property.builtUpArea ||
+    property.carpetArea ||
+    property.plotArea;
+  const areaLabel = formatArea(primaryArea, true) || "—";
+  const configLabel = [
+    property.bedrooms != null ? `${property.bedrooms} Beds` : null,
+    property.bathrooms != null ? `${property.bathrooms} Baths` : null,
+    property.balconies ? `${property.balconies} Balcony` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const floorLabel =
+    property.floorNumber || property.totalFloors
+      ? `${property.floorNumber || "—"} of ${property.totalFloors || "—"}`
+      : null;
+  const propertyAmenities = getPropertyAmenities();
+  const propertyFeatures = getPropertyFeatures();
+  const propertyNearbyBenefits = getPropertyNearbyBenefits();
+  const listerType = resolveListerType(property);
+  const isBroker = listerType === "BROKER";
+  const posterName =
+    property.contactName ||
+    property.userName ||
+    (isBroker ? "Property Broker" : "Property Owner");
+  const ownerInitials = posterName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("");
+  const highlightChips = [
+    property.status,
+    property.transaction ? `For ${property.transaction}` : null,
+    property.furnished,
+    property.facing ? `${property.facing} facing` : null,
+    property.ownershipType,
+    property.listingType,
+    property.subType,
+  ].filter(Boolean);
+  const detailFacts = [
+    property.listingType && {
+      label: "Property Type",
+      value: `${property.listingType}${property.subType ? ` · ${property.subType}` : ""}`,
+    },
+    property.transaction && { label: "Transaction", value: property.transaction },
+    property.status && { label: "Status", value: property.status },
+    property.possession && { label: "Possession", value: property.possession },
+    property.occupancy && { label: "Occupancy", value: property.occupancy },
+    property.ownershipType && {
+      label: "Ownership",
+      value: property.ownershipType,
+    },
+    property.furnished && { label: "Furnishing", value: property.furnished },
+    property.parking && { label: "Parking", value: property.parking },
+    property.noticePeriod != null && {
+      label: "Notice Period",
+      value: `${property.noticePeriod} ${property.noticePeriod === 1 ? "Month" : "Months"}`,
+    },
+    floorLabel && { label: "Floor", value: floorLabel },
+    property.facing && { label: "Facing", value: property.facing },
+    property.ageOfConstruction != null && {
+      label: "Property Age",
+      value: `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`,
+    },
+    property.maintenanceCharges && {
+      label: "Maintenance",
+      value: formatPrice(property.maintenanceCharges),
+    },
+    property.bookingAmount && {
+      label: "Booking Amount",
+      value: formatPrice(property.bookingAmount),
+    },
+    property.pricePerSqft && {
+      label: "Price per sq.ft",
+      value: formatPricePerSqft(property.pricePerSqft),
+    },
+    property.reraId && { label: "RERA", value: property.reraId },
+  ].filter(Boolean);
+  const navTabs = [
+    { id: "overview-section", tab: "Overview" },
+    { id: "dealer-section", tab: "Dealer Details" },
+    { id: "price-trends-section", tab: "Price Trends" },
+    { id: "locality-section", tab: "Explore Locality" },
+    relatedProperties.length
+      ? { id: "recommendation-section", tab: "Articles" }
+      : null,
+  ].filter(Boolean);
+  const descText = property.description || "No description available.";
+  const showReadMore = descText.length > 280;
+  const sideImg1 = allImageUrls[1] || allImageUrls[0];
+  const sideImg2 = allImageUrls[2] || allImageUrls[0];
+  const currentGallery = allImageUrls[galleryIndex] || allImageUrls[0];
+  const areaLines = [
+    property.carpetArea ? `Carpet ${formatArea(property.carpetArea)}` : null,
+    property.superBuiltUpArea
+      ? `Super Built-up ${formatArea(property.superBuiltUpArea)}`
+      : property.builtUpArea
+        ? `Built-up ${formatArea(property.builtUpArea)}`
+        : null,
+  ].filter(Boolean);
+  const highlightText =
+    highlightChips.slice(0, 3).join(", ") || property.furnished || null;
+  const goGallery = (dir) => {
+    if (allImageUrls.length < 2) return;
+    setGalleryIndex(
+      (i) => (i + dir + allImageUrls.length) % allImageUrls.length,
+    );
+  };
 
-          {/* Navigation Tabs */}
-          <div className="property-nav-tabs">
+  return (
+    <div className={`pdp99 ${isBroker ? "pdp99--broker" : "pdp99--owner"}`}>
+      <div className="pdp99-tabsbar">
+        <div className="pdp99-wrap pdp99-tabsbar__inner">
+          {navTabs.map((item) => (
             <button
-              className={activeTab === "Overview" ? "active" : ""}
+              key={item.tab}
+              type="button"
+              className={`pdp99-tab${activeTab === item.tab ? " is-active" : ""}`}
               onClick={() => {
-                setActiveTab("Overview");
-                scrollToSection("overview-section");
+                setActiveTab(item.tab);
+                scrollToSection(item.id);
               }}
             >
-              Overview
+              {item.tab}
             </button>
-            {property.projectName && (
-              <button
-                className={activeTab === "Society" ? "active" : ""}
-                onClick={() => {
-                  setActiveTab("Society");
-                  scrollToSection("society-section");
-                }}
-              >
-                Society
-              </button>
-            )}
-            <button
-              className={activeTab === "Price Trends" ? "active" : ""}
-              onClick={() => {
-                setActiveTab("Price Trends");
-                scrollToSection("price-trends-section");
-              }}
-            >
-              Price Trends
-            </button>
-            <button
-              className={activeTab === "Explore Locality" ? "active" : ""}
-              onClick={() => {
-                setActiveTab("Explore Locality");
-                scrollToSection("locality-section");
-              }}
-            >
-              Explore Locality
-            </button>
-            <button
-              className={activeTab === "Recommendation" ? "active" : ""}
-              onClick={() => {
-                setActiveTab("Recommendation");
-                scrollToSection("recommendation-section");
-              }}
-            >
-              Recommendation
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Hero Section */}
-      <div className="container my-4">
-        <div className="row hero-section-row">
-          {/* Left Panel - Media Gallery (40%) */}
-          <div className="col-lg-5 col-md-12 mb-4">
-            <div className="property-media-gallery">
-              {/* Media Tabs */}
-              <div className="media-tabs">
-                <button
-                  className={`media-tab ${mediaTab === "Videos" ? "active" : ""}`}
-                  onClick={() => setMediaTab("Videos")}
-                >
-                  Videos (0)
-                </button>
-                <button
-                  className={`media-tab ${mediaTab === "Property" ? "active" : ""}`}
-                  onClick={() => setMediaTab("Property")}
-                >
-                  Property ({allImageUrls.length})
-                </button>
-              </div>
+      <div className="pdp99-wrap">
+        <nav className="pdp99-crumb" aria-label="Breadcrumb">
+          <Link href="/">Home</Link>
+          <span className="pdp99-crumb__sep">›</span>
+          <Link href="/properties">Properties</Link>
+          {property.city && (
+            <>
+              <span className="pdp99-crumb__sep">›</span>
+              <span>{property.city}</span>
+            </>
+          )}
+          <span className="pdp99-crumb__sep">›</span>
+          <span>{property.title || "Listing"}</span>
+        </nav>
 
-              {/* Media Content - images like before; hover shows "Click to view", click opens modal */}
-              <div className="media-content property-media-content-with-hover">
-                {mediaTab === "Property" && allImageUrls.length > 0 ? (
-                  <>
-                    <Swiper
-                      modules={[Navigation, Pagination, Zoom]}
-                      spaceBetween={0}
-                      slidesPerView={1}
-                      navigation={allImageUrls.length > 1}
-                      pagination={{
-                        clickable: true,
-                        type: "fraction",
-                      }}
-                      zoom={true}
-                      className="main-property-swiper"
-                      onSlideChange={(swiper) =>
-                        setImageIndex(swiper.activeIndex)
-                      }
-                    >
-                      {allImageUrls.map((imageUrl, index) => (
-                        <SwiperSlide key={index}>
-                          <div
-                            className="swiper-zoom-container property-image-click-to-open"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setLightboxImageIndex(index);
-                              setLightboxZoom(1);
-                              setShowImageLightbox(true);
-                            }}
-                            role="button"
-                            tabIndex={0}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter" || e.key === " ") {
-                                e.preventDefault();
-                                setLightboxImageIndex(index);
-                                setLightboxZoom(1);
-                                setShowImageLightbox(true);
-                              }
-                            }}
-                            title="Click to view full size with zoom"
-                          >
-                            <img
-                              src={imageUrl}
-                              alt={`${property.title || "Property"} - Image ${index + 1}`}
-                              className="property-main-image"
-                              style={{ objectFit: "cover" }}
-                            />
-                          </div>
-                        </SwiperSlide>
-                      ))}
-                    </Swiper>
-                    <div className="property-image-hover-hint" aria-hidden>
-                      Click to view
-                    </div>
-                  </>
-                ) : mediaTab === "Videos" ? (
-                  <div className="video-placeholder">
-                    <div className="placeholder-content">
-                      <p>No Videos Available</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="property-image-placeholder">
-                    <div className="placeholder-content">
-                      <p>No Image Available</p>
-                    </div>
-                  </div>
-                )}
-                {/* Mute Icon for Videos */}
-                {mediaTab === "Videos" && (
-                  <div className="mute-icon">
-                    <FontAwesomeIcon icon={faVolumeMute} />
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Right Panel - Property Details (60%) - Redesigned */}
-          <div className="col-lg-7 col-md-12">
-            <div className="property-details-hero-v2">
-              <h3 className="details-hero-title-v2">Property Details</h3>
-
-              {/* Price block - prominent */}
-              <div className="pd-price-block">
-                <div className="pd-price-label">Price</div>
-                <div className="pd-price-amount">
-                  {formatPrice(property.totalPrice)}
-                  {property.totalPrice && property.totalPrice >= 10000000 && "+"}
-                </div>
-                {property.pricePerSqft && (
-                  <div className="pd-price-per-sqft">
-                    {formatPricePerSqft(property.pricePerSqft, true)} per sq.m.
-                  </div>
-                )}
-              </div>
-
-              {/* Key specs grid */}
-              <div className="pd-specs-grid">
-                <div className="pd-spec-card">
-                  <span className="pd-spec-label">Area</span>
-                  <span className="pd-spec-value">
-                    {property.plotArea
-                      ? `Plot ${formatArea(property.plotArea, true)}`
-                      : property.superBuiltUpArea
-                        ? formatArea(property.superBuiltUpArea, true)
-                        : property.builtUpArea
-                          ? formatArea(property.builtUpArea, true)
-                          : property.carpetArea
-                            ? formatArea(property.carpetArea, true)
-                            : "—"}
-                  </span>
-                </div>
-                <div className="pd-spec-card">
-                  <span className="pd-spec-label">Configuration</span>
-                  <span className="pd-spec-value">
-                    {property.bedrooms || 0} Beds · {property.bathrooms || 0} Bath
-                    {property.balconies ? ` · ${property.balconies} Balcony` : ""}
-                  </span>
-                </div>
-                {(property.floorNumber || property.totalFloors) && (
-                  <div className="pd-spec-card">
-                    <span className="pd-spec-label">Floor</span>
-                    <span className="pd-spec-value">
-                      {property.floorNumber || "—"}
-                      {property.totalFloors ? ` of ${property.totalFloors}` : ""}
-                    </span>
-                  </div>
-                )}
-                {property.facing && (
-                  <div className="pd-spec-card">
-                    <span className="pd-spec-label">Facing</span>
-                    <span className="pd-spec-value">{property.facing}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* More details list */}
-              <div className="pd-more-details">
-                {property.parking && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faBuilding} className="pd-detail-icon" />
-                      Parking
-                    </span>
-                    <span className="pd-detail-value">{property.parking}</span>
-                  </div>
-                )}
-                {property.status && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faBirthdayCake} className="pd-detail-icon" />
-                      Property Status
-                    </span>
-                    <span className="pd-detail-value">
-                      {property.ageOfConstruction !== null &&
-                      property.ageOfConstruction !== undefined
-                        ? `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`
-                        : property.status}
-                    </span>
-                  </div>
-                )}
-                {property.possession && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faHome} className="pd-detail-icon" />
-                      Possession
-                    </span>
-                    <span className="pd-detail-value">{property.possession}</span>
-                  </div>
-                )}
-                {property.occupancy && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faHome} className="pd-detail-icon" />
-                      Occupancy
-                    </span>
-                    <span className="pd-detail-value">{property.occupancy}</span>
-                  </div>
-                )}
-                {property.transaction && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faRocket} className="pd-detail-icon" />
-                      Transaction Type
-                    </span>
-                    <span className="pd-detail-value">{property.transaction}</span>
-                  </div>
-                )}
-                {property.listingType && (
-                  <div className="pd-detail-row">
-                    <span className="pd-detail-label">
-                      <FontAwesomeIcon icon={faBuilding} className="pd-detail-icon" />
-                      Property Type
-                    </span>
-                    <span className="pd-detail-value">
-                      {property.listingType}
-                      {property.subType ? ` · ${property.subType}` : ""}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+        <div className="pdp99-poster-row">
+          <span className={`pdp99-poster-pill ${isBroker ? "is-broker" : "is-owner"}`}>
+            <FontAwesomeIcon icon={isBroker ? faBriefcase : faHouseChimney} />
+            {isBroker ? "Broker listing" : "Owner listing"}
+          </span>
+          {property.userVerified ? (
+            <span className="pdp99-poster-pill is-verified">
+              <FontAwesomeIcon icon={faShieldHalved} />
+              Verified
+            </span>
+          ) : null}
+          <h1 className="pdp99-title pdp99-title--inline">
+            {property.title || "Property for sale"}
+          </h1>
         </div>
 
-        {/* Content Sections */}
-        <div className="row">
-          <div className="col-12">
-            {/* About Property Section - Overview */}
-            <div id="overview-section" className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h3 className="section-title mb-0">About Property</h3>
-              </div>
-              {property.title && (
-                <div className="mb-3">
-                  <h5 className="mb-2">{property.title}</h5>
+        <section className="pdp99-hero" aria-label="Property overview">
+          <div className="pdp99-carousel">
+            {currentGallery ? (
+              <>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentGallery}
+                  alt={property.title || "Property"}
+                  onClick={() => openLightbox(galleryIndex)}
+                />
+                <div className="pdp99-carousel__pills">
+                  <button
+                    type="button"
+                    className="pdp99-pill is-on"
+                    onClick={() => openLightbox(galleryIndex)}
+                  >
+                    <FontAwesomeIcon icon={faCamera} />
+                    Photos ({allImageUrls.length})
+                  </button>
+                  <span className="pdp99-pill">
+                    <FontAwesomeIcon icon={faVideo} />
+                    Videos (0)
+                  </span>
                 </div>
-              )}
-              <div className="property-description">
-                <p>{property.description || "No description available."}</p>
-              </div>
-              {property.additionalNotes && (
-                <div className="mt-3">
-                  <h5 className="mb-2 h6">Additional Notes:</h5>
-                  <p className="text-muted">{property.additionalNotes}</p>
-                </div>
-              )}
-            </div>
-
-            {/* Property Details Grid */}
-            <div className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h4 className="section-subtitle mb-0">Property Details</h4>
-              </div>
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="property-details-grid">
-                    {property.listingType && (
-                      <div className="detail-item">
-                        <strong>Property Type:</strong>
-                        <span>
-                          {property.listingType}{" "}
-                          {property.subType ? `- ${property.subType}` : ""}
-                        </span>
-                      </div>
-                    )}
-                    {property.transaction && (
-                      <div className="detail-item">
-                        <strong>Transaction Type:</strong>
-                        <span>{property.transaction}</span>
-                      </div>
-                    )}
-                    {property.status && (
-                      <div className="detail-item">
-                        <strong>Status:</strong>
-                        <span>{property.status}</span>
-                      </div>
-                    )}
-                    {property.possession && (
-                      <div className="detail-item">
-                        <strong>Possession:</strong>
-                        <span>{property.possession}</span>
-                      </div>
-                    )}
-                    {property.occupancy && (
-                      <div className="detail-item">
-                        <strong>Occupancy:</strong>
-                        <span>{property.occupancy}</span>
-                      </div>
-                    )}
-                    {property.ownershipType && (
-                      <div className="detail-item">
-                        <strong>Ownership Type:</strong>
-                        <span>{property.ownershipType}</span>
-                      </div>
-                    )}
-                    {property.furnished && (
-                      <div className="detail-item">
-                        <strong>Furnishing:</strong>
-                        <span>{property.furnished}</span>
-                      </div>
-                    )}
-                    {property.parking && (
-                      <div className="detail-item">
-                        <strong>Parking:</strong>
-                        <span>{property.parking}</span>
-                      </div>
-                    )}
-                    {property.noticePeriod !== null &&
-                      property.noticePeriod !== undefined && (
-                        <div className="detail-item">
-                          <strong>Notice Period:</strong>
-                          <span>
-                            {property.noticePeriod}{" "}
-                            {property.noticePeriod === 1 ? "Month" : "Months"}
-                          </span>
-                        </div>
-                      )}
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="property-details-grid">
-                    {property.floorNumber && (
-                      <div className="detail-item">
-                        <strong>Floor Number:</strong>
-                        <span>
-                          {property.floorNumber}{" "}
-                          {property.totalFloors
-                            ? `of ${property.totalFloors}`
-                            : ""}
-                        </span>
-                      </div>
-                    )}
-                    {property.facing && (
-                      <div className="detail-item">
-                        <strong>Facing:</strong>
-                        <span>{property.facing}</span>
-                      </div>
-                    )}
-                    {property.ageOfConstruction !== null &&
-                      property.ageOfConstruction !== undefined && (
-                        <div className="detail-item">
-                          <strong>Property Age:</strong>
-                          <span>
-                            {property.ageOfConstruction} to{" "}
-                            {property.ageOfConstruction + 1} Year Old
-                          </span>
-                        </div>
-                      )}
-                    {property.maintenanceCharges && (
-                      <div className="detail-item">
-                        <strong>Maintenance Charges:</strong>
-                        <span>{formatPrice(property.maintenanceCharges)}</span>
-                      </div>
-                    )}
-                    {property.bookingAmount && (
-                      <div className="detail-item">
-                        <strong>Booking Amount:</strong>
-                        <span>{formatPrice(property.bookingAmount)}</span>
-                      </div>
-                    )}
-                    {property.pricePerSqft && (
-                      <div className="detail-item">
-                        <strong>Price per Sq.ft:</strong>
-                        <span>{formatPricePerSqft(property.pricePerSqft)}</span>
-                      </div>
-                    )}
-                    {property.virtualTour && (
-                      <div className="detail-item">
-                        <strong>Virtual Tour:</strong>
-                        <a
-                          href={property.virtualTour}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-primary"
-                        >
-                          View Virtual Tour
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Amenities Section */}
-            {(() => {
-              const propertyAmenities = getPropertyAmenities();
-              return propertyAmenities.length > 0 ||
-                (property.amenityNames && property.amenityNames.length > 0) ? (
-                <div className="property-section mt-4">
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h4 className="section-subtitle mb-0">Amenities</h4>
-                    <OverlayTrigger placement="top" overlay={AmenitiesTooltip}>
-                      <FontAwesomeIcon
-                        icon={faCircleInfo}
-                        className="info-icon-section"
-                        style={{
-                          cursor: "help",
-                          color: "#6c757d",
-                          fontSize: "0.85rem",
-                        }}
-                      />
-                    </OverlayTrigger>
-                  </div>
-                  <div className="amenities-grid">
-                    {propertyAmenities.length > 0
-                      ? propertyAmenities.map((amenity, index) => {
-                          const imageUrl = getAmenityImageUrl(
-                            amenity.amenityImageUrl,
-                          );
-                          return (
-                            <div
-                              key={amenity.id || index}
-                              className="amenity-item"
-                            >
-                              {imageUrl ? (
-                                <div className="amenity-image-wrapper">
-                                  <img
-                                    src={imageUrl}
-                                    alt={
-                                      amenity.altTag ||
-                                      amenity.title ||
-                                      "Amenity"
-                                    }
-                                    width={30}
-                                    height={30}
-                                    className="amenity-image"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="amenity-icon-wrapper">
-                                  <FontAwesomeIcon
-                                    icon={faCheck}
-                                    className="amenity-icon"
-                                  />
-                                </div>
-                              )}
-                              <span className="amenity-title">
-                                {amenity.title ||
-                                  property.amenityNames?.[index]}
-                              </span>
-                            </div>
-                          );
-                        })
-                      : property.amenityNames.map((amenity, index) => (
-                          <div key={index} className="amenity-item">
-                            <div className="amenity-icon-wrapper">
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className="amenity-icon"
-                              />
-                            </div>
-                            <span className="amenity-title">{amenity}</span>
-                          </div>
-                        ))}
-                  </div>
-                </div>
-              ) : null;
-            })()}
-
-            {/* Features Section */}
-            {(() => {
-              const propertyFeatures = getPropertyFeatures();
-              return propertyFeatures.length > 0 ||
-                (property.featureNames && property.featureNames.length > 0) ? (
-                <div className="property-section mt-4">
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h4 className="section-subtitle mb-0">
-                      Residential Features
-                    </h4>
-                    <OverlayTrigger placement="top" overlay={FeaturesTooltip}>
-                      <FontAwesomeIcon
-                        icon={faCircleInfo}
-                        className="info-icon-section"
-                        style={{
-                          cursor: "help",
-                          color: "#6c757d",
-                          fontSize: "0.85rem",
-                        }}
-                      />
-                    </OverlayTrigger>
-                  </div>
-                  <div className="amenities-grid">
-                    {propertyFeatures.length > 0
-                      ? propertyFeatures.map((feature, index) => {
-                          const imageUrl = getFeatureImageUrl(
-                            feature.iconImageUrl,
-                          );
-                          return (
-                            <div
-                              key={feature.id || index}
-                              className="amenity-item"
-                            >
-                              {imageUrl ? (
-                                <div className="amenity-image-wrapper">
-                                  <img
-                                    src={imageUrl}
-                                    alt={
-                                      feature.altTag ||
-                                      feature.title ||
-                                      "Feature"
-                                    }
-                                    width={60}
-                                    height={60}
-                                    className="amenity-image"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="amenity-icon-wrapper">
-                                  <FontAwesomeIcon
-                                    icon={faCheck}
-                                    className="amenity-icon"
-                                  />
-                                </div>
-                              )}
-                              <span className="amenity-title">
-                                {feature.title ||
-                                  property.featureNames?.[index]}
-                              </span>
-                            </div>
-                          );
-                        })
-                      : property.featureNames.map((feature, index) => (
-                          <div key={index} className="amenity-item">
-                            <div className="amenity-icon-wrapper">
-                              <FontAwesomeIcon
-                                icon={faCheck}
-                                className="amenity-icon"
-                              />
-                            </div>
-                            <span className="amenity-title">{feature}</span>
-                          </div>
-                        ))}
-                  </div>
-                </div>
-              ) : null;
-            })()}
-
-            {/* Nearby Benefits Section */}
-            {(() => {
-              const propertyNearbyBenefits = getPropertyNearbyBenefits();
-              return propertyNearbyBenefits.length > 0 ? (
-                <div className="property-section mt-4">
-                  <div className="d-flex align-items-center justify-content-between mb-3">
-                    <h4 className="section-subtitle mb-0">Nearby Benefits</h4>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={NearbyBenefitsTooltip}
+                <button
+                  type="button"
+                  className="pdp99-viewall"
+                  onClick={() => openLightbox(galleryIndex)}
+                >
+                  View all photos
+                </button>
+                {allImageUrls.length > 1 && (
+                  <>
+                    <button
+                      type="button"
+                      className="pdp99-carousel__nav is-prev"
+                      aria-label="Previous photo"
+                      onClick={() => goGallery(-1)}
                     >
-                      <FontAwesomeIcon
-                        icon={faCircleInfo}
-                        className="info-icon-section"
-                        style={{
-                          cursor: "help",
-                          color: "#6c757d",
-                          fontSize: "0.85rem",
-                        }}
-                      />
-                    </OverlayTrigger>
-                  </div>
-                  <div className="amenities-grid">
-                    {propertyNearbyBenefits.map((benefit, index) => {
-                      // Get the full benefit details from allNearbyBenefits
-                      const fullBenefit = allNearbyBenefits.find(
-                        (b) => b.id === benefit.id,
-                      );
-                      const benefitIcon =
-                        benefit.benefitIcon || fullBenefit?.benefitIcon;
-                      const imageUrl = benefitIcon
-                        ? getNearbyBenefitImageUrl(benefitIcon)
-                        : null;
-                      const benefitName =
-                        benefit.benefitName ||
-                        fullBenefit?.benefitName ||
-                        "Nearby Benefit";
-                      const distance = benefit.distance
-                        ? `~ ${benefit.distance} KM`
-                        : "";
-                      const altTag =
-                        benefit.altTag || fullBenefit?.altTag || benefitName;
+                      <FontAwesomeIcon icon={faChevronLeft} />
+                    </button>
+                    <button
+                      type="button"
+                      className="pdp99-carousel__nav is-next"
+                      aria-label="Next photo"
+                      onClick={() => goGallery(1)}
+                    >
+                      <FontAwesomeIcon icon={faChevronRight} />
+                    </button>
+                    <div className="pdp99-dots">
+                      {allImageUrls.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className={i === galleryIndex ? "is-on" : ""}
+                          aria-label={`Photo ${i + 1}`}
+                          onClick={() => setGalleryIndex(i)}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="pdp99-gallery__empty">No photos available</div>
+            )}
+          </div>
 
-                      return (
-                        <div key={benefit.id || index} className="amenity-item">
-                          {imageUrl ? (
-                            <div className="amenity-image-wrapper">
-                              <img
-                                src={imageUrl}
-                                alt={altTag}
-                                width={60}
-                                height={60}
-                                className="amenity-image"
-                              />
-                            </div>
-                          ) : (
-                            <div className="amenity-icon-wrapper">
-                              <FontAwesomeIcon
-                                icon={faMapMarkerAlt}
-                                className="amenity-icon"
-                              />
-                            </div>
-                          )}
-                          <div className="d-flex flex-column align-items-center">
-                            <span className="amenity-title">{benefitName}</span>
-                            {distance && (
-                              <span
-                                className="text-muted small mt-1"
-                                style={{ fontSize: "0.75rem" }}
-                              >
-                                {distance}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : null;
-            })()}
-
-            {/* Society / Project Section */}
-            {property.projectName && (
-              <div id="society-section" className="property-section mt-4">
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                  <h4 className="section-subtitle mb-0">Society / Project</h4>
-                </div>
-                <div className="society-info">
-                  <h5 className="society-name">{property.projectName}</h5>
-                  <div className="society-details">
-                    {property.bedrooms && (
-                      <span>{getBedroomLabel(property.bedrooms)}</span>
-                    )}
-                    {/* Display builder from project details if available, otherwise from property */}
-                    {(projectDetails?.builderName || property.builderName) && (
-                      <span className="ms-2">
-                        Developed / built by{" "}
-                        {projectDetails?.builderName || property.builderName}
-                      </span>
-                    )}
-                    {/* Display builder details if available from project */}
-                    {projectDetails?.builderDetails && (
-                      <div className="mt-2">
-                        <p className="text-muted small mb-1">
-                          <strong>Builder:</strong>{" "}
-                          {projectDetails.builderDetails.builderName ||
-                            projectDetails.builderName}
-                        </p>
-                        {projectDetails.builderDetails.builderDescription && (
-                          <p className="text-muted small mb-0">
-                            {projectDetails.builderDetails.builderDescription}
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  {/* Display project description if available */}
-                  {projectDetails?.projectDescription && (
-                    <div className="mt-3">
-                      <h5 className="mb-2 h6">About Project</h5>
-                      <p className="text-muted">
-                        {projectDetails.projectDescription}
-                      </p>
-                    </div>
-                  )}
-                  {/* Display additional project details if available */}
-                  {projectDetails && (
-                    <div className="mt-3">
-                      {projectDetails.projectType && (
-                        <p className="text-muted small mb-1">
-                          <strong>Project Type:</strong>{" "}
-                          {projectDetails.projectType}
-                        </p>
-                      )}
-                      {projectDetails.totalUnits && (
-                        <p className="text-muted small mb-1">
-                          <strong>Total Units:</strong>{" "}
-                          {projectDetails.totalUnits}
-                        </p>
-                      )}
-                      {projectDetails.constructionStatus && (
-                        <p className="text-muted small mb-1">
-                          <strong>Construction Status:</strong>{" "}
-                          {projectDetails.constructionStatus}
-                        </p>
-                      )}
-                      {projectDetails.possessionDate && (
-                        <p className="text-muted small mb-1">
-                          <strong>Possession Date:</strong>{" "}
-                          {new Date(
-                            projectDetails.possessionDate,
-                          ).toLocaleDateString()}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                  {loadingProject && (
-                    <div className="mt-2">
-                      <Spinner size="sm" animation="border" />
-                      <span className="ms-2 text-muted small">
-                        Loading project details...
-                      </span>
-                    </div>
-                  )}
+          <div className="pdp99-kvgrid">
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faRulerCombined} />
+              <div>
+                <span>Area</span>
+                <strong>{formatArea(primaryArea) || "—"}</strong>
+                {areaLines.length > 0 && <em>{areaLines.join(" · ")}</em>}
+              </div>
+            </div>
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faBed} />
+              <div>
+                <span>Configuration</span>
+                <strong>{configLabel || "—"}</strong>
+              </div>
+            </div>
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faIndianRupeeSign} />
+              <div>
+                <span>Price</span>
+                <strong>{formatPrice(property.totalPrice)}</strong>
+                <button
+                  type="button"
+                  className="pdp99-readmore"
+                  onClick={() => setShowContactModal(true)}
+                >
+                  View Price Details
+                </button>
+              </div>
+            </div>
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faMapMarkerAlt} />
+              <div>
+                <span>Address</span>
+                <strong>{locationLabel || "—"}</strong>
+              </div>
+            </div>
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faBuilding} />
+              <div>
+                <span>Floor Number</span>
+                <strong>{floorLabel || "—"}</strong>
+              </div>
+            </div>
+            {highlightText && (
+              <div className="pdp99-kv">
+                <FontAwesomeIcon icon={faStar} />
+                <div>
+                  <span>Highlights</span>
+                  <strong>{highlightText}</strong>
                 </div>
               </div>
             )}
-
-            {/* Virtual Tour Section */}
-            {/* <div className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h4 className="section-subtitle mb-0">Virtual Tour</h4>
+            {property.facing && (
+              <div className="pdp99-kv">
+                <FontAwesomeIcon icon={faRoad} />
+                <div>
+                  <span>Facing / Overlooking</span>
+                  <strong>{property.facing}</strong>
+                </div>
               </div>
-              <VirtualTour />
-            </div> */}
+            )}
+            <div className="pdp99-kv">
+              <FontAwesomeIcon icon={faClock} />
+              <div>
+                <span>Property Age</span>
+                <strong>
+                  {property.ageOfConstruction != null
+                    ? `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`
+                    : property.status || "—"}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            {/* Contact Information Section */}
+        <div className="pdp99-statbar">
+          <div className="pdp99-stat">
+            <FontAwesomeIcon icon={faIndianRupeeSign} />
+            <strong>{formatPrice(property.totalPrice)}</strong>
+            <span>Price</span>
+          </div>
+          <div className="pdp99-stat">
+            <FontAwesomeIcon icon={faRulerCombined} />
+            <strong>{formatArea(primaryArea) || "—"}</strong>
+            <span>Super Built-up Area</span>
+          </div>
+          <div className="pdp99-stat">
+            <FontAwesomeIcon icon={faBath} />
+            <strong>{property.bathrooms ? `${property.bathrooms} Baths` : "—"}</strong>
+            <span>Bathrooms</span>
+          </div>
+          <div className="pdp99-stat">
+            <FontAwesomeIcon icon={faBuilding} />
+            <strong>{floorLabel || "—"}</strong>
+            <span>Floor</span>
+          </div>
+          <div className="pdp99-stat">
+            <FontAwesomeIcon icon={faClock} />
+            <strong>{property.status || property.possession || "—"}</strong>
+            <span>Possession</span>
+          </div>
+        </div>
 
-            {/* Sponsored Properties Section */}
-            {relatedProperties.length > 0 && (
-              <div className="property-section mt-4">
-                <h4 className="section-subtitle">Sponsored Properties</h4>
-                <div className="sponsored-properties">
-                  {relatedProperties.slice(0, 2).map((related) => {
-                    const relatedImageUrl =
-                      related.imageUrls && related.imageUrls.length > 0
-                        ? getImageUrl(related.imageUrls[0])
-                        : null;
-                    return (
-                      <div key={related.id} className="sponsored-property-card">
-                        {relatedImageUrl && (
-                          <img
-                            src={relatedImageUrl}
-                            alt={related.title || "Property"}
-                            width={200}
-                            height={150}
-                            style={{ objectFit: "cover", borderRadius: "8px" }}
-                          />
-                        )}
-                        <div className="sponsored-property-info">
-                          <h5 className="h6 mb-1">{related.title || "Property"}</h5>
-                          <p className="text-muted small">
-                            {related.locality || ""} {related.city || ""}
-                          </p>
-                          <p className="text-muted small">
-                            {getBedroomLabel(related.bedrooms)} Flats
-                          </p>
-                          <p className="price-text">
-                            {formatPrice(related.totalPrice)} onwards
-                          </p>
+        <div className="pdp99-layout">
+          <div className="pdp99-main">
+            <section id="overview-section" className="pdp99-card">
+              <p className={`pdp99-desc${showReadMore && !descExpanded ? " is-clamp" : ""}`}>
+                {descText}
+              </p>
+              <div className="pdp99-desc-links">
+                {showReadMore && (
+                  <button
+                    type="button"
+                    className="pdp99-readmore"
+                    onClick={() => setDescExpanded((v) => !v)}
+                  >
+                    {descExpanded ? "Read less" : "Read more"}
+                  </button>
+                )}
+                {property.virtualTour && (
+                  <a
+                    href={property.virtualTour}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="pdp99-readmore"
+                  >
+                    View Virtual Tour
+                  </a>
+                )}
+              </div>
+            </section>
+
+            <section id="dealer-section" className="pdp99-card pdp99-dealer">
+              <div className={`pdp99-lister pdp99-lister--flat ${isBroker ? "is-broker" : "is-owner"}`}>
+                <div className="pdp99-lister__banner">
+                  {isBroker ? "Broker / Dealer" : "Direct Owner"}
+                </div>
+                <div className="pdp99-owner__row">
+                  <div className="pdp99-avatar">
+                    {property.userAvatar ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={property.userAvatar} alt="" />
+                    ) : (
+                      ownerInitials || (isBroker ? "B" : "O")
+                    )}
+                  </div>
+                  <div>
+                    <p className="pdp99-owner__name">{posterName}</p>
+                    <span className="pdp99-owner__tag">
+                      <FontAwesomeIcon icon={isBroker ? faBriefcase : faUser} />
+                      {isBroker ? "Broker" : "Owner"}
+                    </span>
+                  </div>
+                </div>
+                <p className="pdp99-owner__note">
+                  {isBroker
+                    ? "This property is listed by a broker. Request a callback for inventory, pricing, and site visits."
+                    : "Listed directly by the owner. Confirm availability and the final quoted price with the owner."}
+                </p>
+                <div className="pdp99-owner__actions pdp99-owner__actions--inline">
+                  <button
+                    type="button"
+                    className="pdp99-btn pdp99-btn--outline"
+                    onClick={() => setShowContactModal(true)}
+                  >
+                    View Number
+                  </button>
+                  <button
+                    type="button"
+                    className="pdp99-btn pdp99-btn--primary"
+                    onClick={() => setShowContactModal(true)}
+                  >
+                    {isBroker ? "Contact Broker" : "Contact Owner"}
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section id="details-section" className="pdp99-card">
+              <h2 className="pdp99-card__title">More Details</h2>
+              <dl className="pdp99-facts">
+                {detailFacts.map((fact) => (
+                  <div key={fact.label} className="pdp99-fact">
+                    <dt>{fact.label}</dt>
+                    <dd>{fact.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
+            {(propertyAmenities.length > 0 || property.amenityNames?.length > 0) && (
+              <section className="pdp99-card">
+                <div className="pdp99-card__head">
+                  <h2 className="pdp99-card__title">Amenities</h2>
+                  <OverlayTrigger placement="top" overlay={AmenitiesTooltip}>
+                    <FontAwesomeIcon icon={faCircleInfo} className="pdp99-info" />
+                  </OverlayTrigger>
+                </div>
+                <div className="pdp99-grid">
+                  {propertyAmenities.length > 0
+                    ? propertyAmenities.map((amenity, index) => {
+                        const imageUrl = getAmenityImageUrl(amenity.amenityImageUrl);
+                        return (
+                          <div key={amenity.id || index} className="pdp99-amenity">
+                            {imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={imageUrl} alt={amenity.title || "Amenity"} />
+                            ) : (
+                              <span className="pdp99-amenity-ico">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                            )}
+                            <span>{amenity.title || property.amenityNames?.[index]}</span>
+                          </div>
+                        );
+                      })
+                    : property.amenityNames.map((amenity, index) => (
+                        <div key={index} className="pdp99-amenity">
+                          <span className="pdp99-amenity-ico">
+                            <FontAwesomeIcon icon={faCheck} />
+                          </span>
+                          <span>{amenity}</span>
                         </div>
+                      ))}
+                </div>
+              </section>
+            )}
+
+            {(propertyFeatures.length > 0 || property.featureNames?.length > 0) && (
+              <section className="pdp99-card">
+                <div className="pdp99-card__head">
+                  <h2 className="pdp99-card__title">Furnishings</h2>
+                  <OverlayTrigger placement="top" overlay={FeaturesTooltip}>
+                    <FontAwesomeIcon icon={faCircleInfo} className="pdp99-info" />
+                  </OverlayTrigger>
+                </div>
+                <div className="pdp99-grid">
+                  {propertyFeatures.length > 0
+                    ? propertyFeatures.map((feature, index) => {
+                        const imageUrl = getFeatureImageUrl(feature.iconImageUrl);
+                        return (
+                          <div key={feature.id || index} className="pdp99-amenity">
+                            {imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={imageUrl} alt={feature.title || "Feature"} />
+                            ) : (
+                              <span className="pdp99-amenity-ico">
+                                <FontAwesomeIcon icon={faCheck} />
+                              </span>
+                            )}
+                            <span>{feature.title || property.featureNames?.[index]}</span>
+                          </div>
+                        );
+                      })
+                    : property.featureNames.map((feature, index) => (
+                        <div key={index} className="pdp99-amenity">
+                          <span className="pdp99-amenity-ico">
+                            <FontAwesomeIcon icon={faCheck} />
+                          </span>
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                </div>
+              </section>
+            )}
+
+            {property.projectName && (
+              <section id="society-section" className="pdp99-card pdp99-society">
+                <h2 className="pdp99-card__title">Society</h2>
+                <h5>{property.projectName}</h5>
+                {(projectDetails?.builderName || property.builderName) && (
+                  <p>
+                    Developed / built by{" "}
+                    {projectDetails?.builderName || property.builderName}
+                  </p>
+                )}
+                {projectDetails?.projectDescription && (
+                  <p>{projectDetails.projectDescription}</p>
+                )}
+                {projectDetails?.projectType && (
+                  <p>
+                    <strong>Project Type:</strong> {projectDetails.projectType}
+                  </p>
+                )}
+                {projectDetails?.totalUnits && (
+                  <p>
+                    <strong>Total Units:</strong> {projectDetails.totalUnits}
+                  </p>
+                )}
+                {projectDetails?.constructionStatus && (
+                  <p>
+                    <strong>Construction Status:</strong>{" "}
+                    {projectDetails.constructionStatus}
+                  </p>
+                )}
+                {loadingProject && (
+                  <p className="pdp99-price-sub">Loading project details…</p>
+                )}
+              </section>
+            )}
+
+            <section id="price-trends-section" className="pdp99-card">
+              <h2 className="pdp99-card__title">Price Trends</h2>
+              <p className="pdp99-desc">
+                Indicative pricing for this listing. Confirm current rates with
+                the owner before making a decision.
+              </p>
+              {property.totalPrice && (
+                <div className="pdp99-trend-row">
+                  <span>Current Price</span>
+                  <strong>{formatPrice(property.totalPrice)}</strong>
+                </div>
+              )}
+              {property.pricePerSqft && (
+                <div className="pdp99-trend-row">
+                  <span>Price per sq.ft</span>
+                  <strong>{formatPricePerSqft(property.pricePerSqft)}</strong>
+                </div>
+              )}
+            </section>
+
+            <section id="locality-section" className="pdp99-card">
+              <div className="pdp99-card__head">
+                <h2 className="pdp99-card__title">Explore Locality</h2>
+                <OverlayTrigger placement="top" overlay={NearbyBenefitsTooltip}>
+                  <FontAwesomeIcon icon={faCircleInfo} className="pdp99-info" />
+                </OverlayTrigger>
+              </div>
+              {locationLabel && (
+                <p className="pdp99-desc">
+                  <strong>Location:</strong> {locationLabel}
+                </p>
+              )}
+              {property.latitude && property.longitude && (
+                <a
+                  href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pdp99-map"
+                >
+                  <FontAwesomeIcon icon={faMapMarkerAlt} />
+                  View on Map
+                </a>
+              )}
+              {propertyNearbyBenefits.length > 0 && (
+                <div className="pdp99-grid mt-4">
+                  {propertyNearbyBenefits.map((benefit, index) => {
+                    const fullBenefit = allNearbyBenefits.find(
+                      (b) => b.id === benefit.id,
+                    );
+                    const benefitIcon =
+                      benefit.benefitIcon || fullBenefit?.benefitIcon;
+                    const imageUrl = benefitIcon
+                      ? getNearbyBenefitImageUrl(benefitIcon)
+                      : null;
+                    const benefitName =
+                      benefit.benefitName ||
+                      fullBenefit?.benefitName ||
+                      "Nearby";
+                    const distance = benefit.distance
+                      ? `~ ${benefit.distance} KM`
+                      : "";
+                    return (
+                      <div key={benefit.id || index} className="pdp99-amenity">
+                        {imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={imageUrl} alt={benefitName} />
+                        ) : (
+                          <span className="pdp99-amenity-ico">
+                            <FontAwesomeIcon icon={faMapMarkerAlt} />
+                          </span>
+                        )}
+                        <span>{benefitName}</span>
+                        {distance ? <span className="sub">{distance}</span> : null}
                       </div>
                     );
                   })}
                 </div>
-              </div>
-            )}
-
-            {/* Price Trends Section */}
-            <div id="price-trends-section" className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h4 className="section-subtitle mb-0">Price Trends</h4>
-              </div>
-              <div className="price-trends-info">
-                <p className="text-muted">
-                  Price trends and market analysis for this property will be
-                  displayed here.
-                </p>
-                {property.totalPrice && property.pricePerSqft && (
-                  <div className="price-info-card mt-3">
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <span className="text-muted">Current Price:</span>
-                      <strong className="text-primary">
-                        {formatPrice(property.totalPrice)}
-                      </strong>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="text-muted">Price per sq.ft:</span>
-                      <strong>
-                        {formatPricePerSqft(property.pricePerSqft)}
-                      </strong>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Explore Locality Section */}
-            <div id="locality-section" className="property-section mt-4">
-              <div className="d-flex align-items-center justify-content-between mb-3">
-                <h4 className="section-subtitle mb-0">Explore Locality</h4>
-              </div>
-              <div className="locality-info">
-                {locationParts.filter(Boolean).length > 0 && (
-                  <div className="locality-details mb-3">
-                    <p className="mb-2">
-                      <strong>Location:</strong>{" "}
-                      {locationParts.filter(Boolean).join(", ")}
-                    </p>
-                    {property.latitude && property.longitude && (
-                      <a
-                        href={`https://www.google.com/maps?q=${property.latitude},${property.longitude}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn btn-outline-primary btn-sm"
-                      >
-                        <FontAwesomeIcon
-                          icon={faMapMarkerAlt}
-                          className="me-2"
-                        />
-                        View on Map
-                      </a>
-                    )}
-                  </div>
-                )}
-                <p className="text-muted">
-                  Explore the locality, nearby amenities, schools, hospitals,
-                  and other facilities in this area.
-                </p>
-              </div>
-            </div>
-
-            {/* Owner Properties Section - Recommendation (Slider) */}
-            {relatedProperties.length > 0 && (
-              <div
-                id="recommendation-section"
-                className="property-section mt-4"
-              >
-                <div className="d-flex align-items-center justify-content-between mb-3">
-                  <h4 className="section-subtitle mb-0">
-                    Owner Properties Available Only on MPF
-                  </h4>
-                </div>
-                <div className="owner-properties-slider-wrap">
-                  <Swiper
-                    modules={[Navigation, Pagination]}
-                    spaceBetween={24}
-                    slidesPerView={1}
-                    breakpoints={{
-                      576: { slidesPerView: 2 },
-                      768: { slidesPerView: 2 },
-                      992: { slidesPerView: 3 },
-                      1200: { slidesPerView: 3 },
-                    }}
-                    navigation={{
-                      prevEl: ".owner-properties-slider-prev",
-                      nextEl: ".owner-properties-slider-next",
-                    }}
-                    pagination={{
-                      clickable: true,
-                      dynamicBullets: true,
-                    }}
-                    className="owner-properties-swiper"
-                    loop={relatedProperties.length >= 4}
-                  >
-                    {relatedProperties.map((related) => {
-                      const relatedPhotoTotal =
-                        typeof related.totalImageCount === "number"
-                          ? related.totalImageCount
-                          : related.imageUrls?.length ?? 0;
-                      const relatedImageUrl =
-                        related.imageUrls && related.imageUrls.length > 0
-                          ? getImageUrl(related.imageUrls[0])
-                          : null;
-                      const relatedSlug = related.title
-                        ? related.title
-                            .toLowerCase()
-                            .replace(/[^a-z0-9]+/g, "-")
-                            .replace(/(^-|-$)/g, "") +
-                          "-" +
-                          related.id
-                        : related.id.toString();
-                      return (
-                        <SwiperSlide key={related.id}>
-                          <Link
-                            title="View Property"
-                            href={`/properties/${relatedSlug}`}
-                            className="owner-property-card"
-                          >
-                            <div className="owner-property-image">
-                              {relatedImageUrl ? (
-                                <img
-                                  src={relatedImageUrl}
-                                  alt={related.title || "Property"}
-                                  style={{ objectFit: "cover" }}
-                                />
-                              ) : (
-                                <div className="placeholder-image-small">
-                                  No Image
-                                </div>
-                              )}
-                              {relatedPhotoTotal > 0 && (
-                                  <div className="image-count-badge">
-                                    {relatedPhotoTotal}+ Photos
-                                  </div>
-                                )}
-                            </div>
-                            <div className="owner-property-details">
-                              <p className="price-text mb-1">
-                                {formatPrice(related.totalPrice)} |{" "}
-                                {formatArea(
-                                  related.carpetArea || related.builtUpArea,
-                                )}
-                              </p>
-                              <p className="location-text small">
-                                {related.locality || ""} {related.city || ""}
-                              </p>
-                              {related.status && (
-                                <Badge bg="success" className="mt-1">
-                                  {related.status}
-                                </Badge>
-                              )}
-                            </div>
-                          </Link>
-                        </SwiperSlide>
-                      );
-                    })}
-                  </Swiper>
-                  <button
-                    type="button"
-                    className="owner-properties-slider-prev owner-properties-slider-btn"
-                    aria-label="Previous properties"
-                  >
-                    <FontAwesomeIcon icon={faChevronLeft} />
-                  </button>
-                  <button
-                    type="button"
-                    className="owner-properties-slider-next owner-properties-slider-btn"
-                    aria-label="Next properties"
-                  >
-                    <FontAwesomeIcon icon={faChevronRight} />
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </section>
           </div>
+
+          <aside className="pdp99-aside">
+            {relatedProperties.length > 0 && (
+              <div id="recommendation-section" className="pdp99-aside-list">
+                <div className="pdp99-aside-list__head">
+                  <h3>Similar Properties</h3>
+                  <Link href="/properties">View All</Link>
+                </div>
+                {relatedProperties.slice(0, 4).map((related) => {
+                  const relatedImageUrl =
+                    related.imageUrls && related.imageUrls.length > 0
+                      ? getImageUrl(related.imageUrls[0])
+                      : null;
+                  return (
+                    <Link
+                      key={`aside-${related.id}`}
+                      href={`/properties/${relatedSlugOf(related)}`}
+                      className="pdp99-aside-item"
+                    >
+                      {relatedImageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={relatedImageUrl} alt="" />
+                      ) : (
+                        <div className="pdp99-aside-ph" />
+                      )}
+                      <div>
+                        <strong>{formatPrice(related.totalPrice)}</strong>
+                        <span>
+                          {[related.locality, related.city].filter(Boolean).join(", ")}
+                        </span>
+                        <span>
+                          {formatArea(related.carpetArea || related.builtUpArea) || ""}
+                          {related.subType || related.listingType
+                            ? ` · ${related.subType || related.listingType}`
+                            : " · Property"}
+                        </span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </aside>
         </div>
+      </div>
+
+      <div className="pdp99-mobile-cta">
+        <button
+          type="button"
+          className="pdp99-btn pdp99-btn--outline"
+          onClick={() => setShowContactModal(true)}
+        >
+          View Number
+        </button>
+        <button
+          type="button"
+          className="pdp99-btn pdp99-btn--primary"
+          onClick={() => setShowContactModal(true)}
+        >
+          Contact
+        </button>
       </div>
 
       {/* Contact Form Modal - Compact Modern Design */}
@@ -1641,7 +1261,7 @@ export default function PropertyDetailClient({
         <Modal.Header className="modern-modal-header-compact" closeButton>
           <Modal.Title className="modern-modal-title-compact">
             <FontAwesomeIcon icon={faPhone} className="me-2" />
-            Contact Owner
+            Contact {isBroker ? "Broker" : "Owner"}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="modern-modal-body-compact">

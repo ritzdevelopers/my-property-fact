@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { validateLeadFields } from "@/lib/leadValidation";
-import { verifyLeadOtp } from "@/lib/leadOtpStore";
 
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/?$/, "/");
 const BROKER_AUTH_SECRET = process.env.BROKER_AUTH_INTERNAL_SECRET || "";
@@ -25,11 +24,6 @@ export async function POST(request) {
       );
     }
 
-    const localVerify = verifyLeadOtp(phone, otp);
-    if (!localVerify.ok) {
-      return NextResponse.json({ success: false, message: localVerify.message }, { status: 400 });
-    }
-
     if (!API_BASE) {
       return NextResponse.json(
         { success: false, message: "Authentication service is not configured." },
@@ -52,6 +46,7 @@ export async function POST(request) {
       },
       body: JSON.stringify({
         phone,
+        otp: String(otp).trim(),
         fullName: String(fullName).trim(),
         email: String(email).trim(),
         userType: userType || "BROKER",

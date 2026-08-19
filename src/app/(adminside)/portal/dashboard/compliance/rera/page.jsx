@@ -1,71 +1,84 @@
 "use client";
 import { useState, useEffect } from "react";
-import { 
-  Card, 
-  Row, 
-  Col, 
-  Button, 
-  Form,
-  Alert,
-  Badge,
-  Table,
-  Modal,
-  Spinner
-} from "react-bootstrap";
-import { 
-  cilBadge, 
-  cilShieldAlt, 
-  cilCheck,
-  cilX,
-  cilWarning,
-  cilPlus,
-  cilPencil,
-  cilTrash,
-  cilInfo,
-  cilLocationPin,
-  cilCalendar,
-  cilCheckCircle,
-  cilClock
-} from "@coreui/icons";
-import CIcon from "@coreui/icons-react";
+import { Modal } from "react-bootstrap";
+import {
+  AlertCircle,
+  AlertTriangle,
+  BadgeCheck,
+  CalendarDays,
+  CheckCircle2,
+  Clock,
+  Info,
+  MapPin,
+  Pencil,
+  Plus,
+  ShieldCheck,
+  Trash2,
+  X,
+} from "lucide-react";
 import Cookies from "js-cookie";
-import "../../../_components/PortalCommonStyles.css";
+import "../../../_components/PortalUI.css";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005";
+const INDIAN_STATES = [
+  "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
+  "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
+  "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
+  "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
+  "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
+  "Uttar Pradesh", "Uttarakhand", "West Bengal",
+  "Andaman and Nicobar Islands", "Chandigarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry",
+];
+
+const EMPTY_FORM = {
+  reraId: "",
+  reraState: "",
+  registrationNumber: "",
+  registrationDate: "",
+  expiryDate: "",
+  status: "Active",
+  documentUrl: "",
+  notes: "",
+};
+
+const STATUS_TONE = {
+  Active: "green",
+  Pending: "amber",
+  Expired: "red",
+  Inactive: "slate",
+};
+
+function isExpired(expiryDate) {
+  if (!expiryDate) return false;
+  return new Date(expiryDate) < new Date();
+}
+
+function formatDate(value) {
+  if (!value) return null;
+  return new Date(value).toLocaleDateString("en-IN", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Days until expiry; negative when already lapsed. */
+function daysUntil(expiryDate) {
+  if (!expiryDate) return null;
+  return Math.ceil((new Date(expiryDate) - new Date()) / 86400000);
+}
 
 export default function RERAPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedRera, setSelectedRera] = useState(null);
   const [reraCredentials, setReraCredentials] = useState([]);
-  
-  const [formData, setFormData] = useState({
-    reraId: "",
-    reraState: "",
-    registrationNumber: "",
-    registrationDate: "",
-    expiryDate: "",
-    status: "Active",
-    documentUrl: "",
-    notes: ""
-  });
-
-  // Indian states for RERA
-  const indianStates = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand",
-    "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur",
-    "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Punjab",
-    "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura",
-    "Uttar Pradesh", "Uttarakhand", "West Bengal",
-    "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-    "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
-  ];
+  const [formData, setFormData] = useState(EMPTY_FORM);
 
   useEffect(() => {
     fetchReraCredentials();
@@ -75,58 +88,23 @@ export default function RERAPage() {
     try {
       setLoading(true);
       setError(null);
-      // const response = await axios.get(`${API_BASE_URL}user/rera-credentials`, {
-      //   withCredentials: true,
-      // });
-
-      // if (response.status === 200 && Array.isArray(response.data)) {
-      //   setReraCredentials(response.data);
-      // } else {
-      //   setReraCredentials([]);
-      // }
+      // TODO: wire to `user/rera-credentials` once the backend endpoint ships.
       setLoading(false);
     } catch (err) {
-      setReraCredentials([
-        {
-          id: 1,
-          reraId: "RERA/2023/001234",
-          reraState: "Maharashtra",
-          registrationNumber: "REG/MAH/2023/1234",
-          registrationDate: "2023-01-15",
-          expiryDate: "2026-01-15",
-          status: "Active",
-          documentUrl: "",
-          notes: "Primary RERA registration",
-          createdAt: "2023-01-15T10:00:00"
-        }
-      ]);
       console.error("Error fetching RERA credentials:", err);
-      // setError(err.message || "Failed to load RERA credentials. Please try again.");
       setLoading(false);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddRera = () => {
-    setFormData({
-      reraId: "",
-      reraState: "",
-      registrationNumber: "",
-      registrationDate: "",
-      expiryDate: "",
-      status: "Active",
-      documentUrl: "",
-      notes: ""
-    });
+    setFormData(EMPTY_FORM);
     setSelectedRera(null);
-    setShowAddModal(true);
+    setShowFormModal(true);
   };
 
   const handleEditRera = (rera) => {
@@ -138,15 +116,15 @@ export default function RERAPage() {
       expiryDate: rera.expiryDate || "",
       status: rera.status || "Active",
       documentUrl: rera.documentUrl || "",
-      notes: rera.notes || ""
+      notes: rera.notes || "",
     });
     setSelectedRera(rera);
-    setShowEditModal(true);
+    setShowFormModal(true);
   };
 
-  const handleDeleteRera = (rera) => {
-    setSelectedRera(rera);
-    setShowDeleteModal(true);
+  const closeFormModal = () => {
+    setShowFormModal(false);
+    setSelectedRera(null);
   };
 
   const handleSubmit = async (e) => {
@@ -157,44 +135,22 @@ export default function RERAPage() {
 
     try {
       const token = Cookies.get("token");
-      
       if (!token) {
-        setError("Please login to save RERA credentials");
+        setError("Please login again to save RERA credentials.");
         setSaving(false);
         return;
       }
 
-      const apiUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-      
-      // TODO: Replace with actual API endpoint when backend is ready
-      // const url = selectedRera 
-      //   ? `${apiUrl}/api/user/rera-credentials/${selectedRera.id}`
-      //   : `${apiUrl}/api/user/rera-credentials`;
-      // 
-      // const method = selectedRera ? "PUT" : "POST";
-      // 
-      // const response = await fetch(url, {
-      //   method: method,
-      //   headers: {
-      //     "Authorization": `Bearer ${token}`,
-      //     "Content-Type": "application/json"
-      //   },
-      //   body: JSON.stringify(formData)
-      // });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock success - replace with actual API response handling
-      setSuccess(selectedRera ? "RERA credential updated successfully!" : "RERA credential added successfully!");
-      
-      // Refresh the list
+      // TODO: replace the simulated call with the real create/update request.
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      setSuccess(
+        selectedRera
+          ? "RERA credential updated successfully."
+          : "RERA credential added successfully.",
+      );
       await fetchReraCredentials();
-      
-      setShowAddModal(false);
-      setShowEditModal(false);
-      setSelectedRera(null);
-      
+      closeFormModal();
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error("Error saving RERA credential:", err);
@@ -206,38 +162,24 @@ export default function RERAPage() {
 
   const handleConfirmDelete = async () => {
     if (!selectedRera) return;
-
     setSaving(true);
     setError(null);
 
     try {
       const token = Cookies.get("token");
-      
       if (!token) {
-        setError("Please login to delete RERA credentials");
+        setError("Please login again to delete RERA credentials.");
         setSaving(false);
         return;
       }
 
-      const apiUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-      
-      // TODO: Replace with actual API endpoint when backend is ready
-      // const response = await fetch(`${apiUrl}/api/user/rera-credentials/${selectedRera.id}`, {
-      //   method: "DELETE",
-      //   headers: {
-      //     "Authorization": `Bearer ${token}`,
-      //     "Content-Type": "application/json"
-      //   }
-      // });
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      setSuccess("RERA credential deleted successfully!");
+      // TODO: replace the simulated call with the real delete request.
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      setSuccess("RERA credential deleted.");
       await fetchReraCredentials();
       setShowDeleteModal(false);
       setSelectedRera(null);
-      
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       console.error("Error deleting RERA credential:", err);
@@ -247,513 +189,513 @@ export default function RERAPage() {
     }
   };
 
-  const getStatusBadge = (status) => {
-    const variants = {
-      "Active": "success",
-      "Expired": "danger",
-      "Pending": "warning",
-      "Inactive": "secondary"
-    };
-    return variants[status] || "secondary";
-  };
+  const stats = [
+    {
+      label: "Total Credentials",
+      value: reraCredentials.length,
+      icon: BadgeCheck,
+      tone: "emerald",
+    },
+    {
+      label: "Active",
+      value: reraCredentials.filter((r) => r.status === "Active" && !isExpired(r.expiryDate))
+        .length,
+      icon: CheckCircle2,
+      tone: "green",
+    },
+    {
+      label: "Pending",
+      value: reraCredentials.filter((r) => r.status === "Pending").length,
+      icon: Clock,
+      tone: "amber",
+    },
+    {
+      label: "Expired",
+      value: reraCredentials.filter((r) => isExpired(r.expiryDate)).length,
+      icon: AlertTriangle,
+      tone: "red",
+    },
+  ];
 
-  const isExpired = (expiryDate) => {
-    if (!expiryDate) return false;
-    return new Date(expiryDate) < new Date();
-  };
-
-  // Calculate statistics
-  const stats = {
-    total: reraCredentials.length,
-    active: reraCredentials.filter(r => r.status === "Active" && !isExpired(r.expiryDate)).length,
-    expired: reraCredentials.filter(r => isExpired(r.expiryDate)).length,
-    pending: reraCredentials.filter(r => r.status === "Pending").length
-  };
+  const expiringSoon = reraCredentials.filter((r) => {
+    const days = daysUntil(r.expiryDate);
+    return days !== null && days > 0 && days <= 60;
+  });
 
   return (
-    <div className="portal-content">
-      {/* Header */}
-      <div className="dashboard-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h2>RERA Credentials</h2>
-            <p>Manage your RERA registration credentials and compliance documents</p>
+    <div className="brk-page">
+      <header className="brk-page-head">
+        <div className="brk-page-head__main">
+          <span className="brk-page-head__icon">
+            <ShieldCheck size={20} />
+          </span>
+          <div>
+            <h1 className="brk-page-head__title">RERA Compliance</h1>
+            <p className="brk-page-head__sub">
+              Keep your registration credentials current so your listings stay publishable
+            </p>
           </div>
-          <div className="header-actions">
-            <Button 
-              variant="light"
-              onClick={handleAddRera}
-              className="d-flex align-items-center gap-2"
-            >
-              <CIcon icon={cilPlus} />
-              Add RERA Credential
-            </Button>
+        </div>
+        <div className="brk-page-head__actions">
+          <button type="button" className="brk-btn brk-btn--primary" onClick={handleAddRera}>
+            <Plus size={15} />
+            Add Credential
+          </button>
+        </div>
+      </header>
+
+      <div className="brk-process" aria-label="Why RERA matters">
+        <div className="brk-process__item">
+          <span className="brk-process__num">1</span>
+          <div>
+            <p className="brk-process__title">Stay listable</p>
+            <p className="brk-process__text">
+              Some states require a valid RERA ID before a listing can go live.
+            </p>
+          </div>
+        </div>
+        <div className="brk-process__item">
+          <span className="brk-process__num">2</span>
+          <div>
+            <p className="brk-process__title">Build buyer trust</p>
+            <p className="brk-process__text">
+              A current registration shows you operate as a verified broker.
+            </p>
+          </div>
+        </div>
+        <div className="brk-process__item">
+          <span className="brk-process__num">3</span>
+          <div>
+            <p className="brk-process__title">Renew on time</p>
+            <p className="brk-process__text">
+              We flag credentials that expire within 60 days so listings are not interrupted.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <Row className="g-4 mb-4">
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon primary">
-                  <CIcon icon={cilBadge} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Total Credentials</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{stats.total}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon success">
-                  <CIcon icon={cilCheckCircle} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Active</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{stats.active}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon warning">
-                  <CIcon icon={cilClock} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Pending</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{stats.pending}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon" style={{ background: "linear-gradient(135deg, #dc3545 0%, #c82333 100%)" }}>
-                  <CIcon icon={cilWarning} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Expired</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{stats.expired}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
       {error && (
-        <Alert variant="danger" dismissible onClose={() => setError(null)} className="mb-4">
-          <CIcon icon={cilWarning} className="me-2" />
-          {error}
-        </Alert>
+        <div className="brk-alert brk-alert--error" role="alert">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+          <button
+            type="button"
+            className="brk-alert__close"
+            onClick={() => setError(null)}
+            aria-label="Dismiss"
+          >
+            <X size={15} />
+          </button>
+        </div>
       )}
 
       {success && (
-        <Alert variant="success" dismissible onClose={() => setSuccess(null)} className="mb-4">
-          <CIcon icon={cilCheck} className="me-2" />
-          {success}
-        </Alert>
+        <div className="brk-alert brk-alert--success" role="status">
+          <CheckCircle2 size={16} />
+          <span>{success}</span>
+          <button
+            type="button"
+            className="brk-alert__close"
+            onClick={() => setSuccess(null)}
+            aria-label="Dismiss"
+          >
+            <X size={15} />
+          </button>
+        </div>
       )}
 
       {loading ? (
-        <Card className="dashboard-card">
-          <Card.Body>
-            <div className="loading-container">
-              <Spinner animation="border" role="status">
-                <span className="visually-hidden">Loading...</span>
-              </Spinner>
-              <p className="mt-3 text-muted">Loading RERA credentials...</p>
-            </div>
-          </Card.Body>
-        </Card>
-      ) : reraCredentials.length === 0 ? (
-        <Card className="dashboard-card">
-          <Card.Body className="text-center py-5">
-            <CIcon icon={cilBadge} size="3xl" className="text-muted mb-3" />
-            <h5 className="mb-2">No RERA Credentials Found</h5>
-            <p className="text-muted mb-4">
-              Add your RERA registration credentials to ensure compliance and build trust with clients.
-            </p>
-            <Button variant="primary" onClick={handleAddRera}>
-              <CIcon icon={cilPlus} className="me-2" />
-              Add Your First RERA Credential
-            </Button>
-          </Card.Body>
-        </Card>
+        <div className="brk-stat-grid" aria-busy="true">
+          {stats.map((s) => (
+            <div key={s.label} className="brk-stat brk-stat--skeleton" />
+          ))}
+        </div>
       ) : (
-        <Card className="dashboard-card">
-          <Card.Header className="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 className="mb-1">RERA Credentials</h5>
-              <small className="text-muted">
-                Showing {reraCredentials.length} credential{reraCredentials.length !== 1 ? 's' : ''}
-              </small>
-            </div>
-          </Card.Header>
-          <Card.Body>
-            <div className="table-responsive">
-              <Table hover className="portal-table">
-                <thead>
-                  <tr>
-                    <th>RERA ID</th>
-                    <th>State</th>
-                    <th>Registration Number</th>
-                    <th>Registration Date</th>
-                    <th>Expiry Date</th>
-                    <th>Status</th>
-                    <th className="text-end">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reraCredentials.map((rera) => {
-                    const expired = isExpired(rera.expiryDate);
-                    return (
-                      <tr key={rera.id} className={expired ? "table-warning" : ""}>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <strong>{rera.reraId}</strong>
-                            {expired && (
-                              <Badge bg="danger" className="ms-2">
-                                <CIcon icon={cilWarning} className="me-1" />
-                                Expired
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div className="d-flex align-items-center">
-                            <CIcon icon={cilLocationPin} className="me-1 text-muted" />
-                            {rera.reraState}
-                          </div>
-                        </td>
-                        <td>
-                          <span className={rera.registrationNumber ? "" : "text-muted"}>
-                            {rera.registrationNumber || "N/A"}
-                          </span>
-                        </td>
-                        <td>
-                          {rera.registrationDate 
-                            ? new Date(rera.registrationDate).toLocaleDateString('en-IN', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })
-                            : <span className="text-muted">N/A</span>}
-                        </td>
-                        <td>
-                          {rera.expiryDate 
-                            ? (
-                              <span className={expired ? "text-danger fw-semibold" : ""}>
-                                {new Date(rera.expiryDate).toLocaleDateString('en-IN', {
-                                  year: 'numeric',
-                                  month: 'short',
-                                  day: 'numeric'
-                                })}
-                              </span>
-                            )
-                            : <span className="text-muted">N/A</span>}
-                        </td>
-                        <td>
-                          <Badge bg={getStatusBadge(rera.status)}>
-                            {rera.status}
-                          </Badge>
-                        </td>
-                        <td className="text-end">
-                          <div className="d-flex gap-2 justify-content-end">
-                            <Button
-                              variant="outline-primary"
-                              size="sm"
-                              onClick={() => handleEditRera(rera)}
-                              title="Edit"
-                            >
-                              <CIcon icon={cilPencil} />
-                            </Button>
-                            <Button
-                              variant="outline-danger"
-                              size="sm"
-                              onClick={() => handleDeleteRera(rera)}
-                              title="Delete"
-                            >
-                              <CIcon icon={cilTrash} />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
-          </Card.Body>
-        </Card>
+        <div className="brk-stat-grid">
+          {stats.map(({ label, value, icon: Icon, tone }) => (
+            <article key={label} className={`brk-stat brk-stat--${tone}`}>
+              <span className={`brk-stat__icon brk-stat__icon--${tone}`}>
+                <Icon size={18} />
+              </span>
+              <span className="brk-stat__body">
+                <span className="brk-stat__label">{label}</span>
+                <span className="brk-stat__value">{value}</span>
+              </span>
+            </article>
+          ))}
+        </div>
       )}
 
-      {/* Add/Edit Modal */}
-      <Modal 
-        show={showAddModal || showEditModal} 
-        onHide={() => {
-          setShowAddModal(false);
-          setShowEditModal(false);
-          setSelectedRera(null);
-        }}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton className="border-bottom">
-          <Modal.Title className="d-flex align-items-center">
-            <CIcon icon={cilBadge} className="me-2" />
+      {expiringSoon.length > 0 && (
+        <div className="brk-alert brk-alert--warning">
+          <AlertTriangle size={16} />
+          <span>
+            {expiringSoon.length} credential{expiringSoon.length > 1 ? "s expire" : " expires"} within
+            the next 60 days. Renew early to avoid listing interruptions.
+          </span>
+        </div>
+      )}
+
+      <section className="brk-panel">
+        <div className="brk-panel__head">
+          <div>
+            <h2 className="brk-panel__title">Registered Credentials</h2>
+            <p className="brk-panel__sub">
+              {reraCredentials.length} credential{reraCredentials.length === 1 ? "" : "s"} on file
+            </p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="brk-loading">
+            <span className="brk-spinner" />
+            Loading RERA credentials…
+          </div>
+        ) : reraCredentials.length === 0 ? (
+          <div className="brk-empty">
+            <span className="brk-empty__icon">
+              <BadgeCheck size={24} />
+            </span>
+            <h3 className="brk-empty__title">No RERA credentials yet</h3>
+            <p className="brk-empty__text">
+              Add your RERA registration to prove compliance, build buyer trust, and unlock
+              listing in states that require it. You can store multiple state credentials.
+            </p>
+            <button type="button" className="brk-btn brk-btn--primary" onClick={handleAddRera}>
+              <Plus size={15} />
+              Add Your First Credential
+            </button>
+          </div>
+        ) : (
+          <div className="brk-table-wrap">
+            <table className="brk-table">
+              <thead>
+                <tr>
+                  <th>RERA ID</th>
+                  <th>State</th>
+                  <th>Registration No.</th>
+                  <th>Registered</th>
+                  <th>Expires</th>
+                  <th>Status</th>
+                  <th style={{ textAlign: "right" }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reraCredentials.map((rera) => {
+                  const expired = isExpired(rera.expiryDate);
+                  const tone = expired ? "red" : STATUS_TONE[rera.status] || "slate";
+                  return (
+                    <tr key={rera.id}>
+                      <td>
+                        <span className="brk-table__primary">{rera.reraId}</span>
+                        {rera.notes && <span className="brk-table__meta">{rera.notes}</span>}
+                      </td>
+                      <td>
+                        <span className="brk-table__contact">
+                          <MapPin size={13} />
+                          {rera.reraState}
+                        </span>
+                      </td>
+                      <td className={rera.registrationNumber ? "" : "brk-table__muted"}>
+                        {rera.registrationNumber || "—"}
+                      </td>
+                      <td className="brk-table__muted" style={{ whiteSpace: "nowrap" }}>
+                        {formatDate(rera.registrationDate) || "—"}
+                      </td>
+                      <td style={{ whiteSpace: "nowrap" }}>
+                        {rera.expiryDate ? (
+                          <span style={expired ? { color: "#b91c1c", fontWeight: 700 } : undefined}>
+                            {formatDate(rera.expiryDate)}
+                          </span>
+                        ) : (
+                          <span className="brk-table__muted">—</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className={`brk-badge brk-badge--${tone}`}>
+                          {expired ? "Expired" : rera.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="brk-table__actions">
+                          <button
+                            type="button"
+                            className="brk-icon-btn"
+                            title="Edit credential"
+                            aria-label="Edit credential"
+                            onClick={() => handleEditRera(rera)}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            type="button"
+                            className="brk-icon-btn brk-icon-btn--danger"
+                            title="Delete credential"
+                            aria-label="Delete credential"
+                            onClick={() => {
+                              setSelectedRera(rera);
+                              setShowDeleteModal(true);
+                            }}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      {/* Add / edit */}
+      <Modal show={showFormModal} onHide={closeFormModal} size="lg" centered dialogClassName="brk-modal">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <BadgeCheck size={18} />
             {selectedRera ? "Edit RERA Credential" : "Add RERA Credential"}
           </Modal.Title>
         </Modal.Header>
-        <Form onSubmit={handleSubmit}>
-          <Modal.Body style={{ padding: '1.5rem' }}>
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold d-flex align-items-center">
-                    <CIcon icon={cilBadge} className="me-2" />
-                    RERA ID <span className="text-danger ms-1">*</span>
-                  </Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="reraId"
-                    value={formData.reraId}
-                    onChange={handleInputChange}
-                    placeholder="e.g., RERA/2023/001234"
-                    required
-                  />
-                  <Form.Text className="text-muted small">
-                    Your unique RERA registration ID
-                  </Form.Text>
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold d-flex align-items-center">
-                    <CIcon icon={cilLocationPin} className="me-2" />
-                    RERA State <span className="text-danger ms-1">*</span>
-                  </Form.Label>
-                  <Form.Select
-                    name="reraState"
-                    value={formData.reraState}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select State</option>
-                    {indianStates.map((state) => (
-                      <option key={state} value={state}>
-                        {state}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
+        <form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <div className="brk-form-grid">
+              <div>
+                <label className="brk-label" htmlFor="reraId">
+                  RERA ID <span className="brk-label__req">*</span>
+                </label>
+                <input
+                  id="reraId"
+                  className="brk-input"
+                  type="text"
+                  name="reraId"
+                  value={formData.reraId}
+                  onChange={handleInputChange}
+                  placeholder="e.g. RERA/2023/001234"
+                  required
+                />
+                <span className="brk-hint">Your unique RERA registration ID</span>
+              </div>
 
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold">Registration Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="registrationNumber"
-                    value={formData.registrationNumber}
-                    onChange={handleInputChange}
-                    placeholder="e.g., REG/MAH/2023/1234"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold d-flex align-items-center">
-                    <CIcon icon={cilCheckCircle} className="me-2" />
-                    Status
-                  </Form.Label>
-                  <Form.Select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Inactive">Inactive</option>
-                    <option value="Expired">Expired</option>
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
+              <div>
+                <label className="brk-label" htmlFor="reraState">
+                  RERA State <span className="brk-label__req">*</span>
+                </label>
+                <select
+                  id="reraState"
+                  className="brk-select"
+                  style={{ flex: "1 1 auto" }}
+                  name="reraState"
+                  value={formData.reraState}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select state</option>
+                  {INDIAN_STATES.map((state) => (
+                    <option key={state} value={state}>
+                      {state}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <Row>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold d-flex align-items-center">
-                    <CIcon icon={cilCalendar} className="me-2" />
-                    Registration Date
-                  </Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="registrationDate"
-                    value={formData.registrationDate}
-                    onChange={handleInputChange}
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label className="fw-semibold d-flex align-items-center">
-                    <CIcon icon={cilCalendar} className="me-2" />
-                    Expiry Date
-                  </Form.Label>
-                  <Form.Control
-                    type="date"
-                    name="expiryDate"
-                    value={formData.expiryDate}
-                    onChange={handleInputChange}
-                  />
-                  {formData.expiryDate && isExpired(formData.expiryDate) && (
-                    <Form.Text className="text-danger d-flex align-items-center mt-1">
-                      <CIcon icon={cilWarning} className="me-1" />
-                      This credential has expired
-                    </Form.Text>
-                  )}
-                </Form.Group>
-              </Col>
-            </Row>
+              <div>
+                <label className="brk-label" htmlFor="registrationNumber">
+                  Registration Number
+                </label>
+                <input
+                  id="registrationNumber"
+                  className="brk-input"
+                  type="text"
+                  name="registrationNumber"
+                  value={formData.registrationNumber}
+                  onChange={handleInputChange}
+                  placeholder="e.g. REG/MAH/2023/1234"
+                />
+              </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Document URL</Form.Label>
-              <Form.Control
-                type="url"
-                name="documentUrl"
-                value={formData.documentUrl}
-                onChange={handleInputChange}
-                placeholder="https://example.com/rera-certificate.pdf"
-              />
-              <Form.Text className="text-muted small">
-                Link to your RERA registration certificate or document
-              </Form.Text>
-            </Form.Group>
+              <div>
+                <label className="brk-label" htmlFor="status">
+                  Status
+                </label>
+                <select
+                  id="status"
+                  className="brk-select"
+                  style={{ flex: "1 1 auto" }}
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Inactive">Inactive</option>
+                  <option value="Expired">Expired</option>
+                </select>
+              </div>
 
-            <Form.Group className="mb-3">
-              <Form.Label className="fw-semibold">Notes</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                placeholder="Additional notes or comments..."
-              />
-            </Form.Group>
+              <div>
+                <label className="brk-label" htmlFor="registrationDate">
+                  <CalendarDays size={13} style={{ marginRight: 4, verticalAlign: "-2px" }} />
+                  Registration Date
+                </label>
+                <input
+                  id="registrationDate"
+                  className="brk-input"
+                  type="date"
+                  name="registrationDate"
+                  value={formData.registrationDate}
+                  onChange={handleInputChange}
+                />
+              </div>
 
-            <Alert variant="info" className="mb-0">
-              <CIcon icon={cilInfo} className="me-2" />
-              <strong>RERA Compliance:</strong> Ensure your RERA credentials are up-to-date and valid. 
-              Expired credentials may affect your ability to list properties in certain states.
-            </Alert>
+              <div>
+                <label className="brk-label" htmlFor="expiryDate">
+                  <CalendarDays size={13} style={{ marginRight: 4, verticalAlign: "-2px" }} />
+                  Expiry Date
+                </label>
+                <input
+                  id="expiryDate"
+                  className="brk-input"
+                  type="date"
+                  name="expiryDate"
+                  value={formData.expiryDate}
+                  onChange={handleInputChange}
+                />
+                {formData.expiryDate && isExpired(formData.expiryDate) && (
+                  <span className="brk-hint brk-hint--error">This credential has expired</span>
+                )}
+              </div>
+
+              <div className="brk-field--full">
+                <label className="brk-label" htmlFor="documentUrl">
+                  Document URL
+                </label>
+                <input
+                  id="documentUrl"
+                  className="brk-input"
+                  type="url"
+                  name="documentUrl"
+                  value={formData.documentUrl}
+                  onChange={handleInputChange}
+                  placeholder="https://example.com/rera-certificate.pdf"
+                />
+                <span className="brk-hint">Link to your registration certificate</span>
+              </div>
+
+              <div className="brk-field--full">
+                <label className="brk-label" htmlFor="notes">
+                  Notes
+                </label>
+                <textarea
+                  id="notes"
+                  className="brk-input"
+                  rows={3}
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleInputChange}
+                  placeholder="Additional notes or comments…"
+                />
+              </div>
+            </div>
+
+            <div className="brk-alert brk-alert--info" style={{ margin: "1.15rem 0 0" }}>
+              <Info size={16} />
+              <span>
+                Expired credentials may block you from listing properties in states that mandate
+                RERA registration.
+              </span>
+            </div>
           </Modal.Body>
-          <Modal.Footer className="border-top">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setShowAddModal(false);
-                setShowEditModal(false);
-                setSelectedRera(null);
-              }}
+          <Modal.Footer>
+            <button
+              type="button"
+              className="brk-btn brk-btn--ghost"
+              onClick={closeFormModal}
               disabled={saving}
             >
               Cancel
-            </Button>
-            <Button variant="primary" type="submit" disabled={saving}>
+            </button>
+            <button type="submit" className="brk-btn brk-btn--primary" disabled={saving}>
               {saving ? (
                 <>
-                  <Spinner animation="border" size="sm" className="me-2" />
-                  Saving...
+                  <span className="brk-spinner brk-spinner--sm" />
+                  Saving…
                 </>
               ) : (
                 <>
-                  <CIcon icon={cilCheck} className="me-2" />
+                  <CheckCircle2 size={15} />
                   {selectedRera ? "Update" : "Add"} Credential
                 </>
               )}
-            </Button>
+            </button>
           </Modal.Footer>
-        </Form>
+        </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-        <Modal.Header closeButton className="border-bottom">
-          <Modal.Title>Confirm Delete</Modal.Title>
+      {/* Delete confirmation */}
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        centered
+        dialogClassName="brk-modal"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <AlertTriangle size={18} />
+            Delete credential?
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="mb-3">Are you sure you want to delete this RERA credential?</p>
           {selectedRera && (
-            <div className="bg-light p-3 rounded mb-3">
-              <div className="mb-2">
-                <strong>RERA ID:</strong> {selectedRera.reraId}
+            <>
+              <p style={{ marginBottom: "0.9rem", fontSize: "0.875rem", color: "#475569" }}>
+                This will permanently remove the following RERA credential.
+              </p>
+              <div className="brk-quote">
+                <div className="brk-detail-row">
+                  <strong>RERA ID:</strong> {selectedRera.reraId}
+                </div>
+                <div className="brk-detail-row">
+                  <strong>State:</strong> {selectedRera.reraState}
+                </div>
               </div>
-              <div>
-                <strong>State:</strong> {selectedRera.reraState}
-              </div>
-            </div>
+            </>
           )}
-          <Alert variant="warning" className="mb-0">
-            <CIcon icon={cilWarning} className="me-2" />
-            This action cannot be undone.
-          </Alert>
+          <div className="brk-alert brk-alert--warning" style={{ margin: "1rem 0 0" }}>
+            <AlertTriangle size={16} />
+            <span>This action cannot be undone.</span>
+          </div>
         </Modal.Body>
-        <Modal.Footer className="border-top">
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} disabled={saving}>
+        <Modal.Footer>
+          <button
+            type="button"
+            className="brk-btn brk-btn--ghost"
+            onClick={() => setShowDeleteModal(false)}
+            disabled={saving}
+          >
             Cancel
-          </Button>
-          <Button variant="danger" onClick={handleConfirmDelete} disabled={saving}>
+          </button>
+          <button
+            type="button"
+            className="brk-btn brk-btn--danger"
+            onClick={handleConfirmDelete}
+            disabled={saving}
+          >
             {saving ? (
               <>
-                <Spinner animation="border" size="sm" className="me-2" />
-                Deleting...
+                <span className="brk-spinner brk-spinner--sm" />
+                Deleting…
               </>
             ) : (
               <>
-                <CIcon icon={cilTrash} className="me-2" />
+                <Trash2 size={15} />
                 Delete
               </>
             )}
-          </Button>
+          </button>
         </Modal.Footer>
       </Modal>
     </div>
   );
 }
-

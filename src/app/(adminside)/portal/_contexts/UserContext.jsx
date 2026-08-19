@@ -87,7 +87,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const logout = async (redirectTo = "/") => {
     setUserData(null);
     try {
       await axios.post(
@@ -101,7 +101,12 @@ export const UserProvider = ({ children }) => {
       Cookies.remove("userData");
       Cookies.remove("token");
       Cookies.remove("refreshToken");
-      router.push("/portal");
+      // Full reload so middleware re-runs and no portal state survives the session.
+      if (typeof window !== "undefined") {
+        window.location.assign(redirectTo);
+      } else {
+        router.push(redirectTo);
+      }
     }
   };
 

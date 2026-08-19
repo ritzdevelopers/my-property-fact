@@ -2,77 +2,66 @@
 
 import Link from "next/link";
 import {
+  ArrowUpRight,
   Building2,
   CheckCircle2,
   Clock,
-  MessageSquare,
-  MapPin,
   HardHat,
   Layers,
   LayoutGrid,
-  ArrowUpRight,
+  MapPin,
+  MessageSquare,
+  Plus,
+  UserRound,
 } from "lucide-react";
 
-function MetricCard({ label, value, sub, icon: Icon, variant = "white", href }) {
-  const content = (
+function StatCard({ label, value, sub, icon: Icon, tone, href }) {
+  const body = (
     <>
-      <div className="admin-dash-metric__top">
-        <p className="admin-dash-metric__label">{label}</p>
-        <span className="admin-dash-metric__icon">
-          <Icon className="h-5 w-5" />
-        </span>
-      </div>
-      <p className="admin-dash-metric__value">{value.toLocaleString()}</p>
-      {sub ? <p className="admin-dash-metric__sub">{sub}</p> : null}
+      <span className={`brk-stat__icon brk-stat__icon--${tone}`}>
+        <Icon size={18} />
+      </span>
+      <span className="brk-stat__body">
+        <span className="brk-stat__label">{label}</span>
+        <span className="brk-stat__value">{Number(value || 0).toLocaleString()}</span>
+        {sub ? <span className="brk-stat__sub">{sub}</span> : null}
+      </span>
+      {href ? <ArrowUpRight size={15} className="brk-stat__arrow" /> : null}
     </>
   );
 
   if (href) {
     return (
-      <Link href={href} className={`admin-dash-metric admin-dash-metric--${variant}`}>
-        {content}
+      <Link href={href} className={`brk-stat brk-stat--${tone}`}>
+        {body}
       </Link>
     );
   }
 
-  return <div className={`admin-dash-metric admin-dash-metric--${variant}`}>{content}</div>;
+  return <div className={`brk-stat brk-stat--${tone}`}>{body}</div>;
 }
 
-function MiniStat({ icon: Icon, value, label, href }) {
-  const inner = (
-    <>
-      <span className="admin-dash-mini__icon">
-        <Icon className="h-5 w-5" />
+function MiniStat({ icon: Icon, value, label }) {
+  return (
+    <div className="brk-mini">
+      <span className="brk-mini__icon">
+        <Icon size={15} />
       </span>
-      <div className="admin-dash-mini__meta">
-        <p className="admin-dash-mini__value">{value.toLocaleString()}</p>
-        <p className="admin-dash-mini__label">{label}</p>
-      </div>
-    </>
+      <span className="brk-mini__meta">
+        <span className="brk-mini__value">{Number(value || 0).toLocaleString()}</span>
+        <span className="brk-mini__label">{label}</span>
+      </span>
+    </div>
   );
-
-  if (href) {
-    return (
-      <Link href={href} className="admin-dash-mini admin-dash-mini--mini-cities" style={{ textDecoration: "none" }}>
-        {inner}
-      </Link>
-    );
-  }
-
-  return <div className="admin-dash-mini admin-dash-mini--mini-cities">{inner}</div>;
 }
 
 export default function BrokerDashboardStats({ stats, loading }) {
   if (loading) {
     return (
-      <div className="admin-dash-home__top-metrics-row" aria-busy="true">
-        <div className="admin-dash-home__projects-card" style={{ opacity: 0.6 }}>
-          <div style={{ height: 44, width: 44, borderRadius: 10, background: "#f3f4f6" }} />
-          <div>
-            <div style={{ height: 12, width: 100, background: "#f3f4f6", borderRadius: 4, marginBottom: 8 }} />
-            <div style={{ height: 36, width: 80, background: "#f3f4f6", borderRadius: 4 }} />
-          </div>
-        </div>
+      <div className="brk-stat-grid" aria-busy="true">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="brk-stat brk-stat--skeleton" />
+        ))}
       </div>
     );
   }
@@ -91,77 +80,87 @@ export default function BrokerDashboardStats({ stats, loading }) {
 
   return (
     <>
-      <div className="admin-dash-home__top-metrics-row">
-        <Link href="/portal/dashboard/listings" className="admin-dash-home__projects-card" style={{ textDecoration: "none" }}>
-          <span className="admin-dash-home__projects-card-icon">
-            <Building2 className="h-5 w-5" />
-          </span>
+      <div className="brk-stat-grid">
+        <StatCard
+          label="Total Listings"
+          value={totalListings}
+          sub={addedThisMonth > 0 ? `+${addedThisMonth} added this month` : "All your properties"}
+          icon={Building2}
+          tone="emerald"
+          href="/portal/dashboard/listings"
+        />
+        <StatCard
+          label="Live Listings"
+          value={liveListings}
+          sub="Published on /properties"
+          icon={CheckCircle2}
+          tone="green"
+          href="/portal/dashboard/listings"
+        />
+        <StatCard
+          label="Pending Review"
+          value={pendingListings}
+          sub="Awaiting approval"
+          icon={Clock}
+          tone="amber"
+          href="/portal/dashboard/listings"
+        />
+        <StatCard
+          label="Enquiries"
+          value={enquiryCount}
+          sub="Buyer leads received"
+          icon={MessageSquare}
+          tone="blue"
+          href="/portal/dashboard/leads"
+        />
+      </div>
+
+      <section className="brk-panel brk-panel--flush">
+        <div className="brk-panel__head">
           <div>
-            <p className="admin-dash-home__projects-card-label">Total Listings</p>
-            <p className="admin-dash-home__projects-card-value">{totalListings.toLocaleString()}</p>
-            {addedThisMonth > 0 && (
-              <p className="admin-dash-metric__sub" style={{ marginTop: "0.35rem" }}>
-                +{addedThisMonth} added this month
-              </p>
-            )}
-          </div>
-        </Link>
-
-        <div className="admin-dash-home__top-metrics-right">
-          <div className="admin-dash-home__metrics-scroll-row admin-horizontal-scroll">
-            <MetricCard
-              label="Live Listings"
-              value={liveListings}
-              icon={CheckCircle2}
-              variant="mint"
-              href="/portal/dashboard/listings"
-            />
-            <MetricCard
-              label="Pending Review"
-              value={pendingListings}
-              icon={Clock}
-              variant="cyan"
-              href="/portal/dashboard/listings"
-            />
-            <MetricCard
-              label="Enquiries"
-              value={enquiryCount}
-              icon={MessageSquare}
-              variant="slate"
-              href="/portal/dashboard/leads"
-            />
-          </div>
-
-          <div className="admin-dash-home__mini admin-horizontal-scroll">
-            <MiniStat icon={MapPin} value={cityCount} label="Cities" />
-            <MiniStat icon={HardHat} value={builderCount} label="Builders" />
-            <MiniStat icon={Layers} value={amenityCount} label="Amenities" />
-            <MiniStat icon={LayoutGrid} value={propertyTypeCount} label="Property Types" />
+            <h2 className="brk-panel__title">Portfolio Coverage</h2>
+            <p className="brk-panel__sub">Spread of your listed inventory</p>
           </div>
         </div>
-      </div>
+        <div className="brk-mini-row">
+          <MiniStat icon={MapPin} value={cityCount} label="Cities" />
+          <MiniStat icon={HardHat} value={builderCount} label="Builders" />
+          <MiniStat icon={Layers} value={amenityCount} label="Amenities" />
+          <MiniStat icon={LayoutGrid} value={propertyTypeCount} label="Property Types" />
+        </div>
+      </section>
     </>
   );
 }
 
 export function BrokerQuickActions() {
   const links = [
-    { href: "/portal/dashboard/listings?action=add", label: "Add Property" },
-    { href: "/portal/dashboard/listings", label: "My Listings" },
-    { href: "/portal/dashboard/leads", label: "Buyer Leads" },
-    { href: "/portal/dashboard/profile", label: "Profile" },
+    { href: "/portal/dashboard/listings?action=add", label: "Add Property", icon: Plus },
+    { href: "/portal/dashboard/listings", label: "My Listings", icon: Building2 },
+    { href: "/portal/dashboard/leads", label: "Buyer Leads", icon: MessageSquare },
+    { href: "/portal/dashboard/profile", label: "Profile", icon: UserRound },
   ];
 
   return (
-    <section className="admin-dash-home__catalog">
-      <p className="admin-dash-home__catalog-kicker">Quick Actions</p>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} className="admin-dash-quick-link">
-            {link.label}
-            <ArrowUpRight className="h-3.5 w-3.5" style={{ marginLeft: 4 }} />
-          </Link>
-        ))}
+    <section className="brk-panel">
+      <div className="brk-panel__head">
+        <div>
+          <h2 className="brk-panel__title">Quick Actions</h2>
+          <p className="brk-panel__sub">Jump straight to what you need</p>
+        </div>
+      </div>
+      <div className="brk-panel__body">
+        <div className="brk-quick">
+          {links.map(({ href, label, icon: Icon }) => (
+            <Link key={href} href={href} className="brk-quick__link">
+              <span className="brk-quick__icon">
+                <Icon size={15} />
+              </span>
+              {label}
+              <ArrowUpRight size={14} className="brk-quick__arrow" />
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

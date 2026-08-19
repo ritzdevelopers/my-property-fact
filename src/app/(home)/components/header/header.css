@@ -395,19 +395,18 @@ nav.d-none.d-lg-flex {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.55rem 1rem 0.55rem 1.15rem;
+  padding: 0.55rem 0.65rem 0.55rem 1.15rem;
   margin-left: 0.5rem;
   flex-shrink: 0;
-  border: none;
-  border-radius: 10px;
+  border: 1.5px solid #68ac78;
+  border-radius: 999px;
   cursor: pointer;
   font-family: var(--text-font);
-  background: linear-gradient(135deg, #ffffff 0%, #f0faf3 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f0faf3 100%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.35),
-    0 4px 14px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.9);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 14px rgba(13, 88, 52, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
   position: relative;
   overflow: hidden;
 }
@@ -416,16 +415,18 @@ nav.d-none.d-lg-flex {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(104, 172, 120, 0.12) 0%, transparent 60%);
+  background: linear-gradient(135deg, rgba(104, 172, 120, 0.08) 0%, transparent 60%);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
 .header-post-property-cta:hover {
   transform: translateY(-2px);
+  border-color: #0d5834;
+  background: linear-gradient(180deg, #ffffff 0%, #e8f5ec 100%);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.5),
-    0 8px 24px rgba(13, 88, 52, 0.28);
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 8px 22px rgba(13, 88, 52, 0.18);
 }
 
 .header-post-property-cta:hover::before {
@@ -434,37 +435,40 @@ nav.d-none.d-lg-flex {
 
 .header-post-property-cta:active {
   transform: translateY(0);
+  background: #eef8f1;
 }
 
 .header-post-property-cta__text {
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 700;
-  color: #0c2e23;
+  color: #0a1f17;
   white-space: nowrap;
   position: relative;
   z-index: 1;
 }
 
 .header-post-property-cta__badge {
-  font-size: 0.65rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   color: #fff;
-  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  background: #0d5834;
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
   position: relative;
   z-index: 1;
-  box-shadow: 0 2px 6px rgba(13, 88, 52, 0.35);
+  box-shadow: none;
 }
 
 .fixed-header .header-post-property-cta {
-  background: linear-gradient(135deg, #ffffff 0%, #eef8f1 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #eef8f1 100%);
+  border-color: #68ac78;
 }
 
 .properties-header .header-post-property-cta,
 .projects-header .header-post-property-cta {
-  background: linear-gradient(135deg, #ffffff 0%, #eef8f1 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #eef8f1 100%);
+  border-color: #68ac78;
 }
 
 .mobile-post-property-cta {
@@ -475,24 +479,41 @@ nav.d-none.d-lg-flex {
   width: 100%;
   padding: 0.85rem 1.25rem;
   margin-top: 0.5rem;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
-  color: #fff;
-  font-size: 1rem;
+  border: 1.5px solid #68ac78;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffffff 0%, #f0faf3 100%);
+  color: #0a1f17;
+  font-size: 0.95rem;
   font-weight: 700;
   font-family: var(--text-font);
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(13, 88, 52, 0.3);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 4px 14px rgba(13, 88, 52, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.mobile-post-property-cta:hover {
+  border-color: #0d5834;
+  background: linear-gradient(180deg, #ffffff 0%, #e8f5ec 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 6px 18px rgba(13, 88, 52, 0.16);
+}
+
+.mobile-post-property-cta:active {
+  transform: scale(0.99);
+  background: #eef8f1;
 }
 
 .mobile-post-property-cta__free {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 800;
-  letter-spacing: 0.05em;
-  background: rgba(255, 255, 255, 0.22);
-  padding: 0.15rem 0.45rem;
-  border-radius: 5px;
+  letter-spacing: 0.08em;
+  color: #fff;
+  background: #0d5834;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
 }
 
 @media (max-width: 1199.98px) {

@@ -2,15 +2,22 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import axios from "axios";
 import Cookies from "js-cookie";
-import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
+import { validateLeadFields } from "@/lib/leadValidation";
 import "./BrokerLoginModal.css";
 
 function CloseIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
       <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.8 19.8 0 012.12-4.18 2 2 0 014.11-2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" />
     </svg>
   );
 }
@@ -49,6 +56,35 @@ function BackIcon() {
   );
 }
 
+function OwnerIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 10.5 12 3l9 7.5" />
+      <path d="M5 9.5V20h14V9.5" />
+      <path d="M9 20v-6h6v6" />
+    </svg>
+  );
+}
+
+function BrokerIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2" />
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+      <path d="M2 13h20" />
+    </svg>
+  );
+}
+
+function ArrowRightIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
+}
+
 function OtpDigitInput({ value, onChange, onKeyDown, onPaste, disabled, inputRef }) {
   return (
     <input
@@ -68,35 +104,23 @@ function OtpDigitInput({ value, onChange, onKeyDown, onPaste, disabled, inputRef
   );
 }
 
-const AUTH_REQUEST_TIMEOUT_MS = 25000;
-
-function getAuthErrorMessage(err, fallback) {
-  if (err.code === "ECONNABORTED") {
-    return "Request timed out. Please try again.";
-  }
-  if (!err.response) {
-    return "Network error. Please check your connection and try again.";
-  }
-  return err.response?.data?.message || err.response?.data?.error || fallback;
-}
-
-function saveAuthCookies(response) {
-  Cookies.set("token", response.data.token, {
+function saveAuthCookies(data) {
+  Cookies.set("token", data.token, {
     expires: 7,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
     path: "/",
   });
-  if (response.data.refreshToken) {
-    Cookies.set("refreshToken", response.data.refreshToken, {
+  if (data.refreshToken) {
+    Cookies.set("refreshToken", data.refreshToken, {
       expires: 7,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
       path: "/",
     });
   }
-  if (response.data.user) {
-    Cookies.set("userData", JSON.stringify(response.data.user), {
+  if (data.user) {
+    Cookies.set("userData", JSON.stringify(data.user), {
       expires: 7,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -108,24 +132,22 @@ function saveAuthCookies(response) {
 export default function BrokerLoginModal({
   show,
   onClose,
-  redirectPath = "/portal/dashboard/post-property",
+  redirectPath = "/portal/dashboard",
 }) {
-  const [mode, setMode] = useState("signin");
   const [step, setStep] = useState("persona");
   const [persona, setPersona] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [fullName, setFullName] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
-  const [needsFullName, setNeedsFullName] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [devOtp, setDevOtp] = useState("");
   const otpRefs = useRef([]);
   const authPanelRef = useRef(null);
-  const [googleBtnWidth, setGoogleBtnWidth] = useState(280);
   const [mounted, setMounted] = useState(false);
 
   const otp = otpDigits.join("");
+  const isOwner = persona === "OWNER";
 
   useEffect(() => {
     setMounted(true);
@@ -133,15 +155,13 @@ export default function BrokerLoginModal({
 
   useEffect(() => {
     if (!show) {
-      setMode("signin");
       setStep("persona");
       setPersona("");
       setEmail("");
+      setPhone("");
       setFullName("");
       setOtpDigits(["", "", "", ""]);
-      setNeedsFullName(false);
       setError("");
-      setDevOtp("");
       setIsLoading(false);
     }
   }, [show]);
@@ -159,127 +179,42 @@ export default function BrokerLoginModal({
     };
   }, [show, onClose]);
 
-  useEffect(() => {
-    if (!show || step !== "email") return;
-    const panel = authPanelRef.current;
-    if (!panel) return;
-
-    const updateWidth = () => {
-      const styles = window.getComputedStyle(panel);
-      const paddingX =
-        parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight);
-      const available = panel.getBoundingClientRect().width - paddingX;
-      setGoogleBtnWidth(Math.min(400, Math.max(200, Math.floor(available))));
-    };
-
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(panel);
-    window.addEventListener("resize", updateWidth);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("resize", updateWidth);
-    };
-  }, [show, step, mode]);
-
   if (!show || !mounted) return null;
 
-  const validateEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-  const isSignUp = mode === "signup";
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const stepNumber = step === "persona" ? 1 : step === "details" ? 2 : 3;
 
-  const resetToEmail = () => {
-    setStep("email");
-    setOtpDigits(["", "", "", ""]);
-    setError("");
-    setDevOtp("");
-    setNeedsFullName(false);
-  };
-
-  const resetToPersona = () => {
-    setStep("persona");
-    setOtpDigits(["", "", "", ""]);
-    setError("");
-    setDevOtp("");
-  };
-
-  const isOwner = persona === "OWNER";
-  const personaLabel = isOwner ? "Owner" : "Broker";
-
-  const persistPersona = async () => {
-    if (!persona) return;
-    try {
-      await axios.put(
-        `${process.env.NEXT_PUBLIC_API_URL}users/me/persona`,
-        { userType: persona },
-        { withCredentials: true },
-      );
-    } catch {
-      // New signups get persona from verify-otp; ignore if not yet authenticated
-    }
-  };
-
-  const redirectAfterLogin = async () => {
-    await persistPersona();
-    onClose(false);
-    window.location.href = redirectPath;
-  };
-
-  const handleGoogleSuccess = async (credentialResponse) => {
-    setIsLoading(true);
-    setError("");
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}app/auth/google`,
-        { token: credentialResponse.credential, userType: persona },
-        { timeout: AUTH_REQUEST_TIMEOUT_MS },
-      );
-      if (response.data.token) {
-        saveAuthCookies(response);
-        await redirectAfterLogin();
-      }
-    } catch (err) {
-      setError(getAuthErrorMessage(err, "Google sign-in failed. Please try again."));
-    } finally {
-      setIsLoading(false);
-    }
+  const subtitle = () => {
+    if (step === "persona") return "Tell us who you are before we continue";
+    if (step === "details") return "Enter your details — we'll send an OTP to your mobile";
+    return `Enter the 4-digit code sent to ${phone}`;
   };
 
   const handleSendOtp = async (e) => {
     e?.preventDefault();
-    if (!email.trim()) {
-      setError("Please enter your email address");
-      return;
-    }
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-    if (mode === "signup" && !fullName.trim()) {
-      setError("Please enter your full name");
+    const validation = validateLeadFields({ name: fullName, email, phone });
+    if (!validation.isValid) {
+      setError(validation.name || validation.email || validation.phone);
       return;
     }
 
     setIsLoading(true);
     setError("");
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}app/auth/send-otp`,
-        { email: email.trim(), userType: persona },
-        { timeout: AUTH_REQUEST_TIMEOUT_MS },
-      );
-      if (response.status === 200 && response.data?.success !== false) {
-        setStep("otp");
-        setNeedsFullName(mode === "signup" || response.data.userExists === false);
-        setOtpDigits(["", "", "", ""]);
-        if (response.data.otp) setDevOtp(response.data.otp);
-        setTimeout(() => otpRefs.current[0]?.focus(), 100);
-      } else {
-        setError(response.data?.message || response.data?.error || "Could not send OTP. Please try again.");
+      const res = await fetch("/api/broker/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "Could not send OTP. Please try again.");
+        return;
       }
-    } catch (err) {
-      setError(getAuthErrorMessage(err, "Could not send OTP. Please try again."));
+      setStep("otp");
+      setOtpDigits(["", "", "", ""]);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    } catch {
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -288,38 +223,34 @@ export default function BrokerLoginModal({
   const handleVerifyOtp = async (e) => {
     e?.preventDefault();
     if (otp.length !== 4) {
-      setError("Please enter the 4-digit code sent to your email");
-      return;
-    }
-    if (needsFullName && !fullName.trim()) {
-      setError("Please enter your full name to create your account");
+      setError("Please enter the 4-digit OTP");
       return;
     }
 
     setIsLoading(true);
     setError("");
     try {
-      const payload = { email: email.trim(), otp, userType: persona };
-      if (fullName.trim()) {
-        payload.fullName = fullName.trim();
+      const res = await fetch("/api/broker/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone,
+          otp,
+          fullName: fullName.trim(),
+          email: email.trim(),
+          userType: persona,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.token) {
+        setError(data.message || data.error || "Verification failed. Please try again.");
+        return;
       }
-
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}app/auth/verify-otp`,
-        payload,
-        { timeout: AUTH_REQUEST_TIMEOUT_MS },
-      );
-
-      if (response.data.token) {
-        saveAuthCookies(response);
-        await redirectAfterLogin();
-      }
-    } catch (err) {
-      const errorCode = err.response?.data?.error;
-      if (errorCode === "full_name_required") {
-        setNeedsFullName(true);
-      }
-      setError(getAuthErrorMessage(err, "Invalid OTP. Please check and try again."));
+      saveAuthCookies(data);
+      onClose(false);
+      window.location.href = redirectPath;
+    } catch {
+      setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -331,9 +262,7 @@ export default function BrokerLoginModal({
     next[index] = digit;
     setOtpDigits(next);
     setError("");
-    if (digit && index < 3) {
-      otpRefs.current[index + 1]?.focus();
-    }
+    if (digit && index < 3) otpRefs.current[index + 1]?.focus();
   };
 
   const handleOtpKeyDown = (index, e) => {
@@ -347,13 +276,10 @@ export default function BrokerLoginModal({
     const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 4);
     if (!pasted) return;
     const next = ["", "", "", ""];
-    pasted.split("").forEach((d, i) => {
-      next[i] = d;
-    });
+    pasted.split("").forEach((d, i) => { next[i] = d; });
     setOtpDigits(next);
     setError("");
-    const focusIndex = Math.min(pasted.length, 3);
-    otpRefs.current[focusIndex]?.focus();
+    otpRefs.current[Math.min(pasted.length, 3)]?.focus();
   };
 
   return createPortal(
@@ -372,22 +298,24 @@ export default function BrokerLoginModal({
         <div className="broker-login-modal-visual">
           <div className="broker-login-modal-visual-media">
             <img
-              src="/static/home-meta-data/home.gif"
-              alt="Real estate property listing"
-              className="broker-login-modal-gif"
+              src="/static/broker-portal/post-property-hero.png"
+              alt="Post your property on My Property Fact"
+              className="broker-login-modal-hero"
             />
           </div>
           <div className="broker-login-modal-visual-content">
-            <span className="broker-login-modal-badge">{personaLabel || "Post Property"} Portal</span>
+            <span className="broker-login-modal-badge">Post Property Portal</span>
             <h3>
-              {isOwner
-                ? "List your property directly"
-                : "List properties. Reach verified buyers."}
+              {isOwner ? (
+                <>List your property <span className="broker-login-modal-highlight">directly</span></>
+              ) : (
+                <>List properties. Reach <span className="broker-login-modal-highlight">verified</span> buyers.</>
+              )}
             </h3>
             <p>
               {step === "persona"
                 ? "Choose how you will post properties on My Property Fact."
-                : "Sign in to post your property for free on India's trusted real estate platform."}
+                : "One account for login and registration — verified by mobile OTP."}
             </p>
             <ul className="broker-login-modal-features">
               <li><CheckIcon /> Post unlimited listings</li>
@@ -401,26 +329,20 @@ export default function BrokerLoginModal({
           <div className="broker-login-modal-brand">
             <img src="/logo.webp" alt="" className="broker-login-modal-logo" />
             <h2 id="broker-login-modal-title">
-              {step === "persona" ? "Post a Property Free" : "Sign in to continue"}
+              {step === "persona" ? (
+                <>Post a Property <span className="broker-login-modal-title-badge">FREE</span></>
+              ) : (
+                "Login or Register"
+              )}
             </h2>
-            <p>
-              {step === "persona"
-                ? "Tell us who you are before we continue"
-                : step === "email"
-                ? isSignUp
-                  ? `Create your ${personaLabel.toLowerCase()} account to get started`
-                  : `Sign in as ${personaLabel.toLowerCase()} to post a property`
-                : `Enter the 4-digit code sent to ${email}`}
-            </p>
+            <p>{subtitle()}</p>
           </div>
 
           {error && <div className="broker-login-modal-alert error">{error}</div>}
-          {devOtp && step === "otp" && (
-            <div className="broker-login-modal-alert dev">Dev OTP: <strong>{devOtp}</strong></div>
-          )}
 
           {step === "persona" ? (
-            <div className="broker-login-modal-form">
+            <div className="broker-login-modal-form broker-login-modal-form--persona">
+              <span className="broker-login-modal-step">Step {stepNumber} of 3</span>
               <p className="broker-login-modal-persona-label">I am posting as a</p>
               <div className="broker-login-modal-persona-grid">
                 <button
@@ -428,56 +350,109 @@ export default function BrokerLoginModal({
                   className={`broker-login-modal-persona-card ${persona === "OWNER" ? "selected" : ""}`}
                   onClick={() => { setPersona("OWNER"); setError(""); }}
                 >
-                  <strong>Property Owner</strong>
-                  <span>I own this property and want to list it myself</span>
+                  <span className="broker-login-modal-persona-card__icon" aria-hidden="true"><OwnerIcon /></span>
+                  <span className="broker-login-modal-persona-card__body">
+                    <strong>Property Owner</strong>
+                    <span>I own this property and want to list it myself</span>
+                  </span>
+                  <span className="broker-login-modal-persona-card__check" aria-hidden="true"><CheckIcon /></span>
                 </button>
                 <button
                   type="button"
                   className={`broker-login-modal-persona-card ${persona === "BROKER" ? "selected" : ""}`}
                   onClick={() => { setPersona("BROKER"); setError(""); }}
                 >
-                  <strong>Broker / Agent</strong>
-                  <span>I list properties on behalf of owners or builders</span>
+                  <span className="broker-login-modal-persona-card__icon" aria-hidden="true"><BrokerIcon /></span>
+                  <span className="broker-login-modal-persona-card__body">
+                    <strong>Broker / Agent</strong>
+                    <span>I list properties on behalf of owners or builders</span>
+                  </span>
+                  <span className="broker-login-modal-persona-card__check" aria-hidden="true"><CheckIcon /></span>
                 </button>
               </div>
               <button
                 type="button"
-                className="broker-login-modal-btn"
+                className="broker-login-modal-btn broker-login-modal-btn--continue"
                 disabled={!persona}
-                onClick={() => setStep("email")}
+                onClick={() => setStep("details")}
               >
                 Continue
+                <ArrowRightIcon />
               </button>
             </div>
-          ) : step === "otp" ? (
-            <form onSubmit={handleVerifyOtp} className="broker-login-modal-form">
-              <button type="button" className="broker-login-modal-back" onClick={resetToEmail} disabled={isLoading}>
-                <BackIcon />
-                Change email
+          ) : step === "details" ? (
+            <form onSubmit={handleSendOtp} className="broker-login-modal-form">
+              <span className="broker-login-modal-step">Step {stepNumber} of 3</span>
+              <button type="button" className="broker-login-modal-back" onClick={() => setStep("persona")} disabled={isLoading}>
+                <BackIcon /> Change role
               </button>
 
-              {needsFullName && (
-                <div className="broker-login-modal-field">
-                  <label htmlFor="broker-modal-name-otp">Full name</label>
-                  <div className="broker-login-modal-input-wrap">
-                    <span className="broker-login-modal-icon"><UserIcon /></span>
-                    <input
-                      id="broker-modal-name-otp"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => {
-                        setFullName(e.target.value);
-                        setError("");
-                      }}
-                      placeholder="Your full name"
-                      disabled={isLoading}
-                      className="broker-login-modal-input with-icon"
-                      autoComplete="name"
-                      autoFocus
-                    />
-                  </div>
+              <div className="broker-login-modal-field">
+                <label htmlFor="broker-modal-name">Full name</label>
+                <div className="broker-login-modal-input-wrap">
+                  <span className="broker-login-modal-icon"><UserIcon /></span>
+                  <input
+                    id="broker-modal-name"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => { setFullName(e.target.value); setError(""); }}
+                    placeholder="Your full name"
+                    disabled={isLoading}
+                    className="broker-login-modal-input with-icon"
+                    autoComplete="name"
+                    autoFocus
+                  />
                 </div>
-              )}
+              </div>
+
+              <div className="broker-login-modal-field">
+                <label htmlFor="broker-modal-email">Email address</label>
+                <div className="broker-login-modal-input-wrap">
+                  <span className="broker-login-modal-icon"><MailIcon /></span>
+                  <input
+                    id="broker-modal-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    placeholder="you@company.com"
+                    disabled={isLoading}
+                    className="broker-login-modal-input with-icon"
+                    autoComplete="email"
+                  />
+                </div>
+              </div>
+
+              <div className="broker-login-modal-field">
+                <label htmlFor="broker-modal-phone">Mobile number</label>
+                <div className="broker-login-modal-input-wrap">
+                  <span className="broker-login-modal-icon"><PhoneIcon /></span>
+                  <input
+                    id="broker-modal-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(e.target.value); setError(""); }}
+                    placeholder="10-digit mobile number"
+                    disabled={isLoading}
+                    className="broker-login-modal-input with-icon"
+                    autoComplete="tel"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" className="broker-login-modal-btn broker-login-modal-btn--continue" disabled={isLoading}>
+                {isLoading ? (
+                  <><span className="broker-login-modal-spinner" /> Sending OTP…</>
+                ) : (
+                  <>Send OTP <ArrowRightIcon /></>
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyOtp} className="broker-login-modal-form">
+              <span className="broker-login-modal-step">Step {stepNumber} of 3</span>
+              <button type="button" className="broker-login-modal-back" onClick={() => setStep("details")} disabled={isLoading}>
+                <BackIcon /> Edit details
+              </button>
 
               <div className="broker-login-modal-field">
                 <label>Verification code</label>
@@ -496,124 +471,18 @@ export default function BrokerLoginModal({
                 </div>
               </div>
 
-              <button type="submit" className="broker-login-modal-btn" disabled={isLoading || otp.length !== 4}>
+              <button type="submit" className="broker-login-modal-btn broker-login-modal-btn--continue" disabled={isLoading || otp.length !== 4}>
                 {isLoading ? (
-                  <>
-                    <span className="broker-login-modal-spinner" />
-                    Verifying…
-                  </>
+                  <><span className="broker-login-modal-spinner" /> Verifying…</>
                 ) : (
-                  needsFullName ? "Verify & Create Account" : "Verify & Continue"
+                  <>Verify & Continue <ArrowRightIcon /></>
                 )}
               </button>
 
               <button type="button" className="broker-login-modal-link" onClick={handleSendOtp} disabled={isLoading}>
-                Resend code
+                Resend OTP
               </button>
             </form>
-          ) : (
-            <div className="broker-login-modal-form">
-              <button type="button" className="broker-login-modal-back" onClick={resetToPersona} disabled={isLoading}>
-                <BackIcon />
-                Change role
-              </button>
-
-              {googleClientId && (
-                <>
-                  <div className="broker-login-modal-google">
-                    <GoogleOAuthProvider clientId={googleClientId}>
-                      <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => setError("Google sign-in was cancelled or failed.")}
-                        theme="outline"
-                        size="large"
-                        text="continue_with"
-                        shape="rectangular"
-                        width={googleBtnWidth}
-                      />
-                    </GoogleOAuthProvider>
-                  </div>
-
-                  <div className="broker-login-modal-divider">
-                    <span>or continue with email</span>
-                  </div>
-                </>
-              )}
-
-              <form onSubmit={handleSendOtp}>
-                {isSignUp && (
-                  <div className="broker-login-modal-field">
-                    <label htmlFor="broker-modal-name">Full name</label>
-                    <div className="broker-login-modal-input-wrap">
-                      <span className="broker-login-modal-icon"><UserIcon /></span>
-                      <input
-                        id="broker-modal-name"
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => {
-                          setFullName(e.target.value);
-                          setError("");
-                        }}
-                        placeholder="Your full name"
-                        disabled={isLoading}
-                        className="broker-login-modal-input with-icon"
-                        autoComplete="name"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="broker-login-modal-field">
-                  <label htmlFor="broker-modal-email">Email address</label>
-                  <div className="broker-login-modal-input-wrap">
-                    <span className="broker-login-modal-icon"><MailIcon /></span>
-                    <input
-                      id="broker-modal-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => {
-                        setEmail(e.target.value);
-                        setError("");
-                      }}
-                      placeholder="you@company.com"
-                      disabled={isLoading}
-                      className="broker-login-modal-input with-icon"
-                      autoComplete="email"
-                      autoFocus={!isSignUp}
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="broker-login-modal-btn" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <span className="broker-login-modal-spinner" />
-                      Sending code…
-                    </>
-                  ) : (
-                    "Send 4-digit Code"
-                  )}
-                </button>
-              </form>
-
-              <p className="broker-login-modal-toggle">
-                {isSignUp ? (
-                  <>
-                    Already registered?
-                    <button type="button" onClick={() => { setMode("signin"); resetToEmail(); setFullName(""); }}>
-                      Sign in
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    New here?
-                    <button type="button" onClick={() => { setMode("signup"); resetToEmail(); }}>
-                      Create account
-                    </button>
-                  </>
-                )}
-              </p>
-            </div>
           )}
         </div>
       </div>

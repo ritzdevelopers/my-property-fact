@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Spinner, Alert } from "react-bootstrap";
-import { TrendingUp } from "lucide-react";
+import { ArrowUpRight, Sparkles, TrendingUp } from "lucide-react";
 import axios from "axios";
 import { useUser } from "../_contexts/UserContext";
 import {
@@ -13,7 +12,7 @@ import {
 } from "../_utils/userDisplay";
 import BrokerDashboardStats, { BrokerQuickActions } from "./BrokerDashboardStats";
 import PortalUserAvatar from "./PortalUserAvatar";
-import "../../admin/dashboard/dashboard-home.css";
+import "./PortalUI.css";
 import "./BrokerDashboard.css";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL;
@@ -28,6 +27,13 @@ function formatTimeAgo(dateString) {
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
   if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
   return date.toLocaleDateString();
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
 }
 
 export default function ModernDashboard() {
@@ -79,6 +85,7 @@ export default function ModernDashboard() {
             return {
               id: p.id,
               message,
+              status,
               time: formatTimeAgo(p.updatedAt || p.createdAt),
             };
           });
@@ -96,16 +103,18 @@ export default function ModernDashboard() {
 
   if (loading || userLoading) {
     return (
-      <div className="broker-dash-shell d-flex justify-content-center align-items-center" style={{ minHeight: "60vh" }}>
-        <Spinner animation="border" style={{ color: "#007d51" }} />
+      <div className="brk-dash brk-dash--center">
+        <span className="brk-spinner" aria-label="Loading dashboard" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="broker-dash-shell">
-        <Alert variant="danger">{error}</Alert>
+      <div className="brk-dash">
+        <div className="brk-alert brk-alert--error" role="alert">
+          {error}
+        </div>
       </div>
     );
   }
@@ -117,81 +126,98 @@ export default function ModernDashboard() {
     stats?.addedThisMonth > 0
       ? `+${stats.addedThisMonth} this month`
       : stats?.liveListings > 0
-        ? `${stats.liveListings} live`
+        ? `${stats.liveListings} live now`
         : "Start listing";
 
   return (
-    <div className="admin-dash-home broker-dash-shell">
-      <section className="broker-dash-welcome">
-        <div className="broker-dash-welcome__user">
-          <PortalUserAvatar userData={userData} size="xl" />
-          <div className="broker-dash-welcome__info">
-            <p className="broker-dash-welcome__kicker">Welcome back</p>
-            <h1 className="broker-dash-welcome__name">{displayName}</h1>
-            <div className="broker-dash-welcome__meta">
-              <span className="broker-dash-welcome__badge">{roleLabel}</span>
-              {contactLine && (
-                <span className="broker-dash-welcome__contact">{contactLine}</span>
-              )}
+    <div className="brk-dash">
+      <section className="brk-hero">
+        <div className="brk-hero__user">
+          <PortalUserAvatar userData={userData} size="lg" />
+          <div className="brk-hero__info">
+            <p className="brk-hero__kicker">{greeting()}</p>
+            <h1 className="brk-hero__name">{displayName}</h1>
+            <div className="brk-hero__meta">
+              <span className="brk-hero__badge">{roleLabel}</span>
+              {contactLine && <span className="brk-hero__contact">{contactLine}</span>}
             </div>
           </div>
         </div>
-        <div className="broker-dash-welcome__actions">
-          <span className="admin-dash-home__trend">
-            <TrendingUp className="h-4 w-4" />
+
+        <div className="brk-hero__actions">
+          <span className="brk-hero__trend">
+            <TrendingUp size={14} />
             {growthLabel}
           </span>
-          <Link href="/portal/dashboard/listings?action=add" className="broker-dash-welcome__cta">
+          <Link href="/portal/dashboard/listings" className="brk-btn brk-btn--ghost">
+            View Listings
+          </Link>
+          <Link href="/portal/dashboard/listings?action=add" className="brk-btn brk-btn--primary">
             Add Property
           </Link>
         </div>
       </section>
 
-      <div className="admin-dash-home__hero-row">
+      <div className="brk-section-head">
         <div>
-          <p className="admin-dash-home__kicker">Executive Overview</p>
-          <h2 className="admin-dash-home__title">My Portfolio</h2>
-          <p className="admin-dash-home__signed-in-meta">
-            Here&apos;s an overview of your listed properties and activity.
-          </p>
+          <p className="brk-section-head__kicker">Executive Overview</p>
+          <h2 className="brk-section-head__title">My Portfolio</h2>
         </div>
+        <p className="brk-section-head__sub">
+          A snapshot of your listed properties, approvals and buyer activity.
+        </p>
       </div>
 
       <BrokerDashboardStats stats={stats} loading={false} />
 
       {stats?.totalListings === 0 && (
-        <div className="broker-dash-onboard">
-          <div>
-            <h4>List your first property</h4>
+        <section className="brk-onboard">
+          <span className="brk-onboard__icon">
+            <Sparkles size={20} />
+          </span>
+          <div className="brk-onboard__text">
+            <h3>List your first property</h3>
             <p>Complete the listing wizard, submit for approval, and go live on /properties.</p>
           </div>
-          <Link href="/portal/dashboard/listings?action=add" className="admin-dash-quick-link">
+          <Link href="/portal/dashboard/listings?action=add" className="brk-btn brk-btn--primary">
             Add Your First Property
           </Link>
-        </div>
+        </section>
       )}
 
-      <div className="broker-dash-split">
-        <section className="broker-dash-panel">
-          <div className="broker-dash-panel__head">
-            <h2 className="broker-dash-panel__title">Recent Activity</h2>
-            <p className="broker-dash-panel__sub">Updates on your listings</p>
+      <div className="brk-split">
+        <section className="brk-panel">
+          <div className="brk-panel__head">
+            <div>
+              <h2 className="brk-panel__title">Recent Activity</h2>
+              <p className="brk-panel__sub">Latest updates on your listings</p>
+            </div>
+            {activities.length > 0 && (
+              <Link href="/portal/dashboard/listings" className="brk-panel__link">
+                View all
+                <ArrowUpRight size={14} />
+              </Link>
+            )}
           </div>
-          <div className="broker-dash-panel__body">
+          <div className="brk-panel__body">
             {activities.length > 0 ? (
-              <ul className="broker-dash-activity">
+              <ul className="brk-activity">
                 {activities.map((a) => (
-                  <li key={a.id} className="broker-dash-activity__item">
-                    <span className="broker-dash-activity__dot" />
-                    <div>
-                      <p className="broker-dash-activity__text">{a.message}</p>
-                      <span className="broker-dash-activity__time">{a.time}</span>
+                  <li key={a.id} className="brk-activity__item">
+                    <span
+                      className={`brk-activity__dot brk-activity__dot--${a.status.toLowerCase()}`}
+                    />
+                    <div className="brk-activity__content">
+                      <p className="brk-activity__text">{a.message}</p>
+                      <span className="brk-activity__time">{a.time}</span>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="broker-dash-empty">No activity yet. Start by listing a property.</p>
+              <p className="brk-activity__empty">
+                No activity yet. Start by listing a property.
+              </p>
             )}
           </div>
         </section>

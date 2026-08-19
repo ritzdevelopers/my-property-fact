@@ -948,22 +948,27 @@ const HeaderComponent = () => {
                     <small>Sales Enquiry</small>
                   </span>
                 </a>
-                <Link href="/contact-us" className="mpf-header-callback-btn" title="Request callback">
-                  Request Callback
-                </Link>
+                <button
+                  type="button"
+                  className="header-post-property-cta mpf-header-post-property-cta d-none d-lg-inline-flex"
+                  onClick={openBrokerLoginModal}
+                  title="Post your property for free"
+                >
+                  <span className="header-post-property-cta__text">Post Your Property</span>
+                  <span className="header-post-property-cta__badge">FREE</span>
+                </button>
               </div>
-            ) : null}
-            {/* Hidden until portal launch (next month)
-            <button
-              type="button"
-              className="header-post-property-cta"
-              onClick={openBrokerLoginModal}
-              title="Post a property for free — broker login"
-            >
-              <span className="header-post-property-cta__text">Post a Property</span>
-              <span className="header-post-property-cta__badge">FREE</span>
-            </button>
-            */}
+            ) : (
+              <button
+                type="button"
+                className="header-post-property-cta d-none d-lg-inline-flex"
+                onClick={openBrokerLoginModal}
+                title="Post your property for free"
+              >
+                <span className="header-post-property-cta__text">Post Your Property</span>
+                <span className="header-post-property-cta__badge">FREE</span>
+              </button>
+            )}
           </nav>
           <div className="menuBtn d-flex d-lg-none " onClick={openMenu}>
             <span id="menuLine1"></span>
@@ -1350,7 +1355,6 @@ const HeaderComponent = () => {
                     Contact us
                   </Link>
                 </li>
-                {/* Hidden until portal launch (next month)
                 <li>
                   <button
                     type="button"
@@ -1362,12 +1366,11 @@ const HeaderComponent = () => {
                       }
                       openBrokerLoginModal();
                     }}
-                    title="Post a property for free"
+                    title="Post your property for free"
                   >
-                    Post a Property <span className="mobile-post-property-cta__free">FREE</span>
+                    Post Your Property <span className="mobile-post-property-cta__free">FREE</span>
                   </button>
                 </li>
-                */}
                 {/* <li>
                   <div className="bg-white rounded rounded-3 p-2 cursor-pointer hover-effect"
                   onClick={openSignUpModal}>

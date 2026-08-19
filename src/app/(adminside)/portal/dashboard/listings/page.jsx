@@ -1,30 +1,29 @@
 "use client";
 import { Suspense, useState, useEffect, useCallback, useMemo } from "react";
 import ModernPropertyListing from "../../_components/ModernPropertyListing";
-import { Card, Row, Col, Button, Badge, Spinner, Alert, Form, Collapse } from "react-bootstrap";
+import { Row, Col, Button, Badge, Spinner, Alert, Form, Collapse } from "react-bootstrap";
 import Cookies from "js-cookie";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
-  cilFilter, 
-  cilX, 
   cilHome, 
   cilLocationPin,
   cilMoney,
   cilCheckCircle,
   cilFilterSquare,
   cilBuilding,
-  cilStar,
   cilCalendar,
   cilCarAlt,
   cilCompass,
   cilLayers,
-  cilPlus,
   cilViewModule
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import axios from "axios";
 import { getPublicPropertyUrl } from "../../_utils/propertySlug";
+import BrokerListingsStats from "../../_components/BrokerListingsStats";
 import "../../_components/BrokerPhase2Styles.css";
+import "../../_components/PortalUI.css";
+import { Building2, Filter, Plus, X } from "lucide-react";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -653,166 +652,114 @@ export default function ListingPage() {
   }
 
   return (
-    <div className="broker-dashboard">
-      {/* Header */}
-      <div className="broker-listings-header">
-        <div className="broker-listings-header-content">
+    <div className="brk-page">
+      <header className="brk-page-head">
+        <div className="brk-page-head__main">
+          <span className="brk-page-head__icon">
+            <Building2 size={20} />
+          </span>
           <div>
-            <h2>My Property Listings</h2>
-            <p>List, manage, and track your properties through to the public marketplace</p>
+            <h1 className="brk-page-head__title">My Property Listings</h1>
+            <p className="brk-page-head__sub">
+              List, manage, and track properties through to the public marketplace
+            </p>
           </div>
-          <div className="broker-hero-actions">
+        </div>
+        <div className="brk-page-head__actions">
+          <button
+            type="button"
+            className="brk-btn brk-btn--primary"
+            onClick={() => router.push("/portal/dashboard/listings?action=add")}
+          >
+            <Plus size={15} />
+            Add Property
+          </button>
+        </div>
+      </header>
+
+      <div className="brk-process" aria-label="How publishing works">
+        <div className="brk-process__item">
+          <span className="brk-process__num">1</span>
+          <div>
+            <p className="brk-process__title">Submit listing</p>
+            <p className="brk-process__text">Fill the wizard and send it for review.</p>
+          </div>
+        </div>
+        <div className="brk-process__item">
+          <span className="brk-process__num">2</span>
+          <div>
+            <p className="brk-process__title">Admin reviews</p>
+            <p className="brk-process__text">We check details, photos, and RERA info.</p>
+          </div>
+        </div>
+        <div className="brk-process__item">
+          <span className="brk-process__num">3</span>
+          <div>
+            <p className="brk-process__title">Go live</p>
+            <p className="brk-process__text">
+              Approved listings appear on{" "}
+              <a href="/properties" target="_blank" rel="noopener noreferrer">
+                /properties
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <BrokerListingsStats
+        loading={loading}
+        total={allListings.length}
+        active={activeListings}
+        pending={pendingListings}
+        draft={draftListings}
+        selected={filters.approvalStatus}
+        onSelect={(status) =>
+          setFilters((prev) => ({
+            ...prev,
+            approvalStatus: prev.approvalStatus === status ? "" : status,
+          }))
+        }
+      />
+
+      <section className="broker-listings-panel">
+        <div className="broker-listings-panel__head">
+          <div>
+            <h3>All Listings</h3>
+            <p>
+              Showing {filteredListings.length} of {allListings.length} properties
+              {hasActiveFilters && ` (${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""} applied)`}
+            </p>
+          </div>
+          <div className="broker-listings-panel__actions">
+            {hasActiveFilters && (
+              <button
+                type="button"
+                className="broker-listings-panel__filter-btn"
+                onClick={resetFilters}
+              >
+                <X size={14} />
+                Clear Filters
+              </button>
+            )}
             <button
               type="button"
-              className="broker-btn-primary"
-              onClick={() => router.push('/portal/dashboard/listings?action=add')}
+              className={`broker-listings-panel__filter-btn${showFilters ? " is-active" : ""}`}
+              onClick={() => setShowFilters(!showFilters)}
             >
-              <CIcon icon={cilPlus} />
-              Add New Property
+              <Filter size={14} />
+              Filters
+              {activeFilterCount > 0 && (
+                <Badge bg="light" text="dark" className="ms-1">
+                  {activeFilterCount}
+                </Badge>
+              )}
             </button>
           </div>
         </div>
-      </div>
 
-      <div className="broker-publish-info">
-        <div className="broker-publish-info-icon">
-          <CIcon icon={cilCheckCircle} />
-        </div>
-        <div>
-          <strong>How publishing works</strong>
-          <span>
-            Submit your listing → Admin reviews → Once approved, your property goes live on{" "}
-            <a href="/properties" target="_blank" rel="noopener noreferrer" style={{ color: "#0d5834", fontWeight: 600 }}>
-              /properties
-            </a>{" "}
-            for buyers to discover and inquire.
-          </span>
-        </div>
-      </div>
-
-      {/* Stats Cards */}
-      <Row className="g-4 mb-4">
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon primary">
-                  <CIcon icon={cilHome} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Total Listings</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{allListings.length}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon success">
-                  <CIcon icon={cilCheckCircle} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Active Listings</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{activeListings}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon info">
-                  <CIcon icon={cilCalendar} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Pending Approval</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{pendingListings}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col lg={3} md={6}>
-          <Card className="stat-card h-100">
-            <Card.Body>
-              <div className="stat-content">
-                <div className="stat-icon warning">
-                  <CIcon icon={cilLayers} />
-                </div>
-                <div className="stat-info">
-                  <h6 className="stat-title">Draft</h6>
-                  {loading ? (
-                    <Spinner size="sm" />
-                  ) : (
-                    <h3 className="stat-value">{draftListings}</h3>
-                  )}
-                </div>
-              </div>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-
-        {/* Filters and Listings Table */}
-        <Card className="dashboard-card">
-          <Card.Header className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-              <h5 className="mb-1">All Listings</h5>
-              <small className="text-muted">
-                Showing {filteredListings.length} of {allListings.length} properties
-                {hasActiveFilters && ` (${activeFilterCount} filter${activeFilterCount > 1 ? 's' : ''} applied)`}
-              </small>
-            </div>
-            <div className="d-flex gap-2">
-              {hasActiveFilters && (
-                <Button 
-                  variant="outline-secondary" 
-                  size="sm"
-                  onClick={resetFilters}
-                  className="d-flex align-items-center gap-2"
-                >
-                  <CIcon icon={cilX} className="me-1" />
-                  Clear Filters
-                </Button>
-              )}
-              <Button 
-                variant={showFilters ? "primary" : "outline-primary"}
-                size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-                className="d-flex align-items-center gap-2"
-              >
-                <CIcon icon={showFilters ? cilCheckCircle : cilFilter} className="me-1" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <Badge bg="light" text="dark" className="ms-1">
-                    {activeFilterCount}
-                  </Badge>
-                )}
-              </Button>
-            </div>
-          </Card.Header>
-          
-          {/* Filter Panel */}
-          <Collapse in={showFilters}>
-            <div>
-              <Card.Body className="border-bottom" style={{ background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)' }}>
+        <Collapse in={showFilters}>
+          <div className="broker-listings-panel__filters">
                 <Row className="g-3">
                   <Col md={12}>
                     <Form.Group>
@@ -1295,47 +1242,52 @@ export default function ListingPage() {
                     </Form.Group>
                   </Col>
                 </Row>
-              </Card.Body>
+          </div>
+        </Collapse>
+
+        <div className="broker-listings-panel__body">
+          {loading ? (
+            <div className="text-center py-5">
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+              <p className="mt-3 text-muted">Loading your properties...</p>
             </div>
-          </Collapse>
-          
-          <Card.Body>
-            {loading ? (
-              <div className="text-center py-5">
-                <Spinner animation="border" role="status">
-                  <span className="visually-hidden">Loading...</span>
-                </Spinner>
-                <p className="mt-3 text-muted">Loading your properties...</p>
-              </div>
-            ) : error ? (
-              <Alert variant="danger">
-                <Alert.Heading>Error Loading Properties</Alert.Heading>
-                <p>{error}</p>
-                <Button variant="outline-danger" size="sm" onClick={fetchUserProperties}>
-                  Retry
-                </Button>
-              </Alert>
-            ) : allListings.length === 0 ? (
-              <div className="text-center py-5">
-                <p className="text-muted mb-3">You haven&apos;t posted any properties yet.</p>
-                <Button 
-                  variant="primary"
-                  onClick={() => window.location.href = '/portal/dashboard/listings?action=add'}
-                >
-                  Add Your First Property
-                </Button>
-              </div>
-            ) : filteredListings.length === 0 ? (
-              <div className="text-center py-5">
-                <p className="text-muted mb-3">No properties match your filters.</p>
-                <Button 
-                  variant="outline-primary"
-                  onClick={resetFilters}
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            ) : (
+          ) : error ? (
+            <Alert variant="danger">
+              <Alert.Heading>Error Loading Properties</Alert.Heading>
+              <p>{error}</p>
+              <Button variant="outline-danger" size="sm" onClick={fetchUserProperties}>
+                Retry
+              </Button>
+            </Alert>
+          ) : allListings.length === 0 ? (
+            <div className="brk-empty">
+              <span className="brk-empty__icon">
+                <Building2 size={24} />
+              </span>
+              <h3 className="brk-empty__title">You haven&apos;t posted any properties yet</h3>
+              <p className="brk-empty__text">
+                Get started by adding your first listing. Once approved, it goes live for buyers.
+              </p>
+              <button
+                type="button"
+                className="brk-btn brk-btn--primary"
+                onClick={() => router.push("/portal/dashboard/listings?action=add")}
+              >
+                <Plus size={15} />
+                Add Your First Property
+              </button>
+            </div>
+          ) : filteredListings.length === 0 ? (
+            <div className="broker-listings-empty">
+              <p className="broker-listings-empty__title">No properties match your filters.</p>
+              <p className="broker-listings-empty__sub">Try adjusting or clearing your filters.</p>
+              <button type="button" className="broker-listings-panel__filter-btn" onClick={resetFilters}>
+                Clear Filters
+              </button>
+            </div>
+          ) : (
               <div className="broker-listing-card-grid">
                 {filteredListings.map(listing => {
                   const statusClass = (listing.approvalStatus || 'pending').toLowerCase();
@@ -1402,9 +1354,9 @@ export default function ListingPage() {
                 })}
               </div>
             )}
-          </Card.Body>
-        </Card>
-      
+        </div>
+      </section>
+
       <style jsx>{`
         /* Common styles are now in PortalCommonStyles.css */
         /* Only page-specific styles below */

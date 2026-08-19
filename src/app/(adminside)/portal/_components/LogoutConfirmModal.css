@@ -1,0 +1,109 @@
+.brk-logout-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(9, 24, 18, 0.55);
+  backdrop-filter: blur(4px);
+  animation: brk-logout-fade 0.16s ease-out;
+}
+
+.brk-logout-modal {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.75rem 1.5rem 1.35rem;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e8eceb;
+  box-shadow: 0 24px 60px rgba(6, 30, 20, 0.28);
+  text-align: center;
+  animation: brk-logout-pop 0.18s cubic-bezier(0.3, 1.2, 0.6, 1);
+}
+
+.brk-logout-modal__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0.9rem;
+  border-radius: 14px;
+  background: rgba(220, 38, 38, 0.09);
+  color: #dc2626;
+}
+
+.brk-logout-modal__title {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.brk-logout-modal__text {
+  margin: 0 0 1.35rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #6b7280;
+}
+
+.brk-logout-modal__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.brk-logout-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brk-logout-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.brk-logout-btn--ghost {
+  border: 1px solid #dfe3e2;
+  background: #fff;
+  color: #374151;
+}
+
+.brk-logout-btn--ghost:hover:not(:disabled) {
+  background: #f4f6f5;
+}
+
+.brk-logout-btn--danger {
+  border: 1px solid #dc2626;
+  background: #dc2626;
+  color: #fff;
+}
+
+.brk-logout-btn--danger:hover:not(:disabled) {
+  background: #b91c1c;
+  border-color: #b91c1c;
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
+}
+
+@keyframes brk-logout-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes brk-logout-pop {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brk-logout-backdrop,
+  .brk-logout-modal {
+    animation: none;
+  }
+}

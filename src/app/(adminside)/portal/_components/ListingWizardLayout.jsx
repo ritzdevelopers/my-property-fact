@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowLeft, Headphones } from "lucide-react";
 import { getUserDisplayName, getUserRoleLabel } from "../_utils/userDisplay";
 import PortalUserAvatar from "./PortalUserAvatar";
@@ -114,8 +115,11 @@ export default function ListingWizardLayout({
     <div className="lw-shell">
       <header className="lw-header">
         <div className="lw-header__brand">
+          <Link href="/portal/dashboard/listings" className="lw-header__back" title="Back to listings">
+            <ArrowLeft size={16} />
+          </Link>
           <img src="/logo.webp" alt="My Property Fact" className="lw-header__logo" />
-          <span className="lw-header__title">Post Property</span>
+          <span className="lw-header__title">{isEditMode ? "Edit Property" : "Add Property"}</span>
         </div>
         <div className="lw-header__user">
           <PortalUserAvatar userData={userData || { fullName: userName }} size="sm" />

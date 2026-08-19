@@ -31,6 +31,7 @@ import CIcon from "@coreui/icons-react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useUser } from "../../_contexts/UserContext";
+import LogoutConfirmModal from "../../_components/LogoutConfirmModal";
 import "../../_components/PortalCommonStyles.css";
 import axios from "axios";
 
@@ -97,6 +98,8 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [logoutOpen, setLogoutOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
   const [profile, setProfile] = useState({
     name: "",
     email: "",
@@ -278,11 +281,9 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm("Are you sure you want to logout?")) {
-      logout();
-      router.push("/");
-    }
+  const handleConfirmLogout = async () => {
+    setLoggingOut(true);
+    await logout("/");
   };
 
   if (loading) {
@@ -303,6 +304,13 @@ export default function Profile() {
 
   return (
     <div className="portal-content">
+      <LogoutConfirmModal
+        open={logoutOpen}
+        busy={loggingOut}
+        onCancel={() => setLogoutOpen(false)}
+        onConfirm={handleConfirmLogout}
+      />
+
       {/* Header */}
       <div className="dashboard-header">
         <div className="header-content">
@@ -448,7 +456,7 @@ export default function Profile() {
                   <CIcon icon={cilPencil} className="me-2" />
                   {editMode ? "Cancel Edit" : "Edit Profile"}
                 </Button>
-                <Button variant="outline-danger" onClick={handleLogout}>
+                <Button variant="outline-danger" onClick={() => setLogoutOpen(true)}>
                   <CIcon icon={cilAccountLogout} className="me-2" />
                   Logout
                 </Button>

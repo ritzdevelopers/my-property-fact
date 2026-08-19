@@ -1,97 +1,74 @@
 {
-  "navigation": [
+  "primaryAction": {
+    "id": "add-property",
+    "label": "Add Property",
+    "href": "/portal/dashboard/listings?action=add"
+  },
+  "sections": [
     {
-      "id": "dashboard",
-      "label": "Dashboard",
-      "icon": "cilSpeedometer",
-      "href": "/portal/dashboard",
-      "active": true,
-      "access": "ALL"
+      "id": "overview",
+      "label": "Overview",
+      "items": [
+        {
+          "id": "dashboard",
+          "label": "Dashboard",
+          "icon": "dashboard",
+          "href": "/portal/dashboard",
+          "exact": true,
+          "access": "ALL"
+        }
+      ]
     },
     {
-      "id": "properties",
-      "label": "My Listings",
-      "icon": "cilHome",
-      "href": "/portal/dashboard/listings",
-      "badge": "P2",
-      "access": "ALL",
-      "children": [
+      "id": "manage",
+      "label": "Manage",
+      "items": [
         {
-          "id": "my-listings",
+          "id": "listings",
           "label": "My Listings",
+          "icon": "listings",
           "href": "/portal/dashboard/listings",
           "access": "ALL"
         },
         {
-          "id": "add-property",
-          "label": "Add Property",
-          "href": "/portal/dashboard/listings?action=add",
-          "access": "ALL"
-        }
-      ]
-    },
-    {
-      "id": "leads",
-      "label": "Leads",
-      "icon": "cilPeople",
-      "href": "/portal/dashboard/leads",
-      "access": "ALL",
-      "children": [
-        {
-          "id": "lead-management",
-          "label": "Lead Management",
+          "id": "leads",
+          "label": "Leads",
+          "icon": "leads",
           "href": "/portal/dashboard/leads",
           "access": "ALL"
-        }
-      ]
-    },
-    {
-      "id": "compliance",
-      "label": "Compliance",
-      "icon": "cilShieldAlt",
-      "href": "/portal/dashboard/compliance",
-      "access": "ALL",
-      "children": [
+        },
         {
-          "id": "rera-credentials",
-          "label": "RERA Credentials",
+          "id": "compliance",
+          "label": "RERA Compliance",
+          "icon": "compliance",
           "href": "/portal/dashboard/compliance/rera",
           "access": "ALL"
         }
       ]
     },
     {
-      "id": "settings",
-      "label": "Settings",
-      "icon": "cilSettings",
-      "href": "/portal/dashboard/settings",
-      "access": "ALL",
-      "children": [
+      "id": "account",
+      "label": "Account",
+      "items": [
         {
           "id": "profile",
           "label": "Profile",
+          "icon": "profile",
           "href": "/portal/dashboard/profile",
           "access": "ALL"
         },
         {
           "id": "notifications",
           "label": "Notifications",
+          "icon": "notifications",
           "href": "/portal/dashboard/notifications",
           "access": "ALL"
-        }
-      ]
-    },
-    {
-      "id": "help",
-      "label": "Help",
-      "icon": "cilQuestion",
-      "href": "/portal/dashboard/help",
-      "access": "ALL",
-      "children": [
+        },
         {
-          "id": "contact-support",
-          "label": "Contact Support",
-          "href": "/portal/dashboard/help/contact-support",
+          "id": "help",
+          "label": "Help & Support",
+          "icon": "help",
+          "href": "/portal/dashboard/help",
           "access": "ALL"
         }
       ]
@@ -100,7 +77,7 @@
   "accessLevels": {
     "ALL": "All users",
     "B": "Broker only",
-    "O": "Owner only", 
+    "O": "Owner only",
     "BA": "Broker and Admin only"
   },
   "badges": {

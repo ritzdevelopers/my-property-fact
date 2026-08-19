@@ -1,7 +1,7 @@
 /* 99acres-inspired listing wizard layout */
 .lw-shell {
   min-height: 100vh;
-  background: #f0f2f5;
+  background: #f5f7f6;
   display: flex;
   flex-direction: column;
 }
@@ -10,12 +10,30 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 1.25rem;
   height: 56px;
-  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
+  background: #0c3324;
   color: #fff;
   flex-shrink: 0;
   gap: 1rem;
+}
+
+.lw-header__back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.lw-header__back:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
 }
 
 .lw-header__user {
@@ -328,11 +346,11 @@
 }
 
 .lw-footer .btn-primary {
-  background: linear-gradient(135deg, #68ac78 0%, #0d5834 100%);
+  background: #0d5834;
   border-color: #0d5834;
-  padding: 0.65rem 2rem;
+  padding: 0.65rem 1.5rem;
   font-weight: 700;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .lw-tips {

@@ -737,3 +737,287 @@
   .broker-hero { padding: 1.5rem; }
   .broker-hero-title { font-size: 1.45rem; }
 }
+
+/* —— Listings page v2 (mockup-aligned) —— */
+
+.broker-listings-hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.75rem 2rem;
+  margin-bottom: 1rem;
+  border-radius: var(--broker-radius);
+  background: linear-gradient(135deg, #0c2e23 0%, #0d5834 48%, #1a7a4a 100%);
+  box-shadow: var(--broker-shadow-lg);
+  overflow: hidden;
+  min-height: 156px;
+}
+
+.broker-listings-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 85% 20%, rgba(104, 172, 120, 0.22), transparent 45%),
+    url("data:image/svg+xml,%3Csvg width='120' height='40' viewBox='0 0 120 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 30 Q30 10 60 28 T120 22 V40 H0Z' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") repeat-x bottom;
+  pointer-events: none;
+}
+
+.broker-listings-hero__copy {
+  position: relative;
+  z-index: 1;
+  max-width: 56%;
+}
+
+.broker-listings-hero__copy h2 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+
+.broker-listings-hero__copy h2 span {
+  color: #8ee4a8;
+}
+
+.broker-listings-hero__copy p {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 420px;
+}
+
+.broker-listings-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1.15rem;
+  border: none;
+  border-radius: var(--broker-radius-sm);
+  background: #fff;
+  color: var(--broker-primary-dark);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.broker-listings-hero__btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.broker-listings-hero__art {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0;
+  width: min(260px, 36%);
+  max-height: 140px;
+  object-fit: contain;
+  object-position: bottom right;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.broker-listings-publish {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.95rem 1.15rem;
+  margin-bottom: 1.25rem;
+  border-radius: var(--broker-radius-sm);
+  background: linear-gradient(135deg, rgba(104, 172, 120, 0.08), rgba(255, 255, 255, 0.98));
+  border: 1px solid rgba(104, 172, 120, 0.18);
+}
+
+.broker-listings-publish__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--broker-primary);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.broker-listings-publish p {
+  margin: 0;
+  flex: 1;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #4b5563;
+}
+
+.broker-listings-publish strong {
+  color: var(--broker-text);
+  font-weight: 700;
+}
+
+.broker-listings-publish a,
+.broker-listings-publish em {
+  font-style: normal;
+  color: var(--broker-primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.broker-listings-publish a:hover {
+  text-decoration: underline;
+}
+
+.broker-listings-publish__art {
+  width: 80px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+
+.broker-listings-panel {
+  background: var(--broker-surface);
+  border-radius: var(--broker-radius);
+  border: 1px solid var(--broker-border);
+  box-shadow: var(--broker-shadow);
+  overflow: hidden;
+}
+
+.broker-listings-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--broker-border);
+}
+
+.broker-listings-panel__head h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--broker-text);
+}
+
+.broker-listings-panel__head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  color: var(--broker-text-muted);
+}
+
+.broker-listings-panel__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.broker-listings-panel__filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid #dbe3ea;
+  background: #fff;
+  color: #4b5563;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.broker-listings-panel__filter-btn:hover,
+.broker-listings-panel__filter-btn.is-active {
+  border-color: var(--broker-primary);
+  color: var(--broker-primary-dark);
+  background: rgba(104, 172, 120, 0.08);
+}
+
+.broker-listings-panel__body {
+  padding: 1.25rem;
+}
+
+.broker-listings-panel__filters {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--broker-border);
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.broker-listings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem 2.5rem;
+}
+
+.broker-listings-empty__art {
+  width: min(300px, 75%);
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.broker-listings-empty__title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.broker-listings-empty__sub {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+  max-width: 360px;
+}
+
+.broker-listings-empty__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+  padding: 0.65rem 1.25rem;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(102, 126, 234, 0.28);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.broker-listings-empty__cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(102, 126, 234, 0.34);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .broker-listings-hero {
+    padding: 1.35rem 1.25rem;
+    min-height: auto;
+  }
+
+  .broker-listings-hero__copy {
+    max-width: 100%;
+  }
+
+  .broker-listings-hero__art {
+    opacity: 0.28;
+    width: 200px;
+  }
+
+  .broker-listings-publish__art {
+    display: none;
+  }
+}

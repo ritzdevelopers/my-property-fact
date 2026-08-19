@@ -339,17 +339,76 @@
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
+.broker-login-modal-otp-stage {
+  position: relative;
+  min-height: 88px;
+}
+
 .broker-login-modal-otp-row {
   display: flex;
   gap: clamp(0.35rem, 2vw, 0.65rem);
   justify-content: center;
 }
 
-.broker-login-modal-otp-digit {
+.broker-login-modal-otp-cell {
+  position: relative;
   flex: 1;
   min-width: 0;
   max-width: 56px;
   height: 52px;
+  border-radius: 13px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.broker-login-modal-otp-cell::before {
+  content: "";
+  position: absolute;
+  inset: -55%;
+  z-index: 0;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 220deg,
+    #68ac78 280deg,
+    #e8ffe9 320deg,
+    transparent 360deg
+  );
+  opacity: 0;
+}
+
+.broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell::before {
+  opacity: 1;
+  animation: otpBorderSpin 0.9s linear infinite;
+}
+
+.broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell:nth-child(2)::before {
+  animation-delay: -0.22s;
+}
+
+.broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell:nth-child(3)::before {
+  animation-delay: -0.44s;
+}
+
+.broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell:nth-child(4)::before {
+  animation-delay: -0.66s;
+}
+
+.broker-login-modal-otp-stage.is-success .broker-login-modal-otp-cell {
+  box-shadow: inset 0 0 0 1.5px #3cb371;
+}
+
+.broker-login-modal-otp-stage.is-fail .broker-login-modal-otp-cell {
+  box-shadow: inset 0 0 0 1.5px #e05353;
+}
+
+.broker-login-modal-otp-digit {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  margin: 2px;
   text-align: center;
   font-size: 1.3rem;
   font-weight: 700;
@@ -364,6 +423,121 @@
 .broker-login-modal-otp-digit:focus {
   border-color: #68ac78;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+.broker-login-modal-otp-stage.is-success .broker-login-modal-otp-row,
+.broker-login-modal-otp-stage.is-fail .broker-login-modal-otp-row {
+  opacity: 0.18;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+.broker-login-modal-otp-result {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  pointer-events: none;
+  animation: otpResultIn 0.35s ease;
+}
+
+.broker-login-modal-otp-result span {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8ef0b0;
+}
+
+.broker-login-modal-otp-result.is-fail span {
+  color: #ffb4b4;
+}
+
+.broker-login-modal-otp-mark {
+  width: 52px;
+  height: 52px;
+}
+
+.broker-login-modal-otp-mark__ring {
+  fill: none;
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-dasharray: 176;
+  stroke-dashoffset: 176;
+  animation: otpDraw 0.45s ease forwards;
+}
+
+.broker-login-modal-otp-mark__ring.is-success {
+  stroke: #3dd68c;
+}
+
+.broker-login-modal-otp-mark__ring.is-fail {
+  stroke: #ff6b6b;
+}
+
+.broker-login-modal-otp-mark__check {
+  fill: none;
+  stroke: #3dd68c;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: otpDraw 0.35s 0.22s ease forwards;
+}
+
+.broker-login-modal-otp-mark__cross {
+  fill: none;
+  stroke: #ff6b6b;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
+  animation: otpDraw 0.28s 0.2s ease forwards;
+}
+
+.broker-login-modal-otp-mark__cross--late {
+  animation-delay: 0.32s;
+}
+
+@keyframes otpBorderSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes otpDraw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes otpResultIn {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell::before,
+  .broker-login-modal-otp-mark__ring,
+  .broker-login-modal-otp-mark__check,
+  .broker-login-modal-otp-mark__cross,
+  .broker-login-modal-otp-result {
+    animation: none;
+  }
+
+  .broker-login-modal-otp-stage.is-verifying .broker-login-modal-otp-cell::before,
+  .broker-login-modal-otp-mark__ring,
+  .broker-login-modal-otp-mark__check,
+  .broker-login-modal-otp-mark__cross {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
 }
 
 .broker-login-modal-btn {
@@ -516,6 +690,47 @@
   margin-left: 0.25rem;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.broker-login-modal-toggle button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.broker-login-modal-empty {
+  text-align: center;
+  padding: 0.5rem 0 1.25rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.broker-login-modal-empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.85rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.broker-login-modal-empty h3 {
+  margin: 0 0 0.45rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.broker-login-modal-empty p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.broker-login-modal-empty strong {
+  color: #fff;
 }
 
 .broker-login-modal-alert {
@@ -712,9 +927,12 @@
     height: 60px;
   }
 
-  .broker-login-modal-otp-digit {
+  .broker-login-modal-otp-cell {
     max-width: 48px;
     height: 48px;
+  }
+
+  .broker-login-modal-otp-digit {
     font-size: 1.15rem;
   }
 }

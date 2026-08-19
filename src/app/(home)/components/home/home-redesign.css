@@ -1664,10 +1664,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     linear-gradient(
       180deg,
       rgba(8, 12, 16, 0) 0%,
-      rgba(8, 12, 16, 0.08) 38%,
-      rgba(8, 12, 16, 0.52) 64%,
-      rgba(6, 10, 14, 0.86) 84%,
-      rgba(4, 8, 12, 0.96) 100%
+      rgba(8, 12, 16, 0.05) 42%,
+      rgba(8, 12, 16, 0.32) 68%,
+      rgba(6, 10, 14, 0.58) 88%,
+      rgba(4, 8, 12, 0.72) 100%
     );
   transition: background 320ms var(--mpf-ease);
   pointer-events: none;
@@ -1678,10 +1678,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   background:
     linear-gradient(
       180deg,
-      rgba(8, 12, 16, 0.12) 0%,
-      rgba(8, 36, 22, 0.22) 40%,
-      rgba(6, 28, 18, 0.62) 68%,
-      rgba(4, 18, 12, 0.96) 100%
+      rgba(8, 12, 16, 0.06) 0%,
+      rgba(8, 36, 22, 0.14) 44%,
+      rgba(6, 28, 18, 0.38) 72%,
+      rgba(4, 18, 12, 0.72) 100%
     );
 }
 
@@ -1845,8 +1845,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   background: linear-gradient(
     180deg,
     rgba(6, 10, 14, 0) 0%,
-    rgba(6, 10, 14, 0.28) 28%,
-    rgba(6, 10, 14, 0.72) 100%
+    rgba(6, 10, 14, 0.14) 32%,
+    rgba(6, 10, 14, 0.48) 100%
   );
 }
 
@@ -1904,8 +1904,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .home-project-card__title {
   font-family: var(--mpf-sans) !important;
   font-size: 1.12rem !important;
-  font-weight: 600 !important;
-  color: #fff !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
   margin: 0 !important;
   line-height: 1.25 !important;
   display: -webkit-box;
@@ -1913,8 +1913,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.55),
-    0 6px 18px rgba(0, 0, 0, 0.4);
+    0 1px 0 rgba(0, 0, 0, 0.85),
+    0 2px 6px rgba(0, 0, 0, 0.75),
+    0 8px 20px rgba(0, 0, 0, 0.55);
   flex: 1 1 0;
   min-width: 0;
 }
@@ -1935,15 +1936,17 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 .mpf-home-r26 .home-project-card__meta,
 .mpf-home-r26 .home-project-card__location {
   font-family: var(--mpf-sans) !important;
-  color: rgba(255, 255, 255, 0.92) !important;
+  color: #f4f8f6 !important;
   font-size: 0.82rem !important;
-  font-weight: 400 !important;
+  font-weight: 500 !important;
   margin: 0 !important;
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.8),
+    0 2px 8px rgba(0, 0, 0, 0.65);
 }
 
 .mpf-home-r26 .home-project-card__location {
@@ -1954,14 +1957,25 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  color: #d7ffe4 !important;
+  color: #e8fff0 !important;
 }
 
-.mpf-home-r26 .home-project-card__pin {
+.mpf-home-r26 .mpf-lux-card--poster .home-project-card__pin {
   flex-shrink: 0;
-  opacity: 1;
-  color: #7dff9f;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  color: #9ef5b8 !important;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.65));
+}
+
+.mpf-home-r26 .mpf-lux-card--poster .mpf-lux-card__action {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.75),
+    0 2px 8px rgba(0, 0, 0, 0.55);
+}
+
+.mpf-home-r26 .mpf-lux-card--poster .mpf-lux-card__bar {
+  border-top: 1px solid rgba(255, 255, 255, 0.22) !important;
 }
 
 .mpf-home-r26 .home-project-card__body {

@@ -11,6 +11,12 @@ const CARD_THUMBNAIL_OVERRIDES = {
   "smartworld-elie-saab": "/static/projects/smartworld-elie-saab.jpg",
   "rg-pleiaddes": "/static/projects/rg-pleiaddes.jpg",
   "clove-county": "/static/projects/clove-county.jpg",
+  "ace-terra": "/static/projects/ace-terra.jpg",
+  "3c-lotus-panache": "/static/projects/3c-lotus-panache.jpg",
+  "ace-parkway": "/static/projects/ace-parkway.jpg",
+  "3c-lotus-zing": "/static/projects/3c-lotus-zing.jpg",
+  "3c-lotus-boulevard": "/static/projects/3c-lotus-boulevard.jpg",
+  "ace-starlit-sector-152-noida": "/static/projects/ace-starlit-sector-152-noida.jpg",
 };
 
 function getProjectSlug(project) {

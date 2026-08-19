@@ -27,6 +27,7 @@
   border: 0;
   border-bottom: 1px solid #e6ebe8;
   padding: 18px 0;
+  cursor: pointer;
 }
 
 .mpf-listing-card.mpf-lux-card .mpf-lux-card__frame {

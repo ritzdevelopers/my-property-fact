@@ -297,6 +297,8 @@ export default function HomeRecommendationCards({
                 <Link
                   href={card.href}
                   className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={card.title ? `View details about ${card.title}` : "View project details"}
                 >
 <div className="home-project-card__media">

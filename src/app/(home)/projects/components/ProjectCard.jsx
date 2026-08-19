@@ -224,6 +224,8 @@ function ProjectCardActionBar({
             href={`/${slug}`}
             className="mpf-lux-card__btn mpf-lux-card__btn--outline"
             onClick={onNavigate}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             Click to Explore
           </Link>
@@ -408,6 +410,8 @@ export default function ProjectCard({
         href={`/${project.slugURL}`}
         className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card"
         onClick={persistListingReturn}
+        target="_blank"
+        rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
         data-project-slug={slug || undefined}
       >
@@ -446,7 +450,15 @@ export default function ProjectCard({
   }
 
   return (
-    <article className="mpf-listing-card mpf-lux-card" data-project-slug={slug || undefined}>
+    <article
+      className="mpf-listing-card mpf-lux-card"
+      data-project-slug={slug || undefined}
+      onClick={(event) => {
+        if (!slug || event.target.closest("a, button")) return;
+        persistListingReturn();
+        window.open(`/${slug}`, "_blank", "noopener,noreferrer");
+      }}
+    >
       <div className="mpf-lux-card__frame">
         <div className="mpf-listing-image">
           <ProjectCardSlider {...sliderProps} />

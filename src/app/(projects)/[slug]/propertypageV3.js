@@ -1650,6 +1650,8 @@ export default function PropertyV3({
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       <div className="pd3-sim-card__img">
                         <img

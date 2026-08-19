@@ -163,6 +163,8 @@ export default function MpfTopPicks({ topProject }) {
               <Link
                 href={`/${slugURL}`}
                 className="mpf-tp__cta btn-normal-color plus-jakarta-sans-semi-bold"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={`View ${projectName} — floor plans, pricing, and details`}
               >
                 <span>Explore {projectName}</span>
@@ -173,6 +175,8 @@ export default function MpfTopPicks({ topProject }) {
               <Link
                 href={`/${slugURL}`}
                 className="mpf-tp__figure"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={`Open ${projectName} — view photos and full details`}
               >
               <img

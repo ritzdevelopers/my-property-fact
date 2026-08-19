@@ -300,6 +300,8 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
           <Link
             href={current.href}
             className="popular-project-promo__explore"
+            target="_blank"
+            rel="noopener noreferrer"
             title={`Explore ${current.name}`}
           >
             Explore

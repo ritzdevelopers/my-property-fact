@@ -209,6 +209,8 @@ export default function BlogSidebar({
                 href={`/${latestProject.slugURL}`}
                 className="latest-property-link-fill"
                 prefetch={false}
+                target="_blank"
+                rel="noopener noreferrer"
                 title={
                   latestProject.projectName?.trim()
                     ? `View ${latestProject.projectName.trim()}`

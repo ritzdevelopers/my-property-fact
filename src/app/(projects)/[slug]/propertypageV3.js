@@ -124,6 +124,11 @@ function ProjectSearchBar() {
     }
   }, [projects.length]);
 
+  const openProjectInNewTab = useCallback((slug) => {
+    if (!slug || typeof window === "undefined") return;
+    window.open(`/${slug}`, "_blank", "noopener,noreferrer");
+  }, []);
+
   const runSearchFromText = useCallback(
     (rawText) => {
       const text = String(rawText || "").trim();
@@ -132,12 +137,12 @@ function ProjectSearchBar() {
       const slug = match?.slugURL || match?.slug;
       if (slug) {
         setOpen(false);
-        router.push(`/${slug}`);
+        openProjectInNewTab(slug);
         return;
       }
       router.push(`/projects?search=${encodeURIComponent(text)}`);
     },
-    [projects, router],
+    [projects, router, openProjectInNewTab],
   );
 
   useEffect(() => {
@@ -221,10 +226,10 @@ function ProjectSearchBar() {
       const slug = item?.slugURL || item?.slug;
       if (slug) {
         setOpen(false);
-        router.push(`/${slug}`);
+        openProjectInNewTab(slug);
       }
     },
-    [router],
+    [openProjectInNewTab],
   );
 
   const handleSubmit = useCallback(

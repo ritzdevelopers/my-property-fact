@@ -687,7 +687,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       if (slug) {
         saveRecentSearch(label);
         setRecentSearches(loadRecentSearches());
-        router.push(`/${slug}`);
+        window.open(`/${slug}`, "_blank", "noopener,noreferrer");
         return;
       }
     }
@@ -729,7 +729,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       if (match?.slugURL) {
         saveRecentSearch(label);
         setRecentSearches(loadRecentSearches());
-        router.push(`/${match.slugURL}`);
+        window.open(`/${match.slugURL}`, "_blank", "noopener,noreferrer");
       } else {
         navigateToProjects({
           quickTab: activeTab,
@@ -798,7 +798,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     ) {
       saveRecentSearch(projectMatch.projectName || q);
       setRecentSearches(loadRecentSearches());
-      router.push(`/${projectMatch.slugURL}`);
+      window.open(`/${projectMatch.slugURL}`, "_blank", "noopener,noreferrer");
       return;
     }
 
@@ -806,7 +806,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       if (correction.kind === "project" && correction.item?.slugURL) {
         saveRecentSearch(correction.label);
         setRecentSearches(loadRecentSearches());
-        router.push(`/${correction.item.slugURL}`);
+        window.open(`/${correction.item.slugURL}`, "_blank", "noopener,noreferrer");
         return;
       }
 

@@ -863,12 +863,14 @@ a.mpf-lux-card__frame:focus-visible {
 
   .mpf-listing-card.mpf-lux-card .mpf-lux-card__frame {
     grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
     gap: 0;
     height: auto;
     min-height: 0;
   }
 
   .mpf-listing-card.mpf-lux-card .mpf-listing-image {
+    order: 0;
     width: 100%;
     height: auto;
     aspect-ratio: 16 / 10;
@@ -877,6 +879,7 @@ a.mpf-lux-card__frame:focus-visible {
   }
 
   .mpf-listing-card.mpf-lux-card .mpf-lux-card__body {
+    order: 1;
     padding: 14px 14px 16px;
   }
 

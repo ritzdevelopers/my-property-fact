@@ -1160,3 +1160,80 @@
   background: #0d5834;
   color: #fff;
 }
+
+/* ── Mobile / tablet: bottom sheet ─────────────────────── */
+@media (max-width: 991.98px) {
+  .broker-login-modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+    justify-content: stretch;
+  }
+
+  .broker-login-modal {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 100%;
+    min-height: min(88dvh, 760px);
+    max-height: 94dvh;
+    margin: 0;
+    border-radius: 22px 22px 0 0;
+    overflow: hidden;
+    animation: brokerModalSheetUp 0.32s ease;
+  }
+
+  .broker-login-modal::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    z-index: 21;
+    width: 42px;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.35);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
+  .broker-login-modal-visual {
+    display: none;
+  }
+
+  .broker-login-modal-auth {
+    flex: 1;
+    justify-content: flex-start;
+    padding: 1.5rem 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .broker-login-modal-close {
+    top: 0.75rem;
+    right: max(0.75rem, env(safe-area-inset-right));
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .broker-login-modal-form,
+  .broker-login-modal-alert {
+    max-width: 100%;
+  }
+}
+
+@keyframes brokerModalSheetUp {
+  from {
+    opacity: 0.6;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 991.98px) and (prefers-reduced-motion: reduce) {
+  .broker-login-modal {
+    animation: none;
+  }
+}

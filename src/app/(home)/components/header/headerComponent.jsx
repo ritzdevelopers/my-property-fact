@@ -74,6 +74,8 @@ const HeaderComponent = () => {
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [selectedCity, setSelectedCity] = useState("Delhi NCR");
+  const [showLocationToast, setShowLocationToast] = useState(false);
+  const locationToastShownRef = useRef(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -492,24 +494,48 @@ const HeaderComponent = () => {
     }
   }, []);
 
+  const showMobileLocationToast = () => {
+    if (typeof window === "undefined") return;
+    if (window.innerWidth >= 992) return;
+    if (locationToastShownRef.current) return;
+    locationToastShownRef.current = true;
+    setShowLocationToast(true);
+    window.setTimeout(() => setShowLocationToast(false), 2800);
+  };
+
   useEffect(() => {
+    let cancelled = false;
+
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
-      if (saved) setSelectedCity(saved);
+      if (saved) {
+        setSelectedCity(saved);
+        showMobileLocationToast();
+      }
     } catch {
       /* ignore */
     }
 
+    const finishWithCity = (cityName) => {
+      if (cancelled) return;
+      const nextCity = cityName || "Delhi NCR";
+      setSelectedCity(nextCity);
+      try {
+        window.localStorage.setItem("mpf_header_city", nextCity);
+      } catch {
+        /* ignore */
+      }
+      showMobileLocationToast();
+    };
+
     if (!navigator.geolocation) {
-      setSelectedCity((current) => current || "Delhi NCR");
-      return;
+      finishWithCity("Delhi NCR");
+      return undefined;
     }
 
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          console.log("Coordinates:", coords.latitude, coords.longitude);
-
           const response = await fetch(
             `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
           );
@@ -519,25 +545,15 @@ const HeaderComponent = () => {
           }
 
           const data = await response.json();
-
-          if (data.success && data.region?.city) {
-            setSelectedCity(data.region.city);
-            try {
-              window.localStorage.setItem("mpf_header_city", data.region.city);
-            } catch {
-              /* ignore */
-            }
-          } else {
-            setSelectedCity("Delhi NCR");
-          }
+          finishWithCity(data.success && data.region?.city ? data.region.city : "Delhi NCR");
         } catch (error) {
           console.error("Location Error:", error);
-          setSelectedCity("Delhi NCR");
+          finishWithCity("Delhi NCR");
         }
       },
       (error) => {
         console.error("Geolocation Error:", error);
-        setSelectedCity("Delhi NCR");
+        finishWithCity("Delhi NCR");
       },
       {
         enableHighAccuracy: true,
@@ -545,6 +561,10 @@ const HeaderComponent = () => {
         maximumAge: 300000,
       }
     );
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const timeoutRef = useRef(null);
@@ -561,8 +581,6 @@ const HeaderComponent = () => {
   };
 
   const handleCityClick = (city) => {
-    console.log("Clicked city:", city);
-
     setSelectedCity(city.cityName);
     setShowLocationDropdown(false);
 
@@ -643,7 +661,13 @@ const HeaderComponent = () => {
                 <button
                   type="button"
                   className="mpf-header-location-pill"
-                  title="Browse Cities"
+                  title={selectedCity}
+                  aria-label={`Current location ${selectedCity}. Browse cities`}
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.innerWidth < 992) {
+                      setShowLocationDropdown((open) => !open);
+                    }
+                  }}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -660,9 +684,9 @@ const HeaderComponent = () => {
                     />
                   </svg>
 
-                  <span>{selectedCity}</span>
+                  <span className="mpf-header-location-pill__city">{selectedCity}</span>
 
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <svg className="mpf-header-location-pill__chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
                       d="M6 9l6 6 6-6"
                       stroke="currentColor"
@@ -971,25 +995,26 @@ const HeaderComponent = () => {
             )}
           </nav>
           <div className="header-mobile-actions d-flex d-lg-none align-items-center">
-            <div className="header-mobile-cta-wrap">
-              <button
-                type="button"
-                className="header-post-property-cta header-post-property-cta--mobile"
-                onClick={openBrokerLoginModal}
-                title="Post your property for free"
-              >
-                <span className="header-post-property-cta__text">
-                  <span className="header-post-property-cta__text--full">Post Your Property</span>
-                  <span className="header-post-property-cta__text--short">Post Property</span>
-                </span>
-                <span className="header-post-property-cta__badge">FREE</span>
-              </button>
-            </div>
-            <div className="menuBtn d-flex" onClick={openMenu}>
+            <button
+              type="button"
+              className="header-post-property-cta header-post-property-cta--mobile"
+              onClick={openBrokerLoginModal}
+              title="Post your property for free"
+            >
+              <span className="header-post-property-cta__text">Post Property</span>
+              <span className="header-post-property-cta__badge">FREE</span>
+            </button>
+            <button
+              type="button"
+              className="menuBtn"
+              onClick={openMenu}
+              aria-label="Open menu"
+              aria-controls="mbdiv"
+            >
               <span id="menuLine1"></span>
               <span id="menuLine2"></span>
               <span id="menuLine3"></span>
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -1428,6 +1453,22 @@ const HeaderComponent = () => {
           </div>
         </div>
       </div>
+      {showLocationToast ? (
+        <div className="mpf-location-toast" role="status" aria-live="polite">
+          <div className="mpf-location-toast__card">
+            <span className="mpf-location-toast__icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z" stroke="currentColor" strokeWidth="1.8" />
+                <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
+              </svg>
+            </span>
+            <div className="mpf-location-toast__copy">
+              <small>Current location</small>
+              <strong>{selectedCity}</strong>
+            </div>
+          </div>
+        </div>
+      ) : null}
       <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
     </>
   );

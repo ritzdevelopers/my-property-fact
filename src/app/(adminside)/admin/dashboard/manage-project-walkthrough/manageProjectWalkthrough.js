@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Button, Form, Modal } from "react-bootstrap";
 import axios from "axios";
 import { toast } from "../../_lib/adminToast";
+import { adminApiWithAuth } from "../../_lib/adminApiAuth";
 import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
@@ -41,8 +42,11 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
             return;
         }
 
+        const editorHtml =
+            typeof editor.current?.value === "string" ? editor.current.value : "";
+        const description = (editorHtml || walkthroughDesc || "").trim();
         const data = {
-            walkthroughDesc: walkthroughDesc || "",
+            walkthroughDesc: description,
             projectId: Number(projectId),
             id: walkthroughId > 0 ? walkthroughId : 0,
         };
@@ -52,7 +56,11 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
             setButtonName("");
             const response = await axios.post(
                 `${apiUrl}project-walkthrough/add-update`,
-                data
+                data,
+                {
+                    ...adminApiWithAuth(),
+                    headers: { "Content-Type": "application/json" },
+                },
             );
             if (response.data.isSuccess === 1) {
                 toast.success(response.data.message);
@@ -62,11 +70,18 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
                 toast.error(response.data.message || "Failed to save walkthrough.");
             }
         } catch (error) {
+            const status = error?.response?.status;
             const message =
                 error?.response?.data?.message ||
                 error?.message ||
                 "Failed to save walkthrough.";
-            toast.error(message);
+            if (status === 401 || status === 403) {
+                toast.error(
+                    "You do not have permission to update walkthrough. Ask Super Admin to grant Manage projects access.",
+                );
+            } else {
+                toast.error(message);
+            }
         } finally {
             setShowLoading(false);
             setButtonName(walkthroughId > 0 ? "Update" : "Add");
@@ -107,12 +122,18 @@ export default function ManageProjectWalkthrough({ list, projectList, projectWit
         setShowLoading(true);
 
         try {
-            const response = await axios.get(`${apiUrl}project-walkthrough/get/${item.id}`);
+            const response = await axios.get(
+                `${apiUrl}project-walkthrough/get/${item.id}`,
+                adminApiWithAuth(),
+            );
             setWalkthroughDesc(response.data?.walkthroughDesc || "");
         } catch (error) {
             if (error?.response?.status === 404) {
                 try {
-                    const fallbackResponse = await axios.get(`${apiUrl}project-walkthrough/get`);
+                    const fallbackResponse = await axios.get(
+                        `${apiUrl}project-walkthrough/get`,
+                        adminApiWithAuth(),
+                    );
                     const fullItem = (fallbackResponse.data || []).find(
                         (walkthrough) => walkthrough.id === item.id
                     );

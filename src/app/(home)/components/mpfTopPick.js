@@ -70,6 +70,12 @@ export default function MpfTopPicks({ topProject }) {
   const topPicksBannerAlt = projectName
     ? `${projectName} — My Property Fact Top Picks featured project banner`
     : "Top Picks featured project banner — My Property Fact";
+  const viewProjectDetailsTitle = projectName
+    ? `View ${projectName} — floor plans, pricing, and details`
+    : "View project — floor plans, pricing, and details";
+  const openProjectPhotosTitle = projectName
+    ? `Open ${projectName} — view photos and full details`
+    : "Open project — view photos and full details";
 
   return (
     <div className="mpf-tp">
@@ -166,6 +172,7 @@ export default function MpfTopPicks({ topProject }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`View ${projectName} — floor plans, pricing, and details`}
+                title={viewProjectDetailsTitle}
               >
                 <span>Explore {projectName}</span>
                 <RiArrowRightSLine aria-hidden />
@@ -178,10 +185,12 @@ export default function MpfTopPicks({ topProject }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Open ${projectName} — view photos and full details`}
+                title={openProjectPhotosTitle}
               >
               <img
                 src={bannerImageSrc}
                 alt={topPicksBannerAlt}
+                title={topPicksBannerAlt}
                 className="mpf-tp__img"
                 loading="lazy"
                 fetchPriority="low"

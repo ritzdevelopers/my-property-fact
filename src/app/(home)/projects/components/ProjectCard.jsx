@@ -70,6 +70,7 @@ function ProjectCardSlider({
   onPrev,
   onNext,
   onImageError,
+  getSlideImageMeta,
   imageClassName = "mpf-listing-slider__img",
 }) {
   const swipe = useRef({ x: 0, y: 0, swiped: false });
@@ -101,11 +102,18 @@ function ProjectCardSlider({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {slides.map((src, index) => (
+      {slides.map((src, index) => {
+        const imageMeta = getSlideImageMeta?.(index) || {
+          alt: `${projectName} — photo ${index + 1}`,
+          title: `${projectName} — photo ${index + 1}`,
+        };
+
+        return (
         <img
           key={`${src}-${index}`}
           src={imageErrors[index] ? DEFAULT_PROJECT_CARD_IMAGE : src}
-          alt={`${projectName} — photo ${index + 1}`}
+          alt={imageMeta.alt}
+          title={imageMeta.title}
           className={`${imageClassName}${
             index === activeSlide ? " is-active" : ""
           }`}
@@ -115,7 +123,8 @@ function ProjectCardSlider({
           fetchPriority={imagePriority && index === 0 ? "high" : "low"}
           onError={() => onImageError(index)}
         />
-      ))}
+        );
+      })}
 
       {hasMultipleSlides ? (
         <>
@@ -207,6 +216,7 @@ function ProjectCardNearby({ items = [] }) {
                   <img
                     src={item.icon}
                     alt={item.alt}
+                    title={item.title || item.alt}
                     className="mpf-listing-nearby__icon"
                     loading="lazy"
                     decoding="async"
@@ -230,7 +240,6 @@ function ProjectCardNearby({ items = [] }) {
 function ProjectCardActionBar({
   variant = "poster",
   slug,
-  onNavigate,
   onGetDetails,
 }) {
   if (variant === "horizontal" && slug) {
@@ -248,15 +257,9 @@ function ProjectCardActionBar({
           >
             Get Details
           </button>
-          <Link
-            href={`/${slug}`}
-            className="mpf-lux-card__btn mpf-lux-card__btn--outline"
-            onClick={onNavigate}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <span className="mpf-lux-card__btn mpf-lux-card__btn--outline">
             Click to Explore
-          </Link>
+          </span>
         </div>
       </div>
     );
@@ -420,6 +423,7 @@ export default function ProjectCard({
 
   const projectName = String(project.projectName || "Project").trim();
   const projectTitle = buildProjectDisplayName(project, "Project");
+  const propertyTypeLabel = String(project.propertyTypeName || "").trim();
   const hasMultipleSlides = slides.length > 1;
   const addressSummary = formatProjectAddress(project.projectAddress);
   const locationLabel =
@@ -428,7 +432,18 @@ export default function ProjectCard({
     "Location on project page";
   const metaLabel =
     String(project.projectConfiguration || "").trim() ||
-    String(project.propertyTypeName || "").trim();
+    propertyTypeLabel;
+  const projectLinkTitle = `View ${projectTitle} on My Property Fact`;
+  const projectCardImageAlt = projectName
+    ? `${projectName} — ${propertyTypeLabel || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
+    : "Real estate project thumbnail — My Property Fact";
+  const getSlideImageMeta = (index) => {
+    if (index === 0) {
+      return { alt: projectCardImageAlt, title: projectCardImageAlt };
+    }
+    const photoMeta = `${projectName} — photo ${index + 1} on My Property Fact`;
+    return { alt: photoMeta, title: photoMeta };
+  };
 
   const sliderProps = {
     slides,
@@ -440,6 +455,7 @@ export default function ProjectCard({
     onPrev: goPrev,
     onNext: goNext,
     onImageError: handleImageError,
+    getSlideImageMeta,
   };
 
   if (isPoster) {
@@ -458,6 +474,7 @@ export default function ProjectCard({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
+        title={projectLinkTitle}
         data-project-slug={slug || undefined}
       >
         <div className="home-project-card__media">
@@ -495,14 +512,24 @@ export default function ProjectCard({
   }
 
   return (
-    <article
+    <Link
+      href={slug ? `/${slug}` : "#"}
       className="mpf-listing-card mpf-lux-card"
       data-project-slug={slug || undefined}
+      title={projectLinkTitle}
+      target="_blank"
+      rel="noopener noreferrer"
       onClick={(event) => {
-        if (swipeLockRef.current) return;
-        if (!slug || event.target.closest("a, button")) return;
+        if (swipeLockRef.current) {
+          event.preventDefault();
+          event.stopPropagation();
+          return;
+        }
+        if (!slug) {
+          event.preventDefault();
+          return;
+        }
         persistListingReturn();
-        window.open(`/${slug}`, "_blank", "noopener,noreferrer");
       }}
     >
       <div className="mpf-lux-card__frame">
@@ -530,11 +557,10 @@ export default function ProjectCard({
           <ProjectCardActionBar
             variant="horizontal"
             slug={slug}
-            onNavigate={persistListingReturn}
             onGetDetails={() => onGetDetails?.(project)}
           />
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

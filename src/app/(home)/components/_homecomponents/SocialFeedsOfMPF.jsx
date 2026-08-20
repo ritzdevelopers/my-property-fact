@@ -418,7 +418,8 @@ export default function SocialFeedsOfMPF({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/logo.webp"
-                    alt=""
+                    alt="My Property Fact logo — social video popup"
+                    title="My Property Fact logo — social video popup"
                     width={28}
                     height={28}
                     className="video-popup-avatar"

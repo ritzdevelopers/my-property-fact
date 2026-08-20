@@ -1336,11 +1336,13 @@ export default function ProjectsRedesigned({
           <div className="mpf-page-header">
             {showBreadcrumb && (
               <nav className="mpf-breadcrumb">
-                <Link href="/">Home</Link>
+                <Link href="/" title="Home">Home</Link>
                 <span>›</span>
                 {breadcrumbParent?.href && breadcrumbParent?.label ? (
                   <>
-                    <Link href={breadcrumbParent.href}>{breadcrumbParent.label}</Link>
+                    <Link href={breadcrumbParent.href} title={breadcrumbParent.label}>
+                      {breadcrumbParent.label}
+                    </Link>
                     {breadcrumbLabel ? <span>›</span> : null}
                   </>
                 ) : null}

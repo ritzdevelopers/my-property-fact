@@ -411,7 +411,8 @@ export default function ChatbotV2() {
               <div className={styles.promptAvatar}>
                 <img
                   src={CHATBOT_HEADER_LOGO}
-                  alt=""
+                  alt="My Property Fact logo — chat assistant prompt"
+                  title="My Property Fact logo — chat assistant prompt"
                   width={32}
                   height={30}
                   aria-hidden

@@ -1651,7 +1651,7 @@ export default function PropertyV3({
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
                     <Link
-                      title={`View ${simName}`}
+                      title={`View ${simName} on My Property Fact`}
                       key={p.id || p.slugURL}
                       href={`/${p.slugURL}`}
                       className="pd3-sim-card"

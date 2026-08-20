@@ -288,6 +288,10 @@ export default function HomeRecommendationCards({
         <div className="home-projects-preview__track" style={trackStyle}>
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
+            const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
+            const cardLinkTitle = card.title
+              ? `View ${card.title} on My Property Fact`
+              : "View project on My Property Fact";
             const rowKey =
               kind === "mixed"
                 ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
@@ -300,12 +304,14 @@ export default function HomeRecommendationCards({
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={card.title ? `View details about ${card.title}` : "View project details"}
+                  title={cardLinkTitle}
                 >
 <div className="home-project-card__media">
   <div className="home-project-card__image-wrap">
     <img
       src={card.image}
-      alt={`${card.title} — real estate listing card image on My Property Fact`}
+      alt={cardImageMeta}
+      title={cardImageMeta}
       className="home-project-card__image"
       loading="lazy"
       decoding="async"

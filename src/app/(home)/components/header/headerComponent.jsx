@@ -632,7 +632,8 @@ const HeaderComponent = () => {
                   <img
                     loading="eager"
                     src={LOGO_ON_DARK}
-                    alt=""
+                    alt="My Property Fact logo — main site header"
+                    title="My Property Fact logo — main site header"
                     aria-hidden="true"
                     className="mpf-header-logo-img mpf-header-logo-img--color-text"
                     height={58}

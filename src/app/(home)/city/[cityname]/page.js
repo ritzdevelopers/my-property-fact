@@ -72,6 +72,23 @@ async function fetchCityDataWithAliases(canonicalSlug) {
   return merged;
 }
 
+function normalizeCityKeywords(keywords, cityName, slug) {
+  if (Array.isArray(keywords) && keywords.length) return keywords;
+  if (typeof keywords === "string" && keywords.trim()) return keywords.trim();
+
+  const name = String(cityName || slug.replace(/-/g, " ")).trim();
+  if (!name) return [];
+
+  return [
+    `property in ${name}`,
+    `properties in ${name}`,
+    `real estate ${name}`,
+    `projects in ${name}`,
+    `flats in ${name}`,
+    `new projects in ${name}`,
+  ];
+}
+
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }) {
   const { cityname } = await params;
@@ -83,6 +100,11 @@ export async function generateMetadata({ params }) {
   return {
     title: cityData.metaTitle,
     description: cityData.metaDescription,
+    keywords: normalizeCityKeywords(
+      cityData.metaKeywords,
+      cityData.cityName,
+      canonicalSlug,
+    ),
     alternates: {
       canonical: `/city/${canonicalSlug}`,
     },

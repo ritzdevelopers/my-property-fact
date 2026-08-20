@@ -93,6 +93,7 @@ export default function PropertyContainer({
   const addressSummary = formatProjectAddress(data.projectAddress);
   const projectTitle = buildProjectDisplayName(data, "Project");
   const propertyTypeName = String(data.propertyTypeName || "").trim();
+  const projectLinkTitle = `View ${projectTitle} on My Property Fact`;
 
   const buildFeaturedSubtitle = () => {
     const config = String(data.projectConfiguration || "").trim();
@@ -176,11 +177,13 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
+        title={projectLinkTitle}
       >
         <div className="home-featured-image-card">
           <img
             src={imageSrc}
             alt={projectCardImageAlt}
+            title={projectCardImageAlt}
             className="home-featured-image"
             width={510}
             height={300}
@@ -232,12 +235,14 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
+        title={projectLinkTitle}
       >
         <div className="home-project-card__media">
           <div className="home-project-card__image-wrap">
             <img
               src={imageSrc}
               alt={projectCardImageAlt}
+              title={projectCardImageAlt}
               className="home-project-card__image"
               width={400}
               height={360}
@@ -297,11 +302,13 @@ export default function PropertyContainer({
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
+        title={projectLinkTitle}
       >
         <div className="w-100 project-image-container">
           <img
             src={imageSrc}
             alt={projectCardImageAlt}
+            title={projectCardImageAlt}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             width={400}
             height={230}

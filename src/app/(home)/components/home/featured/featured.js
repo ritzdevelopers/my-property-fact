@@ -285,7 +285,8 @@ export default function Featured({
                   >
                     <img
                       src="/icon/arrow-left-s-line.svg"
-                      alt=""
+                      alt="Previous slide"
+                      title="Previous slide"
                       width={32}
                       height={32}
                       aria-hidden
@@ -299,7 +300,8 @@ export default function Featured({
                   >
                     <img
                       src="/icon/arrow-right-s-line.svg"
-                      alt=""
+                      alt="Next slide"
+                      title="Next slide"
                       width={32}
                       height={32}
                       aria-hidden

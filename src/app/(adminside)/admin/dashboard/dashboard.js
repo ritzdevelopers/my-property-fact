@@ -30,8 +30,6 @@ export default function Dashboard({
   noOfCities,
   noOfBuilders,
   noOfAmenities,
-  noOfWebStoryCategories,
-  noOfWebStories,
   noOfProjectTypes,
 }) {
   const {
@@ -53,8 +51,6 @@ export default function Dashboard({
     isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_BLOGS);
   const canManageAmenities =
     isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES);
-  const canManageWebStories =
-    isSuperAdmin || hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES);
 
   const showDailyUserTrackingChart = isSuperAdmin || isAdmin;
   const showLiveTrafficAnalytics = isSuperAdmin;
@@ -230,8 +226,6 @@ export default function Dashboard({
     }
     if (hasPermission(ADMIN_PERMISSIONS.MANAGE_AMENITIES))
       links.push({ href: "/admin/dashboard/aminities", label: "Amenities" });
-    if (hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES))
-      links.push({ href: "/admin/dashboard/web-story", label: "Web Stories" });
     return links;
   }, [isSuperAdmin, canApprovals, canEnquiries, hasPermission]);
 
@@ -255,15 +249,12 @@ export default function Dashboard({
         noOfCities={noOfCities}
         noOfBuilders={noOfBuilders}
         noOfAmenities={noOfAmenities}
-        noOfWebStories={noOfWebStories}
-        noOfWebStoryCategories={noOfWebStoryCategories}
         noOfProjectTypes={noOfProjectTypes}
         isSuperAdmin={isSuperAdmin}
         canManageBlogs={canManageBlogs}
         canEnquiries={canEnquiries}
         canManageOptions={canManageOptions}
         canManageAmenities={canManageAmenities}
-        canManageWebStories={canManageWebStories}
       />
 
       <div className="mpf-split mpf-split--2-1">
@@ -323,7 +314,6 @@ export default function Dashboard({
           noOfEnquiries={noOfEnquiries}
           noOfProjects={noOfProjects}
           noOfBlogs={noOfBlogs}
-          noOfWebStories={noOfWebStories}
           noOfCities={noOfCities}
         />
       </div>

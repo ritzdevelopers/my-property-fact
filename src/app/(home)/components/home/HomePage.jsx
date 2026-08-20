@@ -1,6 +1,5 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import NewsViews from "./new-views/NewsViews";
 import SocialFeedPage from "./social-feed/SocialFeedPage";
 import HeroSection from "../_homecomponents/heroSection";
 import FeaturedPage from "./featured/FeaturedPage";
@@ -328,19 +327,17 @@ export default async function HomePage() {
             />,
           )}
 
-          {row(9, <NewsViews title="Realty Updates Web Stories" />)}
+          {row(9, <NoidaProjectsSection cities={cityList} />)}
 
-          {row(10, <NoidaProjectsSection cities={cityList} />)}
+          {row(10, <SocialFeedPage />)}
 
-          {row(11, <SocialFeedPage />)}
+          {row(11, <TestimonialSection testimonials={testimonials} />)}
 
-          {row(12, <TestimonialSection testimonials={testimonials} />)}
+          {row(12, <VaastuStripSection />)}
 
-          {row(13, <VaastuStripSection />)}
+          {row(13, <SocialFeedsOfMPF />)}
 
-          {row(14, <SocialFeedsOfMPF />)}
-
-          {row(15, <PopularCitiesSection />)}
+          {row(14, <PopularCitiesSection />)}
         </div>
       </>
     );

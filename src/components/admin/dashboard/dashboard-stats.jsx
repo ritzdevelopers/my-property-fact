@@ -11,12 +11,10 @@ import {
   MapPin,
   HardHat,
   Layers,
-  BookOpen,
   Activity,
   ArrowRight,
   CheckCircle2,
   Image as ImageIcon,
-  FolderOpen,
 } from "lucide-react";
 
 function StatCard({
@@ -71,14 +69,11 @@ export function DashboardStatsGrid({
   noOfCities,
   noOfBuilders,
   noOfAmenities,
-  noOfWebStories,
-  noOfWebStoryCategories,
   isSuperAdmin,
   canManageBlogs,
   canEnquiries,
   canManageOptions,
   canManageAmenities,
-  canManageWebStories,
 }) {
   return (
     <div className="mpf-stats-block">
@@ -134,18 +129,6 @@ export function DashboardStatsGrid({
         {canManageAmenities && (
           <MiniStatCard icon={Layers} value={noOfAmenities} label="Amenities" tone="blue" />
         )}
-
-        {canManageWebStories && (
-          <>
-            <MiniStatCard icon={BookOpen} value={noOfWebStories} label="Web Stories" tone="pink" />
-            <MiniStatCard
-              icon={FolderOpen}
-              value={noOfWebStoryCategories}
-              label="Story Categories"
-              tone="orange"
-            />
-          </>
-        )}
       </div>
     </div>
   );
@@ -160,7 +143,6 @@ const ACTION_META = {
   Projects: { icon: Building2, tone: "indigo" },
   Banners: { icon: ImageIcon, tone: "pink" },
   Amenities: { icon: Layers, tone: "cyan" },
-  "Web Stories": { icon: BookOpen, tone: "violet" },
 };
 
 export function QuickActionsCard({ quickLinks }) {
@@ -269,7 +251,7 @@ export function RecentActivityCard({ activities, loading, displayName }) {
               <Activity className="h-6 w-6" />
             </span>
             <p className="mpf-panel__sub" style={{ maxWidth: "20rem", margin: "0 auto" }}>
-              No recent activity yet. Saving blogs, web stories, or approving listings will appear
+              No recent activity yet. Saving blogs or approving listings will appear
               here.
             </p>
           </div>
@@ -284,7 +266,6 @@ export function LeadsOverviewCard({
   noOfEnquiries = 0,
   noOfProjects = 0,
   noOfBlogs = 0,
-  noOfWebStories = 0,
   noOfCities = 0,
 }) {
   const segments = React.useMemo(() => {
@@ -292,7 +273,6 @@ export function LeadsOverviewCard({
       { label: "Enquiries", value: Number(noOfEnquiries) || 0, color: "#3b82f6" },
       { label: "Listings", value: Number(noOfProjects) || 0, color: "#22c55e" },
       { label: "Blog Leads", value: Number(noOfBlogs) || 0, color: "#a855f7" },
-      { label: "Web Stories", value: Number(noOfWebStories) || 0, color: "#f97316" },
       { label: "Cities", value: Number(noOfCities) || 0, color: "#06b6d4" },
     ].filter((s) => s.value > 0);
 
@@ -304,7 +284,7 @@ export function LeadsOverviewCard({
         pct: Math.round((s.value / total) * 1000) / 10,
       })),
     };
-  }, [noOfEnquiries, noOfProjects, noOfBlogs, noOfWebStories, noOfCities]);
+  }, [noOfEnquiries, noOfProjects, noOfBlogs, noOfCities]);
 
   const gradient = React.useMemo(() => {
     if (!segments.items.length) return "conic-gradient(#e5e7eb 0deg 360deg)";

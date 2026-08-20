@@ -203,13 +203,6 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
-
-      // Legacy: /web-story/{slug} → /api/v1/web-story/{slug} (proxied to backend via rewrites)
-      {
-        source: "/web-story/:slug*",
-        destination: "/api/v1/web-story/:slug*",
-        permanent: true,
-      },
     ];
   },
 

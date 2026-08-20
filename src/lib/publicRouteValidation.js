@@ -11,7 +11,6 @@ export const PUBLIC_STATIC_EXACT = new Set([
   "/join-our-team",
   "/projects",
   "/blog",
-  "/web-stories",
   "/emi-calculator",
   "/market-analysis",
   "/property-rate-and-trend",
@@ -29,8 +28,6 @@ export const PUBLIC_STATIC_SEGMENTS = [
   "join-our-team",
   "projects",
   "blog",
-  "web-stories",
-  "web-story",
   "emi-calculator",
   "market-analysis",
   "property-rate-and-trend",
@@ -41,7 +38,6 @@ export const PUBLIC_STATIC_SEGMENTS = [
   "dashboard",
   "city",
   "builder",
-  "stories",
   "detail",
 ];
 
@@ -52,8 +48,6 @@ export const PUBLIC_KNOWN_PREFIXES = new Set([
   "blog",
   "projects",
   "properties",
-  "stories",
-  "web-story",
   "property-rate-and-trend",
   "detail",
   "landing-pages",

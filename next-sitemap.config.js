@@ -53,10 +53,6 @@ function resolveSitemapApiBase() {
   return "https://apis.mypropertyfact.in/api/v1/";
 }
 
-function webStoryCategorySlug(item) {
-  return toPathSlug(item?.categoryName || item?.slugURL || item?.slugUrl);
-}
-
 function blogSlug(item) {
   return toPathSlug(item?.slugUrl || item?.slugURL || "");
 }
@@ -443,7 +439,6 @@ const STATIC_PUBLIC_PAGES = [
   { loc: "/join-our-team",           priority: 0.68, changefreq: "weekly"  },
   { loc: "/projects",                priority: 0.68, changefreq: "weekly"  },
   { loc: "/blog",                    priority: 0.68, changefreq: "weekly"  },
-  { loc: "/web-stories",             priority: 0.68, changefreq: "weekly"  },
   { loc: "/emi-calculator",          priority: 0.68, changefreq: "monthly" },
   { loc: "/market-analysis",         priority: 0.68, changefreq: "weekly"  },
   { loc: "/property-rate-and-trend", priority: 0.68, changefreq: "weekly"  },
@@ -466,7 +461,6 @@ const SITEMAP_BLOCKED_EXACT = new Set([
   "/components/home/dream-project",
   "/components/home/insight",
   "/components/home/social-feed",
-  "/components/home/new-views",
   "/components/home/video-slider",
   "/components/home",
 ]);
@@ -494,7 +488,6 @@ function shouldExcludePathFromSitemap(path) {
   const normalized = path.startsWith("/") ? path : `/${path}`;
   const withoutTrailingSlash =
     normalized.length > 1 ? normalized.replace(/\/+$/, "") : normalized;
-  if (withoutTrailingSlash.startsWith("/api/v1/web-story/")) return false;
   if (SITEMAP_BLOCKED_EXACT.has(withoutTrailingSlash)) return true;
   if (
     pathHasSegment(withoutTrailingSlash, "portal") ||
@@ -581,8 +574,6 @@ module.exports = {
       "/builder/[buildername]",
       "/blog/[blogpage]",
       "/city/[cityname]",
-      "/stories/[web-story]",
-      "/web-story/[slug]",
       "/properties/[slug]",
       "/property-rate-and-trend/[city]",
     ];
@@ -640,21 +631,7 @@ module.exports = {
       }
     } catch { /* skip */ }
 
-    // 4. Web story categories — /api/v1/web-story/{slug} (public AMP story URLs)
-    try {
-      const res = await fetch(`${BASE}web-story-category/get-all`);
-      if (res.ok) {
-        for (const item of coerceArray(await res.json())) {
-          const slug = webStoryCategorySlug(item);
-          if (!slug || !Array.isArray(item?.webStories) || item.webStories.length === 0) {
-            continue;
-          }
-          pushLoc(`/api/v1/web-story/${slug}`);
-        }
-      }
-    } catch { /* skip */ }
-
-    // 5. Builders → /builder/<slug>
+    // 4. Builders → /builder/<slug>
     try {
       const res = await fetch(`${BASE}builder/get-all`);
       if (res.ok) {

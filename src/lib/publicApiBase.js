@@ -2,8 +2,7 @@
  * Backend API origin for browser and Edge middleware.
  * Must be set at build time as NEXT_PUBLIC_API_URL (e.g. https://apis.mypropertyfact.in/api/v1/)
  *
- * Legacy: some deployments used https://apis.mypropertyfact.in/ (host root), which produced
- * wrong URLs like .../web-story/{slug} instead of .../api/v1/web-story/{slug}.
+ * Legacy: some deployments used https://apis.mypropertyfact.in/ (host root) without /api/v1/.
  */
 function normalizePublicApiUrl(raw) {
   if (raw == null || String(raw).trim() === "") {
@@ -23,20 +22,4 @@ export function getPublicApiBase() {
     return "";
   }
   return normalizePublicApiUrl(raw);
-}
-
-/** Public AMP/web-story document URL on the API host (includes /api/v1/). */
-export function getWebStoryApiUrl(categorySlug) {
-  const slug = String(categorySlug || "")
-    .trim()
-    .replace(/^\/+|\/+$/g, "");
-  return `${getPublicApiBase()}web-story/${slug}`;
-}
-
-/** Legacy path on the UI host; middleware redirects this to /api/v1/web-story/{slug}. */
-export function getLegacyWebStoryPath(categorySlug) {
-  const slug = String(categorySlug || "")
-    .trim()
-    .replace(/^\/+|\/+$/g, "");
-  return `/web-story/${slug}`;
 }

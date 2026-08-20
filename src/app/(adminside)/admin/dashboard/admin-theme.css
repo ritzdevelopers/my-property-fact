@@ -2095,9 +2095,7 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-metric--slate .a
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini,
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-cities,
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-builders,
-html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-amenities,
-html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-stories,
-html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-story-categories {
+html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dash-mini--mini-amenities {
   background: #000000 !important;
   border-color: #333333 !important;
   color: #ffffff !important;

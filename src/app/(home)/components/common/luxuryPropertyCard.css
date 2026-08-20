@@ -154,6 +154,13 @@ a.mpf-lux-card__frame:focus-visible {
   color: var(--lux-emerald);
 }
 
+@media (max-width: 767px) {
+  .mpf-lux-card .mpf-listing-slider__nav {
+    width: 36px;
+    height: 36px;
+  }
+}
+
 .mpf-lux-card .mpf-listing-content,
 .mpf-lux-card .mpf-listing-actions {
   display: none;
@@ -883,6 +890,16 @@ a.mpf-lux-card__frame:focus-visible {
     --lux-radius: 22px;
   }
 
+  .mpf-lux-card__title-row,
+  .mpf-lux-card--poster .home-project-card__title-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .mpf-lux-card--poster .home-project-card__title {
+    flex: 1 1 100%;
+  }
+
   .mpf-lux-price {
     transform: none !important;
     opacity: 1 !important;
@@ -1224,8 +1241,8 @@ a.mpf-lux-card__frame:focus-visible {
 @media (max-width: 767px) {
   .mpf-listing-poster-grid .mpf-listing-poster-card,
   .mpf-listing-poster-grid .home-project-card--poster {
-    min-height: 228px;
-    --mpf-poster-overlay-reserve: clamp(118px, 44%, 150px);
+    min-height: 292px;
+    --mpf-poster-overlay-reserve: clamp(140px, 48%, 176px);
     border-radius: 16px !important;
   }
 

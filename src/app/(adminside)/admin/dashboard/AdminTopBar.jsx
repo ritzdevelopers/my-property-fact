@@ -35,8 +35,6 @@ const NAV_INDEX = [
   { label: "Manage Banners", href: "/admin/dashboard/manage-banners", tags: "banner home page slider" },
   { label: "Manage Blogs", href: "/admin/dashboard/manage-blogs", tags: "blog article post" },
   { label: "Blog Categories", href: "/admin/dashboard/manage-categories", tags: "blog category" },
-  { label: "Web Story", href: "/admin/dashboard/web-story", tags: "web story reel short" },
-  { label: "Web Story Category", href: "/admin/dashboard/web-story-category", tags: "story category" },
   { label: "Insight Management", href: "/admin/dashboard/manage-insight-headers", tags: "insight header" },
   { label: "Insight Category", href: "/admin/dashboard/insight-category", tags: "insight category" },
   { label: "Top Developers", href: "/admin/dashboard/top-developers", tags: "top developer featured" },

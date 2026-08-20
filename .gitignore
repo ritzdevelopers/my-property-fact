@@ -43,7 +43,6 @@ next-env.d.ts
 public/properties
 public/blog
 public/amenity
-public/web-story
 # public/icon
 # /public/** 
 public/location-benefit

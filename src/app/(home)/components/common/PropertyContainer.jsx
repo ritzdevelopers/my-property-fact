@@ -244,6 +244,7 @@ export default function PropertyContainer({
               loading={imagePriority ? "eager" : "lazy"}
               fetchPriority="auto"
               decoding="async"
+              draggable={false}
               onError={() => setImageError(true)}
             />
           </div>

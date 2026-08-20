@@ -133,17 +133,6 @@
   font-size: 10.5px;
 }
 
-/* westory css starts*/
-.webstory-container {
-  max-width: 500px;
-  height: 600px;
-  object-fit: cover;
-  border: 1px solid #fff;
-  overflow: hidden;
-}
-
-/* westory css ends*/
-
 /* Common banner heading text style starts */
 .projects-heading {
   color: #ffffff;

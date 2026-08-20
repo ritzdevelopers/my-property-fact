@@ -19,11 +19,6 @@ export default function Footer({ cityList = [], projectTypes = [] }) {
       name: "Blog",
       slugUrl: "/blog",
     },
-    {
-      id: 3,
-      name: "Web Stories",
-      slugUrl: "/web-stories",
-    },
   ];
 
   //Defining company array

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -72,8 +72,35 @@ function ProjectCardSlider({
   onImageError,
   imageClassName = "mpf-listing-slider__img",
 }) {
+  const swipe = useRef({ x: 0, y: 0, swiped: false });
+
+  const onTouchStart = (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    swipe.current = { x: touch.clientX, y: touch.clientY, swiped: false };
+  };
+
+  const onTouchEnd = (event) => {
+    if (!hasMultipleSlides) return;
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    const dx = touch.clientX - swipe.current.x;
+    const dy = touch.clientY - swipe.current.y;
+    if (Math.abs(dx) < 36 || Math.abs(dx) < Math.abs(dy)) return;
+    swipe.current.swiped = true;
+    event.preventDefault();
+    event.stopPropagation();
+    if (dx < 0) onNext(event);
+    else onPrev(event);
+  };
+
   return (
-    <div className="mpf-listing-slider" aria-label={`${projectName} photos`}>
+    <div
+      className="mpf-listing-slider"
+      aria-label={`${projectName} photos`}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
+    >
       {slides.map((src, index) => (
         <img
           key={`${src}-${index}`}
@@ -84,6 +111,7 @@ function ProjectCardSlider({
           }`}
           loading={imagePriority && index === 0 ? "eager" : "lazy"}
           decoding="async"
+          draggable={false}
           fetchPriority={imagePriority && index === 0 ? "high" : "low"}
           onError={() => onImageError(index)}
         />
@@ -336,10 +364,16 @@ export default function ProjectCard({
     return () => controller.abort();
   }, [slug, project, isPoster]);
 
+  const swipeLockRef = useRef(false);
+
   const goPrev = useCallback(
     (e) => {
       e.preventDefault();
       e.stopPropagation();
+      swipeLockRef.current = true;
+      window.setTimeout(() => {
+        swipeLockRef.current = false;
+      }, 350);
       if (slides.length <= 1) return;
       setActiveSlide((index) => (index === 0 ? slides.length - 1 : index - 1));
     },
@@ -350,6 +384,10 @@ export default function ProjectCard({
     (e) => {
       e.preventDefault();
       e.stopPropagation();
+      swipeLockRef.current = true;
+      window.setTimeout(() => {
+        swipeLockRef.current = false;
+      }, 350);
       if (slides.length <= 1) return;
       setActiveSlide((index) => (index === slides.length - 1 ? 0 : index + 1));
     },
@@ -409,7 +447,14 @@ export default function ProjectCard({
       <Link
         href={`/${project.slugURL}`}
         className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card"
-        onClick={persistListingReturn}
+        onClick={(event) => {
+          if (swipeLockRef.current) {
+            event.preventDefault();
+            event.stopPropagation();
+            return;
+          }
+          persistListingReturn();
+        }}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`View details about ${projectTitle}`}
@@ -454,6 +499,7 @@ export default function ProjectCard({
       className="mpf-listing-card mpf-lux-card"
       data-project-slug={slug || undefined}
       onClick={(event) => {
+        if (swipeLockRef.current) return;
         if (!slug || event.target.closest("a, button")) return;
         persistListingReturn();
         window.open(`/${slug}`, "_blank", "noopener,noreferrer");

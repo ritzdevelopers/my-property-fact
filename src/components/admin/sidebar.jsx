@@ -34,7 +34,6 @@ import {
   MapPin,
   Mail,
   PenSquare,
-  BookOpen,
   LogOut,
   ChevronDown,
   Plus,
@@ -192,16 +191,6 @@ const navGroups = [
     children: [
       { id: "manage-blogs", label: "Manage Blogs", href: "/admin/dashboard/manage-blogs" },
       { id: "blog-cats", label: "Categories", href: "/admin/dashboard/manage-categories" },
-    ],
-  },
-  {
-    id: "webstories",
-    label: "Web Stories",
-    icon: BookOpen,
-    permission: "MANAGE_WEB_STORIES",
-    children: [
-      { id: "ws-category", label: "Categories", href: "/admin/dashboard/web-story-category" },
-      { id: "ws-stories", label: "Stories", href: "/admin/dashboard/web-story" },
     ],
   },
 ];

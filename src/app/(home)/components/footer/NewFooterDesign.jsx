@@ -163,9 +163,6 @@ export default function NewFooterDesign({
                       <Link href="/blog" className="footer-link" title="My Property Fact Blog">Blog</Link>
                     </li>
                     <li>
-                      <Link href="/web-stories" className="footer-link" title="My Property Fact Web Stories">Web Stories</Link>
-                    </li>
-                    <li>
                       <Link href="/contact-us" className="footer-link" title="Contact My Property Fact">Contact Us</Link>
                     </li>
                     <li>

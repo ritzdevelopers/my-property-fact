@@ -2039,9 +2039,39 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 @media (max-width: 768px) {
+  .mpf-home-r26 .home-featured-filter-buttons {
+    margin-bottom: 14px !important;
+  }
+
+  .mpf-home-r26 .home-featured-section-kicker {
+    margin-top: 4px;
+    margin-bottom: 16px;
+    min-height: 28px;
+  }
+
+  .mpf-home-r26 .home-featured-section-kicker__label {
+    font-size: 0.7rem;
+  }
+
+  .mpf-home-r26 .home-featured-section-kicker .projects-view-all-btn {
+    font-size: 0.88rem !important;
+    padding: 6px 2px 6px 12px !important;
+  }
+
+  .mpf-home-r26 .home-featured-section-title-row {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .mpf-home-r26 .home-featured-section-title-row .home-featured-section-title {
+    font-size: 1.22rem !important;
+    line-height: 1.32 !important;
+    padding-right: 4px;
+  }
+
   .mpf-home-r26 .home-project-card,
   .mpf-home-r26 .home-project-card--poster {
-    min-height: 228px;
+    min-height: 292px;
     border-radius: 16px !important;
   }
 
@@ -2055,6 +2085,15 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
   .mpf-home-r26 .home-project-card__overlay {
     border-radius: 0 0 16px 16px !important;
+    gap: 6px;
+    padding: 18px 14px 16px;
+    background: linear-gradient(
+      180deg,
+      rgba(6, 10, 14, 0) 0%,
+      rgba(6, 10, 14, 0.28) 28%,
+      rgba(6, 10, 14, 0.78) 78%,
+      rgba(4, 8, 12, 0.92) 100%
+    );
   }
 
   .mpf-home-r26 .home-project-card__ribbon-wrap {
@@ -2068,8 +2107,45 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     font-size: 0.72rem;
   }
 
+  .mpf-home-r26 .home-project-card__title-row {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 6px 8px;
+  }
+
   .mpf-home-r26 .home-project-card__title {
-    font-size: 0.92rem !important;
+    flex: 1 1 100%;
+    font-size: 1.02rem !important;
+    line-height: 1.3 !important;
+    -webkit-line-clamp: 2;
+  }
+
+  .mpf-home-r26 .home-project-card .mpf-type-tag--lux {
+    font-size: 9.5px;
+    padding: 4px 8px 4px 6px;
+  }
+
+  .mpf-home-r26 .home-project-card__meta,
+  .mpf-home-r26 .home-project-card__location {
+    font-size: 0.8rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .mpf-home-r26 .home-project-card__location {
+    white-space: normal;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-home-r26 .mpf-lux-card--poster .mpf-lux-card__bar {
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+
+  .mpf-home-r26 .mpf-lux-card--poster .mpf-lux-card__action span {
+    display: inline;
   }
 
   .mpf-home-r26 .home-projects-preview {
@@ -2140,6 +2216,16 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     padding-right: 10px !important;
   }
 
+  .mpf-home-r26 .featured-swipe-rail__viewport {
+    margin-inline: calc(var(--rail-gutter, 12px) * -1);
+    padding-inline: var(--rail-gutter, 12px);
+  }
+
+  .mpf-home-r26 .featured-swipe-rail__slide {
+    flex: 0 0 86%;
+    max-width: 86%;
+  }
+
   .mpf-home-r26 .home-projects-preview__nav-btn {
     width: 36px;
     height: 36px;
@@ -2161,21 +2247,21 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
   .mpf-home-r26 .home-project-card,
   .mpf-home-r26 .home-project-card--poster {
-    min-height: 244px;
+    min-height: 310px;
   }
 
   .mpf-home-r26 .home-project-card__overlay {
-    gap: 5px;
-    padding: 12px 12px 13px;
+    gap: 7px;
+    padding: 20px 14px 16px;
   }
 
   .mpf-home-r26 .home-project-card__title {
-    font-size: 0.95rem !important;
+    font-size: 1.05rem !important;
   }
 
   .mpf-home-r26 .home-project-card__meta,
   .mpf-home-r26 .home-project-card__location {
-    font-size: 0.75rem !important;
+    font-size: 0.82rem !important;
   }
 
   .mpf-home-r26 .home-project-card__ribbon-wrap {
@@ -2330,18 +2416,77 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 .mpf-home-r26 .home-featured-section .home-featured-section-title {
   position: relative;
-  padding-top: 1.15rem;
+  padding-top: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
 }
 
 .mpf-home-r26 .home-featured-section .home-featured-section-title::before {
-  content: "EXPLORE TOP PROJECTS";
-  position: absolute;
-  top: 0;
-  left: 0;
+  content: none;
+}
+
+.mpf-home-r26 .home-featured-section-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 6px;
+  margin-bottom: 14px;
+}
+
+.mpf-home-r26 .home-featured-section-kicker__label {
   font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--mpf-green);
+  line-height: 1.2;
+}
+
+.mpf-home-r26 .home-featured-section-kicker .projects-view-all-btn {
+  flex-shrink: 0;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 4px 0 4px 10px !important;
+  margin: 0 !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: var(--mpf-green) !important;
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.mpf-home-r26 .home-featured-section-kicker .projects-view-all-btn:hover,
+.mpf-home-r26 .home-featured-section-kicker .projects-view-all-btn:focus-visible,
+.mpf-home-r26 .home-featured-section-kicker .projects-view-all-btn:active {
+  background: none !important;
+  color: var(--mpf-green-deep) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  text-decoration: underline;
+}
+
+.mpf-home-r26 .home-featured-section-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.mpf-home-r26 .home-featured-section-title-row .home-featured-section-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mpf-home-r26 .home-featured-section-title-row .featured-swipe-rail__nav {
+  display: inline-flex;
+  flex-shrink: 0;
 }
 
 /* Premier / featured rails — same card size as Popular Projects */
@@ -2572,7 +2717,6 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 /* ---------- Stories / blog / social / testimonials ---------- */
 .mpf-home-r26 .blog-card,
 .mpf-home-r26 .news-card,
-.mpf-home-r26 .web-story-card,
 .mpf-home-r26 .story-card {
   box-shadow: 0 4px 16px rgba(16, 18, 22, 0.05) !important;
   border-radius: 14px !important;

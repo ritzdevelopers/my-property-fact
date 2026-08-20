@@ -584,34 +584,6 @@ export const fetchAllBenefits = cache(async () => {
   }
 });
 
-//Fetch all webstories from server
-export const fetchAllStories = cache(async () => {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  if (!apiUrl) {
-    console.error("NEXT_PUBLIC_API_URL is not defined");
-    return [];
-  }
-  try {
-    const stories = await fetch(`${apiUrl}web-story-category/get-all`, {
-      next: { revalidate: 60 },
-    });
-    if (!stories.ok) {
-      console.error("Failed to fetch stories:", stories.status);
-      return [];
-    }
-    const contentType = stories.headers.get("content-type") || "";
-    if (!contentType.includes("application/json")) {
-      console.error("Stories API returned non-JSON:", contentType);
-      return [];
-    }
-    const storiesData = await stories.json();
-    return Array.isArray(storiesData) ? storiesData.reverse() : [];
-  } catch (error) {
-    console.error("Error fetching stories:", error);
-    return [];
-  }
-});
-
 // Getting top project (weekly rotation from all projects)
 export const getWeeklyProject = (projects) => {
   const residentialProjects = projects.filter(

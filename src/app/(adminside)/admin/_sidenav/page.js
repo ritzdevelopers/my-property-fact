@@ -24,7 +24,6 @@ import {
   faMapLocationDot,
   faEnvelopeOpenText,
   faPenToSquare,
-  faBookOpen,
   faRightFromBracket,
   faHouse,
   faImages,
@@ -46,7 +45,6 @@ export default function SideNav({ onLinkClick }) {
       return pathname === "/admin/dashboard";
     }
     // Use exact match or ensure the next character is '/' or end of string
-    // This prevents /web-story from matching /web-story-category
     return (
       pathname === path ||
       (pathname.startsWith(path) &&
@@ -98,10 +96,6 @@ export default function SideNav({ onLinkClick }) {
       dropdown4: [
         "/admin/dashboard/manage-blogs",
         "/admin/dashboard/manage-categories",
-      ],
-      dropdown5: [
-        "/admin/dashboard/web-story-category",
-        "/admin/dashboard/web-story",
       ],
       dropdown6: [
         "/admin/dashboard/manage-home-banners",
@@ -925,60 +919,6 @@ export default function SideNav({ onLinkClick }) {
                   onClick={handleLinkClick}
                 >
                   Manage Blog Categories
-                </Link>
-              </li>
-            </ul>
-          </li>
-        )}
-        {hasPermission(ADMIN_PERMISSIONS.MANAGE_WEB_STORIES) && (
-          <li
-            className={
-              activeDropdown === "dropdown5" ||
-                isDropdownActive([
-                  "/admin/dashboard/web-story-category",
-                  "/admin/dashboard/web-story",
-                ])
-                ? "active"
-                : ""
-            }
-          >
-            <button
-              type="button"
-              onClick={(e) => toggleDropdown(e, "dropdown5")}
-              aria-expanded={activeDropdown === "dropdown5"}
-              className="dropdown-toggle"
-            >
-              <FontAwesomeIcon icon={faBookOpen} className="admin-nav-ico" />
-              <span className="admin-nav-label">Web story management</span>
-            </button>
-            <ul
-              className={`collapse list-unstyled ms-4 ${activeDropdown === "dropdown5" ||
-                isDropdownActive([
-                  "/admin/dashboard/web-story-category",
-                  "/admin/dashboard/web-story",
-                ])
-                ? "show"
-                : ""
-                }`}
-            >
-              <li
-                className={
-                  isActive("/admin/dashboard/web-story-category") ? "active" : ""
-                }
-              >
-                <Link
-                  title="Web Story category"
-                  href="/admin/dashboard/web-story-category"
-                  onClick={handleLinkClick}
-                >
-                  Web Story category
-                </Link>
-              </li>
-              <li
-                className={isActive("/admin/dashboard/web-story") ? "active" : ""}
-              >
-                <Link title="Web Story" href="/admin/dashboard/web-story" onClick={handleLinkClick}>
-                  Web Story
                 </Link>
               </li>
             </ul>

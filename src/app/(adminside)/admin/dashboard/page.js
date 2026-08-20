@@ -40,8 +40,6 @@ const fetchDashboardStats = async () => {
       cityCount: typeof data.cityCount === "number" ? data.cityCount : 0,
       builderCount: typeof data.builderCount === "number" ? data.builderCount : 0,
       amenityCount: typeof data.amenityCount === "number" ? data.amenityCount : 0,
-      webStoryCategoryCount: typeof data.webStoryCategoryCount === "number" ? data.webStoryCategoryCount : 0,
-      webStoryCount: typeof data.webStoryCount === "number" ? data.webStoryCount : 0,
       projectTypeCount: typeof data.projectTypeCount === "number" ? data.projectTypeCount : 0,
     };
   } catch {
@@ -60,8 +58,6 @@ export default async function DashboardPage() {
   const noOfCities = dashboardStats.cityCount || 0;
   const noOfBuilders = dashboardStats.builderCount || 0;
   const noOfAmenities = dashboardStats.amenityCount || 0;
-  const noOfWebStoryCategories = dashboardStats.webStoryCategoryCount || 0;
-  const noOfWebStories = dashboardStats.webStoryCount || 0;
   const noOfProjectTypes = dashboardStats.projectTypeCount || 0;
   
   return <Dashboard 
@@ -73,8 +69,6 @@ export default async function DashboardPage() {
     noOfCities={noOfCities}
     noOfBuilders={noOfBuilders}
     noOfAmenities={noOfAmenities}
-    noOfWebStoryCategories={noOfWebStoryCategories}
-    noOfWebStories={noOfWebStories}
     noOfProjectTypes={noOfProjectTypes}
   />
 }

@@ -586,7 +586,11 @@
   }
 
   #mpf-home-hero.mpf-hero--i80 .mpf-hero-shell {
-    padding: calc(72px + var(--mpf-i80-marquee-h, 34px)) 14px 12px;
+    min-height: min(100svh, 780px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: calc(72px + var(--mpf-i80-marquee-h, 34px)) 14px 28px;
   }
 
   #mpf-home-hero.mpf-hero--i80 .home-banner.hero-art-direction picture img.hero-banner-image,
@@ -624,7 +628,9 @@
   }
 
   #mpf-home-hero.mpf-hero--i80 .mpf-value-strip {
-    padding: 8px 12px 20px;
+    margin-top: auto;
+    padding: 12px 12px 8px;
+    transform: none;
   }
 
   #mpf-home-hero.mpf-hero--i80 .mpf-value-strip__item {

@@ -36,7 +36,7 @@ const FEATURE_SLIDES = [
   {
     icon: FileText,
     title: "Publish with confidence",
-    text: "Preview blogs and web stories before they go live on My Property Fact.",
+    text: "Preview blogs before they go live on My Property Fact.",
   },
 ];
 

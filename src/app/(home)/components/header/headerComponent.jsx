@@ -970,10 +970,26 @@ const HeaderComponent = () => {
               </button>
             )}
           </nav>
-          <div className="menuBtn d-flex d-lg-none " onClick={openMenu}>
-            <span id="menuLine1"></span>
-            <span id="menuLine2"></span>
-            <span id="menuLine3"></span>
+          <div className="header-mobile-actions d-flex d-lg-none align-items-center">
+            <div className="header-mobile-cta-wrap">
+              <button
+                type="button"
+                className="header-post-property-cta header-post-property-cta--mobile"
+                onClick={openBrokerLoginModal}
+                title="Post your property for free"
+              >
+                <span className="header-post-property-cta__text">
+                  <span className="header-post-property-cta__text--full">Post Your Property</span>
+                  <span className="header-post-property-cta__text--short">Post Property</span>
+                </span>
+                <span className="header-post-property-cta__badge">FREE</span>
+              </button>
+            </div>
+            <div className="menuBtn d-flex" onClick={openMenu}>
+              <span id="menuLine1"></span>
+              <span id="menuLine2"></span>
+              <span id="menuLine3"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -1355,28 +1371,6 @@ const HeaderComponent = () => {
                     Contact us
                   </Link>
                 </li>
-                <li>
-                  <button
-                    type="button"
-                    className="mobile-post-property-cta"
-                    onClick={() => {
-                      const menu = document.getElementById("mbdiv");
-                      if (menu?.classList.contains("active")) {
-                        openMenu();
-                      }
-                      openBrokerLoginModal();
-                    }}
-                    title="Post your property for free"
-                  >
-                    Post Your Property <span className="mobile-post-property-cta__free">FREE</span>
-                  </button>
-                </li>
-                {/* <li>
-                  <div className="bg-white rounded rounded-3 p-2 cursor-pointer hover-effect"
-                  onClick={openSignUpModal}>
-                    <p className="text-dark m-0 p-0">Post Property</p>
-                  </div>
-                </li> */}
               </ul>
             </div>
             <div className="socialMediaLink">

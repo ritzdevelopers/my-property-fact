@@ -298,9 +298,7 @@
   flex: 0 0 122.5px;
 }
 
-.admin-dash-mini--mini-amenities,
-.admin-dash-mini--mini-stories,
-.admin-dash-mini--mini-story-categories {
+.admin-dash-mini--mini-amenities {
   width: 261px;
   height: 97px;
   padding: 16px;
@@ -316,9 +314,7 @@
     max-width: 100%;
   }
 
-  .admin-dash-mini--mini-amenities,
-  .admin-dash-mini--mini-stories,
-  .admin-dash-mini--mini-story-categories {
+  .admin-dash-mini--mini-amenities {
     flex: 0 0 auto;
     width: min(261px, 88vw);
   }

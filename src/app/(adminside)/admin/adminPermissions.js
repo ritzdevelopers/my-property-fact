@@ -31,7 +31,6 @@ export const ADMIN_PERMISSIONS = {
   MANAGE_PROJECTS: "MANAGE_PROJECTS",
   MANAGE_INSIGHTS: "MANAGE_INSIGHTS",
   MANAGE_BLOGS: "MANAGE_BLOGS",
-  MANAGE_WEB_STORIES: "MANAGE_WEB_STORIES",
   MANAGE_AMENITIES: "MANAGE_AMENITIES",
   MANAGE_FEATURES: "MANAGE_FEATURES",
   MANAGE_NEARBY_BENEFITS: "MANAGE_NEARBY_BENEFITS",
@@ -108,12 +107,6 @@ export const ADMIN_PERMISSION_DEFINITIONS = [
     key: ADMIN_PERMISSIONS.MANAGE_BLOGS,
     label: "Blog management",
     description: "Blogs and blog categories",
-    pro: false,
-  },
-  {
-    key: ADMIN_PERMISSIONS.MANAGE_WEB_STORIES,
-    label: "Web story management",
-    description: "Web stories and categories",
     pro: false,
   },
   {
@@ -280,8 +273,6 @@ export function canAccessAdminPath(roles, permissions, pathname) {
       "/admin/dashboard/property-approvals",
       ADMIN_PERMISSIONS.MANAGE_PROPERTY_APPROVALS,
     ],
-    ["/admin/dashboard/web-story-category", ADMIN_PERMISSIONS.MANAGE_WEB_STORIES],
-    ["/admin/dashboard/web-story", ADMIN_PERMISSIONS.MANAGE_WEB_STORIES],
   ];
 
   const sorted = [...rules].sort((a, b) => b[0].length - a[0].length);

@@ -5,7 +5,7 @@ import PropertyContainer from "@/app/(home)/components/common/PropertyContainer"
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import {
   ProjectListingPaginationControls,
-  useProjectListingPagination,
+  useProjectListingPagination, 
 } from "@/app/_global_components/projectListingPagination";
 import {
   cityNameMatchesFilter,

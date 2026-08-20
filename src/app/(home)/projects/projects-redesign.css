@@ -2312,11 +2312,12 @@
   }
 
   .mpf-listing-image {
-    order: 0;
+    order: -1;
     width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
-    flex-shrink: 0;
+    height: 220px;
+    min-height: 200px;
+    aspect-ratio: auto;
+    flex: 0 0 auto;
     border-radius: 0;
   }
 
@@ -2602,11 +2603,12 @@
   }
 
   .mpf-listing-image {
-    order: 0;
+    order: -1;
     width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
-    flex-shrink: 0;
+    height: 220px;
+    min-height: 200px;
+    aspect-ratio: auto;
+    flex: 0 0 auto;
     border-radius: 0;
   }
 

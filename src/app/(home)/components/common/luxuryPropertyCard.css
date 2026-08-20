@@ -862,18 +862,22 @@ a.mpf-lux-card__frame:focus-visible {
   }
 
   .mpf-listing-card.mpf-lux-card .mpf-lux-card__frame {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-direction: column;
+    grid-template-columns: none;
+    grid-template-rows: none;
     gap: 0;
     height: auto;
     min-height: 0;
   }
 
   .mpf-listing-card.mpf-lux-card .mpf-listing-image {
-    order: 0;
+    order: -1;
     width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 10;
+    flex: 0 0 auto;
+    height: 220px;
+    min-height: 200px;
+    aspect-ratio: auto;
     border-radius: 0;
     box-shadow: none;
   }

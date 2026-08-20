@@ -462,7 +462,7 @@ export default function ProjectCard({
     return (
       <Link
         href={`/${project.slugURL}`}
-        className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card"
+        className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card text-decoration-none"
         onClick={(event) => {
           if (swipeLockRef.current) {
             event.preventDefault();
@@ -514,7 +514,7 @@ export default function ProjectCard({
   return (
     <Link
       href={slug ? `/${slug}` : "#"}
-      className="mpf-listing-card mpf-lux-card"
+      className="mpf-listing-card mpf-lux-card text-decoration-none"
       data-project-slug={slug || undefined}
       title={projectLinkTitle}
       target="_blank"

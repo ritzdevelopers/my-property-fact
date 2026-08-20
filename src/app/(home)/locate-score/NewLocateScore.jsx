@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
+import Link from "next/link";
 import styles from "./NewLocateScore.module.css";
 import axios from "axios";
 import { getDisplayCityList } from "@/app/_global_components/cityAliasUtils";
@@ -291,7 +292,15 @@ export default function NewLocateScore() {
             LOCATE Score Analysis
           </h2>
           <p className={styles.subheading}>
-            The LOCATE Score is My Property Fact&apos;s proprietary 1000-point
+            The LOCATE Score is{" "}
+            <Link
+              href="/"
+              className={styles.brandLink}
+              title="My Property Fact Home"
+            >
+              My Property Fact&apos;s
+            </Link>{" "}
+            proprietary 1000-point
             framework that evaluates any location using six critical factors. It
             helps buyers and investors compare cities and micro-markets
             objectively, understand long-term growth potential, and make

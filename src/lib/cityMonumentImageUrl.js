@@ -63,6 +63,37 @@ function titleFromHref(href) {
     .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
+function stripInlineColorFromAttrs(attrs) {
+  return String(attrs)
+    .replace(/\sstyle\s*=\s*(["'])([\s\S]*?)\1/gi, (_, quote, style) => {
+      const cleaned = String(style)
+        .split(";")
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .filter(
+          (part) =>
+            !/^color\s*:/i.test(part) &&
+            !/^text-decoration-color\s*:/i.test(part),
+        )
+        .join("; ");
+
+      return cleaned ? ` style=${quote}${cleaned}${quote}` : "";
+    })
+    .replace(/\scolor\s*=\s*(["']).*?\1/gi, "");
+}
+
+/** Jodit/CMS HTML often paints each <a> a different inline color. */
+function normalizeDescriptionLinkColors(html) {
+  return html.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (_, attrs, inner) => {
+    const nextInner = inner.replace(
+      /<(span|font|strong|b|em|i|u|mark)\b([^>]*)>/gi,
+      (tagMatch, tag, tagAttrs) => `<${tag}${stripInlineColorFromAttrs(tagAttrs)}>`,
+    );
+
+    return `<a${stripInlineColorFromAttrs(attrs)}>${nextInner}</a>`;
+  });
+}
+
 /** CMS links ship without a title attribute, so one is derived from the text. */
 function addLinkTitles(html) {
   return html.replace(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi, (match, attrs, inner) => {
@@ -108,6 +139,7 @@ export function sanitizeCityDescriptionHtml(html, cityName = "") {
     "",
   );
   out = stripLeadingTitleParagraph(out.trim());
+  out = normalizeDescriptionLinkColors(out);
   out = addLinkTitles(out);
 
   return out.trim();

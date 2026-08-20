@@ -31,6 +31,17 @@
   max-width: 72ch;
 }
 
+.brandLink {
+  color: #0d5834;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.brandLink:hover {
+  color: #0c2e23;
+}
+
 .factors {
   display: flex;
   flex-wrap: wrap;

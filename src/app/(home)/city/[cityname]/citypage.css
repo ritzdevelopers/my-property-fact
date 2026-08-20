@@ -636,10 +636,22 @@
   border: 1px solid #e5e7eb;
 }
 
-.city-guide__description a {
-  color: #0d5834;
+.city-guide__description a,
+.city-guide__description a:link,
+.city-guide__description a:visited,
+.city-guide__description a:hover,
+.city-guide__description a:active {
+  color: #0d5834 !important;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.city-guide__description a * {
+  color: inherit !important;
+}
+
+.city-guide__description a:hover {
+  color: #0c2e23 !important;
 }
 
 .city-guide__cta {

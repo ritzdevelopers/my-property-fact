@@ -359,7 +359,18 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [suggestionsReady, setSuggestionsReady] = useState(true);
   const [heroCityId, setHeroCityId] = useState("");
   const [heroBudget, setHeroBudget] = useState("");
+  const [heroSelectMenu, setHeroSelectMenu] = useState(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
+  const openHeroSelectMenu = (menu) => {
+    setHeroSelectMenu(menu);
+    setCategoryOpen(false);
+    setDropdownOpen(false);
+  };
+
+  const closeHeroSelectMenu = (menu) => {
+    setHeroSelectMenu((current) => (current === menu ? null : current));
+  };
 
   const router = useRouter();
   const searchWrapRef = useRef(null);
@@ -451,6 +462,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       if (cardRef.current && !cardRef.current.contains(e.target)) {
         setDropdownOpen(false);
         setCategoryOpen(false);
+        setHeroSelectMenu(null);
       }
     };
     document.addEventListener("mousedown", onDocClick);
@@ -638,10 +650,23 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     }
   };
 
-  const togglePropertyFilter = (key) => {
-    setSelectedPropertyKeys((prev) =>
-      prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key],
-    );
+  const allPropertyTypeKeys = activeFilterOptions.map((option) => option.key);
+  const allPropertyTypesSelected =
+    allPropertyTypeKeys.length > 0 &&
+    allPropertyTypeKeys.every((key) => selectedPropertyKeys.includes(key));
+
+  const toggleSelectAllPropertyTypes = () => {
+    setSelectedPropertyKeys(allPropertyTypesSelected ? [] : allPropertyTypeKeys);
+  };
+
+  const handlePropertyTypeSelect = (key) => {
+    const isOnlySelected = selectedPropertyKeys.length === 1 && selectedPropertyKeys[0] === key;
+    if (isOnlySelected) {
+      setSelectedPropertyKeys([]);
+      return;
+    }
+    setSelectedPropertyKeys([key]);
+    setCategoryOpen(false);
   };
 
   const clearPropertyFilters = () => {
@@ -663,45 +688,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   };
 
   const handleSuggestionSelect = (suggestion) => {
+    const label = String(suggestion?.label || "").trim();
     setDropdownOpen(false);
-    setMobileSearchOpen(false);
-    const label = suggestion.label;
+    setSearchInput(label);
+    setDebouncedSearch(label);
 
-    if (suggestion.kind === "intent") {
-      const parsed = suggestion.parsed || {};
-      const tab = resolveNavigationQuickTab({ activeTab, parsed });
-      navigateToProjects({
-        propertyTypeId: parsed.propertyTypeId || findTypeIdForTab(tab, effectiveProjectTypes) || "",
-        cityId: parsed.cityId || "",
-        budget: parsed.budget || "",
-        bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
-        configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
-        quickTab: tab,
-        searchLabel: label,
-      });
-      return;
-    }
-
-    if (suggestion.kind === "project") {
-      const slug = suggestion.item?.slugURL || suggestion.item?.slug;
-      if (slug) {
-        saveRecentSearch(label);
-        setRecentSearches(loadRecentSearches());
-        window.open(`/${slug}`, "_blank", "noopener,noreferrer");
-        return;
-      }
-    }
-
-    if (suggestion.kind === "city") {
-      navigateToProjects({
-        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
-        cityId: String(suggestion.item.id),
-        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
-        configType: resolveNavigationConfigType({ selectedFilterPayload }),
-        quickTab: resolveNavigationQuickTab({ activeTab }),
-        searchLabel: `${activeTab !== "All" ? activeTab + " in " : ""}${label}`,
-      });
-      return;
+    if (suggestion.kind === "city" && suggestion.item?.id != null) {
+      setHeroCityId(String(suggestion.item.id));
     }
 
     if (suggestion.kind === "locality") {
@@ -711,31 +704,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
         )
         : null;
-      navigateToProjects({
-        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
-        cityId: city ? String(city.id) : "",
-        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
-        configType: resolveNavigationConfigType({ selectedFilterPayload }),
-        quickTab: resolveNavigationQuickTab({ activeTab }),
-        searchLabel: label,
-      });
-      return;
+      if (city?.id != null) setHeroCityId(String(city.id));
     }
 
-    if (suggestion.kind === "builder") {
-      setSearchInput(label);
-      setDebouncedSearch(label);
-      const match = findBestProjectBySearch(label, projectList);
-      if (match?.slugURL) {
-        saveRecentSearch(label);
-        setRecentSearches(loadRecentSearches());
-        window.open(`/${match.slugURL}`, "_blank", "noopener,noreferrer");
-      } else {
-        navigateToProjects({
-          quickTab: activeTab,
-          searchLabel: label,
-        });
-      }
+    if (suggestion.kind === "intent") {
+      const parsed = suggestion.parsed || {};
+      if (parsed.cityId) setHeroCityId(String(parsed.cityId));
+      if (parsed.budget) setHeroBudget(parsed.budget);
     }
   };
 
@@ -997,6 +972,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       onClick={() => {
         setCategoryOpen(!categoryOpen);
         setDropdownOpen(false);
+        setHeroSelectMenu(null);
       }}
       aria-expanded={categoryOpen}
       aria-haspopup="listbox"
@@ -1125,6 +1101,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                       onChange={(selected) =>
                         setHeroCityId(selected ? selected.value : "")
                       }
+                      menuIsOpen={heroSelectMenu === "city"}
+                      onMenuOpen={() => openHeroSelectMenu("city")}
+                      onMenuClose={() => closeHeroSelectMenu("city")}
                       isSearchable
                       maxMenuHeight={220}
                       menuPlacement="auto"
@@ -1146,6 +1125,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                       onChange={(selected) =>
                         setHeroBudget(selected ? selected.value : "")
                       }
+                      menuIsOpen={heroSelectMenu === "budget"}
+                      onMenuOpen={() => openHeroSelectMenu("budget")}
+                      onMenuClose={() => closeHeroSelectMenu("budget")}
                       isSearchable={false}
                       maxMenuHeight={220}
                       menuPlacement="auto"
@@ -1300,15 +1282,38 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                   </span>
                   <span className="smart-search-property-panel__title">Choose property type</span>
                 </div>
-                {selectedPropertyKeys.length > 0 ? (
-                  <button
-                    type="button"
-                    className="smart-search-property-panel__clear"
-                    onClick={clearPropertyFilters}
-                  >
-                    Clear
-                  </button>
-                ) : null}
+                <div className="smart-search-property-panel__actions">
+                  {activeFilterOptions.length > 1 ? (
+                    <button
+                      type="button"
+                      className={`smart-search-property-panel__select-all${allPropertyTypesSelected ? " is-checked" : ""}`}
+                      onClick={toggleSelectAllPropertyTypes}
+                      aria-pressed={allPropertyTypesSelected}
+                    >
+                      <span className="smart-search-property-panel__select-all-check" aria-hidden>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M5 13l4 4L19 7"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                      Select all
+                    </button>
+                  ) : null}
+                  {selectedPropertyKeys.length > 0 ? (
+                    <button
+                      type="button"
+                      className="smart-search-property-panel__clear"
+                      onClick={clearPropertyFilters}
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
               </div>
 
               {activeFilterOptions.length > 0 ? (
@@ -1322,7 +1327,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                         role="option"
                         aria-selected={checked}
                         className={`smart-search-property-option${checked ? " smart-search-property-option--checked" : ""}`}
-                        onClick={() => togglePropertyFilter(option.key)}
+                        onClick={() => handlePropertyTypeSelect(option.key)}
                       >
                         <span className="smart-search-property-option__icon">
                           <PropertyTypeIcon typeKey={option.key} />

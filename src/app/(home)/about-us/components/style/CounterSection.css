@@ -11,15 +11,15 @@
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 18px;
+    gap: 20px;
 }
 
 .statCard {
     position: relative;
     background: #fff;
     border: 1px solid rgba(13, 88, 52, 0.08);
-    border-radius: 16px;
-    padding: 22px 16px;
+    border-radius: 20px;
+    padding: 28px 16px 24px;
     text-align: center;
     overflow: hidden;
     transition: all .35s ease;
@@ -49,38 +49,34 @@
 }
 
 .iconBox {
-    width: 82px;
-    height: 82px;
-    margin: 0 auto 18px;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 16px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-        180deg,
-        rgba(201, 162, 77, .12),
-        rgba(13, 88, 52, .06)
-    );
+    background: #f3efe6;
 }
 
 .iconBox img {
-    width: 42px;
-    height: 42px;
+    width: 28px;
+    height: 28px;
     object-fit: contain;
 }
 
 .statCard .statNumber {
     margin: 0;
-    font-size: 42px;
+    font-size: 32px;
     font-weight: 700;
-    line-height: 1;
+    line-height: 1.15;
     color: #0c2e23;
 }
 
 .statCard h3 {
-    margin-top: 12px;
-    font-size: 22px;
-    font-weight: 600;
+    margin-top: 8px;
+    font-size: 16px;
+    font-weight: 500;
     color: #0d5834;
 }
 
@@ -102,28 +98,28 @@
     }
 
     .statCard {
-        padding: 18px 12px;
-        border-radius: 14px;
+        padding: 22px 12px 20px;
+        border-radius: 16px;
     }
 
     .iconBox {
-        width: 64px;
-        height: 64px;
-        margin-bottom: 14px;
+        width: 52px;
+        height: 52px;
+        margin-bottom: 12px;
     }
 
     .iconBox img {
-        width: 34px;
-        height: 34px;
+        width: 24px;
+        height: 24px;
     }
 
     .statCard .statNumber {
-        font-size: 30px;
+        font-size: 26px;
     }
 
     .statCard h3 {
-        margin-top: 10px;
-        font-size: 18px;
+        margin-top: 6px;
+        font-size: 14px;
     }
 }
 
@@ -134,24 +130,24 @@
     }
 
     .statCard {
-        padding: 16px 10px;
+        padding: 18px 10px 16px;
     }
 
     .iconBox {
-        width: 56px;
-        height: 56px;
+        width: 48px;
+        height: 48px;
     }
 
     .iconBox img {
-        width: 30px;
-        height: 30px;
+        width: 22px;
+        height: 22px;
     }
 
     .statCard .statNumber {
-        font-size: 26px;
+        font-size: 22px;
     }
 
     .statCard h3 {
-        font-size: 16px;
+        font-size: 13px;
     }
 }

@@ -9,11 +9,15 @@ import WhyMyPropertyFact from "./components/WhyMyPropertyFact";
 import VaastuStripSection from "../components/home/vaastu-strip/VaastuStripSection";
 import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 
-export default function AboutPageV2() {
+export default function AboutPageV2({ platformStats } = {}) {
   return (
     <main className="about-page">
       <HeroIntroSection />
-      <CounterSection />
+      <CounterSection
+        citiesCount={platformStats?.cities}
+        buildersCount={platformStats?.builders}
+        projectsCount={platformStats?.projects}
+      />
       <VideoCTASection />
       <WhyChooseSection />
       <TimelineSection />

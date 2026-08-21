@@ -7,12 +7,22 @@ import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import Image from "next/image";
 
-const UNITS_DISPLAY = 10030;
+const LATEST_STATS = {
+  cities: 29,
+  builders: 482,
+  projects: 1341,
+  units: 10030,
+};
+
+function resolveCount(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
 
 export default function CounterSection({
-  citiesCount = 29,
-  buildersCount = 482,
-  projectsCount = 1341,
+  citiesCount,
+  buildersCount,
+  projectsCount,
 }) {
   const { ref, inView } = useInView({
     triggerOnce: true,
@@ -23,25 +33,25 @@ export default function CounterSection({
     {
       image: "/static/footer/icon1.svg",
       alt: "Cities covered",
-      number: Number(citiesCount),
+      number: resolveCount(citiesCount, LATEST_STATS.cities),
       label: "Cities",
     },
     {
       image: "/static/footer/icon2.svg",
       alt: "Verified builders",
-      number: Number(buildersCount),
+      number: resolveCount(buildersCount, LATEST_STATS.builders),
       label: "Builders",
     },
     {
       image: "/static/footer/icon3.svg",
       alt: "Listed projects",
-      number: Number(projectsCount),
+      number: resolveCount(projectsCount, LATEST_STATS.projects),
       label: "Projects",
     },
     {
       image: "/static/footer/icon4.svg",
       alt: "Property units",
-      number: UNITS_DISPLAY,
+      number: LATEST_STATS.units,
       label: "Units",
     },
   ];
@@ -94,7 +104,7 @@ export default function CounterSection({
                     useEasing
                   />
                 ) : (
-                  "0"
+                  item.number.toLocaleString("en-US")
                 )}
                 +
               </p>

@@ -33,7 +33,7 @@ export default async function AboutUsPage() {
     <main id="primary-content" aria-labelledby="mpf-page-heading">
       {/* <CommonHeaderBanner headerText={"About Us"} pageName={"About Us"} /> */}
       {/* <NewAboutUs platformStats={platformStats} /> */}
-      <AboutPageV2 />
+      <AboutPageV2 platformStats={platformStats} />
     </main>
   );
 }

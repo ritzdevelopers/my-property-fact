@@ -228,60 +228,6 @@ export default function HomeRecommendationCards({
           <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">{title}</h2>
           {subtitle ? <p className="home-projects-preview__sub">{subtitle}</p> : null}
         </div>
-        <div className="home-projects-preview__actions">
-          {viewAllHref ? (
-            <Link
-              href={viewAllHref}
-              className="home-projects-preview__view-all"
-              title={
-                kind === "property"
-                  ? "View all properties"
-                  : "View all projects"
-              }
-            >
-              View all{" "}
-              {kind === "property"
-                ? "properties"
-                : kind === "mixed"
-                  ? "projects"
-                  : "projects"}
-            </Link>
-          ) : null}
-          {canSlide ? (
-            <div className="home-projects-preview__nav" aria-label={`${title} navigation`}>
-              <button
-                type="button"
-                className="home-projects-preview__nav-btn"
-                onClick={handlePrev}
-                aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
-              >
-                <img
-                  src="/icon/arrow-left-s-line.svg"
-                  alt="Previous"
-                  title="Previous"
-                  width={16}
-                  height={16}
-                  aria-hidden
-                />
-              </button>
-              <button
-                type="button"
-                className="home-projects-preview__nav-btn"
-                onClick={handleNext}
-                aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
-              >
-                <img
-                  src="/icon/arrow-right-s-line.svg"
-                  alt="Next"
-                  title="Next"
-                  width={16}
-                  height={16}
-                  aria-hidden
-                />
-              </button>
-            </div>
-          ) : null}
-        </div>
       </div>
 
       <div className="home-projects-preview__viewport" ref={viewportRef}>
@@ -362,6 +308,63 @@ export default function HomeRecommendationCards({
           })}
         </div>
       </div>
+
+      {viewAllHref || canSlide ? (
+        <div className="home-projects-preview__actions">
+          {viewAllHref ? (
+            <Link
+              href={viewAllHref}
+              className="home-projects-preview__view-all"
+              title={
+                kind === "property"
+                  ? "View all properties"
+                  : "View all projects"
+              }
+            >
+              View all{" "}
+              {kind === "property"
+                ? "properties"
+                : kind === "mixed"
+                  ? "projects"
+                  : "projects"}
+            </Link>
+          ) : null}
+          {canSlide ? (
+            <div className="home-projects-preview__nav" aria-label={`${title} navigation`}>
+              <button
+                type="button"
+                className="home-projects-preview__nav-btn"
+                onClick={handlePrev}
+                aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
+              >
+                <img
+                  src="/icon/arrow-left-s-line.svg"
+                  alt="Previous"
+                  title="Previous"
+                  width={16}
+                  height={16}
+                  aria-hidden
+                />
+              </button>
+              <button
+                type="button"
+                className="home-projects-preview__nav-btn"
+                onClick={handleNext}
+                aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
+              >
+                <img
+                  src="/icon/arrow-right-s-line.svg"
+                  alt="Next"
+                  title="Next"
+                  width={16}
+                  height={16}
+                  aria-hidden
+                />
+              </button>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
     </section>
   );
 }

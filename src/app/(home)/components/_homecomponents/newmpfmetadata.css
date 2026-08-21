@@ -290,7 +290,14 @@
 .home-projects-preview__actions {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.home-projects-preview__actions:has(> .home-projects-preview__nav:only-child) {
+  justify-content: flex-end;
 }
 
 .home-projects-preview__title {
@@ -744,6 +751,7 @@
   .home-projects-preview__actions {
     width: 100%;
     justify-content: space-between;
+    margin-top: 16px;
   }
 
   /* Single nav row (no "View all"): space-between leaves one item at start — pin arrows right */

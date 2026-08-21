@@ -27,13 +27,25 @@ export default function NewFooterDesign({
             <div className="new-design-footer-top-new-left"  >
               <div className="new-design-footer-top-left-content">
                 <div className="new-design-footer-top-left-logo">
-                  <img
-                    src="/logo.webp"
-                    alt="My Property Fact logo — site footer"
-                    title="My Property Fact logo — site footer"
-                    width={113}
-                    height={103}
-                  />
+                  <Link
+                    href="/"
+                    className="footer-logo-link"
+                    title="My Property Fact Home"
+                    aria-label="Go to My Property Fact home"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                      }
+                    }}
+                  >
+                    <img
+                      src="/logo.webp"
+                      alt="My Property Fact logo — site footer"
+                      title="My Property Fact Home"
+                      width={113}
+                      height={103}
+                    />
+                  </Link>
                 </div>
                 <p className="company-description">
                   My Property Fact is your trusted platform for discovering the perfect real estate opportunities across India. We bring together verified properties, transparent data,smart tools to help you make informed decisions whether you&apos;re buying or investing.
@@ -181,15 +193,27 @@ export default function NewFooterDesign({
                     <li className="contact-value">
                       <div className="contact-item-phone">
                         <span className="contact-label">PHONE: </span>
-                        <span className="contact-value"> +91 8920024793</span>
+                        <a
+                          href="tel:+918920024793"
+                          className="footer-contact-link"
+                          aria-label="Call My Property Fact at +91 8920024793"
+                          title="Call +91 8920024793"
+                        >
+                          +91 8920024793
+                        </a>
                       </div>
                     </li>
                     <li className="contact-value">
                       <div className="contact-item-phone">
                         <span className="contact-label">EMAIL: </span>
-                        <span className="contact-value">
+                        <a
+                          href="mailto:social@mypropertyfact.com"
+                          className="footer-contact-link"
+                          aria-label="Email My Property Fact at social@mypropertyfact.com"
+                          title="Email social@mypropertyfact.com"
+                        >
                           social@mypropertyfact.com
-                        </span>
+                        </a>
                       </div>
                     </li>
                   </ul>

@@ -262,7 +262,7 @@ export default function HeroSection({
             <div className="mpf-hero-main">
               <div className="mpf-hero-content">
                 <div className="mpf-hero-copy">
-                  <h1 className="headgradient headgradient--sparkle" data-text={title}>
+                  <p className="headgradient headgradient--sparkle" data-text={title}>
                     {title.includes("Across India") ? (
                       <>
                         Find Your Perfect Property in
@@ -273,10 +273,10 @@ export default function HeroSection({
                     ) : (
                       title
                     )}
-                  </h1>
-                  <p className="headsub">
-                    {subtitle}
                   </p>
+                  <h1 id="mpf-page-heading" className="headsub">
+                    {subtitle}
+                  </h1>
                 </div>
                 <aside className="mpf-hero-badge" aria-label="Property insights">
                   <span className="mpf-hero-badge__icon" aria-hidden>

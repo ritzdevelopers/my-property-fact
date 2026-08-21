@@ -795,16 +795,26 @@ const HeaderComponent = () => {
                         <div className="dropdown-footer-bar city-dropdown-footer-bar">
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
-                            <span className="dropdown-footer-phone">
-                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
-                              8920024793
-                            </span>
+                            <a
+                              href="tel:+918920024793"
+                              className="dropdown-footer-phone"
+                              aria-label="Call My Property Fact at +91 8920024793"
+                              title="+91 8920024793"
+                            >
+                              <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                              +91 8920024793
+                            </a>
                           </div>
                           <div className="dropdown-footer-right-wrapper">
 
-                            <p className="dropdown-footer-right">
+                            <a
+                              href="mailto:social@mypropertyfact.com"
+                              className="dropdown-footer-right"
+                              aria-label="Email My Property Fact at social@mypropertyfact.com"
+                              title="Email us at social@mypropertyfact.com"
+                            >
                               Email us at social@mypropertyfact.com
-                            </p>
+                            </a>
                           </div>
                         </div>
                       </>
@@ -891,15 +901,25 @@ const HeaderComponent = () => {
                         <div className="dropdown-footer-bar">
                           <div className="dropdown-footer-left">
                             <span className="dropdown-footer-label">Contact Us</span>
-                            <span className="dropdown-footer-phone">
-                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
-                              8920024793
-                            </span>
+                            <a
+                              href="tel:+918920024793"
+                              className="dropdown-footer-phone"
+                              aria-label="Call My Property Fact at +91 8920024793"
+                              title="+91 8920024793"
+                            >
+                              <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                              +91 8920024793
+                            </a>
                           </div>
                           <div className="dropdown-footer-right-wrapper">
-                            <p className="dropdown-footer-right">
+                            <a
+                              href="mailto:social@mypropertyfact.com"
+                              className="dropdown-footer-right"
+                              aria-label="Email My Property Fact at social@mypropertyfact.com"
+                              title="Email us at social@mypropertyfact.com"
+                            >
                               Email us at social@mypropertyfact.com
-                            </p>
+                            </a>
                           </div>
                         </div>
                       </>

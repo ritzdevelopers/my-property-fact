@@ -412,7 +412,7 @@ export default function ChatbotV2() {
                 <img
                   src={CHATBOT_HEADER_LOGO}
                   alt="My Property Fact logo — chat assistant prompt"
-                  title="My Property Fact logo — chat assistant prompt"
+                  title="MPF Assistant"
                   width={32}
                   height={30}
                   aria-hidden
@@ -455,14 +455,14 @@ export default function ChatbotV2() {
           className={styles.launcher}
           onClick={toggleChat}
           aria-label={isOpen ? "Close Chatbot" : "Open Chatbot"}
-          title={isOpen ? "Close chat" : "Open My Property Fact chat"}
+          title={isOpen ? "Close" : "MPF Assistant"}
         >
           {!isOpen ? (
             // eslint-disable-next-line @next/next/no-img-element -- GIF animation requires native img
             <img
               src={CHATBOT_LAUNCHER_LOGO}
               alt="Open My Property Fact chat — assistant"
-              title="Open My Property Fact chat"
+              title="MPF Assistant"
               width={78}
               height={78}
               className={styles.launcherGif}
@@ -500,7 +500,7 @@ export default function ChatbotV2() {
               <img
                 src={CHATBOT_HEADER_LOGO}
                 alt="My Property Fact logo — chat widget header"
-                title="My Property Fact logo — chat widget header"
+                title="MPF Assistant"
                 width={80}
                 height={74}
                 style={{ width: "100%", height: "100%", objectFit: "contain" }}

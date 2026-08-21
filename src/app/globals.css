@@ -494,6 +494,18 @@ body.menu-open footer {
   pointer-events: none;
 }
 
+/* Floating widgets sit above the footer and steal taps on logo / phone / email.
+   Hide them (clicks pass through) whenever the footer is on screen. */
+html.mpf-footer-in-view .popular-project-promo,
+html.mpf-footer-in-view .home-right-type-rail,
+html.mpf-footer-in-view .mpf-chatbot-launcher,
+html.mpf-footer-in-view .lead-form-popup-trigger,
+html.mpf-footer-in-view .scroll-to-top-btn {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 body.gateway-open {
   overflow: hidden;
 }

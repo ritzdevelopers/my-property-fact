@@ -1,8 +1,13 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import FooterCityLinksSection from "./FooterCityLinksSection";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+
+const FOOTER_IN_VIEW_CLASS = "mpf-footer-in-view";
+const FOOTER_PHONE_HREF = "tel:+918920024793";
+const FOOTER_EMAIL_HREF = "mailto:social@mypropertyfact.com";
 
 export default function NewFooterDesign({
   compactTop = false,
@@ -11,6 +16,25 @@ export default function NewFooterDesign({
   useDeferredStylesheet(() => import("./newfooter.css"));
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
+  const footerRef = useRef(null);
+
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return undefined;
+
+    const root = document.documentElement;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        root.classList.toggle(FOOTER_IN_VIEW_CLASS, Boolean(entry?.isIntersecting));
+      },
+      { threshold: 0.02, rootMargin: "0px" }
+    );
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      root.classList.remove(FOOTER_IN_VIEW_CLASS);
+    };
+  }, []);
 
   return (
     <div>
@@ -19,7 +43,10 @@ export default function NewFooterDesign({
           <FooterCityLinksSection cityList={cityList} />
         </div>
       </div>
-      <div className={`new-footer-design-container-fluid${compactTop ? " compact-top" : ""}`}>
+      <div
+        ref={footerRef}
+        className={`new-footer-design-container-fluid${compactTop ? " compact-top" : ""}`}
+      >
         <div className="new-design-container">
           {/* Top Section */}
           <div className="new-design-footer-top">
@@ -30,18 +57,19 @@ export default function NewFooterDesign({
                   <Link
                     href="/"
                     className="footer-logo-link"
-                    title="My Property Fact Home"
+                    title="My Property Fact"
                     aria-label="Go to My Property Fact home"
+                    prefetch
                     onClick={() => {
                       if (typeof window !== "undefined") {
-                        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                        window.scrollTo(0, 0);
                       }
                     }}
                   >
                     <img
                       src="/logo.webp"
-                      alt="My Property Fact logo — site footer"
-                      title="My Property Fact Home"
+                      alt="My Property Fact"
+                      title="My Property Fact"
                       width={113}
                       height={103}
                     />
@@ -191,30 +219,26 @@ export default function NewFooterDesign({
                       Unit no: 603, 6th Floor, Corporate Park Tower A1, Sector 142 Noida
                     </li>
                     <li className="contact-value">
-                      <div className="contact-item-phone">
+                      <a
+                        href={FOOTER_PHONE_HREF}
+                        className="footer-contact-link contact-item-phone"
+                        aria-label="Call My Property Fact at +91 8920024793"
+                        title="+91 8920024793"
+                      >
                         <span className="contact-label">PHONE: </span>
-                        <a
-                          href="tel:+918920024793"
-                          className="footer-contact-link"
-                          aria-label="Call My Property Fact at +91 8920024793"
-                          title="Call +91 8920024793"
-                        >
-                          +91 8920024793
-                        </a>
-                      </div>
+                        <span className="footer-contact-link-value">+91 8920024793</span>
+                      </a>
                     </li>
                     <li className="contact-value">
-                      <div className="contact-item-phone">
+                      <a
+                        href={FOOTER_EMAIL_HREF}
+                        className="footer-contact-link contact-item-phone"
+                        aria-label="Email My Property Fact at social@mypropertyfact.com"
+                        title="social@mypropertyfact.com"
+                      >
                         <span className="contact-label">EMAIL: </span>
-                        <a
-                          href="mailto:social@mypropertyfact.com"
-                          className="footer-contact-link"
-                          aria-label="Email My Property Fact at social@mypropertyfact.com"
-                          title="Email social@mypropertyfact.com"
-                        >
-                          social@mypropertyfact.com
-                        </a>
-                      </div>
+                        <span className="footer-contact-link-value">social@mypropertyfact.com</span>
+                      </a>
                     </li>
                   </ul>
                 </div>

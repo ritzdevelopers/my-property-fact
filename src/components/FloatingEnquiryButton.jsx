@@ -4,7 +4,7 @@ import { OPEN_LEAD_POPUP_EVENT } from "./LeadPopup";
 import styles from "./page.module.css";
 
 function FloatingEnquiryButton() {
-  const openLeadPopup = () => {
+  const openLeadPopup = () => { 
     window.dispatchEvent(new Event(OPEN_LEAD_POPUP_EVENT));
   };
 

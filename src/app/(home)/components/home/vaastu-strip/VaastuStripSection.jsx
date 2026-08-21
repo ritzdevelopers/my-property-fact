@@ -5,15 +5,15 @@ import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGateway
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const INSTAGRAM_REELS = [
-  { id: "DaXEro5gddT", title: "My Property Fact — Instagram reel" },
-  { id: "DaFC1n1grCs", title: "My Property Fact — Instagram reel" },
-  { id: "DZy2IFyk2Mp", title: "My Property Fact — Instagram reel" },
-  { id: "DZg62TblKL-", title: "My Property Fact — Instagram reel" },
-  { id: "DZOyVGPiaPw", title: "My Property Fact — Instagram reel" },
-  { id: "DY9kSk2THeq", title: "My Property Fact — Instagram reel" },
-  { id: "DYq4HHiCQ_c", title: "My Property Fact — Instagram reel" },
-  { id: "DYYvCn6lApB", title: "My Property Fact — Instagram reel" },
-  { id: "DXv8lr4kVIu", title: "My Property Fact — Instagram reel" },
+  { id: "DaXEro5gddT", title: "EAST-FACING GHAR NAHI... TOH?" },
+  { id: "DaFC1n1grCs", title: "AMBANI HOUSE KA SABSE POWERFUL VASTU" },
+  { id: "DZy2IFyk2Mp", title: "MULANK 1, 2 AUR 5 DHYAN DE!" },
+  { id: "DZg62TblKL-", title: "BUSINESS GROWTH SECRET TIPS" },
+  { id: "DZOyVGPiaPw", title: "AMBANI HOUSE KA SABSE POWERFUL VASTU" },
+  { id: "DY9kSk2THeq", title: "AAPKI KAI PROBLEMS KA EK SIMPLE SOLUTION!" },
+  { id: "DYq4HHiCQ_c", title: "Instagram reel" },
+  { id: "DYYvCn6lApB", title: "Instagram reel" },
+  { id: "DXv8lr4kVIu", title: "Instagram reel" },
 ];
 
 const MEDIA_CARDS = [
@@ -21,43 +21,43 @@ const MEDIA_CARDS = [
     id: "vaastu-reel-daxero5gddt",
     reelId: "DaXEro5gddT",
     imageSrc: "/static/vaastu-strip/website%20thumbnail-02.jpg",
-    alt: "Vaastu insights thumbnail: east-facing ghar nahi toh",
-    title: "Vaastu insights: east-facing ghar nahi toh",
+    alt: "EAST-FACING GHAR NAHI... TOH?",
+    title: "EAST-FACING GHAR NAHI... TOH?",
   },
   {
     id: "vaastu-reel-dafc1n1grcs",
     reelId: "DaFC1n1grCs",
     imageSrc: "/static/vaastu-strip/website%20thumbnail%20mpf-01.jpg",
-    alt: "Vaastu insights thumbnail: Mulank 1, 2 aur 5 dhyan de",
-    title: "Vaastu insights: Mulank 1, 2 aur 5 dhyan de",
+    alt: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
+    title: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
   },
   {
     id: "vaastu-reel-dzy2ifyk2mp",
     reelId: "DZy2IFyk2Mp",
     imageSrc: "/static/vaastu-strip/website%20thumbnail-01.jpg",
-    alt: "Vaastu insights thumbnail: Ambani house powerful Vastu",
-    title: "Vaastu insights: Ambani house powerful Vastu",
+    alt: "MULANK 1, 2 AUR 5 DHYAN DE!",
+    title: "MULANK 1, 2 AUR 5 DHYAN DE!",
   },
   {
     id: "vaastu-business-growth",
     reelId: "DZg62TblKL-",
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_003.jpeg",
-    alt: "Vaastu insights thumbnail: business growth secret tips",
-    title: "Vaastu insights: business growth secret tips",
+    alt: "BUSINESS GROWTH SECRET TIPS",
+    title: "BUSINESS GROWTH SECRET TIPS",
   },
   {
     id: "vaastu-ambani-house",
     reelId: "DZOyVGPiaPw",
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_002.jpeg",
-    alt: "Vaastu insights thumbnail: Ambani house powerful Vastu",
-    title: "Vaastu insights: Ambani house powerful Vastu",
+    alt: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
+    title: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
   },
   {
     id: "vaastu-simple-solution",
     reelId: "DY9kSk2THeq",
     imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_004.jpeg",
-    alt: "Vaastu insights thumbnail: one simple solution for your problems",
-    title: "Vaastu insights: one simple solution for your problems",
+    alt: "AAPKI KAI PROBLEMS KA EK SIMPLE SOLUTION!",
+    title: "AAPKI KAI PROBLEMS KA EK SIMPLE SOLUTION!",
   },
 ];
 
@@ -66,8 +66,6 @@ const getInstagramEmbedUrl = (reelId) =>
 
 const getInstagramThumbnailUrl = (reelId) =>
   `https://www.instagram.com/reel/${reelId}/media/?size=l`;
-
-const getPlayIconLabel = (label) => `Play reel: ${label}`;
 
 const STRIP_CARD_WIDTH = 302;
 const STRIP_GAP = 18;
@@ -398,8 +396,7 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
               <span className="vaastu-strip-media__play" aria-hidden="true">
                 <img
                   src="/static/vaastu-strip/play-circle-line.svg"
-                  alt={getPlayIconLabel(card.title)}
-                  title={getPlayIconLabel(card.title)}
+                  alt=""
                   width={34}
                   height={34}
                   decoding="async"
@@ -486,8 +483,7 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
                           <span className="vaastu-reels-thumb-play">
                             <img
                               src="/static/vaastu-strip/play-circle-line.svg"
-                              alt={getPlayIconLabel(reel.title)}
-                              title={getPlayIconLabel(reel.title)}
+                              alt=""
                               width={52}
                               height={52}
                               decoding="async"

@@ -229,7 +229,7 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
   const current = list[displayIdx] || list[0];
   if (!current) return null;
 
-  const thumbAltTitle = `${current.name} — popular project preview, My Property Fact`;
+  const thumbAltTitle = current.name;
 
   const cardClass = [
     "popular-project-promo",
@@ -302,7 +302,7 @@ export default function PopularProjectPromoClient({ items, showAfterMs = 1000 })
             className="popular-project-promo__explore"
             target="_blank"
             rel="noopener noreferrer"
-            title={`Explore ${current.name}`}
+            title="Explore"
           >
             Explore
           </Link>

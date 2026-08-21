@@ -80,12 +80,13 @@ export default function LeadFormPopupTrigger({
           type="button"
           className={`lead-form-popup-trigger lead-form-popup-trigger--icon ${isBlogRoute ? "lead-form-popup-trigger--blog" : ""} ${showOnMobileOnly ? "d-md-none" : ""}`}
           onClick={handleClick}
-          aria-label="Enquire Now - Open lead form"
+          aria-label="Enquire Now"
+          title="Enquire Now"
         >
           <img
             src={ENQUIRE_TRIGGER_ICON}
-            alt="Enquire now"
-            title="Enquire now"
+            alt="Enquire Now"
+            title="Enquire Now"
             width={30}
             height={30}
             className="lead-form-popup-trigger__icon-img"
@@ -98,7 +99,8 @@ export default function LeadFormPopupTrigger({
           type="button"
           className={`lead-form-popup-trigger--home-beside-chat ${showOnMobileOnly ? "d-md-none" : ""}`}
           onClick={handleClick}
-          aria-label="Enquire Now — open lead form"
+          aria-label="Enquire Now"
+          title="Enquire Now"
         >
           <EnquireHomeSparkles />
           <span className="lead-form-popup-trigger__enquire-label">Enquire Now</span>

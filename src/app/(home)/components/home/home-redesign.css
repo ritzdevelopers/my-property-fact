@@ -185,6 +185,8 @@ body:has(.mpf-home-r26) .mpf-header-phone {
   gap: 8px;
   color: rgba(255, 255, 255, 0.92) !important;
   text-decoration: none !important;
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 body:has(.mpf-home-r26) .mpf-header-phone__copy {

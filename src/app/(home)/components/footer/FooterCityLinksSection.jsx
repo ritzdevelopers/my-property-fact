@@ -70,6 +70,8 @@ function renderCityList(cities, category, prefix, generateSlugFn) {
                 prefetch={false}
                 className="footer-new-link"
                 title={`${prefix}${city.cityName}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 {prefix}
                 {city.cityName}

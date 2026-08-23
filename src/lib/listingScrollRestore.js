@@ -1,6 +1,44 @@
 const STORAGE_KEY = "mpf-listing-scroll-v1";
 const MAX_AGE_MS = 30 * 60 * 1000;
 
+let footerNavScrollPending = false;
+let footerNavScrollClearTimer = 0;
+
+/**
+ * Instantly jump to the top of the page.
+ * Overrides `html { scroll-behavior: smooth }` so Next.js route changes
+ * from the footer do not stay parked at the previous scroll offset.
+ */
+export function scrollWindowToTop() {
+  if (typeof window === "undefined") return;
+  const root = document.documentElement;
+  const previousRoot = root.style.scrollBehavior;
+  const previousBody = document.body?.style.scrollBehavior;
+  root.style.scrollBehavior = "auto";
+  if (document.body) document.body.style.scrollBehavior = "auto";
+  window.scrollTo(0, 0);
+  root.scrollTop = 0;
+  if (document.body) document.body.scrollTop = 0;
+  root.style.scrollBehavior = previousRoot;
+  if (document.body) document.body.style.scrollBehavior = previousBody;
+}
+
+/** Mark that the next route change came from a footer link. */
+export function markFooterNavScrollTop() {
+  footerNavScrollPending = true;
+  scrollWindowToTop();
+  if (typeof window === "undefined") return;
+  if (footerNavScrollClearTimer) window.clearTimeout(footerNavScrollClearTimer);
+  footerNavScrollClearTimer = window.setTimeout(() => {
+    footerNavScrollPending = false;
+    footerNavScrollClearTimer = 0;
+  }, 2000);
+}
+
+export function isFooterNavScrollPending() {
+  return footerNavScrollPending;
+}
+
 function readListingReturnState() {
   if (typeof window === "undefined") return null;
   try {

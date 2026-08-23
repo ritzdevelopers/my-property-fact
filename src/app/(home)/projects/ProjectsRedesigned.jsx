@@ -44,7 +44,15 @@ import { trackSearchEvent } from "@/lib/trackSearchEvent";
 import {
   scrollToProjectListings,
 } from "@/app/_global_components/projectListingPagination";
-import { consumeListingReturnState, consumeListingOriginPath, peekListingOriginPath, saveListingOriginPath } from "@/lib/listingScrollRestore";
+import {
+  consumeListingReturnState,
+  consumeListingOriginPath,
+  isFooterNavScrollPending,
+  peekListingOriginPath,
+  peekListingReturnState,
+  saveListingOriginPath,
+  scrollWindowToTop,
+} from "@/lib/listingScrollRestore";
 import ProjectCard from "./components/ProjectCard";
 import ListingCardSkeleton from "./components/ListingCardSkeleton";
 import MobileFilterDrawer from "./components/MobileFilterDrawer";
@@ -207,6 +215,32 @@ export default function ProjectsRedesigned({
 
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const saved = peekListingReturnState();
+    const search = typeof window !== "undefined" ? window.location.search : "";
+    const restoring =
+      saved &&
+      saved.pathname === pathname &&
+      (saved.search || "") === search;
+    if (restoring) return undefined;
+
+    const fromFooter = isFooterNavScrollPending();
+    const docHeight = document.documentElement?.scrollHeight || 0;
+    const nearBottom =
+      window.scrollY > Math.max(400, docHeight - window.innerHeight - 240);
+    if (!fromFooter && !nearBottom) return undefined;
+
+    scrollWindowToTop();
+    const frame = window.requestAnimationFrame(scrollWindowToTop);
+    const timer = window.setTimeout(scrollWindowToTop, 80);
+    const lateTimer = window.setTimeout(scrollWindowToTop, 220);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      window.clearTimeout(lateTimer);
+    };
+  }, [pathname]);
 
   const budgetOptions = PROJECT_BUDGET_OPTIONS;
 

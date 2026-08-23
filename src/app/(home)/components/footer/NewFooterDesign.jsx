@@ -1,9 +1,16 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import FooterCityLinksSection from "./FooterCityLinksSection";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+import {
+  isFooterNavScrollPending,
+  markFooterNavScrollTop,
+  peekListingReturnState,
+  scrollWindowToTop,
+} from "@/lib/listingScrollRestore";
 
 const FOOTER_IN_VIEW_CLASS = "mpf-footer-in-view";
 const FOOTER_PHONE_HREF = "tel:+918920024793";
@@ -17,6 +24,27 @@ export default function NewFooterDesign({
   const { cityList: contextCityList = [] } = useSiteData();
   const cityList = cityListProp ?? contextCityList;
   const footerRef = useRef(null);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (!isFooterNavScrollPending()) return undefined;
+
+    const saved = peekListingReturnState();
+    if (saved?.pathname === pathname) return undefined;
+
+    scrollWindowToTop();
+    const frame = window.requestAnimationFrame(() => {
+      scrollWindowToTop();
+      window.requestAnimationFrame(scrollWindowToTop);
+    });
+    const timer = window.setTimeout(scrollWindowToTop, 80);
+    const lateTimer = window.setTimeout(scrollWindowToTop, 220);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+      window.clearTimeout(lateTimer);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     const el = footerRef.current;
@@ -60,11 +88,7 @@ export default function NewFooterDesign({
                     title="My Property Fact"
                     aria-label="Go to My Property Fact home"
                     prefetch
-                    onClick={() => {
-                      if (typeof window !== "undefined") {
-                        window.scrollTo(0, 0);
-                      }
-                    }}
+                    onClick={markFooterNavScrollTop}
                   >
                     <img
                       src="/logo.webp"
@@ -180,16 +204,16 @@ export default function NewFooterDesign({
                   <div className="footer-section-heading h4">Company info</div>
                   <ul className="footer-links">
                     <li>
-                      <Link href="/about-us" className="footer-link" title="About MPF">About MPF</Link>
+                      <Link href="/about-us" className="footer-link" title="About MPF" onClick={markFooterNavScrollTop}>About MPF</Link>
                     </li>
                     <li>
-                      <Link href="/projects/commercial" className="footer-link" prefetch={true} title="Commercial Projects">Commercial</Link>
+                      <Link href="/projects/commercial" className="footer-link" prefetch={true} title="Commercial Projects" target="_blank" rel="noopener noreferrer">Commercial</Link>
                     </li>
                     <li>
-                      <Link href="/projects/new-launches" className="footer-link" prefetch={true} title="New Launch Projects">New Launches</Link>
+                      <Link href="/projects/new-launches" className="footer-link" prefetch={true} title="New Launch Projects" target="_blank" rel="noopener noreferrer">New Launches</Link>
                     </li>
                     <li>
-                      <Link href="/projects/residential" className="footer-link" prefetch={true} title="Residential Projects">Residential</Link>
+                      <Link href="/projects/residential" className="footer-link" prefetch={true} title="Residential Projects" target="_blank" rel="noopener noreferrer">Residential</Link>
                     </li>
                   </ul>
                 </div>
@@ -197,16 +221,16 @@ export default function NewFooterDesign({
                   <div className="footer-section-heading h4">Resources</div>
                   <ul className="footer-links">
                     <li>
-                      <Link href="/join-our-team" className="footer-link" title="Join our team — careers at My Property Fact">Join Our Team</Link>
+                      <Link href="/join-our-team" className="footer-link" title="Join our team — careers at My Property Fact" onClick={markFooterNavScrollTop}>Join Our Team</Link>
                     </li>
                     <li>
-                      <Link href="/blog" className="footer-link" title="My Property Fact Blog">Blog</Link>
+                      <Link href="/blog" className="footer-link" title="My Property Fact Blog" onClick={markFooterNavScrollTop}>Blog</Link>
                     </li>
                     <li>
-                      <Link href="/contact-us" className="footer-link" title="Contact My Property Fact">Contact Us</Link>
+                      <Link href="/contact-us" className="footer-link" title="Contact My Property Fact" onClick={markFooterNavScrollTop}>Contact Us</Link>
                     </li>
                     <li>
-                      <Link href="/privacy-policy" className="footer-link" title="Privacy Policy">
+                      <Link href="/privacy-policy" className="footer-link" title="Privacy Policy" onClick={markFooterNavScrollTop}>
                         Privacy Policy
                       </Link>
                     </li>

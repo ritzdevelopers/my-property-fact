@@ -484,15 +484,18 @@ nav.d-none.d-lg-flex {
   margin-left: auto;
   justify-content: flex-end;
   gap: 16px;
+  min-width: 0;
 }
 
 .header-post-property-cta--mobile {
   margin-left: 0;
-  margin-right: 8px;
+  margin-right: 0;
   padding: 0.36rem 0.4rem 0.36rem 0.7rem;
   gap: 0.32rem;
   flex-shrink: 0;
   white-space: nowrap;
+  overflow: visible;
+  max-width: none;
 }
 
 .header-post-property-cta--mobile .header-post-property-cta__text {
@@ -503,6 +506,7 @@ nav.d-none.d-lg-flex {
 .header-post-property-cta--mobile .header-post-property-cta__badge {
   font-size: 0.52rem;
   padding: 0.14rem 0.36rem;
+  flex-shrink: 0;
 }
 
 .header-post-property-cta--mobile:hover {
@@ -514,29 +518,78 @@ nav.d-none.d-lg-flex {
 }
 
 @media (max-width: 991.98px) {
+  .header.px-2 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .header .container.d-flex,
+  .header .header-home-ss__container {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    justify-content: stretch;
+    overflow: hidden;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    gap: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    box-sizing: border-box;
+  }
+
+  body:has(.mpf-home-r26) .header--home-ss .header-home-ss__container {
+    gap: 6px;
+  }
+
   .mpf-logo {
     min-width: 0;
-    gap: 8px !important;
-    flex: 0 1 auto;
+    gap: 6px !important;
+    flex: 1 1 auto;
+    overflow: hidden;
+    justify-self: start;
+  }
+
+  .mpf-logo > a,
+  .mpf-header-brand {
+    flex-shrink: 0;
+  }
+
+  .mpf-header-location-dropdown {
+    min-width: 0;
+    max-width: 100%;
+    flex: 1 1 auto;
+    overflow: hidden;
   }
 
   body:has(.mpf-home-r26) .header--home-ss .mpf-header-logo-img {
-    height: 44px;
-    max-width: 54px;
+    height: 40px;
+    max-width: 48px;
   }
 
-  .mpf-header-location-pill {
+  .mpf-logo > a > img:not(.mpf-header-logo-img) {
+    height: 44px;
     width: auto;
-    height: 36px;
-    padding: 0 10px;
-    justify-content: center;
+    max-width: 48px;
+  }
+
+  .mpf-header-location-pill,
+  body:has(.mpf-home-r26) .mpf-header-location-pill {
+    width: auto;
+    max-width: 100%;
+    height: 34px;
+    padding: 0 8px;
+    justify-content: flex-start;
     border-radius: 999px;
-    flex-shrink: 0;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .mpf-header-location-pill__city {
     display: inline;
-    max-width: 110px;
+    max-width: min(64px, 18vw);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -546,11 +599,30 @@ nav.d-none.d-lg-flex {
     display: none;
   }
 
-  .header .container,
-  .header .header-home-ss__container {
-    overflow: visible;
-    min-width: 0;
-    gap: 8px;
+  .header-mobile-actions {
+    gap: 6px;
+    flex: 0 0 auto;
+    margin-left: 0;
+    width: max-content;
+    max-width: 100%;
+    justify-self: end;
+  }
+
+  .header-post-property-cta--mobile {
+    padding: 0.3rem 0.34rem 0.3rem 0.5rem;
+    gap: 0.24rem;
+    min-height: 34px;
+    justify-self: center;
+  }
+
+  .header-post-property-cta--mobile .header-post-property-cta__text {
+    font-size: 0.68rem;
+  }
+
+  .menuBtn {
+    width: 36px;
+    height: 36px;
+    padding: 8px 0;
   }
 
   .header.header-hidden {
@@ -612,6 +684,59 @@ nav.d-none.d-lg-flex {
     font-size: 1rem;
     font-weight: 700;
     color: #fff;
+  }
+}
+
+@media (max-width: 480px) {
+  .mpf-header-location-pill__city {
+    display: none;
+  }
+
+  .mpf-header-location-pill,
+  body:has(.mpf-home-r26) .mpf-header-location-pill {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .header-post-property-cta--mobile {
+    padding: 0.26rem 0.28rem 0.26rem 0.44rem;
+    gap: 0.2rem;
+    min-height: 32px;
+  }
+
+  .header-post-property-cta--mobile .header-post-property-cta__text {
+    font-size: 0.64rem;
+  }
+
+  .header-post-property-cta--mobile .header-post-property-cta__badge {
+    font-size: 0.48rem;
+    padding: 0.12rem 0.28rem;
+  }
+}
+
+@media (max-width: 360px) {
+  body:has(.mpf-home-r26) .header--home-ss .mpf-header-logo-img {
+    height: 36px;
+    max-width: 42px;
+  }
+
+  .header .container.d-flex,
+  .header .header-home-ss__container {
+    padding-left: 6px;
+    padding-right: 6px;
+    gap: 4px;
+  }
+
+  .header-mobile-actions {
+    gap: 4px;
+  }
+
+  .menuBtn {
+    width: 32px;
+    height: 32px;
   }
 }
 

@@ -1001,16 +1001,16 @@ const HeaderComponent = () => {
               </button>
             )}
           </nav>
+          <button
+            type="button"
+            className="header-post-property-cta header-post-property-cta--mobile d-flex d-lg-none"
+            onClick={openBrokerLoginModal}
+            title="Post your property for free"
+          >
+            <span className="header-post-property-cta__text">Post Property</span>
+            <span className="header-post-property-cta__badge">FREE</span>
+          </button>
           <div className="header-mobile-actions d-flex d-lg-none align-items-center">
-            <button
-              type="button"
-              className="header-post-property-cta header-post-property-cta--mobile"
-              onClick={openBrokerLoginModal}
-              title="Post your property for free"
-            >
-              <span className="header-post-property-cta__text">Post Property</span>
-              <span className="header-post-property-cta__badge">FREE</span>
-            </button>
             <button
               type="button"
               className="menuBtn"

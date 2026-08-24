@@ -96,6 +96,21 @@ body:has(.mpf-home-r26) .header--home-ss .header-home-ss__container {
   gap: 16px;
 }
 
+@media (max-width: 991.98px) {
+  body:has(.mpf-home-r26) .header--home-ss .header-home-ss__container {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  body:has(.mpf-home-r26) .header--home-ss .mpf-header-location-pill {
+    flex-shrink: 1;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0 8px;
+  }
+}
+
 body:has(.mpf-home-r26) .header--home-ss .header-home-ss__menu {
   flex: 1;
   display: flex;

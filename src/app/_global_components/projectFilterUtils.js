@@ -89,11 +89,19 @@ export function normalizeBudgetSelection(rawBudget, output = "web") {
   return bucket.web;
 }
 
+/** True for "Lakh", "Lac", or admin shorthand "L" / "Ls" ("15.75 - 17.5 L"). */
+function hasLakhUnitHint(hint = "") {
+  const text = normalizeText(hint);
+  if (!text) return false;
+  if (text.includes("lakh") || text.includes("lac")) return true;
+  return /(?:^|[^\w.])l(?:s)?(?:$|[^\w])/.test(text) || /\d\s*l(?:s)?(?:$|[^\w])/.test(text);
+}
+
 function convertToCrore(value, unitHint = "") {
   if (!Number.isFinite(value)) return null;
   const hint = normalizeText(unitHint);
 
-  if (hint.includes("lakh") || hint.includes("lac")) return value / 100;
+  if (hasLakhUnitHint(hint)) return value / 100;
   if (hint.includes("crore") || /\bcr\b/.test(hint)) return value;
 
   // Values in full rupees (for example 7500000 => 0.75 Cr).

@@ -1,7 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import HomeRecommendationCards from "./HomeRecommendationCards";
+import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
+
+function isDelhiNcrLabel(city) {
+  const n = String(city || "").trim().toLowerCase();
+  return !n || n === "ncr" || n === "delhi ncr" || n.includes("delhi ncr");
+}
+
+function cityNameFromEvent(detail) {
+  if (!detail) return "";
+  if (typeof detail === "string") return detail.trim();
+  return String(detail.cityName || "").trim();
+}
 
 export default function RecommendedProjectsWithGeolocation({
   title = "Recommended Projects",
@@ -13,51 +25,104 @@ export default function RecommendedProjectsWithGeolocation({
   kind = "mixed",
   /** API `intent`: `mixed` = projects + listings; `projects` = new launches near you; `latest-projects` = MPF projects only (newest, home Recommended Projects). */
   locationIntent = "mixed",
+  sectionId = "recommended-projects",
 }) {
   const [items, setItems] = useState(fallbackItems);
   const [loading, setLoading] = useState(false);
   const [subtitle, setSubtitle] = useState(fallbackSubtitle);
-  const attemptedRef = useRef(false);
-  const geoAppliedRef = useRef(false);
+  const [activeViewAllHref, setActiveViewAllHref] = useState(viewAllHref);
+  const [activeCity, setActiveCity] = useState("");
+  const cityOverrideRef = useRef("");
+  const fetchGenRef = useRef(0);
 
   useEffect(() => {
-    if (geoAppliedRef.current) return;
+    if (cityOverrideRef.current) return;
     setItems(fallbackItems);
     setSubtitle(fallbackSubtitle);
-  }, [fallbackItems, fallbackSubtitle]);
+    setActiveViewAllHref(viewAllHref);
+  }, [fallbackItems, fallbackSubtitle, viewAllHref]);
+
+  const applyCityResults = useCallback(
+    (data, cityName) => {
+      setItems(Array.isArray(data?.items) ? data.items : []);
+      const nextSubtitle =
+        (typeof data?.subtitle === "string" && data.subtitle.trim()) ||
+        (locationIntent === "latest-projects"
+          ? `Explore the Best-Selling Properties Today nearby ${cityName}`
+          : `Explore New Residential & Commercial Properties near ${cityName}`);
+      setSubtitle(nextSubtitle);
+      setActiveViewAllHref(
+        isDelhiNcrLabel(cityName) ? viewAllHref : getCityPageHref(cityName),
+      );
+      setActiveCity(cityName);
+    },
+    [locationIntent, viewAllHref],
+  );
+
+  const fetchForCity = useCallback(
+    async (cityName) => {
+      const city = String(cityName || "").trim();
+      if (!city) return;
+
+      const gen = ++fetchGenRef.current;
+      setActiveCity(city);
+      setLoading(true);
+      try {
+        const q = new URLSearchParams({
+          city,
+          intent: locationIntent,
+        });
+        const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
+        const data = await res.json();
+        if (gen !== fetchGenRef.current) return;
+        applyCityResults(data, city);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (gen === fetchGenRef.current) setLoading(false);
+      }
+    },
+    [applyCityResults, locationIntent],
+  );
 
   useEffect(() => {
-    if (attemptedRef.current) return;
-    attemptedRef.current = true;
-    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    if (typeof navigator === "undefined" || !navigator.geolocation) return undefined;
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
+        if (cityOverrideRef.current) return;
+        const gen = ++fetchGenRef.current;
+        setLoading(true);
         try {
           const { latitude, longitude, accuracy } = pos.coords;
           const q = new URLSearchParams({
             lat: String(latitude),
             lon: String(longitude),
+            intent: locationIntent,
           });
           if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
             q.set("accuracy", String(Math.round(accuracy)));
           }
-          q.set("intent", locationIntent);
           const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
           const data = await res.json();
-          if (
+          if (gen !== fetchGenRef.current || cityOverrideRef.current) return;
+          const resolvedCity = String(data?.region?.city || "").trim();
+          if (resolvedCity) {
+            applyCityResults(data, resolvedCity);
+          } else if (
             data.success &&
             Array.isArray(data.items) &&
             data.items.length > 0 &&
             typeof data.subtitle === "string" &&
             data.subtitle.trim()
           ) {
-            geoAppliedRef.current = true;
             setItems(data.items);
             setSubtitle(data.subtitle.trim());
           }
         } catch {
           /* keep SSR fallback */
+        } finally {
+          if (gen === fetchGenRef.current) setLoading(false);
         }
       },
       () => {
@@ -69,60 +134,42 @@ export default function RecommendedProjectsWithGeolocation({
         timeout: 20_000,
       },
     );
-  }, [locationIntent]);
+
+    return undefined;
+  }, [applyCityResults, locationIntent]);
 
   useEffect(() => {
-    const handleCityChanged = async (e) => {
-      const city = e.detail;
-console.log("Received city:", city);
-      if (!city) return;
-
-      setLoading(true);
-
-      try {
-        const q = new URLSearchParams({
-          city: city.cityName,
-          intent: locationIntent,
-        });
-
-        const res = await fetch(
-          `/api/home/recommended-by-location?${q.toString()}`
-        );
-
-        const data = await res.json();
-
-        if (data.success) {
-          setItems(data.items);
-          setSubtitle(
-            (typeof data.subtitle === "string" && data.subtitle.trim()) ||
-              `Explore New Residential & Commercial Properties near ${city.cityName}`,
-          );
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+    const handleCityChanged = (e) => {
+      const cityName = cityNameFromEvent(e.detail);
+      if (!cityName) return;
+      cityOverrideRef.current = cityName;
+      fetchForCity(cityName);
     };
 
     window.addEventListener("cityChanged", handleCityChanged);
+    return () => window.removeEventListener("cityChanged", handleCityChanged);
+  }, [fetchForCity]);
 
-    return () =>
-      window.removeEventListener(
-        "cityChanged",
-        handleCityChanged
-      );
-  }, []);
+  const cityHref =
+    activeCity && !isDelhiNcrLabel(activeCity) ? getCityPageHref(activeCity) : "";
+  const emptyMessage =
+    activeCity && !loading && (!items || items.length === 0)
+      ? `No ${title.toLowerCase()} found in ${activeCity}`
+      : "";
 
   return (
-    <section id="recommended-projects">
+    <section id={sectionId} aria-busy={loading || undefined}>
       <HomeRecommendationCards
         title={title}
         subtitle={subtitle}
         items={items}
         kind={kind}
-        viewAllHref={viewAllHref}
+        viewAllHref={activeViewAllHref}
         className={className}
+        emptyMessage={emptyMessage}
+        loading={loading}
+        cityName={activeCity}
+        cityHref={cityHref}
       />
     </section>
   );

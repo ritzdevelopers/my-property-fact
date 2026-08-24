@@ -277,10 +277,18 @@
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
+.header .dropdown.dropdown-lg .dropdown-footer-label,
+.header .dropdown.dropdown-lg .dropdown-footer-phone,
+.header .dropdown.dropdown-lg .dropdown-footer-right,
 .fixed-header .dropdown.dropdown-lg .dropdown-footer-label,
 .fixed-header .dropdown.dropdown-lg .dropdown-footer-phone,
 .fixed-header .dropdown.dropdown-lg .dropdown-footer-right {
-  color: rgba(255, 255, 255, 0.9) !important;
+  color: #ffffff !important;
+}
+
+.header .dropdown.dropdown-lg .dropdown-footer-email,
+.fixed-header .dropdown.dropdown-lg .dropdown-footer-email {
+  color: #ffd56a !important;
 }
 
 .fixed-header .dropdown.dropdown-lg .project-result-item,
@@ -518,23 +526,24 @@ nav.d-none.d-lg-flex {
   }
 
   .mpf-header-location-pill {
-    width: 40px;
-    height: 40px;
-    padding: 0;
+    width: auto;
+    height: 36px;
+    padding: 0 10px;
     justify-content: center;
-    gap: 0;
-    border-radius: 50%;
+    border-radius: 999px;
     flex-shrink: 0;
   }
 
-  .mpf-header-location-pill__city,
-  .mpf-header-location-pill__chevron {
-    display: none;
+  .mpf-header-location-pill__city {
+    display: inline;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .mpf-location-dropdown-menu {
-    left: 0;
-    width: min(240px, calc(100vw - 24px));
+  .mpf-header-location-pill__chevron {
+    display: none;
   }
 
   .header .container,
@@ -1110,8 +1119,8 @@ button.header-nav-dropdown-trigger {
 
 .dropdown-footer-label {
   font-size: 11px;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+  color: #ffffff;
   margin: 0;
   line-height: 1.3;
 }
@@ -1122,7 +1131,7 @@ button.header-nav-dropdown-trigger {
   gap: 8px;
   font-size: 18px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.95);
+  color: #ffffff;
   margin: 0;
   line-height: 1.3;
 }
@@ -1130,7 +1139,7 @@ button.header-nav-dropdown-trigger {
 a.dropdown-footer-phone,
 a.dropdown-footer-right {
   text-decoration: none;
-  color: inherit;
+  color: #ffffff !important;
   cursor: pointer;
   pointer-events: auto;
   touch-action: manipulation;
@@ -1141,7 +1150,7 @@ a.dropdown-footer-phone:hover,
 a.dropdown-footer-right:hover,
 a.dropdown-footer-phone:focus-visible,
 a.dropdown-footer-right:focus-visible {
-  color: #ffd56a;
+  color: #ffd56a !important;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -1173,12 +1182,22 @@ a.dropdown-footer-right:focus-visible {
 .dropdown-footer-right {
   font-size: 12px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
   margin: 0;
   max-width: 100%;
   text-align: left;
   flex-shrink: 0;
   min-width: 0;
+}
+
+.dropdown-footer-email {
+  color: #ffd56a;
+  font-weight: 600;
+}
+
+a.dropdown-footer-right:hover .dropdown-footer-email,
+a.dropdown-footer-right:focus-visible .dropdown-footer-email {
+  color: #ffe7a3;
 }
 
 .dropdown-footer-right-wrapper {
@@ -1510,7 +1529,7 @@ a.dropdown-footer-right:focus-visible {
 }
 
 .projects-email-info {
-  color: rgba(255, 255, 255, 0.8);
+  color: #ffffff;
   font-size: 13px;
   text-align: left;
   line-height: 1.5;

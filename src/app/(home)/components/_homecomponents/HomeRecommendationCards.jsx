@@ -145,6 +145,28 @@ function getVisibleCount(viewportWidth) {
   return 4;
 }
 
+const FEW_ITEMS_THRESHOLD = 4;
+
+function getViewAllLabel(cityName, kind) {
+  const noun = kind === "property" ? "Properties" : "Projects";
+  return cityName ? `View All ${noun} in ${cityName}` : `View All ${noun}`;
+}
+
+function SectionLoader({ cityName, overlay = false }) {
+  return (
+    <div
+      className={`home-projects-preview__loading${overlay ? " home-projects-preview__loading--overlay" : ""}`}
+      role="status"
+      aria-live="polite"
+    >
+      <span className="home-projects-preview__spinner" aria-hidden="true" />
+      <span className="home-projects-preview__loading-text">
+        {cityName ? `Loading properties in ${cityName}…` : "Loading properties…"}
+      </span>
+    </div>
+  );
+}
+
 export default function HomeRecommendationCards({
   title,
   subtitle,
@@ -152,6 +174,10 @@ export default function HomeRecommendationCards({
   kind,
   viewAllHref,
   className = "",
+  emptyMessage = "",
+  loading = false,
+  cityName = "",
+  cityHref = "",
 }) {
   const safeItems = useMemo(
     () => (Array.isArray(items) ? items.slice(0, 8) : []),
@@ -216,22 +242,111 @@ export default function HomeRecommendationCards({
     setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
   };
 
-  if (!safeItems.length) return null;
+  const showViewMore = Boolean(cityHref && !loading && safeItems.length < FEW_ITEMS_THRESHOLD);
+  const viewMoreHref = cityHref || viewAllHref;
+  const viewMoreLabel = getViewAllLabel(cityName, kind);
+
+  const renderHead = () => (
+    <div className="home-projects-preview__head">
+      <div>
+        <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">{title}</h2>
+        {subtitle ? <p className="home-projects-preview__sub">{subtitle}</p> : null}
+      </div>
+    </div>
+  );
+
+  const renderViewMoreLink = (className = "") =>
+    viewMoreHref ? (
+      <Link
+        href={viewMoreHref}
+        className={`home-projects-preview__view-all home-projects-preview__view-more ${className}`.trim()}
+        title={viewMoreLabel}
+      >
+        {viewMoreLabel}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M5 12h14M13 6l6 6-6 6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </Link>
+    ) : null;
+
+  const renderViewMoreCard = () =>
+    showViewMore && viewMoreHref ? (
+      <div className="home-projects-preview__slide home-projects-preview__slide--more">
+        <Link
+          href={viewMoreHref}
+          className="home-projects-preview__more-card"
+          title={viewMoreLabel}
+        >
+          <span className="home-projects-preview__more-card-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M5 12h14M13 6l6 6-6 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="home-projects-preview__more-card-label">{viewMoreLabel}</span>
+        </Link>
+      </div>
+    ) : null;
+
+  if (!safeItems.length) {
+    if (loading) {
+      return (
+        <section
+          className={`container home-projects-preview ${className}`.trim()}
+          aria-label={title}
+          aria-busy="true"
+        >
+          {renderHead()}
+          <SectionLoader cityName={cityName} />
+        </section>
+      );
+    }
+    if (!emptyMessage && !showViewMore) return null;
+    return (
+      <section
+        className={`container home-projects-preview ${className}`.trim()}
+        aria-label={title}
+      >
+        {renderHead()}
+        {emptyMessage ? <p className="home-projects-preview__sub">{emptyMessage}</p> : null}
+        {showViewMore ? (
+          <div className="home-projects-preview__actions home-projects-preview__actions--end">
+            {renderViewMoreLink()}
+          </div>
+        ) : null}
+      </section>
+    );
+  }
 
   return (
     <section
       className={`container home-projects-preview ${className}`.trim()}
       aria-label={title}
+      aria-busy={loading || undefined}
     >
-      <div className="home-projects-preview__head">
-        <div>
-          <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">{title}</h2>
-          {subtitle ? <p className="home-projects-preview__sub">{subtitle}</p> : null}
-        </div>
-      </div>
+      {renderHead()}
 
-      <div className="home-projects-preview__viewport" ref={viewportRef}>
-        <div className="home-projects-preview__track" style={trackStyle}>
+      <div className="home-projects-preview__stage">
+        {loading ? <SectionLoader cityName={cityName} overlay /> : null}
+        <div
+          className={`home-projects-preview__viewport${loading ? " is-loading" : ""}`}
+          ref={viewportRef}
+        >
+        <div
+          className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}
+          style={trackStyle}
+        >
           {safeItems.map((item, idx) => {
             const card = getCardPayload(item, kind);
             const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
@@ -306,27 +421,31 @@ export default function HomeRecommendationCards({
               </div>
             );
           })}
+          {renderViewMoreCard()}
+        </div>
         </div>
       </div>
 
-      {viewAllHref || canSlide ? (
-        <div className="home-projects-preview__actions">
+      {!loading && (viewAllHref || canSlide) && !showViewMore ? (
+        <div
+          className={`home-projects-preview__actions${canSlide ? "" : " home-projects-preview__actions--end"}`}
+        >
           {viewAllHref ? (
             <Link
               href={viewAllHref}
               className="home-projects-preview__view-all"
-              title={
-                kind === "property"
-                  ? "View all properties"
-                  : "View all projects"
-              }
+              title={viewMoreLabel}
             >
-              View all{" "}
-              {kind === "property"
-                ? "properties"
-                : kind === "mixed"
-                  ? "projects"
-                  : "projects"}
+              {viewMoreLabel}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
           ) : null}
           {canSlide ? (

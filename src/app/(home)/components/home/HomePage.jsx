@@ -308,6 +308,7 @@ export default async function HomePage() {
             kind="project"
             locationIntent="latest-projects"
             viewAllHref="/projects"
+            sectionId="popular-projects"
           />,
         )}
 

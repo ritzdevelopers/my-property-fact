@@ -15,10 +15,12 @@ import {
 import {
   DELHI_NCR_POPULAR_PROJECT_SLUGS,
   isDelhiNcrRegion,
+  isDelhiNcrUmbrellaLabel,
   POPULAR_PROMO_MAX_ITEMS,
   resolvePopularProjectsFromSlugs,
-  scopeHomeProjectsToDelhiNcr,
+  scopeHomeProjectsForLocation,
 } from "@/app/_global_components/popularRightNowProjects";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 function parseCoord(value) {
   const n = Number.parseFloat(String(value ?? ""));
@@ -81,10 +83,34 @@ function tokensFromGoogleComponents(components) {
 }
 
 /**
- * Loose bbox for Noida / Greater Noida / GB Nagar (excludes most of Delhi proper).
+ * East of the Yamuna through Noida / Greater Noida / YEIDA.
+ * Intentionally looser than Delhi-proper so Sector 14–18 and Noida border GPS still count.
  */
 function isLikelyNoidaGreaterNoidaArea(lat, lon) {
-  return lat >= 28.38 && lat <= 28.72 && lon >= 77.32 && lon <= 77.68;
+  return (
+    typeof lat === "number" &&
+    typeof lon === "number" &&
+    lat >= 28.34 &&
+    lat <= 28.76 &&
+    lon >= 77.26 &&
+    lon <= 77.75
+  );
+}
+
+function placeBlob(region) {
+  return norm(
+    [region?.city, region?.state, region?.formattedAddress, ...(region?.geoTokens || [])]
+      .filter(Boolean)
+      .join(" "),
+  );
+}
+
+function cityFromNoidaHints(blob) {
+  if (blob.includes("greater noida")) return "Greater Noida";
+  if (blob.includes("noida")) return "Noida";
+  if (blob.includes("gautam") && blob.includes("nagar")) return "Noida";
+  if (blob.includes("yeida") || blob.includes("surajpur")) return "Noida";
+  return "";
 }
 
 /**
@@ -107,15 +133,19 @@ function stripMisleadingDelhiTokensInNcrEast(lat, lon, tokens) {
  */
 function correctNcrBias(lat, lon, region) {
   if (!region) return region;
-  if (!isLikelyNoidaGreaterNoidaArea(lat, lon)) return region;
 
   const c = norm(region.city);
   const s = norm(region.state);
-  const blob = norm(
-    [region.city, region.state, ...(region.geoTokens || [])].filter(Boolean).join(" "),
-  );
+  const blob = placeBlob(region);
 
-  if (blob.includes("ghaziabad")) return region;
+  if (blob.includes("ghaziabad") && !blob.includes("noida")) return region;
+
+  const noidaCity = cityFromNoidaHints(blob);
+  if (noidaCity) {
+    return { ...region, city: noidaCity, state: region.state || "Uttar Pradesh" };
+  }
+
+  if (!isLikelyNoidaGreaterNoidaArea(lat, lon)) return region;
 
   if (c.includes("noida") || c.includes("greater noida")) return region;
 
@@ -123,26 +153,13 @@ function correctNcrBias(lat, lon, region) {
     c.includes("delhi") ||
     s.includes("delhi") ||
     s === "national capital territory of delhi" ||
-    s === "ncr";
+    s === "ncr" ||
+    isDelhiNcrUmbrellaLabel(region.city);
 
   const saidUp = s.includes("uttar pradesh") || s === "up";
 
-  if (saidDelhi) {
-    return { ...region, city: "Noida", state: "Uttar Pradesh" };
-  }
-
-  if (saidUp && (!c || c.length < 2)) {
+  if (saidDelhi || !c || c.length < 2 || saidUp) {
     return { ...region, city: "Noida", state: region.state || "Uttar Pradesh" };
-  }
-
-  /** Geocoder returned GB Nagar / YEIDA / Surajpur hints — anchor to Noida + UP for project DB */
-  if (
-    blob.includes("gautam") ||
-    blob.includes("buddha nagar") ||
-    blob.includes("yeida") ||
-    blob.includes("surajpur")
-  ) {
-    return { ...region, city: "Noida", state: "Uttar Pradesh" };
   }
 
   return region;
@@ -182,6 +199,31 @@ function googleGeocodeCityState(components) {
   return { city, state };
 }
 
+function regionFromGoogleResult(result) {
+  const { city, state } = googleGeocodeCityState(result.address_components);
+  const tokenSet = tokensFromGoogleComponents(result.address_components);
+  addCommaSplitTokens(tokenSet, result.formatted_address);
+  if (city) tokenSet.add(norm(city));
+  if (state) tokenSet.add(norm(state));
+
+  return {
+    city,
+    state,
+    formattedAddress: typeof result.formatted_address === "string" ? result.formatted_address : "",
+    geoTokens: [...tokenSet],
+  };
+}
+
+function scoreGoogleRegion(region) {
+  const blob = placeBlob(region);
+  if (blob.includes("greater noida")) return 100;
+  if (blob.includes("noida")) return 90;
+  if (blob.includes("gautam") && blob.includes("nagar")) return 80;
+  if (region.city && !norm(region.city).includes("delhi")) return 30;
+  if (region.city) return 10;
+  return 0;
+}
+
 async function reverseGeocodeGoogle(lat, lon, apiKey) {
   const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
   url.searchParams.set("latlng", `${lat},${lon}`);
@@ -194,23 +236,28 @@ async function reverseGeocodeGoogle(lat, lon, apiKey) {
 
   if (!res.ok) return null;
   const data = await res.json();
-  if (data.status !== "OK" || !data.results?.[0]?.address_components) {
+  if (data.status !== "OK" || !Array.isArray(data.results) || data.results.length === 0) {
     return null;
   }
 
-  const result0 = data.results[0];
-  const { city, state } = googleGeocodeCityState(result0.address_components);
-  const tokenSet = tokensFromGoogleComponents(result0.address_components);
-  addCommaSplitTokens(tokenSet, result0.formatted_address);
-  if (city) tokenSet.add(norm(city));
-  if (state) tokenSet.add(norm(state));
+  let best = null;
+  let bestScore = -1;
+  for (const result of data.results) {
+    if (!Array.isArray(result?.address_components)) continue;
+    const region = regionFromGoogleResult(result);
+    const score = scoreGoogleRegion(region);
+    if (score > bestScore) {
+      best = region;
+      bestScore = score;
+    }
+    if (score >= 90) break;
+  }
+
+  if (!best) return null;
 
   return {
-    city,
-    state,
+    ...best,
     source: "google",
-    formattedAddress: typeof result0.formatted_address === "string" ? result0.formatted_address : "",
-    geoTokens: [...tokenSet],
   };
 }
 
@@ -376,33 +423,42 @@ export async function GET(request) {
 
     if (intent === "projects") {
       const newLaunchProjects = normalizeProjectsArray(projects).filter(isNewLaunchProject);
-      const ncrScope = scopeHomeProjectsToDelhiNcr({
+      const locationScope = scopeHomeProjectsForLocation({
         projects: newLaunchProjects,
         city: region.city,
         state: region.state,
         geoTokens,
         lat,
         lon,
+        source: region.source,
       });
 
-      const items = buildNewLaunchProjectsForRegion({
-        projects: ncrScope.projects,
-        excludeSlugSet: new Set(),
-        geoCity: ncrScope.geoCity,
-        geoState: ncrScope.geoState,
-        geoTokens: ncrScope.geoTokens,
-        limit: 8,
-      });
+      const items = slimProjectListForListing(
+        buildNewLaunchProjectsForRegion({
+          projects: locationScope.projects,
+          excludeSlugSet: new Set(),
+          geoCity: locationScope.geoCity,
+          geoState: locationScope.geoState,
+          geoTokens: locationScope.geoTokens,
+          limit: 8,
+          strictRegion: Boolean(locationScope.strict),
+        }),
+      );
 
-      let subtitle = buildSubtitleNewLaunchesNear(ncrScope.label, "").trim();
+      const displayCity =
+        region.city && !isDelhiNcrUmbrellaLabel(region.city)
+          ? region.city
+          : locationScope.label;
+
+      let subtitle = buildSubtitleNewLaunchesNear(displayCity, "").trim();
       if (!subtitle) subtitle = "Explore New Residential & Commercial Properties near Delhi NCR";
 
       return NextResponse.json({
-        success: items.length > 0,
+        success: true,
         items,
         subtitle,
         region: {
-          city: ncrScope.label,
+          city: displayCity,
           state: region.state,
           source: region.source,
           ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),
@@ -411,33 +467,42 @@ export async function GET(request) {
     }
 
     if (intent === "latest-projects") {
-      const ncrScope = scopeHomeProjectsToDelhiNcr({
+      const locationScope = scopeHomeProjectsForLocation({
         projects: normalizeProjectsArray(projects),
         city: region.city,
         state: region.state,
         geoTokens,
         lat,
         lon,
+        source: region.source,
       });
 
-      const items = buildLatestProjectsForRegion({
-        projects: ncrScope.projects,
-        excludeSlugSet: new Set(),
-        geoCity: ncrScope.geoCity,
-        geoState: ncrScope.geoState,
-        geoTokens: ncrScope.geoTokens,
-        limit: 8,
-      });
+      const items = slimProjectListForListing(
+        buildLatestProjectsForRegion({
+          projects: locationScope.projects,
+          excludeSlugSet: new Set(),
+          geoCity: locationScope.geoCity,
+          geoState: locationScope.geoState,
+          geoTokens: locationScope.geoTokens,
+          limit: 8,
+          strictRegion: Boolean(locationScope.strict),
+        }),
+      );
 
-      let subtitle = buildSubtitleLatestProjectsNear(ncrScope.label, "").trim();
+      const displayCity =
+        region.city && !isDelhiNcrUmbrellaLabel(region.city)
+          ? region.city
+          : locationScope.label;
+
+      let subtitle = buildSubtitleLatestProjectsNear(displayCity, "").trim();
       if (!subtitle) subtitle = "Explore the Best-Selling Properties Today nearby Delhi NCR";
 
       return NextResponse.json({
-        success: items.length > 0,
+        success: true,
         items,
         subtitle,
         region: {
-          city: ncrScope.label,
+          city: displayCity,
           state: region.state,
           source: region.source,
           ...(typeof _accuracyM === "number" && _accuracyM > 0 ? { accuracyM: _accuracyM } : {}),

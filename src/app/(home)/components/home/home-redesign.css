@@ -167,10 +167,9 @@ body:has(.mpf-home-r26) .mpf-header-location-pill {
   -webkit-backdrop-filter: blur(8px);
 }
 
-body:has(.mpf-home-r26) .mpf-header-location-pill:hover {
-  background: rgba(10, 12, 16, 0.5);
-  border-color: rgba(255, 255, 255, 0.5);
-  color: #fff !important;
+body:has(.mpf-home-r26) .mpf-header-location-pill--readonly {
+  cursor: default;
+  pointer-events: none;
 }
 
 body:has(.mpf-home-r26) .mpf-header-home-actions {

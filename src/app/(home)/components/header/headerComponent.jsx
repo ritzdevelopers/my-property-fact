@@ -72,8 +72,7 @@ const HeaderComponent = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
-  const [selectedCity, setSelectedCity] = useState("Delhi NCR");
+  const [selectedCity, setSelectedCity] = useState("");
   const [showLocationToast, setShowLocationToast] = useState(false);
   const locationToastShownRef = useRef(false);
   const pathname = usePathname();
@@ -506,9 +505,63 @@ const HeaderComponent = () => {
   useEffect(() => {
     let cancelled = false;
 
+    const isSpecificCity = (cityName) => {
+      const n = String(cityName || "").trim().toLowerCase();
+      return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
+    };
+
+    const finishWithCity = (cityName) => {
+      if (cancelled) return;
+      const nextCity = String(cityName || "").trim() || "Delhi NCR";
+      setSelectedCity(nextCity);
+      try {
+        if (isSpecificCity(nextCity)) {
+          window.localStorage.setItem("mpf_header_city", nextCity);
+        } else {
+          window.localStorage.removeItem("mpf_header_city");
+        }
+      } catch {
+        /* ignore */
+      }
+      window.dispatchEvent(
+        new CustomEvent("cityChanged", {
+          detail: { cityName: nextCity },
+        }),
+      );
+      showMobileLocationToast();
+    };
+
+    const detectCityFromIp = async () => {
+      try {
+        const res = await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client");
+        if (!res.ok) return "";
+        const data = await res.json();
+        const parts = [
+          data.city,
+          data.locality,
+          data.principalSubdivision,
+          ...(Array.isArray(data.localityInfo?.informative)
+            ? data.localityInfo.informative.map((item) => item?.name)
+            : []),
+          ...(Array.isArray(data.localityInfo?.administrative)
+            ? data.localityInfo.administrative.map((item) => item?.name)
+            : []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+        if (parts.includes("greater noida")) return "Greater Noida";
+        if (parts.includes("noida")) return "Noida";
+        if (parts.includes("gautam") && parts.includes("nagar")) return "Noida";
+        return String(data.city || data.locality || "").trim();
+      } catch {
+        return "";
+      }
+    };
+
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
-      if (saved) {
+      if (isSpecificCity(saved)) {
         setSelectedCity(saved);
         showMobileLocationToast();
       }
@@ -516,49 +569,46 @@ const HeaderComponent = () => {
       /* ignore */
     }
 
-    const finishWithCity = (cityName) => {
-      if (cancelled) return;
-      const nextCity = cityName || "Delhi NCR";
-      setSelectedCity(nextCity);
+    const resolveFromCoords = async (coords) => {
+      const response = await fetch(
+        `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
+      );
+      if (!response.ok) throw new Error("Failed to fetch location");
+      const data = await response.json();
+      return data.success && data.region?.city ? data.region.city : "";
+    };
+
+    const resolveWithFallback = async (coords) => {
       try {
-        window.localStorage.setItem("mpf_header_city", nextCity);
-      } catch {
-        /* ignore */
+        const fromGps = coords ? await resolveFromCoords(coords) : "";
+        if (isSpecificCity(fromGps)) {
+          finishWithCity(fromGps);
+          return;
+        }
+      } catch (error) {
+        console.error("Location Error:", error);
       }
-      showMobileLocationToast();
+      const fromIp = await detectCityFromIp();
+      finishWithCity(fromIp || "Delhi NCR");
     };
 
     if (!navigator.geolocation) {
-      finishWithCity("Delhi NCR");
+      resolveWithFallback(null);
       return undefined;
     }
 
     navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        try {
-          const response = await fetch(
-            `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch location");
-          }
-
-          const data = await response.json();
-          finishWithCity(data.success && data.region?.city ? data.region.city : "Delhi NCR");
-        } catch (error) {
-          console.error("Location Error:", error);
-          finishWithCity("Delhi NCR");
-        }
+      ({ coords }) => {
+        resolveWithFallback(coords);
       },
       (error) => {
         console.error("Geolocation Error:", error);
-        finishWithCity("Delhi NCR");
+        resolveWithFallback(null);
       },
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000,
+        maximumAge: 0,
       }
     );
 
@@ -566,37 +616,6 @@ const HeaderComponent = () => {
       cancelled = true;
     };
   }, []);
-
-  const timeoutRef = useRef(null);
-
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutRef.current);
-    setShowLocationDropdown(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setShowLocationDropdown(false);
-    }, 200);
-  };
-
-  const handleCityClick = (city) => {
-    setSelectedCity(city.cityName);
-    setShowLocationDropdown(false);
-
-    window.dispatchEvent(
-      new CustomEvent("cityChanged", {
-        detail: city,
-      })
-    );
-
-    document
-      .getElementById("recommended-projects")
-      ?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-  };
 
   return (
     <>
@@ -654,21 +673,11 @@ const HeaderComponent = () => {
               )}
             </Link>
             {isHomePage ? (
-              <div
-                className="mpf-header-location-dropdown"
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-              >
-                <button
-                  type="button"
-                  className="mpf-header-location-pill"
-                  title={selectedCity}
-                  aria-label={`Current location ${selectedCity}. Browse cities`}
-                  onClick={() => {
-                    if (typeof window !== "undefined" && window.innerWidth < 992) {
-                      setShowLocationDropdown((open) => !open);
-                    }
-                  }}
+              <div className="mpf-header-location-dropdown">
+                <div
+                  className="mpf-header-location-pill mpf-header-location-pill--readonly"
+                  title={`Current location ${selectedCity || "detecting"}`}
+                  aria-label={`Current location ${selectedCity || "detecting"}`}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -684,33 +693,8 @@ const HeaderComponent = () => {
                       strokeWidth="1.8"
                     />
                   </svg>
-
-                  <span className="mpf-header-location-pill__city">{selectedCity}</span>
-
-                  <svg className="mpf-header-location-pill__chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                      d="M6 9l6 6 6-6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                </button>
-
-                {showLocationDropdown && (
-                  <div className="mpf-location-dropdown-menu">
-                    {cityList?.map((city) => (
-                      <button
-                        key={city.id}
-                        type="button"
-                        className="mpf-location-dropdown-item"
-                        onClick={() => handleCityClick(city)}
-                      >
-                        {city.cityName}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                  <span className="mpf-header-location-pill__city">{selectedCity || "Locating…"}</span>
+                </div>
               </div>
             ) : null}
           </div>
@@ -813,7 +797,8 @@ const HeaderComponent = () => {
                               aria-label="Email My Property Fact at social@mypropertyfact.com"
                               title="Email us at social@mypropertyfact.com"
                             >
-                              Email us at social@mypropertyfact.com
+                              Email us at{" "}
+                              <span className="dropdown-footer-email">social@mypropertyfact.com</span>
                             </a>
                           </div>
                         </div>
@@ -918,7 +903,8 @@ const HeaderComponent = () => {
                               aria-label="Email My Property Fact at social@mypropertyfact.com"
                               title="Email us at social@mypropertyfact.com"
                             >
-                              Email us at social@mypropertyfact.com
+                              Email us at{" "}
+                              <span className="dropdown-footer-email">social@mypropertyfact.com</span>
                             </a>
                           </div>
                         </div>

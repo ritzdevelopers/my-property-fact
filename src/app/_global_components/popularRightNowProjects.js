@@ -1,4 +1,8 @@
 import { normalizePlaceToken } from "@/app/(home)/components/home/recommendedSpotlight";
+import {
+  cityNameMatchesFilter,
+  normalizeCitySearchQuery,
+} from "@/app/_global_components/cityAliasUtils";
 
 /** Delhi-NCR cities used for "Popular right now" curated list. */
 export const DELHI_NCR_CITY_NAMES = [
@@ -106,6 +110,59 @@ export function scopeHomeProjectsToDelhiNcr({
     geoTokens: [...DELHI_NCR_CITY_NAMES, "NCR"],
     label: "Delhi NCR",
   };
+}
+
+function projectMatchesSelectedCity(project, cityName) {
+  if (!project || !cityName) return false;
+
+  const selectedNorm = normalizeCitySearchQuery(cityName);
+  const projectCityNorm = normalizeCitySearchQuery(project.cityName || "");
+  if (selectedNorm && projectCityNorm && selectedNorm === projectCityNorm) return true;
+
+  // Header city filter must use the project city only. Address/locality substring
+  // matches (e.g. "agra" inside "Bagral") leak other cities into the rails.
+  return cityNameMatchesFilter(cityName, {
+    cityName: project.cityName,
+    projectAddress: "",
+    projectLocality: "",
+  });
+}
+
+/**
+ * Filter home rails to a specific city from GPS / location API.
+ * Delhi NCR umbrella still uses the full NCR pool.
+ */
+export function scopeHomeProjectsForLocation({
+  projects,
+  city,
+  state,
+  geoTokens = [],
+  lat = null,
+  lon = null,
+} = {}) {
+  const selectedCity = String(city || "").trim();
+  const specificCity = selectedCity && !isDelhiNcrUmbrellaLabel(selectedCity);
+
+  if (specificCity) {
+    const list = Array.isArray(projects) ? projects : [];
+    return {
+      projects: list.filter((project) => projectMatchesSelectedCity(project, selectedCity)),
+      geoCity: selectedCity,
+      geoState: state || "",
+      geoTokens: Array.isArray(geoTokens) && geoTokens.length ? geoTokens : [selectedCity],
+      label: selectedCity,
+      strict: true,
+    };
+  }
+
+  return scopeHomeProjectsToDelhiNcr({
+    projects,
+    city,
+    state,
+    geoTokens,
+    lat,
+    lon,
+  });
 }
 
 export function isDelhiNcrRegion(city, state, geoTokens = [], lat = null, lon = null) {

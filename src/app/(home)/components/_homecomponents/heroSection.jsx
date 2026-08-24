@@ -30,12 +30,29 @@ const HERO_TYPED_CITIES = [
   "Kolkata",
 ];
 
+function cityNameFromEvent(detail) {
+  if (!detail) return "";
+  if (typeof detail === "string") return detail.trim();
+  return String(detail.cityName || "").trim();
+}
+
 function HeroCityTypewriter() {
+  const [locatedCity, setLocatedCity] = useState("");
   const [index, setIndex] = useState(0);
   const [text, setText] = useState(HERO_TYPED_CITIES[0]);
   const [phase, setPhase] = useState("hold");
 
   useEffect(() => {
+    const handleCityChanged = (e) => {
+      const cityName = cityNameFromEvent(e.detail);
+      if (cityName) setLocatedCity(cityName);
+    };
+    window.addEventListener("cityChanged", handleCityChanged);
+    return () => window.removeEventListener("cityChanged", handleCityChanged);
+  }, []);
+
+  useEffect(() => {
+    if (locatedCity) return undefined;
     const current = HERO_TYPED_CITIES[index];
     let delay = 90;
 
@@ -68,12 +85,12 @@ function HeroCityTypewriter() {
     }, delay);
 
     return () => window.clearTimeout(timer);
-  }, [index, phase, text]);
+  }, [index, locatedCity, phase, text]);
 
   return (
     <>
       {" "}
-      {text}
+      {locatedCity || text}
       <span className="mpf-hero-cursor" aria-hidden>
         |
       </span>

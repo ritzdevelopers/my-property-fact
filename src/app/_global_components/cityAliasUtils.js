@@ -504,7 +504,9 @@ function fieldMatchesCityFilter(fieldNorm, matchName, canonicalSlug) {
   if (!fieldNorm || !matchName) return false;
   if (fieldNorm === matchName) return true;
   if (isBlockedSubstringCityField(fieldNorm, canonicalSlug)) return false;
-  return fieldNorm.includes(matchName);
+  // Whole word only — "agra" must not match "Bagral Gaon, Dehradun".
+  const pattern = new RegExp(`(?:^|\\s)${escapeRegExp(matchName)}(?:\\s|$)`);
+  return pattern.test(fieldNorm);
 }
 
 /** Sort city slugs so longer names (e.g. noida-extension) win over shorter ones (noida). */

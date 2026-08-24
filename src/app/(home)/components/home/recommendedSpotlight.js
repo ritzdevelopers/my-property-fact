@@ -258,6 +258,7 @@ export function buildLatestProjectsForRegion({
   geoState,
   geoTokens = [],
   limit = 8,
+  strictRegion = false,
 }) {
   const exclude =
     excludeSlugSet instanceof Set ? excludeSlugSet : new Set(excludeSlugSet || []);
@@ -270,6 +271,13 @@ export function buildLatestProjectsForRegion({
       sort: projectLatestTimestamp(p),
       tier: combinedProjectRegionTier(p, geoCity, geoState, tokenList),
     }));
+
+  if (strictRegion) {
+    return base
+      .sort((a, b) => b.sort - a.sort)
+      .slice(0, limit)
+      .map((x) => x.payload);
+  }
 
   const inRegion = base
     .filter((x) => x.tier > 0)

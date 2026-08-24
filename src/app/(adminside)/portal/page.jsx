@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import axios from "axios";
 import Cookies from "js-cookie";
+import { extractAccessToken } from "@/lib/apiAuth";
 import "./portal-login.css";
 
 function MailIcon() {
@@ -136,8 +137,9 @@ export default function PortalSignInPage() {
         payload,
       );
 
-      if (response.data.token) {
-        Cookies.set("token", response.data.token, {
+      const accessToken = extractAccessToken(response.data);
+      if (accessToken) {
+        Cookies.set("token", accessToken, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",

@@ -1,12 +1,16 @@
 import Cookies from "js-cookie";
+import { authorizationHeaders } from "@/lib/apiAuth";
 
 
 export function adminApiWithAuth() {
-  return { withCredentials: true };
+  return {
+    withCredentials: true,
+    headers: authorizationHeaders(),
+  };
 }
 
 export function adminFetchHeaders(extra = {}) {
-  return { ...extra };
+  return authorizationHeaders(extra);
 }
 
 export function clearLegacyAdminTokenCookies() {

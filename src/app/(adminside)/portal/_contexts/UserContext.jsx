@@ -1,4 +1,5 @@
 "use client";
+import "@/lib/installApiAuth";
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import Cookies from "js-cookie";
 import axios from "axios";

@@ -9,6 +9,7 @@ import { GoogleLogin, GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { extractAccessToken } from "@/lib/apiAuth";
 
 export default function LoginSignupModal({ show, handleClose }) {
   const router = useRouter();
@@ -32,8 +33,9 @@ export default function LoginSignupModal({ show, handleClose }) {
         token: token,
       }
     );
-    if (response.data.token) {
-      const token = response.data.token;
+    const googleToken = extractAccessToken(response.data);
+    if (googleToken) {
+      const token = googleToken;
       Cookies.set("userData", JSON.stringify(response.data), {
         expires: 7, // 7 days
         secure: process.env.NODE_ENV === "production",
@@ -118,9 +120,10 @@ export default function LoginSignupModal({ show, handleClose }) {
         requestData
       );
 
-      if (response.data.token) {
+      const accessToken = extractAccessToken(response.data);
+      if (accessToken) {
         // Store token
-        Cookies.set("token", response.data.token, {
+        Cookies.set("token", accessToken, {
           expires: 7,
           secure: process.env.NODE_ENV === "production",
           sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",

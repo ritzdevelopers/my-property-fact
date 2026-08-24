@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import Cookies from "js-cookie";
+import { extractAccessToken } from "@/lib/apiAuth";
 import { validateLeadFields, validateLeadPhone } from "@/lib/leadValidation";
 import "./BrokerLoginModal.css";
 
@@ -180,7 +181,9 @@ function OtpVerifyArea({
 }
 
 function saveAuthCookies(data) {
-  Cookies.set("token", data.token, {
+  const token = extractAccessToken(data);
+  if (!token) return;
+  Cookies.set("token", token, {
     expires: 7,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "strict" : "lax",
@@ -366,7 +369,7 @@ export default function BrokerLoginModal({
         }),
       });
       const data = await res.json();
-      if (!res.ok || !data.token) {
+      if (!res.ok || !extractAccessToken(data)) {
         await completeVerifyFail(data.message || data.error || "Verification failed. Please try again.");
         return;
       }
@@ -430,7 +433,7 @@ export default function BrokerLoginModal({
         await completeLoginMissingAccount();
         return;
       }
-      if (!res.ok || !data.token) {
+      if (!res.ok || !extractAccessToken(data)) {
         await completeVerifyFail(data.message || data.error || "Verification failed. Please try again.");
         return;
       }

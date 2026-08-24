@@ -51,15 +51,15 @@
   }
 }
 
-/* Tighter top gap under the page banner (replaces heavy py-5) so side rails start higher */
+/* Space under the hero so Related Blogs, the article image, and Get in Touch are not flush */
 .blogDetailMainPad {
-  padding-top: 0.5rem;
+  padding-top: 2.25rem;
   padding-bottom: 2.5rem;
 }
 
 @media (max-width: 991px) {
   .blogDetailMainPad {
-    padding-top: 0.75rem;
+    padding-top: 1.75rem;
   }
 }
 

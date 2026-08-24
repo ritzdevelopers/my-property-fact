@@ -35,6 +35,7 @@ const features = [
 export default function WhyChooseSection() {
   const [isMobile, setIsMobile] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [manualOffset, setManualOffset] = useState(0);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 768);
@@ -45,15 +46,19 @@ export default function WhyChooseSection() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const next = () => {
-    setCurrent((prev) => (prev + 1) % features.length);
-  };
+const next = () => {
+  setCurrent((prev) => (prev + 1) % features.length);
 
-  const prev = () => {
-    setCurrent((prev) =>
-      prev === 0 ? features.length - 1 : prev - 1
-    );
-  };
+  setManualOffset((prev) => prev - 346);
+};
+
+const prev = () => {
+  setCurrent((prev) =>
+    prev === 0 ? features.length - 1 : prev - 1
+  );
+
+  setManualOffset((prev) => prev + 346);
+};
 
   return (
     <section className="whyChoose">
@@ -88,15 +93,20 @@ export default function WhyChooseSection() {
 
           {!isMobile ? (
             <div className="whyChoose__slider">
-              <div className="whyChoose__track">
-                {[...features, ...features].map((item, index) => (
-                  <div className="whyCard" key={index}>
-                    <h3>{item.title}</h3>
-                    <p>{item.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+  <div
+    className="whyChoose__track"
+    style={{
+      marginLeft: `${manualOffset}px`,
+    }}
+  >
+    {[...features, ...features].map((item, index) => (
+      <div className="whyCard" key={index}>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+      </div>
+    ))}
+  </div>
+</div>
           ) : (
             <>
               <div className="whyChoose__mobileCard">

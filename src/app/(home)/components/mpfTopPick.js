@@ -56,6 +56,7 @@ export default function MpfTopPicks({ topProject }) {
     { slugURL, projectThumbnailImage, projectBannerImage },
     { preferThumbnail: true, fallback: DEFAULT_PROJECT_CARD_IMAGE },
   );
+  
 
   const logoSrc =
     projectLogo && canBuildImageUrl && !projectLogo.startsWith("http")

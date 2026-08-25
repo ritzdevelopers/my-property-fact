@@ -110,6 +110,13 @@ function projectConfigurations(project) {
   return extractTypesFromProjectConfiguration(project?.projectConfiguration || "");
 }
 
+/** Collapse API variants ("Completed", "Ready", "Ready To Move") into one filter label. */
+function projectStatusOf(project) {
+  const raw = String(project?.projectStatusName || "").trim();
+  if (!raw) return "";
+  return formatListingStatusLabel(raw) || titleCase(raw);
+}
+
 /** Options are counted against the list, so empty buckets never show up. */
 function buildOptions(projects, valuesOf, labelOf = titleCase) {
   const counts = new Map();
@@ -177,11 +184,7 @@ export default function CityProjectsPanel({
           matchesBudgetRangeForProject(project, label),
         ).length,
       })).filter((option) => option.count > 0),
-      statuses: buildOptions(
-        list,
-        (p) => [p?.projectStatusName],
-        (value) => formatListingStatusLabel(value) || titleCase(value),
-      ),
+      statuses: buildOptions(list, (p) => [projectStatusOf(p)], (v) => v),
       builders: buildOptions(list, (p) => [p?.builderName], (v) => v),
     };
   }, [projects, localityOf]);
@@ -237,7 +240,7 @@ export default function CityProjectsPanel({
 
       if (
         filters.status.length &&
-        !filters.status.includes(String(project?.projectStatusName || "").trim())
+        !filters.status.includes(projectStatusOf(project))
       ) {
         return false;
       }

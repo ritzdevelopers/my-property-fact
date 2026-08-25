@@ -3,7 +3,7 @@ export const DEFAULT_PROJECT_CARD_IMAGE = "/static/no_image.png";
 /** Local card art that should win over CMS thumbnail/banner on listing cards. */
 const CARD_THUMBNAIL_OVERRIDES = {
   "fab-luxe-residences": "/static/projects/fab-luxe-residences.jpg",
-  "eldeco-7-peaks-residences": "/static/projects/eldeco-7-peaks-residences.jpg",
+  "eldeco-7-peaks-residences": "https://apis.mypropertyfact.in/api/v1/get/images/properties/eldeco-7-peaks-residences/1771218946822_Eldeco_7_Peaks_Residences_Desktop_Banner_2_-_My_Property_Fact.jpg",
   "ace-verdea": "/static/projects/ace-verdea.jpg",
   "ace-verde": "/static/projects/ace-verdea.jpg",
   "ace-yxp": "/static/projects/ace-yxp.jpg",

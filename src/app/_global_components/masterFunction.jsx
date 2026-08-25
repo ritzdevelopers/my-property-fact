@@ -606,7 +606,7 @@ const TOP_PICKS_BUILDERS = [
   "ghd-infra",
 ];
 
-const TOP_PICKS_PROJECT_SLUG = "eldeco-camelot";
+const TOP_PICKS_PROJECT_SLUG = "eldeco-7-peaks-residences";
 
 const TOP_PICKS_PERIOD_MS = 4 * 24 * 60 * 60 * 1000;
 

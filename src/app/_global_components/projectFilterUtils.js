@@ -107,10 +107,9 @@ function convertToCrore(value, unitHint = "") {
   // Values in full rupees (for example 7500000 => 0.75 Cr).
   if (value >= 100000) return value / 10000000;
 
-  // Whole-number shorthand commonly sent as lakh values (for example 95 => 95 Lakh).
-  if (value > 20) return value / 100;
-
-  // Smaller decimals/integers are treated as crore values.
+  // Bare numbers match listing display (LuxuryPricePlaque / generatePrice):
+  // < 1 → fraction of a crore (0.75 => 75 Lakh), >= 1 → crores (21 => 21 Cr).
+  // Do not treat large bare numbers as lakhs — that made 21/51 Cr match "Up to 1Cr".
   return value;
 }
 

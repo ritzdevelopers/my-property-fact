@@ -462,7 +462,7 @@ export default function ProjectCard({
     return (
       <Link
         href={`/${project.slugURL}`}
-        className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card text-decoration-none"
+        className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster mpf-listing-poster-card text-decoration-none overflow-hidden"
         onClick={(event) => {
           if (swipeLockRef.current) {
             event.preventDefault();
@@ -529,7 +529,7 @@ export default function ProjectCard({
           event.preventDefault();
           return;
         }
-        persistListingReturn();
+        persistListingReturn(); // Abhi9582@, abhi, mypropertyfact
       }}
     >
       <div className="mpf-lux-card__frame">

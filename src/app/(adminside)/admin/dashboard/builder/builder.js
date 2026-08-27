@@ -80,6 +80,8 @@ export default function Builder({ list }) {
   const [logoFile, setLogoFile] = useState(null);
   const [galleryZip, setGalleryZip] = useState(null);
   const [mediaUploading, setMediaUploading] = useState(false);
+  const [showDeleteLogoConfirm, setShowDeleteLogoConfirm] = useState(false);
+  const [logoDeleting, setLogoDeleting] = useState(false);
   const [showBulkLogoModal, setShowBulkLogoModal] = useState(false);
   const [bulkLogoZip, setBulkLogoZip] = useState(null);
   const [bulkUploading, setBulkUploading] = useState(false);
@@ -113,7 +115,40 @@ export default function Builder({ list }) {
     setMediaRow(row);
     setLogoFile(null);
     setGalleryZip(null);
+    setShowDeleteLogoConfirm(false);
     setShowMediaModal(true);
+  };
+
+  const confirmDeleteDeveloperLogo = async () => {
+    if (!mediaRow?.id) return;
+    const apiBase = getPublicApiBase();
+    if (!apiBase) {
+      toast.error("API URL is not configured.");
+      return;
+    }
+    setLogoDeleting(true);
+    try {
+      const res = await axios.delete(
+        `${apiBase}builder/delete-developer-logo/${mediaRow.id}`,
+        { withCredentials: true }
+      );
+      if (res.data?.isSuccess === 1) {
+        toast.success(res.data.message || "Logo deleted.");
+        setMediaRow((prev) => (prev ? { ...prev, builderLogo: null } : prev));
+        setShowDeleteLogoConfirm(false);
+        router.refresh();
+      } else {
+        toast.error(res.data?.message || "Could not delete logo.");
+      }
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "Could not delete logo.";
+      toast.error(typeof msg === "string" ? msg : "Could not delete logo.");
+    } finally {
+      setLogoDeleting(false);
+    }
   };
 
   const submitDeveloperMedia = async (e) => {
@@ -314,8 +349,12 @@ export default function Builder({ list }) {
         setConfirmBox={setConfirmBox}
       />
 
-      <Modal show={showMediaModal} onHide={() => !mediaUploading && setShowMediaModal(false)} centered>
-        <Modal.Header closeButton={!mediaUploading}>
+      <Modal
+        show={showMediaModal}
+        onHide={() => !mediaUploading && !logoDeleting && setShowMediaModal(false)}
+        centered
+      >
+        <Modal.Header closeButton={!mediaUploading && !logoDeleting}>
           <Modal.Title>
             Developer media
             {mediaRow?.builderName ? ` — ${mediaRow.builderName}` : ""}
@@ -329,7 +368,7 @@ export default function Builder({ list }) {
               <code>builders/{mediaRow?.slugUrl ?? "slug"}/</code>.
             </p>
             {mediaRow?.builderLogo && mediaRow?.slugUrl ? (
-              <div className="mb-3 d-flex align-items-center gap-2">
+              <div className="mb-3 d-flex align-items-center gap-2 flex-wrap">
                 <span className="small text-muted">Current logo:</span>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -337,6 +376,16 @@ export default function Builder({ list }) {
                   alt=""
                   style={{ maxHeight: 48, objectFit: "contain" }}
                 />
+                <Button
+                  type="button"
+                  variant="outline-danger"
+                  size="sm"
+                  className="py-0 px-2"
+                  disabled={mediaUploading || logoDeleting}
+                  onClick={() => setShowDeleteLogoConfirm(true)}
+                >
+                  Delete logo
+                </Button>
               </div>
             ) : null}
             {galleryCountFromRow(mediaRow || {}) > 0 ? (
@@ -349,7 +398,7 @@ export default function Builder({ list }) {
               <Form.Control
                 type="file"
                 accept="image/*"
-                disabled={mediaUploading}
+                disabled={mediaUploading || logoDeleting}
                 onChange={(ev) => setLogoFile(ev.target.files?.[0] ?? null)}
               />
             </Form.Group>
@@ -358,20 +407,62 @@ export default function Builder({ list }) {
               <Form.Control
                 type="file"
                 accept=".zip,application/zip"
-                disabled={mediaUploading}
+                disabled={mediaUploading || logoDeleting}
                 onChange={(ev) => setGalleryZip(ev.target.files?.[0] ?? null)}
               />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" type="button" disabled={mediaUploading} onClick={() => setShowMediaModal(false)}>
+            <Button
+              variant="secondary"
+              type="button"
+              disabled={mediaUploading || logoDeleting}
+              onClick={() => setShowMediaModal(false)}
+            >
               Cancel
             </Button>
-            <Button variant="primary" type="submit" disabled={mediaUploading}>
+            <Button variant="primary" type="submit" disabled={mediaUploading || logoDeleting}>
               {mediaUploading ? "Uploading…" : "Upload"}
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      <Modal
+        show={showDeleteLogoConfirm}
+        onHide={() => !logoDeleting && setShowDeleteLogoConfirm(false)}
+        centered
+      >
+        <Modal.Header closeButton={!logoDeleting}>
+          <Modal.Title>Delete developer logo?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p className="mb-2">
+            Are you sure you want to delete the logo for{" "}
+            <strong>{mediaRow?.builderName || "this builder"}</strong>?
+          </p>
+          <p className="small text-muted mb-0">
+            Only the logo will be removed. Gallery images will not be affected. This cannot be undone.
+          </p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            type="button"
+            disabled={logoDeleting}
+            onClick={() => setShowDeleteLogoConfirm(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="danger"
+            type="button"
+            disabled={logoDeleting}
+            onClick={confirmDeleteDeveloperLogo}
+          >
+            {logoDeleting ? "Deleting…" : "Delete logo"}
+          </Button>
+        </Modal.Footer>
       </Modal>
 
       <Modal show={showBulkLogoModal} onHide={() => !bulkUploading && setShowBulkLogoModal(false)} centered>

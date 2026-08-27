@@ -1137,12 +1137,11 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
 
       setCreatedProperty(result.property || null);
 
-      // Update savedListingId if property was created
-      if (result.property && result.property.id) {
-        setSavedListingId(result.property.id);
-      }
-
       if (isEditMode) {
+        // Keep listing id for edit flow continuity
+        if (result.property && result.property.id) {
+          setSavedListingId(result.property.id);
+        }
         // For edit mode, show success and redirect or refresh
         alert("Property updated successfully!");
         // Optionally redirect back to listings page
@@ -1150,10 +1149,15 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
           window.location.href = "/portal/dashboard/listings";
         }
       } else {
-        // For new listings, reset form and show success modal
+        // Fresh form for next listing.
+        // Do NOT keep savedListingId — that would re-trigger the load effect
+        // and refill the form with the property just submitted.
+        setSavedListingId(null);
+        setIsEditMode(false);
         setFormData(getInitialFormState());
         setErrors({});
         setCurrentStep(1);
+        setDraftSaved(false);
         setShowSuccessModal(true);
       }
     } catch (error) {
@@ -1168,7 +1172,13 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
   const handleCloseSuccessModal = () => {
     setShowSuccessModal(false);
     setCreatedProperty(null);
-    
+    // Ensure wizard stays on a clean form after closing success
+    setSavedListingId(null);
+    setIsEditMode(false);
+    setFormData(getInitialFormState());
+    setErrors({});
+    setCurrentStep(1);
+    setDraftSaved(false);
   };
 
   // Helper function to prepare property data (shared between draft and submit)

@@ -1,5 +1,31 @@
 const BUDGET_BUCKETS = [
   {
+    key: "upto_50l",
+    web: "Under 50 Lakhs*",
+    api: "Under 50 Lakhs",
+    chat: "Under ₹50 Lakh",
+    test: (priceInCr) => priceInCr <= 0.5,
+    aliases: [
+      "under 50 lakhs",
+      "under 50 lakh",
+      "under 50 lacs",
+      "under 50 lac",
+      "below 50 lakhs",
+      "below 50 lakh",
+      "below 50 lacs",
+      "below 50 lac",
+      "upto 50 lakhs",
+      "up to 50 lakhs",
+      "upto 50 lacs",
+      "up to 50 lacs",
+      "under 50l",
+      "under 50 l",
+      "under ₹50 lakh",
+      "under ₹50 lakhs",
+      "under 50 lakhs*",
+    ],
+  },
+  {
     key: "upto_1cr",
     web: "Up to 1Cr*",
     api: "Up to 1Cr",
@@ -87,6 +113,17 @@ export function normalizeBudgetSelection(rawBudget, output = "web") {
   if (output === "api") return bucket.api;
   if (output === "chat") return bucket.chat;
   return bucket.web;
+}
+
+/** Map a lakh amount (50 = ₹50 Lakh) onto the closest listing budget bucket. */
+export function budgetLabelFromLakhAmount(lakhs) {
+  const v = Number(lakhs);
+  if (!Number.isFinite(v)) return null;
+  if (v <= 50) return "Under 50 Lakhs*";
+  if (v <= 100) return "Up to 1Cr*";
+  if (v <= 300) return "1-3 Cr*";
+  if (v <= 500) return "3-5 Cr*";
+  return "Above 5 Cr*";
 }
 
 /** True for "Lakh", "Lac", or admin shorthand "L" / "Ls" ("15.75 - 17.5 L"). */

@@ -587,6 +587,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         budget = "",
         bhkType = "",
         configType = "",
+        projectStatus = "",
         quickTab = "All",
         searchLabel = "",
       } = withHeroFilters(params);
@@ -598,6 +599,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         budget,
         bhkType: resolvedBhk,
         configType: resolvedConfig,
+        projectStatus,
         searchLabel: searchLabel || "",
       };
 
@@ -750,6 +752,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         budget: parsed.budget,
         bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
         configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+        projectStatus: parsed.projectStatus || "",
         quickTab,
         searchLabel: formatParsedSearchLabel(parsed) || q,
       });
@@ -842,6 +845,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       budget: parsed.budget,
       bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
       configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+      projectStatus: parsed.projectStatus || "",
       quickTab,
       searchLabel: formatParsedSearchLabel(parsed) || q,
     });
@@ -888,12 +892,33 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   };
 
   const handlePopularChip = (label) => {
+    const parsed = parseSmartSearchQuery(label, {
+      cities: effectiveCityList,
+      projectTypes: effectiveProjectTypes,
+    });
+
     setSearchInput(label);
     setDebouncedSearch(label);
     setDropdownOpen(false);
-    setTimeout(() => {
-      searchWrapRef.current?.querySelector("form")?.requestSubmit();
-    }, 0);
+    if (parsed.budget) setHeroBudget(parsed.budget);
+    if (parsed.cityId) setHeroCityId(String(parsed.cityId));
+
+    const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
+    const typeId =
+      parsed.propertyTypeId ||
+      findTypeIdForTab(isPlotsContext(activeTab, parsed) ? "Plots" : quickTab, effectiveProjectTypes) ||
+      findTypeIdForTab(activeTab, effectiveProjectTypes);
+
+    navigateToProjects({
+      propertyTypeId: typeId ? String(typeId) : "",
+      cityId: parsed.cityId,
+      budget: parsed.budget,
+      bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+      configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+      projectStatus: parsed.projectStatus || "",
+      quickTab,
+      searchLabel: formatParsedSearchLabel(parsed) || label,
+    });
   };
 
   const showSuggestionsPanel = dropdownOpen && trimmedInput.length >= 2 && !categoryOpen;

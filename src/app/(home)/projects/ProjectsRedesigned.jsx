@@ -293,6 +293,7 @@ export default function ProjectsRedesigned({
       queryFilters?.budget ||
       queryFilters?.bhkType ||
       queryFilters?.configType ||
+      queryFilters?.projectStatus ||
       queryFilters?.searchLabel;
     if (!hasFilters) return;
     if (queryFilters?.propertyType && (!propertyTypes || propertyTypes.length === 0)) return;
@@ -313,6 +314,7 @@ export default function ProjectsRedesigned({
       budget: normalizeBudgetSelection(queryFilters?.budget, "web") || "",
       bhkType: queryFilters?.bhkType || "",
       configType: queryFilters?.configType || "",
+      projectStatus: queryFilters?.projectStatus || "",
     });
 
     const label = String(queryFilters?.searchLabel || "").trim();
@@ -645,6 +647,7 @@ export default function ProjectsRedesigned({
           budget: parsed.budget || "",
           bhkType: parsed.configType ? "" : parsed.bhkType || "",
           configType: parsed.bhkType ? "" : parsed.configType || "",
+          projectStatus: parsed.projectStatus || "",
         }));
         if (!isPropertyTypeLocked) {
           if (parsed.configType || parsed.quickTab === "Commercial") {

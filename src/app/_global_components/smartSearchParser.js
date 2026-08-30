@@ -1,4 +1,8 @@
-import { PROJECT_BUDGET_OPTIONS, matchesBudgetRangeForProject } from "./projectFilterUtils";
+import {
+  PROJECT_BUDGET_OPTIONS,
+  budgetLabelFromLakhAmount,
+  matchesBudgetRangeForProject,
+} from "./projectFilterUtils";
 import {
   cityNameMatchesFilter,
   normalizeCitySearchQuery,
@@ -81,6 +85,16 @@ export function matchesConfigTypeInConfiguration(projectConfiguration, selectedK
 
 const BUDGET_PATTERNS = [
   {
+    // "under 50 lakhs / 50 lacs / 50L" — must run before crore patterns
+    pattern:
+      /\b(?:below|under|upto|up\s*to|less\s*than)\s*(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:lakh|lakhs|lac|lacs|l)\b/i,
+    bucket: (n) => budgetLabelFromLakhAmount(n),
+  },
+  {
+    pattern: /\b(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:lakh|lakhs|lac|lacs)\b/i,
+    bucket: (n) => budgetLabelFromLakhAmount(n),
+  },
+  {
     // "below/under/up to 3 cr" → ceiling bucket at or under that amount
     pattern: /\b(?:below|under|upto|up\s*to|less\s*than)\s*(?:₹\s*)?(\d+(?:\.\d+)?)\s*(?:cr|crore|crores)\b/i,
     bucket: (n) => {
@@ -124,6 +138,7 @@ const BUDGET_PATTERNS = [
 ];
 
 const TYPE_HINTS = [
+  { pattern: /\bluxury\b/i, tab: "Residential", projectStatus: "Luxury" },
   { pattern: /\b(?:new\s*launch(?:es)?|newly\s*launched)\b/i, tab: "New Launched" },
   { pattern: /\bcommercial\b/i, tab: "Commercial" },
   { pattern: /\b(?:residential\s*land|(?<!sco\s)plots?)\b/i, tab: "Plots", bhkType: "Plots" },
@@ -142,6 +157,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
   let bhkType = "";
   let configType = "";
   let configLabel = "";
+  let projectStatus = "";
 
   for (const { pattern, bucket } of BUDGET_PATTERNS) {
     const match = remaining.match(pattern);
@@ -172,10 +188,11 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
   }
 
   if (!quickTab) {
-    for (const { pattern, tab, bhkType: hintBhkType } of TYPE_HINTS) {
+    for (const { pattern, tab, bhkType: hintBhkType, projectStatus: hintStatus } of TYPE_HINTS) {
       if (pattern.test(remaining)) {
         quickTab = tab;
         if (hintBhkType && !bhkType) bhkType = hintBhkType;
+        if (hintStatus) projectStatus = hintStatus;
         break;
       }
     }
@@ -239,6 +256,7 @@ export function parseSmartSearchQuery(rawQuery, { cities = [], projectTypes = []
     bhkType,
     configType,
     configLabel: configLabel || CONFIG_TYPE_LABELS[configType] || "",
+    projectStatus,
   };
 }
 
@@ -249,7 +267,8 @@ export function hasStructuredSearchIntent(parsed) {
       parsed.configType ||
       parsed.bhkType ||
       parsed.budget ||
-      parsed.quickTab,
+      parsed.quickTab ||
+      parsed.projectStatus,
   );
 }
 
@@ -316,7 +335,16 @@ export function projectMatchesParsedQuery(project, parsed) {
     return false;
   }
 
-  return Boolean(parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget);
+  if (parsed.projectStatus) {
+    const statusNorm = String(project?.projectStatusName || "").toLowerCase();
+    if (!statusNorm.includes(String(parsed.projectStatus).toLowerCase())) {
+      return false;
+    }
+  }
+
+  return Boolean(
+    parsed.cityName || parsed.bhkType || parsed.configType || parsed.budget || parsed.projectStatus,
+  );
 }
 
 export function formatParsedSearchLabel(parsed) {
@@ -327,6 +355,8 @@ export function formatParsedSearchLabel(parsed) {
     parts.push("Plots");
   } else if (parsed.bhkType) {
     parts.push(parsed.bhkType);
+  } else if (String(parsed.projectStatus || "").toLowerCase() === "luxury") {
+    parts.push("Luxury Apartments");
   } else if (parsed.quickTab === "Commercial") {
     parts.push("Commercial");
   } else if (parsed.quickTab === "Residential") {

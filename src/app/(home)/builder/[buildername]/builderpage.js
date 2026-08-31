@@ -6,7 +6,6 @@ export default function BuilderPage({ builderDetail, projectsList }) {
   const builderName = builderDetail?.builderName?.trim() || "Builder";
   const aboutBuilderLeftAlt = `${builderName} — about the builder section, left illustration on My Property Fact`;
   const aboutBuilderRightAlt = `${builderName} — about the builder section, right illustration on My Property Fact`;
-
   return (
     <>
       <CommonHeaderBanner
@@ -42,7 +41,11 @@ export default function BuilderPage({ builderDetail, projectsList }) {
           />
         </div>
         <div>
-          <p>{builderDetail.builderDescription}</p>
+          <div
+            dangerouslySetInnerHTML={{
+              __html: builderDetail?.builderDescription || "",
+            }}
+          />
         </div>
         <div>
           <img

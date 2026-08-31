@@ -39,7 +39,7 @@ const HOME_POPULAR_CHIPS = [
   "3 BHK in Gurgaon",
   "New Launch in Noida",
   "Luxury Apartments",
-  "Under 50 Lakhs",
+  "Up to 1cr",
 ];
 
 const RESIDENTIAL_PROPERTY_TYPES = [
@@ -897,10 +897,16 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       projectTypes: effectiveProjectTypes,
     });
 
+    // Popular budget chip → select matching hero budget option
+    const budgetFromChip =
+      /^up\s*to\s*1\s*cr$/i.test(String(label).trim())
+        ? "Up to 1Cr*"
+        : parsed.budget;
+
     setSearchInput(label);
     setDebouncedSearch(label);
     setDropdownOpen(false);
-    if (parsed.budget) setHeroBudget(parsed.budget);
+    if (budgetFromChip) setHeroBudget(budgetFromChip);
     if (parsed.cityId) setHeroCityId(String(parsed.cityId));
 
     const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
@@ -912,12 +918,12 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     navigateToProjects({
       propertyTypeId: typeId ? String(typeId) : "",
       cityId: parsed.cityId,
-      budget: parsed.budget,
+      budget: budgetFromChip,
       bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
       configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
       projectStatus: parsed.projectStatus || "",
       quickTab,
-      searchLabel: formatParsedSearchLabel(parsed) || label,
+      searchLabel: formatParsedSearchLabel({ ...parsed, budget: budgetFromChip }) || label,
     });
   };
 

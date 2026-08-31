@@ -233,7 +233,7 @@ const HeaderComponent = () => {
 
     // Handle resize to close mobile menu on desktop
     const handleResize = () => {
-      if (window.innerWidth >= 992) {
+      if (window.innerWidth >= 1024) {
         const menu = document.getElementById("mbdiv");
         const menuButtons = document.getElementsByClassName("menuBtn");
         if (menu && menu.classList.contains("active")) {
@@ -495,7 +495,7 @@ const HeaderComponent = () => {
 
   const showMobileLocationToast = () => {
     if (typeof window === "undefined") return;
-    if (window.innerWidth >= 992) return;
+    if (window.innerWidth >= 1024) return;
     if (locationToastShownRef.current) return;
     locationToastShownRef.current = true;
     setShowLocationToast(true);
@@ -971,7 +971,7 @@ const HeaderComponent = () => {
             {isHomePage ? (
               <div className="mpf-header-home-actions d-none d-lg-flex align-items-center">
                 <a href="tel:+918920024793" className="mpf-header-phone" title="Sales enquiry">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <svg className="mpf-header-phone__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="mpf-header-phone__copy">

@@ -464,6 +464,38 @@ function projectMatchesSelectedCity(project, selectedCity) {
   });
 }
 
+function formatProjectDisplayPrice(project) {
+  const rawPrice =
+    project?.projectPrice !== null &&
+    project?.projectPrice !== undefined &&
+    String(project.projectPrice).trim() !== ""
+      ? project.projectPrice
+      : project?.projectStartingPrice;
+
+  if (rawPrice === null || rawPrice === undefined || String(rawPrice).trim() === "") {
+    return "Price on Request";
+  }
+
+  const priceText = String(rawPrice).trim();
+  if (/[a-zA-Z]/.test(priceText)) {
+    return priceText;
+  }
+
+  const numericPrice = Number.parseFloat(priceText.replace(/,/g, ""));
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    return "Price on Request";
+  }
+
+  if (numericPrice < 1) {
+    return `₹${Math.round(numericPrice * 100)} Lakh* Onwards`;
+  }
+
+  const cr = Number.isInteger(numericPrice)
+    ? String(numericPrice)
+    : String(numericPrice).replace(/\.?0+$/, "");
+  return `₹${cr} Cr* Onwards`;
+}
+
 function buildProjectCards(projects = []) {
   return projects.map((project) => {
     const projectSlug =
@@ -486,7 +518,7 @@ function buildProjectCards(projects = []) {
       id: project.id,
       name: project.projectName,
       location: project.projectAddress || project.cityName,
-      price: project.projectStartingPrice || "Price on Request",
+      price: formatProjectDisplayPrice(project),
       image,
       builder: project.builderName || "N/A",
       status: project.projectStatusName || "N/A",

@@ -163,11 +163,12 @@ export function parsePriceToCrore(rawValue) {
 }
 
 function extractProjectPrice(project = {}) {
-  const rawStartingPrice = project?.projectStartingPrice;
   const rawPrice = project?.projectPrice;
-  return rawStartingPrice !== null && rawStartingPrice !== undefined && rawStartingPrice !== ""
-    ? rawStartingPrice
-    : rawPrice;
+  const rawStartingPrice = project?.projectStartingPrice;
+  // Prefer projectPrice (crore units used across listing cards) over starting-price text.
+  return rawPrice !== null && rawPrice !== undefined && rawPrice !== ""
+    ? rawPrice
+    : rawStartingPrice;
 }
 
 export function matchesBudgetRangeForProject(project, budgetSelection) {

@@ -335,27 +335,37 @@ function matchesSelectedBhk(projectConfiguration, selectedBhk) {
 }
 
 function formatProjectDisplayPrice(project) {
-  const startingPrice = String(project?.projectStartingPrice || "").trim();
-  if (startingPrice) return startingPrice;
+  // Match PropertyContainer / LuxuryPricePlaque: projectPrice is in crores
+  // (< 1 → lakhs via ×100). Prefer it over projectStartingPrice, which can be stale text.
+  const rawPrice =
+    project?.projectPrice !== null &&
+    project?.projectPrice !== undefined &&
+    String(project.projectPrice).trim() !== ""
+      ? project.projectPrice
+      : project?.projectStartingPrice;
 
-  const rawPrice = project?.projectPrice;
-  if (rawPrice === null || rawPrice === undefined || rawPrice === "") {
+  if (rawPrice === null || rawPrice === undefined || String(rawPrice).trim() === "") {
     return "Price on Request";
   }
 
-  const numericPrice = Number(rawPrice);
-  if (Number.isFinite(numericPrice)) {
-    if (numericPrice >= 1) {
-      const cr = numericPrice.toFixed(numericPrice % 1 === 0 ? 0 : 2).replace(/\.?0+$/, "");
-      return `₹${cr} Cr* Onwards`;
-    }
-    const lakh = (numericPrice * 100)
-      .toFixed((numericPrice * 100) % 1 === 0 ? 0 : 2)
-      .replace(/\.?0+$/, "");
-    return `₹${lakh} Lakh* Onwards`;
+  const priceText = String(rawPrice).trim();
+  if (/[a-zA-Z]/.test(priceText)) {
+    return priceText;
   }
 
-  return String(rawPrice);
+  const numericPrice = Number.parseFloat(priceText.replace(/,/g, ""));
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    return "Price on Request";
+  }
+
+  if (numericPrice < 1) {
+    return `₹${Math.round(numericPrice * 100)} Lakh* Onwards`;
+  }
+
+  const cr = Number.isInteger(numericPrice)
+    ? String(numericPrice)
+    : String(numericPrice).replace(/\.?0+$/, "");
+  return `₹${cr} Cr* Onwards`;
 }
 
 function toNumber(value) {

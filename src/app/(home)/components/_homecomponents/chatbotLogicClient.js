@@ -3,6 +3,10 @@ import {
   matchesBudgetRangeForProject,
   normalizeBudgetSelection,
 } from "@/app/_global_components/projectFilterUtils";
+import {
+  matchesBhkInConfiguration,
+  matchesConfigTypeInConfiguration,
+} from "@/app/_global_components/smartSearchParser";
 import { normalizeCitySearchQuery } from "@/app/_global_components/cityAliasUtils";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 
@@ -69,12 +73,31 @@ const CITY_OPTIONS = [
 
 const BUDGET_OPTIONS = CHAT_BUDGET_OPTIONS;
 
+const BHK_OPTIONS = ["1 BHK", "2 BHK", "3 BHK", "4 BHK", "5 BHK", "5+ BHK"];
+
+const COMMERCIAL_CONFIG_OPTIONS = [
+  { label: "Food Court", key: "food-court" },
+  { label: "Kiosk", key: "kiosk" },
+  { label: "Office", key: "office" },
+  { label: "Restaurant", key: "restaurant" },
+  { label: "SCO Plots", key: "sco-plots" },
+  { label: "Shops", key: "shops" },
+  { label: "Showroom", key: "showroom" },
+];
+
+const COMMERCIAL_CONFIG_LABELS = COMMERCIAL_CONFIG_OPTIONS.map((item) => item.label);
+
+const LAUNCH_CATEGORY_OPTIONS = ["Commercial", "Residential"];
+
 const RESTART_KEYWORDS = new Set(["restart", "reset", "start over", "start again"]);
 
 const CHAT_STATES = {
   WELCOME: "WELCOME",
+  AWAIT_LAUNCH_CATEGORY: "AWAIT_LAUNCH_CATEGORY",
   AWAIT_CITY: "AWAIT_CITY",
   AWAIT_CUSTOM_CITY: "AWAIT_CUSTOM_CITY",
+  AWAIT_BHK: "AWAIT_BHK",
+  AWAIT_CONFIG: "AWAIT_CONFIG",
   AWAIT_BUDGET: "AWAIT_BUDGET",
   SHOWING_RESULTS: "SHOWING_RESULTS",
 };
@@ -82,9 +105,85 @@ const CHAT_STATES = {
 export function createInitialChatSession() {
   return {
     step: CHAT_STATES.WELCOME,
-    data: { type: null, propertyTypeId: null, city: null, budget: null },
+    data: {
+      type: null,
+      propertyTypeId: null,
+      category: null,
+      city: null,
+      bhk: null,
+      configType: null,
+      budget: null,
+    },
     results: { allProjects: [], currentIndex: 0 },
   };
+}
+
+function getFilterPathType(session) {
+  if (normalizeText(session?.data?.type) === "new launch") {
+    return normalizeText(session?.data?.category);
+  }
+  return normalizeText(session?.data?.type);
+}
+
+function needsBhkStep(session) {
+  return getFilterPathType(session) === "residential";
+}
+
+function needsConfigStep(session) {
+  return getFilterPathType(session) === "commercial";
+}
+
+function createLaunchCategoryPrompt() {
+  return {
+    reply: "Great. Is this New Launch for Commercial or Residential?",
+    options: LAUNCH_CATEGORY_OPTIONS,
+  };
+}
+
+function createCityPrompt() {
+  return {
+    reply: "Great choice. Which city are you interested in?",
+    options: CITY_OPTIONS,
+  };
+}
+
+function createBhkPrompt() {
+  return {
+    reply: "Got it. Which BHK configuration are you looking for?",
+    options: BHK_OPTIONS,
+  };
+}
+
+function createConfigPrompt() {
+  return {
+    reply: "Got it. Which commercial configuration are you looking for?",
+    options: COMMERCIAL_CONFIG_LABELS,
+  };
+}
+
+function createBudgetPrompt() {
+  return {
+    reply: "Perfect. What is your budget range?",
+    options: BUDGET_OPTIONS,
+  };
+}
+
+function advanceAfterCity(session) {
+  session.data.bhk = null;
+  session.data.configType = null;
+
+  if (needsBhkStep(session)) {
+    session.step = CHAT_STATES.AWAIT_BHK;
+    return createBhkPrompt();
+  }
+
+  if (needsConfigStep(session)) {
+    session.step = CHAT_STATES.AWAIT_CONFIG;
+    return createConfigPrompt();
+  }
+
+  session.step = CHAT_STATES.AWAIT_BUDGET;
+  return createBudgetPrompt();
 }
 
 function normalizeText(value = "") {
@@ -105,6 +204,13 @@ function resolvePropertyType(message) {
   if (msg.includes("commercial")) return "commercial";
   if (msg.includes("new launch")) return "new launch";
   if (msg.includes("residential")) return "residential";
+  return null;
+}
+
+function resolveLaunchCategory(message) {
+  const msg = normalizeText(message);
+  if (msg === "commercial") return "commercial";
+  if (msg === "residential") return "residential";
   return null;
 }
 
@@ -165,6 +271,69 @@ function resolveBudget(message) {
   return normalizeBudgetSelection(message, "web");
 }
 
+function resolveBhk(message) {
+  const msg = normalizeText(message);
+  if (!msg) return null;
+
+  if (/^5\+\s*bhk$/.test(msg) || msg === "5 plus bhk" || msg === "5+bhk") {
+    return "5+ BHK";
+  }
+
+  const exact = BHK_OPTIONS.find((option) => normalizeText(option) === msg);
+  if (exact) return exact;
+
+  const match = msg.match(/^(\d+)\s*bhk$/);
+  if (match) {
+    const n = Number(match[1]);
+    if (n >= 5) return "5+ BHK";
+    if (n >= 1 && n <= 4) return `${n} BHK`;
+  }
+
+  return null;
+}
+
+function resolveConfigType(message) {
+  const msg = normalizeText(message);
+  if (!msg) return null;
+
+  const exact = COMMERCIAL_CONFIG_OPTIONS.find(
+    (option) => normalizeText(option.label) === msg || option.key === msg,
+  );
+  if (exact) return exact;
+
+  if (msg === "food courts" || msg === "foodcourt" || msg === "food-court") {
+    return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "food-court");
+  }
+  if (msg === "kiosks") return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "kiosk");
+  if (msg === "offices") return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "office");
+  if (msg === "restaurants") {
+    return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "restaurant");
+  }
+  if (msg === "sco plot" || msg === "scoplots" || msg === "sco-plots") {
+    return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "sco-plots");
+  }
+  if (msg === "shop") return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "shops");
+  if (msg === "showrooms") {
+    return COMMERCIAL_CONFIG_OPTIONS.find((option) => option.key === "showroom");
+  }
+
+  return null;
+}
+
+function matchesSelectedBhk(projectConfiguration, selectedBhk) {
+  const wanted = String(selectedBhk || "").trim();
+  if (!wanted) return true;
+
+  if (/^5\+\s*BHK$/i.test(wanted)) {
+    const config = String(projectConfiguration || "");
+    if (!config) return false;
+    const matches = config.match(/\b(\d+)\s*BHK\b/gi) || [];
+    return matches.some((token) => Number(String(token).match(/\d+/)?.[0] || 0) >= 5);
+  }
+
+  return matchesBhkInConfiguration(projectConfiguration, wanted);
+}
+
 function formatProjectDisplayPrice(project) {
   const startingPrice = String(project?.projectStartingPrice || "").trim();
   if (startingPrice) return startingPrice;
@@ -197,7 +366,10 @@ function toNumber(value) {
 function applyWebsiteLikeFilters(projects, session, projectTypes = []) {
   const selectedType = session?.data?.type;
   const selectedTypeId = session?.data?.propertyTypeId;
+  const selectedCategory = normalizeText(session?.data?.category);
   const selectedBudget = session?.data?.budget;
+  const selectedBhk = session?.data?.bhk;
+  const selectedConfigType = session?.data?.configType;
   const selectedTypeMeta = Array.isArray(projectTypes)
     ? projectTypes.find((type) => toNumber(type?.id) === toNumber(selectedTypeId))
     : null;
@@ -227,6 +399,25 @@ function applyWebsiteLikeFilters(projects, session, projectTypes = []) {
       if (project?.propertyTypeName !== "Residential" && projectTypeId !== 1) return false;
     } else if (selectedType === "new launch") {
       if (project?.projectStatusName !== "New Launched") return false;
+    }
+
+    if (selectedType === "new launch" && selectedCategory === "commercial") {
+      const projectTypeId = toNumber(project?.propertyTypeId);
+      if (project?.propertyTypeName !== "Commercial" && projectTypeId !== 2) return false;
+    } else if (selectedType === "new launch" && selectedCategory === "residential") {
+      const projectTypeId = toNumber(project?.propertyTypeId);
+      if (project?.propertyTypeName !== "Residential" && projectTypeId !== 1) return false;
+    }
+
+    if (selectedBhk && !matchesSelectedBhk(project?.projectConfiguration, selectedBhk)) {
+      return false;
+    }
+
+    if (
+      selectedConfigType &&
+      !matchesConfigTypeInConfiguration(project?.projectConfiguration, selectedConfigType)
+    ) {
+      return false;
     }
 
     if (!selectedBudget) return true;
@@ -300,13 +491,17 @@ function buildProjectsNavigationPayload(data) {
   const budget = data.budget;
   if (!cityId || !budget) return null;
 
+  const queryFilters = {
+    propertyType: String(typeId),
+    propertyLocation: String(cityId),
+    budget,
+  };
+  if (data.bhk) queryFilters.bhkType = data.bhk;
+  if (data.configType) queryFilters.configType = data.configType;
+
   return {
     navigateToProjects: true,
-    queryFilters: {
-      propertyType: String(typeId),
-      propertyLocation: String(cityId),
-      budget,
-    },
+    queryFilters,
   };
 }
 
@@ -414,9 +609,22 @@ async function fetchProjectsFromApi(session) {
   const cityMatchedProjects = allProjects.filter((project) =>
     projectMatchesSelectedCity(project, normalizedCity),
   );
+  const bhkFiltered = session.data.bhk
+    ? cityMatchedProjects.filter((project) =>
+        matchesSelectedBhk(project?.projectConfiguration, session.data.bhk),
+      )
+    : cityMatchedProjects;
+  const configFiltered = session.data.configType
+    ? bhkFiltered.filter((project) =>
+        matchesConfigTypeInConfiguration(
+          project?.projectConfiguration,
+          session.data.configType,
+        ),
+      )
+    : bhkFiltered;
 
   session.results = {
-    allProjects: cityMatchedProjects.length ? cityMatchedProjects : allProjects,
+    allProjects: configFiltered,
     currentIndex: 0,
   };
   session.step = CHAT_STATES.SHOWING_RESULTS;
@@ -430,7 +638,10 @@ function handleResultsState(message, session) {
     session.step = CHAT_STATES.WELCOME;
     session.data.type = null;
     session.data.propertyTypeId = null;
+    session.data.category = null;
     session.data.city = null;
+    session.data.bhk = null;
+    session.data.configType = null;
     session.data.budget = null;
     session.results = { allProjects: [], currentIndex: 0 };
     return {
@@ -506,13 +717,43 @@ export async function generateClientChatResponse(
 
     nextSession.data.type = propertyType;
     nextSession.data.propertyTypeId = resolveProjectTypeId(propertyType, projectTypes);
+    nextSession.data.category = null;
+    nextSession.data.bhk = null;
+    nextSession.data.configType = null;
+    nextSession.data.budget = null;
+
+    if (propertyType === "new launch") {
+      nextSession.step = CHAT_STATES.AWAIT_LAUNCH_CATEGORY;
+      return {
+        nextSession,
+        payload: createLaunchCategoryPrompt(),
+      };
+    }
+
     nextSession.step = CHAT_STATES.AWAIT_CITY;
     return {
       nextSession,
-      payload: {
-        reply: "Great choice. Which city are you interested in?",
-        options: CITY_OPTIONS,
-      },
+      payload: createCityPrompt(),
+    };
+  }
+
+  if (nextSession.step === CHAT_STATES.AWAIT_LAUNCH_CATEGORY) {
+    const category = resolveLaunchCategory(msg);
+    if (!category) {
+      return {
+        nextSession,
+        payload: {
+          reply: "Please choose Commercial or Residential for New Launch.",
+          options: LAUNCH_CATEGORY_OPTIONS,
+        },
+      };
+    }
+
+    nextSession.data.category = category;
+    nextSession.step = CHAT_STATES.AWAIT_CITY;
+    return {
+      nextSession,
+      payload: createCityPrompt(),
     };
   }
 
@@ -537,10 +778,9 @@ export async function generateClientChatResponse(
     }
 
     nextSession.data.city = city;
-    nextSession.step = CHAT_STATES.AWAIT_BUDGET;
     return {
       nextSession,
-      payload: { reply: "Perfect. What is your budget range?", options: BUDGET_OPTIONS },
+      payload: advanceAfterCity(nextSession),
     };
   }
 
@@ -578,10 +818,51 @@ export async function generateClientChatResponse(
     }
 
     nextSession.data.city = selectedCity;
+    return {
+      nextSession,
+      payload: advanceAfterCity(nextSession),
+    };
+  }
+
+  if (nextSession.step === CHAT_STATES.AWAIT_BHK) {
+    const bhk = resolveBhk(msg);
+    if (!bhk) {
+      return {
+        nextSession,
+        payload: {
+          reply: "Please select a BHK option to continue.",
+          options: BHK_OPTIONS,
+        },
+      };
+    }
+
+    nextSession.data.bhk = bhk;
+    nextSession.data.configType = null;
     nextSession.step = CHAT_STATES.AWAIT_BUDGET;
     return {
       nextSession,
-      payload: { reply: "Perfect. What is your budget range?", options: BUDGET_OPTIONS },
+      payload: createBudgetPrompt(),
+    };
+  }
+
+  if (nextSession.step === CHAT_STATES.AWAIT_CONFIG) {
+    const config = resolveConfigType(msg);
+    if (!config) {
+      return {
+        nextSession,
+        payload: {
+          reply: "Please select a commercial configuration to continue.",
+          options: COMMERCIAL_CONFIG_LABELS,
+        },
+      };
+    }
+
+    nextSession.data.configType = config.key;
+    nextSession.data.bhk = null;
+    nextSession.step = CHAT_STATES.AWAIT_BUDGET;
+    return {
+      nextSession,
+      payload: createBudgetPrompt(),
     };
   }
 

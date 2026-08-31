@@ -517,10 +517,31 @@ nav.d-none.d-lg-flex {
   display: none;
 }
 
-@media (max-width: 991.98px) {
+@media (max-width: 1023.98px) {
   .header.px-2 {
     padding-left: 8px;
     padding-right: 8px;
+  }
+
+  /* Bootstrap lg is 992px — keep hamburger/mobile header through 1023px */
+  .header nav.d-lg-flex {
+    display: none !important;
+  }
+
+  .header .mpf-header-home-actions.d-lg-flex {
+    display: none !important;
+  }
+
+  .header .header-post-property-cta.d-lg-inline-flex:not(.header-post-property-cta--mobile) {
+    display: none !important;
+  }
+
+  .header .header-post-property-cta--mobile {
+    display: flex !important;
+  }
+
+  .header .header-mobile-actions {
+    display: flex !important;
   }
 
   .header .container.d-flex,
@@ -751,7 +772,17 @@ nav.d-none.d-lg-flex {
   }
 }
 
-@media (max-width: 1199.98px) {
+/* Match 1366 desktop header width from 1024px up (avoid 960px Bootstrap lg squeeze) */
+@media (min-width: 1024px) {
+  .header .container,
+  .header .header-home-ss__container {
+    max-width: 1140px;
+    width: 100%;
+  }
+}
+
+/* CTA shrink only on tablet/mobile — not mid laptops */
+@media (max-width: 1023.98px) {
   .header-post-property-cta {
     padding: 0.5rem 0.85rem 0.5rem 0.95rem;
   }
@@ -769,8 +800,8 @@ nav.d-none.d-lg-flex {
   color: #1a1a1a;
 }
 
-/* Post Property Button Responsive */
-@media (max-width: 1199.98px) {
+/* Post Property Button Responsive — tablet/mobile only */
+@media (max-width: 1023.98px) {
   .post-property-btn-wrapper {
     margin-right: 25px;
   }
@@ -1302,6 +1333,18 @@ a.dropdown-footer-right:focus-visible {
 .menu ul li.hasChild:hover .dropdown .dropdown-footer-phone-icon,
 .menu ul li .dropdown:hover .dropdown-footer-phone-icon {
   animation: phone-ring 0.5s ease-in-out infinite;
+}
+
+.mpf-header-phone__icon {
+  flex-shrink: 0;
+  transform-origin: 50% 50%;
+  animation: phone-ring 0.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-header-phone__icon {
+    animation: none;
+  }
 }
 
 .dropdown-footer-right {
@@ -3156,7 +3199,7 @@ button.mobile-menu-item {
 }
 
 /* Ensure dropdown indicators only show on mobile */
-@media (min-width: 992px) {
+@media (min-width: 1024px) {
   .mobile-dropdown-icon {
     display: none !important;
   }

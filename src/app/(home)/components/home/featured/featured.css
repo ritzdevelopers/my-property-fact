@@ -641,7 +641,7 @@
 }
 
 
-/* Tablet: 2 cards */
+/* Tablet: 2 cards — fill slide width (no 510px cap squeeze) */
 @media (max-width: 1024px) {
     .featured-page-slider--two-up {
         --featured-image-height: 220px;
@@ -650,18 +650,19 @@
 
     .home-featured-project-card {
         width: 100%;
-        max-width: 510px;
+        max-width: 100%;
         padding-bottom: 68px;
     }
 
     .home-featured-image-card {
         width: 100%;
+        max-width: 100%;
         height: 220px;
     }
 
     .home-featured-builder-card {
-        width: 92%;
-        max-width: 423px;
+        width: calc(100% - 24px);
+        max-width: 100%;
         height: auto;
         min-height: 120px;
     }
@@ -711,6 +712,95 @@
         overflow: hidden;
         line-height: 1.25;
         font-size: 12px;
+    }
+}
+
+/* Featured section — tablet landscape (760–1024): wider rail + poster cards */
+@media (min-width: 760px) and (max-width: 1023.98px) {
+    .home-featured-section.container {
+        max-width: min(100%, 980px);
+        width: 100%;
+        padding-left: clamp(18px, 2.8vw, 32px);
+        padding-right: clamp(18px, 2.8vw, 32px);
+    }
+
+    .home-featured-section-title-row {
+        gap: 14px;
+        margin-bottom: 18px;
+    }
+
+    .home-featured-section .home-featured-section-title {
+        font-size: clamp(1.22rem, 2.2vw, 1.5rem);
+        line-height: 1.3;
+    }
+
+    .featured-page-slider .home-featured-poster-card,
+    .featured-page-slider .home-project-card--poster {
+        width: 100%;
+        max-width: 100%;
+        min-height: clamp(340px, 46vw, 400px);
+    }
+
+    .featured-page-slider .featured-poster-slide,
+    .featured-page-slider .slick-slide > div:has(.home-project-card--poster) {
+        padding: 0 clamp(10px, 1.6vw, 16px) 0 0 !important;
+    }
+
+    .featured-page-slider .home-project-card--poster .home-project-card__overlay {
+        gap: 8px;
+        padding: 18px 16px 16px;
+    }
+
+    .featured-page-slider .home-project-card--poster .home-project-card__title {
+        font-size: clamp(1rem, 2vw, 1.12rem);
+        line-height: 1.28;
+    }
+
+    .featured-page-slider .home-project-card--poster .home-project-card__meta,
+    .featured-page-slider .home-project-card--poster .home-project-card__location {
+        font-size: 0.84rem;
+    }
+
+    .featured-page-slider .mpf-lux-card--poster .mpf-lux-price {
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+
+    .featured-page-slider .mpf-lux-card--poster .mpf-status-ribbon--lux {
+        top: 14px;
+        right: 12px;
+    }
+
+    .featured-page-slider .mpf-lux-card--poster .mpf-lux-card__bar {
+        margin-top: 8px;
+        padding-top: 10px;
+    }
+
+    .featured-page-slider .mpf-lux-card--poster .mpf-lux-card__go {
+        width: 34px;
+        height: 34px;
+        flex-shrink: 0;
+    }
+
+    .home-featured-project-card {
+        max-width: 100%;
+        padding-bottom: clamp(60px, 10vw, 72px);
+    }
+
+    .home-featured-image-card {
+        height: clamp(220px, 34vw, 280px);
+        max-width: 100%;
+    }
+
+    .home-featured-builder-card {
+        width: calc(100% - 24px);
+        max-width: 100%;
+    }
+
+    .featured-swipe-rail__slide {
+        flex: 0 0 48%;
+        max-width: 48%;
     }
 }
 

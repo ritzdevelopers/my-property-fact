@@ -690,7 +690,7 @@
   }
 }
 
-@media (min-width: 768px) and (max-width: 991.98px) {
+@media (min-width: 760px) and (max-width: 991.98px) {
   .transform-home-headline-stack {
     max-width: 100%;
   }
@@ -706,6 +706,34 @@
   .transform-home-headline-base,
   .transform-home-headline-highlight {
     white-space: normal;
+  }
+}
+
+/* Transform home — tablet landscape (760–1024): wider section */
+@media (min-width: 760px) and (max-width: 1023.98px) {
+  .transform-home-section.container {
+    max-width: min(100%, 980px);
+    width: 100%;
+    padding-left: clamp(18px, 2.8vw, 32px);
+    padding-right: clamp(18px, 2.8vw, 32px);
+  }
+
+  .transform-home-image-wrap {
+    min-height: 0;
+  }
+
+  .transform-home-headline-stack {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .transform-home-developers {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .transform-home-explore-projects-wrap {
+    width: 100%;
   }
 }
 

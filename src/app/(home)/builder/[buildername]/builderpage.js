@@ -73,7 +73,7 @@ export default function BuilderPage({ builderDetail, projectsList }) {
           <div className="row g-3 builder-projects-grid">
             {builderDetail.projectList.length > 0 ? (
               builderDetail.projectList.map((item, index) => (
-                <div key={index} className="col-12 col-sm-6 col-md-4 builder-projects-grid__item">
+                <div key={index} className="col-12 col-sm-6 col-lg-4 builder-projects-grid__item">
                   <PropertyContainer data={item} badgeVariant="home-featured" />
                 </div>
               ))

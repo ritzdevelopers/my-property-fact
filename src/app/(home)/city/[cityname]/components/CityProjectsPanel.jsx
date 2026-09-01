@@ -106,8 +106,25 @@ function projectPropertyType(project) {
     : "Residential";
 }
 
+/** Collapse singular/plural config aliases so the filter list shows one option. */
+function canonicalizeConfiguration(value) {
+  const normalized = String(value || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!normalized) return "";
+  if (normalized === "office" || normalized === "offices") return "offices";
+  return normalized;
+}
+
 function projectConfigurations(project) {
-  return extractTypesFromProjectConfiguration(project?.projectConfiguration || "");
+  return [
+    ...new Set(
+      extractTypesFromProjectConfiguration(project?.projectConfiguration || "")
+        .map(canonicalizeConfiguration)
+        .filter(Boolean),
+    ),
+  ];
 }
 
 /** Collapse API variants ("Completed", "Ready", "Ready To Move") into one filter label. */
@@ -137,6 +154,7 @@ function buildOptions(projects, valuesOf, labelOf = titleCase) {
 function configurationLabel(value) {
   const bhk = value.match(/^(\d+)\s*bhk$/i);
   if (bhk) return `${bhk[1]} BHK`;
+  if (/^offices?$/i.test(value)) return "Offices";
   return titleCase(value);
 }
 

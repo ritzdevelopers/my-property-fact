@@ -140,8 +140,8 @@ function getCardPayload(item, kind) {
 
 function getVisibleCount(viewportWidth) {
   if (viewportWidth <= 480) return 1;
-  if (viewportWidth <= 768) return 2;
-  if (viewportWidth <= 1024) return 3;
+  // Tablet / small laptop: 2 wider cards (CSS tuned for 760–1024)
+  if (viewportWidth <= 1024) return 2;
   return 4;
 }
 

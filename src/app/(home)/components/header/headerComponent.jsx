@@ -28,6 +28,22 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 
 const LOGO_ON_LIGHT = "/logo.webp";
+
+/** When GPS is blocked/unavailable — avoid IP guess (often wrong towns like Sardhana). */
+const DEFAULT_CITY_WITHOUT_GEO = "Noida Extension";
+const DEFAULT_CITY_HEADER_LABEL = "Noida Ext.";
+
+function formatHeaderCityLabel(city) {
+  const value = String(city || "").trim();
+  if (!value) return "";
+  if (
+    value.toLowerCase() === DEFAULT_CITY_WITHOUT_GEO.toLowerCase() ||
+    /^noida\s*ext(?:ension|n)?\.?$/i.test(value)
+  ) {
+    return DEFAULT_CITY_HEADER_LABEL;
+  }
+  return value;
+}
 const LOGO_ON_DARK = "/logo.webp";
 
 const NewBadge = ({ isVisible }) => (
@@ -531,34 +547,6 @@ const HeaderComponent = () => {
       showMobileLocationToast();
     };
 
-    const detectCityFromIp = async () => {
-      try {
-        const res = await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client");
-        if (!res.ok) return "";
-        const data = await res.json();
-        const parts = [
-          data.city,
-          data.locality,
-          data.principalSubdivision,
-          ...(Array.isArray(data.localityInfo?.informative)
-            ? data.localityInfo.informative.map((item) => item?.name)
-            : []),
-          ...(Array.isArray(data.localityInfo?.administrative)
-            ? data.localityInfo.administrative.map((item) => item?.name)
-            : []),
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (parts.includes("greater noida")) return "Greater Noida";
-        if (parts.includes("noida")) return "Noida";
-        if (parts.includes("gautam") && parts.includes("nagar")) return "Noida";
-        return String(data.city || data.locality || "").trim();
-      } catch {
-        return "";
-      }
-    };
-
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
@@ -579,8 +567,13 @@ const HeaderComponent = () => {
     };
 
     const resolveWithFallback = async (coords) => {
+      if (!coords) {
+        finishWithCity(DEFAULT_CITY_WITHOUT_GEO);
+        return;
+      }
+
       try {
-        const fromGps = coords ? await resolveFromCoords(coords) : "";
+        const fromGps = await resolveFromCoords(coords);
         if (isSpecificCity(fromGps)) {
           finishWithCity(fromGps);
           return;
@@ -588,8 +581,7 @@ const HeaderComponent = () => {
       } catch (error) {
         console.error("Location Error:", error);
       }
-      const fromIp = await detectCityFromIp();
-      finishWithCity(fromIp || "Delhi NCR");
+      finishWithCity(DEFAULT_CITY_WITHOUT_GEO);
     };
 
     if (!navigator.geolocation) {
@@ -679,8 +671,8 @@ const HeaderComponent = () => {
               <div className="mpf-header-location-dropdown">
                 <div
                   className="mpf-header-location-pill mpf-header-location-pill--readonly"
-                  title={`Current location ${selectedCity || "detecting"}`}
-                  aria-label={`Current location ${selectedCity || "detecting"}`}
+                  title={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}`}
+                  aria-label={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}`}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -696,7 +688,9 @@ const HeaderComponent = () => {
                       strokeWidth="1.8"
                     />
                   </svg>
-                  <span className="mpf-header-location-pill__city">{selectedCity || "Locating…"}</span>
+                  <span className="mpf-header-location-pill__city">
+                    {formatHeaderCityLabel(selectedCity) || "Locating…"}
+                  </span>
                 </div>
               </div>
             ) : null}
@@ -1474,7 +1468,7 @@ const HeaderComponent = () => {
             </span>
             <div className="mpf-location-toast__copy">
               <small>Current location</small>
-              <strong>{selectedCity}</strong>
+              <strong>{formatHeaderCityLabel(selectedCity) || selectedCity}</strong>
             </div>
           </div>
         </div>

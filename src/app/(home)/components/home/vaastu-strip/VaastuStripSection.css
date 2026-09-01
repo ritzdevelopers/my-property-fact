@@ -2,6 +2,16 @@
   padding: 10px 0 30px;
 }
 
+/* Vaastu strip — tablet max-width only (760–1024) */
+@media (min-width: 760px) and (max-width: 1023.98px) {
+  .vaastu-strip-section > .container {
+    max-width: min(100%, 980px);
+    width: 100%;
+    padding-left: clamp(18px, 2.8vw, 32px);
+    padding-right: clamp(18px, 2.8vw, 32px);
+  }
+}
+
 .vaastu-strip-carousel {
   position: relative;
 }

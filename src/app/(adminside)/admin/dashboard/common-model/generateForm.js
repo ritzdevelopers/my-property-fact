@@ -1,24 +1,16 @@
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
-import Cookies from "js-cookie";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { adminApiWithAuth, adminFetchHeaders } from "../../_lib/adminApiAuth";
 import { toast } from "../../_lib/adminToast";
 
 const Editor = dynamic(() => import("./joe-editor"), {
   ssr: false,
   loading: () => <p>Loading editor...</p>,
 });
-
-function adminMutationHeaders() {
-  const token =
-    typeof window !== "undefined" ? Cookies.get("token") : undefined;
-  return {
-    "Content-Type": "application/json",
-  };
-}
 
 export default function GenerateForm({ inputFields, showModal, setShowModal, validated, setValidated,
     setShowLoading, setButtonName, buttonName, showLoading, formData, title, setFormData, api
@@ -69,8 +61,8 @@ export default function GenerateForm({ inputFields, showModal, setShowModal, val
                     `${process.env.NEXT_PUBLIC_API_URL}${api}`,
                     payload,
                     {
-                        withCredentials: true,
-                        headers: adminMutationHeaders(),
+                        ...adminApiWithAuth(),
+                        headers: adminFetchHeaders({ "Content-Type": "application/json" }),
                     }
                 );
                 if (response.data.isSuccess === 1) {

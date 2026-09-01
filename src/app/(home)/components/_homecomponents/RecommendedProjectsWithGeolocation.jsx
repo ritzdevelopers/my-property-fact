@@ -34,6 +34,11 @@ export default function RecommendedProjectsWithGeolocation({
   const [activeCity, setActiveCity] = useState("");
   const cityOverrideRef = useRef("");
   const fetchGenRef = useRef(0);
+  const fallbackItemsRef = useRef(fallbackItems);
+
+  useEffect(() => {
+    fallbackItemsRef.current = fallbackItems;
+  }, [fallbackItems]);
 
   useEffect(() => {
     if (cityOverrideRef.current) return;
@@ -43,8 +48,19 @@ export default function RecommendedProjectsWithGeolocation({
   }, [fallbackItems, fallbackSubtitle, viewAllHref]);
 
   const applyCityResults = useCallback(
-    (data, cityName) => {
-      setItems(Array.isArray(data?.items) ? data.items : []);
+    (data, cityName, { preserveItemsOnEmpty = true } = {}) => {
+      const nextItems = Array.isArray(data?.items) ? data.items : [];
+      const hasItems = nextItems.length > 0;
+
+      if (hasItems) {
+        setItems(nextItems);
+      } else if (!preserveItemsOnEmpty) {
+        setItems([]);
+      }
+
+      // Keep SSR fallback when location API has no matches for this city.
+      if (!hasItems && preserveItemsOnEmpty) return;
+
       const nextSubtitle =
         (typeof data?.subtitle === "string" && data.subtitle.trim()) ||
         (locationIntent === "latest-projects"
@@ -75,7 +91,7 @@ export default function RecommendedProjectsWithGeolocation({
         const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
         const data = await res.json();
         if (gen !== fetchGenRef.current) return;
-        applyCityResults(data, city);
+        applyCityResults(data, city, { preserveItemsOnEmpty: true });
       } catch (err) {
         console.error(err);
       } finally {
@@ -108,7 +124,7 @@ export default function RecommendedProjectsWithGeolocation({
           if (gen !== fetchGenRef.current || cityOverrideRef.current) return;
           const resolvedCity = String(data?.region?.city || "").trim();
           if (resolvedCity) {
-            applyCityResults(data, resolvedCity);
+            applyCityResults(data, resolvedCity, { preserveItemsOnEmpty: true });
           } else if (
             data.success &&
             Array.isArray(data.items) &&
@@ -143,6 +159,12 @@ export default function RecommendedProjectsWithGeolocation({
       const cityName = cityNameFromEvent(e.detail);
       if (!cityName) return;
       cityOverrideRef.current = cityName;
+
+      // Header auto-detect often falls back to Delhi NCR — SSR cards already use that scope.
+      if (isDelhiNcrLabel(cityName) && fallbackItemsRef.current?.length > 0) {
+        return;
+      }
+
       fetchForCity(cityName);
     };
 

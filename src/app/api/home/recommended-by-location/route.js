@@ -19,6 +19,7 @@ import {
   POPULAR_PROMO_MAX_ITEMS,
   resolvePopularProjectsFromSlugs,
   scopeHomeProjectsForLocation,
+  scopeHomeProjectsToDelhiNcr,
 } from "@/app/_global_components/popularRightNowProjects";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
@@ -46,6 +47,47 @@ function mergeGeoTokens(...groups) {
     }
   }
   return [...set];
+}
+
+function buildScopedListingItems({
+  projects,
+  buildForRegion,
+  locationScope,
+  limit = 8,
+}) {
+  let scope = locationScope;
+  let items = slimProjectListForListing(
+    buildForRegion({
+      projects: scope.projects,
+      excludeSlugSet: new Set(),
+      geoCity: scope.geoCity,
+      geoState: scope.geoState,
+      geoTokens: scope.geoTokens,
+      limit,
+      strictRegion: Boolean(scope.strict),
+    }),
+  );
+
+  if (items.length === 0 && scope.strict) {
+    const ncrScope = scopeHomeProjectsToDelhiNcr({
+      projects,
+      city: "Delhi NCR",
+    });
+    scope = { ...ncrScope, strict: false };
+    items = slimProjectListForListing(
+      buildForRegion({
+        projects: ncrScope.projects,
+        excludeSlugSet: new Set(),
+        geoCity: ncrScope.geoCity,
+        geoState: ncrScope.geoState,
+        geoTokens: ncrScope.geoTokens,
+        limit,
+        strictRegion: false,
+      }),
+    );
+  }
+
+  return { items, scope };
 }
 
 function addCommaSplitTokens(set, str) {
@@ -433,22 +475,18 @@ export async function GET(request) {
         source: region.source,
       });
 
-      const items = slimProjectListForListing(
-        buildNewLaunchProjectsForRegion({
-          projects: locationScope.projects,
-          excludeSlugSet: new Set(),
-          geoCity: locationScope.geoCity,
-          geoState: locationScope.geoState,
-          geoTokens: locationScope.geoTokens,
-          limit: 8,
-          strictRegion: Boolean(locationScope.strict),
-        }),
-      );
+      const { items, scope: resolvedScope } = buildScopedListingItems({
+        projects: newLaunchProjects,
+        buildForRegion: buildNewLaunchProjectsForRegion,
+        locationScope,
+      });
 
       const displayCity =
-        region.city && !isDelhiNcrUmbrellaLabel(region.city)
+        region.city &&
+        !isDelhiNcrUmbrellaLabel(region.city) &&
+        resolvedScope.strict
           ? region.city
-          : locationScope.label;
+          : resolvedScope.label;
 
       let subtitle = buildSubtitleNewLaunchesNear(displayCity, "").trim();
       if (!subtitle) subtitle = "Explore New Residential & Commercial Properties near Delhi NCR";
@@ -477,22 +515,18 @@ export async function GET(request) {
         source: region.source,
       });
 
-      const items = slimProjectListForListing(
-        buildLatestProjectsForRegion({
-          projects: locationScope.projects,
-          excludeSlugSet: new Set(),
-          geoCity: locationScope.geoCity,
-          geoState: locationScope.geoState,
-          geoTokens: locationScope.geoTokens,
-          limit: 8,
-          strictRegion: Boolean(locationScope.strict),
-        }),
-      );
+      const { items, scope: resolvedScope } = buildScopedListingItems({
+        projects: normalizeProjectsArray(projects),
+        buildForRegion: buildLatestProjectsForRegion,
+        locationScope,
+      });
 
       const displayCity =
-        region.city && !isDelhiNcrUmbrellaLabel(region.city)
+        region.city &&
+        !isDelhiNcrUmbrellaLabel(region.city) &&
+        resolvedScope.strict
           ? region.city
-          : locationScope.label;
+          : resolvedScope.label;
 
       let subtitle = buildSubtitleLatestProjectsNear(displayCity, "").trim();
       if (!subtitle) subtitle = "Explore the Best-Selling Properties Today nearby Delhi NCR";

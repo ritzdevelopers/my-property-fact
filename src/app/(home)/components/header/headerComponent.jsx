@@ -602,7 +602,10 @@ const HeaderComponent = () => {
         resolveWithFallback(coords);
       },
       (error) => {
-        console.error("Geolocation Error:", error);
+        // Permission denied is expected when the user blocks location — fall back quietly.
+        if (error?.code !== 1) {
+          console.error("Geolocation Error:", error);
+        }
         resolveWithFallback(null);
       },
       {

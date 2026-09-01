@@ -1,15 +1,16 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
-  --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
-  --color-cream: #DBE4DD;
-  --color-cream-footer: #D4E0D8;
-  --color-cream-accent: #F5F7F5;
-  --color-navy: #1D3B2F;
-  --color-green: #2E7D32;
-  --color-text: #1A1A1A;
-  --color-text-muted: #333333;
+/* Eldeco Echoes of Eden tokens (landing-scoped; Tailwind v3 compatible) */
+:root {
+  --eldeco-cream: #dbe4dd;
+  --eldeco-cream-footer: #d4e0d8;
+  --eldeco-cream-accent: #f5f7f5;
+  --eldeco-navy: #1d3b2f;
+  --eldeco-green: #2e7d32;
+  --eldeco-text: #1a1a1a;
+  --eldeco-text-muted: #333333;
 }
 
 html {
@@ -23,7 +24,12 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Playfair for serif headings on this landing only */
+.eldeco-echoes-of-eden-page .font-serif {
+  font-family: var(--font-playfair), ui-serif, Georgia, serif !important;
 }
 
 .sr-only {

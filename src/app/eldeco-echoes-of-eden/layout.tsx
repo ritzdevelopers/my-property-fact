@@ -34,7 +34,7 @@ export default function RootLayout({
       lang="en"
       className={`${montserrat.variable} ${playfair.variable} h-full`}
     >
-      <body className="flex min-h-full flex-col bg-[#DBE4DD] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] font-sans text-[#1D3B2F] antialiased lg:pb-0">
+      <body className="eldeco-echoes-of-eden-page flex min-h-full flex-col bg-[#DBE4DD] pb-[calc(5rem+env(safe-area-inset-bottom,0px))] font-sans text-[#1D3B2F] antialiased lg:pb-0">
         <AppProviders>
           <Navbar />
           {children}

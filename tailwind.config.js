@@ -7,6 +7,9 @@ module.exports = {
     './components/**/*.{js,jsx}',
     './app/**/*.{js,jsx}',
     './src/**/*.{js,jsx}',
+    // Eldeco Echoes of Eden landing (TSX)
+    './src/eldeco-echoes-of-eden/**/*.{js,jsx,ts,tsx}',
+    './src/app/eldeco-echoes-of-eden/**/*.{js,jsx,ts,tsx}',
   ],
   prefix: "",
   theme: {

@@ -286,8 +286,111 @@
   color: #fff;
 }
 
-/* Tablet: 768px – 1023px */
-@media (max-width: 1023px) {
+/* Tablet landscape (760–1024): wider section + side-by-side layout */
+@media (min-width: 760px) and (max-width: 1023.98px) {
+  .expert-insights-wrapper {
+    width: 100%;
+    padding-left: clamp(20px, 3vw, 36px);
+    padding-right: clamp(20px, 3vw, 36px);
+    box-sizing: border-box;
+  }
+
+  .expert-insights-section {
+    height: auto;
+    min-height: 0;
+    max-width: min(100%, 980px);
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .expert-insights-inner {
+    height: auto;
+    max-width: min(100%, 980px);
+    width: 100%;
+    padding: 44px clamp(24px, 3.2vw, 40px) 48px;
+    gap: 28px;
+  }
+
+  .expert-insights-header {
+    max-width: min(640px, 100%);
+  }
+
+  .expert-insights-title {
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+  }
+
+  .expert-insights-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+
+  .expert-insights-body {
+    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+    gap: clamp(20px, 3vw, 32px);
+    align-items: stretch;
+  }
+
+  .expert-insights-card {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 420px;
+    margin: 0;
+    padding: 18px;
+  }
+
+  .expert-insights-tab--emi-calculator,
+  .expert-insights-tab--locate-score {
+    padding: 14px 16px;
+  }
+
+  .expert-insights-card-image {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .expert-insights-feature-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 297 / 154;
+  }
+
+  .expert-insights-card-caption {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .expert-insights-detail {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: clamp(28px, 3.5vw, 44px) clamp(24px, 3vw, 40px);
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .expert-insights-detail-title {
+    font-size: clamp(1.45rem, 2.4vw, 2rem);
+    line-height: 1.28;
+  }
+
+  .expert-insights-detail-description {
+    font-size: clamp(0.95rem, 1.5vw, 1.05rem);
+    line-height: 1.6;
+  }
+
+  .expert-insights-cta {
+    width: auto;
+    min-width: 220px;
+  }
+}
+
+/* Stacked layout below tablet (phones / narrow) */
+@media (max-width: 759.98px) {
   .expert-insights-section {
     height: auto;
     min-height: 0;
@@ -316,7 +419,7 @@
 
   .expert-insights-card {
     width: 100%;
-    max-width: 420px;
+    max-width: 100%;
     height: auto;
     min-height: 420px;
     margin: 0 auto;
@@ -358,8 +461,8 @@
   }
 }
 
-/* Mobile: up to 767px */
-@media (max-width: 767px) {
+/* Mobile: up to 759px refinements */
+@media (max-width: 759.98px) {
   .expert-insights-inner {
     padding: 32px 20px 36px;
     gap: 24px;

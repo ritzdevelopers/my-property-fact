@@ -136,24 +136,14 @@ export default function Featured({
     infinite: filteredProjects.length > 4,
     responsive: [
       {
+        // Tablet / small laptop: 2 wider cards (760–1024)
         breakpoint: 1025,
-        settings: {
-          slidesToShow: 3,
-          infinite: filteredProjects.length > 3,
-          swipe: true,
-          touchMove: true,
-          swipeToSlide: true,
-        },
-      },
-      {
-        breakpoint: 769,
         settings: {
           slidesToShow: 2,
           infinite: filteredProjects.length > 2,
           swipe: true,
           touchMove: true,
           swipeToSlide: true,
-          arrows: true,
         },
       },
       {
@@ -176,9 +166,24 @@ export default function Featured({
     responsive: [
       { breakpoint: 1400, settings: { slidesToShow: 5 } },
       { breakpoint: 1200, settings: { slidesToShow: 4 } },
-      { breakpoint: 992, settings: { slidesToShow: 3 } },
-      { breakpoint: 768, settings: { slidesToShow: 2, swipe: true, touchMove: true } },
-      { breakpoint: 576, settings: { slidesToShow: 1, swipe: true, touchMove: true, swipeToSlide: true } },
+      {
+        breakpoint: 1025,
+        settings: {
+          slidesToShow: 2,
+          swipe: true,
+          touchMove: true,
+          swipeToSlide: true,
+        },
+      },
+      {
+        breakpoint: 576,
+        settings: {
+          slidesToShow: 1,
+          swipe: true,
+          touchMove: true,
+          swipeToSlide: true,
+        },
+      },
     ],
   };
   const layoutSettings = isHomeFeaturedShowcase ? showcaseSettings : premierRailSettings;

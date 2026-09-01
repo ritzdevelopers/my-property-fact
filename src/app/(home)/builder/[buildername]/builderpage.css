@@ -247,10 +247,30 @@
   filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 760px) and (max-width: 1023.98px) {
   .builder-projects-section .home-project-card,
   .builder-projects-section .home-project-card--poster {
-    min-height: 300px;
+    min-height: clamp(340px, 48vw, 400px);
+  }
+
+  .builder-projects-section .home-project-card__overlay {
+    padding: 18px 16px 16px;
+    gap: 8px;
+  }
+
+  .builder-projects-section .home-project-card__title {
+    font-size: 1.05rem !important;
+  }
+
+  .builder-projects-section .home-project-card__meta,
+  .builder-projects-section .home-project-card__location {
+    font-size: 0.84rem !important;
+  }
+
+  .builder-projects-section .mpf-lux-card--poster .mpf-lux-price {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
   }
 }
 

@@ -16,6 +16,7 @@ import {
 } from "@/lib/projectImageUrl";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./common.css";
+import "./propertyContainerTablet.css";
 
 export default function PropertyContainer({
   data,

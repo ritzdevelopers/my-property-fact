@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HomeRecommendationCards from "./HomeRecommendationCards";
 import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
+import { isDelhiNcrRegion } from "@/app/_global_components/popularRightNowProjects";
+
+/** Used when the user blocks GPS / geolocation is unavailable (avoids IP cities like Meerut). */
+const DEFAULT_CITY_WITHOUT_LOCATION = "Noida Extension";
 
 function isDelhiNcrLabel(city) {
   const n = String(city || "").trim().toLowerCase();
@@ -35,6 +39,7 @@ export default function RecommendedProjectsWithGeolocation({
   const cityOverrideRef = useRef("");
   const fetchGenRef = useRef(0);
   const fallbackItemsRef = useRef(fallbackItems);
+  const locationDeniedRef = useRef(false);
 
   useEffect(() => {
     fallbackItemsRef.current = fallbackItems;
@@ -101,8 +106,19 @@ export default function RecommendedProjectsWithGeolocation({
     [applyCityResults, locationIntent],
   );
 
+  const applyDefaultCityWithoutLocation = useCallback(() => {
+    locationDeniedRef.current = true;
+    cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
+    fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
+  }, [fetchForCity]);
+
   useEffect(() => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) return undefined;
+    if (typeof navigator === "undefined") return undefined;
+
+    if (!navigator.geolocation) {
+      applyDefaultCityWithoutLocation();
+      return undefined;
+    }
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -136,13 +152,13 @@ export default function RecommendedProjectsWithGeolocation({
             setSubtitle(data.subtitle.trim());
           }
         } catch {
-          /* keep SSR fallback */
+          applyDefaultCityWithoutLocation();
         } finally {
           if (gen === fetchGenRef.current) setLoading(false);
         }
       },
       () => {
-        /* denied or unavailable — keep fallback */
+        applyDefaultCityWithoutLocation();
       },
       {
         enableHighAccuracy: true,
@@ -152,15 +168,26 @@ export default function RecommendedProjectsWithGeolocation({
     );
 
     return undefined;
-  }, [applyCityResults, locationIntent]);
+  }, [applyCityResults, locationIntent, applyDefaultCityWithoutLocation]);
 
   useEffect(() => {
     const handleCityChanged = (e) => {
       const cityName = cityNameFromEvent(e.detail);
       if (!cityName) return;
+
+      // After GPS deny, ignore IP/auto cities outside Delhi-NCR (Meerut, Muzaffarnagar, …)
+      // so the Noida Extension default is not overwritten. Manual NCR picks still apply.
+      if (
+        locationDeniedRef.current &&
+        !isDelhiNcrLabel(cityName) &&
+        !isDelhiNcrRegion(cityName)
+      ) {
+        return;
+      }
+
       cityOverrideRef.current = cityName;
 
-      // Header auto-detect often falls back to Delhi NCR — SSR cards already use that scope.
+      // Header auto-detect often falls back to Delhi NCR — keep Noida Extension / SSR scope.
       if (isDelhiNcrLabel(cityName) && fallbackItemsRef.current?.length > 0) {
         return;
       }

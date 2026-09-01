@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Eldeco Echoes of Eden tokens (landing-scoped; Tailwind v3 compatible) */
+:root {
+  --eldeco-cream: #dbe4dd;
+  --eldeco-cream-footer: #d4e0d8;
+  --eldeco-cream-accent: #f5f7f5;
+  --eldeco-navy: #1d3b2f;
+  --eldeco-green: #2e7d32;
+  --eldeco-text: #1a1a1a;
+  --eldeco-text-muted: #333333;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  font-family: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Playfair for serif headings on this landing only */
+.eldeco-echoes-of-eden-page .font-serif {
+  font-family: var(--font-playfair), ui-serif, Georgia, serif !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.promo-fixed-bg {
+  background-color: transparent;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  isolation: isolate;
+}
+
+@media (max-width: 768px), (prefers-reduced-motion: reduce) {
+  .promo-fixed-bg {
+    background-attachment: scroll;
+  }
+}
+
+.gallery-track {
+  animation: gallery-scroll 25s linear infinite;
+}
+
+.gallery-track:hover {
+  animation-play-state: paused;
+}
+
+@media (max-width: 1023px), (prefers-reduced-motion: reduce) {
+  .gallery-track {
+    animation: none;
+  }
+}
+
+@keyframes gallery-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}

@@ -112,6 +112,73 @@ const getFieldVisibility = (listingType, subType, status) => {
   };
 };
 
+function normalizeBenefitName(value) {
+  return String(value || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function parseBenefitDistance(value) {
+  if (value == null || value === "") return null;
+  const raw = String(value).trim().toLowerCase();
+  const num = Number.parseFloat(raw.replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(num) || num <= 0) return null;
+  if (raw.includes("m") && !raw.includes("km") && num >= 100) {
+    return num / 1000;
+  }
+  return num;
+}
+
+function extractProjectAmenityIds(projectAmenities, masterAmenities) {
+  if (!Array.isArray(projectAmenities) || projectAmenities.length === 0) {
+    return [];
+  }
+  const masterIds = new Set(
+    (Array.isArray(masterAmenities) ? masterAmenities : [])
+      .map((item) => item?.id)
+      .filter((id) => id != null),
+  );
+  return [
+    ...new Set(
+      projectAmenities
+        .map((item) => item?.id)
+        .filter((id) => id != null && (masterIds.size === 0 || masterIds.has(id))),
+    ),
+  ];
+}
+
+function mapProjectLocationBenefitsToListing(locationBenefits, masterBenefits) {
+  if (
+    !Array.isArray(locationBenefits) ||
+    locationBenefits.length === 0 ||
+    !Array.isArray(masterBenefits) ||
+    masterBenefits.length === 0
+  ) {
+    return [];
+  }
+
+  const mapped = [];
+  const usedMasterIds = new Set();
+
+  for (const item of locationBenefits) {
+    const benefitName = item?.benefitName || item?.name;
+    const target = normalizeBenefitName(benefitName);
+    if (!target) continue;
+
+    const master = masterBenefits.find((benefit) => {
+      const name = normalizeBenefitName(benefit?.benefitName || benefit?.name);
+      return name === target || name.includes(target) || target.includes(name);
+    });
+    if (!master?.id || usedMasterIds.has(master.id)) continue;
+
+    const distance = parseBenefitDistance(item?.distance);
+    if (distance == null) continue;
+
+    mapped.push({ id: master.id, distance });
+    usedMasterIds.add(master.id);
+  }
+
+  return mapped;
+}
+
 export default function ModernPropertyListing({ listingId: propListingId }) {
   const router = useRouter();
   const { userData } = useUser();
@@ -525,6 +592,11 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         [field]: null,
       }));
     }
+  };
+
+  const handleBatchInputChange = (updates) => {
+    if (!updates || typeof updates !== "object") return;
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   // Validate image aspect ratio (must be rectangular, not square or extreme)
@@ -1113,25 +1185,22 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       propertyData.isUserSubmitted = true;
 
       // Add property data as JSON string (backend will parse it)
-      formDataObj.append("property", JSON.stringify(propertyData));
+      appendPropertyJsonPart(formDataObj, propertyData);
 
-      // Use PUT for updates, POST for new listings
-      const url =
+      const result =
         isEditMode && listingId
-          ? `${process.env.NEXT_PUBLIC_API_URL}user/property-listings/${listingId}`
-          : `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`;
-
-      const method = isEditMode && listingId ? "PUT" : "POST";
-
-      const response = await axios.post(url, formDataObj, {
-        withCredentials: true,
-      });
-
-      const result = response.data;
+          ? await patchPropertyListing(listingId, formDataObj)
+          : (
+              await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`,
+                formDataObj,
+                { withCredentials: true },
+              )
+            ).data;
       if (!(result && result.success)) {
         const message =
           result?.message ||
-          `Failed to ${isEditMode ? "update" : "create"} property (status ${response.status})`;
+          `Failed to ${isEditMode ? "update" : "create"} property`;
         throw new Error(message);
       }
 
@@ -1179,6 +1248,39 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     setErrors({});
     setCurrentStep(1);
     setDraftSaved(false);
+  };
+
+  const appendPropertyJsonPart = (formDataObj, propertyData) => {
+    formDataObj.append(
+      "property",
+      new Blob([JSON.stringify(propertyData)], { type: "application/json" }),
+    );
+  };
+
+  const patchPropertyListing = async (id, formDataObj) => {
+    const token = Cookies.get("token");
+    const response = await fetch(`/api/v1/user/property-listings/${id}`, {
+      method: "PATCH",
+      body: formDataObj,
+      credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    let result = null;
+    try {
+      result = await response.json();
+    } catch {
+      result = null;
+    }
+
+    if (!response.ok || !(result && result.success)) {
+      const message =
+        result?.message ||
+        `Failed to update property (status ${response.status})`;
+      throw new Error(message);
+    }
+
+    return result;
   };
 
   // Helper function to prepare property data (shared between draft and submit)
@@ -1365,28 +1467,22 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       propertyData.isUserSubmitted = false; // Draft is not yet submitted for approval
 
       // Add property data as JSON string
-      formDataObj.append("property", JSON.stringify(propertyData));
-      const baseUrl = (
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005"
-      ).replace(/\/$/, "");
+      appendPropertyJsonPart(formDataObj, propertyData);
 
-      // Use PUT for updates, POST for new drafts
-      const url =
+      const result =
         isEditMode && listingId
-          ? `${process.env.NEXT_PUBLIC_API_URL}user/property-listings/${listingId}`
-          : `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`;
-
-      const method = isEditMode && listingId ? "PUT" : "POST";
-
-      const response = await axios.post(url, formDataObj, {
-        withCredentials: true,
-      });
-
-      const result = response.data;
+          ? await patchPropertyListing(listingId, formDataObj)
+          : (
+              await axios.post(
+                `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`,
+                formDataObj,
+                { withCredentials: true },
+              )
+            ).data;
       if (!(result && result.success)) {
         const message =
           result?.message ||
-          `Failed to ${isEditMode ? "update" : "save draft"} (status ${response.status})`;
+          `Failed to ${isEditMode ? "update" : "save draft"}`;
         throw new Error(message);
       }
 
@@ -1438,10 +1534,13 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
             builderList={builders}
             projectList={projects}
             cities={cities}
+            amenities={amenities}
+            nearbyBenefits={nearbyBenefits}
             loadingCities={loadingCities}
             loadingBuilders={loadingBuilders}
             loadingProjects={loadingProjects}
             onChange={handleInputChange}
+            onBatchChange={handleBatchInputChange}
             errors={errors}
           />
         );
@@ -2388,10 +2487,13 @@ function BasicInformationStep({
 function LocationAreaStep({
   data,
   onChange,
+  onBatchChange,
   errors,
   builderList = [],
   projectList = [],
   cities = [],
+  amenities = [],
+  nearbyBenefits = [],
   loadingCities = false,
   loadingBuilders = false,
   loadingProjects = false,
@@ -2550,42 +2652,80 @@ function LocationAreaStep({
   };
 
   // Handle project selection from dropdown
-  const handleProjectSelect = (project, e) => {
+  const handleProjectSelect = async (project, e) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
+
+    const applyUpdates = (updates) => {
+      if (onBatchChange) {
+        onBatchChange(updates);
+        return;
+      }
+      Object.entries(updates).forEach(([field, value]) => onChange(field, value));
+    };
+
     const projectName = project.projectName || project.name;
     setProjectSearchTerm(projectName);
-    onChange("projectName", projectName);
-    if (project.id) {
-      onChange("projectId", project.id);
-    }
 
-    // Auto-fill builder, city, and locality from selected project
+    const updates = {
+      projectName,
+      projectId: project.id ?? null,
+    };
+
     if (project.builderName) {
       setBuilderSearchTerm(project.builderName);
-      onChange("builderName", project.builderName);
-      if (project.builderId) {
-        onChange("builderId", project.builderId);
-      }
+      updates.builderName = project.builderName;
+      updates.builderId = project.builderId ?? null;
     }
 
     if (project.cityName) {
       setCitySearchTerm(project.cityName);
-      onChange("city", project.cityName);
-      if (project.cityId) {
-        onChange("cityId", project.cityId);
-      }
+      updates.city = project.cityName;
+      updates.cityId = project.cityId ?? null;
     }
 
     if (project.projectLocality) {
-      onChange("locality", project.projectLocality);
-      if (project.localityId) {
-        onChange("localityId", project.localityId);
+      updates.locality = project.projectLocality;
+      updates.localityId = project.localityId ?? null;
+    }
+
+    if (project.projectAddress) {
+      updates.address = project.projectAddress;
+    }
+
+    const slug = project.slugURL || project.slugUrl;
+    if (slug) {
+      try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+        const response = await axios.get(
+          `${baseUrl}projects/get/${encodeURIComponent(String(slug).trim())}`,
+        );
+        const details = response.data;
+        if (details && typeof details === "object") {
+          const amenityIds = extractProjectAmenityIds(
+            details.amenities,
+            amenities,
+          );
+          if (amenityIds.length > 0) {
+            updates.amenityIds = amenityIds;
+          }
+
+          const mappedNearbyBenefits = mapProjectLocationBenefitsToListing(
+            details.locationBenefits,
+            nearbyBenefits,
+          );
+          if (mappedNearbyBenefits.length > 0) {
+            updates.nearbyBenefits = mappedNearbyBenefits;
+          }
+        }
+      } catch (error) {
+        console.error("Error loading project amenities/benefits:", error);
       }
     }
 
+    applyUpdates(updates);
     setShowProjectDropdown(false);
     setProjectInputFocused(false);
   };

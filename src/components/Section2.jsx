@@ -1,13 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
+import { goToEldecoThankYou } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import { OPEN_LEAD_POPUP_EVENT } from "./LeadPopup";
-import LeadFormOtpStep from "@/components/LeadFormOtpStep";
-import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import styles from "./page.module.css";
 
 const stats = [
@@ -18,27 +14,16 @@ const stats = [
 ];
 
 function Section2() {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
-  const [phone, setPhone] = useState("");
-  const leadOtp = useLeadOtp(phone);
 
   const handleSubmit = async (event) => {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event, {
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        otpSent: leadOtp.otpSent,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      console.log(data);
-      router.push(ELDECO_THANK_YOU_PATH);
+      await handleLeadFormSubmit(event);
+      goToEldecoThankYou();
     } catch (err) {
-      console.log(err);
       setFormError(err instanceof Error ? err.message : "Something went wrong.");
       setIsSubmitting(false);
     }
@@ -103,12 +88,13 @@ function Section2() {
               Request a Call Back
             </h2>
 
-            <form id="section2-lead-form" onSubmit={handleSubmit} className={` flex flex-col gap-2 justify-center items-center lg:justify-start lg:items-start ${leadFormOtpActiveClass(leadOtp)}`.trim()} noValidate>
+            <form id="section2-lead-form" onSubmit={handleSubmit} className="flex flex-col gap-2 justify-center items-center lg:justify-start lg:items-start" noValidate>
               <input
                 type="text"
                 name="name"
                 required
                 placeholder="Your Name *"
+                disabled={isSubmitting}
                 className="h-12 w-full bg-neutral-100 px-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
               <input
@@ -116,6 +102,7 @@ function Section2() {
                 name="email"
                 required
                 placeholder="Email *"
+                disabled={isSubmitting}
                 className="h-12 w-full bg-neutral-100 px-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
               <input
@@ -124,16 +111,15 @@ function Section2() {
                 required
                 inputMode="numeric"
                 placeholder="Phone Number *"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                disabled={isSubmitting}
                 className="h-12 w-full bg-neutral-100 px-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
               <textarea
                 name="message"
                 placeholder="Message"
+                disabled={isSubmitting}
                 className="h-20 w-full resize-none bg-neutral-100 px-4 py-4 text-[14px] font-[400] outline-none text-[#222222] placeholder:text-[#222222]"
               />
-              <LeadFormOtpStep phone={phone} leadOtp={leadOtp} className="w-full" autoSubmitFormId="section2-lead-form" />
 
               {formError ? (
                 <p className={`${styles.paragraph} text-[13px] font-[400] text-red-600`}>

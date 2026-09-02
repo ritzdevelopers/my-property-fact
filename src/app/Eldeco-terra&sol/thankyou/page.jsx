@@ -1,16 +1,14 @@
 "use client";
 
 import { ELDECO_LANDING_BASE_PATH } from "@/components/eldecoPaths";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function ThankYouPage() {
-  const router = useRouter();
   const [secondsLeft, setSecondsLeft] = useState(5);
 
   useEffect(() => {
     if (secondsLeft === 0) {
-      router.replace(ELDECO_LANDING_BASE_PATH);
+      window.location.href = ELDECO_LANDING_BASE_PATH;
       return;
     }
 
@@ -19,7 +17,7 @@ function ThankYouPage() {
     }, 1000);
 
     return () => window.clearTimeout(timeoutId);
-  }, [router, secondsLeft]);
+  }, [secondsLeft]);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-[#fafafa] px-6 py-12 text-center text-[#171717]">
@@ -46,7 +44,9 @@ function ThankYouPage() {
 
         <button
           type="button"
-          onClick={() => router.replace(ELDECO_LANDING_BASE_PATH)}
+          onClick={() => {
+            window.location.href = ELDECO_LANDING_BASE_PATH;
+          }}
           className="mt-8 h-12 rounded-[4px] bg-black px-8 text-sm font-extrabold text-white transition hover:bg-[#c59c35]"
         >
           Return to landing page

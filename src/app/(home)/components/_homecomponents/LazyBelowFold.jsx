@@ -23,6 +23,8 @@ const LeadFormPopupTrigger = dynamic(() => import("./LeadFormPopupTrigger"), {
   loading: () => null,
 });
 
+
+
 function shouldHideGlobalFloatingUi(pathname) {
   if (!pathname || typeof pathname !== "string") return true;
   if (pathname.startsWith("/admin")) return true;
@@ -36,32 +38,6 @@ export default function LazyBelowFold() {
   const [isIdle, setIsIdle] = useState(false);
   /** Defer chatbot / enquire until home entry loader finishes (same as promo). */
   const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
-  const landing_pages_links = [
-    "/eldeco-echoes-of-eden",
-    "/Eldeco-terra&sol",
-    "/lavidabella",
-    "/subh-anandam",
-    "/landing-pages/brook-fusion",
-    "/landing-pages/dholera",
-    "/landing-pages/eldeco-7-peaks",
-    "/landing-pages/eldeco-camelot",
-    "/landing-pages/eldeco-la-vida-bella2",
-    "/landing-pages/eldeco-la-vida-bella3",
-    "/landing-pages/eldeco-la-vida-bella3",
-    "/landing-pages/eldeco-whispers-of-wonder",
-    "/landing-pages/eldeco-wow",
-    "/landing-pages/onyx",
-    "/landing-pages/sikka-kimaya",
-  ];
-  const current_path_name = usePathname();
-  const [is_landing_page, setIsLandingPage] = useState(false);
-  useEffect(() => {
-    if (landing_pages_links.includes(current_path_name)) {
-      setIsLandingPage(true);
-    } else {
-      setIsLandingPage(false);
-    }
-  }, [current_path_name]);
 
   useEffect(() => {
     let timeoutId;
@@ -137,7 +113,7 @@ export default function LazyBelowFold() {
   return (
     <>
       {/* <ScrollToTop /> */}
-      {is_landing_page ? null : <ChatbotV2 />}
+      <ChatbotV2 />
       <LeadFormPopupTrigger showOnHomeOnly showOnMobileOnly={false} />
     </>
   );

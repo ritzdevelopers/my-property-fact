@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { siteConfig } from "@/eldeco-echoes-of-eden/config/site";
@@ -9,6 +10,8 @@ import { MobileEnquireBar } from "@/eldeco-echoes-of-eden/components/ui/MobileEn
 import { QrCodePlaceholder } from "@/eldeco-echoes-of-eden/components/ui/QrCodePlaceholder";
 
 export function Footer() {
+  const pathname = usePathname();
+  const isThankYouPage = pathname?.includes("/thankyou") ?? false;
   const { footer } = siteConfig;
   const [isDisclaimerExpanded, setIsDisclaimerExpanded] = useState(false);
 
@@ -104,8 +107,12 @@ export function Footer() {
         </section>
       </footer>
 
-      <MobileEnquireBar />
-      <FloatingActionButtons />
+      {!isThankYouPage && (
+        <>
+          <MobileEnquireBar />
+          <FloatingActionButtons />
+        </>
+      )}
     </>
   );
 }

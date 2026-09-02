@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { useEffect, useRef, useState, useMemo } from "react";
-import { Button, Col, Form, Modal, Row } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
@@ -15,12 +15,11 @@ import ImageUrlPopup from "../common-model/imageiurl-popup";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import {
-  AdminGridActions,
   AdminGridImageThumb,
 } from "../common-model/admin-grid-cells";
 import { useRouter } from "next/navigation";
 import exportOverlayStyles from "./manageBlogsExportOverlay.module.css";
-import gridStyles from "./manageBlogsGrid.module.css";
+import styles from "./manageBlogs.module.css";
 import {
   AdminFilterCount,
   AdminSummaryFilterCards,
@@ -365,6 +364,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [togglingBlogIds, setTogglingBlogIds] = useState(() => new Set());
   const [previewBlog, setPreviewBlog] = useState(null);
   const blogFormRef = useRef(null);
+  const blogImageInputRef = useRef(null);
   const modalFormSnapshotRef = useRef(null);
   const skipDraftOnCloseRef = useRef(false);
   const autoDraftSavingRef = useRef(false);
@@ -454,6 +454,19 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   };
 
   const [formData, setFormData] = useState(inputFields);
+  const newImagePreviewUrl = useMemo(() => {
+    if (formData.blogImage instanceof File) {
+      return URL.createObjectURL(formData.blogImage);
+    }
+    return null;
+  }, [formData.blogImage]);
+
+  useEffect(() => {
+    return () => {
+      if (newImagePreviewUrl) URL.revokeObjectURL(newImagePreviewUrl);
+    };
+  }, [newImagePreviewUrl]);
+
   const authorOptions = useMemo(() => {
     const currentAuthor = String(formData.authorName || "").trim();
     if (currentAuthor && !BLOG_AUTHORS.includes(currentAuthor)) {
@@ -481,6 +494,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     resetScheduleFields();
     modalFormSnapshotRef.current = null;
     skipDraftOnCloseRef.current = false;
+    if (blogImageInputRef.current) blogImageInputRef.current.value = "";
   };
 
   const rememberModalSnapshot = (snapshotFormData, snapshotDescription, snapshotBlogId) => {
@@ -1040,21 +1054,21 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
 
         if (state === "draft" || state === "scheduled") {
           return (
-            <div className={gridStyles.blogGridStatus}>
+            <div className={styles.blogGridStatus}>
               <ContentStatusPill
                 variant={state === "scheduled" ? "pending" : "unverified"}
               >
                 {getBlogStatusLabel(params.row)}
               </ContentStatusPill>
               {state === "scheduled" && params.row.scheduledPublishAt ? (
-                <span className={gridStyles.blogGridStatusWhen}>
+                <span className={styles.blogGridStatusWhen}>
                   {formatPublishedDateTime(params.row.scheduledPublishAt)}
                 </span>
               ) : null}
               <Button
                 size="sm"
                 variant="success"
-                className={gridStyles.blogGridPublishBtn}
+                className={styles.blogGridPublishBtn}
                 disabled={busyPublish}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -1099,36 +1113,42 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
       width: 130,
       sortable: false,
       renderCell: (params) => (
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-          {/* Preview */}
+        <div className="admin-grid-actions">
           <button
             type="button"
             title="Preview blog"
-            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#0d9488", cursor: "pointer" }}
-            onClick={(e) => { e.stopPropagation(); setPreviewBlog(params.row); }}
+            className="admin-grid-action admin-grid-action--preview"
+            onClick={(e) => {
+              e.stopPropagation();
+              setPreviewBlog(params.row);
+            }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ pointerEvents: "none" }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
           </button>
-          {/* Delete */}
           <button
             type="button"
             title="Delete"
-            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#dc2626", cursor: "pointer" }}
-            onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
+            className="admin-grid-action admin-grid-action--delete"
+            onClick={(e) => {
+              e.stopPropagation();
+              openConfirmationBox(params.row.id);
+            }}
           >
-            <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+            <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ pointerEvents: "none" }} />
           </button>
-          {/* Edit */}
           <button
             type="button"
             title="Edit"
-            style={{ width: 30, height: 30, display: "inline-flex", alignItems: "center", justifyContent: "center", border: "none", borderRadius: 7, background: "#2563eb", cursor: "pointer" }}
-            onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
+            className="admin-grid-action admin-grid-action--edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              openEditModel(params.row);
+            }}
           >
-            <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+            <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ pointerEvents: "none" }} />
           </button>
         </div>
       ),
@@ -1248,7 +1268,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           excelExportUi.open && excelExportUi.phase === "loading"
         }
       />
-      <div className="manage-users-page">
+      <div className={`manage-users-page ${styles.page}`}>
         <AdminSummaryFilterCards
           filters={BLOG_STATUS_FILTERS}
           activeFilter={statusFilter}
@@ -1256,7 +1276,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           counts={blogCounts}
           ariaLabel="Filter blogs by status"
         />
-        <div className="manage-users-toolbar mb-2">
+        <div className={`manage-users-toolbar ${styles.toolbar}`}>
           <AdminFilterCount
             filteredCount={filteredBlogList.length}
             totalCount={blogs.length}
@@ -1266,7 +1286,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           />
         </div>
       </div>
-      <div className="table-container">
+      <div className={`admin-datagrid-scroll-host admin-datagrid-scroll-host--executive table-container ${styles.tableWrap} ${styles.dataGridHost}`}>
         <DataTable
           columns={columns}
           list={filteredBlogList}
@@ -1301,7 +1321,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
               boxShadow: "inset 3px 0 0 #f59e0b",
             },
             "& .MuiDataGrid-row.mu-row--active .MuiDataGrid-cell:first-of-type": {
-              boxShadow: "inset 3px 0 0 rgba(34, 197, 94, 0.55)",
+              boxShadow: "inset 3px 0 0 #16a34a",
             },
           }}
         />
@@ -1312,195 +1332,280 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
         show={showModal}
         onHide={handleModalClose}
         centered
+        scrollable
         enforceFocus={false}
+        dialogClassName={`admin-modal-dialog admin-modal-dialog-wide ${styles.blogModalDialog}`}
+        contentClassName={`admin-modal-surface ${styles.blogModal}`}
       >
         <Modal.Header closeButton>
-          <Modal.Title>{title}</Modal.Title>
+          <div className={styles.modalTitleWrap}>
+            <Modal.Title>{title}</Modal.Title>
+            <p className={styles.modalSubtitle}>
+              {blogId > 0
+                ? "Update content, SEO details, and publication settings."
+                : "Fill in blog details, add content, and choose how to publish."}
+            </p>
+          </div>
         </Modal.Header>
-        <Modal.Body>
-          <Form
-            ref={blogFormRef}
-            id="blog-admin-form"
-            noValidate
-            validated={validated}
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="blogTitle">
-                <Form.Label>Meta Title</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Meta title"
-                  name="blogTitle"
-                  value={formData.blogTitle || ""}
-                  onChange={handleChange}
-                  required
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md="6" controlId="blogKeywords">
-                <Form.Label>Blog Keywords</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Blog keywords"
-                  name="blogKeywords"
-                  value={formData.blogKeywords || ""}
-                  onChange={handleChange}
-                  required
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group controlId="blogDescription">
-                <Form.Label>Blog Meta Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder="Blog meta description"
-                  name="blogMetaDescription"
-                  value={formData.blogMetaDescription || ""}
-                  onChange={handleChange}
-                  required
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="blogCategory">
-                <Form.Label>Blog category</Form.Label>
-                <Form.Select
-                  name="blogCategory"
-                  value={formData.blogCategory || ""}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select category</option>
-                  {categoryList.map((item, index) => (
-                    <option key={index} value={item.id}>
-                      {item.categoryName}
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md="6" controlId="authorName">
-                <Form.Label>Author name</Form.Label>
-                <Form.Select
-                  name="authorName"
-                  value={formData.authorName || ""}
-                  onChange={handleChange}
-                >
-                  <option value="">Select author</option>
-                  {authorOptions.map((name) => (
-                    <option key={name} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </Form.Select>
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="blogImage">
-                <Form.Label>Blog Image</Form.Label>
-                {previousBlogImage && (
-                  <img
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${previousBlogImage}`}
-                    alt={"blog_image"}
-                    className="img-fluid rounded shadow-sm mb-4"
-                    width={300}
-                    height={100}
-                  />
-                )}
-                <Form.Control
-                  type="file"
-                  placeholder="Choose file"
-                  name="blogImage"
-                  onChange={handleChange}
-                  // required
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-            </Row>
-            {isShowCityDropDown && (
-              <Row className="mb-3">
-                <Form.Group as={Col} md="6" controlId="blogCategory">
-                  <Form.Label>Choose city</Form.Label>
-                  <Form.Select
-                    name="cityId"
-                    value={formData.cityId || ""}
+        <Form
+          ref={blogFormRef}
+          id="blog-admin-form"
+          className={styles.blogForm}
+          noValidate
+          validated={validated}
+          onSubmit={(e) => e.preventDefault()}
+        >
+          <Modal.Body className={styles.blogModalBody}>
+            <div className={styles.formGrid}>
+              {/* Left column — SEO & metadata */}
+              <div className={styles.formCol}>
+                <p className={styles.sectionTitle}>SEO &amp; metadata</p>
+
+                <Form.Group className={styles.fieldGroup} controlId="blogTitle">
+                  <Form.Label>Meta title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter meta title"
+                    name="blogTitle"
+                    value={formData.blogTitle || ""}
                     onChange={handleChange}
+                    required
+                  />
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className={styles.fieldGroup} controlId="blogKeywords">
+                  <Form.Label>Blog keywords</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Comma-separated keywords"
+                    name="blogKeywords"
+                    value={formData.blogKeywords || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className={styles.fieldGroup} controlId="blogMetaDescription">
+                  <Form.Label>Blog meta description</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={3}
+                    placeholder="Brief description for search engines"
+                    name="blogMetaDescription"
+                    value={formData.blogMetaDescription || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+
+                <Form.Group className={styles.fieldGroup} controlId="slugUrl">
+                  <Form.Label>Slug URL</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="blog-post-slug"
+                    name="slugUrl"
+                    value={formData.slugUrl || ""}
+                    onChange={handleChange}
+                    required
+                  />
+                  <p className={styles.fieldHint}>Used in the public blog URL path.</p>
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+              </div>
+
+              {/* Right column — Details & media */}
+              <div className={styles.formCol}>
+                <p className={styles.sectionTitle}>Details &amp; media</p>
+
+                <Form.Group className={styles.fieldGroup} controlId="blogCategory">
+                  <Form.Label>Blog category</Form.Label>
+                  <Form.Select
+                    name="blogCategory"
+                    value={formData.blogCategory || ""}
+                    onChange={handleChange}
+                    required
                   >
-                    <option value="">Select city</option>
-                    {cityList.map((item, index) => (
+                    <option value="">Select category</option>
+                    {categoryList.map((item, index) => (
                       <option key={index} value={item.id}>
-                        {item.cityName}
+                        {item.categoryName}
                       </option>
                     ))}
                   </Form.Select>
                   <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
                 </Form.Group>
-              </Row>
-            )}
-            <Row className="mb-3">
-              <Form.Group as={Col} md="6" controlId="slugUrl">
-                <Form.Label>Slug Url</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Slug url"
-                  name="slugUrl"
-                  value={formData.slugUrl || ""}
-                  onChange={handleChange}
-                  required
-                />
-                <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
-              </Form.Group>
-              <Form.Group as={Col} md="6" controlId="blogImageUrls">
-                <Form.Label>Blog Image</Form.Label>
-                <br />
-                <Button onClick={openImageUrlPopup}>Open Image urls</Button>
-              </Form.Group>
-            </Row>
-            <Row className="mb-3">
-              <Form.Label>Write blog description</Form.Label>
-              <Editor value={blogDescription} onChange={setBlogDescription} />
-            </Row>
 
-            <Row className="mb-3">
-              <Form.Group as={Col} md="12">
-                <Form.Label>Publication</Form.Label>
-                <div className={gridStyles.publicationPanel}>
-                  <div className={gridStyles.publicationRadios}>
-                    <Form.Check
-                      type="radio"
-                      id="publish-mode-now"
-                      name="publishMode"
-                      label="Publish now"
-                      checked={publishMode === "publish"}
-                      onChange={() => setPublishMode("publish")}
+                <Form.Group className={styles.fieldGroup} controlId="authorName">
+                  <Form.Label>Author name</Form.Label>
+                  <Form.Select
+                    name="authorName"
+                    value={formData.authorName || ""}
+                    onChange={handleChange}
+                  >
+                    <option value="">Select author</option>
+                    {authorOptions.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </Form.Select>
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+
+                {isShowCityDropDown && (
+                  <Form.Group className={styles.fieldGroup} controlId="cityId">
+                    <Form.Label>City</Form.Label>
+                    <Form.Select
+                      name="cityId"
+                      value={formData.cityId || ""}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select city</option>
+                      {cityList.map((item, index) => (
+                        <option key={index} value={item.id}>
+                          {item.cityName}
+                        </option>
+                      ))}
+                    </Form.Select>
+                    <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                  </Form.Group>
+                )}
+
+                <Form.Group className={styles.fieldGroup} controlId="blogImage">
+                  <Form.Label>Featured image</Form.Label>
+                  <div className={styles.imageUploadCard}>
+                    <div className={styles.imagePreviewWrap}>
+                      {newImagePreviewUrl ? (
+                        <img
+                          src={newImagePreviewUrl}
+                          alt="New blog featured image preview"
+                          className={styles.imagePreview}
+                        />
+                      ) : previousBlogImage ? (
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${previousBlogImage}`}
+                          alt="Current blog featured image"
+                          className={styles.imagePreview}
+                        />
+                      ) : (
+                        <div className={styles.imagePreviewEmpty}>
+                          <span className={styles.imagePreviewEmptyIcon} aria-hidden>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                              <circle cx="9" cy="9" r="2" />
+                              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                            </svg>
+                          </span>
+                          <p className={styles.imagePreviewEmptyText}>No image selected</p>
+                          <p className={styles.imagePreviewEmptyHint}>PNG, JPG or WEBP recommended</p>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      ref={blogImageInputRef}
+                      type="file"
+                      name="blogImage"
+                      accept="image/*"
+                      className={styles.imageFileInput}
+                      onChange={handleChange}
+                      tabIndex={-1}
                     />
-                    <Form.Check
-                      type="radio"
-                      id="publish-mode-draft"
-                      name="publishMode"
-                      label="Save as draft"
-                      checked={publishMode === "draft"}
-                      onChange={() => setPublishMode("draft")}
-                    />
-                    <Form.Check
-                      type="radio"
-                      id="publish-mode-schedule"
-                      name="publishMode"
-                      label="Schedule post"
-                      checked={publishMode === "schedule"}
-                      onChange={() => setPublishMode("schedule")}
-                    />
+                    <div className={styles.uploadActions}>
+                      <button
+                        type="button"
+                        className={styles.uploadBtn}
+                        onClick={() => blogImageInputRef.current?.click()}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                          <polyline points="17 8 12 3 7 8" />
+                          <line x1="12" x2="12" y1="3" y2="15" />
+                        </svg>
+                        {previousBlogImage || newImagePreviewUrl ? "Replace image" : "Upload image"}
+                      </button>
+                      <Button
+                        type="button"
+                        variant="light"
+                        className={styles.imageUrlsBtn}
+                        onClick={openImageUrlPopup}
+                      >
+                        Image URLs
+                      </Button>
+                    </div>
+                  </div>
+                  <Form.Control.Feedback>Looks good!</Form.Control.Feedback>
+                </Form.Group>
+              </div>
+
+              {/* Full width — Content editor */}
+              <div className={`${styles.formColFull} ${styles.editorSection}`}>
+                <div className={styles.editorSectionHeader}>Blog content</div>
+                <div className={styles.editorWrap}>
+                  <Editor value={blogDescription} onChange={setBlogDescription} />
+                </div>
+              </div>
+
+              {/* Full width — Publication */}
+              <div className={`${styles.formColFull} ${styles.fieldGroup}`}>
+                <p className={styles.sectionTitle}>Publication</p>
+                <div className={styles.publicationPanel}>
+                  <p className={styles.publicationIntro}>
+                    Choose when this blog should go live. Scheduled posts publish automatically at the selected time.
+                  </p>
+                  <div className={styles.publicationOptions} role="radiogroup" aria-label="Publication mode">
+                    <label
+                      className={`${styles.publicationOption}${
+                        publishMode === "publish" ? ` ${styles.publicationOptionActive}` : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        className={styles.publicationOptionInput}
+                        name="publishMode"
+                        checked={publishMode === "publish"}
+                        onChange={() => setPublishMode("publish")}
+                      />
+                      <span className={styles.publicationOptionLabel}>Publish now</span>
+                      <span className={styles.publicationOptionHint}>Make live immediately</span>
+                    </label>
+                    <label
+                      className={`${styles.publicationOption}${
+                        publishMode === "draft" ? ` ${styles.publicationOptionActive}` : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        className={styles.publicationOptionInput}
+                        name="publishMode"
+                        checked={publishMode === "draft"}
+                        onChange={() => setPublishMode("draft")}
+                      />
+                      <span className={styles.publicationOptionLabel}>Save as draft</span>
+                      <span className={styles.publicationOptionHint}>Keep hidden until ready</span>
+                    </label>
+                    <label
+                      className={`${styles.publicationOption}${
+                        publishMode === "schedule" ? ` ${styles.publicationOptionActive}` : ""
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        className={styles.publicationOptionInput}
+                        name="publishMode"
+                        checked={publishMode === "schedule"}
+                        onChange={() => setPublishMode("schedule")}
+                      />
+                      <span className={styles.publicationOptionLabel}>Schedule post</span>
+                      <span className={styles.publicationOptionHint}>Set a future date &amp; time</span>
+                    </label>
                   </div>
 
                   {publishMode === "schedule" && (
-                    <Row className={`mb-0 ${gridStyles.scheduleFields}`}>
-                      <Form.Group as={Col} md="3">
+                    <div className={styles.scheduleFields}>
+                      <Form.Group controlId="scheduleDate">
                         <Form.Label>Schedule date</Form.Label>
                         <Form.Control
                           type="date"
@@ -1509,7 +1614,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                           onChange={(e) => setScheduleDate(e.target.value)}
                         />
                       </Form.Group>
-                      <Form.Group as={Col} md="3">
+                      <Form.Group controlId="scheduleHour">
                         <Form.Label>Hour</Form.Label>
                         <Form.Select
                           value={scheduleHour}
@@ -1525,7 +1630,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                           })}
                         </Form.Select>
                       </Form.Group>
-                      <Form.Group as={Col} md="3">
+                      <Form.Group controlId="scheduleMinute">
                         <Form.Label>Minute</Form.Label>
                         <Form.Select
                           value={scheduleMinute}
@@ -1538,7 +1643,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                           ))}
                         </Form.Select>
                       </Form.Group>
-                      <Form.Group as={Col} md="3">
+                      <Form.Group controlId="scheduleAmPm">
                         <Form.Label>AM / PM</Form.Label>
                         <Form.Select
                           value={scheduleAmPm}
@@ -1548,43 +1653,65 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                           <option value="PM">PM</option>
                         </Form.Select>
                       </Form.Group>
-                    </Row>
+                    </div>
                   )}
-
-                  <div className={gridStyles.publicationActions}>
-                    <Button
-                      className="btn btn-success"
-                      type="button"
-                      disabled={showLoading}
-                      onClick={() => submitBlog("publish")}
-                    >
-                      Publish now{" "}
-                      <LoadingSpinner show={showLoading && submittingMode === "publish"} />
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      type="button"
-                      disabled={showLoading}
-                      onClick={() => submitBlog("draft")}
-                    >
-                      Save draft{" "}
-                      <LoadingSpinner show={showLoading && submittingMode === "draft"} />
-                    </Button>
-                    <Button
-                      variant="outline-primary"
-                      type="button"
-                      disabled={showLoading}
-                      onClick={() => submitBlog("schedule")}
-                    >
-                      Schedule post{" "}
-                      <LoadingSpinner show={showLoading && submittingMode === "schedule"} />
-                    </Button>
-                  </div>
                 </div>
-              </Form.Group>
-            </Row>
-          </Form>
-        </Modal.Body>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className={styles.blogModalFooter}>
+            <Button
+              type="button"
+              variant="light"
+              className={styles.footerBtnCancel}
+              disabled={showLoading}
+              onClick={handleModalClose}
+            >
+              Cancel
+            </Button>
+            {publishMode !== "draft" ? (
+              <Button
+                type="button"
+                variant="outline-success"
+                className={styles.footerBtnSave}
+                disabled={showLoading}
+                onClick={() => submitBlog("draft")}
+              >
+                Save draft{" "}
+                <LoadingSpinner show={showLoading && submittingMode === "draft"} />
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="success"
+              className={styles.footerBtnPrimary}
+              disabled={showLoading}
+              onClick={() =>
+                submitBlog(
+                  publishMode === "schedule"
+                    ? "schedule"
+                    : publishMode === "draft"
+                      ? "draft"
+                      : "publish",
+                )
+              }
+            >
+              {publishMode === "schedule"
+                ? "Schedule post"
+                : publishMode === "draft"
+                  ? "Save draft"
+                  : "Publish now"}{" "}
+              <LoadingSpinner
+                show={
+                  showLoading &&
+                  (submittingMode === "publish" ||
+                    submittingMode === "schedule" ||
+                    submittingMode === "draft")
+                }
+              />
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
       <CommonModal
         confirmBox={confirmBox}

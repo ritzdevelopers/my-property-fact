@@ -13,6 +13,28 @@ import {
   useMotionSettings,
 } from "@/eldeco-echoes-of-eden/lib/motion";
 
+function OfferBanner({ className = "" }: { className?: string }) {
+  const { offerBanner } = sectionsConfig.hero;
+
+  return (
+    <div
+      className={`inline-flex flex-col items-center justify-center rounded-2xl bg-[#073C7E] px-8 py-4 text-center text-white sm:px-10 sm:py-5 lg:px-12 lg:py-[1.15rem] ${className}`}
+      role="note"
+    >
+      <p className="font-serif text-[1.35rem] font-bold uppercase leading-none tracking-[0.08em] sm:text-[1.65rem] lg:text-[1.85rem]">
+        {offerBanner.headline}
+        <span className="align-super text-[0.45em] tracking-normal">
+          {offerBanner.asterisks}
+        </span>{" "}
+        {offerBanner.headlineSuffix}
+      </p>
+      <p className="mt-2 font-sans text-[0.7rem] font-medium lowercase leading-none tracking-[0.18em] sm:text-[0.8rem] lg:text-[0.85rem]">
+        {offerBanner.subline}
+      </p>
+    </div>
+  );
+}
+
 export function Hero() {
   const hero = sectionsConfig.hero;
   const { prefersReducedMotion, transition } = useMotionSettings();
@@ -59,26 +81,27 @@ export function Hero() {
             {hero.title}
           </motion.h1>
 
-          <motion.p
+          {/* <motion.p
             className="mt-2 text-lg font-semibold text-[#1A1A1A] sm:text-xl"
             variants={fadeUp}
             transition={transition(0.6)}
           >
             {hero.subtitle}
-          </motion.p>
+          </motion.p> */}
 
           <motion.ul
-            className="mx-auto mt-5 flex max-w-md flex-col items-center gap-2.5 sm:mt-6 sm:gap-3"
+            className="mx-auto mt-5 grid max-w-md grid-cols-2 gap-2 sm:mt-6 sm:gap-2.5"
             variants={staggerContainer(0.08, 0.12)}
           >
             {hero.highlights.map((item) => (
               <motion.li
                 key={item.label}
+                className="h-full min-w-0"
                 variants={fadeUp}
                 transition={transition(0.5)}
               >
-                <span className="inline-flex max-w-full items-center gap-2 rounded-full bg-[#4A4A4A] px-4 py-2.5 text-left text-xs font-medium text-white sm:text-sm">
-                  <ArrowRightIcon className="size-3.5 shrink-0 sm:size-4" />
+                <span className="inline-flex h-full w-full items-start gap-1.5 rounded-xl bg-[#4A4A4A] px-2.5 py-2 text-left text-[11px] font-medium leading-snug text-white sm:gap-2 sm:px-3 sm:py-2.5 sm:text-xs">
+                  <ArrowRightIcon className="mt-0.5 size-3 shrink-0 sm:size-3.5" />
                   <span className="min-w-0">
                     {item.label} : {item.value}
                   </span>
@@ -86,6 +109,14 @@ export function Hero() {
               </motion.li>
             ))}
           </motion.ul>
+
+          <motion.div
+            className="mx-auto mt-5 w-full max-w-md sm:mt-6"
+            variants={fadeUp}
+            transition={transition(0.6)}
+          >
+            <OfferBanner className="w-full" />
+          </motion.div>
 
           <motion.div
             className="mt-5 sm:mt-6"
@@ -157,13 +188,13 @@ export function Hero() {
               {hero.title}
             </motion.h1>
 
-            <motion.p
+            {/* <motion.p
               className="mt-3 text-xl font-semibold sm:text-2xl"
               variants={fadeUp}
               transition={transition(0.7)}
             >
               {hero.subtitle}
-            </motion.p>
+            </motion.p> */}
 
             <motion.ul
               className="mt-6 space-y-2 sm:mt-8"
@@ -186,6 +217,14 @@ export function Hero() {
 
             <motion.div
               className="mt-6 sm:mt-8"
+              variants={fadeUp}
+              transition={transition(0.7)}
+            >
+              <OfferBanner />
+            </motion.div>
+
+            <motion.div
+              className="mt-5 sm:mt-6"
               variants={fadeUp}
               transition={transition(0.75)}
             >

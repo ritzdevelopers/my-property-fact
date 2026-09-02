@@ -4,33 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
-import LeadFormOtpStep from "@/components/LeadFormOtpStep";
-import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import styles from "./page.module.css";
 
 function Section10() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
-  const [phone, setPhone] = useState("");
-  const leadOtp = useLeadOtp(phone);
 
   const handleSubmit = async (event) => {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event, {
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        otpSent: leadOtp.otpSent,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      console.log(data);
+      await handleLeadFormSubmit(event);
       router.push(ELDECO_THANK_YOU_PATH);
     } catch (err) {
-      console.log(err);
       setFormError(err instanceof Error ? err.message : "Something went wrong.");
       setIsSubmitting(false);
     }
@@ -45,7 +32,7 @@ function Section10() {
               Request a Call Back
             </h2>
 
-            <form id="section10-lead-form" onSubmit={handleSubmit} className={`w-full space-y-[8px] ${leadFormOtpActiveClass(leadOtp)}`.trim()} noValidate>
+            <form id="section10-lead-form" onSubmit={handleSubmit} className="w-full space-y-[8px]" noValidate>
               <input
                 type="text"
                 name="name"
@@ -66,8 +53,6 @@ function Section10() {
                 required
                 inputMode="numeric"
                 placeholder="Phone Number *"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
                 className="h-[55px] w-full rounded-[5px] bg-[#f5f5f5] px-[14px] text-[16px] font-[400] placeholder:text-[#222222] text-[#222] outline-none"
               />
               <textarea
@@ -75,7 +60,6 @@ function Section10() {
                 placeholder="Message"
                 className="h-[140px] w-full resize-none rounded-[3px] bg-[#f5f5f5] px-[14px] py-[13px] text-[16px] font-[400] placeholder:text-[#222222] text-[#222] outline-none"
               />
-              <LeadFormOtpStep phone={phone} leadOtp={leadOtp} autoSubmitFormId="section10-lead-form" />
 
               {formError ? (
                 <p className={`${styles.paragraph} text-[13px] font-[400] text-red-600`}>

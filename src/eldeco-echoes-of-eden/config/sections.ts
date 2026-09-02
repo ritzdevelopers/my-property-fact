@@ -14,20 +14,25 @@ export type EnquiryField = {
 export const sectionsConfig = {
   hero: {
     id: "home",
-    backgroundImage: "/eldeco-echoes-of-eden/images/hero-bg.png",
+    backgroundImage: "/eldeco-echoes-of-eden/images/hero-bg.jpg",
     location: "Sector 22D, Yamuna Expressway",
     title: "Eldeco Echoes of Eden: 3 BHK Homes Built Around Green Living",
-    subtitle: "3 BHK",
+    // subtitle: "3 BHK",
     highlights: [
-      { label: "Payment Plan", value: "30:20:20:30" },
       { label: "Land Parcel", value: "5 Acres" },
       { label: "Central Greens", value: "3-Acre" },
       { label: "Green Space", value: "80% Open" },
       { label: "Amenities", value: "50+ World-Class Amenities" },
     ] satisfies HeroHighlight[],
+    offerBanner: {
+      headline: "PAY 10%",
+      asterisks: "**",
+      headlineSuffix: "NOW",
+      subline: "and nothing till 24 months",
+    },
     startingPrice: {
       label: "Starting Price",
-      value: "₹ 1.64 Cr*",
+      value: "₹ 1.74 Cr*",
     },
     enquiry: {
       title: "QUICK ENQUIRY!",
@@ -70,15 +75,18 @@ export const sectionsConfig = {
     id: "overview",
     title: "Eldeco Echoes of Eden",
     location: "Sector 22D, Yamuna Expressway",
-    description:
-      "Most projects on this stretch of the Yamuna Expressway compete on size. Eldeco Echoes of Eden competes on how much of that size stays open, with 80% of its 5-acre footprint left as green, walkable space rather than built-up area. If you've been shortlisting 3bhk flats in Noida under 2cr, that trade-off more air and light per home instead of just more towers, it is worth weighing against denser projects nearby at a similar price.",
+    description: [
+      "Eldeco Echoes of Eden offers premium 3 BHK and 4 BHK residences in Sector 22D, Yamuna Expressway, Greater Noida. Designed for modern families, the project combines comfortable living spaces with lush green surroundings, creating a peaceful and refreshing lifestyle.",
+    
+      "Located in the fast-growing Yamuna Expressway region, Eldeco Echoes of Eden offers excellent connectivity to key destinations in Greater Noida and nearby areas. With its strategic location, thoughtfully planned homes, and modern lifestyle features, the project is a great choice for both homebuyers and property investors looking for a well-connected residential property in Greater Noida.",
+    ],
   },
   highlights: {
     id: "highlight",
     eyebrow: "ELDECO YAMUNA EXPRESSWAY SPECIFICATIONS",
     title: "Our Highlights",
     image: {
-      src: "/eldeco-echoes-of-eden/images/highlights-bg.png",
+      src: "/eldeco-echoes-of-eden/images/hero-bg.jpg",
       alt: "Eldeco Echoes of Eden architectural rendering",
     },
     items: [

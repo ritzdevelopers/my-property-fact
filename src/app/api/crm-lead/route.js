@@ -45,7 +45,7 @@ export async function POST(request) {
     name: (body.name ?? "").trim(),
     City: (body.city ?? "").trim(),
     Location: (body.location ?? "").trim(),
-    Project: "Eldeco Terra & Sol",
+    Project: (body.project ?? "Eldeco Terra & Sol").trim(),
     Remark: (body.remark ?? "").trim(),
     url: (body.url ?? "").trim(),
     UniqueId: uniqueId,

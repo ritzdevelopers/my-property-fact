@@ -108,7 +108,7 @@ function Home() {
             </div>
           </div>
 
-          <div className="mb-3 flex w-full items-center justify-center gap-7">
+          <div className="mb-3 flex w-full items-center justify-center">
             <div>
               <p
                 className={`${styles.paragraph} mb-1 text-[13px] font-semibold uppercase tracking-wider text-white/80`}
@@ -119,21 +119,6 @@ function Home() {
                 className={`${styles.paragraph} text-[20px] font-bold min-[768px]:text-[24px]`}
               >
                 ₹3.11 Cr*
-              </p>
-            </div>
-
-            <div className="h-12 w-px bg-white/55" />
-
-            <div>
-              <p
-                className={`${styles.paragraph} mb-1 text-[13px] font-semibold uppercase tracking-wider text-white/80`}
-              >
-                Nothing for 36 Months
-              </p>
-              <p
-                className={`${styles.paragraph} text-[20px] font-bold min-[768px]:text-[24px]`}
-              >
-                Pay 30% Now
               </p>
             </div>
           </div>

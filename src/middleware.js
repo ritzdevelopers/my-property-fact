@@ -94,10 +94,8 @@ function isEldecoTerraSolPath(pathname) {
   } catch {
     // keep raw pathname
   }
-  return (
-    decoded === ELDECO_LANDING_BASE_PATH ||
-    decoded.startsWith(`${ELDECO_LANDING_BASE_PATH}/`)
-  );
+  const base = decodeURIComponent(ELDECO_LANDING_BASE_PATH);
+  return decoded === base || decoded.startsWith(`${base}/`);
 }
 
 export async function middleware(req) {

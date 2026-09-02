@@ -38,16 +38,23 @@ export function Overview() {
           {overview.location}
         </motion.p>
 
-        <motion.p
-          className="mx-auto mt-6 max-w-6xl text-sm leading-7 text-[#1a1a1a] sm:mt-8 sm:text-[0.95rem] sm:leading-6"
-          initial="hidden"
-          whileInView="visible"
-          viewport={viewportOnce}
-          variants={fadeUp}
-          transition={transition(0.8, [0.22, 1, 0.36, 1])}
-        >
-          {overview.description}
-        </motion.p>
+        {overview.description.map((paragraph, index) => (
+          <motion.p
+            key={index}
+            className={`mx-auto mt-5 max-w-6xl text-sm leading-7 text-[#1a1a1a] sm:text-[0.95rem] sm:leading-6 ${index > 0 ? "mt-5" : ""
+              }`}
+            initial="hidden"
+            whileInView="visible"
+            viewport={viewportOnce}
+            variants={fadeUp}
+            transition={transition(
+              0.8 + index * 0.1,
+              [0.22, 1, 0.36, 1]
+            )}
+          >
+            {paragraph}
+          </motion.p>
+        ))}
       </div>
     </section>
   );

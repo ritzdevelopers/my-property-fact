@@ -130,7 +130,7 @@ export function EnquiryPopup({ isOpen, onClose }: EnquiryPopupProps) {
               <X className="size-4 sm:size-5" aria-hidden="true" />
             </button>
 
-            <div className="relative h-[7.5rem] shrink-0 sm:h-[9rem] md:h-[10.5rem] lg:h-44">
+            {/* <div className="relative h-[7.5rem] shrink-0 sm:h-[9rem] md:h-[10.5rem] lg:h-44">
               <Image
                 src={enquiryPopupConfig.image.src}
                 alt={enquiryPopupConfig.image.alt}
@@ -139,7 +139,7 @@ export function EnquiryPopup({ isOpen, onClose }: EnquiryPopupProps) {
                 className="object-cover object-center"
                 priority
               />
-            </div>
+            </div> */}
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-6 sm:py-5 md:px-8 md:py-6">
               <div className="text-center">

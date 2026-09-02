@@ -536,6 +536,17 @@ export default function TestimonialSection() {
           }
         }
 
+        @media (min-width: 1024px) and (max-width: 1199.99px) {
+          .home-testimonials-section.container {
+            max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+            width: min(100%, 98vw) !important;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: clamp(12px, 1.5vw, 18px) !important;
+            padding-right: clamp(12px, 1.5vw, 18px) !important;
+          }
+        }
+
         @media (max-width: 991px) {
           .home-testimonials-section :global(.home-testimonials-inner-container) {
             align-items: center !important;

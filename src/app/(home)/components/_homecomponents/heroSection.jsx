@@ -137,7 +137,11 @@ function HeroBannerPicture() {
   return (
     <div className="position-relative home-banner hero-banner-responsive-images hero-art-direction">
       <picture>
-        <source media="(max-width: 767.98px)" srcSet={mobileSrcSet} sizes={sizes} />
+        <source
+          media="(max-width: 767.98px)"
+          srcSet={mobileSrcSet}
+          sizes={sizes}
+        />
         <source
           media="(min-width: 768px) and (max-width: 991.98px)"
           srcSet={tabletSrcSet}
@@ -270,7 +274,6 @@ export default function HeroSection({
         aria-label="Hero Banner"
       >
         <div className="mpf-hero-banner position-relative">
-
           <HeroBannerPicture />
 
           <div className="home-banner-overlay" aria-hidden="true" />
@@ -279,11 +282,21 @@ export default function HeroSection({
             <div className="mpf-hero-main">
               <div className="mpf-hero-content">
                 <div className="mpf-hero-copy">
-                  <p className="headgradient headgradient--sparkle" data-text={title}>
+                  <p
+                    className="headgradient headgradient--sparkle"
+                    data-text={title}
+                  >
                     {title.includes("Across India") ? (
                       <>
                         Find Your Perfect Property in
-                        <span className="mpf-hero-highlight"> Across
+                        <span
+                          className="mpf-hero-highlight"
+                          style={{
+                            color: "#EBC366 !important",
+                          }}
+                        >
+                          {" "}
+                          Across
                           <HeroCityTypewriter />
                         </span>
                       </>
@@ -295,7 +308,10 @@ export default function HeroSection({
                     {subtitle}
                   </h1>
                 </div>
-                <aside className="mpf-hero-badge" aria-label="Property insights">
+                <aside
+                  className="mpf-hero-badge"
+                  aria-label="Property insights"
+                >
                   <span className="mpf-hero-badge__icon" aria-hidden>
                     <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
                       <path
@@ -305,7 +321,8 @@ export default function HeroSection({
                     </svg>
                   </span>
                   <span className="mpf-hero-badge__text">
-                    <strong>Verified listings</strong>, price trends &amp; expert insights
+                    <strong>Verified listings</strong>, price trends &amp;
+                    expert insights
                   </span>
                 </aside>
               </div>
@@ -321,8 +338,20 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M9.5 12.2l1.8 1.8 3.5-3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M9.5 12.2l1.8 1.8 3.5-3.8"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -333,7 +362,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M7 4h10M7 8.5h10M7 4c4.5 0 6.5 1.8 6.5 4.5S11.5 13 7 13h1.5L16 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M7 4h10M7 8.5h10M7 4c4.5 0 6.5 1.8 6.5 4.5S11.5 13 7 13h1.5L16 20"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -344,7 +379,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -355,7 +396,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -386,7 +433,8 @@ export default function HeroSection({
         >
           {rightRailTypes.map((item, index) => {
             const typeKey = getTypeKey(item?.projectTypeName);
-            const { alt: railIconAlt, title: railIconTitle } = railIconMetaForKey(typeKey);
+            const { alt: railIconAlt, title: railIconTitle } =
+              railIconMetaForKey(typeKey);
             return (
               <Link
                 key={`right-rail-type-${index}`}
@@ -402,7 +450,9 @@ export default function HeroSection({
                     clearTimeout(railHoverLeaveTimerRef.current);
                     railHoverLeaveTimerRef.current = null;
                   }
-                  setOpenRightRailIndex((prev) => (prev === index ? null : prev));
+                  setOpenRightRailIndex((prev) =>
+                    prev === index ? null : prev,
+                  );
                 }}
               >
                 <span
@@ -436,8 +486,12 @@ export default function HeroSection({
                   )}
                 </span>
                 <span className="home-right-type-rail__text">
-                  {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
-                    <div className="property-type-heading m-0">{item.projectTypeName}</div>
+                  {headingTypes.has(
+                    normalizeTypeName(item?.projectTypeName || ""),
+                  ) ? (
+                    <div className="property-type-heading m-0">
+                      {item.projectTypeName}
+                    </div>
                   ) : (
                     <span>{item.projectTypeName}</span>
                   )}

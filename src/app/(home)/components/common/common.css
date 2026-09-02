@@ -225,10 +225,22 @@
 /* Investor Education Blog — tablet max-width only (760–1024) */
 @media (min-width: 760px) and (max-width: 1023.98px) {
   .blog-section-container > .container {
-    max-width: min(100%, 980px);
+    max-width: min(100%, 980px) !important;
     width: 100%;
-    padding-left: clamp(18px, 2.8vw, 32px);
-    padding-right: clamp(18px, 2.8vw, 32px);
+    padding-left: clamp(18px, 2.8vw, 32px) !important;
+    padding-right: clamp(18px, 2.8vw, 32px) !important;
+  }
+}
+
+/* Investor Education Blog — small laptop (1024–1200): fluid vw width */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+  .blog-section-container > .container {
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+    width: min(100%, 98vw) !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 18px) !important;
+    padding-right: clamp(12px, 1.5vw, 18px) !important;
   }
 }
 

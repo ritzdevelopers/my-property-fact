@@ -465,10 +465,23 @@
   }
 }
 
-/* Use full content width below lg (Bootstrap .container is narrow at sm/md) */
-@media (max-width: 991.98px) {
+/* Use full content width below tablet; home redesign overrides 768–1200 */
+@media (max-width: 767.98px) {
   .mpf-tp__band > .container {
     max-width: 100%;
+  }
+}
+
+/* Top Picks — small laptop (1024–1200): fluid vw width */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+  .mpf-home-r26 .mpf-tp__band > .container,
+  .mpf-tp__band > .container {
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+    width: min(100%, 98vw) !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 18px) !important;
+    padding-right: clamp(12px, 1.5vw, 18px) !important;
   }
 }
 

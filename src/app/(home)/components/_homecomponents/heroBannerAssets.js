@@ -2,19 +2,22 @@
 export const BANNER_ALT = "My Property Fact — home";
 
 export const BANNER_DESKTOP = {
-  src: "/static/banners/creative.jpg",
+  // src: "/static/banners/creative.jpg", 
+  src: "/hero/janmashtami_bg2.jpg",
   width: 1920,
   height: 883,
 };
 
 export const BANNER_TABLET = {
-  src: "/static/banners/creative.jpg",
+  // src: "/static/banners/creative.jpg",
+  src: "/hero/janmashtami_bg2.jpg",
   width: 1024,
   height: 629,
 };
 
 export const BANNER_MOBILE = {
-  src: "/static/banners/creative.jpg",
+  // src: "/static/banners/creative.jpg",
+  src: "/hero/janmashtami_tab_bg2.jpg",
   width: 458,
   height: 810,
 };

@@ -1,25 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
+import { goToEldecoThankYou } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
-import LeadFormOtpStep from "@/components/LeadFormOtpStep";
-import { useLeadOtp } from "@/hooks/useLeadOtp";
-import { leadFormOtpActiveClass } from "@/lib/leadFormOtpUi";
 import styles from "./page.module.css";
 
 const STORAGE_KEY = "eldeco-lead-form-submitted";
 export const OPEN_LEAD_POPUP_EVENT = "open-lead-popup";
 
 function LeadPopup() {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
-  const [phone, setPhone] = useState("");
-  const leadOtp = useLeadOtp(phone);
 
   useEffect(() => {
     const hasSubmitted = window.localStorage.getItem(STORAGE_KEY) === "true";
@@ -61,20 +54,10 @@ function LeadPopup() {
     try {
       setIsSubmitting(true);
       setFormError("");
-      const data = await handleLeadFormSubmit(event, {
-        otp: leadOtp.otp,
-        isVerified: leadOtp.isVerified,
-        otpSent: leadOtp.otpSent,
-        sendOtp: leadOtp.sendOtp,
-        verifyOtp: leadOtp.verifyOtp,
-      });
-      console.log(data);
+      await handleLeadFormSubmit(event);
       window.localStorage.setItem(STORAGE_KEY, "true");
-      setIsSubmitted(true);
-      setIsOpen(false);
-      router.push(ELDECO_THANK_YOU_PATH);
+      goToEldecoThankYou();
     } catch (err) {
-      console.log(err);
       setFormError(err instanceof Error ? err.message : "Something went wrong.");
       setIsSubmitting(false);
     }
@@ -98,7 +81,6 @@ function LeadPopup() {
         </button>
 
         <div className="pr-8">
-          
           <h2 className={`${styles.heading} mt-2 md:text-[30px] text-[24px] font-[600] leading-tight text-black `}>
             Request a Call Back
           </h2>
@@ -107,12 +89,18 @@ function LeadPopup() {
           </p>
         </div>
 
-        <form id="eldeco-lead-popup-form" onSubmit={handleSubmit} className={`mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2 ${leadFormOtpActiveClass(leadOtp)}`.trim()} noValidate>
+        <form
+          id="eldeco-lead-popup-form"
+          onSubmit={handleSubmit}
+          className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2"
+          noValidate
+        >
           <input
             type="text"
             name="name"
             required
             placeholder="Your Name *"
+            disabled={isSubmitting}
             className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35]"
           />
           <input
@@ -120,6 +108,7 @@ function LeadPopup() {
             name="email"
             required
             placeholder="Email Address *"
+            disabled={isSubmitting}
             className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35]"
           />
           <input
@@ -128,24 +117,15 @@ function LeadPopup() {
             required
             inputMode="numeric"
             placeholder="Phone Number *"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            disabled={leadOtp.isVerified}
+            disabled={isSubmitting}
             className="h-11 w-full border-0 border-b border-neutral-300 bg-transparent px-0 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35] sm:col-span-2"
           />
           <textarea
             name="message"
             placeholder="Message"
+            disabled={isSubmitting}
             className="h-20 w-full resize-none border-0 border-b border-neutral-300 bg-transparent px-0 py-3 text-sm text-[#222] outline-none transition placeholder:text-neutral-400 focus:border-[#c59c35] sm:col-span-2"
           />
-
-          <div className="sm:col-span-2">
-            <LeadFormOtpStep
-              phone={phone}
-              leadOtp={leadOtp}
-              autoSubmitFormId="eldeco-lead-popup-form"
-            />
-          </div>
 
           {formError ? (
             <p className={`${styles.paragraph} text-[13px] leading-relaxed text-red-600 sm:col-span-2`}>

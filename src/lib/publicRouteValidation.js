@@ -58,6 +58,7 @@ export const PUBLIC_KNOWN_PREFIXES = new Set([
   "subh-anandam",
   "api",
   "Eldeco-terra&sol",
+  "eldeco-terra%26sol",
   "eldeco-echoes-of-eden",
 ]);
 
@@ -185,7 +186,7 @@ export function isDefinitelyInvalidPublicPath(pathname) {
     if (prefix === "landing-pages") return false;
     if (prefix === "admin" || prefix === "portal") return false;
     if (prefix === "components") return false;
-    if (first === "Eldeco-terra&sol") return false;
+    if (first === "Eldeco-terra&sol" || first.toLowerCase() === "eldeco-terra%26sol") return false;
     if (prefix === "subh-anandam" || prefix === "lavidabella") return false;
     if (prefix === "eldeco-echoes-of-eden") return false;
     if (prefix === "api") return false;

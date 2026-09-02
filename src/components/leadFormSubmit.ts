@@ -148,14 +148,12 @@ export async function handleLeadFormSubmit(
   const sheetPromise = fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
     method: "POST",
     body: JSON.stringify(formData),
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error("Could not save your enquiry. Please try again.");
-    }
-    return response.json();
+    mode: "no-cors",
+  }).catch(() => {
+    throw new Error("Could not save your enquiry. Please try again.");
   });
 
-  const [, sheetJson] = await Promise.all([crmPromise, sheetPromise]);
+  await Promise.all([crmPromise, sheetPromise]);
 
-  return sheetJson;
+  return { ok: true };
 }

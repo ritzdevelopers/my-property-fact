@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ELDECO_THANK_YOU_PATH } from "./eldecoPaths";
+import { goToEldecoThankYou } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import styles from "./page.module.css";
 
 function Section10() {
-  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -16,7 +14,7 @@ function Section10() {
       setIsSubmitting(true);
       setFormError("");
       await handleLeadFormSubmit(event);
-      router.push(ELDECO_THANK_YOU_PATH);
+      goToEldecoThankYou();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Something went wrong.");
       setIsSubmitting(false);

@@ -10,6 +10,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import { enquiryPopupConfig } from "@/eldeco-echoes-of-eden/config/enquiryPopup";
 import { EnquiryPopup } from "@/eldeco-echoes-of-eden/components/EnquiryPopup";
 
@@ -31,6 +32,8 @@ function markAutoShowDismissed() {
 }
 
 export function EnquiryPopupProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const isThankYouPage = pathname?.includes("/thankyou") ?? false;
   const [isOpen, setIsOpen] = useState(false);
   const autoShowScheduled = useRef(false);
 
@@ -44,6 +47,11 @@ export function EnquiryPopupProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (isThankYouPage) {
+      setIsOpen(false);
+      return;
+    }
+
     if (isAutoShowDismissed() || autoShowScheduled.current) return;
 
     autoShowScheduled.current = true;
@@ -55,7 +63,7 @@ export function EnquiryPopupProvider({ children }: { children: ReactNode }) {
     }, enquiryPopupConfig.autoShowDelayMs);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [isThankYouPage]);
 
   const value = useMemo(
     () => ({
@@ -69,10 +77,9 @@ export function EnquiryPopupProvider({ children }: { children: ReactNode }) {
   return (
     <EnquiryPopupContext.Provider value={value}>
       {children}
-      <EnquiryPopup
-        isOpen={isOpen}
-        onClose={closeEnquiryPopup}
-      />
+      {!isThankYouPage && (
+        <EnquiryPopup isOpen={isOpen} onClose={closeEnquiryPopup} />
+      )}
     </EnquiryPopupContext.Provider>
   );
 }

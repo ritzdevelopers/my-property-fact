@@ -2786,6 +2786,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
+/* Recommended Projects container — desktop (1200+): 95% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .home-projects-preview.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 /* Noida / FAQ container — tablet (768–1024): same as Recommended Projects */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .mpf-home-r26 .noida-projects-section.container {
@@ -2855,6 +2867,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .noida-projects-section .destination-faq__contact {
     height: auto;
     min-height: 160px;
+  }
+}
+
+/* Noida / FAQ container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .noida-projects-section.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 
@@ -3558,6 +3582,17 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
+/* Expert band container — desktop (1200+): 95% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .mpf-expert-band__inner.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0px !important;
+  }
+}
+
 /* Transform home container — tablet (768–1024): 980px cap */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .mpf-home-r26 .transform-home-section.container {
@@ -3579,6 +3614,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Transform home container — desktop (1200+): 95% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .transform-home-section.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 
@@ -3656,6 +3703,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
+/* Top Picks container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .mpf-tp__band>.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 /* Featured section container — tablet (768–1024): 980px cap */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .mpf-home-r26 .home-featured-section.container {
@@ -3698,6 +3757,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
+/* Featured section container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .home-featured-section.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 /* Investor Education Blog container — tablet (768–1024): 980px cap */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .mpf-home-r26 .blog-section-container>.container {
@@ -3719,6 +3790,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Investor Education Blog container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .blog-section-container>.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 
@@ -3746,6 +3829,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
+/* Testimonials container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .home-testimonials-section.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 /* Vaastu strip container — tablet (768–1024): 980px cap */
 @media (min-width: 768px) and (max-width: 1023.98px) {
   .mpf-home-r26 .vaastu-strip-section>.container {
@@ -3767,6 +3862,18 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Vaastu strip container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .vaastu-strip-section>.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 
@@ -3798,6 +3905,25 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+
+  .mpf-home-r26 .social-feeds-section .container {
+    max-width: 100% !important;
+    width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+/* Social feeds container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .social-feeds-section>.container-fluid {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 
   .mpf-home-r26 .social-feeds-section .container {
@@ -3847,6 +3973,27 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Hero containers — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .mpf-hero-shell.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+
+  .mpf-home-r26 .mpf-value-strip__inner.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 

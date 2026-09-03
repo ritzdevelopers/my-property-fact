@@ -304,6 +304,14 @@
     }
 }
 
+/* Hide chat invitation prompt on mobile — launcher only */
+@media (max-width: 767.98px) {
+    .promptTypingBubble,
+    .promptBubble {
+        display: none !important;
+    }
+}
+
 /* Container */
 .container {
     position: fixed;

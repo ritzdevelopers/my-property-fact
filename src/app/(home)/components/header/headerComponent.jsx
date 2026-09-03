@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import "./header.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
@@ -29,18 +29,15 @@ import { motion } from "framer-motion";
 
 const LOGO_ON_LIGHT = "/logo.webp";
 
-/** When GPS is blocked/unavailable — avoid IP guess (often wrong towns like Sardhana). */
-const DEFAULT_CITY_WITHOUT_GEO = "Noida Extension";
-const DEFAULT_CITY_HEADER_LABEL = "Noida Ext.";
+/** Ultimate fallback when GPS is denied and IP city has no listings (or IP lookup fails). */
+const DEFAULT_CITY_WITHOUT_GEO = "Delhi NCR";
+const NOIDA_EXT_HEADER_LABEL = "Noida Ext.";
 
 function formatHeaderCityLabel(city) {
   const value = String(city || "").trim();
   if (!value) return "";
-  if (
-    value.toLowerCase() === DEFAULT_CITY_WITHOUT_GEO.toLowerCase() ||
-    /^noida\s*ext(?:ension|n)?\.?$/i.test(value)
-  ) {
-    return DEFAULT_CITY_HEADER_LABEL;
+  if (/^noida\s*ext(?:ension|n)?\.?$/i.test(value)) {
+    return NOIDA_EXT_HEADER_LABEL;
   }
   return value;
 }
@@ -90,7 +87,11 @@ const HeaderComponent = () => {
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   const [showLocationToast, setShowLocationToast] = useState(false);
+  const [locationHint, setLocationHint] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
   const locationToastShownRef = useRef(false);
+  const locationToastTimerRef = useRef(null);
+  const locationRequestIdRef = useRef(0);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -509,44 +510,171 @@ const HeaderComponent = () => {
     }
   }, []);
 
-  const showMobileLocationToast = () => {
-    if (typeof window === "undefined") return;
-    if (window.innerWidth >= 1024) return;
-    if (locationToastShownRef.current) return;
-    locationToastShownRef.current = true;
-    setShowLocationToast(true);
-    window.setTimeout(() => setShowLocationToast(false), 2800);
+  const LOCATION_BLOCKED_HINT =
+    "Location is blocked in your browser. Click the tune/lock icon next to the URL → Site settings → Location → Allow, then click this button again.";
+
+  const clearLocationToastTimer = () => {
+    if (locationToastTimerRef.current) {
+      window.clearTimeout(locationToastTimerRef.current);
+      locationToastTimerRef.current = null;
+    }
   };
 
-  useEffect(() => {
-    let cancelled = false;
+  const showLocationFeedback = ({
+    force = false,
+    hint = "",
+    durationMs = 2800,
+  } = {}) => {
+    if (typeof window === "undefined") return;
+    // Permission hints show on all viewports; city toast stays mobile-only.
+    if (!hint && window.innerWidth >= 1024) return;
+    if (!force && !hint && locationToastShownRef.current) return;
+    if (!hint) locationToastShownRef.current = true;
+    setLocationHint(hint || "");
+    setShowLocationToast(true);
+    clearLocationToastTimer();
+    locationToastTimerRef.current = window.setTimeout(() => {
+      setShowLocationToast(false);
+      setLocationHint("");
+    }, durationMs);
+  };
 
-    const isSpecificCity = (cityName) => {
-      const n = String(cityName || "").trim().toLowerCase();
-      return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
-    };
+  const showMobileLocationToast = (force = false) => {
+    showLocationFeedback({ force });
+  };
 
-    const finishWithCity = (cityName) => {
-      if (cancelled) return;
-      const nextCity = String(cityName || "").trim() || "Delhi NCR";
-      setSelectedCity(nextCity);
-      try {
-        if (isSpecificCity(nextCity)) {
-          window.localStorage.setItem("mpf_header_city", nextCity);
-        } else {
-          window.localStorage.removeItem("mpf_header_city");
-        }
-      } catch {
-        /* ignore */
+  const isSpecificCity = (cityName) => {
+    const n = String(cityName || "").trim().toLowerCase();
+    return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
+  };
+
+  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false } = {}) => {
+    const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
+    setSelectedCity(nextCity);
+    try {
+      if (isSpecificCity(nextCity)) {
+        window.localStorage.setItem("mpf_header_city", nextCity);
+      } else {
+        window.localStorage.removeItem("mpf_header_city");
       }
-      window.dispatchEvent(
-        new CustomEvent("cityChanged", {
-          detail: { cityName: nextCity },
-        }),
-      );
-      showMobileLocationToast();
-    };
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(
+      new CustomEvent("cityChanged", {
+        detail: { cityName: nextCity },
+      }),
+    );
+    if (!skipToast) showMobileLocationToast(forceToast);
+  }, []);
 
+  /** City from IP only (no lat/lon). If that city has no listings, API returns Delhi NCR. */
+  const resolveFromIpCity = useCallback(async () => {
+    try {
+      const ipRes = await fetch("/api/home/ip-city", { cache: "no-store" });
+      const ipData = await ipRes.json();
+      const ipCity = String(ipData?.city || "").trim();
+      if (!ipCity) return DEFAULT_CITY_WITHOUT_GEO;
+
+      const q = new URLSearchParams({ city: ipCity, intent: "projects" });
+      const listingRes = await fetch(`/api/home/recommended-by-location?${q}`);
+      if (!listingRes.ok) return DEFAULT_CITY_WITHOUT_GEO;
+      const listingData = await listingRes.json();
+      const resolved = String(listingData?.region?.city || "").trim();
+      const hasItems =
+        Array.isArray(listingData?.items) && listingData.items.length > 0;
+
+      if (hasItems && resolved) return resolved;
+      return DEFAULT_CITY_WITHOUT_GEO;
+    } catch (error) {
+      console.error("IP city lookup failed:", error);
+      return DEFAULT_CITY_WITHOUT_GEO;
+    }
+  }, []);
+
+  const resolveFromCoords = useCallback(async (coords) => {
+    const response = await fetch(
+      `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`,
+    );
+    if (!response.ok) throw new Error("Failed to fetch location");
+    const data = await response.json();
+    return data.success && data.region?.city ? data.region.city : "";
+  }, []);
+
+  const requestBrowserLocation = useCallback(
+    ({ forceToast = false, preferGps = true } = {}) => {
+      const requestId = ++locationRequestIdRef.current;
+      setIsLocating(true);
+
+      const applyIfCurrent = (city, opts = {}) => {
+        if (requestId !== locationRequestIdRef.current) return;
+        finishWithCity(city, { forceToast, ...opts });
+        setIsLocating(false);
+      };
+
+      const fallbackToIp = (opts = {}) => {
+        resolveFromIpCity().then((city) => applyIfCurrent(city, opts));
+      };
+
+      const showBlockedHintAndFallback = () => {
+        showLocationFeedback({
+          force: true,
+          hint: LOCATION_BLOCKED_HINT,
+          durationMs: 8000,
+        });
+        fallbackToIp({ skipToast: true });
+      };
+
+      // IP-only path (initial load) — do not touch GPS so the click can still prompt.
+      if (!preferGps) {
+        fallbackToIp();
+        return;
+      }
+
+      if (typeof navigator === "undefined" || !navigator.geolocation) {
+        fallbackToIp();
+        return;
+      }
+
+      // Call synchronously inside the click handler so Chrome can show the prompt
+      // when permission state is still "prompt".
+      navigator.geolocation.getCurrentPosition(
+        async ({ coords }) => {
+          if (requestId !== locationRequestIdRef.current) return;
+          try {
+            const fromGps = await resolveFromCoords(coords);
+            if (isSpecificCity(fromGps)) {
+              applyIfCurrent(fromGps);
+              return;
+            }
+          } catch (error) {
+            console.error("Location Error:", error);
+          }
+          fallbackToIp();
+        },
+        (error) => {
+          if (error?.code !== 1) {
+            console.error("Geolocation Error:", error);
+          }
+          if (requestId !== locationRequestIdRef.current) return;
+          // Denied, or Chrome temporarily blocked after the prompt was ignored several times.
+          if (error?.code === 1) {
+            showBlockedHintAndFallback();
+            return;
+          }
+          fallbackToIp();
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      );
+    },
+    [finishWithCity, resolveFromCoords, resolveFromIpCity],
+  );
+
+  useEffect(() => {
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
@@ -557,60 +685,13 @@ const HeaderComponent = () => {
       /* ignore */
     }
 
-    const resolveFromCoords = async (coords) => {
-      const response = await fetch(
-        `/api/home/recommended-by-location?lat=${coords.latitude}&lon=${coords.longitude}&intent=projects`
-      );
-      if (!response.ok) throw new Error("Failed to fetch location");
-      const data = await response.json();
-      return data.success && data.region?.city ? data.region.city : "";
-    };
-
-    const resolveWithFallback = async (coords) => {
-      if (!coords) {
-        finishWithCity(DEFAULT_CITY_WITHOUT_GEO);
-        return;
-      }
-
-      try {
-        const fromGps = await resolveFromCoords(coords);
-        if (isSpecificCity(fromGps)) {
-          finishWithCity(fromGps);
-          return;
-        }
-      } catch (error) {
-        console.error("Location Error:", error);
-      }
-      finishWithCity(DEFAULT_CITY_WITHOUT_GEO);
-    };
-
-    if (!navigator.geolocation) {
-      resolveWithFallback(null);
-      return undefined;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        resolveWithFallback(coords);
-      },
-      (error) => {
-        // Permission denied is expected when the user blocks location — fall back quietly.
-        if (error?.code !== 1) {
-          console.error("Geolocation Error:", error);
-        }
-        resolveWithFallback(null);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
+    // Load city from IP only — GPS is requested when the user clicks the location button.
+    requestBrowserLocation({ preferGps: false });
 
     return () => {
-      cancelled = true;
+      locationRequestIdRef.current += 1;
     };
-  }, []);
+  }, [requestBrowserLocation]);
 
   return (
     <>
@@ -669,10 +750,15 @@ const HeaderComponent = () => {
             </Link>
             {isHomePage ? (
               <div className="mpf-header-location-dropdown">
-                <div
-                  className="mpf-header-location-pill mpf-header-location-pill--readonly"
-                  title={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}`}
-                  aria-label={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}`}
+                <button
+                  type="button"
+                  className="mpf-header-location-pill mpf-header-location-pill--action"
+                  title="Click to allow GPS location"
+                  aria-label={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}. Click to allow GPS location.`}
+                  disabled={isLocating}
+                  onClick={() =>
+                    requestBrowserLocation({ forceToast: true, preferGps: true })
+                  }
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -691,7 +777,7 @@ const HeaderComponent = () => {
                   <span className="mpf-header-location-pill__city">
                     {formatHeaderCityLabel(selectedCity) || "Locating…"}
                   </span>
-                </div>
+                </button>
               </div>
             ) : null}
           </div>
@@ -1458,7 +1544,11 @@ const HeaderComponent = () => {
         </div>
       </div>
       {showLocationToast ? (
-        <div className="mpf-location-toast" role="status" aria-live="polite">
+        <div
+          className={`mpf-location-toast${locationHint ? " mpf-location-toast--hint" : ""}`}
+          role="status"
+          aria-live="polite"
+        >
           <div className="mpf-location-toast__card">
             <span className="mpf-location-toast__icon" aria-hidden="true">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -1467,8 +1557,17 @@ const HeaderComponent = () => {
               </svg>
             </span>
             <div className="mpf-location-toast__copy">
-              <small>Current location</small>
-              <strong>{formatHeaderCityLabel(selectedCity) || selectedCity}</strong>
+              {locationHint ? (
+                <>
+                  <small>Enable location</small>
+                  <strong className="mpf-location-toast__hint-text">{locationHint}</strong>
+                </>
+              ) : (
+                <>
+                  <small>Current location</small>
+                  <strong>{formatHeaderCityLabel(selectedCity) || selectedCity}</strong>
+                </>
+              )}
             </div>
           </div>
         </div>

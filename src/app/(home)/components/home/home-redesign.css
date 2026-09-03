@@ -193,9 +193,22 @@ body:has(.mpf-home-r26) .mpf-header-location-pill {
   -webkit-backdrop-filter: blur(8px);
 }
 
-body:has(.mpf-home-r26) .mpf-header-location-pill--readonly {
-  cursor: default;
-  pointer-events: none;
+body:has(.mpf-home-r26) .mpf-header-location-pill--action {
+  cursor: pointer;
+  pointer-events: auto;
+  appearance: none;
+  font: inherit;
+  color: inherit;
+}
+
+body:has(.mpf-home-r26) .mpf-header-location-pill--action:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(10, 12, 16, 0.45);
+}
+
+body:has(.mpf-home-r26) .mpf-header-location-pill--action:disabled {
+  cursor: wait;
+  opacity: 0.85;
 }
 
 body:has(.mpf-home-r26) .mpf-header-home-actions {

@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HomeRecommendationCards from "./HomeRecommendationCards";
 import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
-import { isDelhiNcrRegion } from "@/app/_global_components/popularRightNowProjects";
 
-/** Used when the user blocks GPS / geolocation is unavailable (avoids IP cities like Meerut). */
-const DEFAULT_CITY_WITHOUT_LOCATION = "Noida Extension";
+/** Ultimate fallback when GPS is denied and IP city has no listings. */
+const DEFAULT_CITY_WITHOUT_LOCATION = "Delhi NCR";
 
 function isDelhiNcrLabel(city) {
   const n = String(city || "").trim().toLowerCase();
@@ -39,7 +38,6 @@ export default function RecommendedProjectsWithGeolocation({
   const cityOverrideRef = useRef("");
   const fetchGenRef = useRef(0);
   const fallbackItemsRef = useRef(fallbackItems);
-  const locationDeniedRef = useRef(false);
 
   useEffect(() => {
     fallbackItemsRef.current = fallbackItems;
@@ -81,7 +79,7 @@ export default function RecommendedProjectsWithGeolocation({
   );
 
   const fetchForCity = useCallback(
-    async (cityName) => {
+    async (cityName, { fallbackToNcrOnEmpty = false } = {}) => {
       const city = String(cityName || "").trim();
       if (!city) return;
 
@@ -96,9 +94,35 @@ export default function RecommendedProjectsWithGeolocation({
         const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
         const data = await res.json();
         if (gen !== fetchGenRef.current) return;
-        applyCityResults(data, city, { preserveItemsOnEmpty: true });
+
+        const displayCity = String(data?.region?.city || city).trim() || city;
+        const nextItems = Array.isArray(data?.items) ? data.items : [];
+
+        if (
+          fallbackToNcrOnEmpty &&
+          nextItems.length === 0 &&
+          !isDelhiNcrLabel(city)
+        ) {
+          await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION, {
+            fallbackToNcrOnEmpty: false,
+          });
+          return;
+        }
+
+        applyCityResults(data, displayCity, {
+          preserveItemsOnEmpty: !fallbackToNcrOnEmpty,
+        });
       } catch (err) {
         console.error(err);
+        if (
+          fallbackToNcrOnEmpty &&
+          gen === fetchGenRef.current &&
+          !isDelhiNcrLabel(city)
+        ) {
+          await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION, {
+            fallbackToNcrOnEmpty: false,
+          });
+        }
       } finally {
         if (gen === fetchGenRef.current) setLoading(false);
       }
@@ -106,93 +130,44 @@ export default function RecommendedProjectsWithGeolocation({
     [applyCityResults, locationIntent],
   );
 
-  const applyDefaultCityWithoutLocation = useCallback(() => {
-    locationDeniedRef.current = true;
-    cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
-    fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
+  /** IP city only — GPS is requested from the header location button click. */
+  const applyIpCityFallback = useCallback(async () => {
+    try {
+      const ipRes = await fetch("/api/home/ip-city", { cache: "no-store" });
+      const ipData = await ipRes.json();
+      const ipCity = String(ipData?.city || "").trim();
+      if (!ipCity) {
+        cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
+        await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
+        return;
+      }
+      cityOverrideRef.current = ipCity;
+      await fetchForCity(ipCity, { fallbackToNcrOnEmpty: true });
+    } catch {
+      cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
+      await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
+    }
   }, [fetchForCity]);
 
   useEffect(() => {
-    if (typeof navigator === "undefined") return undefined;
-
-    if (!navigator.geolocation) {
-      applyDefaultCityWithoutLocation();
-      return undefined;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        if (cityOverrideRef.current) return;
-        const gen = ++fetchGenRef.current;
-        setLoading(true);
-        try {
-          const { latitude, longitude, accuracy } = pos.coords;
-          const q = new URLSearchParams({
-            lat: String(latitude),
-            lon: String(longitude),
-            intent: locationIntent,
-          });
-          if (typeof accuracy === "number" && Number.isFinite(accuracy)) {
-            q.set("accuracy", String(Math.round(accuracy)));
-          }
-          const res = await fetch(`/api/home/recommended-by-location?${q.toString()}`);
-          const data = await res.json();
-          if (gen !== fetchGenRef.current || cityOverrideRef.current) return;
-          const resolvedCity = String(data?.region?.city || "").trim();
-          if (resolvedCity) {
-            applyCityResults(data, resolvedCity, { preserveItemsOnEmpty: true });
-          } else if (
-            data.success &&
-            Array.isArray(data.items) &&
-            data.items.length > 0 &&
-            typeof data.subtitle === "string" &&
-            data.subtitle.trim()
-          ) {
-            setItems(data.items);
-            setSubtitle(data.subtitle.trim());
-          }
-        } catch {
-          applyDefaultCityWithoutLocation();
-        } finally {
-          if (gen === fetchGenRef.current) setLoading(false);
-        }
-      },
-      () => {
-        applyDefaultCityWithoutLocation();
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 20_000,
-      },
-    );
-
-    return undefined;
-  }, [applyCityResults, locationIntent, applyDefaultCityWithoutLocation]);
+    // Do not call geolocation here — that would prompt/deny before the header button click.
+    applyIpCityFallback();
+  }, [applyIpCityFallback]);
 
   useEffect(() => {
     const handleCityChanged = (e) => {
       const cityName = cityNameFromEvent(e.detail);
       if (!cityName) return;
 
-      // After GPS deny, ignore IP/auto cities outside Delhi-NCR (Meerut, Muzaffarnagar, …)
-      // so the Noida Extension default is not overwritten. Manual NCR picks still apply.
-      if (
-        locationDeniedRef.current &&
-        !isDelhiNcrLabel(cityName) &&
-        !isDelhiNcrRegion(cityName)
-      ) {
-        return;
-      }
-
       cityOverrideRef.current = cityName;
 
-      // Header auto-detect often falls back to Delhi NCR — keep Noida Extension / SSR scope.
+      // Header auto-detect often falls back to Delhi NCR — keep SSR scope when already loaded.
       if (isDelhiNcrLabel(cityName) && fallbackItemsRef.current?.length > 0) {
+        setActiveCity(cityName);
         return;
       }
 
-      fetchForCity(cityName);
+      fetchForCity(cityName, { fallbackToNcrOnEmpty: true });
     };
 
     window.addEventListener("cityChanged", handleCityChanged);

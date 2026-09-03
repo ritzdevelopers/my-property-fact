@@ -517,6 +517,66 @@ nav.d-none.d-lg-flex {
   display: none;
 }
 
+.mpf-location-toast--hint {
+  display: flex;
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  align-items: flex-start;
+  justify-content: center;
+  padding: calc(88px + env(safe-area-inset-top)) 16px 16px;
+  pointer-events: none;
+  animation: mpfLocationToastIn 0.25s ease;
+}
+
+.mpf-location-toast--hint .mpf-location-toast__card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 260px;
+  max-width: min(420px, 92vw);
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: #0a3d2e;
+  color: #fff;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.mpf-location-toast--hint .mpf-location-toast__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #8ef0b0;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.mpf-location-toast--hint .mpf-location-toast__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mpf-location-toast--hint .mpf-location-toast__copy small {
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mpf-location-toast--hint .mpf-location-toast__hint-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #fff;
+  white-space: normal;
+}
+
 @media (max-width: 1023.98px) {
   .header.px-2 {
     padding-left: 8px;

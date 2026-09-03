@@ -517,6 +517,18 @@
   }
 }
 
+/* FAQ section — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .noida-projects-section.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 @media (min-width: 1025px) {
   .noida-projects-section .city-cards-slider-wrapper {
     /* padding: 0 clamp(55px, 5vw, 70px); */

@@ -1033,6 +1033,18 @@
   }
 }
 
+/* Recommended Projects container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .home-projects-preview.container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 @media (max-width: 576px) {
   .home-projects-preview {
     margin-top: 28px;

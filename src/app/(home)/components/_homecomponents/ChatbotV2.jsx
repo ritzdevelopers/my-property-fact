@@ -100,6 +100,15 @@ export default function ChatbotV2() {
       return undefined;
     }
 
+    // Invitation bubble is desktop-only — keep launcher only on mobile
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(max-width: 767.98px)").matches
+    ) {
+      setPromptPhase("hidden");
+      return undefined;
+    }
+
     const timer = window.setTimeout(() => setPromptPhase("typing"), 2500);
     return () => window.clearTimeout(timer);
   }, [isOpen]);

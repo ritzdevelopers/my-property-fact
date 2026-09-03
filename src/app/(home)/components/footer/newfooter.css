@@ -1419,15 +1419,24 @@ letter-spacing: 0%;
 @media (min-width: 760px) and (max-width: 1023.98px) {
     .footer-city-links-container,
     .new-footer-design.no-newsletter .footer-city-links-container {
+        max-width: none !important;
+        width: 100% !important;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 56px;
+        padding-bottom: 56px;
+        box-sizing: border-box;
+    }
+
+    .footer-city-links-section.container {
         max-width: min(100%, 980px) !important;
         width: 100%;
         margin-left: auto;
         margin-right: auto;
         padding-left: clamp(18px, 2.8vw, 32px) !important;
         padding-right: clamp(18px, 2.8vw, 32px) !important;
-        padding-top: 56px;
-        padding-bottom: 56px;
-        box-sizing: border-box;
     }
 
     .footer-city-links-section .footer-bottom-column {
@@ -1511,15 +1520,24 @@ letter-spacing: 0%;
 @media (min-width: 1024px) and (max-width: 1199.99px) {
     .footer-city-links-container,
     .new-footer-design.no-newsletter .footer-city-links-container {
+        max-width: none !important;
+        width: 100% !important;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0px;
+        padding-bottom: 56px;
+        box-sizing: border-box;
+    }
+
+    .footer-city-links-section.container {
         max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
         width: min(100%, 98vw) !important;
         margin-left: auto;
         margin-right: auto;
         padding-left: clamp(12px, 1.5vw, 18px) !important;
         padding-right: clamp(12px, 1.5vw, 18px) !important;
-        padding-top: 0px;
-        padding-bottom: 56px;
-        box-sizing: border-box;
     }
 
     .new-design-container {
@@ -1529,6 +1547,46 @@ letter-spacing: 0%;
         margin-right: auto;
         padding-left: clamp(12px, 1.5vw, 18px) !important;
         padding-right: clamp(12px, 1.5vw, 18px) !important;
+    }
+
+    .new-design-footer-bottom.container {
+        max-width: 100% !important;
+        width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+}
+
+/* Footer city links + main footer — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+    /* Outer wrapper stays full-bleed; section.container owns width */
+    .footer-city-links-container,
+    .new-footer-design.no-newsletter .footer-city-links-container {
+        max-width: none !important;
+        width: 100% !important;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .footer-city-links-section.container {
+        max-width: 1400px !important;
+        width: 98% !important;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(12px, 1.5vw, 24px) !important;
+        padding-right: clamp(12px, 1.5vw, 24px) !important;
+    }
+
+    .new-design-container {
+        max-width: 1400px !important;
+        width: 98% !important;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(12px, 1.5vw, 24px) !important;
+        padding-right: clamp(12px, 1.5vw, 24px) !important;
     }
 
     .new-design-footer-bottom.container {

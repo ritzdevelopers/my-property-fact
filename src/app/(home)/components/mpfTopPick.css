@@ -485,6 +485,19 @@
   }
 }
 
+/* Top Picks — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .mpf-home-r26 .mpf-tp__band > .container,
+  .mpf-tp__band > .container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
+  }
+}
+
 @media (min-width: 993px) {
   .mpf-tp__head {
     text-align: left;

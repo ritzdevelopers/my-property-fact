@@ -148,7 +148,7 @@ export default function FooterCityLinksSection({ cityList: cityListProp, classNa
   if (!safeCityList.length) return null;
 
   return (
-    <div className={`footer-city-links-section ${className}`.trim()}>
+    <div className={`container footer-city-links-section ${className}`.trim()}>
       <div className="footer-bottom-column">
         <div className="footer-new-heading">Apartments in India</div>
         {renderCityList(apartmentsCities, "apartments", "Apartments in ", generateSlug)}

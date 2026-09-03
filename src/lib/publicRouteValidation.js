@@ -86,12 +86,19 @@ function normalizePath(pathname) {
   return pathname.replace(/\/+$/, "") || "/";
 }
 
-/** True when segment is `about-us` + extra chars (e.g. about-us2, about-ussdnm). */
+/**
+ * True when segment is a static route + glued junk (e.g. about-us2, about-ussdnm, city2).
+ * Does NOT treat hyphen-continued slugs as typos (e.g. city-towers is a valid project slug).
+ */
 export function isStaticSegmentTypo(segment) {
   if (!segment || typeof segment !== "string") return false;
   const s = segment.toLowerCase();
   for (const base of PUBLIC_STATIC_SEGMENTS) {
-    if (s.startsWith(base) && s !== base) return true;
+    if (s === base || !s.startsWith(base)) continue;
+    const next = s.charAt(base.length);
+    // New hyphen-delimited word → project/listing slug, not a typo of the static route.
+    if (next === "-") continue;
+    return true;
   }
   return false;
 }

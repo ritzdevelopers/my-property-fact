@@ -772,12 +772,29 @@ nav.d-none.d-lg-flex {
   }
 }
 
-/* Match 1366 desktop header width from 1024px up (avoid 960px Bootstrap lg squeeze) */
-@media (min-width: 1024px) {
+/* Match home section containers from 1024px up */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
   .header .container,
   .header .header-home-ss__container {
-    max-width: 1140px;
-    width: 100%;
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+    width: min(100%, 98vw) !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 18px) !important;
+    padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Header container — desktop (1200+): 98% width, cap at 1400px */
+@media (min-width: 1200px) {
+  .header .container,
+  .header .header-home-ss__container {
+    max-width: 1400px !important;
+    width: 98% !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 24px) !important;
+    padding-right: clamp(12px, 1.5vw, 24px) !important;
   }
 }
 

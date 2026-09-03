@@ -254,11 +254,15 @@
 .editorSection {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
-  overflow: hidden;
+  /* visible so Jodit toolbar can stick while scrolling the modal */
+  overflow: visible;
   background: #fff;
 }
 
 .editorSectionHeader {
+  position: sticky;
+  top: 0;
+  z-index: 6;
   padding: 0.65rem 1rem;
   background: #fafbfc;
   border-bottom: 1px solid #e5e7eb;
@@ -271,6 +275,22 @@
 
 .editorWrap {
   padding: 0.5rem;
+}
+
+/* Keep formatting toolbar in view while writing long blog content */
+.editorWrap :global(.jodit-toolbar__box) {
+  position: sticky;
+  top: 2.45rem; /* sits under .editorSectionHeader */
+  z-index: 5;
+  background: #fff;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.06);
+}
+
+.editorWrap :global(.jodit_sticky > .jodit-toolbar__box) {
+  /* Prefer modal scroll sticky over Jodit's window-fixed sticky */
+  position: sticky !important;
+  top: 2.45rem !important;
+  width: 100% !important;
 }
 
 /* Publication panel */

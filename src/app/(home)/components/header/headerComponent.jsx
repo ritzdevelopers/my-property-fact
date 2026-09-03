@@ -29,9 +29,42 @@ import { motion } from "framer-motion";
 
 const LOGO_ON_LIGHT = "/logo.webp";
 
-/** Ultimate fallback when GPS is denied and IP city has no listings (or IP lookup fails). */
+/** Ultimate fallback when GPS/IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_GEO = "Delhi NCR";
 const NOIDA_EXT_HEADER_LABEL = "Noida Ext.";
+
+/** Cities with projects on the site — shown in the header location picker. */
+const HEADER_LOCATION_CITIES = [
+  "Agra",
+  "Bangalore",
+  "Bareilly",
+  "Chandigarh",
+  "Chennai",
+  "Dehradun",
+  "Delhi",
+  "Faridabad",
+  "Ghaziabad",
+  "Goa",
+  "Greater Noida",
+  "Gurugram",
+  "Hyderabad",
+  "Indore",
+  "Jaipur",
+  "Karnal",
+  "Kochi",
+  "Lucknow",
+  "Ludhiana",
+  "Meerut",
+  "Mohali",
+  "Mumbai",
+  "Noida",
+  "Noida Extension",
+  "Panipat",
+  "Pune",
+  "Sonipat",
+  "Thiruvananthapuram",
+  "Vrindavan",
+];
 
 function formatHeaderCityLabel(city) {
   const value = String(city || "").trim();
@@ -89,9 +122,11 @@ const HeaderComponent = () => {
   const [showLocationToast, setShowLocationToast] = useState(false);
   const [locationHint, setLocationHint] = useState("");
   const [isLocating, setIsLocating] = useState(false);
+  const [showLocationMenu, setShowLocationMenu] = useState(false);
   const locationToastShownRef = useRef(false);
   const locationToastTimerRef = useRef(null);
   const locationRequestIdRef = useRef(0);
+  const locationDropdownRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -685,13 +720,47 @@ const HeaderComponent = () => {
       /* ignore */
     }
 
-    // Load city from IP only — GPS is requested when the user clicks the location button.
+    // Load city from IP only — GPS is requested when the user picks “Use current location”.
     requestBrowserLocation({ preferGps: false });
 
     return () => {
       locationRequestIdRef.current += 1;
     };
   }, [requestBrowserLocation]);
+
+  useEffect(() => {
+    if (!showLocationMenu) return undefined;
+
+    const handlePointerDown = (event) => {
+      const root = locationDropdownRef.current;
+      if (root && !root.contains(event.target)) {
+        setShowLocationMenu(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setShowLocationMenu(false);
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showLocationMenu]);
+
+  const handleSelectLocationCity = (cityName) => {
+    setShowLocationMenu(false);
+    finishWithCity(cityName, { forceToast: true });
+  };
+
+  const handleUseCurrentLocation = () => {
+    setShowLocationMenu(false);
+    requestBrowserLocation({ forceToast: true, preferGps: true });
+  };
 
   return (
     <>
@@ -749,16 +818,16 @@ const HeaderComponent = () => {
               )}
             </Link>
             {isHomePage ? (
-              <div className="mpf-header-location-dropdown">
+              <div className="mpf-header-location-dropdown" ref={locationDropdownRef}>
                 <button
                   type="button"
                   className="mpf-header-location-pill mpf-header-location-pill--action"
-                  title="Click to allow GPS location"
-                  aria-label={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}. Click to allow GPS location.`}
+                  title="Choose city or use current location"
+                  aria-label={`Current location ${formatHeaderCityLabel(selectedCity) || "detecting"}. Open location menu.`}
+                  aria-haspopup="listbox"
+                  aria-expanded={showLocationMenu}
                   disabled={isLocating}
-                  onClick={() =>
-                    requestBrowserLocation({ forceToast: true, preferGps: true })
-                  }
+                  onClick={() => setShowLocationMenu((open) => !open)}
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path
@@ -777,7 +846,66 @@ const HeaderComponent = () => {
                   <span className="mpf-header-location-pill__city">
                     {formatHeaderCityLabel(selectedCity) || "Locating…"}
                   </span>
+                  <svg
+                    className="mpf-header-location-pill__chevron"
+                    width="10"
+                    height="10"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3 4.5L6 7.5L9 4.5"
+                      stroke="currentColor"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
                 </button>
+                {showLocationMenu ? (
+                  <div
+                    className="mpf-location-dropdown-menu"
+                    role="listbox"
+                    aria-label="Choose location"
+                  >
+                    <button
+                      type="button"
+                      className="mpf-location-dropdown-item mpf-location-dropdown-item--gps"
+                      role="option"
+                      onClick={handleUseCurrentLocation}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+                        <path
+                          d="M12 2v3M12 19v3M2 12h3M19 12h3"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <span>Use current location</span>
+                    </button>
+                    <div className="mpf-location-dropdown-label">Select city</div>
+                    {HEADER_LOCATION_CITIES.map((city) => {
+                      const isActive =
+                        String(selectedCity || "").trim().toLowerCase() ===
+                        city.toLowerCase();
+                      return (
+                        <button
+                          key={city}
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          className={`mpf-location-dropdown-item${isActive ? " is-active" : ""}`}
+                          onClick={() => handleSelectLocationCity(city)}
+                        >
+                          {city}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

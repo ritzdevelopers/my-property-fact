@@ -17,6 +17,7 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   isolation: isolate;
+  --reveal-glow: 0;
 }
 
 /* Ambient Radial Glows */
@@ -52,6 +53,16 @@
   filter: blur(100px);
 }
 
+/* Warm bloom that breathes in just before the final cut — a premium "reveal" cue */
+.revealBloom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 58%, rgba(253, 230, 138, 0.55) 0%, rgba(253, 230, 138, 0) 62%);
+  opacity: var(--reveal-glow, 0);
+  transition: none;
+}
+
 /* Golden Dust Particles */
 .particlesWrapper {
   position: absolute;
@@ -82,12 +93,25 @@
   transform: translateZ(0);
 }
 
+/* Isolated inner layer so the impact camera-shake never fights the fixed background */
+.shakeLayer {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
 .svgContainer {
   width: 100%;
   height: 100%;
   overflow: visible;
   transform: translateZ(0);
   will-change: transform;
+}
+
+/* Tiny fracture debris — styling hook only, motion driven entirely by GSAP */
+.debrisBit {
+  will-change: transform, opacity;
 }
 
 /* Loader Text & Percentage Wrapper */

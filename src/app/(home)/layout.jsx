@@ -2,8 +2,7 @@ import "./bootstrap-critical.css";
 import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Fraunces, Outfit } from "next/font/google"; 
-import JanmashtamiLoader from "@/components/janmashtami/JanmashtamiLoader";
+import { Fraunces, Outfit } from "next/font/google";
 
 const mpfDisplay = Fraunces({
   subsets: ["latin"],
@@ -67,7 +66,6 @@ export default function RootLayout({ children }) {
     <div className={`${mpfDisplay.variable} ${mpfSans.variable}`}>
       <BootstrapDeferredStyles />
       <HeaderComponent />
-      <JanmashtamiLoader />
       {children}
       <SiteFooter />
     </div>

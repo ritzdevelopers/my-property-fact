@@ -6,9 +6,13 @@ import styles from "./page.module.css";
 
 export default function JanmashtamiLoader() {
   const containerRef = useRef(null);
+  const sceneShakeRef = useRef(null);
   const handiGroupRef = useRef(null);
   const leftRopeRef = useRef(null);
   const rightRopeRef = useRef(null);
+  const leftRopeTwistRef = useRef(null);
+  const rightRopeTwistRef = useRef(null);
+  const ropeNetRef = useRef(null);
 
   // Loader Visual Elements
   const progressBarFillRef = useRef(null);
@@ -25,8 +29,14 @@ export default function JanmashtamiLoader() {
   const crackMainRef = useRef(null);
   const crackBranch1Ref = useRef(null);
   const crackBranch2Ref = useRef(null);
+  const crackBranch3Ref = useRef(null);
+  const crackBranch4Ref = useRef(null);
   const crackGlowRef = useRef(null);
+  const shockwaveRef = useRef(null);
+  const dustBurstRef = useRef(null);
   const textRef = useRef(null);
+  const clayGrainRef = useRef(null);
+  const claySpecularRef = useRef(null);
 
   // Pot Fragments
   const fragTopLeftRef = useRef(null);
@@ -34,12 +44,18 @@ export default function JanmashtamiLoader() {
   const fragMidLeftRef = useRef(null);
   const fragMidRightRef = useRef(null);
   const fragBottomRef = useRef(null);
+  const fragChipLeftRef = useRef(null);
+  const fragChipRightRef = useRef(null);
+  const fragChipTopRef = useRef(null);
+  const rimFragRef = useRef(null);
 
   // Makhan Liquid Elements
   const makhanMainRef = useRef(null);
   const makhanLargeBlobsRef = useRef(null);
   const makhanMediumBlobsRef = useRef(null);
   const makhanDropletsRef = useRef(null);
+  const makhanSplatRef = useRef(null);
+  const mouthHoleRef = useRef(null);
 
   const [isDestroyed, setIsDestroyed] = useState(false);
   /** When true, cleanup must kill() not revert() — revert restores opacity and causes a blink. */
@@ -67,10 +83,16 @@ export default function JanmashtamiLoader() {
           fragMidLeftRef.current,
           fragMidRightRef.current,
           fragBottomRef.current,
+          fragChipLeftRef.current,
+          fragChipRightRef.current,
+          fragChipTopRef.current,
+          rimFragRef.current,
           makhanMainRef.current,
           makhanLargeBlobsRef.current,
           makhanMediumBlobsRef.current,
           makhanDropletsRef.current,
+          makhanSplatRef.current,
+          sceneShakeRef.current,
           containerRef.current,
         ],
         { force3D: true },
@@ -143,6 +165,16 @@ export default function JanmashtamiLoader() {
         delay: 0.9,
       });
 
+      // Subtle glossy sheen drifting across the clay body — sells "premium" glazed clay
+      gsap.to(claySpecularRef.current, {
+        x: 14,
+        opacity: 0.22,
+        duration: 3.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
       // ---------------------------------------------------------------------
       // PHASE 2: Smooth left ↔ right handi pendulum + rope flex
       // ---------------------------------------------------------------------
@@ -153,10 +185,10 @@ export default function JanmashtamiLoader() {
         y: 0,
         force3D: true,
       });
-      gsap.set(leftRopeRef.current, {
+      gsap.set([leftRopeRef.current, leftRopeTwistRef.current], {
         attr: { d: "M 112 0 Q 106 78 126 138" },
       });
-      gsap.set(rightRopeRef.current, {
+      gsap.set([rightRopeRef.current, rightRopeTwistRef.current], {
         attr: { d: "M 188 0 Q 178 78 174 138" },
       });
       gsap.set(featherGroupRef.current, {
@@ -184,14 +216,14 @@ export default function JanmashtamiLoader() {
           0,
         )
         .to(
-          leftRopeRef.current,
+          [leftRopeRef.current, leftRopeTwistRef.current],
           {
             attr: { d: "M 112 0 Q 124 78 126 138" },
           },
           0,
         )
         .to(
-          rightRopeRef.current,
+          [rightRopeRef.current, rightRopeTwistRef.current],
           {
             attr: { d: "M 188 0 Q 194 78 174 138" },
           },
@@ -203,6 +235,14 @@ export default function JanmashtamiLoader() {
             rotation: 6.5,
           },
           0.1,
+        )
+        .to(
+          ropeNetRef.current,
+          {
+            skewX: 1.4,
+            rotation: 1.2,
+          },
+          0,
         );
 
       gsap.to(featherBarbsLeftRef.current, {
@@ -250,6 +290,8 @@ export default function JanmashtamiLoader() {
           featherBarbsLeftRef.current,
           featherBarbsRightRef.current,
           featherEyeRef.current,
+          claySpecularRef.current,
+          ropeNetRef.current,
         ]);
 
         // Ease pot back to center before impact (no hard kill mid-swing)
@@ -268,7 +310,7 @@ export default function JanmashtamiLoader() {
             svgOrigin: "150 0",
           })
           .to(
-            leftRopeRef.current,
+            [leftRopeRef.current, leftRopeTwistRef.current],
             {
               attr: { d: "M 112 0 Q 115 72 126 138" },
               duration: 0.5,
@@ -277,7 +319,7 @@ export default function JanmashtamiLoader() {
             0,
           )
           .to(
-            rightRopeRef.current,
+            [rightRopeRef.current, rightRopeTwistRef.current],
             {
               attr: { d: "M 188 0 Q 185 72 174 138" },
               duration: 0.5,
@@ -293,6 +335,11 @@ export default function JanmashtamiLoader() {
               ease: "power2.inOut",
             },
             0,
+          )
+          .to(
+            ropeNetRef.current,
+            { skewX: 0, rotation: 0, duration: 0.5, ease: "power2.inOut" },
+            0,
           );
       };
 
@@ -306,38 +353,100 @@ export default function JanmashtamiLoader() {
         });
 
         breakTL
-          .to(handiGroupRef.current, {
-            keyframes: [
-              { x: -2, y: 1, scale: 1.015, duration: 0.045 },
-              { x: 2.2, y: -1.2, scale: 1.025, duration: 0.045 },
-              { x: -1.6, y: 0.8, scale: 1.02, duration: 0.045 },
-              { x: 1.4, y: -0.6, scale: 1.018, duration: 0.045 },
-              { x: -0.8, y: 0.4, scale: 1.01, duration: 0.045 },
-              { x: 0, y: 0, scale: 1, duration: 0.06 },
-            ],
-            ease: "none",
+          // ---- Anticipation: rope net snaps first, pot flexes under impact ----
+          .to(ropeNetRef.current, {
+            opacity: 0,
+            scaleY: 1.03,
+            duration: 0.16,
+            ease: "power1.in",
           })
+          .to(
+            handiGroupRef.current,
+            {
+              keyframes: [
+                { x: -2.4, y: 1.2, scale: 1.018, duration: 0.045 },
+                { x: 2.6, y: -1.4, scale: 1.03, duration: 0.045 },
+                { x: -2, y: 1, scale: 1.024, duration: 0.045 },
+                { x: 1.6, y: -0.8, scale: 1.02, duration: 0.045 },
+                { x: -1, y: 0.5, scale: 1.012, duration: 0.05 },
+                { x: 0, y: 0, scale: 1, duration: 0.06 },
+              ],
+              ease: "none",
+            },
+            "<"
+          )
+
+          // Camera-shake on the whole scene sells the weight of the impact
+          .to(
+            sceneShakeRef.current,
+            {
+              keyframes: [
+                { x: -3, y: 2, duration: 0.04 },
+                { x: 4, y: -3, duration: 0.04 },
+                { x: -3, y: 2, duration: 0.04 },
+                { x: 2, y: -1, duration: 0.05 },
+                { x: 0, y: 0, duration: 0.06 },
+              ],
+              ease: "none",
+            },
+            "<"
+          )
+
+          // Expanding shockwave ring right at the fracture origin
+          .fromTo(
+            shockwaveRef.current,
+            { attr: { r: 3 }, strokeWidth: 7, opacity: 0.85 },
+            {
+              attr: { r: 78 },
+              strokeWidth: 0.4,
+              opacity: 0,
+              duration: 0.55,
+              ease: "power2.out",
+            },
+            "-=0.1"
+          )
+
+          // Fine radiating dust/grit thrown off at the moment of fracture
+          .to(
+            `.${styles.debrisBit}`,
+            {
+              x: (i) => gsap.utils.random(-70, 70),
+              y: (i) => gsap.utils.random(-20, 70),
+              opacity: 0,
+              scale: 0.2,
+              duration: 0.75,
+              stagger: { each: 0.012, from: "random" },
+              ease: "power2.out",
+            },
+            "-=0.45"
+          )
 
           .to(
-            [crackMainRef.current, crackBranch1Ref.current, crackBranch2Ref.current],
+            [
+              crackMainRef.current,
+              crackBranch1Ref.current,
+              crackBranch2Ref.current,
+              crackBranch3Ref.current,
+              crackBranch4Ref.current,
+            ],
             {
               opacity: 1,
               strokeDashoffset: 0,
-              duration: 0.32,
-              stagger: 0.04,
+              duration: 0.3,
+              stagger: 0.035,
               ease: "power2.out",
             },
-            "-=0.12"
+            "-=0.5"
           )
           // Soft crack glow — no hard flash
           .to(
             crackGlowRef.current,
             {
-              opacity: 0.55,
-              duration: 0.2,
+              opacity: 0.6,
+              duration: 0.18,
               ease: "sine.out",
             },
-            "<0.06"
+            "<0.05"
           )
           .to(
             crackGlowRef.current,
@@ -346,7 +455,7 @@ export default function JanmashtamiLoader() {
               duration: 0.35,
               ease: "sine.in",
             },
-            ">-0.05"
+            ">-0.04"
           )
 
           // Fade out loading UI and text elements
@@ -361,109 +470,181 @@ export default function JanmashtamiLoader() {
             "<"
           )
 
-          // Shatter fragments — softer ease, slight stagger for fluidity
+          // ---- Shatter fragments — gravity-weighted arcs for a realistic tumble ----
+          .to(
+            rimFragRef.current,
+            {
+              x: 6,
+              y: -55,
+              rotation: 24,
+              scale: 0.94,
+              opacity: 0,
+              duration: 0.95,
+              ease: "power1.in",
+            },
+            "+=0.03"
+          )
+          .to(
+            fragChipTopRef.current,
+            {
+              x: -18,
+              y: -70,
+              rotation: -80,
+              opacity: 0,
+              duration: 0.8,
+              ease: "power1.in",
+            },
+            "<0.02"
+          )
           .to(
             fragTopLeftRef.current,
             {
-              x: -95,
-              y: -40,
-              rotation: -42,
-              opacity: 0,
-              duration: 1.05,
-              ease: "power2.out",
+              keyframes: [
+                { x: -46, y: -62, rotation: -26, duration: 0.32, ease: "power2.out" },
+                { x: -108, y: 44, rotation: -58, opacity: 0, duration: 0.78, ease: "power2.in" },
+              ],
             },
-            "+=0.04"
+            "<-0.01"
           )
           .to(
             fragTopRightRef.current,
             {
-              x: 100,
-              y: -35,
-              rotation: 48,
+              keyframes: [
+                { x: 48, y: -58, rotation: 28, duration: 0.32, ease: "power2.out" },
+                { x: 112, y: 46, rotation: 62, opacity: 0, duration: 0.78, ease: "power2.in" },
+              ],
+            },
+            "<0.03"
+          )
+          .to(
+            fragChipLeftRef.current,
+            {
+              x: -80,
+              y: 10,
+              rotation: -140,
               opacity: 0,
-              duration: 1.05,
-              ease: "power2.out",
+              duration: 0.85,
+              ease: "power1.in",
             },
             "<0.04"
           )
           .to(
+            fragChipRightRef.current,
+            {
+              x: 84,
+              y: 14,
+              rotation: 150,
+              opacity: 0,
+              duration: 0.85,
+              ease: "power1.in",
+            },
+            "<0.02"
+          )
+          .to(
             fragMidLeftRef.current,
             {
-              x: -115,
-              y: 50,
-              rotation: -65,
-              opacity: 0,
-              duration: 1.1,
-              ease: "power2.out",
+              keyframes: [
+                { x: -30, y: 6, rotation: -18, duration: 0.22, ease: "power1.out" },
+                { x: -128, y: 118, rotation: -78, opacity: 0, duration: 0.92, ease: "power2.in" },
+              ],
             },
-            "<0.03"
+            "<0.05"
           )
           .to(
             fragMidRightRef.current,
             {
-              x: 120,
-              y: 55,
-              rotation: 70,
-              opacity: 0,
-              duration: 1.1,
-              ease: "power2.out",
+              keyframes: [
+                { x: 32, y: 8, rotation: 20, duration: 0.22, ease: "power1.out" },
+                { x: 134, y: 122, rotation: 84, opacity: 0, duration: 0.92, ease: "power2.in" },
+              ],
             },
-            "<0.03"
+            "<0.02"
           )
           .to(
             fragBottomRef.current,
             {
-              y: 130,
-              rotation: 18,
+              y: 148,
+              rotation: 22,
               opacity: 0,
-              duration: 1.15,
-              ease: "power2.out",
+              duration: 1.0,
+              ease: "power2.in",
             },
-            "<0.02"
+            "<0.03"
           )
 
-          // Makhan Splash
+          // Butter splash bursts loose the instant the shell gives way
+          .to(
+            mouthHoleRef.current,
+            { opacity: 0.9, duration: 0.12, ease: "none" },
+            "<-0.55"
+          )
           .to(
             [
               makhanMainRef.current,
               makhanLargeBlobsRef.current,
               makhanMediumBlobsRef.current,
-              makhanDropletsRef.current,
             ],
             {
-              scale: 1.65,
-              y: 80,
+              scale: 1.7,
+              y: 86,
               opacity: 0,
-              stagger: 0.04,
-              duration: 0.95,
+              stagger: 0.045,
+              duration: 0.9,
               ease: "power2.out",
+            },
+            "<-0.4"
+          )
+          .to(
+            makhanDropletsRef.current,
+            {
+              keyframes: [
+                { y: "-=14", opacity: 1, duration: 0.18, ease: "power2.out" },
+                { y: "+=70", opacity: 0, duration: 0.62, ease: "power2.in" },
+              ],
             },
             "<"
           )
+          // Creamy splat catching light where it lands
+          .fromTo(
+            makhanSplatRef.current,
+            { scale: 0.2, opacity: 0.85 },
+            {
+              scale: 1,
+              opacity: 0,
+              duration: 0.9,
+              ease: "power2.out",
+              transformOrigin: "50% 50%",
+            },
+            "<0.1"
+          )
 
-          // Peacock Feather Drifts Away
+          // Peacock Feather Drifts Away with a gentle organic wobble
           .to(
             featherGroupRef.current,
             {
-              y: -95,
-              x: 55,
-              rotation: 42,
-              opacity: 0,
-              duration: 1.35,
-              ease: "power2.inOut",
+              keyframes: [
+                { y: -30, x: 14, rotation: 10, duration: 0.4, ease: "power1.out" },
+                { y: -68, x: 34, rotation: 30, duration: 0.5, ease: "sine.inOut" },
+                { y: -108, x: 58, rotation: 46, opacity: 0, duration: 0.55, ease: "power1.in" },
+              ],
             },
-            "<"
+            "-=1.5"
           )
 
           // Dissolve Ropes & progress line
           .to(
-            [leftRopeRef.current, rightRopeRef.current],
+            [
+              leftRopeRef.current,
+              rightRopeRef.current,
+              leftRopeTwistRef.current,
+              rightRopeTwistRef.current,
+            ],
             {
               opacity: 0,
-              duration: 0.55,
+              duration: 0.5,
               ease: "power1.out",
             },
-            "<0.12"
+            "<0.15"
           )
 
           // Fade ambient glows with the scene (keep solid dark backdrop until end)
@@ -478,12 +659,21 @@ export default function JanmashtamiLoader() {
           )
 
           // Brief hold — dark overlay still fully covers the site (no header bleed)
-          .to({}, { duration: 0.18 })
+          .to({}, { duration: 0.16 })
 
-          // Only NOW fade the solid overlay away (no overlap with shatter)
+          // A last soft bloom of warm light — a premium "reveal" cue — before the cut to page
+          .to(
+            containerRef.current,
+            {
+              "--reveal-glow": 0.5,
+              duration: 0.22,
+              ease: "sine.out",
+            },
+            ">-0.05"
+          )
           .to(containerRef.current, {
             autoAlpha: 0,
-            duration: 0.5,
+            duration: 0.48,
             ease: "power2.inOut",
           });
       };
@@ -520,12 +710,24 @@ export default function JanmashtamiLoader() {
 
   if (isDestroyed) return null;
 
+  // Small radiating debris bits scattered around the fracture point
+  const debrisBits = Array.from({ length: 14 }, (_, i) => {
+    const angle = (i / 14) * Math.PI * 2;
+    const radius = 3 + (i % 3);
+    return {
+      cx: 150 + Math.cos(angle) * radius,
+      cy: 168 + Math.sin(angle) * radius * 0.6,
+      r: (i % 3 === 0 ? 1.6 : 1) * ((i % 2) + 1),
+    };
+  });
+
   return (
     <div ref={containerRef} className={styles.loaderContainer}>
       {/* Background Soft Ambient Lighting */}
       <div className={styles.amberGlow} />
       <div className={styles.emeraldGlow} />
       <div className={styles.blueAura} />
+      <div className={styles.revealBloom} />
 
       {/* Atmospheric Floating Golden Particles */}
       <div className={styles.particlesWrapper}>
@@ -545,6 +747,7 @@ export default function JanmashtamiLoader() {
 
       {/* Main Vector Scene Container */}
       <div className={styles.sceneWrapper}>
+        <div ref={sceneShakeRef} className={styles.shakeLayer}>
         <svg
           viewBox="0 0 300 400"
           className={styles.svgContainer}
@@ -554,20 +757,34 @@ export default function JanmashtamiLoader() {
           {/* Detailed SVG Gradients & Filters */}
           <defs>
             {/* Terracotta Clay Gradients */}
-            <radialGradient id="clayBodyGrad" cx="30%" cy="25%" r="70%">
-              <stop offset="0%" stopColor="#E2845B" />
-              <stop offset="35%" stopColor="#C45A30" />
-              <stop offset="70%" stopColor="#8F3413" />
-              <stop offset="100%" stopColor="#4A1605" />
+            <radialGradient id="clayBodyGrad" cx="30%" cy="25%" r="72%">
+              <stop offset="0%" stopColor="#EE9268" />
+              <stop offset="22%" stopColor="#DA6D3E" />
+              <stop offset="48%" stopColor="#B85128" />
+              <stop offset="75%" stopColor="#832E11" />
+              <stop offset="100%" stopColor="#3D1204" />
             </radialGradient>
 
+            {/* Cooler bounce-light along the trailing edge — sells a rounded, lit form */}
+            <linearGradient id="clayBounceGrad" x1="100%" y1="30%" x2="55%" y2="80%">
+              <stop offset="0%" stopColor="#FFB88A" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#FFB88A" stopOpacity="0" />
+            </linearGradient>
+
             <linearGradient id="clayRimGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#6A220B" />
-              <stop offset="25%" stopColor="#D97247" />
-              <stop offset="50%" stopColor="#ED926B" />
-              <stop offset="75%" stopColor="#B34B24" />
+              <stop offset="0%" stopColor="#5C1C08" />
+              <stop offset="22%" stopColor="#D97247" />
+              <stop offset="48%" stopColor="#F5A87D" />
+              <stop offset="52%" stopColor="#F5A87D" />
+              <stop offset="78%" stopColor="#B34B24" />
               <stop offset="100%" stopColor="#4A1605" />
             </linearGradient>
+
+            <radialGradient id="clayMouthGrad" cx="50%" cy="35%" r="65%">
+              <stop offset="0%" stopColor="#1C0A03" />
+              <stop offset="70%" stopColor="#2E0E04" stopOpacity="0.92" />
+              <stop offset="100%" stopColor="#5C1C08" stopOpacity="0" />
+            </radialGradient>
 
             <radialGradient id="clayInnerShadow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#000000" stopOpacity="0.8" />
@@ -581,6 +798,12 @@ export default function JanmashtamiLoader() {
               <stop offset="50%" stopColor="#FFFDF7" />
               <stop offset="80%" stopColor="#FEF3C7" />
               <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.45" />
+            </radialGradient>
+
+            <radialGradient id="makhanSplatGrad" cx="50%" cy="40%" r="60%">
+              <stop offset="0%" stopColor="#FFFDF7" stopOpacity="0.9" />
+              <stop offset="70%" stopColor="#FEF3C7" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#FEF3C7" stopOpacity="0" />
             </radialGradient>
 
             {/* Peacock Feather Gradients */}
@@ -616,24 +839,62 @@ export default function JanmashtamiLoader() {
             <filter id="potShadow" x="-20%" y="-10%" width="140%" height="130%">
               <feDropShadow dx="0" dy="12" stdDeviation="10" floodColor="#000000" floodOpacity="0.6" />
             </filter>
+
+            <filter id="softBlur6" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="6" />
+            </filter>
+
+            <filter id="softBlur2" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2" />
+            </filter>
+
+            {/* Fine clay grain — subtle imperfection so the terracotta reads as handmade */}
+            <filter id="clayGrainFilter" x="-10%" y="-10%" width="120%" height="120%">
+              <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="noise" />
+              <feColorMatrix
+                in="noise"
+                type="matrix"
+                values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.05 0"
+              />
+            </filter>
+
+            <clipPath id="potBodyClip">
+              <path d="M 150 140 C 122 140 98 147 90 162 C 84 174 82 195 82 210 C 82 238 98 262 120 274 C 132 281 168 281 180 274 C 202 262 218 238 218 210 C 218 195 216 174 210 162 C 202 147 178 140 150 140 Z" />
+            </clipPath>
           </defs>
 
-          {/* Realistic Braided Rope Hangers */}
+          {/* Realistic Braided Rope Hangers (twin-strand twist) */}
           <path
             ref={leftRopeRef}
             d="M 112 0 Q 106 78 126 138"
-            stroke="#9C7A67"
-            strokeWidth="3.5"
+            stroke="#7C5C46"
+            strokeWidth="4"
             strokeLinecap="round"
-            strokeDasharray="4 2"
+          />
+          <path
+            ref={leftRopeTwistRef}
+            d="M 112 0 Q 106 78 126 138"
+            stroke="#C9A57C"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeDasharray="5 4"
+            opacity="0.85"
           />
           <path
             ref={rightRopeRef}
             d="M 188 0 Q 178 78 174 138"
-            stroke="#9C7A67"
-            strokeWidth="3.5"
+            stroke="#7C5C46"
+            strokeWidth="4"
             strokeLinecap="round"
-            strokeDasharray="4 2"
+          />
+          <path
+            ref={rightRopeTwistRef}
+            d="M 188 0 Q 178 78 174 138"
+            stroke="#C9A57C"
+            strokeWidth="1.4"
+            strokeLinecap="round"
+            strokeDasharray="5 4"
+            opacity="0.85"
           />
 
           {/* MAIN SWINGING ASSEMBLY */}
@@ -756,13 +1017,71 @@ export default function JanmashtamiLoader() {
                 fill="#3A1003"
               />
 
+              {/* Bounce-light + fine grain layered over the intact body for a handmade, glazed feel */}
+              <g clipPath="url(#potBodyClip)">
+                <rect x="70" y="130" width="160" height="160" fill="url(#clayBounceGrad)" />
+                <rect
+                  ref={clayGrainRef}
+                  x="70"
+                  y="130"
+                  width="160"
+                  height="160"
+                  filter="url(#clayGrainFilter)"
+                />
+                <ellipse
+                  ref={claySpecularRef}
+                  cx="112"
+                  cy="168"
+                  rx="10"
+                  ry="34"
+                  fill="#FFFFFF"
+                  opacity="0.16"
+                  filter="url(#softBlur6)"
+                />
+              </g>
+
+              {/* Small extra shards for a more granular shatter */}
               <path
-                d="M 98 148 C 98 142, 202 142, 202 148 C 202 154, 98 154, 98 148 Z"
+                ref={fragChipLeftRef}
+                d="M 96 158 L 110 152 L 106 172 L 92 176 Z"
+                fill="url(#clayBodyGrad)"
+              />
+              <path
+                ref={fragChipRightRef}
+                d="M 204 158 L 190 152 L 194 172 L 208 176 Z"
+                fill="url(#clayBodyGrad)"
+              />
+              <path
+                ref={fragChipTopRef}
+                d="M 132 141 L 150 138 L 146 152 L 130 150 Z"
                 fill="url(#clayRimGrad)"
-                stroke="#3A1003"
-                strokeWidth="0.8"
               />
 
+              {/* Raised rim / lip, drawn as its own piece so it can break away first */}
+              <g ref={rimFragRef}>
+                <path
+                  d="M 98 148 C 98 142, 202 142, 202 148 C 202 154, 98 154, 98 148 Z"
+                  fill="url(#clayRimGrad)"
+                  stroke="#3A1003"
+                  strokeWidth="0.8"
+                />
+                <path
+                  d="M 100 145.5 C 122 141.5, 178 141.5, 200 145.5"
+                  stroke="#FCD9BE"
+                  strokeWidth="1"
+                  strokeLinecap="round"
+                  opacity="0.6"
+                />
+                <ellipse cx="150" cy="148" rx="42" ry="4.2" fill="url(#clayMouthGrad)" />
+              </g>
+
+              {/* Thrown-pottery texture rings following the belly curve */}
+              <path
+                d="M 88 178 Q 150 198 212 178"
+                stroke="#5C1C08"
+                strokeWidth="1"
+                opacity="0.35"
+              />
               <path
                 d="M 92 188 Q 150 212 208 188"
                 stroke="#F59E0B"
@@ -777,6 +1096,12 @@ export default function JanmashtamiLoader() {
                 strokeDasharray="7 4"
                 opacity="0.65"
               />
+              <path
+                d="M 96 238 Q 150 258 204 238"
+                stroke="#5C1C08"
+                strokeWidth="1"
+                opacity="0.3"
+              />
               <circle cx="150" cy="202" r="3" fill="#F59E0B" opacity="0.85" />
               <circle cx="130" cy="200" r="2" fill="#F59E0B" opacity="0.7" />
               <circle cx="170" cy="200" r="2" fill="#F59E0B" opacity="0.7" />
@@ -788,10 +1113,36 @@ export default function JanmashtamiLoader() {
                 strokeLinecap="round"
                 opacity="0.16"
               />
+
+              {/* Diamond rope-net cradling the pot, typical of a hung dahi-handi */}
+              <g ref={ropeNetRef} opacity="0.85">
+                <path
+                  d="M 112 150 L 150 210 M 150 210 L 188 150 M 96 172 L 150 232 M 150 232 L 204 172 M 88 198 L 140 252 M 140 252 L 160 252 L 212 198"
+                  stroke="#8B6A4C"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  fill="none"
+                  opacity="0.75"
+                />
+                <circle cx="150" cy="210" r="2.6" fill="#6F5238" />
+                <circle cx="150" cy="232" r="2.4" fill="#6F5238" />
+                <circle cx="112" cy="150" r="2.2" fill="#6F5238" />
+                <circle cx="188" cy="150" r="2.2" fill="#6F5238" />
+              </g>
             </g>
 
             {/* Crack Overlay */}
             <g id="crack-overlay">
+              <circle
+                ref={shockwaveRef}
+                cx="150"
+                cy="168"
+                r="3"
+                fill="none"
+                stroke="#FDE68A"
+                strokeWidth="6"
+                opacity="0"
+              />
               <path
                 ref={crackGlowRef}
                 d="M 150 144 L 144 172 L 156 200 L 140 234 L 150 276"
@@ -829,7 +1180,51 @@ export default function JanmashtamiLoader() {
                 opacity="0"
                 style={{ strokeDasharray: 50, strokeDashoffset: 50 }}
               />
+              <path
+                ref={crackBranch3Ref}
+                d="M 148 158 L 130 152"
+                stroke="#FFFBEB"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                opacity="0"
+                style={{ strokeDasharray: 32, strokeDashoffset: 32 }}
+              />
+              <path
+                ref={crackBranch4Ref}
+                d="M 140 234 L 152 250"
+                stroke="#FFFBEB"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                opacity="0"
+                style={{ strokeDasharray: 32, strokeDashoffset: 32 }}
+              />
+
+              {/* Fine debris bits thrown off at the fracture point */}
+              <g ref={dustBurstRef}>
+                {debrisBits.map((d, i) => (
+                  <circle
+                    key={i}
+                    className={styles.debrisBit}
+                    cx={d.cx}
+                    cy={d.cy}
+                    r={d.r}
+                    fill={i % 2 === 0 ? "#F59E0B" : "#7C3A17"}
+                    opacity="0.9"
+                  />
+                ))}
+              </g>
             </g>
+
+            {/* Dark opening revealed once the makhan overflow clears */}
+            <ellipse
+              ref={mouthHoleRef}
+              cx="150"
+              cy="150"
+              rx="40"
+              ry="6"
+              fill="url(#clayMouthGrad)"
+              opacity="0"
+            />
 
             {/* Makhan Overflow */}
             <g ref={makhanMainRef} id="makhan-overflow">
@@ -858,9 +1253,24 @@ export default function JanmashtamiLoader() {
               <circle cx="118" cy="170" r="2.8" fill="#FFFFFF" />
               <circle cx="144" cy="178" r="3.2" fill="#FFFDF5" />
               <circle cx="174" cy="172" r="2.8" fill="#FFFFFF" />
+              <circle cx="130" cy="188" r="2.2" fill="#FFFBEB" />
+              <circle cx="162" cy="192" r="2.4" fill="#FFFFFF" />
             </g>
+
+            {/* Butter catching the light as it lands, just below the pot */}
+            <ellipse
+              ref={makhanSplatRef}
+              cx="150"
+              cy="252"
+              rx="46"
+              ry="10"
+              fill="url(#makhanSplatGrad)"
+              opacity="0"
+              filter="url(#softBlur2)"
+            />
           </g>
         </svg>
+        </div>
       </div>
 
       {/* -----------------------------------------------------------------

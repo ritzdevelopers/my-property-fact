@@ -2258,31 +2258,29 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     padding: clamp(28px, 3.5vw, 44px) clamp(24px, 3vw, 40px) !important;
   }
 
-  /* Noida / FAQ section — same tablet treatment */
-  .mpf-home-r26 .noida-projects-section.container {
-    max-width: min(100%, 980px);
-    width: 100%;
-    padding-left: clamp(18px, 2.8vw, 32px);
-    padding-right: clamp(18px, 2.8vw, 32px);
-  }
-
+  /* Noida / FAQ section — 3 stacked rows from 760px (container matched below) */
   .mpf-home-r26 .noida-projects-section .destination-faq {
     max-width: 100%;
     width: 100%;
+    min-height: auto;
     margin-left: 0;
     margin-right: 0;
-    padding: clamp(36px, 4vw, 52px) clamp(24px, 3.2vw, 40px);
+    padding: clamp(36px, 4vw, 52px) 0;
     border-radius: 16px;
+    padding: 20px;
   }
 
   .mpf-home-r26 .noida-projects-section .destination-faq__inner {
     max-width: 100%;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+    width: 100%;
+    grid-template-columns: 1fr;
     grid-template-areas:
-      "left right"
-      "contact right";
-    column-gap: clamp(24px, 3vw, 40px);
-    row-gap: clamp(40px, 6vw, 80px);
+      "left"
+      "right"
+      "contact";
+    column-gap: 0;
+    row-gap: clamp(28px, 3.5vw, 40px);
+    align-items: stretch;
   }
 
   .mpf-home-r26 .noida-projects-section .destination-faq__left,
@@ -2292,9 +2290,15 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     max-width: 100%;
   }
 
+  .mpf-home-r26 .noida-projects-section .destination-faq__left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
   .mpf-home-r26 .noida-projects-section .destination-faq__title {
     height: auto;
     font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
+    align-self: flex-start;
   }
 
   .mpf-home-r26 .noida-projects-section .destination-faq__contact {
@@ -2779,6 +2783,78 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-right: auto;
     padding-left: clamp(12px, 1.5vw, 18px) !important;
     padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+}
+
+/* Noida / FAQ container — tablet (768–1024): same as Recommended Projects */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .mpf-home-r26 .noida-projects-section.container {
+    max-width: min(100%, 980px) !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(18px, 2.8vw, 32px) !important;
+    padding-right: clamp(18px, 2.8vw, 32px) !important;
+  }
+}
+
+/* Noida / FAQ container — small laptop (1024–1200): same as Recommended Projects */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+  .mpf-home-r26 .noida-projects-section.container {
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+    width: min(100%, 98vw) !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 18px) !important;
+    padding-right: clamp(12px, 1.5vw, 18px) !important;
+  }
+
+  /* Keep FAQ as 3 stacked rows through 1200px */
+  .mpf-home-r26 .noida-projects-section .destination-faq {
+    max-width: 100%;
+    width: 100%;
+    min-height: auto;
+    margin-left: 0;
+    margin-right: 0;
+    padding: clamp(36px, 4vw, 52px) 0;
+    border-radius: 16px;
+    padding: 20px;
+  }
+
+  .mpf-home-r26 .noida-projects-section .destination-faq__inner {
+    max-width: 100%;
+    width: 100%;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "left"
+      "right"
+      "contact";
+    column-gap: 0;
+    row-gap: clamp(28px, 3.5vw, 40px);
+    align-items: stretch;
+  }
+
+  .mpf-home-r26 .noida-projects-section .destination-faq__left,
+  .mpf-home-r26 .noida-projects-section .destination-faq__contact,
+  .mpf-home-r26 .noida-projects-section .destination-faq__right {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .mpf-home-r26 .noida-projects-section .destination-faq__left {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .mpf-home-r26 .noida-projects-section .destination-faq__title {
+    height: auto;
+    font-size: clamp(1.5rem, 2.4vw, 2rem) !important;
+    align-self: flex-start;
+  }
+
+  .mpf-home-r26 .noida-projects-section .destination-faq__contact {
+    height: auto;
+    min-height: 160px;
   }
 }
 

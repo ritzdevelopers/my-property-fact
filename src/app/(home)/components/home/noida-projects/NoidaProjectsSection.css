@@ -897,44 +897,47 @@
   }
 }
 
-/* FAQ + section — tablet landscape (760–1024): wider layout, keep 2-col */
-@media (min-width: 760px) and (max-width: 1023.98px) {
-  .noida-projects-section.container {
-    max-width: min(100%, 980px);
-    width: 100%;
-    padding-left: clamp(18px, 2.8vw, 32px);
-    padding-right: clamp(18px, 2.8vw, 32px);
-  }
-
+/* FAQ mid screens (760–1200): 3 stacked rows — heading, FAQ list, contact.
+   Container width/padding come from home-redesign (same as Recommended Projects). */
+@media (min-width: 760px) and (max-width: 1199.98px) {
   .destination-faq {
-    max-width: min(100%, 980px);
+    max-width: 100%;
     width: 100%;
+    min-height: auto;
     margin-left: auto;
     margin-right: auto;
-    padding: clamp(36px, 4vw, 52px) clamp(24px, 3.2vw, 40px);
+    padding: clamp(36px, 4vw, 52px) 0;
     border-radius: 16px;
   }
 
   .destination-faq__inner {
     max-width: 100%;
     width: 100%;
-    grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
-    grid-template-areas:
-      "left right"
-      "contact right";
-    column-gap: clamp(24px, 3vw, 40px);
-    row-gap: clamp(40px, 6vw, 80px);
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "left" "right" "contact" !important;
+    column-gap: 0;
+    row-gap: clamp(28px, 3.5vw, 40px);
+    align-items: stretch;
   }
 
   .destination-faq__left {
     width: 100%;
     max-width: 100%;
+    align-items: flex-start;
+    text-align: left;
   }
 
   .destination-faq__title {
     height: auto;
     font-size: clamp(1.5rem, 2.4vw, 2rem);
     line-height: 1.25;
+    align-self: flex-start;
+  }
+
+  .destination-faq__right {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .destination-faq__contact {
@@ -943,12 +946,6 @@
     height: auto;
     min-height: 160px;
     padding: 20px 18px;
-  }
-
-  .destination-faq__right {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
   }
 
   .destination-faq__scroll-area {

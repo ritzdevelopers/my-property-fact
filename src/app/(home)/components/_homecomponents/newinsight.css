@@ -70,9 +70,9 @@
 .expert-insights-body {
   display: grid;
   grid-template-columns: 358px 838.61px;
-
   align-items: stretch;
   flex: 1;
+  min-width: 0;
 }
 
 .expert-insights-card {
@@ -200,6 +200,8 @@
   align-self: stretch;
   gap: 22px;
   box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .expert-insights-meta {
@@ -248,6 +250,9 @@
   font-style: normal;
   font-weight: 600;
   line-height: 50px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .expert-insights-detail-description {
@@ -259,6 +264,9 @@
   font-style: normal;
   font-weight: 400;
   line-height: 29.25px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .expert-insights-cta {
@@ -284,6 +292,134 @@
 .expert-insights-cta:hover {
   background: #0a4629;
   color: #fff;
+}
+
+/* Small laptop / large tablet (1024–1399): fluid layout so detail text never clips */
+@media (min-width: 1024px) and (max-width: 1399.98px) {
+  .expert-insights-wrapper {
+    width: 100%;
+    padding-left: clamp(12px, 1.5vw, 24px);
+    padding-right: clamp(12px, 1.5vw, 24px);
+    box-sizing: border-box;
+  }
+
+  .expert-insights-section {
+    height: auto;
+    min-height: 0;
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px)));
+    width: min(100%, 98vw);
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
+  }
+
+  .expert-insights-inner {
+    height: auto;
+    max-width: 100%;
+    width: 100%;
+    padding: clamp(36px, 3.2vw, 48px) clamp(20px, 2.4vw, 40px) clamp(40px, 3.5vw, 48px);
+    gap: clamp(20px, 2vw, 28px);
+  }
+
+  .expert-insights-header {
+    max-width: min(100%, 640px);
+  }
+
+  .expert-insights-title {
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height: 1.2;
+    max-width: 100%;
+  }
+
+  .expert-insights-subtitle {
+    font-size: clamp(14px, 1.25vw, 16px);
+    line-height: 1.45;
+  }
+
+  .expert-insights-body {
+    grid-template-columns: minmax(240px, 0.38fr) minmax(0, 1fr);
+    gap: clamp(16px, 2vw, 28px);
+    align-items: stretch;
+    min-width: 0;
+  }
+
+  .expert-insights-card {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 0;
+    padding: clamp(12px, 1.2vw, 16px);
+  }
+
+  .expert-insights-tab--emi-calculator,
+  .expert-insights-tab--locate-score {
+    padding: 14px 16px;
+  }
+
+  .expert-insights-tab-label {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .expert-insights-card-image {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .expert-insights-feature-image {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    aspect-ratio: 297 / 154;
+  }
+
+  .expert-insights-card-caption {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .expert-insights-detail {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: clamp(24px, 2.8vw, 40px) clamp(18px, 2.2vw, 36px);
+    gap: clamp(14px, 1.6vw, 20px);
+  }
+
+  .expert-insights-detail-title {
+    font-size: clamp(24px, 2.55vw, 34px);
+    line-height: 1.28;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .expert-insights-detail-description {
+    font-size: clamp(15px, 1.35vw, 17px);
+    line-height: 1.55;
+    max-width: 100%;
+  }
+
+  .expert-insights-cta {
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    padding: 14px clamp(28px, 3vw, 40px);
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+/* Full desktop: restore single-line-friendly large title when space allows */
+@media (min-width: 1400px) {
+  .expert-insights-detail-title {
+    font-size: 40px;
+    line-height: 50px;
+  }
+
+  .expert-insights-detail-description {
+    font-size: 18px;
+    line-height: 29.25px;
+  }
 }
 
 /* Tablet landscape (760–1024): wider section + side-by-side layout */

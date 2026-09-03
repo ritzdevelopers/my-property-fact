@@ -1,0 +1,266 @@
+/* ==========================================================================
+   Janmashtami Loader — scoped styles
+   Only transform/opacity are animated (no layout thrash), per perf budget.
+   ========================================================================== */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 28%, rgba(120, 60, 40, 0.22) 0%, rgba(0, 0, 0, 0) 55%),
+    radial-gradient(90% 70% at 50% 100%, rgba(58, 20, 60, 0.35) 0%, rgba(0, 0, 0, 0) 60%),
+    linear-gradient(180deg, #0a0709 0%, #120a10 40%, #0c0709 100%);
+  opacity: 0;
+  animation: overlayIn 500ms ease-out forwards;
+}
+
+.overlay.exiting {
+  pointer-events: none;
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* soft vignette so edges stay dark and focus sits on the handi */
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 50% 42%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.bokeh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(212, 160, 90, 0.10) 0%, transparent 8%),
+    radial-gradient(circle at 82% 20%, rgba(180, 90, 140, 0.08) 0%, transparent 10%),
+    radial-gradient(circle at 12% 78%, rgba(200, 140, 70, 0.08) 0%, transparent 9%),
+    radial-gradient(circle at 88% 82%, rgba(140, 80, 150, 0.07) 0%, transparent 10%);
+}
+
+/* ---------------------------------------------------------------------- */
+/* ambient golden dust particles                                          */
+/* ---------------------------------------------------------------------- */
+
+.particlesLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  width: var(--p-size, 3px);
+  height: var(--p-size, 3px);
+  left: var(--p-left, 50%);
+  top: var(--p-top, 50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe6ad 0%, rgba(255, 200, 120, 0) 70%);
+  opacity: 0;
+  animation: particleDrift var(--p-duration, 7s) ease-in-out var(--p-delay, 0s) infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes particleDrift {
+  0% { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  15% { opacity: 0.75; }
+  50% { transform: translate3d(var(--p-driftX, 12px), -40px, 0) scale(1); opacity: 0.55; }
+  85% { opacity: 0.2; }
+  100% { transform: translate3d(calc(var(--p-driftX, 12px) * 2), -85px, 0) scale(0.5); opacity: 0; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* handi rig: ropes + pot, swinging together from a top pivot             */
+/* ---------------------------------------------------------------------- */
+
+.handiStage {
+  position: relative;
+  width: clamp(150px, 30vw, 280px);
+  height: clamp(230px, 46vw, 430px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: scale(0.9) translateY(-10px);
+  animation: handiIn 700ms 260ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes handiIn {
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.handiRig {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: clamp(150px, 30vw, 280px);
+  transform-origin: 50% 0%;
+  animation: swingLoop 4.4s ease-in-out 1.1s infinite;
+  margin-left: calc(clamp(150px, 30vw, 280px) / -2);
+  will-change: transform;
+}
+
+@keyframes swingLoop {
+  0% { transform: rotate(0deg); }
+  18% { transform: rotate(-2.2deg); }
+  50% { transform: rotate(2deg); }
+  80% { transform: rotate(-1deg); }
+  100% { transform: rotate(0deg); }
+}
+
+.ropesSvg {
+  display: block;
+  width: 100%;
+  height: clamp(70px, 14vw, 120px);
+}
+
+.potSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: -2px;
+  filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.55));
+}
+
+.fragmentGroup {
+  opacity: 0;
+}
+
+.shard {
+  opacity: 0;
+}
+
+.glowBurst {
+  opacity: 0;
+}
+
+/* ---------------------------------------------------------------------- */
+/* makhan splash blobs (hidden until break)                                */
+/* ---------------------------------------------------------------------- */
+
+.makhanLayer {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.makhanBlob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transform: translate3d(-50%, -50%, 0) scale(0.3);
+  will-change: transform, opacity;
+}
+
+/* ---------------------------------------------------------------------- */
+/* peacock feathers                                                        */
+/* ---------------------------------------------------------------------- */
+
+.feather {
+  position: absolute;
+  width: clamp(30px, 6vw, 56px);
+  opacity: 0;
+  filter: drop-shadow(0 0 10px rgba(80, 200, 170, 0.15));
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+.featherDriftA {
+  animation:
+    featherIn 900ms 900ms ease-out forwards,
+    driftA 9s 1.9s ease-in-out infinite;
+}
+.featherDriftB {
+  animation:
+    featherIn 900ms 1100ms ease-out forwards,
+    driftB 11s 2.1s ease-in-out infinite;
+}
+.featherDriftC {
+  animation:
+    featherIn 900ms 1300ms ease-out forwards,
+    driftC 8s 2.3s ease-in-out infinite;
+}
+
+@keyframes featherIn {
+  from { opacity: 0; transform: translate3d(0, -14px, 0) rotate(-6deg); }
+  to { opacity: 0.92; transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+@keyframes driftA {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-4deg); }
+  50% { transform: translate3d(10px, -16px, 0) rotate(5deg); }
+}
+@keyframes driftB {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(3deg); }
+  50% { transform: translate3d(-14px, 12px, 0) rotate(-6deg); }
+}
+@keyframes driftC {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(8px, 18px, 0) rotate(4deg); }
+}
+
+/* ---------------------------------------------------------------------- */
+/* text                                                                     */
+/* ---------------------------------------------------------------------- */
+
+.textBlock {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(8%, 12vh, 14%);
+  transform: translateX(-50%);
+  text-align: center;
+  width: min(90vw, 520px);
+  opacity: 0;
+  animation: textIn 800ms 720ms ease-out forwards;
+}
+
+@keyframes textIn {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: clamp(1px, 0.6vw, 3px);
+  font-size: clamp(20px, 4.4vw, 34px);
+  font-weight: 600;
+  color: #f4e3bd;
+  text-shadow: 0 0 22px rgba(212, 160, 70, 0.35);
+}
+
+.subtitle {
+  margin: 10px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(11px, 2vw, 14px);
+  color: rgba(230, 214, 185, 0.72);
+  letter-spacing: 0.3px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* reduced motion                                                           */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay { animation: none; opacity: 1; }
+  .handiRig { animation: none; }
+  .handiStage { animation: handiIn 500ms ease-out forwards; }
+  .feather { animation: featherIn 500ms 400ms ease-out forwards; }
+  .particle { animation: none; opacity: 0.25; }
+  .textBlock { animation: textIn 500ms 300ms ease-out forwards; }
+}

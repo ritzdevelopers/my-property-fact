@@ -201,7 +201,7 @@ export default async function HomePage() {
             cityList={cityList}
           />,
         )}
-
+        {/* Done For 768 to 1199px */}
         {row(
           1,
           <RecommendedProjectsWithGeolocation
@@ -217,7 +217,7 @@ export default async function HomePage() {
             className="recommended-properties-section"
           />,
         )}
-
+        {/* Done For 768 to 1199px */}
         {row(
           1.5,
           <section className="mpf-expert-band" aria-label="Talk to an expert">
@@ -243,7 +243,7 @@ export default async function HomePage() {
             </div>
           </section>,
         )}
-
+        {/* Done For 768 to 1199px */}
         {row(
           2,
           <section className="container transform-home-section">
@@ -293,12 +293,12 @@ export default async function HomePage() {
           //   allFeaturedProperties={slimFeatured}
           // />,
         )}
-
+        {/* Done For 768 to 1199px */}
         {row(
           4,
           <TopPicksWithRotation initialProject={mpfTopPicProject} />,
         )}
-
+        {/* Done For 768 to 1199px */}
         {row(
           5,
           <RecommendedProjectsWithGeolocation
@@ -313,10 +313,13 @@ export default async function HomePage() {
         )}
 
         <div className="position-relative">
+          {/* Done For 768 to 1199px */}
           {row(6, <NewInsight />)}
 
-          {row(7, <DreamPropertySection />)}
+          {/* Done For 768 to 1199px */}
+          {row(7, <DreamPropertySection />)} 
 
+        {/* Done For 768 to 1199px */}
           {row(
             8,
             <FeaturedPage
@@ -328,14 +331,17 @@ export default async function HomePage() {
             />,
           )}
 
+
+          {/* Faqs Section Not Done  */}
           {row(9, <NoidaProjectsSection cities={cityList} />)}
 
+        {/* Done For 768 to 1199px */}
           {row(10, <SocialFeedPage />)}
 
           {row(11, <TestimonialSection testimonials={testimonials} />)}
-
+          {/* Done For 768 to 1199px */}
           {row(12, <VaastuStripSection />)}
-
+          {/* Done For 768 to 1199px */}
           {row(13, <SocialFeedsOfMPF />)}
 
           {row(14, <PopularCitiesSection />)}

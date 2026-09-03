@@ -799,57 +799,6 @@
   }
 }
 
-/* Recommended / Popular Projects — tablet (760–1024): wider section + 2-up cards */
-@media (min-width: 760px) and (max-width: 1023.98px) {
-  .home-projects-preview.container {
-    max-width: min(100%, 980px);
-    width: 100%;
-    padding-left: clamp(18px, 2.8vw, 32px);
-    padding-right: clamp(18px, 2.8vw, 32px);
-  }
-
-  .home-projects-preview__slide {
-    flex: 0 0 calc(100% / var(--preview-visible, 2));
-    max-width: calc(100% / var(--preview-visible, 2));
-    padding-right: clamp(12px, 1.8vw, 18px);
-    min-width: 0;
-  }
-
-  .home-projects-preview__slide--more {
-    width: min(240px, 36%);
-  }
-
-  .home-projects-preview__slide > .home-project-card {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .home-projects-preview .home-project-card,
-  .home-projects-preview .home-project-card--poster {
-    min-height: clamp(340px, 46vw, 400px);
-  }
-
-  .home-projects-preview .home-project-card__overlay {
-    gap: 8px;
-    padding: 18px 16px 16px;
-  }
-
-  .home-projects-preview .home-project-card__title {
-    font-size: clamp(1rem, 2vw, 1.12rem);
-    line-height: 1.28;
-  }
-
-  .home-projects-preview .mpf-lux-card--poster .mpf-lux-price {
-    transform: none !important;
-    opacity: 1 !important;
-    filter: none !important;
-  }
-
-  .home-projects-preview__more-card {
-    min-height: clamp(340px, 46vw, 400px);
-  }
-}
-
 @media (max-width: 991.98px) {
   .home-right-type-rail {
     display: none;
@@ -969,6 +918,118 @@
 
   .home-project-card__price {
     font-size: 13px;
+  }
+}
+
+/* Recommended / Popular Projects — tablet (768–1024): wider section + 2-up cards */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .home-projects-preview__slide {
+    flex: 0 0 calc(100% / var(--preview-visible, 2));
+    max-width: calc(100% / var(--preview-visible, 2));
+    padding-right: clamp(12px, 1.8vw, 18px);
+    min-width: 0;
+  }
+
+  .home-projects-preview__slide--more {
+    width: min(240px, 36%);
+  }
+
+  .home-projects-preview__slide > .home-project-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .home-projects-preview .home-project-card,
+  .home-projects-preview .home-project-card--poster {
+    min-height: clamp(340px, 46vw, 400px);
+  }
+
+  .home-projects-preview .home-project-card__overlay {
+    gap: 8px;
+    padding: 18px 16px 16px;
+  }
+
+  .home-projects-preview .home-project-card__title {
+    font-size: clamp(1rem, 2vw, 1.12rem);
+    line-height: 1.28;
+  }
+
+  .home-projects-preview .mpf-lux-card--poster .mpf-lux-price {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .home-projects-preview__more-card {
+    min-height: clamp(340px, 46vw, 400px);
+  }
+}
+
+/* Small laptop (1024–1200): 3–4 cards fill the rail */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+  .home-projects-preview__slide {
+    flex: 0 0 calc(100% / var(--preview-visible, 3));
+    max-width: calc(100% / var(--preview-visible, 3));
+    padding-right: clamp(10px, 1.4vw, 14px);
+    min-width: 0;
+  }
+
+  .home-projects-preview__slide--more {
+    width: min(200px, 28%);
+  }
+
+  .home-projects-preview__slide > .home-project-card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .home-projects-preview .home-project-card,
+  .home-projects-preview .home-project-card--poster {
+    min-height: clamp(280px, 30vw, 340px);
+  }
+
+  .home-projects-preview .home-project-card__overlay {
+    gap: 8px;
+    padding: 16px 14px 14px;
+  }
+
+  .home-projects-preview .home-project-card__title {
+    font-size: clamp(0.95rem, 1.6vw, 1.05rem);
+    line-height: 1.28;
+  }
+
+  .home-projects-preview .mpf-lux-card--poster .mpf-lux-price {
+    transform: none !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .home-projects-preview__more-card {
+    min-height: clamp(280px, 30vw, 340px);
+  }
+}
+
+/* Recommended Projects container — tablet (768–1024): 980px cap */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+  .home-projects-preview.container {
+    max-width: min(100%, 980px) !important;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(18px, 2.8vw, 32px) !important;
+    padding-right: clamp(18px, 2.8vw, 32px) !important;
+  }
+}
+
+/* Recommended Projects container — small laptop (1024–1200): fluid vw width */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+  .home-projects-preview.container {
+    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+    width: min(100%, 98vw) !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(12px, 1.5vw, 18px) !important;
+    padding-right: clamp(12px, 1.5vw, 18px) !important;
   }
 }
 

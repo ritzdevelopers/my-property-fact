@@ -588,7 +588,7 @@ letter-spacing: 0%;
     margin-top: auto;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 767px) {
     .footer-city-links-section {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 20px 16px;
@@ -1412,6 +1412,130 @@ letter-spacing: 0%;
         bottom: 20px;
         right: 20px;
         font-size: 18px;
+    }
+}
+
+/* Tablet — match home page section container (760px–1024px) */
+@media (min-width: 760px) and (max-width: 1023.98px) {
+    .footer-city-links-container,
+    .new-footer-design.no-newsletter .footer-city-links-container {
+        max-width: min(100%, 980px) !important;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(18px, 2.8vw, 32px) !important;
+        padding-right: clamp(18px, 2.8vw, 32px) !important;
+        padding-top: 56px;
+        padding-bottom: 56px;
+        box-sizing: border-box;
+    }
+
+    .footer-city-links-section .footer-bottom-column {
+        flex: 0 1 calc(25% - 9px);
+        max-width: calc(25% - 9px);
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-city-links-section .footer-new-heading {
+        text-align: center;
+        font-size: clamp(14px, 1.65vw, 16px);
+        line-height: 1.35;
+        padding-bottom: 10px;
+    }
+
+    .footer-city-links-section .footer-new-links {
+        align-items: center;
+        gap: clamp(8px, 1vw, 10px);
+    }
+
+    .footer-city-links-section .footer-new-links li {
+        text-align: center;
+        min-width: 0;
+        width: 100%;
+    }
+
+    .footer-city-links-section .footer-scroll-hint {
+        justify-content: center;
+        font-size: 11px;
+        gap: 6px;
+        margin-top: 8px;
+    }
+
+    .footer-city-links-section {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: clamp(8px, 1.2vw, 12px);
+        width: 100%;
+    }
+
+    .footer-city-links-section .footer-new-link {
+        font-size: clamp(13px, 1.4vw, 14px);
+        line-height: 1.45;
+        display: block;
+        width: 100%;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        text-align: center;
+    }
+
+    .footer-city-links-section .footer-new-links-scroll,
+    .footer-city-links-section .footer-new-links-static {
+        min-height: clamp(120px, 14vh, 200px);
+    }
+
+    .footer-city-links-section .footer-new-links-scroll {
+        max-height: clamp(120px, 14vh, 200px);
+    }
+
+    .new-design-container {
+        max-width: min(100%, 980px) !important;
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(18px, 2.8vw, 32px) !important;
+        padding-right: clamp(18px, 2.8vw, 32px) !important;
+    }
+
+    .new-design-footer-bottom.container {
+        max-width: 100%;
+        width: 100%;
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
+
+/* Footer city links + main footer — small laptop (1024–1200): fluid vw width */
+@media (min-width: 1024px) and (max-width: 1199.99px) {
+    .footer-city-links-container,
+    .new-footer-design.no-newsletter .footer-city-links-container {
+        max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+        width: min(100%, 98vw) !important;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(12px, 1.5vw, 18px) !important;
+        padding-right: clamp(12px, 1.5vw, 18px) !important;
+        padding-top: 0px;
+        padding-bottom: 56px;
+        box-sizing: border-box;
+    }
+
+    .new-design-container {
+        max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
+        width: min(100%, 98vw) !important;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: clamp(12px, 1.5vw, 18px) !important;
+        padding-right: clamp(12px, 1.5vw, 18px) !important;
+    }
+
+    .new-design-footer-bottom.container {
+        max-width: 100% !important;
+        width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 }
 

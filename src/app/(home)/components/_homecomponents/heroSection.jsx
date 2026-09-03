@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 import SearchFilter from "./searchFIlter";
 import "../home/home.css";
 import "./newmpfmetadata.css";
@@ -98,7 +99,7 @@ function HeroCityTypewriter() {
   );
 }
 
-function HeroBannerPicture() {
+function HeroBannerPicture({ mediaRef }) {
   const common = {
     alt: BANNER_ALT,
     sizes: HERO_IMAGE_SIZES,
@@ -135,27 +136,34 @@ function HeroBannerPicture() {
   });
 
   return (
-    <div className="position-relative home-banner hero-banner-responsive-images hero-art-direction">
-      <picture>
-        <source media="(max-width: 767.98px)" srcSet={mobileSrcSet} sizes={sizes} />
-        <source
-          media="(min-width: 768px) and (max-width: 991.98px)"
-          srcSet={tabletSrcSet}
-          sizes={sizes}
-        />
-        <img
-          {...desktopRest}
-          src={desktopSrc}
-          srcSet={desktopSrcSet}
-          sizes={sizes}
-          alt={BANNER_ALT}
-          title={BANNER_ALT}
-          className="hero-banner-image hero-banner-image--full"
-          loading="eager"
-          fetchPriority="high"
-          decoding="sync"
-        />
-      </picture>
+    <div className="position-relative home-banner hero-banner-responsive-images hero-art-direction hero-parallax-stage">
+      <div ref={mediaRef} className="hero-parallax-media">
+        <picture>
+          <source
+            media="(max-width: 767.98px)"
+            srcSet={mobileSrcSet}
+            sizes={sizes}
+          />
+          <source
+            media="(min-width: 768px) and (max-width: 991.98px)"
+            srcSet={tabletSrcSet}
+            sizes={sizes}
+          />
+          <img
+            {...desktopRest}
+            src={desktopSrc}
+            srcSet={desktopSrcSet}
+            sizes={sizes}
+            alt={BANNER_ALT}
+            title={BANNER_ALT}
+            className="hero-banner-image hero-banner-image--full"
+            loading="eager"
+            fetchPriority="high"
+            decoding="sync"
+            draggable={false}
+          />
+        </picture>
+      </div>
     </div>
   );
 }
@@ -174,6 +182,9 @@ export default function HeroSection({
     "residential",
   ]);
   const heroBannerRef = useRef(null);
+  const heroMediaRef = useRef(null);
+  const parallaxXTo = useRef(null);
+  const parallaxYTo = useRef(null);
   const railHoverLeaveTimerRef = useRef(null);
   const [showRightRail, setShowRightRail] = useState(false);
   const [openRightRailIndex, setOpenRightRailIndex] = useState(null);
@@ -243,6 +254,88 @@ export default function HeroSection({
     };
   }, []);
 
+  // Smooth cursor parallax on hero background (desktop only)
+  useEffect(() => {
+    const media = heroMediaRef.current;
+    const stage = heroBannerRef.current;
+    if (!media || !stage) return undefined;
+
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const desktopQuery = window.matchMedia("(min-width: 992px)");
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)");
+
+    const canParallax = () =>
+      !motionQuery.matches && desktopQuery.matches && finePointer.matches;
+
+    let enabled = false;
+
+    const enable = () => {
+      if (enabled || !canParallax()) return;
+      enabled = true;
+      gsap.set(media, { x: 0, y: 0, force3D: true });
+      // Soft lag = buttery follow (higher duration = smoother)
+      parallaxXTo.current = gsap.quickTo(media, "x", {
+        duration: 1.35,
+        ease: "power3.out",
+      });
+      parallaxYTo.current = gsap.quickTo(media, "y", {
+        duration: 1.35,
+        ease: "power3.out",
+      });
+    };
+
+    const disable = () => {
+      enabled = false;
+      parallaxXTo.current = null;
+      parallaxYTo.current = null;
+      gsap.to(media, {
+        x: 0,
+        y: 0,
+        duration: 0.7,
+        ease: "power2.out",
+        overwrite: true,
+      });
+    };
+
+    const sync = () => {
+      if (canParallax()) enable();
+      else disable();
+    };
+
+    sync();
+    motionQuery.addEventListener("change", sync);
+    desktopQuery.addEventListener("change", sync);
+    finePointer.addEventListener("change", sync);
+
+    return () => {
+      motionQuery.removeEventListener("change", sync);
+      desktopQuery.removeEventListener("change", sync);
+      finePointer.removeEventListener("change", sync);
+      parallaxXTo.current = null;
+      parallaxYTo.current = null;
+      gsap.killTweensOf(media);
+    };
+  }, []);
+
+  const onHeroPointerMove = (event) => {
+    if (!parallaxXTo.current || !parallaxYTo.current || !heroBannerRef.current) {
+      return;
+    }
+    const rect = heroBannerRef.current.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) return;
+
+    const nx = (event.clientX - rect.left) / rect.width - 0.5;
+    const ny = (event.clientY - rect.top) / rect.height - 0.5;
+    // Opposite drift = depth illusion; values stay inside oversized media crop
+    parallaxXTo.current(-nx * 42);
+    parallaxYTo.current(-ny * 28);
+  };
+
+  const onHeroPointerLeave = () => {
+    parallaxXTo.current?.(0);
+    parallaxYTo.current?.(0);
+  };
+
   useEffect(() => {
     const onScroll = () => {
       if (!heroBannerRef.current) return;
@@ -268,10 +361,11 @@ export default function HeroSection({
         ref={heroBannerRef}
         className="position-relative hero-section-wrapper"
         aria-label="Hero Banner"
+        onMouseMove={onHeroPointerMove}
+        onMouseLeave={onHeroPointerLeave}
       >
         <div className="mpf-hero-banner position-relative">
-
-          <HeroBannerPicture />
+          <HeroBannerPicture mediaRef={heroMediaRef} />
 
           <div className="home-banner-overlay" aria-hidden="true" />
 
@@ -279,11 +373,21 @@ export default function HeroSection({
             <div className="mpf-hero-main">
               <div className="mpf-hero-content">
                 <div className="mpf-hero-copy">
-                  <p className="headgradient headgradient--sparkle" data-text={title}>
+                  <p
+                    className="headgradient headgradient--sparkle"
+                    data-text={title}
+                  >
                     {title.includes("Across India") ? (
                       <>
                         Find Your Perfect Property in
-                        <span className="mpf-hero-highlight"> Across
+                        <span
+                          className="mpf-hero-highlight"
+                          style={{
+                            color: "#EBC366 !important",
+                          }}
+                        >
+                          {" "}
+                          Across
                           <HeroCityTypewriter />
                         </span>
                       </>
@@ -295,7 +399,10 @@ export default function HeroSection({
                     {subtitle}
                   </h1>
                 </div>
-                <aside className="mpf-hero-badge" aria-label="Property insights">
+                <aside
+                  className="mpf-hero-badge"
+                  aria-label="Property insights"
+                >
                   <span className="mpf-hero-badge__icon" aria-hidden>
                     <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
                       <path
@@ -305,7 +412,8 @@ export default function HeroSection({
                     </svg>
                   </span>
                   <span className="mpf-hero-badge__text">
-                    <strong>Verified listings</strong>, price trends &amp; expert insights
+                    <strong>Verified listings</strong>, price trends &amp;
+                    expert insights
                   </span>
                 </aside>
               </div>
@@ -321,8 +429,20 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                    <path d="M9.5 12.2l1.8 1.8 3.5-3.8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M12 3l7 3v5c0 4.5-2.8 8.4-7 10-4.2-1.6-7-5.5-7-10V6l7-3z"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M9.5 12.2l1.8 1.8 3.5-3.8"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -333,7 +453,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M7 4h10M7 8.5h10M7 4c4.5 0 6.5 1.8 6.5 4.5S11.5 13 7 13h1.5L16 20" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M7 4h10M7 8.5h10M7 4c4.5 0 6.5 1.8 6.5 4.5S11.5 13 7 13h1.5L16 20"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -344,7 +470,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M4 14a4 4 0 014-4h8a4 4 0 014 4v2H4v-2zM8 6a4 4 0 018 0"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -355,7 +487,13 @@ export default function HeroSection({
               <div className="mpf-value-strip__item">
                 <span className="mpf-value-strip__icon" aria-hidden>
                   <svg viewBox="0 0 24 24" width={20} height={20} fill="none">
-                    <path d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M4 7h16v11H4zM8 7V5h8v2M9 12h6M9 15h4"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </span>
                 <span className="mpf-value-strip__copy">
@@ -386,7 +524,8 @@ export default function HeroSection({
         >
           {rightRailTypes.map((item, index) => {
             const typeKey = getTypeKey(item?.projectTypeName);
-            const { alt: railIconAlt, title: railIconTitle } = railIconMetaForKey(typeKey);
+            const { alt: railIconAlt, title: railIconTitle } =
+              railIconMetaForKey(typeKey);
             return (
               <Link
                 key={`right-rail-type-${index}`}
@@ -402,7 +541,9 @@ export default function HeroSection({
                     clearTimeout(railHoverLeaveTimerRef.current);
                     railHoverLeaveTimerRef.current = null;
                   }
-                  setOpenRightRailIndex((prev) => (prev === index ? null : prev));
+                  setOpenRightRailIndex((prev) =>
+                    prev === index ? null : prev,
+                  );
                 }}
               >
                 <span
@@ -436,8 +577,12 @@ export default function HeroSection({
                   )}
                 </span>
                 <span className="home-right-type-rail__text">
-                  {headingTypes.has(normalizeTypeName(item?.projectTypeName || "")) ? (
-                    <div className="property-type-heading m-0">{item.projectTypeName}</div>
+                  {headingTypes.has(
+                    normalizeTypeName(item?.projectTypeName || ""),
+                  ) ? (
+                    <div className="property-type-heading m-0">
+                      {item.projectTypeName}
+                    </div>
                   ) : (
                     <span>{item.projectTypeName}</span>
                   )}

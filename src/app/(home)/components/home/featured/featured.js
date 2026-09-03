@@ -136,8 +136,19 @@ export default function Featured({
     infinite: filteredProjects.length > 4,
     responsive: [
       {
-        // Tablet / small laptop: 2 wider cards (760–1024)
-        breakpoint: 1025,
+        // Small laptop: 3 cards fill the rail (1024–1120)
+        breakpoint: 1199,
+        settings: {
+          slidesToShow: 3,
+          infinite: filteredProjects.length > 3,
+          swipe: true,
+          touchMove: true,
+          swipeToSlide: true,
+        },
+      },
+      {
+        // Tablet: 2 wider cards (768–1023)
+        breakpoint: 1024,
         settings: {
           slidesToShow: 2,
           infinite: filteredProjects.length > 2,

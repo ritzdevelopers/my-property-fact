@@ -1,0 +1,203 @@
+.loaderContainer {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Solid base — must stay opaque during shatter so the site header never bleeds through */
+  background-color: #040711;
+  background-image: radial-gradient(circle at 50% 42%, #0f192e 0%, #050914 65%, #020409 100%);
+  background-repeat: no-repeat;
+  user-select: none;
+  pointer-events: auto;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  isolation: isolate;
+  --reveal-glow: 0;
+}
+
+/* Ambient Radial Glows */
+.amberGlow,
+.emeraldGlow,
+.blueAura {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.amberGlow {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0) 70%);
+  filter: blur(80px);
+}
+
+.emeraldGlow {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, rgba(16, 185, 129, 0) 70%);
+  filter: blur(70px);
+}
+
+.blueAura {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(30, 58, 138, 0.2) 0%, rgba(30, 58, 138, 0) 70%);
+  filter: blur(100px);
+}
+
+/* Warm bloom that breathes in just before the final cut — a premium "reveal" cue */
+.revealBloom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 58%, rgba(253, 230, 138, 0.55) 0%, rgba(253, 230, 138, 0) 62%);
+  opacity: var(--reveal-glow, 0);
+  transition: none;
+}
+
+/* Golden Dust Particles */
+.particlesWrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  contain: layout style paint;
+}
+
+.goldDust {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(254, 243, 199, 0.7);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.9), 0 0 4px rgba(245, 158, 11, 0.6);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* SVG Scene Container */
+.sceneWrapper {
+  position: relative;
+  width: 340px;
+  height: 410px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Isolated inner layer so the impact camera-shake never fights the fixed background */
+.shakeLayer {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+.svgContainer {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Tiny fracture debris — styling hook only, motion driven entirely by GSAP */
+.debrisBit {
+  will-change: transform, opacity;
+}
+
+/* Loader Text & Percentage Wrapper */
+.textWrapper {
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.greetingText {
+  font-family: "Cinzel", "Playfair Display", Georgia, serif;
+  font-size: 0.8125rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: rgba(253, 230, 138, 0.85);
+  font-weight: 400;
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+  margin: 0;
+}
+
+.progressCounter {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: #fbbf24;
+  text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+  font-variant-numeric: tabular-nums;
+  min-width: 4.5ch;
+  text-align: center;
+}
+
+.progressTrack {
+  margin-top: 0.35rem;
+  width: min(12.5rem, 58vw);
+  height: 2px;
+  border-radius: 999px;
+  background: rgba(253, 230, 138, 0.18);
+  overflow: hidden;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.12);
+}
+
+.progressFill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(0);
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 45%, #10b981 100%);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.55);
+  will-change: transform;
+}
+
+.loadingStatus {
+  font-family: sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(253, 230, 138, 0.5);
+  font-weight: 500;
+  margin: 0.35rem 0 0;
+}
+
+@media (min-width: 640px) {
+  .sceneWrapper {
+    width: 400px;
+    height: 460px;
+  }
+
+  .greetingText {
+    font-size: 0.9375rem;
+  }
+
+  .progressCounter {
+    font-size: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loaderContainer * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -2,7 +2,7 @@ import "./bootstrap-critical.css";
 import BootstrapDeferredStyles from "@/app/_global_components/BootstrapDeferredStyles";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { Fraunces, Outfit } from "next/font/google"; 
+import { Fraunces, Outfit } from "next/font/google";
 
 const mpfDisplay = Fraunces({
   subsets: ["latin"],

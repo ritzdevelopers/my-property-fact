@@ -624,7 +624,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
 
   const handleTabChange = (tab) => {
     if (tab === "Projects") {
-      router.push("/projects");
+      window.open("/projects", "_blank", "noopener,noreferrer");
       return;
     }
 

@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { PiCalculatorLight } from "react-icons/pi";
+import { GrScorecard } from "react-icons/gr";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
 const INSIGHTS = [
   {
     id: "emi-calculator",
     tabLabel: "EMI Calculator",
-    iconSrc: "/static/home-meta-data/calculator.gif",
-    iconAlt: "EMI Calculator icon — Expert Insights and Resources",
+    Icon: PiCalculatorLight,
     iconTitle: "EMI Calculator — Expert Insights and Resources",
     badge: "Financial Tool",
     readTime: "5 min read",
@@ -22,8 +23,7 @@ const INSIGHTS = [
   {
     id: "locate-score",
     tabLabel: "Locate Score",
-    iconSrc: "/static/home-meta-data/locate_score.gif",
-    iconAlt: "Locate Score icon — Expert Insights and Resources",
+    Icon: GrScorecard,
     iconTitle: "Locate Score — Expert Insights and Resources",
     badge: "Location Tool",
     readTime: "5 min read",
@@ -75,6 +75,7 @@ export default function NewInsight() {
             <div className="expert-insights-tabs" role="tablist" aria-label="Expert tools">
               {INSIGHTS.map((insight) => {
                 const isActive = insight.id === activeId;
+                const Icon = insight.Icon;
                 return (
                   <button
                     key={insight.id}
@@ -86,14 +87,8 @@ export default function NewInsight() {
                     className={`expert-insights-tab expert-insights-tab--${insight.id}${isActive ? " is-active" : ""}`}
                     onClick={() => setActiveId(insight.id)}
                   >
-                    <span className="expert-insights-tab-icon">
-                      <img
-                        src={insight.iconSrc}
-                        alt={insight.iconAlt}
-                        title={insight.iconTitle}
-                        width={28}
-                        height={28}
-                      />
+                    <span className="expert-insights-tab-icon" title={insight.iconTitle}>
+                      <Icon aria-hidden="true" />
                     </span>
                     <span className="expert-insights-tab-label">
                       {insight.tabLabel}

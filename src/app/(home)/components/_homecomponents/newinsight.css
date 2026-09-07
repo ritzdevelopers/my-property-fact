@@ -127,16 +127,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  color: #127c3b;
 }
 
-.expert-insights-tab-icon img {
-  width: 28px;
-  height: 28px;
+.expert-insights-tab-icon img,
+.expert-insights-tab-icon svg {
+  width: 18px;
+  height: 18px;
   object-fit: contain;
   display: block;
+  color: #127c3b;
+  fill: currentColor;
+  font-weight: 300;
+  stroke-width: 1;
 }
 
 .expert-insights-tab-label {
@@ -707,13 +713,14 @@
   }
 
   .expert-insights-tab-icon {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
   }
 
-  .expert-insights-tab-icon img {
-    width: 24px;
-    height: 24px;
+  .expert-insights-tab-icon img,
+  .expert-insights-tab-icon svg {
+    width: 16px;
+    height: 16px;
   }
 
   .expert-insights-tab-label {

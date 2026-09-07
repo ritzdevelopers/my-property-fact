@@ -104,10 +104,12 @@ body:has(.mpf-home-r26) .header--home-ss .header-home-ss__container {
   }
 
   body:has(.mpf-home-r26) .header--home-ss .mpf-header-location-pill {
-    flex-shrink: 1;
-    min-width: 0;
-    max-width: 100%;
-    padding: 0 8px;
+    flex-shrink: 0;
+    width: 34px;
+    min-width: 34px;
+    max-width: 34px;
+    padding: 0;
+    justify-content: center;
   }
 }
 
@@ -193,9 +195,22 @@ body:has(.mpf-home-r26) .mpf-header-location-pill {
   -webkit-backdrop-filter: blur(8px);
 }
 
-body:has(.mpf-home-r26) .mpf-header-location-pill--readonly {
-  cursor: default;
-  pointer-events: none;
+body:has(.mpf-home-r26) .mpf-header-location-pill--action {
+  cursor: pointer;
+  pointer-events: auto;
+  appearance: none;
+  font: inherit;
+  color: inherit;
+}
+
+body:has(.mpf-home-r26) .mpf-header-location-pill--action:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(10, 12, 16, 0.45);
+}
+
+body:has(.mpf-home-r26) .mpf-header-location-pill--action:disabled {
+  cursor: wait;
+  opacity: 0.85;
 }
 
 body:has(.mpf-home-r26) .mpf-header-home-actions {
@@ -468,10 +483,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 /* The typed city sits on its own reserved line so the heading never reflows
    while characters are added/removed. */
 .mpf-home-r26 .mpf-hero-highlight {
-  /* color: var(--mpf-green-bright) !important;  */
-  color: #EBC366 !important;
-  /* -webkit-text-fill-color: var(--mpf-green-bright) !important; */
-  -webkit-text-fill-color: #EBC366 !important;
+  color: var(--mpf-green-bright) !important; 
+ 
+  -webkit-text-fill-color: var(--mpf-green-bright) !important;
   display: block;
   white-space: nowrap;
   min-height: 1.08em;
@@ -1365,8 +1379,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 
   .mpf-home-r26 .mpf-hero-shell {
-    /* padding: 88px 12px 96px; Hide For Janmashtami */
-    padding: 88px 12px 0px;
+    padding: 88px 12px 96px; 
+    /* padding: 88px 12px 0px; */
   }
 
   /* No grow, so the odd chip on the last row stays half-width and centres */

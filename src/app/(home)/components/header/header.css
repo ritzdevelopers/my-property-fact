@@ -93,6 +93,23 @@
 
 .mpf-header-location-dropdown {
   position: relative;
+  z-index: 10060;
+}
+
+.mpf-location-dropdown-backdrop {
+  display: none;
+}
+
+.mpf-location-dropdown-sheet-head {
+  display: none;
+}
+
+.mpf-location-dropdown-close {
+  display: none;
+}
+
+.mpf-location-dropdown-cities {
+  display: contents;
 }
 
 .mpf-location-dropdown-menu {
@@ -143,6 +160,8 @@
   font-weight: 500;
   text-align: left;
   transition: background 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mpf-location-dropdown-item:hover {
@@ -660,7 +679,7 @@ nav.d-none.d-lg-flex {
     min-width: 0;
     gap: 6px !important;
     flex: 1 1 auto;
-    overflow: hidden;
+    overflow: visible;
     justify-self: start;
   }
 
@@ -671,9 +690,10 @@ nav.d-none.d-lg-flex {
 
   .mpf-header-location-dropdown {
     min-width: 0;
-    max-width: 100%;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     overflow: visible;
+    position: static;
+    z-index: auto;
   }
 
   body:has(.mpf-home-r26) .header--home-ss .mpf-header-logo-img {
@@ -687,36 +707,131 @@ nav.d-none.d-lg-flex {
     max-width: 48px;
   }
 
+  /* Mobile: icon-only trigger — city label lives in the bottom sheet */
   .mpf-header-location-pill,
   body:has(.mpf-home-r26) .mpf-header-location-pill {
-    width: auto;
-    max-width: 100%;
+    width: 34px;
+    min-width: 34px;
+    max-width: 34px;
     height: 34px;
-    padding: 0 8px;
-    justify-content: flex-start;
+    padding: 0;
+    gap: 0;
+    justify-content: center;
     border-radius: 999px;
-    flex-shrink: 1;
-    min-width: 0;
+    flex-shrink: 0;
     overflow: hidden;
+    pointer-events: auto !important;
+    position: relative;
+    z-index: 2;
   }
 
-  .mpf-header-location-pill__city {
-    display: inline;
-    max-width: min(64px, 18vw);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
+  .mpf-header-location-pill__city,
   .mpf-header-location-pill__chevron {
-    display: inline-flex;
+    display: none;
+  }
+
+  /* Fixed bottom sheet so menu is not clipped by header overflow on mobile/tablet */
+  .mpf-location-dropdown-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 10040;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: rgba(10, 12, 16, 0.45);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mpf-location-dropdown-menu--sheet,
+  .mpf-location-dropdown-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    width: 100%;
+    max-width: none;
+    max-height: min(78vh, 640px);
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.22);
+    z-index: 10050;
+    padding: 0 0 calc(12px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: mpfLocationSheetIn 0.22s ease;
+  }
+
+  .mpf-location-dropdown-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #eee;
     flex-shrink: 0;
   }
 
-  .mpf-location-dropdown-menu {
-    left: 0;
-    right: auto;
-    width: min(260px, calc(100vw - 24px));
+  .mpf-location-dropdown-sheet-head__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .mpf-location-dropdown-sheet-head strong {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .mpf-location-dropdown-sheet-head__current {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0d5834;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .mpf-location-dropdown-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 999px;
+    background: #f2f2f2;
+    color: #333;
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .mpf-location-dropdown-item--gps {
+    flex-shrink: 0;
+  }
+
+  .mpf-location-dropdown-label {
+    flex-shrink: 0;
+  }
+
+  .mpf-location-dropdown-cities {
+    display: block;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding-bottom: 8px;
+  }
+
+  .mpf-location-dropdown-item {
+    min-height: 44px;
+    font-size: 15px;
   }
 
   .header-mobile-actions {
@@ -808,18 +923,15 @@ nav.d-none.d-lg-flex {
 }
 
 @media (max-width: 480px) {
-  .mpf-header-location-pill__city,
-  .mpf-header-location-pill__chevron {
-    display: none;
-  }
-
   .mpf-header-location-pill,
   body:has(.mpf-home-r26) .mpf-header-location-pill {
     width: 32px;
     min-width: 32px;
+    max-width: 32px;
     height: 32px;
     padding: 0;
     justify-content: center;
+    gap: 0;
   }
 
   .header-post-property-cta--mobile {
@@ -865,6 +977,17 @@ nav.d-none.d-lg-flex {
   from {
     opacity: 0;
     transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mpfLocationSheetIn {
+  from {
+    opacity: 0.6;
+    transform: translateY(24px);
   }
   to {
     opacity: 1;

@@ -382,9 +382,7 @@ export default function HeroSection({
                         Find Your Perfect Property in
                         <span
                           className="mpf-hero-highlight"
-                          style={{
-                            color: "#EBC366 !important",
-                          }}
+                         
                         >
                           {" "}
                           Across

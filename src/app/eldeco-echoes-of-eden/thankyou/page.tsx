@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { googleSheetConfig } from "@/eldeco-echoes-of-eden/config/googleSheet";
 import { useMotionSettings } from "@/eldeco-echoes-of-eden/lib/motion";
 
 const REDIRECT_SECONDS = 5;
+const GTAG_ID = "AW-17892647835";
+const CONVERSION_SEND_TO = "AW-17892647835/YpkuCP-vlfAcEJvH8NNC";
 
 export default function ThankYouPage() {
   const router = useRouter();
@@ -28,6 +31,29 @@ export default function ThankYouPage() {
   }, [router, secondsLeft]);
 
   return (
+    <>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-config-eoe-thankyou" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GTAG_ID}');
+        `}
+      </Script>
+      {/* Event snippet for EOE Submit lead form conversion page */}
+      <Script id="gtag-conversion-eoe-submit-lead" strategy="afterInteractive">
+        {`
+          gtag('event', 'conversion', {
+            'send_to': '${CONVERSION_SEND_TO}',
+            'value': 1.0,
+            'currency': 'INR'
+          });
+        `}
+      </Script>
     <main className="relative flex flex-1 items-center justify-center overflow-hidden px-4 py-10 sm:px-6 sm:py-14 lg:py-16">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(46,125,50,0.18),_transparent_55%),linear-gradient(180deg,#DBE4DD_0%,#F5F7F5_45%,#DBE4DD_100%)]"
@@ -90,5 +116,6 @@ export default function ThankYouPage() {
         </div>
       </motion.section>
     </main>
+    </>
   );
 }

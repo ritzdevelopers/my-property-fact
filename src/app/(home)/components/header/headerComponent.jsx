@@ -2,6 +2,7 @@
 import Link from "next/link";
 import "./header.css";
 import { useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
@@ -123,16 +124,27 @@ const HeaderComponent = () => {
   const [locationHint, setLocationHint] = useState("");
   const [isLocating, setIsLocating] = useState(false);
   const [showLocationMenu, setShowLocationMenu] = useState(false);
+  const [isCompactLocationUi, setIsCompactLocationUi] = useState(false);
   const locationToastShownRef = useRef(false);
   const locationToastTimerRef = useRef(null);
   const locationRequestIdRef = useRef(0);
   const locationDropdownRef = useRef(null);
+  const locationMenuRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
 
   // Defer dropdown content until after mount to avoid hydration mismatch (data + motion)
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const mq = window.matchMedia("(max-width: 1023.98px)");
+    const sync = () => setIsCompactLocationUi(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, []);
 
   // Check if the pathname starts with /city/
@@ -732,8 +744,11 @@ const HeaderComponent = () => {
     if (!showLocationMenu) return undefined;
 
     const handlePointerDown = (event) => {
-      const root = locationDropdownRef.current;
-      if (root && !root.contains(event.target)) {
+      const trigger = locationDropdownRef.current;
+      const menu = locationMenuRef.current;
+      const inTrigger = trigger && trigger.contains(event.target);
+      const inMenu = menu && menu.contains(event.target);
+      if (!inTrigger && !inMenu) {
         setShowLocationMenu(false);
       }
     };
@@ -742,10 +757,16 @@ const HeaderComponent = () => {
       if (event.key === "Escape") setShowLocationMenu(false);
     };
 
+    const prevOverflow = document.body.style.overflow;
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      document.body.style.overflow = "hidden";
+    }
+
     document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("touchstart", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
+      document.body.style.overflow = prevOverflow;
       document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("touchstart", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
@@ -761,6 +782,97 @@ const HeaderComponent = () => {
     setShowLocationMenu(false);
     requestBrowserLocation({ forceToast: true, preferGps: true });
   };
+
+  const locationMenuContent = (
+    <>
+      <div className="mpf-location-dropdown-sheet-head">
+        <div className="mpf-location-dropdown-sheet-head__copy">
+          <strong>Choose location</strong>
+          <span className="mpf-location-dropdown-sheet-head__current">
+            {formatHeaderCityLabel(selectedCity) || "Locating…"}
+          </span>
+        </div>
+        <button
+          type="button"
+          className="mpf-location-dropdown-close"
+          aria-label="Close"
+          onClick={() => setShowLocationMenu(false)}
+        >
+          ×
+        </button>
+      </div>
+      <button
+        type="button"
+        className="mpf-location-dropdown-item mpf-location-dropdown-item--gps"
+        role="option"
+        onClick={handleUseCurrentLocation}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
+          <path
+            d="M12 2v3M12 19v3M2 12h3M19 12h3"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+        <span>Use current location</span>
+      </button>
+      <div className="mpf-location-dropdown-label">Select city</div>
+      <div className="mpf-location-dropdown-cities">
+        {HEADER_LOCATION_CITIES.map((city) => {
+          const isActive =
+            String(selectedCity || "").trim().toLowerCase() === city.toLowerCase();
+          return (
+            <button
+              key={city}
+              type="button"
+              role="option"
+              aria-selected={isActive}
+              className={`mpf-location-dropdown-item${isActive ? " is-active" : ""}`}
+              onClick={() => handleSelectLocationCity(city)}
+            >
+              {city}
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+
+  const locationMenu =
+    showLocationMenu && isMounted
+      ? isCompactLocationUi
+        ? createPortal(
+            <>
+              <button
+                type="button"
+                className="mpf-location-dropdown-backdrop"
+                aria-label="Close location menu"
+                onClick={() => setShowLocationMenu(false)}
+              />
+              <div
+                ref={locationMenuRef}
+                className="mpf-location-dropdown-menu mpf-location-dropdown-menu--sheet"
+                role="listbox"
+                aria-label="Choose location"
+              >
+                {locationMenuContent}
+              </div>
+            </>,
+            document.body,
+          )
+        : (
+            <div
+              ref={locationMenuRef}
+              className="mpf-location-dropdown-menu"
+              role="listbox"
+              aria-label="Choose location"
+            >
+              {locationMenuContent}
+            </div>
+          )
+      : null;
 
   return (
     <>
@@ -863,49 +975,7 @@ const HeaderComponent = () => {
                     />
                   </svg>
                 </button>
-                {showLocationMenu ? (
-                  <div
-                    className="mpf-location-dropdown-menu"
-                    role="listbox"
-                    aria-label="Choose location"
-                  >
-                    <button
-                      type="button"
-                      className="mpf-location-dropdown-item mpf-location-dropdown-item--gps"
-                      role="option"
-                      onClick={handleUseCurrentLocation}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.8" />
-                        <path
-                          d="M12 2v3M12 19v3M2 12h3M19 12h3"
-                          stroke="currentColor"
-                          strokeWidth="1.8"
-                          strokeLinecap="round"
-                        />
-                      </svg>
-                      <span>Use current location</span>
-                    </button>
-                    <div className="mpf-location-dropdown-label">Select city</div>
-                    {HEADER_LOCATION_CITIES.map((city) => {
-                      const isActive =
-                        String(selectedCity || "").trim().toLowerCase() ===
-                        city.toLowerCase();
-                      return (
-                        <button
-                          key={city}
-                          type="button"
-                          role="option"
-                          aria-selected={isActive}
-                          className={`mpf-location-dropdown-item${isActive ? " is-active" : ""}`}
-                          onClick={() => handleSelectLocationCity(city)}
-                        >
-                          {city}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : null}
+                {locationMenu}
               </div>
             ) : null}
           </div>

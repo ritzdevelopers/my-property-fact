@@ -1,14 +1,12 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
-import SocialFeedPage from "./social-feed/SocialFeedPage";
 import HeroSection from "../_homecomponents/heroSection";
-import FeaturedPage from "./featured/FeaturedPage";
 import {
   fetchCityData,
   fetchProjectTypes,
   getAllProjects,
   fetchBuilderData,
   fetchTopPicksProject,
+  fetchLatestBlogs,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
 import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
@@ -23,48 +21,59 @@ import {
   scopeHomeProjectsToDelhiNcr,
 } from "@/app/_global_components/popularRightNowProjects";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
-import TestimonialSection from "./testimonials/TestimonialSection";
-import { slimProjectListForListing } from "@/lib/slimProjectListing";
+import HomeDeferredSections from "./HomeDeferredSections";
+import {
+  slimProjectForListing,
+  slimProjectListForListing,
+} from "@/lib/slimProjectListing";
 
-const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
-  loading: () => <section className="py-5" style={{ minHeight: 180 }} aria-busy="true" />,
-});
-const NewInsight = dynamic(() => import("../_homecomponents/NewInsight"), {
-  ssr: true,
-  loading: () => <section className="py-4" style={{ minHeight: 668 }} aria-busy="true" />,
-});
-
-const DreamPropertySection = dynamic(
-  () => import("./dream-project/DreamPropertySection"),
-  { loading: () => <section className="dream-property-section my-4 my-lg-5 min-h-[200px]" aria-busy="true" /> }
-);
-const SocialFeedsOfMPF = dynamic(
-  () => import("../_homecomponents/SocialFeedsOfMPF"),
-  { loading: () => <div className="py-4" /> }
-);
-const PopularCitiesSection = dynamic(
-  () => import("./popular-cities/PopularCitiesSection"),
-  { loading: () => <div className="py-4" /> }
-);
-const NoidaProjectsSection = dynamic(
-  () => import("./noida-projects/NoidaProjectsSection"),
-  { loading: () => <div className="py-4" /> }
-);
-
-const VaastuStripSection = dynamic(
-  () => import("./vaastu-strip/VaastuStripSection"),
-  { loading: () => <div className="py-3" /> }
-);
-// import NoidaProjectsSection from "./noida-projects/NoidaProjectsSection";
+/** Keep first HTML small — carousels still work; client sections hydrate below the fold. */
+const HOME_SSR_CARD_LIMIT = 6;
+const HOME_FEATURED_TAB_LIMIT = 6;
+const HOME_MARQUEE_LOGO_LIMIT = 16;
 
 const HOME_NCR_LABEL = "Delhi NCR";
+
+function slimCityForHome(city) {
+  if (!city || typeof city !== "object") return city;
+  return {
+    id: city.id,
+    cityName: city.cityName,
+    slugURL: city.slugURL || city.slugUrl,
+  };
+}
+
+function slimProjectTypeForHome(type) {
+  if (!type || typeof type !== "object") return type;
+  return {
+    id: type.id,
+    projectTypeName: type.projectTypeName || type.name,
+    name: type.name,
+    slugURL: type.slugURL || type.slugUrl,
+  };
+}
+
+function slimBlogForHome(blog) {
+  if (!blog || typeof blog !== "object") return blog;
+  return {
+    id: blog.id,
+    blogTitle: blog.blogTitle,
+    slugUrl: blog.slugUrl || blog.slugURL,
+    blogImage: blog.blogImage,
+    createdAt: blog.createdAt,
+    authorName: blog.authorName,
+    author: blog.author,
+    blogDescription: blog.blogDescription,
+    blogMetaDescription: blog.blogMetaDescription,
+  };
+}
 
 async function fetchHomeTestimonials() {
   try {
     const base = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/?$/, "");
     if (!base) return [];
     const response = await fetch(`${base}/testimonial/get-active`, {
-      cache: "no-store",
+      next: { revalidate: 60 },
       headers: { "Content-Type": "application/json" },
     });
     if (!response.ok) return [];
@@ -76,14 +85,14 @@ async function fetchHomeTestimonials() {
 }
 
 export default async function HomePage() {
-  // All independent homepage APIs in one round-trip (no cross-fetch dependencies).
   const [
     projects,
     buildersRes,
     testimonials,
-    cityList,
-    projectTypeList,
-    mpfTopPicProject,
+    cityListRaw,
+    projectTypeListRaw,
+    mpfTopPicProjectRaw,
+    homeBlogsRaw,
   ] = await Promise.all([
     getAllProjects(),
     fetchBuilderData(),
@@ -91,22 +100,22 @@ export default async function HomePage() {
     fetchCityData(),
     fetchProjectTypes(),
     fetchTopPicksProject(),
+    fetchLatestBlogs(3),
   ]);
 
-  // Allowed slugs for featured projects
-  const allowedSlugs = [
-    "eldeco-camelot",
-    "eldeco-7-peaks-residences",
-    "eldeco-whispers-of-wonder",
-  ];
+  const cityList = Array.isArray(cityListRaw)
+    ? cityListRaw.map(slimCityForHome)
+    : [];
+  const projectTypeList = Array.isArray(projectTypeListRaw)
+    ? projectTypeListRaw.map(slimProjectTypeForHome)
+    : [];
+  const mpfTopPicProject = mpfTopPicProjectRaw
+    ? slimProjectForListing(mpfTopPicProjectRaw)
+    : mpfTopPicProjectRaw;
+  const homeBlogs = Array.isArray(homeBlogsRaw)
+    ? homeBlogsRaw.map(slimBlogForHome)
+    : [];
 
-  const FEATURED_PROJECT_LOGOS = {
-    "eldeco-camelot": "/icon/eldeco_camelot.png",
-    "eldeco-7-peaks-residences": "/icon/logo%20(1).png",
-    "eldeco-whispers-of-wonder": "/icon/eldeco-banner-ai.png",
-  };
-
-  // Residential project slugs for "Explore Our Premier Residential Projects"
   const residentialSlugs = [
     "eldeco-camelot",
     "saya-gold-avenue",
@@ -115,48 +124,46 @@ export default async function HomePage() {
     "irish-platinum",
   ];
 
-  // Commercial project slugs for "Explore Top Commercial Spaces"
   const commercialSlugs = [
     "saya-piazza",
     "gulshan-one29",
     "exotica-132",
   ];
 
-  // Featured: slug-ordered first
-  const featuredProjects = allowedSlugs
-    .map((slug) => {
-      const project = projects.find((p) => p.slugURL === slug);
-      if (!project) return null;
-      const logoOverride = FEATURED_PROJECT_LOGOS[slug];
-      return logoOverride ? { ...project, projectLogo: logoOverride } : project;
-    })
-    .filter(Boolean);
-  // Residential: slug-ordered first, then rest from Delhi-NCR projects
   const residentialFirst = residentialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
     .filter(Boolean);
-  const residentialRest = projects.filter(
-    (p) =>
-      p.propertyTypeName === "Residential" &&
-      p.slugURL &&
-      !residentialSlugs.includes(p.slugURL) &&
-      isDelhiNcrProject(p)
-  ).slice(0, 20);
+  const residentialRest = projects
+    .filter(
+      (p) =>
+        p.propertyTypeName === "Residential" &&
+        p.slugURL &&
+        !residentialSlugs.includes(p.slugURL) &&
+        isDelhiNcrProject(p),
+    )
+    .slice(0, HOME_FEATURED_TAB_LIMIT);
 
-  const residentialProjects = [...residentialFirst, ...residentialRest];
+  const residentialProjects = [...residentialFirst, ...residentialRest].slice(
+    0,
+    HOME_FEATURED_TAB_LIMIT,
+  );
 
-  // Commercial: slug-ordered first, then rest from Delhi-NCR projects
   const commercialFirst = commercialSlugs
     .map((slug) => projects.find((p) => p.slugURL === slug))
     .filter(Boolean);
-  const commercialRest = projects.filter(
-    (p) =>
-      p.propertyTypeName === "Commercial" &&
-      p.slugURL &&
-      !commercialSlugs.includes(p.slugURL) &&
-      isDelhiNcrProject(p)
-  ).slice(0, 20);
-  const commercialProjects = [...commercialFirst, ...commercialRest];
+  const commercialRest = projects
+    .filter(
+      (p) =>
+        p.propertyTypeName === "Commercial" &&
+        p.slugURL &&
+        !commercialSlugs.includes(p.slugURL) &&
+        isDelhiNcrProject(p),
+    )
+    .slice(0, HOME_FEATURED_TAB_LIMIT);
+  const commercialProjects = [...commercialFirst, ...commercialRest].slice(
+    0,
+    HOME_FEATURED_TAB_LIMIT,
+  );
 
   const ncrHomeScope = scopeHomeProjectsToDelhiNcr({
     projects,
@@ -169,7 +176,7 @@ export default async function HomePage() {
     geoCity: ncrHomeScope.geoCity,
     geoState: ncrHomeScope.geoState,
     geoTokens: ncrHomeScope.geoTokens,
-    limit: 8,
+    limit: HOME_SSR_CARD_LIMIT,
   });
 
   const firstSlugs = new Set(recommendedProperties.map((p) => p.slugURL));
@@ -180,16 +187,19 @@ export default async function HomePage() {
     geoCity: ncrHomeScope.geoCity,
     geoState: ncrHomeScope.geoState,
     geoTokens: ncrHomeScope.geoTokens,
-    limit: 8,
+    limit: HOME_SSR_CARD_LIMIT,
   });
 
-  const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(buildersRes);
+  const topDevelopersMarqueeItems = buildTopDevelopersMarqueeItems(buildersRes).slice(
+    0,
+    HOME_MARQUEE_LOGO_LIMIT,
+  );
 
-  const slimFeatured = slimProjectListForListing(featuredProjects);
   const slimResidential = slimProjectListForListing(residentialProjects);
   const slimCommercial = slimProjectListForListing(commercialProjects);
   const slimRecommendedProperties = slimProjectListForListing(recommendedProperties);
   const slimRecommendedProjects = slimProjectListForListing(recommendedProjects);
+  const popularSubtitle = `Explore the Best-Selling Properties Today nearby ${HOME_NCR_LABEL}`;
 
   try {
     const row = (i, node) => <div key={i}>{node}</div>;
@@ -203,7 +213,6 @@ export default async function HomePage() {
             cityList={cityList}
           />,
         )}
-        {/* Done For 768 to 1199px */}
         {row(
           1,
           <RecommendedProjectsWithGeolocation
@@ -217,9 +226,9 @@ export default async function HomePage() {
             locationIntent="projects"
             viewAllHref="/projects"
             className="recommended-properties-section"
+            eagerImageCount={2}
           />,
         )}
-        {/* Done For 768 to 1199px */}
         {row(
           1.5,
           <section className="mpf-expert-band" aria-label="Talk to an expert">
@@ -245,7 +254,6 @@ export default async function HomePage() {
             </div>
           </section>,
         )}
-        {/* Done For 768 to 1199px */}
         {row(
           2,
           <section className="container transform-home-section">
@@ -271,11 +279,18 @@ export default async function HomePage() {
                         width={224}
                         height={30}
                         className="transform-home-mpf-logo"
+                        loading="lazy"
+                        decoding="async"
+                        fetchPriority="low"
                       />
                     </div>
                     <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
                     <div className="transform-home-explore-projects-wrap">
-                      <Link href="/projects" title="Explore Projects" className="transform-home-explore-projects-btn">
+                      <Link
+                        href="/projects"
+                        title="Explore Projects"
+                        className="transform-home-explore-projects-btn"
+                      >
                         Explore Projects
                       </Link>
                     </div>
@@ -283,71 +298,21 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-          </section>
+          </section>,
         )}
 
-        {row(
-          3,
-          // <FeaturedPage
-          //   title="Featured Projects"
-          //   type="Featured"
-          //   autoPlay={false}
-          //   allFeaturedProperties={slimFeatured}
-          // />,
-        )}
-        {/* Done For 768 to 1199px */}
-        {row(
-          4,
-          <TopPicksWithRotation initialProject={mpfTopPicProject} />,
-        )}
-        {/* Done For 768 to 1199px */}
-        {row(
-          5,
-          <RecommendedProjectsWithGeolocation
-            title="Popular Projects"
-            fallbackItems={slimRecommendedProjects}
-            fallbackSubtitle={`Explore the Best-Selling Properties Today nearby ${HOME_NCR_LABEL}`}
-            kind="project"
-            locationIntent="latest-projects"
-            viewAllHref="/projects"
-            sectionId="popular-projects"
-          />,
-        )}
+        {row(3, null)}
 
-        <div className="position-relative">
-          {/* Done For 768 to 1199px */}
-          {row(6, <NewInsight />)}
-
-          {/* Done For 768 to 1199px */}
-          {row(7, <DreamPropertySection />)} 
-
-        {/* Done For 768 to 1199px */}
-          {row(
-            8,
-            <FeaturedPage
-              title="Explore Our Premier Residential Projects"
-              autoPlay={true}
-              allFeaturedProperties={[]}
-              residentialProjects={slimResidential}
-              commercialProjects={slimCommercial}
-            />,
-          )}
-
-
-          {/* Faqs Section Not Done  */}
-          {row(9, <NoidaProjectsSection cities={cityList} />)}
-
-        {/* Done For 768 to 1199px */}
-          {row(10, <SocialFeedPage />)}
-
-          {row(11, <TestimonialSection testimonials={testimonials} />)}
-          {/* Done For 768 to 1199px */}
-          {row(12, <VaastuStripSection />)}
-          {/* Done For 768 to 1199px */}
-          {row(13, <SocialFeedsOfMPF />)}
-
-          {row(14, <PopularCitiesSection />)}
-        </div>
+        <HomeDeferredSections
+          mpfTopPicProject={mpfTopPicProject}
+          slimRecommendedProjects={slimRecommendedProjects}
+          popularSubtitle={popularSubtitle}
+          slimResidential={slimResidential}
+          slimCommercial={slimCommercial}
+          cityList={cityList}
+          testimonials={testimonials}
+          homeBlogs={homeBlogs}
+        />
       </>
     );
   } catch (error) {

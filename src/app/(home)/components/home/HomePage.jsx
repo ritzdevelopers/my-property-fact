@@ -76,11 +76,22 @@ async function fetchHomeTestimonials() {
 }
 
 export default async function HomePage() {
-  const [projects, buildersRes] = await Promise.all([
+  // All independent homepage APIs in one round-trip (no cross-fetch dependencies).
+  const [
+    projects,
+    buildersRes,
+    testimonials,
+    cityList,
+    projectTypeList,
+    mpfTopPicProject,
+  ] = await Promise.all([
     getAllProjects(),
     fetchBuilderData(),
+    fetchHomeTestimonials(),
+    fetchCityData(),
+    fetchProjectTypes(),
+    fetchTopPicksProject(),
   ]);
-  const testimonials = await fetchHomeTestimonials();
 
   // Allowed slugs for featured projects
   const allowedSlugs = [
@@ -110,12 +121,6 @@ export default async function HomePage() {
     "gulshan-one29",
     "exotica-132",
   ];
-
-  // Fetching citylist and project types and storing in variables
-  const [cityList, projectTypeList] = await Promise.all([
-    fetchCityData(),
-    fetchProjectTypes(),
-  ]);
 
   // Featured: slug-ordered first
   const featuredProjects = allowedSlugs
@@ -185,9 +190,6 @@ export default async function HomePage() {
   const slimCommercial = slimProjectListForListing(commercialProjects);
   const slimRecommendedProperties = slimProjectListForListing(recommendedProperties);
   const slimRecommendedProjects = slimProjectListForListing(recommendedProjects);
-
-  // Top Picks: projects from selected builders only, rotates every 30s (testing)
-  const mpfTopPicProject = await fetchTopPicksProject();
 
   try {
     const row = (i, node) => <div key={i}>{node}</div>;

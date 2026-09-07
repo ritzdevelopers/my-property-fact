@@ -79,7 +79,10 @@ export default function RecommendedProjectsWithGeolocation({
   );
 
   const fetchForCity = useCallback(
-    async (cityName, { fallbackToNcrOnEmpty = false } = {}) => {
+    async (
+      cityName,
+      { fallbackToNcrOnEmpty = false, preserveItemsOnEmpty } = {},
+    ) => {
       const city = String(cityName || "").trim();
       if (!city) return;
 
@@ -95,8 +98,14 @@ export default function RecommendedProjectsWithGeolocation({
         const data = await res.json();
         if (gen !== fetchGenRef.current) return;
 
-        const displayCity = String(data?.region?.city || city).trim() || city;
+        // Prefer the city the user picked — never let an empty→NCR API swap rename the rail.
+        const apiCity = String(data?.region?.city || "").trim();
         const nextItems = Array.isArray(data?.items) ? data.items : [];
+        const rejectNcrSwap =
+          !fallbackToNcrOnEmpty &&
+          !isDelhiNcrLabel(city) &&
+          isDelhiNcrLabel(apiCity);
+        const displayCity = rejectNcrSwap ? city : apiCity || city;
 
         if (
           fallbackToNcrOnEmpty &&
@@ -105,12 +114,21 @@ export default function RecommendedProjectsWithGeolocation({
         ) {
           await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION, {
             fallbackToNcrOnEmpty: false,
+            preserveItemsOnEmpty: false,
           });
           return;
         }
 
-        applyCityResults(data, displayCity, {
-          preserveItemsOnEmpty: !fallbackToNcrOnEmpty,
+        // Explicit city pick: ignore NCR substitute cards from the API.
+        const scopedData = rejectNcrSwap
+          ? { ...data, items: [], region: { ...(data?.region || {}), city } }
+          : data;
+
+        applyCityResults(scopedData, displayCity, {
+          preserveItemsOnEmpty:
+            typeof preserveItemsOnEmpty === "boolean"
+              ? preserveItemsOnEmpty
+              : !fallbackToNcrOnEmpty,
         });
       } catch (err) {
         console.error(err);
@@ -121,6 +139,11 @@ export default function RecommendedProjectsWithGeolocation({
         ) {
           await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION, {
             fallbackToNcrOnEmpty: false,
+            preserveItemsOnEmpty: false,
+          });
+        } else if (gen === fetchGenRef.current && preserveItemsOnEmpty === false) {
+          applyCityResults({ items: [], region: { city } }, city, {
+            preserveItemsOnEmpty: false,
           });
         }
       } finally {
@@ -167,7 +190,11 @@ export default function RecommendedProjectsWithGeolocation({
         return;
       }
 
-      fetchForCity(cityName, { fallbackToNcrOnEmpty: true });
+      // Explicit header city pick — never substitute Delhi NCR or keep prior city cards.
+      fetchForCity(cityName, {
+        fallbackToNcrOnEmpty: false,
+        preserveItemsOnEmpty: false,
+      });
     };
 
     window.addEventListener("cityChanged", handleCityChanged);

@@ -54,6 +54,8 @@ function buildScopedListingItems({
   buildForRegion,
   locationScope,
   limit = 8,
+  /** IP/GPS only — never swap an explicit header city (e.g. Agra) to Delhi NCR. */
+  allowNcrFallback = true,
 }) {
   let scope = locationScope;
   let items = slimProjectListForListing(
@@ -68,7 +70,7 @@ function buildScopedListingItems({
     }),
   );
 
-  if (items.length === 0 && scope.strict) {
+  if (items.length === 0 && scope.strict && allowNcrFallback) {
     const ncrScope = scopeHomeProjectsToDelhiNcr({
       projects,
       city: "Delhi NCR",
@@ -475,11 +477,33 @@ export async function GET(request) {
         source: region.source,
       });
 
-      const { items, scope: resolvedScope } = buildScopedListingItems({
+      const allowNcrFallback = region.source !== "dropdown";
+      let { items, scope: resolvedScope } = buildScopedListingItems({
         projects: newLaunchProjects,
         buildForRegion: buildNewLaunchProjectsForRegion,
         locationScope,
+        allowNcrFallback,
       });
+
+      // Explicit city with no new launches: show that city's latest projects, not Delhi NCR.
+      if (items.length === 0 && region.source === "dropdown" && region.city) {
+        const allCityScope = scopeHomeProjectsForLocation({
+          projects: normalizeProjectsArray(projects),
+          city: region.city,
+          state: region.state,
+          geoTokens,
+          lat,
+          lon,
+        });
+        const soft = buildScopedListingItems({
+          projects: normalizeProjectsArray(projects),
+          buildForRegion: buildLatestProjectsForRegion,
+          locationScope: allCityScope,
+          allowNcrFallback: false,
+        });
+        items = soft.items;
+        resolvedScope = soft.scope;
+      }
 
       const displayCity =
         region.city &&
@@ -519,6 +543,7 @@ export async function GET(request) {
         projects: normalizeProjectsArray(projects),
         buildForRegion: buildLatestProjectsForRegion,
         locationScope,
+        allowNcrFallback: region.source !== "dropdown",
       });
 
       const displayCity =

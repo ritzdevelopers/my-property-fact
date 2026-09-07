@@ -5,6 +5,29 @@ import { Navigation, Pagination } from "swiper/modules";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
+const SOCIAL_POSTS = [
+  {
+    text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
+    position: "top",
+    video: "https://otherassets.blob.core.windows.net/mpf/social-media/social11.mp4",
+  },
+  {
+    text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
+    position: "bottom",
+    video: "https://otherassets.blob.core.windows.net/mpf/social-media/V1 40MB .mp4",
+  },
+  {
+    text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
+    position: "bottom",
+    video: "https://otherassets.blob.core.windows.net/mpf/social-media/social33.mp4",
+  },
+  {
+    text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
+    position: "top",
+    video: "https://otherassets.blob.core.windows.net/mpf/social-media/social44.mp4",
+  },
+];
+
 export default function SocialFeedsOfMPF({
   sectionTitle = "Social Feeds from MPF on Instagram",
 }) {
@@ -20,6 +43,8 @@ export default function SocialFeedsOfMPF({
   const [isMobile, setIsMobile] = useState(false);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  /** Only attach heavy MP4 `src` after the slide is near viewport / user interacts. */
+  const [loadedVideoIndexes, setLoadedVideoIndexes] = useState(() => ({}));
   const videoRefs = useRef([]);
   const wrapperRefs = useRef([]);
   const popupVideoSlotRef = useRef(null);
@@ -53,28 +78,7 @@ export default function SocialFeedsOfMPF({
     };
   }, [isPopupOpen]);
 
-  const socialPosts = [
-    {
-      text: `Eden: India’s next lifestyle landmark. Watch the video to discover MORE! 83% Open Greens | 30,000 Sq. Ft. Clubhouse | 24×7 Security | Wave Galleria Market | Sector 62 Connectivity.`,
-      position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social11.mp4"
-    },
-    {
-      text: `Some assets lose value with time. The right home only grows stronger. Watch the video to discover Palm Olympia - premium lifestyle residences backed by legacy, connectivity, luxury, and long-term value`,
-      position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/V1 40MB .mp4"
-    },
-    {
-      text: `Experience the beauty of balanced living at Eternia. Watch the video to explore a lifestyle powered by: Spacious Homes  | 25+ Lifestyle Amenities | 130m Wide Road Access | Green Surroundings `,
-      position: "bottom",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social33.mp4"
-    },
-    {
-      text: "Watch the video before the best units are gone. Eternia Residences brings you open spaces, peaceful living, premium interiors, and everyday convenience : all in one iconic address.",
-      position: "top",
-      video: "https://otherassets.blob.core.windows.net/mpf/social-media/social44.mp4"
-    }
-  ];
+  const socialPosts = SOCIAL_POSTS;
 
   const restoreExpandedVideo = useCallback((clearRefs = true) => {
     const video = clickedVideoRef.current;
@@ -94,10 +98,21 @@ export default function SocialFeedsOfMPF({
     }
   }, []);
 
+  const ensureVideoSrc = useCallback((index) => {
+    setLoadedVideoIndexes((prev) => {
+      if (prev[index]) return prev;
+      return { ...prev, [index]: true };
+    });
+  }, []);
+
   const handleVideoClick = (event, index) => {
+    ensureVideoSrc(index);
     const wrapper = event.currentTarget;
     const video = wrapper.querySelector("video.post-video");
     if (!video) return;
+    if (!video.getAttribute("src") && SOCIAL_POSTS[index]?.video) {
+      video.src = SOCIAL_POSTS[index].video;
+    }
 
     clickedVideoRef.current = video;
     clickedWrapperRef.current = wrapper;
@@ -131,7 +146,9 @@ export default function SocialFeedsOfMPF({
   }, [isPopupOpen, handleKeyDown]);
 
   const primeVideoPreview = useCallback((videoEl) => {
-    if (!videoEl || videoEl.dataset.primed === "true") return;
+    if (!videoEl || !videoEl.getAttribute("src") || videoEl.dataset.primed === "true") {
+      return;
+    }
 
     const showFrame = () => {
       videoEl.dataset.primed = "true";
@@ -152,8 +169,12 @@ export default function SocialFeedsOfMPF({
     }
   }, []);
 
-  const startInlinePreview = useCallback((videoEl) => {
+  const startInlinePreview = useCallback((videoEl, index) => {
     if (!videoEl) return;
+    if (typeof index === "number") ensureVideoSrc(index);
+    if (!videoEl.getAttribute("src") && SOCIAL_POSTS[index]?.video) {
+      videoEl.src = SOCIAL_POSTS[index].video;
+    }
 
     primeVideoPreview(videoEl);
 
@@ -163,49 +184,46 @@ export default function SocialFeedsOfMPF({
         primeVideoPreview(videoEl);
       });
     }
-  }, [primeVideoPreview]);
+  }, [ensureVideoSrc, primeVideoPreview]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach(({ target, isIntersecting }) => {
           const video = target;
+          const index = Number(video.dataset.videoIndex);
+          if (!Number.isFinite(index)) return;
           if (isIntersecting) {
-            startInlinePreview(video);
+            ensureVideoSrc(index);
+            window.requestAnimationFrame(() => {
+              const el = videoRefs.current[index];
+              if (el) startInlinePreview(el, index);
+            });
           } else {
             video.pause();
           }
         });
       },
-      { threshold: 0.2, rootMargin: "40px" }
+      { threshold: 0.2, rootMargin: "80px" },
     );
 
-    const observeVideos = () => {
-      videoRefs.current.forEach((video) => {
-        if (video) observer.observe(video);
-      });
-    };
-
-    observeVideos();
-
-    const primeTimer = window.setTimeout(() => {
-      videoRefs.current.forEach((video) => {
-        if (video) primeVideoPreview(video);
-      });
-    }, 150);
+    videoRefs.current.forEach((video) => {
+      if (video) observer.observe(video);
+    });
 
     return () => {
-      window.clearTimeout(primeTimer);
       observer.disconnect();
     };
-  }, [startInlinePreview, primeVideoPreview, socialPosts.length]);
+  }, [ensureVideoSrc, startInlinePreview]);
 
   const handleSwiperSlideChange = useCallback((swiper) => {
-    const activeVideo = videoRefs.current[swiper.realIndex];
+    const index = swiper.realIndex;
+    ensureVideoSrc(index);
+    const activeVideo = videoRefs.current[index];
     if (activeVideo) {
-      startInlinePreview(activeVideo);
+      startInlinePreview(activeVideo, index);
     }
-  }, [startInlinePreview]);
+  }, [ensureVideoSrc, startInlinePreview]);
 
   useEffect(() => {
     if (!isPopupOpen || selectedVideoIndex === null || !popupVideoSlotRef.current) return;
@@ -343,11 +361,12 @@ export default function SocialFeedsOfMPF({
                           }}
                           id={`social-video-${index}`}
                           className="post-video"
-                          src={post.video}
+                          data-video-index={index}
+                          src={loadedVideoIndexes[index] ? post.video : undefined}
                           loop
                           muted
                           playsInline
-                          preload="auto"
+                          preload="none"
                           aria-label={post.text.replace(/\s+/g, " ").trim().slice(0, 160)}
                         />
                         {/* Play Icon Overlay - Always show on hover */}

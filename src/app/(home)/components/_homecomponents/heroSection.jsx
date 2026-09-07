@@ -555,6 +555,9 @@ export default function HeroSection({
                       title={railIconTitle}
                       width={36}
                       height={36}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
                     />
                   ) : typeKey === "residential" ? (
                     <img
@@ -563,6 +566,9 @@ export default function HeroSection({
                       title={railIconTitle}
                       width={36}
                       height={36}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
                     />
                   ) : (
                     <img
@@ -571,6 +577,9 @@ export default function HeroSection({
                       title={railIconTitle}
                       width={36}
                       height={36}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
                     />
                   )}
                 </span>

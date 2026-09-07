@@ -29,6 +29,8 @@ export default function RecommendedProjectsWithGeolocation({
   /** API `intent`: `mixed` = projects + listings; `projects` = new launches near you; `latest-projects` = MPF projects only (newest, home Recommended Projects). */
   locationIntent = "mixed",
   sectionId = "recommended-projects",
+  /** First N card images load eagerly (LCP); rest stay lazy. */
+  eagerImageCount = 0,
 }) {
   const [items, setItems] = useState(fallbackItems);
   const [loading, setLoading] = useState(false);
@@ -221,6 +223,7 @@ export default function RecommendedProjectsWithGeolocation({
         loading={loading}
         cityName={activeCity}
         cityHref={cityHref}
+        eagerImageCount={eagerImageCount}
       />
     </section>
   );

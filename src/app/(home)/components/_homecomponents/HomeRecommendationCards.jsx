@@ -29,11 +29,15 @@ function formatProjectPrice(value) {
   if (/[a-zA-Z]/.test(strValue)) {
     // Keep custom labels; append * onwards when it's a priced string without it
     if (/onwards/i.test(strValue) || /request/i.test(strValue)) return strValue;
-    return /[*]/.test(strValue) ? `${strValue} Onwards` : `${strValue}* Onwards`;
+    return /[*]/.test(strValue)
+      ? `${strValue} Onwards`
+      : `${strValue}* Onwards`;
   }
   const numericValue = Number.parseFloat(strValue.replace(/,/g, ""));
-  if (!Number.isFinite(numericValue) || numericValue <= 0) return "Price on request";
-  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`;
+  if (!Number.isFinite(numericValue) || numericValue <= 0)
+    return "Price on request";
+  if (numericValue < 1)
+    return `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`;
   return `₹ ${numericValue} Cr* Onwards`;
 }
 
@@ -55,12 +59,16 @@ function getProjectLocation(project) {
 }
 
 function getPropertyImage(property) {
-  const rawImage = typeof property?.image === "string" ? property.image.trim() : "";
+  const rawImage =
+    typeof property?.image === "string" ? property.image.trim() : "";
   if (!rawImage) return "/static/no_image.png";
-  if (rawImage.startsWith("http://") || rawImage.startsWith("https://")) return rawImage;
+  if (rawImage.startsWith("http://") || rawImage.startsWith("https://"))
+    return rawImage;
   if (rawImage.startsWith("/")) return rawImage;
 
-  const propertyListingMatch = rawImage.match(/^property-listings\/([^/]+)\/(.+)$/);
+  const propertyListingMatch = rawImage.match(
+    /^property-listings\/([^/]+)\/(.+)$/,
+  );
   if (propertyListingMatch) {
     const [, listingId, filename] = propertyListingMatch;
     const base = apiBaseUrl();
@@ -73,7 +81,10 @@ function getPropertyImage(property) {
 }
 
 function effectiveCardKind(item, kind) {
-  if (kind === "mixed" && (item?.itemKind === "property" || item?.itemKind === "project")) {
+  if (
+    kind === "mixed" &&
+    (item?.itemKind === "property" || item?.itemKind === "project")
+  ) {
     return item.itemKind;
   }
   return kind;
@@ -87,8 +98,12 @@ function stripItemKind(item, kind) {
 
 // Only show when type clearly maps to commercial / residential buckets
 function hasPropertyTypeTag(type) {
-  const normalized = String(type || "").toLowerCase().trim();
-  return normalized.includes("commercial") || normalized.includes("residential");
+  const normalized = String(type || "")
+    .toLowerCase()
+    .trim();
+  return (
+    normalized.includes("commercial") || normalized.includes("residential")
+  );
 }
 
 function getCardPayload(item, kind) {
@@ -127,11 +142,14 @@ function getCardPayload(item, kind) {
     href: getProjectHref(source),
     image: getProjectImage(source),
     badge:
-      typeof source?.projectStatusName === "string" ? source.projectStatusName.trim() : "",
+      typeof source?.projectStatusName === "string"
+        ? source.projectStatusName.trim()
+        : "",
     title: cardTitle,
     propertyType: cleanMetaText(source?.propertyTypeName),
     meta:
-      (typeof source?.projectConfiguration === "string" && source.projectConfiguration.trim()) ||
+      (typeof source?.projectConfiguration === "string" &&
+        source.projectConfiguration.trim()) ||
       "Explore configurations on project page",
     location: getProjectLocation(source),
     price: formatProjectPrice(source?.projectPrice),
@@ -165,7 +183,9 @@ function SectionLoader({ cityName, overlay = false }) {
     >
       <span className="home-projects-preview__spinner" aria-hidden="true" />
       <span className="home-projects-preview__loading-text">
-        {cityName ? `Loading properties in ${cityName}…` : "Loading properties…"}
+        {cityName
+          ? `Loading properties in ${cityName}…`
+          : "Loading properties…"}
       </span>
     </div>
   );
@@ -182,9 +202,10 @@ export default function HomeRecommendationCards({
   loading = false,
   cityName = "",
   cityHref = "",
+  eagerImageCount = 0,
 }) {
   const safeItems = useMemo(
-    () => (Array.isArray(items) ? items.slice(0, 8) : []),
+    () => (Array.isArray(items) ? items.slice(0, 6) : []),
     [items],
   );
   const [visibleCount, setVisibleCount] = useState(4);
@@ -220,7 +241,8 @@ export default function HomeRecommendationCards({
    *  so the arrows scroll it instead of driving the track transform. */
   const scrollRailBy = useCallback((direction) => {
     const viewport = viewportRef.current;
-    if (!viewport || viewport.scrollWidth <= viewport.clientWidth + 1) return false;
+    if (!viewport || viewport.scrollWidth <= viewport.clientWidth + 1)
+      return false;
 
     const slide = viewport.querySelector(".home-projects-preview__slide");
     const step = slide?.getBoundingClientRect().width || viewport.clientWidth;
@@ -228,9 +250,14 @@ export default function HomeRecommendationCards({
     const target = viewport.scrollLeft + direction * step;
 
     viewport.scrollTo({
-      left: direction > 0
-        ? (target > maxScroll - 1 ? 0 : target)
-        : (target < 1 ? maxScroll : target),
+      left:
+        direction > 0
+          ? target > maxScroll - 1
+            ? 0
+            : target
+          : target < 1
+            ? maxScroll
+            : target,
       behavior: "smooth",
     });
     return true;
@@ -246,15 +273,21 @@ export default function HomeRecommendationCards({
     setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
   };
 
-  const showViewMore = Boolean(cityHref && !loading && safeItems.length < FEW_ITEMS_THRESHOLD);
+  const showViewMore = Boolean(
+    cityHref && !loading && safeItems.length < FEW_ITEMS_THRESHOLD,
+  );
   const viewMoreHref = cityHref || viewAllHref;
   const viewMoreLabel = getViewAllLabel(cityName, kind);
 
   const renderHead = () => (
     <div className="home-projects-preview__head">
       <div>
-        <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">{title}</h2>
-        {subtitle ? <p className="home-projects-preview__sub">{subtitle}</p> : null}
+        <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">
+          {title}
+        </h2>
+        {subtitle ? (
+          <p className="home-projects-preview__sub">{subtitle}</p>
+        ) : null}
       </div>
     </div>
   );
@@ -267,7 +300,13 @@ export default function HomeRecommendationCards({
         title={viewMoreLabel}
       >
         {viewMoreLabel}
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
             d="M5 12h14M13 6l6 6-6 6"
             stroke="currentColor"
@@ -287,7 +326,10 @@ export default function HomeRecommendationCards({
           className="home-projects-preview__more-card"
           title={viewMoreLabel}
         >
-          <span className="home-projects-preview__more-card-icon" aria-hidden="true">
+          <span
+            className="home-projects-preview__more-card-icon"
+            aria-hidden="true"
+          >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               <path
                 d="M5 12h14M13 6l6 6-6 6"
@@ -298,7 +340,9 @@ export default function HomeRecommendationCards({
               />
             </svg>
           </span>
-          <span className="home-projects-preview__more-card-label">{viewMoreLabel}</span>
+          <span className="home-projects-preview__more-card-label">
+            {viewMoreLabel}
+          </span>
         </Link>
       </div>
     ) : null;
@@ -323,7 +367,9 @@ export default function HomeRecommendationCards({
         aria-label={title}
       >
         {renderHead()}
-        {emptyMessage ? <p className="home-projects-preview__sub">{emptyMessage}</p> : null}
+        {emptyMessage ? (
+          <p className="home-projects-preview__sub">{emptyMessage}</p>
+        ) : null}
         {showViewMore ? (
           <div className="home-projects-preview__actions home-projects-preview__actions--end">
             {renderViewMoreLink()}
@@ -347,86 +393,144 @@ export default function HomeRecommendationCards({
           className={`home-projects-preview__viewport${loading ? " is-loading" : ""}`}
           ref={viewportRef}
         >
-        <div
-          className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}
-          style={trackStyle}
-        >
-          {safeItems.map((item, idx) => {
-            const card = getCardPayload(item, kind);
-            const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
-            const cardLinkTitle = card.title
-              ? `View ${card.title} on My Property Fact`
-              : "View project on My Property Fact";
-            const rowKey =
-              kind === "mixed"
-                ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
-                : card.key ?? idx;
-            return (
-              <div key={rowKey} className="home-projects-preview__slide">
-                <Link
-                  href={card.href}
-                  className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={card.title ? `View details about ${card.title}` : "View project details"}
-                  title={cardLinkTitle}
-                >
-<div className="home-project-card__media">
-  <div className="home-project-card__image-wrap">
-    <img
-      src={card.image}
-      alt={cardImageMeta}
-      title={cardImageMeta}
-      className="home-project-card__image"
-      loading="lazy"
-      decoding="async"
-    />
-  </div>
+          <div
+            className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}
+            style={trackStyle}
+          >
+            {safeItems.map((item, idx) => {
+              const card = getCardPayload(item, kind);
+              const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
+              const cardLinkTitle = card.title
+                ? `View ${card.title} on My Property Fact`
+                : "View project on My Property Fact";
+              const rowKey =
+                kind === "mixed"
+                  ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
+                  : (card.key ?? idx);
+              return (
+                <div key={rowKey} className="home-projects-preview__slide">
+                  <Link
+                    href={card.href}
+                    className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={
+                      card.title
+                        ? `View details about ${card.title}`
+                        : "View project details"
+                    }
+                    title={cardLinkTitle}
+                  >
+                    <div className="home-project-card__media">
+                      <div className="home-project-card__image-wrap">
+                        <img
+                          src={card.image}
+                          alt={cardImageMeta}
+                          title={cardImageMeta}
+                          className="home-project-card__image"
+                          width={400}
+                          height={360}
+                          loading={idx < eagerImageCount ? "eager" : "lazy"}
+                          fetchPriority={
+                            idx === 0 && eagerImageCount > 0 ? "high" : "low"
+                          }
+                          decoding="async"
+                        />
+                      </div>
 
-  <LuxuryPricePlaque price={card.price} />
+                      <LuxuryPricePlaque price={card.price} />
 
-  <ProjectStatusRibbon
-    status={card.badge}
-    className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
-  />
-</div>
-
-                  <div className="home-project-card__overlay">
-                    <div className="home-project-card__title-row">
-                      <h3 className="home-project-card__title">{card.title}</h3>
-                      {hasPropertyTypeTag(card.propertyType) ? (
-                        <PropertyTypeTag type={card.propertyType} className="mpf-type-tag--lux" />
-                      ) : null}
+                      <ProjectStatusRibbon
+                        status={card.badge}
+                        className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
+                      />
                     </div>
-                    <p className="home-project-card__meta">{card.meta}</p>
-                    <p className="home-project-card__location">
-                      <svg className="home-project-card__pin" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
-                        <path d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" stroke="currentColor" strokeWidth="1.8" />
-                        <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
-                      </svg>
-                      {card.location}
-                    </p>
-                    <div className="mpf-lux-card__bar">
-                      <span className="mpf-lux-card__action">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" width="15" height="15">
-                          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" stroke="currentColor" strokeWidth="1.7" />
-                          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.7" />
+
+                    <div className="home-project-card__overlay">
+                      <div className="home-project-card__title-row">
+                        <h3 className="home-project-card__title">
+                          {card.title}
+                        </h3>
+                        {hasPropertyTypeTag(card.propertyType) ? (
+                          <PropertyTypeTag
+                            type={card.propertyType}
+                            className="mpf-type-tag--lux"
+                          />
+                        ) : null}
+                      </div>
+                      <p className="home-project-card__meta">{card.meta}</p>
+                      <p className="home-project-card__location">
+                        <svg
+                          className="home-project-card__pin"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          aria-hidden
+                        >
+                          <path
+                            d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                          />
+                          <circle
+                            cx="12"
+                            cy="10"
+                            r="2.5"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                          />
                         </svg>
-                        <span>View Details</span>
-                      </span>
-                      <span className="mpf-lux-card__go" aria-hidden="true">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </span>
+                        {card.location}
+                      </p>
+                      <div className="mpf-lux-card__bar">
+                        <span className="mpf-lux-card__action">
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            aria-hidden="true"
+                            width="15"
+                            height="15"
+                          >
+                            <path
+                              d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"
+                              stroke="currentColor"
+                              strokeWidth="1.7"
+                            />
+                            <circle
+                              cx="12"
+                              cy="12"
+                              r="3"
+                              stroke="currentColor"
+                              strokeWidth="1.7"
+                            />
+                          </svg>
+                          <span>View Details</span>
+                        </span>
+                        <span className="mpf-lux-card__go" aria-hidden="true">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M5 12h14M13 6l6 6-6 6"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
-              </div>
-            );
-          })}
-          {renderViewMoreCard()}
-        </div>
+                  </Link>
+                </div>
+              );
+            })}
+            {renderViewMoreCard()}
+          </div>
         </div>
       </div>
 
@@ -441,7 +545,13 @@ export default function HomeRecommendationCards({
               title={viewMoreLabel}
             >
               {viewMoreLabel}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                aria-hidden="true"
+              >
                 <path
                   d="M5 12h14M13 6l6 6-6 6"
                   stroke="currentColor"
@@ -453,7 +563,10 @@ export default function HomeRecommendationCards({
             </Link>
           ) : null}
           {canSlide ? (
-            <div className="home-projects-preview__nav" aria-label={`${title} navigation`}>
+            <div
+              className="home-projects-preview__nav"
+              aria-label={`${title} navigation`}
+            >
               <button
                 type="button"
                 className="home-projects-preview__nav-btn"

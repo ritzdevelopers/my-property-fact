@@ -248,7 +248,7 @@ export default function PropertyContainer({
               width={400}
               height={360}
               loading={imagePriority ? "eager" : "lazy"}
-              fetchPriority="auto"
+              fetchPriority={imagePriority ? "high" : "low"}
               decoding="async"
               draggable={false}
               onError={() => setImageError(true)}

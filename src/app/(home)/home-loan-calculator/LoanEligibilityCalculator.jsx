@@ -558,7 +558,7 @@ export default function LoanEligibilityCalculator() {
             </p>
           </div>
 
-          <aside className={`${styles.smartCard} ${manrope.className}`}>
+          {/* <aside className={`${styles.smartCard} ${manrope.className}`}>
             <div className={styles.smartCardHead}>
               <span className={styles.smartCardIcon} aria-hidden="true">
                 <img
@@ -568,27 +568,10 @@ export default function LoanEligibilityCalculator() {
                   height={27}
                 />
               </span>
-              <div className={styles.smartCardCopy}>
+              {/* <div className={styles.smartCardCopy}>
                 <h2 className={plusJakarta.className}>Smart Calculator</h2>
                 <p>Estimate your purchasing power instantly</p>
-              </div>
-            </div>
-            <div className={styles.smartCardDivider} aria-hidden="true" />
-            <div className={styles.smartCardStats}>
-              <div>
-                <strong>Instant Approval</strong>
-                <span>Verified Rates</span>
-              </div>
-              <div>
-                <strong>8.5% p.a.</strong>
-                <span>Verified Rates</span>
-              </div>
-              <div>
-                <strong>Up to 30 Yrs</strong>
-                <span>Verified Rates</span>
-              </div>
-            </div>
-          </aside>
+              </div> */}
         </div>
       </section>
 

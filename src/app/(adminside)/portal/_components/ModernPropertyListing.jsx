@@ -1187,16 +1187,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       // Add property data as JSON string (backend will parse it)
       appendPropertyJsonPart(formDataObj, propertyData);
 
-      const result =
-        isEditMode && listingId
-          ? await patchPropertyListing(listingId, formDataObj)
-          : (
-              await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`,
-                formDataObj,
-                { withCredentials: true },
-              )
-            ).data;
+      const result = await persistPropertyListing(formDataObj);
       if (!(result && result.success)) {
         const message =
           result?.message ||
@@ -1231,7 +1222,11 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       }
     } catch (error) {
       console.error("Error submitting property:", error);
-      alert(error.message || "Error submitting property. Please try again.");
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        "Error submitting property. Please try again.";
+      alert(message);
     } finally {
       setIsSubmitting(false);
     }
@@ -1250,37 +1245,21 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     setDraftSaved(false);
   };
 
+  const persistPropertyListing = async (formDataObj) => {
+    const url = `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`;
+    const config = { withCredentials: true };
+    const { data } =
+      isEditMode && listingId
+        ? await axios.put(`${url}/${listingId}`, formDataObj, config)
+        : await axios.post(url, formDataObj, config);
+    return data;
+  };
+
   const appendPropertyJsonPart = (formDataObj, propertyData) => {
     formDataObj.append(
       "property",
       new Blob([JSON.stringify(propertyData)], { type: "application/json" }),
     );
-  };
-
-  const patchPropertyListing = async (id, formDataObj) => {
-    const token = Cookies.get("token");
-    const response = await fetch(`/api/v1/user/property-listings/${id}`, {
-      method: "PATCH",
-      body: formDataObj,
-      credentials: "include",
-      headers: token ? { Authorization: `Bearer ${token}` } : {},
-    });
-
-    let result = null;
-    try {
-      result = await response.json();
-    } catch {
-      result = null;
-    }
-
-    if (!response.ok || !(result && result.success)) {
-      const message =
-        result?.message ||
-        `Failed to update property (status ${response.status})`;
-      throw new Error(message);
-    }
-
-    return result;
   };
 
   // Helper function to prepare property data (shared between draft and submit)
@@ -1469,16 +1448,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       // Add property data as JSON string
       appendPropertyJsonPart(formDataObj, propertyData);
 
-      const result =
-        isEditMode && listingId
-          ? await patchPropertyListing(listingId, formDataObj)
-          : (
-              await axios.post(
-                `${process.env.NEXT_PUBLIC_API_URL}user/property-listings`,
-                formDataObj,
-                { withCredentials: true },
-              )
-            ).data;
+      const result = await persistPropertyListing(formDataObj);
       if (!(result && result.success)) {
         const message =
           result?.message ||
@@ -1509,7 +1479,11 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      alert(error.message || "Error saving draft. Please try again.");
+      const message =
+        error?.response?.data?.message ||
+        error.message ||
+        "Error saving draft. Please try again.";
+      alert(message);
     } finally {
       setIsSavingDraft(false);
     }

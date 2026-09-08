@@ -302,6 +302,10 @@
   animation: lecAmountPulse 0.9s ease-in-out infinite;
 }
 
+.resultCardIdle {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdfc 100%);
+}
+
 @keyframes lecAmountPulse {
   0%,
   100% {
@@ -745,6 +749,48 @@
   letter-spacing: 0;
 }
 
+.resultCardIdle .resultAmount {
+  display: flex;
+  align-items: center;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skeletonValue {
+  display: inline-block;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e8eeea 0%, #f3f7f4 42%, #e8eeea 100%);
+  background-size: 200% 100%;
+  animation: lecShimmer 1.4s ease-in-out infinite;
+  vertical-align: middle;
+}
+
+.amountSkeleton {
+  display: block;
+  height: 34px;
+  border-radius: 10px;
+}
+
+@keyframes lecShimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 .resultNote {
   display: flex;
   align-items: center;
@@ -828,10 +874,28 @@
 }
 
 .chartBlock h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 0 0 16px;
   color: #111827;
   font-size: 16px;
   font-weight: 700;
+}
+
+.previewTag {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #eef6f1;
+  color: #0d5834;
+  font-size: 11px;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .chartRow {
@@ -840,60 +904,37 @@
   gap: 24px;
 }
 
-.donut {
+.pie {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 132px;
+  height: 132px;
   flex-shrink: 0;
   transform-origin: center;
 }
 
-.donutSvg {
+.pieSvg {
   display: block;
-  width: 120px;
-  height: 120px;
+  width: 132px;
+  height: 132px;
+  overflow: visible;
 }
 
-.donutTrack,
-.donutArc {
-  fill: none;
-  stroke-width: 18;
+.piePreview {
+  opacity: 0.82;
 }
 
-.donutTrack {
-  stroke: #0d5834;
+.piePrincipalSlice {
+  fill: rgb(75, 192, 192);
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
-.donutArc {
-  stroke: #1e824c;
-  stroke-linecap: butt;
-}
-
-.donutHole {
-  position: absolute;
-  inset: 22px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #fff;
-  color: #0d5834;
-  pointer-events: none;
-}
-
-.donutHole strong {
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.donutHole em {
-  margin-top: 2px;
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 500;
-  color: #4b5563;
+.pieInterestSlice {
+  fill: rgb(255, 99, 132);
+  stroke: #fff;
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 .legend {
@@ -920,11 +961,11 @@
 }
 
 .legendPrincipal {
-  background: #1e824c;
+  background: rgb(75, 192, 192);
 }
 
 .legendInterest {
-  background: #0d5834;
+  background: rgb(255, 99, 132);
 }
 
 .legend strong {
@@ -1406,10 +1447,10 @@
     gap: 16px;
   }
 
-  .donut,
-  .donutSvg {
-    width: 104px;
-    height: 104px;
+  .pie,
+  .pieSvg {
+    width: 112px;
+    height: 112px;
   }
 
   .howInner {
@@ -1699,6 +1740,14 @@
     overflow-wrap: anywhere;
   }
 
+  .resultCardIdle .resultAmount {
+    justify-content: center;
+  }
+
+  .amountSkeleton {
+    margin-inline: auto;
+  }
+
   .resultNote {
     align-items: flex-start;
     width: 100%;
@@ -1734,7 +1783,7 @@
   }
 
   .chartBlock h3 {
-    text-align: center;
+    justify-content: center;
   }
 
   .chartRow {
@@ -1749,10 +1798,10 @@
     max-width: 100%;
   }
 
-  .donut,
-  .donutSvg {
-    width: 96px;
-    height: 96px;
+  .pie,
+  .pieSvg {
+    width: 108px;
+    height: 108px;
   }
 
   .howSection {
@@ -1905,7 +1954,8 @@
 
   .btnSpinner,
   .resultCardCalculating .resultAmount,
-  .selectMenu {
+  .selectMenu,
+  .skeletonValue {
     animation: none;
   }
 }

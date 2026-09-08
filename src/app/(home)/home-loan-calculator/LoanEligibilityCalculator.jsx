@@ -191,8 +191,38 @@ function CustomSelect({
   );
 }
 
-const DONUT_RADIUS = 46;
-const DONUT_CIRC = 2 * Math.PI * DONUT_RADIUS;
+const PIE_CX = 60;
+const PIE_CY = 60;
+const PIE_R = 56;
+
+function polarToCartesian(cx, cy, r, angleDeg) {
+  const rad = ((angleDeg - 90) * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
+}
+
+function describeSlice(startPct, endPct) {
+  const span = Math.max(0, Math.min(100, endPct - startPct));
+  if (span <= 0.05) return "";
+  if (span >= 99.95) {
+    return `M ${PIE_CX - PIE_R} ${PIE_CY} a ${PIE_R} ${PIE_R} 0 1 1 ${PIE_R * 2} 0 a ${PIE_R} ${PIE_R} 0 1 1 ${-PIE_R * 2} 0`;
+  }
+  const start = polarToCartesian(PIE_CX, PIE_CY, PIE_R, startPct * 3.6);
+  const end = polarToCartesian(PIE_CX, PIE_CY, PIE_R, endPct * 3.6);
+  const large = span > 50 ? 1 : 0;
+  return `M ${PIE_CX} ${PIE_CY} L ${start.x} ${start.y} A ${PIE_R} ${PIE_R} 0 ${large} 1 ${end.x} ${end.y} Z`;
+}
+
+const PREVIEW_PRINCIPAL_PCT = 62;
+
+function SkeletonValue({ width = 88, className }) {
+  return (
+    <span
+      className={`${styles.skeletonValue}${className ? ` ${className}` : ""}`}
+      style={{ width }}
+      aria-hidden="true"
+    />
+  );
+}
 
 const EMPTY_RESULT = {
   eligibleAmount: 0,
@@ -226,8 +256,9 @@ export default function LoanEligibilityCalculator() {
   const [openSelect, setOpenSelect] = useState(null);
 
   const resultCardRef = useRef(null);
-  const donutRef = useRef(null);
-  const donutArcRef = useRef(null);
+  const pieRef = useRef(null);
+  const piePrincipalRef = useRef(null);
+  const pieInterestRef = useRef(null);
   const howSectionRef = useRef(null);
   const calcTimerRef = useRef(null);
   const calcIdRef = useRef(0);
@@ -246,7 +277,16 @@ export default function LoanEligibilityCalculator() {
   const display = result || EMPTY_RESULT;
   const principalPct = Math.max(0, Math.min(100, Math.round(display.principalPercent)));
   const interestPct = Math.max(0, 100 - principalPct);
-  const donutDash = `${(principalPct / 100) * DONUT_CIRC} ${DONUT_CIRC}`;
+
+  const applyPieSlices = (principalNow) => {
+    const p = Math.max(0, Math.min(100, principalNow));
+    if (piePrincipalRef.current) {
+      piePrincipalRef.current.setAttribute("d", describeSlice(0, p));
+    }
+    if (pieInterestRef.current) {
+      pieInterestRef.current.setAttribute("d", describeSlice(p, 100));
+    }
+  };
 
   const updateField = (name, value) => {
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -328,7 +368,7 @@ export default function LoanEligibilityCalculator() {
     const fromZero = !liveUpdateRef.current;
     liveUpdateRef.current = false;
     const reduce = prefersReducedMotion();
-    const principalLen = result.notEligible ? 0 : (principalPct / 100) * DONUT_CIRC;
+    const piePrincipal = result.notEligible ? 0 : principalPct;
     const eligibleLabel =
       result.notEligible ? "₹ —" : formatINR(result.eligibleAmount);
 
@@ -339,7 +379,6 @@ export default function LoanEligibilityCalculator() {
       setLecText(root, "tenure", `${result.tenureYears} Years`);
       setLecText(root, "interest", formatINR(result.totalInterest));
       setLecText(root, "total", formatINR(result.totalPayable));
-      setLecText(root, "donutPct", `${principalPct}%`);
       setLecText(
         root,
         "legendPrincipal",
@@ -350,12 +389,7 @@ export default function LoanEligibilityCalculator() {
         "legendInterest",
         `${formatINR(result.totalInterest)} (${interestPct}%)`,
       );
-      if (donutArcRef.current) {
-        donutArcRef.current.setAttribute(
-          "stroke-dasharray",
-          `${principalLen} ${DONUT_CIRC}`,
-        );
-      }
+      applyPieSlices(piePrincipal);
       lastValuesRef.current = {
         eligible: result.notEligible ? 0 : result.eligibleAmount,
         emi: result.monthlyEmi,
@@ -402,7 +436,6 @@ export default function LoanEligibilityCalculator() {
       setLecText(root, "tenure", `${Math.round(proxy.tenure)} Years`);
       setLecText(root, "interest", formatINR(proxy.interest));
       setLecText(root, "total", formatINR(proxy.total));
-      setLecText(root, "donutPct", `${principalNow}%`);
       setLecText(
         root,
         "legendPrincipal",
@@ -413,10 +446,7 @@ export default function LoanEligibilityCalculator() {
         "legendInterest",
         `${formatINR(proxy.interest)} (${Math.max(0, 100 - principalNow)}%)`,
       );
-      if (donutArcRef.current) {
-        const len = (proxy.principal / 100) * DONUT_CIRC;
-        donutArcRef.current.setAttribute("stroke-dasharray", `${len} ${DONUT_CIRC}`);
-      }
+      applyPieSlices(result.notEligible ? 0 : principalNow);
     };
 
     const ctx = gsap.context(() => {
@@ -446,9 +476,9 @@ export default function LoanEligibilityCalculator() {
             0.16,
           );
         }
-        if (donutRef.current) {
+        if (pieRef.current) {
           tl.from(
-            donutRef.current,
+            pieRef.current,
             { scale: 0.84, duration: 0.55, ease: "back.out(1.4)" },
             0.28,
           );
@@ -725,7 +755,7 @@ export default function LoanEligibilityCalculator() {
             ref={resultCardRef}
             className={`${styles.resultCard} ${manrope.className}${
               isCalculating ? ` ${styles.resultCardCalculating}` : ""
-            }`}
+            }${!hasCalculated ? ` ${styles.resultCardIdle}` : ""}`}
             aria-busy={isCalculating || isRevealing}
             aria-live={isCalculating || isRevealing ? "off" : "polite"}
           >
@@ -735,9 +765,16 @@ export default function LoanEligibilityCalculator() {
                 className={`${styles.resultAmount} ${plusJakarta.className}`}
                 data-lec-val="eligible"
               >
-                {hasCalculated && !display.notEligible
-                  ? formatINR(display.eligibleAmount)
-                  : "₹ —"}
+                {hasCalculated ? (
+                  display.notEligible ? "₹ —" : formatINR(display.eligibleAmount)
+                ) : (
+                  <>
+                    <span className={styles.visuallyHidden}>
+                      Amount appears after you calculate eligibility
+                    </span>
+                    <SkeletonValue width={220} className={styles.amountSkeleton} />
+                  </>
+                )}
               </p>
             </div>
 
@@ -759,7 +796,7 @@ export default function LoanEligibilityCalculator() {
                       ? display.tenureCapped
                         ? `Estimate based on your details. Tenure is capped at ${display.tenureYears} years for retirement age.`
                         : "Your estimated loan amount is based on your provided details."
-                      : "Enter your details and tap Calculate Eligibility to see your estimate."}
+                      : "Fill in your details on the left and tap Calculate Eligibility. Your estimate will show up here."}
               </span>
             </div>
 
@@ -770,7 +807,7 @@ export default function LoanEligibilityCalculator() {
                   Estimated Monthly EMI
                 </span>
                 <strong data-lec-val="emi">
-                  {hasCalculated ? formatINR(display.monthlyEmi) : "₹ —"}
+                  {hasCalculated ? formatINR(display.monthlyEmi) : <SkeletonValue width={96} />}
                 </strong>
               </li>
               <li data-lec-row="">
@@ -779,7 +816,9 @@ export default function LoanEligibilityCalculator() {
                   Interest Rate
                 </span>
                 <strong data-lec-val="rate">
-                  {hasCalculated ? `${formatPercent(display.interestRate)} p.a.` : "—"}
+                  {hasCalculated
+                    ? `${formatPercent(display.interestRate)} p.a.`
+                    : `${formatPercent(form.interestRate)} p.a.`}
                 </strong>
               </li>
               <li data-lec-row="">
@@ -788,7 +827,9 @@ export default function LoanEligibilityCalculator() {
                   Loan Tenure
                 </span>
                 <strong data-lec-val="tenure">
-                  {hasCalculated ? `${display.tenureYears} Years` : "—"}
+                  {hasCalculated
+                    ? `${display.tenureYears} Years`
+                    : `${form.tenureYears} Years`}
                 </strong>
               </li>
               <li data-lec-row="">
@@ -797,7 +838,7 @@ export default function LoanEligibilityCalculator() {
                   Total Interest Payable
                 </span>
                 <strong data-lec-val="interest">
-                  {hasCalculated ? formatINR(display.totalInterest) : "₹ —"}
+                  {hasCalculated ? formatINR(display.totalInterest) : <SkeletonValue width={104} />}
                 </strong>
               </li>
               <li data-lec-row="">
@@ -806,38 +847,42 @@ export default function LoanEligibilityCalculator() {
                   Total Amount Payable
                 </span>
                 <strong data-lec-val="total">
-                  {hasCalculated ? formatINR(display.totalPayable) : "₹ —"}
+                  {hasCalculated ? formatINR(display.totalPayable) : <SkeletonValue width={112} />}
                 </strong>
               </li>
             </ul>
 
             <div className={styles.chartBlock}>
-              <h3>EMI Breakdown</h3>
+              <h3>
+                EMI Breakdown
+                {!hasCalculated ? <em className={styles.previewTag}>Preview</em> : null}
+              </h3>
               <div className={styles.chartRow}>
-                <div ref={donutRef} className={styles.donut} aria-hidden="true">
-                  <svg viewBox="0 0 120 120" className={styles.donutSvg}>
-                    <circle
-                      className={styles.donutTrack}
-                      cx="60"
-                      cy="60"
-                      r={DONUT_RADIUS}
+                <div
+                  ref={pieRef}
+                  className={`${styles.pie}${!hasCalculated ? ` ${styles.piePreview}` : ""}`}
+                  aria-hidden="true"
+                >
+                  <svg viewBox="0 0 120 120" className={styles.pieSvg}>
+                    <path
+                      ref={pieInterestRef}
+                      className={styles.pieInterestSlice}
+                      d={
+                        hasCalculated
+                          ? describeSlice(principalPct, 100)
+                          : describeSlice(PREVIEW_PRINCIPAL_PCT, 100)
+                      }
                     />
-                    <circle
-                      ref={donutArcRef}
-                      className={styles.donutArc}
-                      cx="60"
-                      cy="60"
-                      r={DONUT_RADIUS}
-                      transform="rotate(-90 60 60)"
-                      strokeDasharray={hasCalculated ? donutDash : `0 ${DONUT_CIRC}`}
+                    <path
+                      ref={piePrincipalRef}
+                      className={styles.piePrincipalSlice}
+                      d={
+                        hasCalculated
+                          ? describeSlice(0, principalPct)
+                          : describeSlice(0, PREVIEW_PRINCIPAL_PCT)
+                      }
                     />
                   </svg>
-                  <div className={styles.donutHole}>
-                    <strong data-lec-val="donutPct">
-                      {hasCalculated ? `${principalPct}%` : "—"}
-                    </strong>
-                    <em>Principal</em>
-                  </div>
                 </div>
                 <ul className={styles.legend}>
                   <li data-lec-legend="">
@@ -845,9 +890,11 @@ export default function LoanEligibilityCalculator() {
                     <div>
                       <strong>Principal Amount</strong>
                       <span data-lec-val="legendPrincipal">
-                        {hasCalculated
-                          ? `${formatINR(display.eligibleAmount)} (${principalPct}%)`
-                          : "₹ —"}
+                        {hasCalculated ? (
+                          `${formatINR(display.eligibleAmount)} (${principalPct}%)`
+                        ) : (
+                          <SkeletonValue width={120} />
+                        )}
                       </span>
                     </div>
                   </li>
@@ -856,9 +903,11 @@ export default function LoanEligibilityCalculator() {
                     <div>
                       <strong>Interest Amount</strong>
                       <span data-lec-val="legendInterest">
-                        {hasCalculated
-                          ? `${formatINR(display.totalInterest)} (${interestPct}%)`
-                          : "₹ —"}
+                        {hasCalculated ? (
+                          `${formatINR(display.totalInterest)} (${interestPct}%)`
+                        ) : (
+                          <SkeletonValue width={108} />
+                        )}
                       </span>
                     </div>
                   </li>

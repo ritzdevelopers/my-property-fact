@@ -440,6 +440,7 @@ const STATIC_PUBLIC_PAGES = [
   { loc: "/projects",                priority: 0.68, changefreq: "weekly"  },
   { loc: "/blog",                    priority: 0.68, changefreq: "weekly"  },
   { loc: "/emi-calculator",          priority: 0.68, changefreq: "monthly" },
+  { loc: "/home-loan-calculator",    priority: 0.68, changefreq: "monthly" },
   { loc: "/market-analysis",         priority: 0.68, changefreq: "weekly"  },
   { loc: "/property-rate-and-trend", priority: 0.68, changefreq: "weekly"  },
   { loc: "/locate-score",            priority: 0.68, changefreq: "weekly"  },

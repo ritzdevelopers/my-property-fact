@@ -521,6 +521,10 @@ letter-spacing: 0%;
     padding-bottom: 56px;
 }
 
+body:has([data-lec-page]) .new-footer-design {
+    background: #f7f7f7f7;
+}
+
 @media (max-width: 768px) {
     .footer-city-links-container,
     .new-footer-design.no-newsletter .footer-city-links-container {

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -82,6 +82,9 @@ export default function PropertyDetailClient({
   const [lightboxImageIndex, setLightboxImageIndex] = useState(0);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [tabsPinned, setTabsPinned] = useState(false);
+  const tabsSlotRef = useRef(null);
+  const tabsBarRef = useRef(null);
   const [descExpanded, setDescExpanded] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
@@ -174,6 +177,32 @@ export default function PropertyDetailClient({
     return () => document.body.classList.remove("mpf-pdp-listing");
   }, []);
 
+  useLayoutEffect(() => {
+    const slot = tabsSlotRef.current;
+    const bar = tabsBarRef.current;
+    if (!slot || !bar) return undefined;
+    const header = document.querySelector(".header");
+
+    const syncTabsPin = () => {
+      const headerHidden = header?.classList.contains("header-hidden");
+      const headerBottom = headerHidden
+        ? 0
+        : Math.max(0, Math.round(header?.getBoundingClientRect?.().bottom || 0));
+      const pinTop = headerBottom || (headerHidden ? 0 : 76);
+      document.documentElement.style.setProperty("--pdp-pin-top", `${pinTop}px`);
+      slot.style.setProperty("--pdp-tab-h", `${bar.offsetHeight}px`);
+      setTabsPinned(slot.getBoundingClientRect().top <= pinTop + 1);
+    };
+
+    syncTabsPin();
+    window.addEventListener("scroll", syncTabsPin, { passive: true });
+    window.addEventListener("resize", syncTabsPin);
+    return () => {
+      window.removeEventListener("scroll", syncTabsPin);
+      window.removeEventListener("resize", syncTabsPin);
+    };
+  }, [property]);
+
   // Smooth scroll behavior
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -183,13 +212,20 @@ export default function PropertyDetailClient({
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      const headerOffset = 156; // site header + sticky section tabs
+      const headerOffset =
+        (parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--pdp-pin-top",
+          ),
+        ) || 76) +
+        (tabsBarRef.current?.offsetHeight || 52) +
+        8;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition =
         elementPosition + window.pageYOffset - headerOffset;
 
       window.scrollTo({
-        top: offsetPosition,
+        top: Math.max(0, offsetPosition),
         behavior: "smooth",
       });
     }
@@ -206,7 +242,15 @@ export default function PropertyDetailClient({
         { id: "recommendation-section", tab: "Articles" },
       ];
 
-      const scrollPosition = window.scrollY + 180;
+      const scrollPosition =
+        window.scrollY +
+        (parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            "--pdp-pin-top",
+          ),
+        ) || 76) +
+        (tabsBarRef.current?.offsetHeight || 52) +
+        16;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = document.getElementById(sections[i].id);
@@ -220,7 +264,7 @@ export default function PropertyDetailClient({
       }
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [property]);
 
@@ -682,25 +726,7 @@ export default function PropertyDetailClient({
 
   return (
     <div className={`pdp99 ${isBroker ? "pdp99--broker" : "pdp99--owner"}`}>
-      <div className="pdp99-tabsbar">
-        <div className="pdp99-wrap pdp99-tabsbar__inner">
-          {navTabs.map((item) => (
-            <button
-              key={item.tab}
-              type="button"
-              className={`pdp99-tab${activeTab === item.tab ? " is-active" : ""}`}
-              onClick={() => {
-                setActiveTab(item.tab);
-                scrollToSection(item.id);
-              }}
-            >
-              {item.tab}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="pdp99-wrap">
+      <div className="pdp99-wrap pdp99-hero-block">
         <nav className="pdp99-crumb" aria-label="Breadcrumb">
           <Link href="/">Home</Link>
           <span className="pdp99-crumb__sep">›</span>
@@ -902,7 +928,36 @@ export default function PropertyDetailClient({
             <span>Possession</span>
           </div>
         </div>
+      </div>
 
+      <div
+        ref={tabsSlotRef}
+        className={`pdp99-tabsbar-slot${tabsPinned ? " is-pinned" : ""}`}
+      >
+      <nav
+        ref={tabsBarRef}
+        className={`pdp99-tabsbar${tabsPinned ? " is-stuck" : ""}`}
+        aria-label="Property sections"
+      >
+        <div className="pdp99-wrap pdp99-tabsbar__inner">
+          {navTabs.map((item) => (
+            <button
+              key={item.tab}
+              type="button"
+              className={`pdp99-tab${activeTab === item.tab ? " is-active" : ""}`}
+              onClick={() => {
+                setActiveTab(item.tab);
+                scrollToSection(item.id);
+              }}
+            >
+              {item.tab}
+            </button>
+          ))}
+        </div>
+      </nav>
+      </div>
+
+      <div className="pdp99-wrap pdp99-body-block">
         <div className="pdp99-layout">
           <div className="pdp99-main">
             <section id="overview-section" className="pdp99-card">

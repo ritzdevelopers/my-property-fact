@@ -1,11 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { goToEldecoThankYou } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import styles from "./page.module.css";
 
-const STORAGE_KEY = "eldeco-lead-form-submitted";
+const SESSION_KEY = "eldeco-lead-form-submitted";
+const INITIAL_OPEN_MS = 15000;
+const REOPEN_INTERVAL_MS = 30000;
+
 export const OPEN_LEAD_POPUP_EVENT = "open-lead-popup";
 
 function LeadPopup() {
@@ -13,35 +16,40 @@ function LeadPopup() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const hasOpenedOnceRef = useRef(false);
 
   useEffect(() => {
-    const hasSubmitted = window.localStorage.getItem(STORAGE_KEY) === "true";
-
-    if (hasSubmitted) {
+    if (window.sessionStorage.getItem(SESSION_KEY) === "true") {
       setIsSubmitted(true);
-      return;
     }
-
-    setIsOpen(true);
   }, []);
 
   useEffect(() => {
-    if (isOpen || isSubmitted) {
+    if (isSubmitted || isOpen) {
       return;
     }
 
-    const timeoutId = window.setTimeout(() => {
-      setIsOpen(true);
-    }, 20000);
+    if (!hasOpenedOnceRef.current) {
+      const initialTimeoutId = window.setTimeout(() => {
+        hasOpenedOnceRef.current = true;
+        setIsOpen(true);
+      }, INITIAL_OPEN_MS);
 
-    return () => window.clearTimeout(timeoutId);
+      return () => window.clearTimeout(initialTimeoutId);
+    }
+
+    const reopenIntervalId = window.setInterval(() => {
+      setIsOpen(true);
+    }, REOPEN_INTERVAL_MS);
+
+    return () => window.clearInterval(reopenIntervalId);
   }, [isOpen, isSubmitted]);
 
   useEffect(() => {
     const openPopup = () => {
+      hasOpenedOnceRef.current = true;
       setFormError("");
       setIsSubmitting(false);
-      setIsSubmitted(false);
       setIsOpen(true);
     };
 
@@ -50,12 +58,19 @@ function LeadPopup() {
     return () => window.removeEventListener(OPEN_LEAD_POPUP_EVENT, openPopup);
   }, []);
 
+  const handleClose = () => {
+    if (isSubmitting) return;
+    setIsOpen(false);
+  };
+
   const handleSubmit = async (event) => {
     try {
       setIsSubmitting(true);
       setFormError("");
       await handleLeadFormSubmit(event);
-      window.localStorage.setItem(STORAGE_KEY, "true");
+      window.sessionStorage.setItem(SESSION_KEY, "true");
+      setIsSubmitted(true);
+      setIsOpen(false);
       goToEldecoThankYou();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Something went wrong.");
@@ -63,7 +78,7 @@ function LeadPopup() {
     }
   };
 
-  if (!isOpen || isSubmitted) {
+  if (!isOpen) {
     return null;
   }
 
@@ -73,7 +88,7 @@ function LeadPopup() {
         <button
           type="button"
           aria-label="Close popup form"
-          onClick={() => setIsOpen(false)}
+          onClick={handleClose}
           disabled={isSubmitting}
           className="absolute right-5 top-5 text-2xl leading-none text-neutral-500 transition hover:text-black"
         >

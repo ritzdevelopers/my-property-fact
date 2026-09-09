@@ -130,13 +130,21 @@ const HeaderComponent = () => {
   const locationRequestIdRef = useRef(0);
   const locationDropdownRef = useRef(null);
   const locationMenuRef = useRef(null);
+  const selectedCityRef = useRef("");
+  const programmaticScrollRef = useRef(false);
+  const cityListingsScrollTimerRef = useRef(null);
   const pathname = usePathname();
+  const pathnameRef = useRef(pathname);
   const router = useRouter();
 
   // Defer dropdown content until after mount to avoid hydration mismatch (data + motion)
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -242,6 +250,12 @@ const HeaderComponent = () => {
       // Only update scroll state if menu is not open
       if (!isMenuOpen) {
         const currentY = window.scrollY;
+        if (programmaticScrollRef.current) {
+          setIsScrolled(currentY > 100);
+          setHeaderVisible(true);
+          lastScrollYRef.current = currentY;
+          return;
+        }
         if (currentY > 100) {
           setIsScrolled(true);
           // Hide header when scrolling down, show when scrolling up
@@ -595,9 +609,52 @@ const HeaderComponent = () => {
     return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
   };
 
-  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false } = {}) => {
+  const scrollToHomeCityListings = useCallback(() => {
+    if (typeof window === "undefined" || pathnameRef.current !== "/") return;
+
+    if (cityListingsScrollTimerRef.current) {
+      window.clearTimeout(cityListingsScrollTimerRef.current);
+      cityListingsScrollTimerRef.current = null;
+    }
+
+    const run = () => {
+      const target = document.getElementById("new-property-launches");
+      if (!target) return;
+
+      programmaticScrollRef.current = true;
+      setHeaderVisible(true);
+
+      const header = document.querySelector(".header");
+      const headerHeight = header?.getBoundingClientRect().height || 80;
+      const desiredTop = headerHeight + 16;
+      const currentTop = target.getBoundingClientRect().top;
+      const alreadyInPlace = Math.abs(currentTop - desiredTop) < 28;
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (!alreadyInPlace) {
+        const top = window.scrollY + currentTop - desiredTop;
+        window.scrollTo({
+          top: Math.max(0, top),
+          behavior: reduceMotion ? "auto" : "smooth",
+        });
+      }
+
+      cityListingsScrollTimerRef.current = window.setTimeout(() => {
+        programmaticScrollRef.current = false;
+        lastScrollYRef.current = window.scrollY;
+        setHeaderVisible(true);
+        cityListingsScrollTimerRef.current = null;
+      }, reduceMotion ? 80 : 1000);
+    };
+
+    // Wait for the location sheet to close so body overflow is restored.
+    cityListingsScrollTimerRef.current = window.setTimeout(run, 180);
+  }, []);
+
+  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false } = {}) => {
     const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
     setSelectedCity(nextCity);
+    selectedCityRef.current = nextCity;
     try {
       if (isSpecificCity(nextCity)) {
         window.localStorage.setItem("mpf_header_city", nextCity);
@@ -613,7 +670,8 @@ const HeaderComponent = () => {
       }),
     );
     if (!skipToast) showMobileLocationToast(forceToast);
-  }, []);
+    if (scrollToListings) scrollToHomeCityListings();
+  }, [scrollToHomeCityListings]);
 
   /** City from IP only (no lat/lon). If that city has no listings, API returns Delhi NCR. */
   const resolveFromIpCity = useCallback(async () => {
@@ -649,13 +707,13 @@ const HeaderComponent = () => {
   }, []);
 
   const requestBrowserLocation = useCallback(
-    ({ forceToast = false, preferGps = true } = {}) => {
+    ({ forceToast = false, preferGps = true, scrollToListings = false } = {}) => {
       const requestId = ++locationRequestIdRef.current;
       setIsLocating(true);
 
       const applyIfCurrent = (city, opts = {}) => {
         if (requestId !== locationRequestIdRef.current) return;
-        finishWithCity(city, { forceToast, ...opts });
+        finishWithCity(city, { forceToast, scrollToListings, ...opts });
         setIsLocating(false);
       };
 
@@ -726,6 +784,7 @@ const HeaderComponent = () => {
       const saved = window.localStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
         setSelectedCity(saved);
+        selectedCityRef.current = saved;
         showMobileLocationToast();
       }
     } catch {
@@ -737,6 +796,10 @@ const HeaderComponent = () => {
 
     return () => {
       locationRequestIdRef.current += 1;
+      if (cityListingsScrollTimerRef.current) {
+        window.clearTimeout(cityListingsScrollTimerRef.current);
+        cityListingsScrollTimerRef.current = null;
+      }
     };
   }, [requestBrowserLocation]);
 
@@ -775,12 +838,15 @@ const HeaderComponent = () => {
 
   const handleSelectLocationCity = (cityName) => {
     setShowLocationMenu(false);
-    finishWithCity(cityName, { forceToast: true });
+    const next = String(cityName || "").trim();
+    const prev = String(selectedCityRef.current || "").trim();
+    const changed = next.toLowerCase() !== prev.toLowerCase();
+    finishWithCity(cityName, { forceToast: true, scrollToListings: changed });
   };
 
   const handleUseCurrentLocation = () => {
     setShowLocationMenu(false);
-    requestBrowserLocation({ forceToast: true, preferGps: true });
+    requestBrowserLocation({ forceToast: true, preferGps: true, scrollToListings: true });
   };
 
   const locationMenuContent = (

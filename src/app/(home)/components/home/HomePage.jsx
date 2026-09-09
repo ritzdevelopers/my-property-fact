@@ -225,6 +225,7 @@ export default async function HomePage() {
             kind="project"
             locationIntent="projects"
             viewAllHref="/projects"
+            sectionId="new-property-launches"
             className="recommended-properties-section"
             eagerImageCount={2}
           />,

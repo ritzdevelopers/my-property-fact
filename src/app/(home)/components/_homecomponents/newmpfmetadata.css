@@ -279,6 +279,10 @@
   padding-bottom: 28px;
 }
 
+#new-property-launches {
+  scroll-margin-top: 96px;
+}
+
 .home-projects-preview__head {
   display: flex;
   align-items: center;

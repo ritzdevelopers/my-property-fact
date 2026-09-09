@@ -114,7 +114,6 @@
 }
 
 .expert-insights-tab--emi-calculator,
-.expert-insights-tab--home-loan-calculator,
 .expert-insights-tab--locate-score {
   padding: 16px;
 }
@@ -358,7 +357,6 @@
   }
 
   .expert-insights-tab--emi-calculator,
-  .expert-insights-tab--home-loan-calculator,
   .expert-insights-tab--locate-score {
     padding: 14px 16px;
   }
@@ -486,7 +484,6 @@
   }
 
   .expert-insights-tab--emi-calculator,
-  .expert-insights-tab--home-loan-calculator,
   .expert-insights-tab--locate-score {
     padding: 14px 16px;
   }
@@ -570,7 +567,6 @@
   }
 
   .expert-insights-tab--emi-calculator,
-  .expert-insights-tab--home-loan-calculator,
   .expert-insights-tab--locate-score {
     padding: 14px 16px;
   }
@@ -642,7 +638,6 @@
   }
 
   .expert-insights-tab--emi-calculator,
-  .expert-insights-tab--home-loan-calculator,
   .expert-insights-tab--locate-score {
     padding: 12px 14px;
   }

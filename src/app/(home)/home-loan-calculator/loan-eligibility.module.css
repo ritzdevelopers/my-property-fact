@@ -741,7 +741,7 @@
   max-width: 100%;
   height: 45px;
   margin: 0;
-  color: #0d5834;
+  color: #0891b2;
   font-weight: 800;
   font-style: normal;
   font-size: 36px;
@@ -858,7 +858,7 @@
 }
 
 .breakdown li strong {
-  color: #111827;
+  color: #0e7490;
   font-weight: 700;
   font-size: 14px;
   line-height: 100%;
@@ -889,8 +889,8 @@
   margin: 0;
   padding: 2px 8px;
   border-radius: 999px;
-  background: #eef6f1;
-  color: #0d5834;
+  background: #ecfeff;
+  color: #0e7490;
   font-size: 11px;
   font-weight: 700;
   font-style: normal;
@@ -970,14 +970,14 @@
 
 .legend strong {
   display: block;
-  color: #111827;
+  color: #0f172a;
   font-size: 14px;
   font-weight: 700;
 }
 
 .legend span {
   font-size: 13px;
-  color: #4b5563;
+  color: #0e7490;
 }
 
 /* ---------- How it works ---------- */

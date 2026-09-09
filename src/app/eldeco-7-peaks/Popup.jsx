@@ -230,7 +230,7 @@ function Popup() {
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/55 px-4 py-8 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/55 px-4 py-8 backdrop-blur-[2px] max-[520px]:px-3 max-[520px]:py-3"
       style={{ opacity: 0, visibility: "hidden" }}
     >
       <button
@@ -245,14 +245,14 @@ function Popup() {
         className="relative z-10 w-full max-w-[560px] overflow-hidden rounded-[14px] bg-white shadow-[0_20px_55px_rgba(9,33,25,0.28)] will-change-transform"
         style={{ opacity: 0, visibility: "hidden" }}
       >
-        <div className="bg-[linear-gradient(135deg,#092119_0%,#147b58_100%)] px-8 py-6 text-white">
-          <p className="m-0 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/80">
+        <div className="bg-[linear-gradient(135deg,#092119_0%,#147b58_100%)] px-8 py-6 text-white max-[520px]:px-5 max-[520px]:py-3.5">
+          <p className="m-0 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-white/80 max-[520px]:hidden">
             Eldeco 7 Peaks Residences
           </p>
-          <h2 className="mt-2 font-[family-name:var(--font-7peaks-poppins)] text-[28px] font-semibold leading-tight max-[520px]:text-[22px]">
+          <h2 className="mt-2 font-[family-name:var(--font-7peaks-poppins)] text-[28px] font-semibold leading-tight max-[520px]:mt-0 max-[520px]:text-[20px]">
             Request a Call Back
           </h2>
-          <p className="mt-2 mb-0 max-w-[420px] text-[15px] font-normal leading-relaxed text-white/85">
+          <p className="mt-2 mb-0 max-w-[420px] text-[15px] font-normal leading-relaxed text-white/85 max-[520px]:mt-1 max-[520px]:text-[13px] max-[520px]:leading-snug">
             Share your details and our property expert will connect with you
             shortly.
           </p>
@@ -272,10 +272,10 @@ function Popup() {
           ref={formRef}
           id="eldeco-7-peaks-popup-form"
           onSubmit={onSubmit}
-          className="grid gap-x-6 gap-y-5 px-8 py-7 sm:grid-cols-2"
+          className="grid gap-x-6 gap-y-5 px-8 py-7 sm:grid-cols-2 max-[520px]:gap-y-2.5 max-[520px]:px-5 max-[520px]:py-4"
           noValidate
         >
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23]">
+          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
             Full Name *
             <input
               type="text"
@@ -286,7 +286,7 @@ function Popup() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.name)}
               onChange={() => clearFieldError("name")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] ${
+              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
                 fieldErrors.name ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -297,7 +297,7 @@ function Popup() {
             ) : null}
           </label>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23]">
+          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
             Email Address *
             <input
               type="email"
@@ -308,7 +308,7 @@ function Popup() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.email)}
               onChange={() => clearFieldError("email")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] ${
+              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
                 fieldErrors.email ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -319,7 +319,7 @@ function Popup() {
             ) : null}
           </label>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2">
+          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2 max-[520px]:gap-1">
             Phone Number *
             <input
               type="tel"
@@ -332,7 +332,7 @@ function Popup() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.phone)}
               onChange={() => clearFieldError("phone")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] ${
+              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
                 fieldErrors.phone ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -343,17 +343,17 @@ function Popup() {
             ) : null}
           </label>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2">
+          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2 max-[520px]:gap-1">
             Message
             <textarea
               name="message"
               placeholder="Tell us how we can help (optional)"
               disabled={isSubmitting}
-              rows={3}
+              rows={2}
               maxLength={500}
               aria-invalid={Boolean(fieldErrors.message)}
               onChange={() => clearFieldError("message")}
-              className={`w-full resize-none rounded-[4px] border bg-[#f7faf8] px-3 py-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] ${
+              className={`w-full resize-none rounded-[4px] border bg-[#f7faf8] px-3 py-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:min-h-[52px] max-[520px]:py-2 ${
                 fieldErrors.message ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -376,12 +376,12 @@ function Popup() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-12 cursor-pointer rounded-[4px] border-none bg-[#147b58] px-8 text-[16px] font-bold text-white shadow-[0_1px_5px_rgba(0,0,0,0.16)] transition hover:-translate-y-0.5 hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-70 sm:col-span-2 sm:w-fit"
+            className="h-12 cursor-pointer rounded-[4px] border-none bg-[#147b58] px-8 text-[16px] font-bold text-white shadow-[0_1px_5px_rgba(0,0,0,0.16)] transition hover:-translate-y-0.5 hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-70 sm:col-span-2 sm:w-fit max-[520px]:h-10 max-[520px]:text-[15px]"
           >
             {isSubmitting ? "Submitting..." : "Submit Enquiry"}
           </button>
 
-          <p className="text-[13px] leading-relaxed text-[#717182] sm:col-span-2">
+          <p className="text-[13px] leading-relaxed text-[#717182] sm:col-span-2 max-[520px]:text-[11px] max-[520px]:leading-snug">
             By submitting, you agree to be contacted regarding Eldeco 7 Peaks
             Residences.
           </p>

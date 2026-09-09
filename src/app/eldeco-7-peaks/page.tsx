@@ -429,18 +429,18 @@ export default function Home() {
           className="flex min-h-[1115px] flex-col items-center gap-9 bg-[linear-gradient(142.25deg,#f9fafb_0%,#f3f4f6_100%)] py-14 max-[800px]:min-h-0 max-[800px]:py-14"
         >
           <SectionTitle title="Amenities" uppercase={false} />
-          <div className="grid w-[min(1270px,calc(100%-48px))] grid-cols-4 gap-x-6 gap-y-8 max-[800px]:grid-cols-2 max-[520px]:grid-cols-1">
+          <div className="grid w-[min(1270px,calc(100%-48px))] grid-cols-4 gap-x-6 gap-y-8 max-[800px]:w-[calc(100%-24px)] max-[800px]:grid-cols-2 max-[800px]:gap-3">
             {amenities.map((amenity, i) => {
               const isTopRow = i < 4;
               return (
                 <div
                   key={amenity.title}
-                  className={`flex flex-col items-center justify-start gap-4 rounded-[14px] border-[1.25px] border-[#f3f4f6] bg-white px-[25px] py-[25px] ${
+                  className={`flex flex-col items-center justify-start gap-4 rounded-[14px] border-[1.25px] border-[#f3f4f6] bg-white px-[25px] py-[25px] max-[800px]:h-auto max-[800px]:gap-2 max-[800px]:px-3 max-[800px]:py-4 ${
                     isTopRow ? "h-32" : "h-[136px]"
                   }`}
                 >
                   <div
-                    className={`grid place-items-center ${
+                    className={`grid place-items-center max-[800px]:h-11 max-[800px]:w-11 ${
                       isTopRow ? "h-[66px] w-[66px]" : "h-12 w-12"
                     }`}
                   >
@@ -452,12 +452,12 @@ export default function Home() {
                       unoptimized
                       className={
                         isTopRow
-                          ? "h-[66px] w-[66px] object-contain"
-                          : "h-12 w-12 object-contain"
+                          ? "h-[66px] w-[66px] object-contain max-[800px]:h-11 max-[800px]:w-11"
+                          : "h-12 w-12 object-contain max-[800px]:h-11 max-[800px]:w-11"
                       }
                     />
                   </div>
-                  <span className="text-center text-sm font-medium">
+                  <span className="text-center text-sm font-medium max-[800px]:text-[12px] max-[800px]:leading-tight">
                     {amenity.title}
                   </span>
                 </div>
@@ -521,7 +521,7 @@ export default function Home() {
 
         <section
           id="enquiry"
-          className="relative flex min-h-[577px] flex-col items-center justify-center overflow-hidden bg-[#111] px-5 py-[54px] max-[800px]:min-h-[650px] max-[800px]:pb-[50px]"
+          className="relative flex min-h-[577px] flex-col items-center justify-center overflow-hidden bg-[#111] px-5 py-[54px] max-[800px]:min-h-0 max-[800px]:py-8"
         >
           <div className="absolute inset-0 after:absolute after:inset-0 after:bg-black/70 after:content-['']">
             <Image
@@ -534,10 +534,10 @@ export default function Home() {
             />
           </div>
           <div className="relative z-10 w-full max-w-[557px] text-center text-white">
-            <h2 className="m-0 text-center text-[36px] font-medium leading-10 max-[800px]:text-[30px]">
+            <h2 className="m-0 text-center text-[36px] font-medium leading-10 max-[800px]:text-[26px] max-[800px]:leading-8">
               Schedule Your Site Visit Today
             </h2>
-            <p className="mt-4 mb-0 font-[family-name:var(--font-7peaks-inter)] text-base leading-6 text-[#d4d4d4]">
+            <p className="mt-4 mb-0 font-[family-name:var(--font-7peaks-inter)] text-base leading-6 text-[#d4d4d4] max-[800px]:mt-2 max-[800px]:text-sm max-[800px]:leading-5">
               Experience luxury living firsthand. Our team is ready to assist
               you.
             </p>

@@ -1,5 +1,9 @@
 import { getDisplayCityList } from "../cityAliasUtils";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
+import {
+  filterHiddenBuilders,
+  filterHiddenProjects,
+} from "../hiddenBuilderUtils";
 
 const fetchInit =
   typeof window === "undefined" ? { next: { revalidate: 60 } } : {};
@@ -51,7 +55,7 @@ export async function fetchSiteMetaFromApi() {
   return {
     cityList: getDisplayCityList(allCities),
     allCityList: allCities,
-    builderList: buildersData?.builders || [],
+    builderList: filterHiddenBuilders(buildersData?.builders || []),
     projectTypes: typesData || [],
     projectStatuses: statusesData || [],
   };
@@ -73,6 +77,8 @@ export async function fetchSiteDataFromApi() {
 
   return {
     ...meta,
-    projectList: slimProjectListForListing(unwrapProjectList(projectsData)),
+    projectList: slimProjectListForListing(
+      filterHiddenProjects(unwrapProjectList(projectsData)),
+    ),
   };
 }

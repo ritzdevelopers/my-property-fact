@@ -58,6 +58,38 @@ const nextConfig = {
         permanent: true,
       },
 
+      // Hidden builder + projects (Ashiana)
+      {
+        source: "/builder/ashiana-housing",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-aaroham",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-amarah",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-anmol",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-mulberry",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-mulberry-blossom",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+
       // Builder legacy/typo slugs
       {
         source: "/builder/gaurs",

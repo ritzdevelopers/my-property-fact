@@ -49,7 +49,6 @@ Language: English
 - [Arihant](https://mypropertyfact.in/builder/arihant): Arihant Group is a well-known real estate developer offering residential and commercial projects with modern design and quality standards.
 - [Arth Developers](https://mypropertyfact.in/builder/arth-developers): Arth Developers is a real estate company focused on delivering quality residential and commercial properties with modern infrastructure.
 - [Arttech Elegant Homes](https://mypropertyfact.in/builder/arttech-elegant-homes): Arttech Elegant Homes specializes in premium residential projects with elegant design and modern living spaces.
-- [Ashiana Housing](https://mypropertyfact.in/builder/ashiana-housing): Ashiana Housing is a reputed developer known for quality residential projects, senior living communities, and modern housing solutions.
 - [Ashtech Builder](https://mypropertyfact.in/builder/ashtech-builder): Ashtech Builder delivers residential and commercial projects with a focus on quality construction and modern design.
 - [ASKG HOMES](https://mypropertyfact.in/builder/askg-homes): ASKG Homes is a real estate developer offering residential projects with modern amenities and quality construction.
 - [Austin Realty](https://mypropertyfact.in/builder/austin-realty): Austin Realty is a real estate developer focused on delivering residential and commercial projects with modern design and quality construction.

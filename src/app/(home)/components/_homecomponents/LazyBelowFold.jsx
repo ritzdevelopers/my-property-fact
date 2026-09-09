@@ -37,6 +37,8 @@ export default function LazyBelowFold() {
   /** Defer chatbot / enquire until home entry loader finishes (same as promo). */
   const [gatewayRevealDone, setGatewayRevealDone] = useState(() => !isHome);
   const landing_pages_links = [
+    "/eldeco-7-peaks",
+    "/eldeco-7-peaks/thank-you",
     "/eldeco-echoes-of-eden",
     "/eldeco-echoes-of-eden/thankyou",
     "/Eldeco-terra&sol",
@@ -70,11 +72,12 @@ export default function LazyBelowFold() {
   const current_path_name = usePathname();
   const [is_landing_page, setIsLandingPage] = useState(false);
   useEffect(() => {
-    if (landing_pages_links.includes(current_path_name)) {
-      setIsLandingPage(true);
-    } else {
-      setIsLandingPage(false);
-    }
+    const path = (current_path_name || "").replace(/\/+$/, "") || "/";
+    const hideChatbot =
+      landing_pages_links.includes(path) ||
+      path === "/eldeco-7-peaks" ||
+      path.startsWith("/eldeco-7-peaks/");
+    setIsLandingPage(hideChatbot);
   }, [current_path_name]);
 
   useEffect(() => {

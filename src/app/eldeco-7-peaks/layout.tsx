@@ -28,7 +28,9 @@ export default function Eldeco7PeaksLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`${poppins.variable} ${cormorant.variable} ${inter.variable}`}>
+    <div
+      className={`eldeco-7peaks-hide-scrollbar ${poppins.variable} ${cormorant.variable} ${inter.variable}`}
+    >
       {children}
     </div>
   );

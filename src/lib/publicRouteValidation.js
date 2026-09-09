@@ -62,6 +62,7 @@ export const PUBLIC_KNOWN_PREFIXES = new Set([
   "Eldeco-terra&sol",
   "eldeco-terra%26sol",
   "eldeco-echoes-of-eden",
+  "eldeco-7-peaks",
 ]);
 
 const CITY_HUB_PREFIXES = [
@@ -198,6 +199,7 @@ export function isDefinitelyInvalidPublicPath(pathname) {
     if (first === "Eldeco-terra&sol" || first.toLowerCase() === "eldeco-terra%26sol") return false;
     if (prefix === "subh-anandam" || prefix === "lavidabella") return false;
     if (prefix === "eldeco-echoes-of-eden") return false;
+    if (prefix === "eldeco-7-peaks") return false;
     if (prefix === "api") return false;
     return true;
   }

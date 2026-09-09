@@ -1,2 +1,88 @@
 @tailwind components;
 @tailwind utilities;
+
+/* Hide page scrollbar (keep scroll / Lenis working) */
+html.eldeco-7peaks-hide-scrollbar,
+html.eldeco-7peaks-hide-scrollbar body,
+.eldeco-7peaks-hide-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+html.eldeco-7peaks-hide-scrollbar::-webkit-scrollbar,
+html.eldeco-7peaks-hide-scrollbar body::-webkit-scrollbar,
+html.eldeco-7peaks-hide-scrollbar *::-webkit-scrollbar,
+.eldeco-7peaks-hide-scrollbar::-webkit-scrollbar,
+.eldeco-7peaks-hide-scrollbar *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+/* Enquire CTA — filled slide left on hover */
+@layer components {
+  .btn-7peaks-slide {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    isolation: isolate;
+    background-color: #ffffff;
+    color: #ffffff;
+    transition: color 0.45s ease;
+  }
+
+  .btn-7peaks-slide::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: #147b58;
+    transition: width 0.45s ease;
+  }
+
+  .btn-7peaks-slide:hover::before {
+    width: 0%;
+  }
+
+  .btn-7peaks-slide:hover {
+    color: #0a0a0a;
+  }
+
+  .btn-7peaks-slide:disabled {
+    opacity: 0.7;
+  }
+
+  .btn-7peaks-slide--dark::before {
+    background-color: #122f23;
+  }
+
+  .btn-7peaks-slide--map::before {
+    background-color: #133c2e;
+  }
+
+  .btn-7peaks-slide--map:hover img {
+    filter: brightness(0);
+  }
+
+  .btn-7peaks-slide--amenities::before {
+    background-color: #1f5341;
+  }
+
+  .btn-7peaks-slide--light {
+    background-color: #147B58;
+    color: #133c2e;
+  }
+
+  .btn-7peaks-slide--light::before {
+    background-color: #ffffff;
+  }
+
+  .btn-7peaks-slide--light:hover {
+    color: #ffffff;
+  }
+}

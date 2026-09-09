@@ -83,11 +83,9 @@ function Home() {
 
       <div className="absolute left-1/2 md:top-[9%] top-[12%] w-full max-w-[1250px] -translate-x-1/2  px-6 sm:px-12 xl:px-0">
         <div className={`${styles.paragraph} ml-auto w-fit text-right text-[9px] font-[400]  text-white`}>
-          Project RERA No.: GGM/XXXX/XXX/2023/XX Dated: 11.02.2026
+          HARERA REG. NO. 20 OF 2026
           <br />
-          Agent RERA No.: RC/HARERA/GGM/XXXX/2023/22
-          <br />
-          https://haryanarera.gov.in/
+          HARERA WEBSITE: WWW.HARYANARERA.GOV.IN
         </div>
       </div>
 

@@ -805,6 +805,7 @@ const HeaderComponent = () => {
         type="button"
         className="mpf-location-dropdown-item mpf-location-dropdown-item--gps"
         role="option"
+        aria-selected={false}
         onClick={handleUseCurrentLocation}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">

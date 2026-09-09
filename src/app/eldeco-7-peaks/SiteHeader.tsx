@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 
@@ -56,7 +57,7 @@ export default function SiteHeader({ logoSrc }: SiteHeaderProps) {
       <header className="fixed inset-x-0 top-0 z-[100] w-full bg-white">
         <div className="relative z-[20] h-[85px] w-full bg-white max-[800px]:h-[72px]">
           <div className="mx-auto flex h-[85px] w-[min(1256px,calc(100%-48px))] items-center justify-between gap-12 max-[1100px]:gap-5 max-[800px]:h-[72px] max-[800px]:w-[calc(100%-28px)]">
-            <a
+            <Link
               href="/eldeco-7-peaks"
               onClick={closeMenu}
               className="block h-[50px] w-[238px] shrink-0 max-[800px]:h-8 max-[800px]:w-[150px]"
@@ -70,7 +71,7 @@ export default function SiteHeader({ logoSrc }: SiteHeaderProps) {
                 unoptimized
                 className="h-full w-full object-cover"
               />
-            </a>
+            </Link>
 
             <nav
               className="hidden items-center gap-7 whitespace-nowrap text-base font-medium text-[#0a0a0a] min-[1024px]:flex max-[1100px]:gap-[15px] max-[1100px]:text-[13px] [&_a]:text-inherit [&_a]:transition-[color,font-weight,letter-spacing] [&_a]:duration-100 [&_a]:ease-[cubic-bezier(0.22,1,0.36,1)] hover:[&_a]:font-bold hover:[&_a]:tracking-[0.02em] hover:[&_a]:text-[#147B58]"

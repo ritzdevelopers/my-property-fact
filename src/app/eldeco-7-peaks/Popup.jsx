@@ -272,54 +272,56 @@ function Popup() {
           ref={formRef}
           id="eldeco-7-peaks-popup-form"
           onSubmit={onSubmit}
-          className="grid gap-x-6 gap-y-5 px-8 py-7 sm:grid-cols-2 max-[520px]:gap-y-2.5 max-[520px]:px-5 max-[520px]:py-4"
+          className="grid grid-cols-1 gap-y-5 px-8 py-7 max-[520px]:gap-y-2.5 max-[520px]:px-5 max-[520px]:py-4"
           noValidate
         >
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
-            Full Name *
-            <input
-              type="text"
-              name="name"
-              required
-              autoComplete="name"
-              placeholder="Enter your name"
-              disabled={isSubmitting}
-              aria-invalid={Boolean(fieldErrors.name)}
-              onChange={() => clearFieldError("name")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
-                fieldErrors.name ? "border-red-500" : "border-transparent"
-              }`}
-            />
-            {fieldErrors.name ? (
-              <p className={fieldErrorClass} role="alert">
-                {fieldErrors.name}
-              </p>
-            ) : null}
-          </label>
+          <div className="grid min-w-0 grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 max-[520px]:gap-y-2.5">
+            <label className="flex min-w-0 flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
+              Full Name *
+              <input
+                type="text"
+                name="name"
+                required
+                autoComplete="name"
+                placeholder="Enter your name"
+                disabled={isSubmitting}
+                aria-invalid={Boolean(fieldErrors.name)}
+                onChange={() => clearFieldError("name")}
+                className={`box-border h-11 min-w-0 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
+                  fieldErrors.name ? "border-red-500" : "border-transparent"
+                }`}
+              />
+              {fieldErrors.name ? (
+                <p className={fieldErrorClass} role="alert">
+                  {fieldErrors.name}
+                </p>
+              ) : null}
+            </label>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
-            Email Address *
-            <input
-              type="email"
-              name="email"
-              required
-              autoComplete="email"
-              placeholder="your@email.com"
-              disabled={isSubmitting}
-              aria-invalid={Boolean(fieldErrors.email)}
-              onChange={() => clearFieldError("email")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
-                fieldErrors.email ? "border-red-500" : "border-transparent"
-              }`}
-            />
-            {fieldErrors.email ? (
-              <p className={fieldErrorClass} role="alert">
-                {fieldErrors.email}
-              </p>
-            ) : null}
-          </label>
+            <label className="flex min-w-0 flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
+              Email Address *
+              <input
+                type="email"
+                name="email"
+                required
+                autoComplete="email"
+                placeholder="your@email.com"
+                disabled={isSubmitting}
+                aria-invalid={Boolean(fieldErrors.email)}
+                onChange={() => clearFieldError("email")}
+                className={`box-border h-11 min-w-0 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
+                  fieldErrors.email ? "border-red-500" : "border-transparent"
+                }`}
+              />
+              {fieldErrors.email ? (
+                <p className={fieldErrorClass} role="alert">
+                  {fieldErrors.email}
+                </p>
+              ) : null}
+            </label>
+          </div>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2 max-[520px]:gap-1">
+          <label className="flex min-w-0 flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
             Phone Number *
             <input
               type="tel"
@@ -332,7 +334,7 @@ function Popup() {
               disabled={isSubmitting}
               aria-invalid={Boolean(fieldErrors.phone)}
               onChange={() => clearFieldError("phone")}
-              className={`h-11 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
+              className={`box-border h-11 min-w-0 w-full rounded-[4px] border bg-[#f7faf8] px-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:h-10 ${
                 fieldErrors.phone ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -343,7 +345,7 @@ function Popup() {
             ) : null}
           </label>
 
-          <label className="flex flex-col gap-2 text-sm font-medium text-[#122f23] sm:col-span-2 max-[520px]:gap-1">
+          <label className="flex min-w-0 flex-col gap-2 text-sm font-medium text-[#122f23] max-[520px]:gap-1">
             Message
             <textarea
               name="message"
@@ -353,7 +355,7 @@ function Popup() {
               maxLength={500}
               aria-invalid={Boolean(fieldErrors.message)}
               onChange={() => clearFieldError("message")}
-              className={`w-full resize-none rounded-[4px] border bg-[#f7faf8] px-3 py-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:min-h-[52px] max-[520px]:py-2 ${
+              className={`box-border min-w-0 w-full resize-none rounded-[4px] border bg-[#f7faf8] px-3 py-3 text-sm text-[#0a0a0a] outline-none transition placeholder:text-[#8a968e] focus:border-[#147b58] max-[520px]:min-h-[52px] max-[520px]:py-2 ${
                 fieldErrors.message ? "border-red-500" : "border-transparent"
               }`}
             />
@@ -366,7 +368,7 @@ function Popup() {
 
           {errorMessage ? (
             <p
-              className="text-[13px] leading-relaxed text-red-600 sm:col-span-2"
+              className="text-[13px] leading-relaxed text-red-600"
               role="alert"
             >
               {errorMessage}
@@ -376,12 +378,12 @@ function Popup() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="h-12 cursor-pointer rounded-[4px] border-none bg-[#147b58] px-8 text-[16px] font-bold text-white shadow-[0_1px_5px_rgba(0,0,0,0.16)] transition hover:-translate-y-0.5 hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-70 sm:col-span-2 sm:w-fit max-[520px]:h-10 max-[520px]:text-[15px]"
+            className="h-12 cursor-pointer rounded-[4px] border-none bg-[#147b58] px-8 text-[16px] font-bold text-white shadow-[0_1px_5px_rgba(0,0,0,0.16)] transition hover:-translate-y-0.5 hover:opacity-[0.92] disabled:cursor-not-allowed disabled:opacity-70 sm:w-fit max-[520px]:h-10 max-[520px]:text-[15px]"
           >
             {isSubmitting ? "Submitting..." : "Submit Enquiry"}
           </button>
 
-          <p className="text-[13px] leading-relaxed text-[#717182] sm:col-span-2 max-[520px]:text-[11px] max-[520px]:leading-snug">
+          <p className="text-[13px] leading-relaxed text-[#717182] max-[520px]:text-[11px] max-[520px]:leading-snug">
             By submitting, you agree to be contacted regarding Eldeco 7 Peaks
             Residences.
           </p>

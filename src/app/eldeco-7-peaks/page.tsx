@@ -1,7 +1,7 @@
 import Image from "next/image";
 import GallerySlider from "./GallerySlider";
 import SiteHeader from "./SiteHeader";
-import Popup, { CtaButton } from "./Popup";
+import { CtaButton } from "./Popup";
 import EnquiryForm from "./EnquiryForm";
 import SmoothScroll from "./SmoothScroll";
 
@@ -198,7 +198,6 @@ export default function Home() {
     <SmoothScroll>
       <div className="box-border w-full bg-[#e1f1ea] font-[family-name:var(--font-7peaks-poppins)] text-[#0a0a0a] [&_*]:box-border [&_a]:no-underline [&_button]:font-[inherit] [&_input]:font-[inherit]">
         <SiteHeader logoSrc={assets.logo} />
-        <Popup />
 
         <main className="w-full overflow-x-hidden">
           <section id="top" className="w-full">
@@ -430,13 +429,13 @@ export default function Home() {
           className="flex min-h-[1115px] flex-col items-center gap-9 bg-[linear-gradient(142.25deg,#f9fafb_0%,#f3f4f6_100%)] py-14 max-[800px]:min-h-0 max-[800px]:py-14"
         >
           <SectionTitle title="Amenities" uppercase={false} />
-          <div className="grid w-[min(1270px,calc(100%-48px))] grid-cols-4 gap-x-6 gap-y-8 max-[800px]:grid-cols-2 max-[520px]:grid-cols-1">
+          <div className="grid w-[min(1270px,calc(100%-48px))] grid-cols-4 gap-x-6 gap-y-8 max-[800px]:grid-cols-2">
             {amenities.map((amenity, i) => {
               const isTopRow = i < 4;
               return (
                 <div
                   key={amenity.title}
-                  className={`flex flex-col items-center justify-start gap-4 rounded-[14px] border-[1.25px] border-[#f3f4f6] bg-white px-[25px] py-[25px] ${
+                  className={`flex flex-col items-center justify-start gap-4 rounded-[14px] border-[1.25px] border-[#f3f4f6] bg-white px-[25px] py-[25px] max-[520px]:h-auto max-[520px]:min-h-[120px] max-[520px]:px-3 max-[520px]:py-4 ${
                     isTopRow ? "h-32" : "h-[136px]"
                   }`}
                 >

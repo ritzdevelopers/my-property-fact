@@ -1,5 +1,7 @@
 import { Poppins, Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
+import Popup from "./Popup";
+import FloatingEnquiryButton from "./FloatingEnquiryButton";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -32,6 +34,8 @@ export default function Eldeco7PeaksLayout({
       className={`eldeco-7peaks-hide-scrollbar ${poppins.variable} ${cormorant.variable} ${inter.variable}`}
     >
       {children}
+      <Popup />
+      <FloatingEnquiryButton />
     </div>
   );
 }

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getImageProps } from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
-import SearchFilter from "./searchFIlter";
+import SearchFilter from "./searchFilterClassic";
 import "../home/home.css";
 import "./newmpfmetadata.css";
 import {
@@ -12,7 +12,7 @@ import {
   BANNER_DESKTOP,
   BANNER_MOBILE,
   BANNER_TABLET,
-  HERO_IMAGE_QUALITY, 
+  HERO_IMAGE_QUALITY,
   HERO_IMAGE_SIZES,
 } from "./heroBannerAssets";
 

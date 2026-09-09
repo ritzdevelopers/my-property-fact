@@ -109,6 +109,9 @@ export default function SmoothScroll({ children }) {
       if (!target) return;
 
       event.preventDefault();
+      if (window.location.hash !== hash) {
+        window.history.pushState(null, "", hash);
+      }
       lenis.scrollTo(target, {
         offset: HEADER_OFFSET,
         duration: 1.15,

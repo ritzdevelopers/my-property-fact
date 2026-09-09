@@ -1,7 +1,7 @@
 import Image from "next/image";
 import GallerySlider from "./GallerySlider";
 import SiteHeader from "./SiteHeader";
-import Popup, { CtaButton } from "./Popup";
+import { CtaButton } from "./Popup";
 import EnquiryForm from "./EnquiryForm";
 import SmoothScroll from "./SmoothScroll";
 
@@ -198,7 +198,6 @@ export default function Home() {
     <SmoothScroll>
       <div className="box-border w-full bg-[#e1f1ea] font-[family-name:var(--font-7peaks-poppins)] text-[#0a0a0a] [&_*]:box-border [&_a]:no-underline [&_button]:font-[inherit] [&_input]:font-[inherit]">
         <SiteHeader logoSrc={assets.logo} />
-        <Popup />
 
         <main className="w-full overflow-x-hidden">
           <section id="top" className="w-full">

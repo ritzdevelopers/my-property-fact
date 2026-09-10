@@ -5,7 +5,7 @@ import {
   fetchProjectTypes,
   getAllProjects,
   fetchBuilderData,
-  fetchTopPicksProject,
+  fetchTopPicksProjects,
   fetchLatestBlogs,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
@@ -22,10 +22,7 @@ import {
 } from "@/app/_global_components/popularRightNowProjects";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import HomeDeferredSections from "./HomeDeferredSections";
-import {
-  slimProjectForListing,
-  slimProjectListForListing,
-} from "@/lib/slimProjectListing";
+import { slimProjectListForListing } from "@/lib/slimProjectListing";
 
 /** Keep first HTML small — carousels still work; client sections hydrate below the fold. */
 const HOME_SSR_CARD_LIMIT = 6;
@@ -91,7 +88,7 @@ export default async function HomePage() {
     testimonials,
     cityListRaw,
     projectTypeListRaw,
-    mpfTopPicProjectRaw,
+    mpfTopPickProjectsRaw,
     homeBlogsRaw,
   ] = await Promise.all([
     getAllProjects(),
@@ -99,7 +96,7 @@ export default async function HomePage() {
     fetchHomeTestimonials(),
     fetchCityData(),
     fetchProjectTypes(),
-    fetchTopPicksProject(),
+    fetchTopPicksProjects(),
     fetchLatestBlogs(3),
   ]);
 
@@ -109,9 +106,10 @@ export default async function HomePage() {
   const projectTypeList = Array.isArray(projectTypeListRaw)
     ? projectTypeListRaw.map(slimProjectTypeForHome)
     : [];
-  const mpfTopPicProject = mpfTopPicProjectRaw
-    ? slimProjectForListing(mpfTopPicProjectRaw)
-    : mpfTopPicProjectRaw;
+  // Already normalized to spotlight-sized objects — slimming here would drop `builderSlug`.
+  const mpfTopPickProjects = Array.isArray(mpfTopPickProjectsRaw)
+    ? mpfTopPickProjectsRaw
+    : [];
   const homeBlogs = Array.isArray(homeBlogsRaw)
     ? homeBlogsRaw.map(slimBlogForHome)
     : [];
@@ -305,7 +303,7 @@ export default async function HomePage() {
         {row(3, null)}
 
         <HomeDeferredSections
-          mpfTopPicProject={mpfTopPicProject}
+          mpfTopPickProjects={mpfTopPickProjects}
           slimRecommendedProjects={slimRecommendedProjects}
           popularSubtitle={popularSubtitle}
           slimResidential={slimResidential}

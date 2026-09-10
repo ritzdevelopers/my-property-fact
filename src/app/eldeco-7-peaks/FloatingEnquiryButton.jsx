@@ -9,6 +9,8 @@ export default function FloatingEnquiryButton() {
 
   if (pathname?.includes("/thank-you")) return null;
 
+
+  
   return (
     <button
       type="button"

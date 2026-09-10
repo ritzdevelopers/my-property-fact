@@ -52,7 +52,7 @@ const TestimonialSection = dynamic(
  * Mount after idle so PSI/Lighthouse can finish first-paint work first.
  */
 export default function HomeDeferredSections({
-  mpfTopPicProject,
+  mpfTopPickProjects,
   slimRecommendedProjects,
   popularSubtitle,
   slimResidential,
@@ -103,7 +103,7 @@ export default function HomeDeferredSections({
 
   return (
     <>
-      {row(4, <TopPicksWithRotation initialProject={mpfTopPicProject} />)}
+      {row(4, <TopPicksWithRotation initialProjects={mpfTopPickProjects} />)}
       {row(
         5,
         <RecommendedProjectsWithGeolocation

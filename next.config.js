@@ -148,6 +148,21 @@ const nextConfig = {
       { source: "/landing-pages/sikka-kimaya", destination: "/", permanent: true },
       { source: "/landing-pages/sikka-kimaya/thanks", destination: "/", permanent: true },
       { source: "/promotional-pages/sikka-kimaya", destination: "/", permanent: true },
+      {
+        source: "/landing-pages/eldeco-7-peaks",
+        destination: "/eldeco-7-peaks",
+        permanent: true,
+      },
+      {
+        source: "/landing-pages/eldeco-7-peaks/thank-you",
+        destination: "/eldeco-7-peaks/thank-you",
+        permanent: true,
+      },
+      {
+        source: "/landing-pages/eldeco-7-peaks/:path*",
+        destination: "/eldeco-7-peaks",
+        permanent: true,
+      },
 
       { source: "/career", destination: "/join-our-team", permanent: true },
 

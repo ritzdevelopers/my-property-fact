@@ -59,11 +59,7 @@
 }
 
 .mpf-tp__kicker::before {
-  content: "";
-  width: 22px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--mpf-tp-gold);
+  content: none;
 }
 
 .mpf-tp__title {

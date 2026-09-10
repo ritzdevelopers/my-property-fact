@@ -3,11 +3,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
-import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
-import PropertyTypeTag from "@/app/(home)/components/common/PropertyTypeTag";
-import LuxuryPricePlaque from "@/app/(home)/components/common/LuxuryPricePlaque";
-import "@/app/(home)/components/common/luxuryPropertyCard.css";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
+import ProjectShortlistButton from "@/app/(home)/components/common/ProjectShortlistButton";
+import "@/app/(home)/components/common/luxuryPropertyCard.css";
 import "./newmpfmetadata.css";
 
 function apiBaseUrl() {
@@ -22,23 +20,46 @@ function cleanMetaText(value, fallback = "") {
   return text;
 }
 
-function formatProjectPrice(value) {
-  if (value == null || value === "") return "Price on request";
+function formatCompactPrice(value) {
+  if (value == null || value === "") return "On request";
   const strValue = String(value).trim();
-  if (!strValue) return "Price on request";
-  if (/[a-zA-Z]/.test(strValue)) {
-    // Keep custom labels; append * onwards when it's a priced string without it
-    if (/onwards/i.test(strValue) || /request/i.test(strValue)) return strValue;
-    return /[*]/.test(strValue)
-      ? `${strValue} Onwards`
-      : `${strValue}* Onwards`;
+  if (!strValue) return "On request";
+  if (/request/i.test(strValue)) return "On request";
+  const cleaned = strValue.replace(/\s*onwards\.?\s*/gi, "").replace(/\*/g, "").trim();
+  if (/cr|lakh|lac|\bl\b/i.test(cleaned) && /[a-zA-Z]/.test(cleaned)) {
+    return cleaned.startsWith("₹") ? cleaned : `₹ ${cleaned}`;
   }
-  const numericValue = Number.parseFloat(strValue.replace(/,/g, ""));
-  if (!Number.isFinite(numericValue) || numericValue <= 0)
-    return "Price on request";
-  if (numericValue < 1)
-    return `₹ ${Math.round(numericValue * 100)} Lakh* Onwards`;
-  return `₹ ${numericValue} Cr* Onwards`;
+  const numericValue = Number.parseFloat(cleaned.replace(/,/g, ""));
+  if (!Number.isFinite(numericValue) || numericValue <= 0) return "On request";
+  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} L`;
+  const pretty = Number.isInteger(numericValue)
+    ? String(numericValue)
+    : numericValue.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return `₹ ${pretty} Cr`;
+}
+
+function formatPriceParts(value) {
+  const amount = formatCompactPrice(value);
+  return {
+    amount,
+    onwards: amount !== "On request",
+  };
+}
+
+function getBadgeLabel(raw) {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+  if (/new\s*launch/i.test(value)) return "New Launch";
+  if (/ready/i.test(value)) return "Ready To Move";
+  if (/under\s*construction/i.test(value)) return "Under Construction";
+  return value;
+}
+
+function getBadgeTone(badge) {
+  if (/ready/i.test(badge)) return "ready";
+  if (/under\s*construction/i.test(badge)) return "construction";
+  if (/new\s*launch/i.test(badge)) return "launch";
+  return "default";
 }
 
 function getProjectHref(project) {
@@ -48,6 +69,57 @@ function getProjectHref(project) {
 
 function getProjectImage(project) {
   return buildProjectImageUrl(project, { preferThumbnail: true });
+}
+
+function getLocationChip(source, kind) {
+  if (kind === "property") {
+    return cleanMetaText(
+      source?.location || source?.locality || source?.cityName,
+      "Location on listing",
+    );
+  }
+  const locality = cleanMetaText(source?.projectLocality);
+  const city = cleanMetaText(source?.cityName);
+  const parts = [locality, city].filter(Boolean);
+  return parts.length ? parts.join(", ") : "Location on project page";
+}
+
+function formatConfigChip(config, propertyType) {
+  const raw = String(config || "").trim();
+  const type = String(propertyType || "").trim();
+  const blob = `${raw} ${type}`;
+  const typeWord = /plot|land/i.test(blob)
+    ? "Plots"
+    : /villa/i.test(blob)
+      ? "Villas"
+      : /commercial|office|shop|retail|sco/i.test(blob)
+        ? "Units"
+        : "Apartments";
+  const bhks = [...raw.matchAll(/(\d+)\s*BHK/gi)].map((match) => match[1]);
+  const unique = [...new Set(bhks)];
+  if (unique.length === 1) return `${unique[0]} BHK ${typeWord}`;
+  if (unique.length === 2) return `${unique[0]} & ${unique[1]} BHK ${typeWord}`;
+  if (unique.length > 2) {
+    return `${unique[0]} & ${unique[unique.length - 1]} BHK ${typeWord}`;
+  }
+  if (raw) return raw.split(",")[0].trim();
+  return type;
+}
+
+function getLifestyleChip(source, kind) {
+  const type = String(
+    source?.propertyTypeName || source?.propertyTypeCategory || "",
+  ).toLowerCase();
+  const name = String(source?.projectName || source?.title || "").toLowerCase();
+  const status = String(source?.projectStatusName || "").toLowerCase();
+  const blob = `${type} ${name}`;
+  if (/luxury|ultra/.test(blob)) return "Luxury Residences";
+  if (/plot|land/.test(blob)) return "Premium Plots";
+  if (/commercial|office|retail/.test(blob)) return "Modern Workspaces";
+  if (/ready/.test(status)) return "Premium Residences";
+  if (/under.?construction|new.?launch/.test(status)) return "Green Community";
+  if (kind === "property") return "Verified Listing";
+  return "Premium Residences";
 }
 
 function getProjectLocation(project) {
@@ -96,16 +168,6 @@ function stripItemKind(item, kind) {
   return rest;
 }
 
-// Only show when type clearly maps to commercial / residential buckets
-function hasPropertyTypeTag(type) {
-  const normalized = String(type || "")
-    .toLowerCase()
-    .trim();
-  return (
-    normalized.includes("commercial") || normalized.includes("residential")
-  );
-}
-
 function getCardPayload(item, kind) {
   const k = effectiveCardKind(item, kind);
   const source = stripItemKind(item, kind);
@@ -115,21 +177,36 @@ function getCardPayload(item, kind) {
     const category = cleanMetaText(
       source?.propertyTypeCategory || source?.listingType || source?.subType,
     );
+    const badge = getBadgeLabel(
+      cleanMetaText(source?.constructionStatus) ||
+        cleanMetaText(source?.listingType),
+    );
+    const price = formatPriceParts(source?.price);
     return {
       key: source?.id || source?.slug || source?.title,
       href: source?.slug ? `/properties/${source.slug}` : "/properties",
       image: getPropertyImage(source),
-      badge:
-        cleanMetaText(source?.constructionStatus) ||
-        cleanMetaText(source?.listingType),
+      badge,
+      badgeTone: getBadgeTone(badge),
       title: cardTitle,
       propertyType: category,
-      meta:
+      meta: formatConfigChip(
         [source?.bedroom, source?.propertyTypeCategory || source?.subType]
           .filter(Boolean)
-          .join(" ") || "Property details available on listing page",
+          .join(" "),
+        category,
+      ),
+      lifestyle: getLifestyleChip(source, "property"),
       location: source?.location || "Location not specified",
-      price: formatProjectPrice(source?.price),
+      place: getLocationChip(source, "property"),
+      price: price.amount,
+      onwards: price.onwards,
+      builder: cleanMetaText(source?.builderName),
+      shortlist: {
+        id: source?.id,
+        slugURL: source?.slug,
+        projectName: cardTitle,
+      },
     };
   }
 
@@ -137,34 +214,48 @@ function getCardPayload(item, kind) {
     { ...source, projectName: cleanMetaText(source?.projectName, "Project") },
     "Project",
   );
+  const badge = getBadgeLabel(
+    typeof source?.projectStatusName === "string"
+      ? source.projectStatusName.trim()
+      : "",
+  );
+  const propertyType = cleanMetaText(source?.propertyTypeName);
+  const price = formatPriceParts(source?.projectPrice);
   return {
     key: source?.slugURL || source?.slugUrl || source?.projectName,
     href: getProjectHref(source),
     image: getProjectImage(source),
-    badge:
-      typeof source?.projectStatusName === "string"
-        ? source.projectStatusName.trim()
-        : "",
+    badge,
+    badgeTone: getBadgeTone(badge),
     title: cardTitle,
-    propertyType: cleanMetaText(source?.propertyTypeName),
-    meta:
-      (typeof source?.projectConfiguration === "string" &&
-        source.projectConfiguration.trim()) ||
-      "Explore configurations on project page",
+    propertyType,
+    meta: formatConfigChip(
+      typeof source?.projectConfiguration === "string"
+        ? source.projectConfiguration.trim()
+        : "",
+      propertyType,
+    ),
+    lifestyle: getLifestyleChip(source, "project"),
     location: getProjectLocation(source),
-    price: formatProjectPrice(source?.projectPrice),
+    place: getLocationChip(source, "project"),
+    price: price.amount,
+    onwards: price.onwards,
+    builder: cleanMetaText(source?.builderName),
+    shortlist: {
+      id: source?.id,
+      slugURL: source?.slugURL || source?.slugUrl,
+      projectName: cardTitle,
+    },
   };
 }
 
-function getVisibleCount(viewportWidth) {
-  if (viewportWidth <= 480) return 1;
-  if (viewportWidth <= 767) return 2;
-  // Tablet: 2 wider cards (CSS tuned for 768–1024)
-  if (viewportWidth <= 1023) return 2;
-  // Small laptop: scale up to fill the rail
-  if (viewportWidth <= 1120) return 3;
-  if (viewportWidth <= 1199) return 4;
-  return 4;
+const TILE_WIDTH = 248;
+const TILE_GAP = 18;
+const TILE_IMAGE_HEIGHT = 168;
+
+function tilesThatFit(width) {
+  if (!width || width < TILE_WIDTH) return 1;
+  return Math.max(1, Math.floor((width + TILE_GAP) / (TILE_WIDTH + TILE_GAP)));
 }
 
 const FEW_ITEMS_THRESHOLD = 4;
@@ -172,6 +263,50 @@ const FEW_ITEMS_THRESHOLD = 4;
 function getViewAllLabel(cityName, kind) {
   const noun = kind === "property" ? "Properties" : "Projects";
   return cityName ? `View All ${noun} in ${cityName}` : `View All ${noun}`;
+}
+
+function PinIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 21.5s7.25-6.4 7.25-12.05A7.25 7.25 0 0 0 4.75 9.45C4.75 15.1 12 21.5 12 21.5Z"
+        fill="currentColor"
+      />
+      <circle cx="12" cy="9.4" r="2.55" fill="#fff" />
+    </svg>
+  );
+}
+
+function BuildingIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 20V8l8-4 8 4v12"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M9 20v-6h6v6"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function SparkIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 }
 
 function SectionLoader({ cityName, overlay = false }) {
@@ -205,7 +340,7 @@ export default function HomeRecommendationCards({
   eagerImageCount = 0,
 }) {
   const safeItems = useMemo(
-    () => (Array.isArray(items) ? items.slice(0, 6) : []),
+    () => (Array.isArray(items) ? items.slice(0, 10) : []),
     [items],
   );
   const [visibleCount, setVisibleCount] = useState(4);
@@ -215,8 +350,10 @@ export default function HomeRecommendationCards({
   const maxStartIndex = Math.max(0, safeItems.length - visibleCount);
   const canSlide = safeItems.length > visibleCount;
   const trackStyle = {
-    transform: `translateX(-${startIndex * (100 / visibleCount)}%)`,
+    transform: `translateX(-${startIndex * (TILE_WIDTH + TILE_GAP)}px)`,
     "--preview-visible": visibleCount,
+    "--tile-width": `${TILE_WIDTH}px`,
+    "--tile-gap": `${TILE_GAP}px`,
   };
 
   useEffect(() => {
@@ -224,21 +361,28 @@ export default function HomeRecommendationCards({
   }, [items, kind, title]);
 
   useEffect(() => {
-    const updateVisibleCount = () => {
-      setVisibleCount(getVisibleCount(window.innerWidth));
+    const el = viewportRef.current;
+    const update = () => {
+      const width = el?.clientWidth || window.innerWidth - 360;
+      setVisibleCount(tilesThatFit(width));
     };
-
-    updateVisibleCount();
-    window.addEventListener("resize", updateVisibleCount);
-    return () => window.removeEventListener("resize", updateVisibleCount);
-  }, []);
+    update();
+    const ro =
+      el && typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(update)
+        : null;
+    if (el && ro) ro.observe(el);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("resize", update);
+      ro?.disconnect();
+    };
+  }, [safeItems.length]);
 
   useEffect(() => {
     setStartIndex((prev) => Math.min(prev, maxStartIndex));
   }, [maxStartIndex]);
 
-  /** Below the mobile breakpoint the rail is a native scroll-snap container,
-   *  so the arrows scroll it instead of driving the track transform. */
   const scrollRailBy = useCallback((direction) => {
     const viewport = viewportRef.current;
     if (!viewport || viewport.scrollWidth <= viewport.clientWidth + 1)
@@ -278,16 +422,61 @@ export default function HomeRecommendationCards({
   );
   const viewMoreHref = cityHref || viewAllHref;
   const viewMoreLabel = getViewAllLabel(cityName, kind);
+  const sectionClass =
+    `container home-projects-preview home-projects-preview--tiles home-projects-preview--showcase ${className}`.trim();
+
+  const renderNav = () =>
+    canSlide ? (
+      <div
+        className="home-projects-preview__nav"
+        aria-label={`${title} navigation`}
+      >
+        <button
+          type="button"
+          className="home-projects-preview__nav-btn"
+          onClick={handlePrev}
+          aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M15 6l-6 6 6 6"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <button
+          type="button"
+          className="home-projects-preview__nav-btn"
+          onClick={handleNext}
+          aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M9 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+      </div>
+    ) : null;
 
   const renderHead = () => (
     <div className="home-projects-preview__head">
-      <div>
-        <h2 className="home-projects-preview__title plus-jakarta-sans-semi-bold">
-          {title}
-        </h2>
+      <div className="home-projects-preview__intro">
+        <p className="home-projects-preview__kicker">Featured</p>
+        <h2 className="home-projects-preview__title">{title}</h2>
         {subtitle ? (
           <p className="home-projects-preview__sub">{subtitle}</p>
         ) : null}
+      </div>
+      <div className="home-projects-preview__toolbar">
+        {renderNav()}
       </div>
     </div>
   );
@@ -347,11 +536,111 @@ export default function HomeRecommendationCards({
       </div>
     ) : null;
 
+  const renderCard = (item, idx) => {
+    const card = getCardPayload(item, kind);
+    const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
+    const cardLinkTitle = card.title
+      ? `View ${card.title} on My Property Fact`
+      : "View project on My Property Fact";
+    const rowKey =
+      kind === "mixed"
+        ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
+        : (card.key ?? idx);
+    return (
+      <div key={rowKey} className="home-projects-preview__slide">
+        <article className="home-project-card home-project-card--tile home-project-card--showcase">
+          <Link
+            href={card.href}
+            className="home-project-card__hit"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={
+              card.title
+                ? `View details about ${card.title}`
+                : "View project details"
+            }
+            title={cardLinkTitle}
+          />
+          <div className="home-project-card__media">
+            <img
+              src={card.image}
+              alt={cardImageMeta}
+              title={cardImageMeta}
+              className="home-project-card__image"
+              width={TILE_WIDTH}
+              height={TILE_IMAGE_HEIGHT}
+              loading={idx < eagerImageCount ? "eager" : "lazy"}
+              fetchPriority={idx === 0 && eagerImageCount > 0 ? "high" : "low"}
+              decoding="async"
+            />
+            {card.badge ? (
+              <span
+                className={`home-project-card__chip home-project-card__chip--${card.badgeTone}`}
+              >
+                {card.badge}
+              </span>
+            ) : null}
+          </div>
+          <span className="home-project-card__loc">
+            <span className="home-project-card__loc-icon" aria-hidden="true">
+              <PinIcon />
+            </span>
+            <span className="home-project-card__loc-text">{card.place}</span>
+          </span>
+          <div className="home-project-card__body">
+            <div className="home-project-card__title-row">
+              <h3 className="home-project-card__title">{card.title}</h3>
+              <p className="home-project-card__price">
+                <strong>{card.price}</strong>
+                {card.onwards ? <span>Onwards</span> : null}
+              </p>
+            </div>
+            {card.builder ? (
+              <p className="home-project-card__by">By {card.builder}</p>
+            ) : null}
+            <div className="home-project-card__facts">
+              {card.meta ? (
+                <span className="home-project-card__fact">
+                  <BuildingIcon />
+                  {card.meta}
+                </span>
+              ) : null}
+              {card.lifestyle ? (
+                <span className="home-project-card__fact">
+                  <SparkIcon />
+                  {card.lifestyle}
+                </span>
+              ) : null}
+            </div>
+            <div className="home-project-card__foot">
+              <span className="home-project-card__view">View Details</span>
+              <span className="home-project-card__go" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <ProjectShortlistButton
+            project={card.shortlist}
+            className="home-project-card__save"
+          />
+        </article>
+      </div>
+    );
+  };
+
   if (!safeItems.length) {
     if (loading) {
       return (
         <section
-          className={`container home-projects-preview ${className}`.trim()}
+          className={sectionClass}
           aria-label={title}
           aria-busy="true"
         >
@@ -362,10 +651,7 @@ export default function HomeRecommendationCards({
     }
     if (!emptyMessage && !showViewMore) return null;
     return (
-      <section
-        className={`container home-projects-preview ${className}`.trim()}
-        aria-label={title}
-      >
+      <section className={sectionClass} aria-label={title}>
         {renderHead()}
         {emptyMessage ? (
           <p className="home-projects-preview__sub">{emptyMessage}</p>
@@ -381,7 +667,7 @@ export default function HomeRecommendationCards({
 
   return (
     <section
-      className={`container home-projects-preview ${className}`.trim()}
+      className={sectionClass}
       aria-label={title}
       aria-busy={loading || undefined}
     >
@@ -397,208 +683,15 @@ export default function HomeRecommendationCards({
             className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}
             style={trackStyle}
           >
-            {safeItems.map((item, idx) => {
-              const card = getCardPayload(item, kind);
-              const cardImageMeta = `${card.title} — real estate listing card image on My Property Fact`;
-              const cardLinkTitle = card.title
-                ? `View ${card.title} on My Property Fact`
-                : "View project on My Property Fact";
-              const rowKey =
-                kind === "mixed"
-                  ? `${effectiveCardKind(item, kind)}-${card.key ?? idx}`
-                  : (card.key ?? idx);
-              return (
-                <div key={rowKey} className="home-projects-preview__slide">
-                  <Link
-                    href={card.href}
-                    className="home-project-card home-project-card--poster mpf-lux-card mpf-lux-card--poster"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={
-                      card.title
-                        ? `View details about ${card.title}`
-                        : "View project details"
-                    }
-                    title={cardLinkTitle}
-                  >
-                    <div className="home-project-card__media">
-                      <div className="home-project-card__image-wrap">
-                        <img
-                          src={card.image}
-                          alt={cardImageMeta}
-                          title={cardImageMeta}
-                          className="home-project-card__image"
-                          width={400}
-                          height={360}
-                          loading={idx < eagerImageCount ? "eager" : "lazy"}
-                          fetchPriority={
-                            idx === 0 && eagerImageCount > 0 ? "high" : "low"
-                          }
-                          decoding="async"
-                        />
-                      </div>
-
-                      <LuxuryPricePlaque price={card.price} />
-
-                      <ProjectStatusRibbon
-                        status={card.badge}
-                        className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
-                      />
-                    </div>
-
-                    <div className="home-project-card__overlay">
-                      <div className="home-project-card__title-row">
-                        <h3 className="home-project-card__title">
-                          {card.title}
-                        </h3>
-                        {hasPropertyTypeTag(card.propertyType) ? (
-                          <PropertyTypeTag
-                            type={card.propertyType}
-                            className="mpf-type-tag--lux"
-                          />
-                        ) : null}
-                      </div>
-                      <p className="home-project-card__meta">{card.meta}</p>
-                      <p className="home-project-card__location">
-                        <svg
-                          className="home-project-card__pin"
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          aria-hidden
-                        >
-                          <path
-                            d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          />
-                          <circle
-                            cx="12"
-                            cy="10"
-                            r="2.5"
-                            stroke="currentColor"
-                            strokeWidth="1.8"
-                          />
-                        </svg>
-                        {card.location}
-                      </p>
-                      <div className="mpf-lux-card__bar">
-                        <span className="mpf-lux-card__action">
-                          <svg
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            aria-hidden="true"
-                            width="15"
-                            height="15"
-                          >
-                            <path
-                              d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"
-                              stroke="currentColor"
-                              strokeWidth="1.7"
-                            />
-                            <circle
-                              cx="12"
-                              cy="12"
-                              r="3"
-                              stroke="currentColor"
-                              strokeWidth="1.7"
-                            />
-                          </svg>
-                          <span>View Details</span>
-                        </span>
-                        <span className="mpf-lux-card__go" aria-hidden="true">
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                          >
-                            <path
-                              d="M5 12h14M13 6l6 6-6 6"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
-              );
-            })}
+            {safeItems.map(renderCard)}
             {renderViewMoreCard()}
           </div>
         </div>
       </div>
 
-      {!loading && (viewAllHref || canSlide) && !showViewMore ? (
-        <div
-          className={`home-projects-preview__actions${canSlide ? "" : " home-projects-preview__actions--end"}`}
-        >
-          {viewAllHref ? (
-            <Link
-              href={viewAllHref}
-              className="home-projects-preview__view-all"
-              title={viewMoreLabel}
-            >
-              {viewMoreLabel}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          ) : null}
-          {canSlide ? (
-            <div
-              className="home-projects-preview__nav"
-              aria-label={`${title} navigation`}
-            >
-              <button
-                type="button"
-                className="home-projects-preview__nav-btn"
-                onClick={handlePrev}
-                aria-label={`Show previous ${kind === "property" ? "properties" : "items"}`}
-              >
-                <img
-                  src="/icon/arrow-left-s-line.svg"
-                  alt="Previous"
-                  title="Previous"
-                  width={16}
-                  height={16}
-                  aria-hidden
-                />
-              </button>
-              <button
-                type="button"
-                className="home-projects-preview__nav-btn"
-                onClick={handleNext}
-                aria-label={`Show next ${kind === "property" ? "properties" : "items"}`}
-              >
-                <img
-                  src="/icon/arrow-right-s-line.svg"
-                  alt="Next"
-                  title="Next"
-                  width={16}
-                  height={16}
-                  aria-hidden
-                />
-              </button>
-            </div>
-          ) : null}
+      {!loading && viewAllHref && !showViewMore ? (
+        <div className="home-projects-preview__actions home-projects-preview__actions--center">
+          {renderViewMoreLink()}
         </div>
       ) : null}
     </section>

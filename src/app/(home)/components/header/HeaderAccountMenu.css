@@ -8,55 +8,37 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  min-width: 44px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
   min-height: 42px;
-  padding: 8px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #051a10;
   cursor: pointer;
+  box-shadow: 0 2px 8px rgba(5, 26, 16, 0.16);
   transition:
     background 180ms ease,
-    border-color 180ms ease,
-    transform 180ms ease;
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .mpf-account-trigger:hover,
 .mpf-account-trigger.is-open {
-  background: rgba(255, 255, 255, 0.16);
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #f3f8f4;
+  box-shadow: 0 4px 14px rgba(5, 26, 16, 0.2);
 }
 
 .mpf-account-trigger.is-logged-in {
-  padding-left: 6px;
-  padding-right: 12px;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.mpf-account-burger {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  width: 18px;
-}
-
-.mpf-account-burger span {
+.mpf-account-person {
   display: block;
-  height: 2px;
-  border-radius: 2px;
-  background: currentColor;
-}
-
-.mpf-account-burger span:nth-child(1),
-.mpf-account-burger span:nth-child(3) {
-  width: 70%;
-  margin-left: auto;
-}
-
-.mpf-account-burger span:nth-child(2) {
-  width: 100%;
 }
 
 .mpf-account-avatar {
@@ -278,6 +260,44 @@
   color: #122018;
 }
 
+.mpf-account-panel__links {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-top: 1px solid #e7eee9;
+  background: #fafcfb;
+}
+
+.mpf-account-panel__link {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #122018;
+  font-size: 0.88rem;
+  font-weight: 650;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mpf-account-panel__link:hover {
+  background: #eef6f1;
+  color: #0d5834;
+}
+
+.mpf-account-panel__link--danger {
+  color: #8a3a32;
+}
+
+.mpf-account-panel__link--danger:hover {
+  background: #f8eeee;
+  color: #8a3a32;
+}
+
 .mpf-account-panel__footer {
   display: flex;
   flex-direction: column;
@@ -319,7 +339,23 @@
 }
 
 body:has(.mpf-home-r26) .mpf-account-trigger {
-  min-height: 42px;
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+  width: 42px;
+  height: 42px;
+  background: #fff;
+  color: #051a10;
+}
+
+@media (max-width: 1023.98px) {
+  .mpf-account-trigger,
+  body:has(.mpf-home-r26) .mpf-account-trigger {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .mpf-account-menu .mpf-account-panel {
+    right: 0;
+    left: auto;
+  }
 }

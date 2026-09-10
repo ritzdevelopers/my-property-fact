@@ -29,7 +29,6 @@ import Select from "react-select";
 
 const HOME_HERO_TABS = [
   { key: "All", label: "Buy" },
-  { key: "Rent", label: "Rent" },
   { key: "New Launched", label: "New Launch" },
   { key: "Commercial", label: "Commercial" },
   { key: "Plots", label: "Plots/Land" },
@@ -187,7 +186,42 @@ function PropertyTypeIcon({ typeKey }) {
 
 const QUICK_CITY_CHIPS = ["Noida", "Gurugram", "Delhi", "Ghaziabad", "Bangalore"];
 
-const SEARCH_DEBOUNCE_MS = 300;
+const SEARCH_DEBOUNCE_MS = 450;
+const SEARCH_TOUR_KEY = "mpf-header-search-tour-v1";
+const SEARCH_TOUR_STEP_MS = 2800;
+
+function debounce(fn, wait) {
+  let timer = 0;
+  const wrapped = (...args) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => fn(...args), wait);
+  };
+  wrapped.cancel = () => window.clearTimeout(timer);
+  return wrapped;
+}
+
+function useDebouncedValue(value, wait) {
+  const [debounced, setDebounced] = useState(value);
+  const fnRef = useRef((next) => setDebounced(next));
+  fnRef.current = (next) => setDebounced(next);
+
+  const debouncedSet = useMemo(
+    () => debounce((next) => fnRef.current(next), wait),
+    [wait],
+  );
+
+  useEffect(() => {
+    if (String(value || "").trim().length < 2) {
+      debouncedSet.cancel();
+      setDebounced(value);
+      return undefined;
+    }
+    debouncedSet(value);
+    return () => debouncedSet.cancel();
+  }, [value, debouncedSet]);
+
+  return [debounced, setDebounced];
+}
 const SUGGESTION_LIMIT = 8;
 const SUGGESTION_KIND_LABELS = {
   intent: "Search",
@@ -396,7 +430,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [activeTab, setActiveTab] = useState("All");
   const [categoryKey, setCategoryKey] = useState("all");
   const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useDebouncedValue(searchInput, SEARCH_DEBOUNCE_MS);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [filterMode, setFilterMode] = useState("residential");
@@ -412,7 +446,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [isSearchSticky, setIsSearchSticky] = useState(false);
   const [stickyHost, setStickyHost] = useState(null);
-  const [stickyTabOpen, setStickyTabOpen] = useState(false);
+  const [searchTourStep, setSearchTourStep] = useState(null);
 
   const openHeroSelectMenu = (menu) => {
     setHeroSelectMenu(menu);
@@ -496,7 +530,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         const sticky = !entry.isIntersecting && entry.boundingClientRect.top < 80;
         setIsSearchSticky(sticky);
         document.body.classList.toggle("mpf-search-sticky", sticky);
-        if (!sticky) setStickyTabOpen(false);
+        if (!sticky) setSearchTourStep(null);
       },
       { threshold: 0, rootMargin: "-72px 0px 0px 0px" },
     );
@@ -506,6 +540,41 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       document.body.classList.remove("mpf-search-sticky");
     };
   }, [isHomeHero]);
+
+  const finishSearchTour = useCallback(() => {
+    setSearchTourStep(null);
+    try {
+      sessionStorage.setItem(SEARCH_TOUR_KEY, "1");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const startSearchTour = useCallback(() => {
+    try {
+      if (sessionStorage.getItem(SEARCH_TOUR_KEY)) return;
+    } catch {
+      /* ignore */
+    }
+    setSearchTourStep((current) => current || "location");
+  }, []);
+
+  useEffect(() => {
+    if (!searchTourStep) return undefined;
+    const timer = window.setTimeout(() => {
+      if (searchTourStep === "location") setSearchTourStep("voice");
+      else finishSearchTour();
+    }, SEARCH_TOUR_STEP_MS);
+    return () => window.clearTimeout(timer);
+  }, [searchTourStep, finishSearchTour]);
+
+  useEffect(() => {
+    document.body.classList.toggle("mpf-search-tour-location", searchTourStep === "location");
+    document.body.classList.toggle("mpf-search-tour-voice", searchTourStep === "voice");
+    return () => {
+      document.body.classList.remove("mpf-search-tour-location", "mpf-search-tour-voice");
+    };
+  }, [searchTourStep]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -544,15 +613,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     }
 
     setSuggestionsReady(false);
-    const timer = setTimeout(() => setDebouncedSearch(trimmedInput), SEARCH_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [searchInput, trimmedInput]);
-
-  useEffect(() => {
-    if (trimmedInput.length < 2) return undefined;
     if (trimmedInput !== debouncedSearch) return undefined;
 
-    const timer = setTimeout(() => setSuggestionsReady(true), 120);
+    const timer = setTimeout(() => setSuggestionsReady(true), 80);
     return () => clearTimeout(timer);
   }, [debouncedSearch, trimmedInput]);
 
@@ -1066,6 +1129,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         }}
         onFocus={() => {
           if (trimmedInput.length >= 2) setDropdownOpen(true);
+          if (isSearchSticky) startSearchTour();
         }}
         placeholder={
           isHomeHero
@@ -1099,28 +1163,38 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         <span className="smart-search-input-tools">
           <button
             type="button"
-            className="smart-search-input-tool"
+            className={`smart-search-input-tool${isSearchSticky && searchTourStep === "location" ? " is-tour-on" : ""}`}
             aria-label="Use current location"
             title="Use current location"
-            onClick={() => document.querySelector(".mpf-header-location-pill--action")?.click()}
+            onClick={() => {
+              if (searchTourStep === "location") setSearchTourStep("voice");
+              document.querySelector(".mpf-header-location-pill--action")?.click();
+            }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4Zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06ZM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7Z" />
             </svg>
+            {isSearchSticky && searchTourStep === "location" ? (
+              <span className="smart-search-tour-tip">Set your current location first</span>
+            ) : null}
           </button>
           <button
             type="button"
-            className="smart-search-input-tool"
+            className={`smart-search-input-tool${isSearchSticky && searchTourStep === "voice" ? " is-tour-on" : ""}`}
             aria-label="Search by voice"
             title="Search by voice"
             onClick={() => {
+              if (searchTourStep) finishSearchTour();
               const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
               if (!Speech) return;
               const rec = new Speech();
               rec.lang = "en-IN";
               rec.onresult = (event) => {
                 const spoken = event.results?.[0]?.[0]?.transcript;
-                if (spoken) setSearchInput(spoken);
+                if (spoken) {
+                  setSearchInput(spoken);
+                  setDebouncedSearch(spoken);
+                }
               };
               rec.start();
             }}
@@ -1128,6 +1202,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
               <path d="M11.9998 3C10.3429 3 8.99976 4.34315 8.99976 6V10C8.99976 11.6569 10.3429 13 11.9998 13C13.6566 13 14.9998 11.6569 14.9998 10V6C14.9998 4.34315 13.6566 3 11.9998 3ZM11.9998 1C14.7612 1 16.9998 3.23858 16.9998 6V10C16.9998 12.7614 14.7612 15 11.9998 15C9.23833 15 6.99976 12.7614 6.99976 10V6C6.99976 3.23858 9.23833 1 11.9998 1ZM3.05469 11H5.07065C5.55588 14.3923 8.47329 17 11.9998 17C15.5262 17 18.4436 14.3923 18.9289 11H20.9448C20.4837 15.1716 17.1714 18.4839 12.9998 18.9451V23H10.9998V18.9451C6.82814 18.4839 3.51584 15.1716 3.05469 11Z" />
             </svg>
+            {isSearchSticky && searchTourStep === "voice" ? (
+              <span className="smart-search-tour-tip">Then search by speaking</span>
+            ) : null}
           </button>
         </span>
       ) : null}
@@ -1602,7 +1679,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
               <div className="smart-search-recent__pills">
                 {keywordRecents.slice(0, 8).map((item) => (
                   <span key={item.id} className="smart-search-recent__pill">
-                    <svg className="smart-search-recent__clock" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <svg className="smart-search-recent__clock" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
                       <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
                       <path d="M12 8v4l3 1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
                     </svg>
@@ -1719,43 +1796,6 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       {isHomeHero && !isClassicHero && isSearchSticky && stickyHost
         ? createPortal(
             <form className="smart-search-bar smart-search-bar--sticky-ss" onSubmit={handleSearch}>
-              <div className={`smart-search-sticky-buy${stickyTabOpen ? " is-open" : ""}`}>
-                <button
-                  type="button"
-                  className="smart-search-sticky-buy__trigger"
-                  aria-haspopup="listbox"
-                  aria-expanded={stickyTabOpen}
-                  onClick={() => {
-                    setStickyTabOpen((open) => !open);
-                    setDropdownOpen(false);
-                    setCategoryOpen(false);
-                  }}
-                >
-                  <span>{HOME_HERO_TABS.find((tab) => tab.key === activeTab)?.label || "Buy"}</span>
-                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
-                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                  </svg>
-                </button>
-                {stickyTabOpen ? (
-                  <div className="smart-search-sticky-buy__menu" role="listbox">
-                    {HOME_HERO_TABS.map((tab) => (
-                      <button
-                        key={tab.key}
-                        type="button"
-                        role="option"
-                        aria-selected={activeTab === tab.key}
-                        className={activeTab === tab.key ? "is-active" : ""}
-                        onClick={() => {
-                          handleTabChange(tab.key);
-                          setStickyTabOpen(false);
-                        }}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-                ) : null}
-              </div>
               <div className="smart-search-input-wrap">{searchInputField}</div>
               <button type="submit" className="smart-search-sticky-go" aria-label="Search">
                 {loading ? (

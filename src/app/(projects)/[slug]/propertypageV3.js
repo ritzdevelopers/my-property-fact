@@ -538,6 +538,25 @@ export default function PropertyV3({
     })();
   }, [nearbyBenefitsList]);
 
+  useEffect(() => {
+    const slug = projectDetail?.slugURL || projectDetail?.slug;
+    const name = projectDetail?.projectName || projectDetail?.name;
+    if (!slug && !name) return undefined;
+    let cancelled = false;
+    import("@/lib/userActivity").then(({ recordProjectView }) => {
+      if (cancelled) return;
+      recordProjectView({
+        id: projectDetail?.id,
+        slug,
+        label: name,
+        href: slug ? `/${slug}` : "",
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [projectDetail?.id, projectDetail?.slugURL, projectDetail?.slug, projectDetail?.projectName, projectDetail?.name]);
+
   /** Scroll-spy for sticky tab active state. */
   useEffect(() => {
     const opts = {

@@ -1,6 +1,6 @@
 "use client";
 
-import "./home-redesign.css";
+import "./home-new.css";
 
 /** Wraps home server content (layout wrapper only; gateway motion is header-only). */
 export default function HomeIntroMotion({ children }) {

@@ -6,6 +6,9 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
+import WebsiteOtpModal from "../_homecomponents/WebsiteOtpModal";
+import HeaderAccountMenu from "./HeaderAccountMenu";
+import HeaderLatestSpark from "./HeaderLatestSpark";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -119,6 +122,8 @@ const HeaderComponent = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
+  const [showWebsiteLoginModal, setShowWebsiteLoginModal] = useState(false);
+  const [websiteAuthFlow, setWebsiteAuthFlow] = useState("login");
   const [selectedCity, setSelectedCity] = useState("");
   const [showLocationToast, setShowLocationToast] = useState(false);
   const [locationHint, setLocationHint] = useState("");
@@ -309,41 +314,6 @@ const HeaderComponent = () => {
       }
     };
 
-    // Handle resize to close mobile menu on desktop
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        const menu = document.getElementById("mbdiv");
-        const menuButtons = document.getElementsByClassName("menuBtn");
-        if (menu && menu.classList.contains("active")) {
-          // Close the menu
-          for (let i = 0; i < menuButtons.length; i++) {
-            menuButtons[i].classList.remove("closeMenuBtn");
-          }
-          menu.style.display = "none";
-          menu.classList.remove("active");
-          document.body.classList.remove("menu-open");
-
-          // Remove notfixed class from header
-          const header = document.querySelector(".header");
-          if (header) {
-            header.classList.remove("notfixed");
-          }
-
-          // Restore body scroll
-          document.body.style.overflow = "";
-          document.body.style.position = "";
-          document.body.style.top = "";
-          document.body.style.width = "";
-          document.body.style.height = "";
-          document.documentElement.style.overflow = "";
-          document.documentElement.style.height = "";
-
-          // Restore scroll position
-          window.scrollTo(0, scrollPositionRef.current);
-        }
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: false });
     window.addEventListener("wheel", preventScroll, { passive: false });
     // Use capture phase to check before other handlers
@@ -351,13 +321,11 @@ const HeaderComponent = () => {
       passive: false,
       capture: true,
     });
-    window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("wheel", preventScroll);
       window.removeEventListener("touchmove", preventScroll);
-      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -460,6 +428,22 @@ const HeaderComponent = () => {
   const openBrokerLoginModal = () => {
     setShowBrokerLoginModal(true);
   };
+
+  const openWebsiteLoginModal = (flow = "login") => {
+    setWebsiteAuthFlow(flow === "register" ? "register" : "login");
+    setShowWebsiteLoginModal(true);
+  };
+
+  useEffect(() => {
+    const openPost = () => setShowBrokerLoginModal(true);
+    const openLogin = (event) => openWebsiteLoginModal(event?.detail?.flow || "login");
+    window.addEventListener("mpf-open-post-property", openPost);
+    window.addEventListener("mpf-open-website-login", openLogin);
+    return () => {
+      window.removeEventListener("mpf-open-post-property", openPost);
+      window.removeEventListener("mpf-open-website-login", openLogin);
+    };
+  }, []);
 
   // Handle Project Search - keep typing responsive by debouncing actual search work
   useEffect(() => {
@@ -1045,6 +1029,7 @@ const HeaderComponent = () => {
                 {locationMenu}
               </div>
             ) : null}
+            {isHomePage ? <HeaderLatestSpark /> : null}
           </div>
           <nav className="d-none d-lg-flex flex-grow-1 justify-content-end align-items-center">
             <div className={`menu position-relative${isHomePage ? " header-home-ss__menu" : ""}`}>
@@ -1318,6 +1303,7 @@ const HeaderComponent = () => {
             </div>
             {isHomePage ? (
               <div className="mpf-header-home-actions d-none d-lg-flex align-items-center">
+                <div id="mpf-header-sticky-search" className="mpf-header-sticky-search" />
                 <a href="tel:+918920024793" className="mpf-header-phone" title="Sales enquiry">
                   <svg className="mpf-header-phone__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -1338,15 +1324,17 @@ const HeaderComponent = () => {
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                className="header-post-property-cta d-none d-lg-inline-flex"
-                onClick={openBrokerLoginModal}
-                title="Post your property for free"
-              >
-                <span className="header-post-property-cta__text">Post Your Property</span>
-                <span className="header-post-property-cta__badge">FREE</span>
-              </button>
+              <div className="d-none d-lg-flex align-items-center gap-2">
+                <button
+                  type="button"
+                  className="header-post-property-cta d-none d-lg-inline-flex"
+                  onClick={openBrokerLoginModal}
+                  title="Post your property for free"
+                >
+                  <span className="header-post-property-cta__text">Post Your Property</span>
+                  <span className="header-post-property-cta__badge">FREE</span>
+                </button>
+              </div>
             )}
           </nav>
           <button
@@ -1358,7 +1346,8 @@ const HeaderComponent = () => {
             <span className="header-post-property-cta__text">Post Property</span>
             <span className="header-post-property-cta__badge">FREE</span>
           </button>
-          <div className="header-mobile-actions d-flex d-lg-none align-items-center">
+          <div className="header-mobile-actions d-flex align-items-center">
+            <HeaderAccountMenu onRequestAuth={openWebsiteLoginModal} />
             <button
               type="button"
               className="menuBtn"
@@ -1418,6 +1407,34 @@ const HeaderComponent = () => {
             </button>
           </div>
           <div className="h-100 scroller">
+            <div className="mpf-drawer-header-links">
+              <p className="mpf-drawer-header-links__label">Explore</p>
+              <div className="mpf-drawer-header-links__grid">
+                <Link href="/projects/residential" onClick={openMenu} title="Residential projects">
+                  Residential
+                </Link>
+                <Link href="/projects/commercial" onClick={openMenu} title="Commercial projects">
+                  Commercial
+                </Link>
+                <Link href="/projects/new-launches" onClick={openMenu} title="New launch projects">
+                  New Launches
+                </Link>
+                <Link href="/blog" onClick={openMenu} title="Articles and news">
+                  Articles &amp; News
+                </Link>
+              </div>
+              <button
+                type="button"
+                className="mpf-drawer-post-property"
+                onClick={() => {
+                  openMenu();
+                  openBrokerLoginModal();
+                }}
+              >
+                Post Your Property
+                <span>FREE</span>
+              </button>
+            </div>
             {/* Mobile Projects Search - aligned with desktop */}
             <div className="mobile-projects-search">
               {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
@@ -1838,6 +1855,11 @@ const HeaderComponent = () => {
         </div>
       ) : null}
       <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
+      <WebsiteOtpModal
+        show={showWebsiteLoginModal}
+        onClose={setShowWebsiteLoginModal}
+        initialFlow={websiteAuthFlow}
+      />
     </>
   );
 };

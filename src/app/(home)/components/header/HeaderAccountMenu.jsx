@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Cookies from "js-cookie";
 import { getAccessToken } from "@/lib/apiAuth";
+import { AUTH_CHANGED_EVENT } from "@/lib/userActivity";
 import {
   clearRecentSearches,
   loadRecentActivity,
@@ -12,7 +13,7 @@ import {
 } from "@/app/_global_components/smartSearchParser";
 import "./HeaderAccountMenu.css";
 
-export const AUTH_CHANGED_EVENT = "mpf-auth-changed";
+export { AUTH_CHANGED_EVENT };
 
 function readStoredUser() {
   if (typeof window === "undefined") return null;
@@ -63,13 +64,17 @@ function kindLabel(kind) {
   return "Keyword";
 }
 
-function HamburgerIcon() {
+function PersonIcon() {
   return (
-    <span className="mpf-account-burger" aria-hidden="true">
-      <span />
-      <span />
-      <span />
-    </span>
+    <svg className="mpf-account-person" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="8" r="3.4" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M5 19.2c.6-3.4 3.4-5.4 7-5.4s6.4 2 7 5.4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -215,22 +220,37 @@ function AccountPanel({
         )}
       </div>
 
-      {loggedIn ? (
-        <div className="mpf-account-panel__footer">
-          <Link href="/portal/dashboard" className="mpf-account-panel__dash" onClick={onClose}>
-            Go to broker portal
+      <nav className="mpf-account-panel__links" aria-label="Account shortcuts">
+        {loggedIn ? (
+          <Link href="/account" className="mpf-account-panel__link" onClick={onClose}>
+            My Activity
           </Link>
-          <button type="button" className="mpf-account-panel__logout" onClick={onLogout}>
+        ) : (
+          <button type="button" className="mpf-account-panel__link" onClick={onLogin}>
+            My Activity
+          </button>
+        )}
+        <Link href="/portal" className="mpf-account-panel__link" onClick={onClose}>
+          Broker Portal
+        </Link>
+        <button
+          type="button"
+          className="mpf-account-panel__link"
+          onClick={() => {
+            onClose();
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new Event("mpf-open-post-property"));
+            }
+          }}
+        >
+          Post Property
+        </button>
+        {loggedIn ? (
+          <button type="button" className="mpf-account-panel__link mpf-account-panel__link--danger" onClick={onLogout}>
             Logout
           </button>
-        </div>
-      ) : (
-        <div className="mpf-account-panel__footer">
-          <Link href="/portal" className="mpf-account-panel__dash" onClick={onClose}>
-            Broker property portal
-          </Link>
-        </div>
-      )}
+        ) : null}
+      </nav>
     </div>
   );
 }
@@ -263,7 +283,7 @@ export default function HeaderAccountMenu({ onRequestAuth }) {
   };
 
   return (
-    <div className="mpf-account-menu d-none d-lg-block" ref={wrapRef}>
+    <div className="mpf-account-menu" ref={wrapRef}>
       <button
         type="button"
         className={`mpf-account-trigger${loggedIn ? " is-logged-in" : ""}${open ? " is-open" : ""}`}
@@ -276,8 +296,9 @@ export default function HeaderAccountMenu({ onRequestAuth }) {
           <span className="mpf-account-avatar" aria-hidden="true">
             {initials(user)}
           </span>
-        ) : null}
-        <HamburgerIcon />
+        ) : (
+          <PersonIcon />
+        )}
       </button>
       {open ? (
         <AccountPanel

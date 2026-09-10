@@ -1,80 +1,8 @@
 import { NextResponse } from "next/server";
+import { lookupIpGeo, resolveClientIp } from "@/lib/ipGeoProviders";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-function isPrivateIp(ip) {
-  if (!ip) return true;
-  const v = ip.replace(/^::ffff:/, "");
-  if (v === "::1" || v === "127.0.0.1" || v === "localhost") return true;
-  if (v.startsWith("10.")) return true;
-  if (v.startsWith("192.168.")) return true;
-  if (/^172\.(1[6-9]|2\d|3[0-1])\./.test(v)) return true;
-  return false;
-}
-
-function clientIp(request) {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
-    if (first && !isPrivateIp(first)) return first;
-  }
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp && !isPrivateIp(realIp.trim())) return realIp.trim();
-  // Localhost / private IP → let ipwho.is detect the egress public IP
-  return null;
-}
-
-async function lookupIp(ip) {
-  const urls = [
-    ip ? `https://ipwho.is/${encodeURIComponent(ip)}` : "https://ipwho.is/",
-    "https://ipapi.co/json/",
-  ];
-
-  for (const url of urls) {
-    try {
-      const res = await fetch(url, {
-        cache: "no-store",
-        headers: { Accept: "application/json" },
-      });
-      if (!res.ok) continue;
-      const data = await res.json();
-
-      if (url.includes("ipwho.is") && data?.success !== false && data?.ip) {
-        return {
-          ip: data.ip,
-          city: data.city || "",
-          region: data.region || data.region_code || "",
-          country: data.country || "",
-          countryCode: data.country_code || "",
-          isp: data.connection?.isp || data.connection?.org || data.org || "",
-          timezone: data.timezone?.id || data.timezone || "",
-          lat: data.latitude,
-          lon: data.longitude,
-          source: "ip",
-        };
-      }
-
-      if (url.includes("ipapi.co") && !data?.error && data?.ip) {
-        return {
-          ip: data.ip,
-          city: data.city || "",
-          region: data.region || "",
-          country: data.country_name || "",
-          countryCode: data.country_code || "",
-          isp: data.org || "",
-          timezone: data.timezone || "",
-          lat: data.latitude,
-          lon: data.longitude,
-          source: "ip",
-        };
-      }
-    } catch {
-      /* try next */
-    }
-  }
-  return null;
-}
 
 async function reverseGeocode(lat, lon) {
   try {
@@ -136,8 +64,8 @@ export async function GET(request) {
     const gpsLat = searchParams.get("lat");
     const gpsLon = searchParams.get("lon");
 
-    const ip = clientIp(request);
-    const ipGeo = await lookupIp(ip);
+    const ip = resolveClientIp(request);
+    const ipGeo = await lookupIpGeo(ip);
 
     let geo = ipGeo
       ? { ...ipGeo }

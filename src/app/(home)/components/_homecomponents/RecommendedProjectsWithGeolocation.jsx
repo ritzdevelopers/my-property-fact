@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HomeRecommendationCards from "./HomeRecommendationCards";
 import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
+import { resolveDeviceCity } from "@/lib/resolveIpCity";
 
 /** Ultimate fallback when GPS is denied and IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_LOCATION = "Delhi NCR";
@@ -38,6 +39,7 @@ export default function RecommendedProjectsWithGeolocation({
   const [activeViewAllHref, setActiveViewAllHref] = useState(viewAllHref);
   const [activeCity, setActiveCity] = useState("");
   const cityOverrideRef = useRef("");
+  const citySourceRef = useRef("");
   const fetchGenRef = useRef(0);
   const fallbackItemsRef = useRef(fallbackItems);
 
@@ -155,38 +157,55 @@ export default function RecommendedProjectsWithGeolocation({
     [applyCityResults, locationIntent],
   );
 
-  /** IP city only — GPS is requested from the header location button click. */
-  const applyIpCityFallback = useCallback(async () => {
+  const applyDetectedCity = useCallback(async () => {
     try {
-      const ipRes = await fetch("/api/home/ip-city", { cache: "no-store" });
-      const ipData = await ipRes.json();
-      const ipCity = String(ipData?.city || "").trim();
-      if (!ipCity) {
+      const { city, source } = await resolveDeviceCity();
+      if (citySourceRef.current === "gps" || citySourceRef.current === "manual") {
+        return;
+      }
+      if (!city) {
         cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
+        citySourceRef.current = "ip";
         await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
         return;
       }
-      cityOverrideRef.current = ipCity;
-      await fetchForCity(ipCity, { fallbackToNcrOnEmpty: true });
+      cityOverrideRef.current = city;
+      citySourceRef.current = source || "ip";
+      await fetchForCity(city, { fallbackToNcrOnEmpty: source !== "gps" });
     } catch {
+      if (citySourceRef.current === "gps" || citySourceRef.current === "manual") return;
       cityOverrideRef.current = DEFAULT_CITY_WITHOUT_LOCATION;
+      citySourceRef.current = "ip";
       await fetchForCity(DEFAULT_CITY_WITHOUT_LOCATION);
     }
   }, [fetchForCity]);
 
   useEffect(() => {
-    // Do not call geolocation here — that would prompt/deny before the header button click.
-    applyIpCityFallback();
-  }, [applyIpCityFallback]);
+    applyDetectedCity();
+  }, [applyDetectedCity]);
 
   useEffect(() => {
     const handleCityChanged = (e) => {
       const cityName = cityNameFromEvent(e.detail);
       if (!cityName) return;
+      const source = String(e.detail?.source || "manual").trim() || "manual";
+
+      if (source === "ip" && (citySourceRef.current === "gps" || citySourceRef.current === "manual")) {
+        return;
+      }
+
+      // Keep a specific GPS/manual city if header later falls back to Delhi NCR.
+      if (
+        isDelhiNcrLabel(cityName) &&
+        cityOverrideRef.current &&
+        !isDelhiNcrLabel(cityOverrideRef.current)
+      ) {
+        return;
+      }
 
       cityOverrideRef.current = cityName;
+      citySourceRef.current = source;
 
-      // Header auto-detect often falls back to Delhi NCR — keep SSR scope when already loaded.
       if (isDelhiNcrLabel(cityName) && fallbackItemsRef.current?.length > 0) {
         setActiveCity(cityName);
         return;

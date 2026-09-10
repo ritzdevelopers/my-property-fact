@@ -1,0 +1,76 @@
+.portal-listing-stats__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.85rem 1.25rem;
+  margin-bottom: 1.1rem;
+}
+
+.portal-listing-stats__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  align-items: center;
+}
+
+.portal-listing-stats__search {
+  min-width: min(280px, 100%);
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #d7e0da;
+  border-radius: 10px;
+  background: #fff;
+  color: #122018;
+  font-size: 0.86rem;
+}
+
+.portal-listing-stats__name {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.portal-listing-stats__meta {
+  margin-top: 2px;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.portal-listing-stats__type {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.portal-listing-stats__type--broker {
+  background: #e8f5ee;
+  color: #0d5834;
+}
+
+.portal-listing-stats__type--owner {
+  background: #f7efd6;
+  color: #8d6d32;
+}
+
+.portal-listing-stats__foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 12px 4px 0;
+}
+
+.portal-listing-stats__foot a {
+  color: #0d5834;
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.portal-listing-stats__foot a:hover {
+  text-decoration: underline;
+}

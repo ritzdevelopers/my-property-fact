@@ -163,6 +163,8 @@ export function canAccessAdminPath(roles, permissions, pathname) {
 
   if (
     pathname.startsWith("/admin/dashboard/manage-users") ||
+    pathname.startsWith("/admin/dashboard/manage-portal-users") ||
+    pathname.startsWith("/admin/dashboard/portal-listing-stats") ||
     pathname.startsWith("/admin/dashboard/pending-permissions") ||
     pathname.startsWith("/admin/dashboard/pending-admin-approvals")
   ) {

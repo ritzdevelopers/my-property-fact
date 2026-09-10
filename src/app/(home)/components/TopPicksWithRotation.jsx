@@ -2,6 +2,6 @@
 
 import MpfTopPicks from "./mpfTopPick";
 
-export default function TopPicksWithRotation({ initialProject }) {
-  return <MpfTopPicks topProject={initialProject ?? null} />;
+export default function TopPicksWithRotation({ initialProjects }) {
+  return <MpfTopPicks topProjects={initialProjects ?? []} />;
 }

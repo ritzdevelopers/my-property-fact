@@ -690,6 +690,11 @@ a.mpf-tp__dev-name:focus-visible {
     align-items: flex-start;
   }
 
+  .mpf-tp__head-copy {
+    width: 100%;
+    text-align: center;
+  }
+
   .mpf-tp__nav {
     width: 100%;
     justify-content: flex-start;
@@ -717,6 +722,12 @@ a.mpf-tp__dev-name:focus-visible {
   .mpf-tp__media {
     aspect-ratio: 4 / 3;
     max-height: 260px;
+  }
+
+  .mpf-tp__badge {
+    top: 0.75rem;
+    right: 0.75rem;
+    bottom: auto;
   }
 
   .mpf-tp__usps {

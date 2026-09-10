@@ -313,16 +313,16 @@ export default function MpfTopPicks({ topProjects }) {
                         })}
                       </ul>
                     )}
-                  </div>
 
-                  {slide.status && (
-                    <p
-                      className="mpf-tp__badge"
-                      title={`Project status: ${slide.statusFull}`}
-                    >
-                      {slide.status}
-                    </p>
-                  )}
+                    {slide.status && (
+                      <p
+                        className="mpf-tp__badge"
+                        title={`Project status: ${slide.statusFull}`}
+                      >
+                        {slide.status}
+                      </p>
+                    )}
+                  </div>
 
                   <div className="mpf-tp__panel">
                     <div className="mpf-tp__dev">

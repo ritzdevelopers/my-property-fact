@@ -30,13 +30,11 @@ const USP_ICONS = {
 const pad2 = (value) => String(value).padStart(2, "0");
 
 /**
- * Left edge of the image panel, traced from the approved design.
- * Object-bounding-box units, so the curve stretches with the panel:
- * it enters at 31.8% across the top, bulges out to the panel edge at 58.8%
- * of the height, then eases back to 8.2% at the bottom.
+ * Half-ellipse matching the curve language of the cream plaque.
+ * Object-bounding-box units keep it proportional without matching plaque size.
  */
 const MEDIA_CLIP_PATH =
-  "M1,0 H0.3184 C0.1019,0.0294 0,0.3174 0,0.5877 C0,0.831 0.0767,0.9835 0.0816,1 H1 Z";
+  "M1,0 H0.24 C0.1075,0 0,0.2239 0,0.5 C0,0.7761 0.1075,1 0.24,1 H1 Z";
 
 /** "2 BHK-863 sq.ft, 3 BHK-990 sq.ft, 4 BHK-1552 sq.ft" → "2, 3 & 4 BHK" */
 function summariseConfiguration(configuration) {

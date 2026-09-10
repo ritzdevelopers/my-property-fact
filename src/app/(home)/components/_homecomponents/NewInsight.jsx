@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PiCalculatorLight, PiHouseLine } from "react-icons/pi";
+import { PiCalculatorLight } from "react-icons/pi";
 import { GrScorecard } from "react-icons/gr";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
@@ -19,19 +19,6 @@ const INSIGHTS = [
       "Take the guesswork out of home financing. Our advanced EMI calculator provides a complete amortization schedule, helps you understand the impact of prepayments, and allows you to compare different loan offers side-by-side.",
     cta: "Open EMI Calculator",
     href: "/emi-calculator",
-  },
-  {
-    id: "home-loan-calculator",
-    tabLabel: "Home Loan Calculator",
-    Icon: PiHouseLine,
-    iconTitle: "Home Loan Calculator — Expert Insights and Resources",
-    badge: "Financial Tool",
-    readTime: "3 min read",
-    title: "Check Your Home Loan Eligibility Instantly",
-    description:
-      "Find out how much home loan you may be eligible for based on your income, existing EMIs, tenure, and interest rate. Get a clear estimate of EMI, interest payable, and total cost before you apply.",
-    cta: "Open Home Loan Calculator",
-    href: "/home-loan-calculator",
   },
   {
     id: "locate-score",

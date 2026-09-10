@@ -18,9 +18,9 @@ export default function EnquiryForm() {
     <form
       onSubmit={handleSubmit}
       noValidate
-      className="relative z-10 mt-[35px] flex w-full max-w-[952px] flex-col gap-5 rounded-3xl border-[1.25px] border-[#262626] bg-black/60 p-[33px] shadow-[0_25px_50px_rgba(0,0,0,0.25)] max-[800px]:h-auto"
+      className="relative z-10 mt-[35px] flex w-full max-w-[952px] flex-col gap-5 rounded-3xl border-[1.25px] border-[#262626] bg-black/60 p-[33px] shadow-[0_25px_50px_rgba(0,0,0,0.25)] max-[800px]:mt-5 max-[800px]:h-auto max-[800px]:gap-3 max-[800px]:p-4"
     >
-      <div className="grid grid-cols-2 gap-5 max-[800px]:grid-cols-1">
+      <div className="grid grid-cols-2 gap-5 max-[800px]:grid-cols-1 max-[800px]:gap-3">
         <label className="flex flex-col gap-2 text-sm font-medium text-white">
           Full Name *
           <input
@@ -31,7 +31,7 @@ export default function EnquiryForm() {
             disabled={isSubmitting}
             aria-invalid={Boolean(fieldErrors.name)}
             onChange={() => clearFieldError("name")}
-            className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white ${
+            className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white max-[800px]:h-11 ${
               fieldErrors.name ? "border-red-400" : "border-none"
             }`}
           />
@@ -52,7 +52,7 @@ export default function EnquiryForm() {
             disabled={isSubmitting}
             aria-invalid={Boolean(fieldErrors.email)}
             onChange={() => clearFieldError("email")}
-            className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white ${
+            className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white max-[800px]:h-11 ${
               fieldErrors.email ? "border-red-400" : "border-none"
             }`}
           />
@@ -76,7 +76,7 @@ export default function EnquiryForm() {
           disabled={isSubmitting}
           aria-invalid={Boolean(fieldErrors.phone)}
           onChange={() => clearFieldError("phone")}
-          className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white ${
+          className={`h-[50px] rounded-[50px] border bg-[#262626] px-4 py-3 text-base text-white outline-none placeholder:text-white/50 focus:border-white max-[800px]:h-11 ${
             fieldErrors.phone ? "border-red-400" : "border-none"
           }`}
         />
@@ -96,7 +96,7 @@ export default function EnquiryForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="btn-7peaks-slide btn-7peaks-slide--light mx-auto mt-auto h-[55px] w-[168px] cursor-pointer rounded-[50px] border-0 text-[17px] font-semibold disabled:cursor-not-allowed disabled:opacity-70"
+        className="btn-7peaks-slide btn-7peaks-slide--light mx-auto mt-auto h-[55px] w-[168px] cursor-pointer rounded-[50px] border-0 text-[17px] font-semibold disabled:cursor-not-allowed disabled:opacity-70 max-[800px]:h-11 max-[800px]:w-[150px] max-[800px]:text-[15px]"
       >
         <span className="relative z-[1]">
           {isSubmitting ? "Submitting..." : "Submit Enquiry"}

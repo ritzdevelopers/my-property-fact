@@ -5,6 +5,14 @@ import {
   resolveCitySlug,
 } from "./cityAliasUtils";
 import {
+  filterHiddenBuilders,
+  filterHiddenProjects,
+  filterHiddenProjectsFromPayload,
+  isHiddenBuilderSlug,
+  isHiddenProject,
+  isHiddenProjectSlug,
+} from "./hiddenBuilderUtils";
+import {
   canonicalFloorSlugForUrl,
   floorSlugToListingLabel,
   hasCompoundListingDataInCity,
@@ -16,9 +24,11 @@ export { floorSlugToListingLabel } from "../../lib/listingFloorValidation";
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 // Function to check if a given slug corresponds to a valid project
 export async function checkIfProjectSlug(slug) {
+  if (isHiddenProjectSlug(slug)) return false;
   const projects = await axios.get(
     `${process.env.NEXT_PUBLIC_API_URL}projects/get/${slug}`,
   );
+  if (isHiddenProject(projects.data)) return false;
   if (projects.data.slugURL === slug) {
     return true;
   } else {
@@ -39,7 +49,7 @@ export const fetchAllProjects = cache(async () => {
     });
     if (!res.ok) throw new Error("Failed to fetch projects");
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    return filterHiddenProjects(Array.isArray(data) ? data : []);
   } catch (error) {
     console.error("Error fetching projects:", error);
     return [];
@@ -102,7 +112,13 @@ export const fetchBuilderData = cache(async () => {
       next: { revalidate: 60 },
     });
     if (!res.ok) throw new Error("Failed to fetch builders");
-    return res.json();
+    const data = await res.json();
+    if (data?.builders) {
+      return { ...data, builders: filterHiddenBuilders(data.builders) };
+    }
+    return Array.isArray(data)
+      ? filterHiddenBuilders(data)
+      : data;
   } catch (error) {
     console.error("Error fetching builders:", error);
     return { builders: [] };
@@ -114,6 +130,7 @@ export const fetchProjectDetailsBySlug = cache(async (slug) => {
     return "";
   }
   const clean = String(slug).trim();
+  if (isHiddenProjectSlug(clean)) return "";
   const res = await fetch(`${apiUrl}projects/get/${encodeURIComponent(clean)}`, {
     next: { revalidate: 60 },
   });
@@ -131,6 +148,7 @@ export const fetchProjectDetailsBySlug = cache(async (slug) => {
     data.slugURL != null ? String(data.slugURL).trim() : data.slugUrl != null ? String(data.slugUrl).trim() : "";
   if (!resolvedSlug) return "";
   if (resolvedSlug.toLowerCase() !== clean.toLowerCase()) return "";
+  if (isHiddenProject(data)) return "";
   return data;
 });
 
@@ -437,7 +455,7 @@ export const fetchCityDetailsBySlug = cache(async (slug) => {
       data.slugURL || data.slugUrl || canonical,
     );
     if (resolvedSlug !== canonical) return null;
-    return data;
+    return filterHiddenProjectsFromPayload(data);
   } catch {
     return null;
   }
@@ -746,7 +764,7 @@ export const fetchAllProjectsByProjectType = cache(async (projectType) => {
     if (!projects.ok) return null;
     const projectsData = await projects.json();
     if (!projectsData || typeof projectsData !== "object") return null;
-    return projectsData;
+    return filterHiddenProjectsFromPayload(projectsData);
   } catch {
     return null;
   }
@@ -772,6 +790,7 @@ export const fetchNearbyBenefitsAll = cache(async () => {
 export const fetchBuilderDetails = cache(async (slug) => {
   if (!apiUrl || slug == null || String(slug).trim() === "") return null;
   const clean = String(slug).trim();
+  if (isHiddenBuilderSlug(clean)) return null;
   try {
     const response = await fetch(
       `${apiUrl}builder/get/${encodeURIComponent(clean)}`,
@@ -784,7 +803,7 @@ export const fetchBuilderDetails = cache(async (slug) => {
       .trim()
       .toLowerCase();
     if (!resolvedSlug || resolvedSlug !== clean.toLowerCase()) return null;
-    return data;
+    return filterHiddenProjectsFromPayload(data);
   } catch {
     return null;
   }

@@ -58,8 +58,29 @@ export default function SmoothScroll({ children }) {
       "(prefers-reduced-motion: reduce)",
     ).matches;
 
+    const clearPageHash = () => {
+      if (!window.location.hash) return;
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    };
+
+    const scrollToPageTop = (smoothScroller) => {
+      clearPageHash();
+      if (smoothScroller) {
+        smoothScroller.scrollTo(0, { duration: 1.15 });
+        return;
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    };
+
     if (prefersReducedMotion) {
+      const onScrollTop = () => scrollToPageTop(null);
+      window.addEventListener("7peaks-scroll-top", onScrollTop);
       return () => {
+        window.removeEventListener("7peaks-scroll-top", onScrollTop);
         html.classList.remove("eldeco-7peaks-hide-scrollbar");
         body.classList.remove("eldeco-7peaks-hide-scrollbar");
       };
@@ -98,60 +119,33 @@ export default function SmoothScroll({ children }) {
     });
     syncScrollLock();
 
-    const LANDING_PATH = "/eldeco-7-peaks";
-
     const onAnchorClick = (event) => {
-      const anchor = event.target.closest?.("a[href]");
+      const anchor = event.target.closest?.('a[href^="#"]');
       if (!anchor) return;
 
-      const href = anchor.getAttribute("href");
-      if (!href) return;
-
-      const isHashOnly = href.startsWith("#");
-      const isLandingLink =
-        href === LANDING_PATH || href.startsWith(`${LANDING_PATH}#`);
-
-      if (!isHashOnly && !isLandingLink) return;
-
-      event.preventDefault();
-
-      // Logo / base path → top of page, clean URL
-      if (href === LANDING_PATH || href === "#top") {
-        window.history.pushState(null, "", LANDING_PATH);
-        lenis.scrollTo(0, { duration: 1.15 });
+      const hash = anchor.getAttribute("href");
+      if (!hash || hash === "#" || hash === "#top") {
+        event.preventDefault();
+        scrollToPageTop(lenis);
         return;
       }
-
-      const hash = isHashOnly
-        ? href
-        : href.slice(href.indexOf("#"));
-      if (!hash || hash === "#") return;
 
       const target = document.querySelector(hash);
       if (!target) return;
 
-      window.history.pushState(null, "", `${LANDING_PATH}${hash}`);
+      event.preventDefault();
+      if (window.location.hash !== hash) {
+        window.history.pushState(null, "", hash);
+      }
       lenis.scrollTo(target, {
         offset: HEADER_OFFSET,
         duration: 1.15,
       });
     };
 
+    const onScrollTop = () => scrollToPageTop(lenis);
     document.addEventListener("click", onAnchorClick);
-
-    // Open with hash already in URL (e.g. shared link)
-    const initialHash = window.location.hash;
-    if (initialHash && initialHash !== "#") {
-      const initialTarget = document.querySelector(initialHash);
-      if (initialTarget) {
-        requestAnimationFrame(() => {
-          lenis.scrollTo(initialTarget, {
-            offset: HEADER_OFFSET,
-            duration: 1.15,
-          });
-        });
-      }
-    }
+    window.addEventListener("7peaks-scroll-top", onScrollTop);
 
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
@@ -650,6 +644,7 @@ export default function SmoothScroll({ children }) {
 
     return () => {
       document.removeEventListener("click", onAnchorClick);
+      window.removeEventListener("7peaks-scroll-top", onScrollTop);
       lockObserver.disconnect();
       gsap.ticker.remove(tickerFn);
       ctx.revert();

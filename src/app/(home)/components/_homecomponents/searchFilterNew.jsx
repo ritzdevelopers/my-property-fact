@@ -1,0 +1,1776 @@
+"use client";
+
+import { useProjectContext } from "@/app/_global_components/contexts/projectsContext";
+import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
+import {
+  findBestProjectBySearch,
+  findBestSearchCorrection,
+  isLikelyProjectNameQuery,
+  projectNameLooksLikeDirectMatch,
+  scoreProjectFieldsSearchMatch,
+} from "@/app/_global_components/projectSearchUtils";
+import {
+  buildSmartSearchSuggestions,
+  clearRecentSearches,
+  formatParsedSearchLabel,
+  hasStructuredSearchIntent,
+  loadRecentActivity,
+  parseSmartSearchQuery,
+  removeRecentSearch,
+  RECENT_SEARCHES_CHANGED_EVENT,
+  saveRecentSearch,
+} from "@/app/_global_components/smartSearchParser";
+import { PROJECT_BUDGET_OPTIONS } from "@/app/_global_components/projectFilterUtils";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Spinner } from "react-bootstrap";
+import { useRouter } from "next/navigation";
+import Select from "react-select";
+
+const HOME_HERO_TABS = [
+  { key: "All", label: "Buy" },
+  { key: "Rent", label: "Rent" },
+  { key: "New Launched", label: "New Launch" },
+  { key: "Commercial", label: "Commercial" },
+  { key: "Plots", label: "Plots/Land" },
+  { key: "Projects", label: "Projects" },
+];
+
+const SEARCH_TABS = [
+  { key: "All", label: "All" },
+  { key: "Residential", label: "Residential" },
+  { key: "Commercial", label: "Commercial" },
+  { key: "New Launched", label: "New Launch" },
+  { key: "Plots", label: "Plots" },
+  { key: "Projects", label: "Projects" },
+];
+
+const HOME_POPULAR_CHIPS = [
+  "2 BHK in Noida",
+  "3 BHK in Gurgaon",
+  "New Launch in Noida",
+  "Luxury Apartments",
+  "Up to 1cr",
+];
+
+const CONTINUE_BROWSE_KINDS = new Set(["property", "blog", "city", "builder"]);
+
+function ContinueBrowseIcon({ kind }) {
+  if (kind === "blog") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M5 5h10a2 2 0 0 1 2 2v12H7a2 2 0 0 1-2-2V5Z" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M7 19a2 2 0 0 1 2-2h10" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M9 9h6M9 13h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  if (kind === "city") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M12 21s6-5.2 6-10a6 6 0 1 0-12 0c0 4.8 6 10 6 10Z" stroke="currentColor" strokeWidth="1.7" />
+        <circle cx="12" cy="11" r="1.8" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    );
+  }
+  if (kind === "builder") {
+    return (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <path d="M4 20V8l6-3 6 3v12" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+        <path d="M16 20V10h4v10" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+        <path d="M8 12h2M8 16h2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-8.5Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const RESIDENTIAL_PROPERTY_TYPES = [
+  { key: "flat", label: "Flat/Apartment", hint: "BHK homes" },
+  { key: "builder-floor", label: "Builder Floor", bhkType: "2 BHK", hint: "Low-rise floors" },
+  { key: "villa", label: "Independent House/Villa", bhkType: "Villa", hint: "Private homes" },
+  { key: "plots", label: "Residential Land", bhkType: "Plots", hint: "Plots & land" },
+  { key: "serviced", label: "Serviced Apartments", hint: "Fully serviced" },
+  { key: "1rk", label: "1 RK/Studio Apartment", bhkType: "1 RK", hint: "Compact living" },
+  { key: "other", label: "Other", hint: "Other types" },
+  { key: "farm-house", label: "Farm House", bhkType: "Villa", hint: "Farm living" },
+];
+
+const COMMERCIAL_PROPERTY_TYPES = [
+  { key: "office", label: "Office", configType: "office", hint: "Workspaces" },
+  { key: "shops", label: "Shops", configType: "shops", hint: "Retail units" },
+  { key: "showroom", label: "Showroom", configType: "showroom", hint: "Display spaces" },
+  { key: "food-court", label: "Food Court", configType: "food-court", hint: "Food spaces" },
+  { key: "kiosk", label: "Kiosk", configType: "kiosk", hint: "Compact retail" },
+  { key: "restaurant", label: "Restaurant", configType: "restaurant", hint: "Dining spaces" },
+  { key: "sco-plots", label: "SCO Plots", configType: "sco-plots", hint: "Shop-cum-office" },
+];
+
+function PropertyTypeIcon({ typeKey }) {
+  const common = {
+    width: 20,
+    height: 20,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    "aria-hidden": true,
+  };
+  const stroke = { stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round" };
+
+  switch (typeKey) {
+    case "flat":
+    case "serviced":
+    case "1rk":
+      return (
+        <svg {...common}>
+          <path d="M4 20V9.5L12 4l8 5.5V20" {...stroke} />
+          <path d="M9 20v-6h6v6" {...stroke} />
+          <path d="M9 10.5h.01M15 10.5h.01" {...stroke} />
+        </svg>
+      );
+    case "villa":
+    case "farm-house":
+    case "builder-floor":
+      return (
+        <svg {...common}>
+          <path d="M3 20h18" {...stroke} />
+          <path d="M5 20V10l7-5 7 5v10" {...stroke} />
+          <path d="M10 20v-5h4v5" {...stroke} />
+        </svg>
+      );
+    case "plots":
+    case "sco-plots":
+      return (
+        <svg {...common}>
+          <path d="M4 6h16v12H4z" {...stroke} />
+          <path d="M4 12h16M12 6v12" {...stroke} />
+        </svg>
+      );
+    case "office":
+      return (
+        <svg {...common}>
+          <path d="M5 20V5h10v15" {...stroke} />
+          <path d="M15 10h4v10" {...stroke} />
+          <path d="M8 8h.01M12 8h.01M8 12h.01M12 12h.01M8 16h.01M12 16h.01" {...stroke} />
+        </svg>
+      );
+    case "shops":
+    case "showroom":
+    case "kiosk":
+      return (
+        <svg {...common}>
+          <path d="M4 9h16l-1.2 11H5.2L4 9z" {...stroke} />
+          <path d="M8 9V7a4 4 0 0 1 8 0v2" {...stroke} />
+        </svg>
+      );
+    case "food-court":
+    case "restaurant":
+      return (
+        <svg {...common}>
+          <path d="M8 4v7M6 4v4a2 2 0 0 0 4 0V4" {...stroke} />
+          <path d="M8 11v9" {...stroke} />
+          <path d="M16 4v16M16 4c2 0 3 1.5 3 4s-1 4-3 4" {...stroke} />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...common}>
+          <path d="M4 20V9.5L12 4l8 5.5V20" {...stroke} />
+          <path d="M9 20v-6h6v6" {...stroke} />
+        </svg>
+      );
+  }
+}
+
+const QUICK_CITY_CHIPS = ["Noida", "Gurugram", "Delhi", "Ghaziabad", "Bangalore"];
+
+const SEARCH_DEBOUNCE_MS = 300;
+const SUGGESTION_LIMIT = 8;
+const SUGGESTION_KIND_LABELS = {
+  intent: "Search",
+  project: "Project",
+  city: "City",
+  builder: "Builder",
+  locality: "Area",
+};
+
+function SuggestionDotsLoader({ label = "Finding matches" }) {
+  return (
+    <div className="smart-search-suggestions-loading" role="status" aria-live="polite">
+      <span className="smart-search-suggestions-loading__text">{label}</span>
+      <span className="smart-search-dots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+      </span>
+    </div>
+  );
+}
+
+function highlightMatch(text, query) {
+  const source = String(text || "");
+  const q = String(query || "").trim();
+  if (!q || q.length < 2) return source;
+
+  const lowerSource = source.toLowerCase();
+  const lowerQuery = q.toLowerCase();
+  const index = lowerSource.indexOf(lowerQuery);
+  if (index >= 0) {
+    return (
+      <>
+        {source.slice(0, index)}
+        <mark className="smart-search-suggestion__highlight">
+          {source.slice(index, index + q.length)}
+        </mark>
+        {source.slice(index + q.length)}
+      </>
+    );
+  }
+
+  // Typo queries won't substring-match — highlight overlapping corrected words
+  const queryTokens = lowerQuery.split(/\s+/).filter((t) => t.length >= 3);
+  if (queryTokens.length === 0) return source;
+
+  return source.split(/(\s+)/).map((part, idx) => {
+    if (/^\s+$/.test(part)) return part;
+    const lowerPart = part.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const hits = queryTokens.some((token) => {
+      if (!lowerPart) return false;
+      if (lowerPart.startsWith(token) || token.startsWith(lowerPart)) return true;
+      // Cheap overlap for typo tokens
+      let shared = 0;
+      for (let i = 0; i < lowerPart.length; i += 1) {
+        if (token.includes(lowerPart[i])) shared += 1;
+      }
+      return shared / Math.max(lowerPart.length, 1) >= 0.6 && lowerPart.length >= 4;
+    });
+    if (!hits) return <span key={idx}>{part}</span>;
+    return (
+      <mark key={idx} className="smart-search-suggestion__highlight">
+        {part}
+      </mark>
+    );
+  });
+}
+
+const PLACEHOLDER_EXAMPLES = [
+  'Search "3 BHK in Noida below 3 Cr"',
+  'Search "Farm house in Delhi under 1 Cr"',
+  'Search "M3M, Godrej, Eldeco..."',
+  'Search "Commercial in Gurugram"',
+];
+
+
+function normalizeTypeName(value = "") {
+  return value.trim().toLowerCase();
+}
+
+function tabToCategoryKey(tab) {
+  if (tab === "Residential" || tab === "Rent") return "residential";
+  if (tab === "Commercial") return "commercial";
+  if (tab === "New Launched") return "new-launch";
+  if (tab === "Plots") return "residential";
+  if (tab === "Projects") return "all";
+  return "all";
+}
+
+function categoryKeyToTab(key) {
+  if (key === "residential") return "Residential";
+  if (key === "commercial") return "Commercial";
+  if (key === "new-launch") return "New Launched";
+  return "All";
+}
+
+function findTypeIdForTab(tab, projectTypes) {
+  return projectTypes.find((t) => {
+    const n = normalizeTypeName(t?.projectTypeName || "");
+    if (tab === "New Launched") return n === "new launches" || n === "new launch";
+    if (tab === "Commercial") return n === "commercial";
+    if (tab === "Residential" || tab === "Plots") return n === "residential";
+    return false;
+  })?.id;
+}
+
+function resolveFilterPayload(selectedPropertyKeys, filterMode) {
+  const source =
+    filterMode === "commercial" ? COMMERCIAL_PROPERTY_TYPES : RESIDENTIAL_PROPERTY_TYPES;
+  const selected = source.filter((item) => selectedPropertyKeys.includes(item.key));
+  const bhkType = selected.find((item) => item.bhkType)?.bhkType || "";
+  const configType = selected.find((item) => item.configType)?.configType || "";
+  return { bhkType, configType, labels: selected.map((item) => item.label) };
+}
+
+function normalizeCommercialConfigKey(rawType = "") {
+  const t = String(rawType || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+  if (!t) return null;
+  if (t === "shop" || t === "shops") return "shops";
+  if (t === "office" || t === "offices") return "office";
+  if (t === "kiosk" || t === "kiosks") return "kiosk";
+  if (t === "food court" || t === "food courts") return "food-court";
+  if (t === "restaurant" || t === "restaurants") return "restaurant";
+  if (t === "showroom" || t === "showrooms") return "showroom";
+  if (t === "sco plots" || t === "sco plot") return "sco-plots";
+  return null;
+}
+
+/** Keys that exist in live projectConfiguration values across the catalog. */
+function getAvailablePropertyTypeKeys(projectList = []) {
+  const residential = new Set();
+  const commercial = new Set();
+
+  for (const project of projectList) {
+    const config = String(project?.projectConfiguration || "");
+    if (!config) continue;
+
+    if (/\d+\s*bhk/i.test(config)) residential.add("flat");
+    if (/\bbuilder\s*floor\b/i.test(config)) residential.add("builder-floor");
+    if (/\bvilla\b/i.test(config)) residential.add("villa");
+    if (/\bplot(s)?\b/i.test(config) || /\bland\b/i.test(config)) residential.add("plots");
+    if (/\bserviced\b/i.test(config)) residential.add("serviced");
+    if (/\brk\b/i.test(config) || /\bstudio\b/i.test(config)) residential.add("1rk");
+    if (/\bfarm\s*house\b/i.test(config)) residential.add("farm-house");
+
+    const parts = config.split(",").map((p) => p.trim()).filter(Boolean);
+    for (const part of parts) {
+      const cleaned = part.replace(/\s*-\s*\d+\s*(?:sq\.?\s*ft|sq\.?ft)\s*/gi, "").trim();
+      const key = normalizeCommercialConfigKey(cleaned);
+      if (key) commercial.add(key);
+      if (/\bsco\s*plots?\b/i.test(cleaned)) commercial.add("sco-plots");
+      if (/\bshops?\b/i.test(cleaned)) commercial.add("shops");
+      if (/\boffices?\b/i.test(cleaned)) commercial.add("office");
+      if (/\bshowrooms?\b/i.test(cleaned)) commercial.add("showroom");
+      if (/\bfood\s*courts?\b/i.test(cleaned)) commercial.add("food-court");
+      if (/\bkiosks?\b/i.test(cleaned)) commercial.add("kiosk");
+      if (/\brestaurants?\b/i.test(cleaned)) commercial.add("restaurant");
+    }
+  }
+
+  return { residential, commercial };
+}
+
+function isPlotsContext(activeTab, parsed = {}) {
+  return activeTab === "Plots" || parsed.quickTab === "Plots" || parsed.bhkType === "Plots";
+}
+
+function resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }) {
+  if (isPlotsContext(activeTab, parsed)) return "Plots";
+  if (parsed?.configType) return "";
+  return parsed?.bhkType || selectedFilterPayload.bhkType;
+}
+
+function resolveNavigationConfigType({ parsed, selectedFilterPayload }) {
+  return parsed?.configType || selectedFilterPayload.configType;
+}
+
+function resolveNavigationQuickTab({ activeTab, parsed }) {
+  if (isPlotsContext(activeTab, parsed)) return "Residential";
+  if (parsed?.configType || parsed?.quickTab === "Commercial") return "Commercial";
+  if (activeTab === "Commercial") return "Commercial";
+  if (activeTab === "Projects") return "All";
+  return parsed?.quickTab || activeTab;
+}
+
+export default function SearchFilter({ projectTypeList = [], cityList = [], layout = "default" }) {
+  const isClassicHero = layout === "home-hero-classic";
+  const isHomeHero = layout === "home-hero" || isClassicHero;
+  const displayTabs = isClassicHero ? SEARCH_TABS : isHomeHero ? HOME_HERO_TABS : SEARCH_TABS;
+  const { setProjectData } = useProjectContext();
+  const {
+    projectTypes: contextProjectTypes = [],
+    cityList: contextCityList = [],
+    builderList = [],
+    projectList = [],
+    loading: siteDataLoading = false,
+    setQueryFilters,
+    setQuickProjectFilter,
+    resetProjectFilters,
+  } = useSiteData();
+
+  const [activeTab, setActiveTab] = useState("All");
+  const [categoryKey, setCategoryKey] = useState("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [filterMode, setFilterMode] = useState("residential");
+  const [selectedPropertyKeys, setSelectedPropertyKeys] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [suggestionsReady, setSuggestionsReady] = useState(true);
+  const [heroCityId, setHeroCityId] = useState("");
+  const [heroBudget, setHeroBudget] = useState("");
+  const [heroSelectMenu, setHeroSelectMenu] = useState(null);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [isSearchSticky, setIsSearchSticky] = useState(false);
+  const [stickyHost, setStickyHost] = useState(null);
+  const [stickyTabOpen, setStickyTabOpen] = useState(false);
+
+  const openHeroSelectMenu = (menu) => {
+    setHeroSelectMenu(menu);
+    setCategoryOpen(false);
+    setDropdownOpen(false);
+  };
+
+  const closeHeroSelectMenu = (menu) => {
+    setHeroSelectMenu((current) => (current === menu ? null : current));
+  };
+
+  const router = useRouter();
+  const searchWrapRef = useRef(null);
+  const cardRef = useRef(null);
+  const propertyPanelRef = useRef(null);
+  const trimmedInput = searchInput.trim();
+  const isSuggestionsLoading =
+    dropdownOpen &&
+    trimmedInput.length >= 2 &&
+    (siteDataLoading ||
+      !projectList.length ||
+      !suggestionsReady ||
+      trimmedInput !== debouncedSearch);
+
+  const effectiveProjectTypes = useMemo(
+    () =>
+      Array.isArray(contextProjectTypes) && contextProjectTypes.length > 0
+        ? contextProjectTypes
+        : projectTypeList,
+    [contextProjectTypes, projectTypeList],
+  );
+
+  const effectiveCityList = useMemo(
+    () =>
+      Array.isArray(contextCityList) && contextCityList.length > 0
+        ? contextCityList
+        : cityList,
+    [contextCityList, cityList],
+  );
+
+  useEffect(() => {
+    const refreshRecents = () => {
+      const items = loadRecentActivity();
+      setRecentActivity(items);
+      setRecentSearches(
+        items.filter((item) => !item.kind || item.kind === "keyword").map((item) => item.label),
+      );
+    };
+    refreshRecents();
+    if (sessionStorage.getItem("mpf-querry")) {
+      sessionStorage.removeItem("mpf-querry");
+    }
+    window.addEventListener(RECENT_SEARCHES_CHANGED_EVENT, refreshRecents);
+    window.addEventListener("storage", refreshRecents);
+    return () => {
+      window.removeEventListener(RECENT_SEARCHES_CHANGED_EVENT, refreshRecents);
+      window.removeEventListener("storage", refreshRecents);
+    };
+  }, []);
+
+  useEffect(() => {
+    const readHost = () => {
+      const el = document.getElementById("mpf-header-sticky-search");
+      if (el) setStickyHost(el);
+      return Boolean(el);
+    };
+    if (readHost()) return undefined;
+    const timer = window.setInterval(() => {
+      if (readHost()) window.clearInterval(timer);
+    }, 150);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (!isHomeHero) return undefined;
+    const card = cardRef.current;
+    if (!card) return undefined;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const sticky = !entry.isIntersecting && entry.boundingClientRect.top < 80;
+        setIsSearchSticky(sticky);
+        document.body.classList.toggle("mpf-search-sticky", sticky);
+        if (!sticky) setStickyTabOpen(false);
+      },
+      { threshold: 0, rootMargin: "-72px 0px 0px 0px" },
+    );
+    observer.observe(card);
+    return () => {
+      observer.disconnect();
+      document.body.classList.remove("mpf-search-sticky");
+    };
+  }, [isHomeHero]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPlaceholderIdx((prev) => (prev + 1) % PLACEHOLDER_EXAMPLES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Mobile/tablet search sheet: lock page scroll, close on Escape, focus the input
+  useEffect(() => {
+    if (!mobileSearchOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setMobileSearchOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+
+    const focusTimer = window.setTimeout(() => {
+      cardRef.current?.querySelector(".smart-search-input")?.focus();
+    }, 120);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      window.clearTimeout(focusTimer);
+    };
+  }, [mobileSearchOpen]);
+
+  useEffect(() => {
+    if (trimmedInput.length < 2) {
+      setSuggestionsReady(true);
+      return undefined;
+    }
+
+    setSuggestionsReady(false);
+    const timer = setTimeout(() => setDebouncedSearch(trimmedInput), SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [searchInput, trimmedInput]);
+
+  useEffect(() => {
+    if (trimmedInput.length < 2) return undefined;
+    if (trimmedInput !== debouncedSearch) return undefined;
+
+    const timer = setTimeout(() => setSuggestionsReady(true), 120);
+    return () => clearTimeout(timer);
+  }, [debouncedSearch, trimmedInput]);
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (cardRef.current && !cardRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+        setCategoryOpen(false);
+        setHeroSelectMenu(null);
+      }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const cityOptions = effectiveCityList.map((city) => ({
+    value: String(city.id),
+    label: city.cityName,
+  }));
+
+  const budgetOptions = PROJECT_BUDGET_OPTIONS.map((budget) => ({
+    value: budget,
+    label: budget,
+  }));
+
+  const availablePropertyTypeKeys = useMemo(
+    () => getAvailablePropertyTypeKeys(projectList),
+    [projectList],
+  );
+
+  const activeFilterOptions = useMemo(() => {
+    if (filterMode === "commercial") {
+      const { commercial } = availablePropertyTypeKeys;
+      // Until catalog loads, avoid flashing every hardcoded option.
+      if (!projectList.length) return [];
+      return COMMERCIAL_PROPERTY_TYPES.filter((opt) => commercial.has(opt.key));
+    }
+
+    const { residential } = availablePropertyTypeKeys;
+    if (!projectList.length) return [];
+    return RESIDENTIAL_PROPERTY_TYPES.filter((opt) => residential.has(opt.key));
+  }, [availablePropertyTypeKeys, filterMode, projectList.length]);
+
+  useEffect(() => {
+    if (!categoryOpen) return undefined;
+
+    const timer = window.setTimeout(() => {
+      const panel = propertyPanelRef.current;
+      if (!panel) return;
+
+      const rect = panel.getBoundingClientRect();
+      const bottomGap = 32;
+      const overflowBottom = rect.bottom - (window.innerHeight - bottomGap);
+
+      if (overflowBottom > 0) {
+        window.scrollBy({ top: overflowBottom, behavior: "smooth" });
+        return;
+      }
+
+      // Nudge a little when the open point sits low in the viewport.
+      const trigger = searchWrapRef.current?.querySelector(".smart-search-category-trigger");
+      const triggerRect = trigger?.getBoundingClientRect();
+      if (!triggerRect) return;
+
+      const lowThreshold = window.innerHeight * 0.55;
+      if (triggerRect.top > lowThreshold) {
+        window.scrollBy({ top: Math.min(140, triggerRect.top - lowThreshold + 40), behavior: "smooth" });
+      } else if (triggerRect.top < 96) {
+        window.scrollBy({ top: triggerRect.top - 96, behavior: "smooth" });
+      }
+    }, 50);
+
+    return () => window.clearTimeout(timer);
+  }, [categoryOpen, filterMode, activeFilterOptions.length]);
+
+  useEffect(() => {
+    if (!selectedPropertyKeys.length) return;
+    const allowed = new Set(activeFilterOptions.map((opt) => opt.key));
+    // Keep Plots tab selection even while catalog is still loading.
+    if (activeTab === "Plots" && selectedPropertyKeys.includes("plots")) return;
+    const next = selectedPropertyKeys.filter((key) => allowed.has(key));
+    if (next.length !== selectedPropertyKeys.length) {
+      setSelectedPropertyKeys(next);
+    }
+  }, [activeFilterOptions, activeTab, selectedPropertyKeys]);
+
+  const selectedFilterPayload = useMemo(
+    () => resolveFilterPayload(selectedPropertyKeys, filterMode),
+    [selectedPropertyKeys, filterMode],
+  );
+
+  const selectedCategoryLabel = useMemo(() => {
+    if (selectedFilterPayload.labels.length === 0) {
+      if (activeTab === "Commercial" || filterMode === "commercial") return "All Commercial";
+      if (activeTab === "Plots") return "Plots / Land";
+      return "All Properties";
+    }
+    if (selectedFilterPayload.labels.length === 1) return selectedFilterPayload.labels[0];
+    return `${selectedFilterPayload.labels.length} types selected`;
+  }, [selectedFilterPayload.labels, activeTab, filterMode]);
+
+  const suggestions = useMemo(
+    () =>
+      buildSmartSearchSuggestions(debouncedSearch, {
+        projectList,
+        cities: effectiveCityList,
+        builderList,
+        projectTypes: effectiveProjectTypes,
+        limit: SUGGESTION_LIMIT,
+      }),
+    [debouncedSearch, projectList, effectiveCityList, builderList, effectiveProjectTypes],
+  );
+
+  const withHeroFilters = useCallback(
+    (params) =>
+      isHomeHero
+        ? {
+          ...params,
+          cityId: params.cityId || heroCityId,
+          budget: params.budget || heroBudget,
+        }
+        : params,
+    [heroBudget, heroCityId, isHomeHero],
+  );
+
+  const navigateToProjects = useCallback(
+    async (params) => {
+      const {
+        propertyTypeId = "",
+        cityId = "",
+        budget = "",
+        bhkType = "",
+        configType = "",
+        projectStatus = "",
+        quickTab = "All",
+        searchLabel = "",
+      } = withHeroFilters(params);
+      const resolvedBhk = bhkType || selectedFilterPayload.bhkType;
+      const resolvedConfig = configType || selectedFilterPayload.configType;
+      const paramsObj = {
+        propertyType: propertyTypeId,
+        propertyLocation: cityId,
+        budget,
+        bhkType: resolvedBhk,
+        configType: resolvedConfig,
+        projectStatus,
+        searchLabel: searchLabel || "",
+      };
+
+      try {
+        setLoading(true);
+        setQuickProjectFilter(quickTab);
+        resetProjectFilters();
+        setQueryFilters(paramsObj);
+        sessionStorage.setItem("mpf-querry", JSON.stringify(paramsObj));
+        setProjectData([]);
+        if (searchLabel) {
+          saveRecentSearch(searchLabel, {
+            kind: "keyword",
+            href: "/projects",
+            searchType: "keyword",
+          });
+          setRecentSearches(loadRecentSearches());
+        }
+        router.push("/projects");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [resetProjectFilters, router, setProjectData, setQueryFilters, setQuickProjectFilter, selectedFilterPayload, withHeroFilters],
+  );
+
+  const handleTabChange = (tab) => {
+    if (tab === "Projects") {
+      window.open("/projects", "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    setActiveTab(tab);
+    setCategoryKey(tabToCategoryKey(tab));
+
+    if (tab === "Plots") {
+      setFilterMode("residential");
+      setSelectedPropertyKeys(["plots"]);
+      return;
+    }
+
+    if (tab === "Commercial") {
+      setFilterMode("commercial");
+      setSelectedPropertyKeys([]);
+      return;
+    }
+
+    if (tab === "Residential" || tab === "Rent" || tab === "All") {
+      setFilterMode("residential");
+    }
+
+    if (tab !== "Plots") {
+      setSelectedPropertyKeys([]);
+    }
+  };
+
+  const allPropertyTypeKeys = activeFilterOptions.map((option) => option.key);
+  const allPropertyTypesSelected =
+    allPropertyTypeKeys.length > 0 &&
+    allPropertyTypeKeys.every((key) => selectedPropertyKeys.includes(key));
+
+  const toggleSelectAllPropertyTypes = () => {
+    setSelectedPropertyKeys(allPropertyTypesSelected ? [] : allPropertyTypeKeys);
+  };
+
+  const handlePropertyTypeSelect = (key) => {
+    const isOnlySelected = selectedPropertyKeys.length === 1 && selectedPropertyKeys[0] === key;
+    if (isOnlySelected) {
+      setSelectedPropertyKeys([]);
+      return;
+    }
+    setSelectedPropertyKeys([key]);
+    setCategoryOpen(false);
+  };
+
+  const clearPropertyFilters = () => {
+    setSelectedPropertyKeys([]);
+  };
+
+  const switchToCommercialFilters = () => {
+    setFilterMode("commercial");
+    setActiveTab("Commercial");
+    setCategoryKey("commercial");
+    setSelectedPropertyKeys([]);
+  };
+
+  const switchToResidentialFilters = () => {
+    setFilterMode("residential");
+    setActiveTab("Residential");
+    setCategoryKey("residential");
+    setSelectedPropertyKeys([]);
+  };
+
+  const handleSuggestionSelect = (suggestion) => {
+    const label = String(suggestion?.label || "").trim();
+    setDropdownOpen(false);
+    setSearchInput(label);
+    setDebouncedSearch(label);
+
+    if (suggestion.kind === "city" && suggestion.item?.id != null) {
+      setHeroCityId(String(suggestion.item.id));
+    }
+
+    if (suggestion.kind === "locality") {
+      const cityName = suggestion.item?.cityName || "";
+      const city = cityName
+        ? effectiveCityList.find(
+          (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+        )
+        : null;
+      if (city?.id != null) setHeroCityId(String(city.id));
+    }
+
+    if (suggestion.kind === "intent") {
+      const parsed = suggestion.parsed || {};
+      if (parsed.cityId) setHeroCityId(String(parsed.cityId));
+      if (parsed.budget) setHeroBudget(parsed.budget);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    const q = searchInput.trim();
+    setDropdownOpen(false);
+    setMobileSearchOpen(false);
+
+    if (!q) {
+      const quickTab = resolveNavigationQuickTab({ activeTab });
+      const typeId = findTypeIdForTab(activeTab === "Plots" ? "Plots" : quickTab, effectiveProjectTypes);
+      navigateToProjects({
+        propertyTypeId: typeId ? String(typeId) : "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: selectedFilterPayload.configType,
+        quickTab,
+      });
+      return;
+    }
+
+    const parsed = parseSmartSearchQuery(q, {
+      cities: effectiveCityList,
+      projectTypes: effectiveProjectTypes,
+    });
+
+    if (hasStructuredSearchIntent(parsed)) {
+      const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
+      const typeId =
+        parsed.propertyTypeId ||
+        findTypeIdForTab(isPlotsContext(activeTab, parsed) ? "Plots" : quickTab, effectiveProjectTypes) ||
+        findTypeIdForTab(activeTab, effectiveProjectTypes);
+
+      navigateToProjects({
+        propertyTypeId: typeId ? String(typeId) : "",
+        cityId: parsed.cityId,
+        budget: parsed.budget,
+        bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+        projectStatus: parsed.projectStatus || "",
+        quickTab,
+        searchLabel: formatParsedSearchLabel(parsed) || q,
+      });
+      return;
+    }
+
+    const projectMatch = findBestProjectBySearch(q, projectList);
+    const correction = findBestSearchCorrection(q, {
+      projectList,
+      builderList,
+      cities: effectiveCityList,
+      cleanQuery: parsed.cleanQuery,
+    });
+
+    // Only jump straight to a project page when the PROJECT NAME matches.
+    // Area typos like "croessfridgdg republik" → search Crossing Republik listings.
+    if (
+      projectMatch?.slugURL &&
+      isLikelyProjectNameQuery(q) &&
+      projectNameLooksLikeDirectMatch(projectMatch, q, [parsed.cleanQuery])
+    ) {
+      saveRecentSearch(projectMatch.projectName || q, {
+        kind: "property",
+        href: `/${projectMatch.slugURL}`,
+        searchType: "property",
+      });
+      setRecentSearches(loadRecentSearches());
+      window.open(`/${projectMatch.slugURL}`, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (correction?.isCorrection && correction.label) {
+      if (correction.kind === "project" && correction.item?.slugURL) {
+        saveRecentSearch(correction.label, {
+          kind: "property",
+          href: `/${correction.item.slugURL}`,
+          searchType: "property",
+        });
+        setRecentSearches(loadRecentSearches());
+        window.open(`/${correction.item.slugURL}`, "_blank", "noopener,noreferrer");
+        return;
+      }
+
+      if (correction.kind === "builder") {
+        const slug =
+          correction.item?.slugUrl ||
+          correction.item?.slugURL ||
+          correction.item?.slug;
+        if (slug) {
+          saveRecentSearch(correction.label, {
+            kind: "builder",
+            href: `/builder/${slug}`,
+            searchType: "property",
+          });
+          setRecentSearches(loadRecentSearches());
+          router.push(`/builder/${slug}`);
+          return;
+        }
+      }
+
+      const cityName = correction.item?.cityName || "";
+      const city =
+        correction.kind === "city"
+          ? correction.item
+          : cityName
+            ? effectiveCityList.find(
+              (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+            )
+            : null;
+
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        cityId: city?.id != null ? String(city.id) : "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: correction.label,
+      });
+      return;
+    }
+
+    if (projectMatch && scoreProjectFieldsSearchMatch(projectMatch, q, [parsed.cleanQuery]) >= 0) {
+      navigateToProjects({
+        propertyTypeId: findTypeIdForTab(activeTab, effectiveProjectTypes) || "",
+        bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+        configType: resolveNavigationConfigType({ selectedFilterPayload }),
+        quickTab: resolveNavigationQuickTab({ activeTab }),
+        searchLabel: correction?.label || parsed.cleanQuery || q,
+      });
+      return;
+    }
+
+    const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
+    const typeId =
+      parsed.propertyTypeId ||
+      findTypeIdForTab(isPlotsContext(activeTab, parsed) ? "Plots" : quickTab, effectiveProjectTypes) ||
+      findTypeIdForTab(activeTab, effectiveProjectTypes);
+
+    navigateToProjects({
+      propertyTypeId: typeId ? String(typeId) : "",
+      cityId: parsed.cityId,
+      budget: parsed.budget,
+      bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+      configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+      projectStatus: parsed.projectStatus || "",
+      quickTab,
+      searchLabel: formatParsedSearchLabel(parsed) || q,
+    });
+  };
+
+  const handleQuickCity = (cityName) => {
+    const city = effectiveCityList.find(
+      (c) => String(c?.cityName || "").toLowerCase() === cityName.toLowerCase(),
+    );
+    const quickTab = resolveNavigationQuickTab({ activeTab });
+    const typeId = findTypeIdForTab(activeTab === "Plots" ? "Plots" : quickTab, effectiveProjectTypes);
+    const label = `${activeTab !== "All" ? activeTab + " in " : ""}${cityName}`;
+    navigateToProjects({
+      propertyTypeId: typeId ? String(typeId) : "",
+      cityId: city ? String(city.id) : "",
+      bhkType: resolveNavigationBhkType({ activeTab, selectedFilterPayload }),
+      configType: resolveNavigationConfigType({ selectedFilterPayload }),
+      quickTab,
+      searchLabel: label,
+    });
+  };
+
+  const handleRecentSearch = (label) => {
+    setSearchInput(label);
+    setDebouncedSearch(label);
+    setSuggestionsReady(false);
+    setDropdownOpen(true);
+    setTimeout(() => {
+      const form = searchWrapRef.current?.querySelector("form");
+      form?.requestSubmit();
+    }, 0);
+  };
+
+  const handleRemoveRecentSearch = (label, e, kind) => {
+    e.preventDefault();
+    e.stopPropagation();
+    removeRecentSearch(label, kind ? { kind } : undefined);
+  };
+
+  const handleClearRecentSearches = () => {
+    clearRecentSearches();
+  };
+
+  const handleContinueBrowse = (item) => {
+    if (item?.href) router.push(item.href);
+  };
+
+  const handlePopularChip = (label) => {
+    const parsed = parseSmartSearchQuery(label, {
+      cities: effectiveCityList,
+      projectTypes: effectiveProjectTypes,
+    });
+
+    // Popular budget chip → select matching hero budget option
+    const budgetFromChip =
+      /^up\s*to\s*1\s*cr$/i.test(String(label).trim())
+        ? "Up to 1Cr*"
+        : parsed.budget;
+
+    setSearchInput(label);
+    setDebouncedSearch(label);
+    setDropdownOpen(false);
+    if (budgetFromChip) setHeroBudget(budgetFromChip);
+    if (parsed.cityId) setHeroCityId(String(parsed.cityId));
+
+    const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
+    const typeId =
+      parsed.propertyTypeId ||
+      findTypeIdForTab(isPlotsContext(activeTab, parsed) ? "Plots" : quickTab, effectiveProjectTypes) ||
+      findTypeIdForTab(activeTab, effectiveProjectTypes);
+
+    navigateToProjects({
+      propertyTypeId: typeId ? String(typeId) : "",
+      cityId: parsed.cityId,
+      budget: budgetFromChip,
+      bhkType: resolveNavigationBhkType({ activeTab, parsed, selectedFilterPayload }),
+      configType: resolveNavigationConfigType({ parsed, selectedFilterPayload }),
+      projectStatus: parsed.projectStatus || "",
+      quickTab,
+      searchLabel: formatParsedSearchLabel({ ...parsed, budget: budgetFromChip }) || label,
+    });
+  };
+
+  const showSuggestionsPanel = dropdownOpen && trimmedInput.length >= 2 && !categoryOpen;
+  const keywordRecents = recentActivity.filter((item) => !item.kind || item.kind === "keyword");
+  const continueBrowsing = recentActivity.filter((item) => CONTINUE_BROWSE_KINDS.has(item.kind));
+
+  const searchInputField = (
+    <>
+      <svg className="smart-search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+        <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+      <input
+        type="search"
+        role="combobox"
+        className="smart-search-input"
+        value={searchInput}
+        onChange={(e) => {
+          setSearchInput(e.target.value);
+          setSuggestionsReady(false);
+          setDropdownOpen(true);
+        }}
+        onFocus={() => {
+          if (trimmedInput.length >= 2) setDropdownOpen(true);
+        }}
+        placeholder={
+          isHomeHero
+            ? isSearchSticky
+              ? "Enter Locality / Project / Society / Landmark"
+              : PLACEHOLDER_EXAMPLES[placeholderIdx]
+            : PLACEHOLDER_EXAMPLES[placeholderIdx]
+        }
+        aria-label="Search properties, projects, cities"
+        aria-expanded={dropdownOpen}
+        aria-controls="smart-search-suggestions"
+        aria-autocomplete="list"
+        aria-haspopup="listbox"
+        autoComplete="off"
+      />
+      {searchInput && !isSearchSticky ? (
+        <button
+          type="button"
+          className="smart-search-clear"
+          onClick={() => {
+            setSearchInput("");
+            setDebouncedSearch("");
+            setDropdownOpen(false);
+          }}
+          aria-label="Clear search"
+        >
+          ×
+        </button>
+      ) : null}
+      {isHomeHero ? (
+        <span className="smart-search-input-tools">
+          <button
+            type="button"
+            className="smart-search-input-tool"
+            aria-label="Use current location"
+            title="Use current location"
+            onClick={() => document.querySelector(".mpf-header-location-pill--action")?.click()}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4Zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06ZM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="smart-search-input-tool"
+            aria-label="Search by voice"
+            title="Search by voice"
+            onClick={() => {
+              const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+              if (!Speech) return;
+              const rec = new Speech();
+              rec.lang = "en-IN";
+              rec.onresult = (event) => {
+                const spoken = event.results?.[0]?.[0]?.transcript;
+                if (spoken) setSearchInput(spoken);
+              };
+              rec.start();
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              <path d="M11.9998 3C10.3429 3 8.99976 4.34315 8.99976 6V10C8.99976 11.6569 10.3429 13 11.9998 13C13.6566 13 14.9998 11.6569 14.9998 10V6C14.9998 4.34315 13.6566 3 11.9998 3ZM11.9998 1C14.7612 1 16.9998 3.23858 16.9998 6V10C16.9998 12.7614 14.7612 15 11.9998 15C9.23833 15 6.99976 12.7614 6.99976 10V6C6.99976 3.23858 9.23833 1 11.9998 1ZM3.05469 11H5.07065C5.55588 14.3923 8.47329 17 11.9998 17C15.5262 17 18.4436 14.3923 18.9289 11H20.9448C20.4837 15.1716 17.1714 18.4839 12.9998 18.9451V23H10.9998V18.9451C6.82814 18.4839 3.51584 15.1716 3.05469 11Z" />
+            </svg>
+          </button>
+        </span>
+      ) : null}
+    </>
+  );
+
+  const searchSubmitButton = (
+    <button type="submit" className="smart-search-submit search-btn-home-page" aria-label="Search">
+      {loading ? (
+        <Spinner animation="border" size="sm" variant="light" />
+      ) : (
+          <span>Search</span>
+      )}
+    </button>
+  );
+
+  const propertyTypeTrigger = (
+    <button
+      type="button"
+      className={`smart-search-category-trigger smart-search-hero-select-trigger${categoryOpen ? " active" : ""}${selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+        }`}
+      onClick={() => {
+        setCategoryOpen(!categoryOpen);
+        setDropdownOpen(false);
+        setHeroSelectMenu(null);
+      }}
+      aria-expanded={categoryOpen}
+      aria-haspopup="listbox"
+    >
+      <span className="smart-search-category-trigger__text">
+        {selectedPropertyKeys.length > 0
+          ? selectedCategoryLabel
+          : isClassicHero
+            ? "All Type"
+            : isHomeHero
+              ? "All Residential"
+              : selectedCategoryLabel}
+      </span>
+      <svg
+        className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden
+      >
+        <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </button>
+  );
+
+  const heroCitySelect = (
+    <Select
+      classNamePrefix="location-select"
+      options={cityOptions}
+      placeholder="Select City"
+      value={cityOptions.find((option) => option.value === heroCityId) || null}
+      onChange={(selected) => setHeroCityId(selected ? selected.value : "")}
+      menuIsOpen={heroSelectMenu === "city"}
+      onMenuOpen={() => openHeroSelectMenu("city")}
+      onMenuClose={() => closeHeroSelectMenu("city")}
+      isSearchable
+      maxMenuHeight={220}
+      menuPlacement="auto"
+    />
+  );
+
+  const heroBudgetSelect = (
+    <Select
+      classNamePrefix="location-select"
+      options={budgetOptions}
+      placeholder="Min - Max"
+      value={budgetOptions.find((option) => option.value === heroBudget) || null}
+      onChange={(selected) => setHeroBudget(selected ? selected.value : "")}
+      menuIsOpen={heroSelectMenu === "budget"}
+      onMenuOpen={() => openHeroSelectMenu("budget")}
+      onMenuClose={() => closeHeroSelectMenu("budget")}
+      isSearchable={false}
+      maxMenuHeight={220}
+      menuPlacement="auto"
+    />
+  );
+
+  return (
+    <div
+      className={`home-search-container container${isHomeHero ? " home-search-container--hero-ss" : ""}${
+        isClassicHero ? " home-search-container--classic" : ""
+      }${mobileSearchOpen ? " is-mobile-search-open" : ""}`}
+    >
+      {isHomeHero ? (
+        <button
+          type="button"
+          className="smart-search-mobile-trigger"
+          onClick={() => setMobileSearchOpen(true)}
+          aria-label="Open search"
+        >
+          <svg
+            className="smart-search-mobile-trigger__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden
+          >
+            <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+            <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <span className="smart-search-mobile-trigger__text">
+            Search projects, builders, cities
+          </span>
+          <span className="smart-search-mobile-trigger__go" aria-hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M4 7h10M18 7h2M4 17h2M10 17h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="16" cy="7" r="2.2" stroke="currentColor" strokeWidth="2" />
+              <circle cx="8" cy="17" r="2.2" stroke="currentColor" strokeWidth="2" />
+            </svg>
+          </span>
+        </button>
+      ) : null}
+
+      {isHomeHero && mobileSearchOpen ? (
+        <button
+          type="button"
+          className="smart-search-sheet-backdrop"
+          aria-label="Close search"
+          onClick={() => setMobileSearchOpen(false)}
+        />
+      ) : null}
+
+      <div className="smart-search-card search-filter-shadow" ref={cardRef}>
+        {isHomeHero ? (
+          <div className="smart-search-sheet-head">
+            <span className="smart-search-sheet-grabber" aria-hidden />
+            <div className="smart-search-sheet-head__row">
+              <span className="smart-search-sheet-title">Search properties</span>
+              <button
+                type="button"
+                className="smart-search-sheet-close"
+                onClick={() => setMobileSearchOpen(false)}
+                aria-label="Close search"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        ) : null}
+
+        <div className="smart-search-tabs" role="tablist" aria-label="Property categories">
+          {displayTabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={activeTab === tab.key}
+              className={`smart-search-tab${activeTab === tab.key ? " smart-search-tab--active" : ""}`}
+              onClick={() => handleTabChange(tab.key)}
+            >
+              {tab.label}
+              {tab.key === "New Launched" ? <span className="smart-search-tab__dot" aria-hidden /> : null}
+            </button>
+          ))}
+          {isHomeHero && !isClassicHero ? (
+            <button
+              type="button"
+              className="smart-search-tab smart-search-tab--post"
+              onClick={() => window.dispatchEvent(new CustomEvent("mpf-open-post-property"))}
+            >
+              Post Property <span>FREE</span>
+            </button>
+          ) : null}
+        </div>
+
+        <div className="smart-search-bar-wrap" ref={searchWrapRef}>
+          <form
+            className={`smart-search-bar${isHomeHero ? " smart-search-bar--hero-ss" : ""}${
+              isClassicHero ? " smart-search-bar--classic" : ""
+            }`}
+            onSubmit={handleSearch}
+          >
+            {isClassicHero ? (
+              <>
+                <div className="smart-search-hero-field smart-search-hero-field--search">
+                  <span className="smart-search-hero-field__label">
+                    Search Projects, Builders, Cities
+                  </span>
+                  <div className="smart-search-input-wrap">{searchInputField}</div>
+                </div>
+                <div className="smart-search-hero-extras">
+                  <div className="smart-search-hero-field smart-search-hero-field--location">
+                    <span className="smart-search-hero-field__label">City</span>
+                    {heroCitySelect}
+                  </div>
+                  <div className="smart-search-hero-field smart-search-hero-field--type">
+                    <span className="smart-search-hero-field__label">Property Type</span>
+                    {propertyTypeTrigger}
+                  </div>
+                  <div className="smart-search-hero-field smart-search-hero-field--budget">
+                    <span className="smart-search-hero-field__label">Budget</span>
+                    {heroBudgetSelect}
+                  </div>
+                </div>
+                {searchSubmitButton}
+              </>
+            ) : isHomeHero ? (
+              <>
+                <div className="smart-search-hero-field smart-search-hero-field--type">
+                  {propertyTypeTrigger}
+                </div>
+                <div className="smart-search-hero-field smart-search-hero-field--search">
+                  <div className="smart-search-input-wrap">
+                    {searchInputField}
+                    {searchSubmitButton}
+                  </div>
+                </div>
+                <div className="smart-search-hero-extras">
+                  <div className="smart-search-hero-field smart-search-hero-field--location">
+                    <span className="smart-search-hero-field__label">City</span>
+                    {heroCitySelect}
+                  </div>
+                  <div className="smart-search-hero-field smart-search-hero-field--budget">
+                    <span className="smart-search-hero-field__label">Budget</span>
+                    {heroBudgetSelect}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="smart-search-category">
+                  <button
+                    type="button"
+                    className={`smart-search-category-trigger${categoryOpen ? " active" : ""}${selectedPropertyKeys.length > 0 ? " smart-search-category-trigger--selected" : ""
+                      }`}
+                    onClick={() => {
+                      setCategoryOpen(!categoryOpen);
+                      setDropdownOpen(false);
+                    }}
+                    aria-expanded={categoryOpen}
+                    aria-haspopup="listbox"
+                  >
+                    <span className="smart-search-category-trigger__icon" aria-hidden>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path
+                          d="M4 20V9.5L12 4l8 5.5V20"
+                          stroke="currentColor"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </span>
+                    <span className="smart-search-category-trigger__text">{selectedCategoryLabel}</span>
+                    {selectedPropertyKeys.length > 1 ? (
+                      <span className="smart-search-category-trigger__count">{selectedPropertyKeys.length}</span>
+                    ) : null}
+                    <svg
+                      className={`smart-search-category-trigger__chevron${categoryOpen ? " is-open" : ""}`}
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden
+                    >
+                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="smart-search-input-wrap">
+                  {searchInputField}
+                </div>
+            <div className="smart-search-input-wrap">
+              <svg className="smart-search-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+              <input
+                type="search"
+                className="smart-search-input"
+                role="combobox"
+                value={searchInput}
+                onChange={(e) => {
+                  setSearchInput(e.target.value);
+                  setSuggestionsReady(false);
+                  setDropdownOpen(true);
+                }}
+                onFocus={() => {
+                  if (trimmedInput.length >= 2) setDropdownOpen(true);
+                }}
+                placeholder={PLACEHOLDER_EXAMPLES[placeholderIdx]}
+                aria-label="Search properties, projects, cities"
+                aria-expanded={dropdownOpen}
+                aria-controls="smart-search-suggestions"
+                aria-autocomplete="list"
+                autoComplete="off"
+              />
+              {searchInput ? (
+                <button
+                  type="button"
+                  className="smart-search-clear"
+                  onClick={() => {
+                    setSearchInput("");
+                    setDebouncedSearch("");
+                    setDropdownOpen(false);
+                  }}
+                  aria-label="Clear search"
+                >
+                  ×
+                </button>
+              ) : null}
+            </div>
+
+                {searchSubmitButton}
+              </>
+            )}
+          </form>
+
+          {showSuggestionsPanel ? (
+            <div
+              id="smart-search-suggestions"
+              className="smart-search-suggestions"
+              role="listbox"
+              aria-label="Search suggestions"
+              aria-busy={isSuggestionsLoading}
+            >
+              {isSuggestionsLoading ? (
+                <SuggestionDotsLoader />
+              ) : suggestions.length > 0 ? (
+                suggestions.map((s, idx) => (
+                  <button
+                    key={`${s.kind}-${s.label}-${idx}`}
+                    type="button"
+                    role="option"
+                    aria-selected={false}
+                    className="smart-search-suggestion"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleSuggestionSelect(s)}
+                  >
+                    <span className="smart-search-suggestion__main">
+                      <span className="smart-search-suggestion__label">
+                        {highlightMatch(s.label, debouncedSearch)}
+                      </span>
+                      <span className="smart-search-suggestion__meta">{s.meta}</span>
+                    </span>
+                    <span className={`smart-search-suggestion__badge smart-search-suggestion__badge--${s.kind}`}>
+                      {SUGGESTION_KIND_LABELS[s.kind]}
+                    </span>
+                  </button>
+                ))
+              ) : (
+                <div className="smart-search-suggestion smart-search-suggestion--empty" role="status">
+                  No matches for &ldquo;{debouncedSearch}&rdquo; — press Search to explore
+                </div>
+              )}
+            </div>
+          ) : null}
+
+          {categoryOpen ? (
+            <div
+              ref={propertyPanelRef}
+              className="smart-search-property-panel"
+              role="listbox"
+              aria-multiselectable="true"
+            >
+              <div className="smart-search-property-panel__header">
+                <div className="smart-search-property-panel__heading">
+                  <span className="smart-search-property-panel__eyebrow">
+                    {filterMode === "commercial" ? "Commercial" : "Residential"}
+                  </span>
+                  <span className="smart-search-property-panel__title">Choose property type</span>
+                </div>
+                <div className="smart-search-property-panel__actions">
+                  {activeFilterOptions.length > 1 ? (
+                    <button
+                      type="button"
+                      className={`smart-search-property-panel__select-all${allPropertyTypesSelected ? " is-checked" : ""}`}
+                      onClick={toggleSelectAllPropertyTypes}
+                      aria-pressed={allPropertyTypesSelected}
+                    >
+                      <span className="smart-search-property-panel__select-all-check" aria-hidden>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path
+                            d="M5 13l4 4L19 7"
+                            stroke="currentColor"
+                            strokeWidth="2.4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </span>
+                      Select all
+                    </button>
+                  ) : null}
+                  {selectedPropertyKeys.length > 0 ? (
+                    <button
+                      type="button"
+                      className="smart-search-property-panel__clear"
+                      onClick={clearPropertyFilters}
+                    >
+                      Clear
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+
+              {activeFilterOptions.length > 0 ? (
+                <div className="smart-search-property-panel__grid">
+                  {activeFilterOptions.map((option) => {
+                    const checked = selectedPropertyKeys.includes(option.key);
+                    return (
+                      <button
+                        key={option.key}
+                        type="button"
+                        role="option"
+                        aria-selected={checked}
+                        className={`smart-search-property-option${checked ? " smart-search-property-option--checked" : ""}`}
+                        onClick={() => handlePropertyTypeSelect(option.key)}
+                      >
+                        <span className="smart-search-property-option__icon">
+                          <PropertyTypeIcon typeKey={option.key} />
+                        </span>
+                        <span className="smart-search-property-option__copy">
+                          <span className="smart-search-property-option__label">{option.label}</span>
+                          {option.hint ? (
+                            <span className="smart-search-property-option__hint">{option.hint}</span>
+                          ) : null}
+                        </span>
+                        <span className="smart-search-property-option__check" aria-hidden>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <path
+                              d="M5 13l4 4L19 7"
+                              stroke="currentColor"
+                              strokeWidth="2.4"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="smart-search-property-panel__empty" role="status">
+                  Loading available property types…
+                </div>
+              )}
+
+              <div className="smart-search-property-panel__footer">
+                {filterMode === "residential" ? (
+                  <button type="button" className="smart-search-property-panel__switch" onClick={switchToCommercialFilters}>
+                    Looking for commercial? <strong>Switch</strong>
+                  </button>
+                ) : (
+                  <button type="button" className="smart-search-property-panel__switch" onClick={switchToResidentialFilters}>
+                    Looking for residential? <strong>Switch</strong>
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+      </div>
+      {isHomeHero && !isClassicHero ? (
+        <div className="smart-search-below">
+          <div className="smart-search-recent smart-search-recent--acres">
+            <span className="smart-search-recent__label">Recent searches:</span>
+            {keywordRecents.length > 0 ? (
+              <div className="smart-search-recent__pills">
+                {keywordRecents.slice(0, 8).map((item) => (
+                  <span key={item.id} className="smart-search-recent__pill">
+                    <svg className="smart-search-recent__clock" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                      <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+                      <path d="M12 8v4l3 1.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                    </svg>
+                    <button
+                      type="button"
+                      className="smart-search-recent__pill-text"
+                      onClick={() => handleRecentSearch(item.label)}
+                    >
+                      {item.label}
+                    </button>
+                    <button
+                      type="button"
+                      className="smart-search-recent__pill-remove"
+                      onClick={(e) => handleRemoveRecentSearch(item.label, e, "keyword")}
+                      aria-label={`Remove "${item.label}" from recent searches`}
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <span className="smart-search-below__empty">Your searches will appear here</span>
+            )}
+          </div>
+          <div className="smart-search-continue">
+            <span className="smart-search-continue__label">Continue browsing...</span>
+            {continueBrowsing.length > 0 ? (
+              <div className="smart-search-continue__pills">
+                {continueBrowsing.slice(0, 8).map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="smart-search-continue__pill"
+                    onClick={() => handleContinueBrowse(item)}
+                    title={item.label}
+                  >
+                    <span className="smart-search-continue__icon">
+                      <ContinueBrowseIcon kind={item.kind} />
+                    </span>
+                    <span className="smart-search-continue__text">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <span className="smart-search-below__empty">Properties, cities and blogs you open will show up here</span>
+            )}
+          </div>
+        </div>
+      ) : null}
+      {!isHomeHero && recentSearches.length > 0 ? (
+        <div className="smart-search-recent">
+          <span className="smart-search-recent__label">Recent searches:</span>
+          <div className="smart-search-recent__pills">
+            {recentSearches.map((item) => (
+              <span key={item} className="smart-search-recent__pill">
+                <button
+                  type="button"
+                  className="smart-search-recent__pill-text"
+                  onClick={() => handleRecentSearch(item)}
+                >
+                  {item}
+                </button>
+                <button
+                  type="button"
+                  className="smart-search-recent__pill-remove"
+                  onClick={(e) => handleRemoveRecentSearch(item, e)}
+                  aria-label={`Remove "${item}" from recent searches`}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="smart-search-recent__clear"
+            onClick={handleClearRecentSearches}
+          >
+            Clear all
+          </button>
+        </div>
+      ) : null}
+      {isClassicHero ? (
+        <div className="smart-search-trending">
+          <span className="smart-search-trending-title">Trending Search:</span>
+          {HOME_POPULAR_CHIPS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className="smart-search-chip"
+              onClick={() => handlePopularChip(item)}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+      ) : !isHomeHero ? (
+        <div className="smart-search-trending">
+          <span className="smart-search-trending-title">Trending Search:</span>
+          {QUICK_CITY_CHIPS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              className="smart-search-chip"
+              onClick={() => handleQuickCity(item)}
+            >
+              {activeTab !== "All" ? `${activeTab} in ` : ""}
+              {item}
+            </button>
+          ))}
+        </div>
+      ) : null}
+      {isHomeHero && !isClassicHero && isSearchSticky && stickyHost
+        ? createPortal(
+            <form className="smart-search-bar smart-search-bar--sticky-ss" onSubmit={handleSearch}>
+              <div className={`smart-search-sticky-buy${stickyTabOpen ? " is-open" : ""}`}>
+                <button
+                  type="button"
+                  className="smart-search-sticky-buy__trigger"
+                  aria-haspopup="listbox"
+                  aria-expanded={stickyTabOpen}
+                  onClick={() => {
+                    setStickyTabOpen((open) => !open);
+                    setDropdownOpen(false);
+                    setCategoryOpen(false);
+                  }}
+                >
+                  <span>{HOME_HERO_TABS.find((tab) => tab.key === activeTab)?.label || "Buy"}</span>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden>
+                    <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                  </svg>
+                </button>
+                {stickyTabOpen ? (
+                  <div className="smart-search-sticky-buy__menu" role="listbox">
+                    {HOME_HERO_TABS.map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        role="option"
+                        aria-selected={activeTab === tab.key}
+                        className={activeTab === tab.key ? "is-active" : ""}
+                        onClick={() => {
+                          handleTabChange(tab.key);
+                          setStickyTabOpen(false);
+                        }}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+              <div className="smart-search-input-wrap">{searchInputField}</div>
+              <button type="submit" className="smart-search-sticky-go" aria-label="Search">
+                {loading ? (
+                  <Spinner animation="border" size="sm" variant="success" />
+                ) : (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                    <path d="M20 20L16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </svg>
+                )}
+              </button>
+            </form>,
+            stickyHost,
+          )
+        : null}
+    </div>
+  );
+}

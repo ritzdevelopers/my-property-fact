@@ -1,17 +1,18 @@
 "use client";
 
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 
 const NAV_LINKS = [
-  ["OVERVIEW", "/eldeco-7-peaks#overview"],
-  ["HIGHLIGHT", "/eldeco-7-peaks#highlights"],
-  ["PRICE", "/eldeco-7-peaks#price"],
-  ["FLOOR PLAN", "/eldeco-7-peaks#floor-plan"],
-  ["AMENITIES", "/eldeco-7-peaks#amenities"],
-  ["LOCATION", "/eldeco-7-peaks#location"],
-  ["GALLERY", "/eldeco-7-peaks#gallery"],
+  ["OVERVIEW", "#overview"],
+  ["HIGHLIGHT", "#highlights"],
+  ["PRICE", "#price"],
+  ["FLOOR PLAN", "#floor-plan"],
+  ["AMENITIES", "#amenities"],
+  ["LOCATION", "#location"],
+  ["GALLERY", "#gallery"],
 ] as const;
 
 type SiteHeaderProps = {
@@ -19,6 +20,7 @@ type SiteHeaderProps = {
 };
 
 export default function SiteHeader({ logoSrc }: SiteHeaderProps) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -57,8 +59,12 @@ export default function SiteHeader({ logoSrc }: SiteHeaderProps) {
         <div className="relative z-[20] h-[85px] w-full bg-white max-[800px]:h-[72px]">
           <div className="mx-auto flex h-[85px] w-[min(1256px,calc(100%-48px))] items-center justify-between gap-12 max-[1100px]:gap-5 max-[800px]:h-[72px] max-[800px]:w-[calc(100%-28px)]">
             <a
-              href="/eldeco-7-peaks"
-              onClick={closeMenu}
+              href={pathname || "/eldeco-7-peaks"}
+              onClick={(event) => {
+                event.preventDefault();
+                closeMenu();
+                window.dispatchEvent(new Event("7peaks-scroll-top"));
+              }}
               className="block h-[50px] w-[238px] shrink-0 max-[800px]:h-8 max-[800px]:w-[150px]"
             >
               <Image

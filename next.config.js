@@ -47,6 +47,48 @@ const nextConfig = {
         destination: "/blog/the-ultimate-guide-to-buying-your-first-home",
         permanent: true,
       },
+      {
+        source: "/blog/new-commercial-projects-delhi-ncr-for-sale",
+        destination: "/commercial-property-in-delhi",
+        permanent: true,
+      },
+      {
+        source: "/blog/commercial-property-in-noida-sector-18",
+        destination: "/commercial-property-in-noida",
+        permanent: true,
+      },
+
+      // Hidden builder + projects (Ashiana)
+      {
+        source: "/builder/ashiana-housing",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-aaroham",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-amarah",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-anmol",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-mulberry",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
+      {
+        source: "/ashiana-mulberry-blossom",
+        destination: "/city/gurugram",
+        permanent: true,
+      },
 
       // Builder legacy/typo slugs
       {

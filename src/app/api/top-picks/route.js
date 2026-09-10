@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { fetchTopPicksProject } from "@/app/_global_components/masterFunction";
+import { fetchTopPicksProjects } from "@/app/_global_components/masterFunction";
 
 
 export async function GET() {
   try {
-    const topProject = await fetchTopPicksProject();
+    const topProjects = await fetchTopPicksProjects();
     return NextResponse.json({
       success: true,
-      topProject,
+      topProject: topProjects[0] ?? null,
+      topProjects,
       _meta: {
         rotationIntervalSeconds: 30,
       },

@@ -1,56 +1,81 @@
-/* My Property Fact — Top Picks (spotlight, compact) */
+/* My Property Fact — Top Picks spotlight carousel */
 
 .mpf-tp {
-  /* Site brand green (property pages, promos) */
   --mpf-tp-brand: #0d5834;
-  --mpf-tp-surface: #ffffff;
-  --mpf-tp-line: rgba(15, 23, 42, 0.08);
-  --mpf-tp-muted: #64748b;
-  --mpf-tp-ink: #0f172a;
-  --mpf-tp-gold-glow: rgba(13, 88, 52, 0.45);
+  --mpf-tp-brand-deep: #0d2823;
+  --mpf-tp-gold: #c4a35a;
+  --mpf-tp-ink: #14181d;
+  --mpf-tp-muted: #6b7280;
+  --mpf-tp-line: rgba(15, 23, 42, 0.09);
+  --mpf-tp-page: #f8f8f6;
+  --mpf-tp-cream: #f6f5f1;
+
+  /* Leftmost point of the image panel's curve; the copy panel fills everything to its left. */
+  --mpf-tp-seam: 36.74%;
 }
 
-/* Full-bleed band: fills viewport side margins with tone (content stays in .container) */
+.mpf-tp__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
 .mpf-tp__band {
   width: 100%;
-  background: linear-gradient(180deg, #f1f5f9 0%, #f8fafc 38%, #ffffff 100%);
-  box-shadow: none;
-  padding-top: 0.25rem;
-  padding-bottom: 0.5rem;
+  /* Soft brand-tinted glow behind the card for a richer, more premium backdrop. */
+  background:
+    radial-gradient(120% 90% at 88% -10%, rgba(13, 88, 52, 0.07), transparent 55%),
+    radial-gradient(90% 80% at 0% 120%, rgba(196, 163, 90, 0.08), transparent 55%),
+    linear-gradient(180deg, #ffffff 0%, var(--mpf-tp-page) 45%, #ffffff 100%);
+  padding: 0.75rem 0 1.25rem;
 }
 
-.mpf-tp__wrap {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-}
+/* ---------------------------------------------------------------- header */
 
 .mpf-tp__head {
-  text-align: center;
-  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.35rem;
+}
+
+.mpf-tp__head-copy {
+  min-width: 0;
 }
 
 .mpf-tp__kicker {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #0d5c63;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid #c4a35a;
-  padding: 0 0 0.2rem;
-  border-radius: 0;
+  color: var(--mpf-tp-brand);
   margin-bottom: 0.5rem;
 }
 
+.mpf-tp__kicker::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--mpf-tp-gold);
+}
+
 .mpf-tp__title {
-  font-size: clamp(1.25rem, 2.6vw, 1.5rem);
-  line-height: 1.25;
+  font-size: clamp(1.5rem, 1.15rem + 1.5vw, 2.35rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   color: var(--mpf-tp-ink);
   margin: 0 0 0.35rem;
-  letter-spacing: -0.02em;
+}
+
+.mpf-tp__title-accent {
+  color: var(--mpf-tp-brand);
 }
 
 .mpf-tp__sub {
@@ -58,422 +83,669 @@
   line-height: 1.5;
   color: var(--mpf-tp-muted);
   margin: 0;
-  max-width: 38rem;
-  margin-inline: auto;
+  max-width: 34rem;
 }
 
-/* Full width inside home .container; image column slightly larger for a richer hero */
-.mpf-tp__card {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.12fr);
-  width: 100%;
-  max-width: none;
-  min-width: 0;
+.mpf-tp__nav {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  flex-shrink: 0;
+  padding-bottom: 0.2rem;
+}
+
+.mpf-tp__count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
   margin: 0;
-  background: var(--mpf-tp-surface);
-  border: 1px solid var(--mpf-tp-line);
-  border-radius: 0;
-  box-shadow: none;
-  overflow: hidden;
-  align-items: stretch;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--mpf-tp-ink);
 }
 
-.mpf-tp__main {
+.mpf-tp__count-sep,
+.mpf-tp__count-all {
+  color: #b6bcc4;
+  font-weight: 600;
+}
+
+.mpf-tp__track {
+  display: block;
+  width: clamp(60px, 8vw, 108px);
+  height: 3px;
+  border-radius: 999px;
+  background: #e2e5e9;
+  overflow: hidden;
+}
+
+.mpf-tp__track-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--mpf-tp-brand);
+  transition: width 0.4s ease;
+}
+
+.mpf-tp__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--mpf-tp-line);
+  background: #ffffff;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mpf-tp__arrow svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.mpf-tp__arrow:hover,
+.mpf-tp__arrow:focus-visible {
+  border-color: var(--mpf-tp-brand);
+  color: var(--mpf-tp-brand);
+  transform: translateY(-1px);
+}
+
+.mpf-tp__arrow--next {
+  background: var(--mpf-tp-brand);
+  border-color: var(--mpf-tp-brand);
+  color: #ffffff;
+}
+
+.mpf-tp__arrow--next:hover,
+.mpf-tp__arrow--next:focus-visible {
+  background: #0a4429;
+  border-color: #0a4429;
+  color: #ffffff;
+}
+
+/* ----------------------------------------------------------------- stage */
+
+.mpf-tp__stage {
+  position: relative;
+}
+
+.mpf-tp__card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  min-height: clamp(320px, 26vw, 400px);
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+
+.mpf-tp__card.is-active {
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease, visibility 0s;
+}
+
+/* ----------------------------------------------------------------- media */
+
+.mpf-tp__media {
+  position: absolute;
+  inset: 0 0 0 var(--mpf-tp-seam);
+  z-index: 1;
+  overflow: hidden;
+  background: #0d1b2a;
+  /* Curve traced from the design; see MEDIA_CLIP_PATH in mpfTopPick.js. */
+  clip-path: var(--mpf-tp-clip, none);
+}
+
+.mpf-tp__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1);
+  transition: transform 0.6s ease;
+}
+
+.mpf-tp__card:hover .mpf-tp__img {
+  transform: scale(1.05);
+}
+
+.mpf-tp__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 20, 33, 0) 45%,
+    rgba(9, 20, 33, 0.55) 100%
+  );
+}
+
+/* Cream lozenge with the editorial line, hugging the right edge of the card */
+.mpf-tp__plaque {
+  position: absolute;
+  right: 0;
+  top: 7%;
+  bottom: 21%;
+  width: 29%;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  padding: 1.15rem 1.25rem 1.2rem;
-  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 1rem 1rem 1rem 2.2rem;
+  text-align: center;
+  background: rgba(248, 247, 243, 0.95);
+  border-radius: 52% 0 0 52% / 50% 0 0 50%;
+  backdrop-filter: blur(2px);
+}
+
+.mpf-tp__plaque-title {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(0.78rem, 0.62rem + 0.5vw, 1.02rem);
+  line-height: 1.35;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2b2f36;
+}
+
+.mpf-tp__plaque-rule {
+  display: block;
+  width: 42px;
+  height: 1px;
+  background: var(--mpf-tp-gold);
+}
+
+.mpf-tp__plaque-loc {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #5b6169;
+}
+
+/* USP row across the bottom of the image — frosted glass chips */
+.mpf-tp__usps {
+  position: absolute;
+  right: 3.5%;
+  bottom: 6%;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.5rem, 1vw, 0.85rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mpf-tp__usp {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.5rem 0.85rem 0.5rem 0.55rem;
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(11, 26, 20, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 6px 18px rgba(9, 20, 33, 0.28);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  transition: transform 0.25s ease, background 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.mpf-tp__usp:hover {
+  transform: translateY(-2px);
+  background: rgba(13, 88, 52, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.mpf-tp__usp-icon {
+  width: 1.6rem;
+  height: 1.6rem;
+  flex-shrink: 0;
+  padding: 0.32rem;
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.mpf-tp__usp-txt {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.66rem;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 1px 6px rgba(9, 20, 33, 0.55);
+}
+
+.mpf-tp__usp-txt strong {
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #ffffff;
+}
+
+/* "New Launch" medallion sitting on the seam between panel and image */
+.mpf-tp__badge {
+  position: absolute;
+  left: 73%;
+  top: 5.3%;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(62px, 6.9vw, 98px);
+  aspect-ratio: 1;
+  margin: 0;
+  padding: 0.4rem;
+  border-radius: 50%;
+  background: var(--mpf-tp-brand-deep);
+  /* Thin inner ring, inset from the rim — matches the medallion in the design. */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35),
+    0 10px 26px rgba(9, 20, 33, 0.35);
+  color: #ffffff;
+  font-size: clamp(0.6rem, 0.5rem + 0.22vw, 0.72rem);
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.mpf-tp__badge::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+}
+
+/* ----------------------------------------------------------------- panel */
+
+.mpf-tp__panel {
+  position: relative;
+  z-index: 2;
+  width: var(--mpf-tp-seam);
+  display: flex;
+  flex-direction: column;
+  /* Center the copy and let generous, even gaps fill the height — avoids the single
+     large void a bottom-anchored (margin-top:auto) layout leaves on sparse slides. */
+  justify-content: center;
+  gap: clamp(0.85rem, 1.4vw, 1.35rem);
+  align-self: stretch;
+  padding: clamp(1.35rem, 2.2vw, 2.3rem) clamp(0.9rem, 1.4vw, 1.5rem)
+    clamp(1.35rem, 2.2vw, 2.3rem) clamp(1.2rem, 2.2vw, 2.2rem);
+}
+
+/* A touch more breathing room above the stats block. */
+.mpf-tp__panel > .mpf-tp__stats {
+  margin-top: 0.25rem;
 }
 
 .mpf-tp__dev {
   display: flex;
   align-items: center;
-  gap: 1rem 1.1rem;
-  flex-wrap: wrap;
+  gap: 0.9rem;
+  min-width: 0;
 }
 
-/* Full logo, no box — fills space; wide logos read clearly on white */
-.mpf-tp__logo {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(7.5rem, 20vw, 12rem);
-  min-height: 3.25rem;
-  max-height: 4.5rem;
-  padding: 0;
-  background: none;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
-  overflow: visible;
-}
-
-.mpf-tp__logo .mpf-tp__logo-img,
-.mpf-tp__logo .img-fluid {
+.mpf-tp__dev-logo {
+  flex: 0 1 auto;
+  width: auto;
+  height: auto;
+  max-width: 58%;
+  max-height: 3.5rem;
   object-fit: contain;
   object-position: left center;
-  width: 100% !important;
-  height: auto !important;
-  max-height: 4.5rem;
-  max-width: 100%;
+}
+
+.mpf-tp__dev-rule {
+  flex: 0 0 auto;
+  width: 1px;
+  align-self: stretch;
+  min-height: 2.1rem;
+  background: var(--mpf-tp-line);
 }
 
 .mpf-tp__dev-txt {
   min-width: 0;
-  flex: 1;
 }
 
 .mpf-tp__eyebrow {
   display: block;
-  font-size: 0.65rem;
+  font-size: 0.66rem;
   font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #94a3b8;
-  margin-bottom: 0.15rem;
+  color: #a1a8b1;
+  margin-bottom: 0.2rem;
 }
 
-@keyframes mpf-tp-project-glow {
-  0%,
-  100% {
-    text-shadow:
-      0 0 12px var(--mpf-tp-gold-glow),
-      0 0 28px rgba(201, 162, 77, 0.32),
-      0 0 3px rgba(201, 162, 77, 0.22);
-  }
-  50% {
-    text-shadow:
-      0 0 18px rgba(201, 162, 77, 0.85),
-      0 0 40px rgba(201, 162, 77, 0.45),
-      0 0 6px rgba(201, 162, 77, 0.35);
-  }
-}
-
-.mpf-tp__builder {
-  font-size: 0.95rem;
+.mpf-tp__dev-name {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
   line-height: 1.3;
   color: var(--mpf-tp-ink);
-  margin: 0 0 0.2rem;
-}
-
-.mpf-tp__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #3f3f46;
   text-decoration: none;
-  transition: color 0.2s ease, transform 0.2s;
+  transition: color 0.2s ease;
 }
 
-.mpf-tp__link:hover,
-.mpf-tp__link:focus-visible {
+a.mpf-tp__dev-name:hover,
+a.mpf-tp__dev-name:focus-visible {
   color: var(--mpf-tp-brand);
 }
 
-.mpf-tp__link svg {
-  flex-shrink: 0;
-  width: 1.1em;
-  height: 1.1em;
-  color: currentColor;
-  transition: transform 0.2s;
-}
-
-.mpf-tp__link:hover svg,
-.mpf-tp__link:focus-visible svg {
-  transform: translateX(2px);
-}
-
 .mpf-tp__project {
-  position: relative;
-  z-index: 0;
-  font-size: clamp(1.12rem, 1.1rem + 0.35vw, 1.3rem);
-  line-height: 1.3;
-  color: var(--mpf-tp-ink);
-  margin: 0.15rem 0 0;
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.4rem, 1rem + 1.4vw, 2.1rem);
+  line-height: 1.18;
   letter-spacing: -0.02em;
-  /* Golden glow on project name (e.g. Eldeco Camelot) */
-  text-shadow:
-    0 0 14px var(--mpf-tp-gold-glow),
-    0 0 32px rgba(201, 162, 77, 0.35),
-    0 0 4px rgba(201, 162, 77, 0.25);
-  animation: mpf-tp-project-glow 3.5s ease-in-out infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mpf-tp__project {
-    animation: none;
-  }
+  color: var(--mpf-tp-ink);
 }
 
 .mpf-tp__addr {
   display: flex;
-  align-items: flex-start;
-  gap: 0.35rem;
-  font-size: 0.8rem;
-  line-height: 1.45;
-  color: var(--mpf-tp-muted);
-  margin: 0;
-}
-
-.mpf-tp__addr .mpf-tp__addr-icon,
-.mpf-tp__addr svg {
-  color: var(--mpf-tp-brand);
-  width: 0.9rem !important;
-  height: 0.9rem !important;
-  margin-top: 0.1rem;
-  flex-shrink: 0;
-}
-
-.mpf-tp__chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
   gap: 0.45rem;
-  margin-top: 0.1rem;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: #4b5563;
 }
 
-/* Same inner padding on price + BHK chips */
-.mpf-tp__chip {
-  display: inline-flex;
+.mpf-tp__addr-icon {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--mpf-tp-brand);
+}
+
+.mpf-tp__tag {
+  margin: 0.1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #3f4650;
+}
+
+.mpf-tp__stats {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(0.6rem, 1.1vw, 1.1rem);
+  margin: 0.35rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mpf-tp__stat {
+  display: flex;
   align-items: center;
-  box-sizing: border-box;
-  gap: 0.4rem;
-  padding: 0.5rem 0.85rem;
-  min-height: 2.85rem;
-  background: #f1f5f9;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  line-height: 1.2;
-  color: #334155;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
-.mpf-tp__chip--price {
-  align-items: center;
-  gap: 0.4rem;
+.mpf-tp__stat + .mpf-tp__stat {
+  padding-left: clamp(0.6rem, 1.1vw, 1.1rem);
+  border-left: 1px solid var(--mpf-tp-line);
 }
 
-.mpf-tp__chip--price > div {
+.mpf-tp__stat-icon {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  color: #2f3740;
+}
+
+.mpf-tp__stat-txt {
   display: flex;
   flex-direction: column;
-  gap: 0.05rem;
   min-width: 0;
-  justify-content: center;
+  line-height: 1.3;
 }
 
-.mpf-tp__chip--config {
-  text-transform: uppercase;
+/* Two equal-size lines; tone (not size) separates the value from its caption. */
+.mpf-tp__stat-strong {
+  font-size: 0.92rem;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  font-size: 0.75rem;
-  justify-content: center;
+  line-height: 1.35;
+  color: var(--mpf-tp-ink);
+  white-space: nowrap;
 }
 
-.mpf-tp__chip p {
-  margin: 0;
+.mpf-tp__stat-muted {
+  font-size: 0.86rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #7b8592;
+  white-space: nowrap;
 }
 
-.mpf-tp__chip--price p {
-  font-weight: 600;
-  color: #0f172a;
-  font-size: 0.82rem;
-}
-
-.mpf-tp__chip-lbl {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #64748b;
-  font-weight: 600;
+.mpf-tp__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
 }
 
 .mpf-tp__cta {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  align-self: flex-start;
-  margin-top: 0.25rem;
-  padding: 0.5rem 1.1rem;
-  font-size: 0.85rem;
-  border-radius: 8px;
+  gap: 0.6rem;
+  padding: 0.9rem 1.85rem;
+  border-radius: 999px;
+  /* Warm brand-gold gradient — elegant and premium instead of the dark green. */
+  background: linear-gradient(135deg, #e6c988 0%, #c4a35a 48%, #a9863f 100%);
+  color: #2a1e07;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s, color 0.2s;
+  overflow: hidden;
+  /* Crisp top highlight + soft ambient gold glow for depth. */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 10px 24px rgba(169, 134, 63, 0.34), 0 2px 6px rgba(120, 90, 30, 0.22);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
 }
 
-.mpf-tp__cta.btn-normal-color,
-.mpf-tp__cta.btn-normal-color span {
-  color: #fff;
+/* Sweeping sheen that glides across on hover. */
+.mpf-tp__cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 70%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
 }
 
-.mpf-tp__cta.btn-normal-color:hover,
-.mpf-tp__cta.btn-normal-color:focus-visible,
-.mpf-tp__cta.btn-normal-color:hover span,
-.mpf-tp__cta.btn-normal-color:focus-visible span {
-  color: #fff;
+.mpf-tp__cta > span {
+  position: relative;
+  z-index: 1;
+}
+
+.mpf-tp__cta svg {
+  position: relative;
+  z-index: 1;
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s ease;
 }
 
 .mpf-tp__cta:hover,
 .mpf-tp__cta:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  color: #2a1e07;
+  transform: translateY(-2px);
+  filter: saturate(1.05);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 16px 32px rgba(169, 134, 63, 0.42), 0 3px 8px rgba(120, 90, 30, 0.26);
 }
 
-.mpf-tp__cta svg {
-  width: 1.1em;
-  height: 1.1em;
-  color: #fff;
-  transition: transform 0.2s;
+.mpf-tp__cta:hover::before,
+.mpf-tp__cta:focus-visible::before {
+  left: 130%;
 }
 
 .mpf-tp__cta:hover svg,
 .mpf-tp__cta:focus-visible svg {
-  transform: translateX(2px);
+  transform: translateX(3px);
 }
 
-.mpf-tp__figure {
-  position: relative;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
-  min-height: 0;
-  min-width: 0;
-  display: block;
-  overflow: hidden;
-  cursor: pointer;
-  background: #e2e8f0;
-  text-decoration: none;
-  color: inherit;
-  outline: none;
-  isolation: isolate;
-  -webkit-tap-highlight-color: transparent;
+/* ------------------------------------------------------------ responsive */
+
+/* Tablet: shrink the seam so the copy column keeps a readable measure. */
+@media (max-width: 1199.98px) {
+  .mpf-tp {
+    --mpf-tp-seam: 42%;
+  }
+
+  .mpf-tp__plaque {
+    width: 36%;
+  }
+
+  .mpf-tp__badge {
+    left: 70%;
+  }
 }
 
-/* next/image (fill) wraps in a span; must not expand past the card (grid min-content bug) */
-.mpf-tp__figure > span {
-  position: relative !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
-  box-sizing: border-box;
-}
-
-.mpf-tp__figure:focus-visible {
-  box-shadow: inset 0 0 0 3px #f97316;
-  z-index: 1;
-}
-
-.mpf-tp__img {
-  object-fit: cover;
-  /* Bias to top: tall building / skyline banners are usually framed from the ground up */
-  object-position: top center;
-  transform: scale(1);
-  transform-origin: center top;
-  transition: transform 0.5s ease;
-  will-change: transform;
-}
-
-.mpf-tp__figure:hover .mpf-tp__img,
-.mpf-tp__figure:focus-visible .mpf-tp__img {
-  transform: scale(1.08);
-}
-
-.mpf-tp__grad {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0) 50%, rgba(15, 23, 42, 0.25) 100%);
-  pointer-events: none;
-}
-
-.mpf-tp__status {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 2;
-  max-width: min(12rem, 90%);
-  padding: 0.25rem 0.5rem 0.3rem;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 23, 42, 0.08);
-  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
-  line-height: 1.2;
-  text-align: right;
-  backdrop-filter: blur(6px);
-}
-
-.mpf-tp__status-eyebrow {
-  display: block;
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #64748b;
-  font-weight: 600;
-  margin-bottom: 0.05rem;
-}
-
-.mpf-tp__status-text {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: #0f172a;
-  word-break: break-word;
-}
-
-/* Tablet + mobile: single column, hero image on top (full width of card)
-   Use flex (not grid) so image + text always share the same width (avoids grid min-width overflow) */
-@media (max-width: 992px) {
+/* Stack: image on top, copy below — curves and overlays flatten out. */
+@media (max-width: 991.98px) {
   .mpf-tp__card {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    min-width: 0;
+    min-height: 0;
   }
 
-  .mpf-tp__figure {
-    order: -1;
-    flex: 0 0 auto;
-    align-self: stretch;
+  .mpf-tp__media {
+    position: relative;
+    inset: auto;
     width: 100%;
-    max-width: 100%;
-    /* 16:9 + 220px cap over-cropped tall banners; 4/3 + generous height shows towers */
-    aspect-ratio: 4 / 3;
-    max-height: min(60vh, 420px);
-    min-height: 220px;
+    aspect-ratio: 16 / 9;
+    max-height: 320px;
+    /* Stacked layout has no copy panel beside it, so the curve has nothing to bite into. */
+    clip-path: none;
   }
 
-  .mpf-tp__main {
-    flex: 1 1 auto;
+  .mpf-tp__plaque {
+    top: auto;
+    bottom: auto;
+    right: 0;
+    width: auto;
+    max-width: 46%;
+    align-self: center;
+    inset-block: 12% 40%;
+    padding: 0.75rem 0.9rem 0.75rem 1.3rem;
+    border-radius: 24px 0 0 24px;
+  }
+
+  .mpf-tp__usps {
+    right: auto;
+    left: 4%;
+    bottom: 5%;
+  }
+
+  .mpf-tp__badge {
+    left: auto;
+    right: 4%;
+    top: auto;
+    bottom: 5%;
+  }
+
+  .mpf-tp__panel {
     width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    padding: 1rem 1rem 1.15rem;
-  }
-
-  .mpf-tp__head {
-    text-align: left;
-    margin-bottom: 1rem;
-  }
-
-  .mpf-tp__sub {
-    margin-inline: 0;
+    padding: 1.25rem 1.15rem 1.5rem;
   }
 }
 
-/* Use full content width below tablet; home redesign overrides 768–1200 */
 @media (max-width: 767.98px) {
-  .mpf-tp__band > .container {
-    max-width: 100%;
+  .mpf-tp__head {
+    align-items: flex-start;
+  }
+
+  .mpf-tp__nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .mpf-tp__plaque {
+    display: none;
+  }
+
+  .mpf-tp__usps {
+    gap: 0.75rem;
+  }
+
+  .mpf-tp__stats {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+  }
+
+  .mpf-tp__stat + .mpf-tp__stat {
+    padding-left: 0.75rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .mpf-tp__media {
+    aspect-ratio: 4 / 3;
+    max-height: 260px;
+  }
+
+  .mpf-tp__usps {
+    display: none;
+  }
+
+  .mpf-tp__actions {
+    gap: 0.75rem;
+  }
+
+  .mpf-tp__cta {
+    flex: 1 1 auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpf-tp__card,
+  .mpf-tp__img,
+  .mpf-tp__track-fill {
+    transition: none;
+  }
+
+  .mpf-tp__card:hover .mpf-tp__img {
+    transform: none;
   }
 }
 
 /* Top Picks — small laptop (1024–1200): fluid vw width */
-@media (min-width: 1024px) and (max-width: 1199.99px) {
+@media (min-width: 1024px) and (max-width: 1199.98px) {
   .mpf-home-r26 .mpf-tp__band > .container,
   .mpf-tp__band > .container {
     max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
@@ -498,203 +770,9 @@
   }
 }
 
-@media (min-width: 993px) {
-  .mpf-tp__head {
-    text-align: left;
-    margin-bottom: 1.25rem;
-  }
-
-  .mpf-tp__sub {
-    margin-inline: 0;
-    max-width: 42rem;
-  }
-
-  .mpf-tp__figure {
-    min-height: 200px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .mpf-tp__main {
-    padding: 1.35rem 1.75rem 1.5rem;
-  }
-}
-
-@media (max-width: 576px) {
-  .mpf-tp__figure {
-    min-height: 200px;
-    max-height: min(72vw, 360px);
-    aspect-ratio: 4 / 3;
-  }
-
-  .mpf-tp__chips {
-    gap: 0.35rem;
-  }
-
-  .mpf-tp__chip {
-    font-size: 0.75rem;
-  }
-
-  .mpf-tp__status {
-    top: 8px;
-    right: 8px;
-  }
-}
-
-@media (hover: none) and (pointer: coarse) {
-  .mpf-tp__figure:hover .mpf-tp__img,
-  .mpf-tp__figure:focus-visible .mpf-tp__img {
-    transform: none;
-  }
-
-  .mpf-tp__figure:active .mpf-tp__img {
-    transform: scale(1.02);
-  }
-}
-
-/* ==========================================================================
-   80th Independence Day spotlight
-   Premium tricolor accents + glow — real estate card stays the hero.
-   ========================================================================== */
-.mpf-tp--i80 {
-  --i80-saffron: #e0740b;
-  --i80-saffron-bright: #f59a2b;
-  --i80-green: #0b5c2e;
-  --i80-green-bright: #17843f;
-  --i80-navy: #123a78;
-}
-
-.mpf-tp--i80 .mpf-tp__band {
-  background:
-    radial-gradient(1200px 280px at 8% 0%, rgba(245, 154, 43, 0.14), transparent 62%),
-    radial-gradient(900px 240px at 92% 100%, rgba(23, 132, 63, 0.1), transparent 58%),
-    linear-gradient(180deg, #fffaf1 0%, #ffffff 42%, #ffffff 100%);
-}
-
-.mpf-tp--i80 .mpf-tp__kicker-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 14px;
-  margin-bottom: 0.55rem;
-}
-
-.mpf-tp--i80 .mpf-tp__kicker {
-  margin-bottom: 0;
-}
-
-.mpf-tp--i80 .mpf-tp__i80-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(224, 116, 11, 0.28);
-  color: var(--i80-green);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(224, 116, 11, 0.12);
-}
-
-.mpf-tp--i80 .mpf-tp__card {
-  position: relative;
-  isolation: isolate;
-  border-color: rgba(224, 116, 11, 0.18);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.7) inset,
-    0 18px 44px rgba(86, 58, 18, 0.1),
-    0 0 36px rgba(245, 154, 43, 0.22),
-    0 0 48px rgba(23, 132, 63, 0.16);
-  animation: mpf-tp-i80-glow 4.2s ease-in-out infinite;
-}
-
-.mpf-tp--i80 .mpf-tp__i80-trim {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  z-index: 3;
-  background: linear-gradient(90deg,
-    var(--i80-saffron-bright) 0%,
-    #fff 48%,
-    var(--i80-green-bright) 100%);
-  pointer-events: none;
-}
-
-.mpf-tp--i80 .mpf-tp__i80-mark {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 1px;
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: rgba(255, 252, 246, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.16);
-  backdrop-filter: blur(8px);
-  pointer-events: none;
-}
-
-.mpf-tp--i80 .mpf-tp__i80-mark span {
-  font-size: 1.15rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  background: linear-gradient(90deg, var(--i80-saffron) 0%, var(--i80-green) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.mpf-tp--i80 .mpf-tp__i80-mark small {
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--i80-navy);
-}
-
-.mpf-tp--i80 .mpf-tp__cta.btn-normal-color,
-.mpf-tp--i80 .mpf-tp__cta {
-  box-shadow: 0 8px 22px rgba(11, 92, 46, 0.32);
-}
-
-@keyframes mpf-tp-i80-glow {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.7) inset,
-      0 18px 44px rgba(86, 58, 18, 0.1),
-      0 0 28px rgba(245, 154, 43, 0.18),
-      0 0 40px rgba(23, 132, 63, 0.12);
-  }
-  50% {
-    box-shadow:
-      0 0 0 1px rgba(255, 255, 255, 0.85) inset,
-      0 22px 50px rgba(86, 58, 18, 0.14),
-      0 0 48px rgba(245, 154, 43, 0.32),
-      0 0 64px rgba(23, 132, 63, 0.22);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mpf-tp--i80 .mpf-tp__card {
-    animation: none;
-  }
-}
-
-@media (max-width: 576px) {
-  .mpf-tp--i80 .mpf-tp__i80-mark {
-    left: 8px;
-    bottom: 8px;
-    padding: 6px 10px;
+/* Use full content width below tablet; home redesign overrides 768–1200 */
+@media (max-width: 767.98px) {
+  .mpf-tp__band > .container {
+    max-width: 100%;
   }
 }

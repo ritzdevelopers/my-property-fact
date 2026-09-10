@@ -624,7 +624,8 @@ const TOP_PICKS_BUILDERS = [
   "ghd-infra",
 ];
 
-const TOP_PICKS_PROJECT_SLUG = "eldeco-7-peaks-residences";
+/** Pinned Top Picks, in the order the spotlight carousel shows them. */
+const TOP_PICKS_PROJECT_SLUGS = ["eldeco-7-peaks-residences", "exotica-132"];
 
 const TOP_PICKS_PERIOD_MS = 4 * 24 * 60 * 60 * 1000;
 
@@ -636,6 +637,8 @@ function normalizeTopPickProject(project, builderName, builderSlug) {
     builderSlug: builderSlug ?? project.builderSlug ?? project.builderSlugURL,
     projectName: project.projectName,
     projectAddress: project.projectAddress,
+    projectLocality: project.projectLocality,
+    cityName: project.cityName,
     projectConfiguration: project.projectConfiguration,
     projectPrice: project.projectPrice,
     projectLogo: project.projectLogo ?? project.projectLogoImage,
@@ -665,27 +668,8 @@ function sortByLatest(a, b) {
   return toSortValue(b._sortAt) - toSortValue(a._sortAt);
 }
 
-/** Fetches the current Top Pick. Featured builder rotates every 4 days; we show that builder's latest project only. */
-export const fetchTopPicksProject = cache(async () => {
-  if (!apiUrl) {
-    console.error("NEXT_PUBLIC_API_URL is not defined");
-    return null;
-  }
-  const allProjects = await fetchAllProjects();
-  const pinnedProject = Array.isArray(allProjects)
-    ? allProjects.find((project) => project.slugURL === TOP_PICKS_PROJECT_SLUG)
-    : null;
-
-  if (pinnedProject) {
-    const normalizedPinnedProject = normalizeTopPickProject(
-      pinnedProject,
-      pinnedProject.builderName ?? "Eldeco",
-      pinnedProject.builderSlug ?? pinnedProject.builderSlugURL ?? "eldeco",
-    );
-    delete normalizedPinnedProject._sortAt;
-    return normalizedPinnedProject;
-  }
-
+/** Fallback pick when no pinned slug resolves: featured builder rotates every 4 days, newest project of that builder wins. */
+const fetchRotatingTopPickProject = cache(async () => {
   const results = await Promise.allSettled(
     TOP_PICKS_BUILDERS.map((slug) =>
       fetch(`${apiUrl}builder/get/${slug}`, { next: { revalidate: 60 } }),
@@ -725,6 +709,44 @@ export const fetchTopPicksProject = cache(async () => {
   const picked = pool[0];
   delete picked._sortAt;
   return picked;
+});
+
+/** The Top Picks spotlight list — pinned projects in order, or the rotating pick if none resolve. */
+export const fetchTopPicksProjects = cache(async () => {
+  if (!apiUrl) {
+    console.error("NEXT_PUBLIC_API_URL is not defined");
+    return [];
+  }
+  const allProjects = await fetchAllProjects();
+  const bySlug = new Map(
+    (Array.isArray(allProjects) ? allProjects : []).map((project) => [
+      project.slugURL,
+      project,
+    ]),
+  );
+
+  const pinned = TOP_PICKS_PROJECT_SLUGS.map((slug) => bySlug.get(slug))
+    .filter(Boolean)
+    .map((project) => {
+      const normalized = normalizeTopPickProject(
+        project,
+        project.builderName,
+        project.builderSlug ?? project.builderSlugURL,
+      );
+      delete normalized._sortAt;
+      return normalized;
+    });
+
+  if (pinned.length > 0) return pinned;
+
+  const rotating = await fetchRotatingTopPickProject();
+  return rotating ? [rotating] : [];
+});
+
+/** Single Top Pick — the first spotlight entry. Kept for the `/api/top-picks` payload. */
+export const fetchTopPicksProject = cache(async () => {
+  const [first] = await fetchTopPicksProjects();
+  return first ?? null;
 });
 
 // Getting top project

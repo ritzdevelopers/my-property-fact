@@ -82,6 +82,7 @@ export default function ChatbotV2() {
   const messagesEndRef = useRef(null);
   const openTypingTimeoutRef = useRef(null);
   const promptTypingTimeoutRef = useRef(null);
+  const promptHideTimeoutRef = useRef(null);
 
   useEffect(() => {
     setSessionId(createSessionId());
@@ -130,12 +131,34 @@ export default function ChatbotV2() {
   }, [promptPhase]);
 
   useEffect(() => {
+    if (promptPhase !== "expanded") return undefined;
+
+    promptHideTimeoutRef.current = window.setTimeout(() => {
+      setPromptPhase("hidden");
+      if (typeof sessionStorage !== "undefined") {
+        sessionStorage.setItem(PROMPT_DISMISS_KEY, "1");
+      }
+      promptHideTimeoutRef.current = null;
+    }, 5000);
+
+    return () => {
+      if (promptHideTimeoutRef.current) {
+        window.clearTimeout(promptHideTimeoutRef.current);
+        promptHideTimeoutRef.current = null;
+      }
+    };
+  }, [promptPhase]);
+
+  useEffect(() => {
     return () => {
       if (openTypingTimeoutRef.current) {
         clearTimeout(openTypingTimeoutRef.current);
       }
       if (promptTypingTimeoutRef.current) {
         clearTimeout(promptTypingTimeoutRef.current);
+      }
+      if (promptHideTimeoutRef.current) {
+        clearTimeout(promptHideTimeoutRef.current);
       }
     };
   }, []);
@@ -204,6 +227,10 @@ export default function ChatbotV2() {
     if (promptTypingTimeoutRef.current) {
       clearTimeout(promptTypingTimeoutRef.current);
       promptTypingTimeoutRef.current = null;
+    }
+    if (promptHideTimeoutRef.current) {
+      clearTimeout(promptHideTimeoutRef.current);
+      promptHideTimeoutRef.current = null;
     }
     setPromptPhase("hidden");
     if (typeof sessionStorage !== "undefined") {

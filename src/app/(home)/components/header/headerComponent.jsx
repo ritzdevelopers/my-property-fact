@@ -30,6 +30,7 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
+import { resolveIpCity } from "@/lib/resolveIpCity";
 
 const LOGO_ON_LIGHT = "/logo.webp";
 
@@ -635,7 +636,7 @@ const HeaderComponent = () => {
     cityListingsScrollTimerRef.current = window.setTimeout(run, 180);
   }, []);
 
-  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false } = {}) => {
+  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual" } = {}) => {
     const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
     setSelectedCity(nextCity);
     selectedCityRef.current = nextCity;
@@ -650,31 +651,18 @@ const HeaderComponent = () => {
     }
     window.dispatchEvent(
       new CustomEvent("cityChanged", {
-        detail: { cityName: nextCity },
+        detail: { cityName: nextCity, source },
       }),
     );
     if (!skipToast) showMobileLocationToast(forceToast);
     if (scrollToListings) scrollToHomeCityListings();
   }, [scrollToHomeCityListings]);
 
-  /** City from IP only (no lat/lon). If that city has no listings, API returns Delhi NCR. */
+  /** City from the visitor IP — keep that city so homepage rails can load matching projects. */
   const resolveFromIpCity = useCallback(async () => {
     try {
-      const ipRes = await fetch("/api/home/ip-city", { cache: "no-store" });
-      const ipData = await ipRes.json();
-      const ipCity = String(ipData?.city || "").trim();
-      if (!ipCity) return DEFAULT_CITY_WITHOUT_GEO;
-
-      const q = new URLSearchParams({ city: ipCity, intent: "projects" });
-      const listingRes = await fetch(`/api/home/recommended-by-location?${q}`);
-      if (!listingRes.ok) return DEFAULT_CITY_WITHOUT_GEO;
-      const listingData = await listingRes.json();
-      const resolved = String(listingData?.region?.city || "").trim();
-      const hasItems =
-        Array.isArray(listingData?.items) && listingData.items.length > 0;
-
-      if (hasItems && resolved) return resolved;
-      return DEFAULT_CITY_WITHOUT_GEO;
+      const ipCity = String((await resolveIpCity()) || "").trim();
+      return ipCity || DEFAULT_CITY_WITHOUT_GEO;
     } catch (error) {
       console.error("IP city lookup failed:", error);
       return DEFAULT_CITY_WITHOUT_GEO;
@@ -691,18 +679,28 @@ const HeaderComponent = () => {
   }, []);
 
   const requestBrowserLocation = useCallback(
-    ({ forceToast = false, preferGps = true, scrollToListings = false } = {}) => {
+    ({ forceToast = false, preferGps = true, scrollToListings = false, replaceSavedCity = false } = {}) => {
       const requestId = ++locationRequestIdRef.current;
       setIsLocating(true);
 
       const applyIfCurrent = (city, opts = {}) => {
         if (requestId !== locationRequestIdRef.current) return;
-        finishWithCity(city, { forceToast, scrollToListings, ...opts });
+        const incomingSource = opts.source || "manual";
+        // A late GPS/IP result must not overwrite a city the user already chose.
+        if (
+          !replaceSavedCity &&
+          (incomingSource === "gps" || incomingSource === "ip") &&
+          isSpecificCity(selectedCityRef.current)
+        ) {
+          setIsLocating(false);
+          return;
+        }
+        finishWithCity(city, { forceToast, scrollToListings, source: incomingSource, ...opts });
         setIsLocating(false);
       };
 
       const fallbackToIp = (opts = {}) => {
-        resolveFromIpCity().then((city) => applyIfCurrent(city, opts));
+        resolveFromIpCity().then((city) => applyIfCurrent(city, { ...opts, source: "ip" }));
       };
 
       const showBlockedHintAndFallback = () => {
@@ -733,7 +731,7 @@ const HeaderComponent = () => {
           try {
             const fromGps = await resolveFromCoords(coords);
             if (isSpecificCity(fromGps)) {
-              applyIfCurrent(fromGps);
+              applyIfCurrent(fromGps, { source: "gps" });
               return;
             }
           } catch (error) {
@@ -764,19 +762,24 @@ const HeaderComponent = () => {
   );
 
   useEffect(() => {
+    let restoredCity = "";
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
-        setSelectedCity(saved);
-        selectedCityRef.current = saved;
-        showMobileLocationToast();
+        restoredCity = String(saved).trim();
       }
     } catch {
       /* ignore */
     }
 
-    // Load city from IP only — GPS is requested when the user picks “Use current location”.
-    requestBrowserLocation({ preferGps: false });
+    if (restoredCity) {
+      // Keep the user's last pick (e.g. Bangalore). Do not GPS-overwrite to Noida on
+      // remount/back-navigation. "Use current location" still re-detects on demand.
+      finishWithCity(restoredCity, { source: "manual" });
+    } else {
+      // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.
+      requestBrowserLocation({ preferGps: true });
+    }
 
     return () => {
       locationRequestIdRef.current += 1;
@@ -785,7 +788,7 @@ const HeaderComponent = () => {
         cityListingsScrollTimerRef.current = null;
       }
     };
-  }, [requestBrowserLocation]);
+  }, [finishWithCity, requestBrowserLocation]);
 
   useEffect(() => {
     if (!showLocationMenu) return undefined;
@@ -825,12 +828,17 @@ const HeaderComponent = () => {
     const next = String(cityName || "").trim();
     const prev = String(selectedCityRef.current || "").trim();
     const changed = next.toLowerCase() !== prev.toLowerCase();
-    finishWithCity(cityName, { forceToast: true, scrollToListings: changed });
+    finishWithCity(cityName, { forceToast: true, scrollToListings: changed, source: "manual" });
   };
 
   const handleUseCurrentLocation = () => {
     setShowLocationMenu(false);
-    requestBrowserLocation({ forceToast: true, preferGps: true, scrollToListings: true });
+    requestBrowserLocation({
+      forceToast: true,
+      preferGps: true,
+      scrollToListings: true,
+      replaceSavedCity: true,
+    });
   };
 
   const locationMenuContent = (

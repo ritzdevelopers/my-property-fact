@@ -15,6 +15,8 @@ const NAV_INDEX = [
   { label: "Dashboard", href: "/admin/dashboard", tags: "home overview stats" },
   { label: "Property Approvals", href: "/admin/dashboard/property-approvals", tags: "approve reject listing" },
   { label: "Manage Users", href: "/admin/dashboard/manage-users", tags: "users accounts roles admin superadmin" },
+  { label: "Manage Portal Users", href: "/admin/dashboard/manage-portal-users", tags: "broker owner portal users" },
+  { label: "Portal Listing Counts", href: "/admin/dashboard/portal-listing-stats", tags: "broker owner listed properties count portal listings superadmin" },
   { label: "Pending permissions", href: "/admin/dashboard/pending-permissions", tags: "pending approval admin staff password reset" },
   { label: "Website Traffic and Logs", href: "/admin/dashboard/super-tracking", tags: "tracking traffic audit superadmin logs analytics" },
   { label: "Search Reports", href: "/admin/dashboard/search-reports", tags: "search keywords blogs property weekly monthly reports excel analytics" },

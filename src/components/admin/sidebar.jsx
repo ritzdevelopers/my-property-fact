@@ -83,6 +83,13 @@ const navItems = [
     superAdminOnly: true,
   },
   {
+    id: "portal-listing-stats",
+    label: "Portal Listing Counts",
+    icon: Building2,
+    href: "/admin/dashboard/portal-listing-stats",
+    superAdminOnly: true,
+  },
+  {
     id: "pending-permissions",
     label: "Pending Permissions",
     icon: UserCog,

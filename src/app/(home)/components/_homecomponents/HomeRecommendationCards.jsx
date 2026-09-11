@@ -689,7 +689,7 @@ export default function HomeRecommendationCards({
         </div>
       </div>
 
-      {!loading && viewAllHref && !showViewMore ? (
+      {!loading && viewMoreHref ? (
         <div className="home-projects-preview__actions home-projects-preview__actions--center">
           {renderViewMoreLink()}
         </div>

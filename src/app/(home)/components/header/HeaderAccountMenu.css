@@ -345,7 +345,7 @@ body:has(.mpf-home-r26) .mpf-account-trigger {
   color: #051a10;
 }
 
-@media (max-width: 1023.98px) {
+@media (max-width: 1024px) {
   .mpf-account-trigger,
   body:has(.mpf-home-r26) .mpf-account-trigger {
     width: 36px;

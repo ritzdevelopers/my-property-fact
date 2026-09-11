@@ -153,7 +153,7 @@ const HeaderComponent = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
-    const mq = window.matchMedia("(max-width: 1023.98px)");
+    const mq = window.matchMedia("(max-width: 1024px)");
     const sync = () => setIsCompactLocationUi(mq.matches);
     sync();
     mq.addEventListener("change", sync);
@@ -572,7 +572,7 @@ const HeaderComponent = () => {
   } = {}) => {
     if (typeof window === "undefined") return;
     // Permission hints show on all viewports; city toast stays mobile-only.
-    if (!hint && window.innerWidth >= 1024) return;
+    if (!hint && window.innerWidth > 1024) return;
     if (!force && !hint && locationToastShownRef.current) return;
     if (!hint) locationToastShownRef.current = true;
     setLocationHint(hint || "");
@@ -805,7 +805,7 @@ const HeaderComponent = () => {
     };
 
     const prevOverflow = document.body.style.overflow;
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+    if (typeof window !== "undefined" && window.innerWidth <= 1024) {
       document.body.style.overflow = "hidden";
     }
 

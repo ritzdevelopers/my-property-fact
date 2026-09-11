@@ -257,15 +257,6 @@ export default async function HomePage() {
           2,
           <section className="container transform-home-section">
             <div className="transform-home-image-wrap">
-              <img
-                src="/static/transform_new.png"
-                alt="Transform your home visual section"
-                title="Transform your home visual section"
-                className="transform-home-image"
-                loading="lazy"
-                decoding="async"
-                fetchPriority="low"
-              />
               <div className="transform-home-copy">
                 <div className="transform-home-content">
                   <div className="transform-home-headline-stack">

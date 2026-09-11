@@ -583,28 +583,10 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     return () => clearInterval(timer);
   }, []);
 
-  // Mobile/tablet search sheet: lock page scroll, close on Escape, focus the input
+  // Compact bar is inline on phone/tablet — don't keep a leftover sheet open
   useEffect(() => {
-    if (!mobileSearchOpen) return undefined;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const onKeyDown = (e) => {
-      if (e.key === "Escape") setMobileSearchOpen(false);
-    };
-    document.addEventListener("keydown", onKeyDown);
-
-    const focusTimer = window.setTimeout(() => {
-      cardRef.current?.querySelector(".smart-search-input")?.focus();
-    }, 120);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-      window.clearTimeout(focusTimer);
-    };
-  }, [mobileSearchOpen]);
+    setMobileSearchOpen(false);
+  }, []);
 
   useEffect(() => {
     if (trimmedInput.length < 2) {
@@ -1163,7 +1145,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         <span className="smart-search-input-tools">
           <button
             type="button"
-            className={`smart-search-input-tool${isSearchSticky && searchTourStep === "location" ? " is-tour-on" : ""}`}
+            className={`smart-search-input-tool smart-search-input-tool--location${isSearchSticky && searchTourStep === "location" ? " is-tour-on" : ""}`}
             aria-label="Use current location"
             title="Use current location"
             onClick={() => {
@@ -1180,7 +1162,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           </button>
           <button
             type="button"
-            className={`smart-search-input-tool${isSearchSticky && searchTourStep === "voice" ? " is-tour-on" : ""}`}
+            className={`smart-search-input-tool smart-search-input-tool--voice${isSearchSticky && searchTourStep === "voice" ? " is-tour-on" : ""}`}
             aria-label="Search by voice"
             title="Search by voice"
             onClick={() => {

@@ -135,7 +135,7 @@ body:has(.mpf-home-r26) .header--home-ss .header-home-ss__container {
   padding-right: clamp(12px, 2vw, 24px);
 }
 
-@media (max-width: 1023.98px) {
+@media (max-width: 1024px) {
   body:has(.mpf-home-r26) {
     --mpf-home-header-stack: 74px;
   }
@@ -707,7 +707,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 /* ---------- Hero: full-bleed banner + left promo + overlapping search ---------- */
 .mpf-home-r26 .hero-section-wrapper {
-  --mpf-hero-banner-h: 350px;
+  --mpf-hero-banner-h: 420px;
   position: relative;
   z-index: 3;
   padding-bottom: 0 !important;
@@ -722,9 +722,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   width: 100%;
   min-width: 0;
   max-width: none;
-  height: var(--mpf-hero-banner-h);
-  min-height: var(--mpf-hero-banner-h);
-  max-height: var(--mpf-hero-banner-h);
+  height: var(--mpf-hero-banner-h) !important;
+  min-height: var(--mpf-hero-banner-h) !important;
+  max-height: var(--mpf-hero-banner-h) !important;
   aspect-ratio: auto;
   overflow: hidden;
   margin: 0;
@@ -1479,8 +1479,8 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   color: var(--mpf-ink) !important;
 }
 
-/* Tablet — 2-column field grid */
-@media (max-width: 1023.98px) {
+/* Tablet + 1024 — compact search bar on the banner (not a full-page sheet) */
+@media (max-width: 1024px) {
 
   /* Legacy rules float the search card out of flow — keep it inline and inside the gutters */
   .mpf-home-r26 .home-search-container,
@@ -1491,251 +1491,91 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     top: auto !important;
     bottom: auto !important;
     transform: none !important;
-    margin: 20px 0 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  /* Hero shows a tap target; the real search lives in a full-screen sheet */
-  .mpf-home-r26 .smart-search-mobile-trigger {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    min-height: 54px;
-    padding: 6px 6px 6px 16px;
-    border: 0;
-    border-radius: 999px;
-    background: #fff;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
-    color: #8a94a6;
-    font-family: var(--mpf-sans);
-    font-size: 14px;
-    font-weight: 500;
-    text-align: left;
-    cursor: pointer;
+  .mpf-home-r26 .mpf-hero-banner {
+    height: var(--mpf-hero-banner-h) !important;
+    min-height: var(--mpf-hero-banner-h) !important;
+    max-height: var(--mpf-hero-banner-h) !important;
   }
 
-  .mpf-home-r26 .smart-search-mobile-trigger__icon {
-    flex: 0 0 auto;
-    color: var(--mpf-green);
+  .mpf-home-r26 .mpf-hero-search-dock {
+    width: calc(100% - 24px);
+    margin: -48px auto 0;
   }
 
-  .mpf-home-r26 .smart-search-mobile-trigger__text {
-    flex: 1 1 auto;
-    min-width: 0;
+  /* Always show the desktop-style card; hide sheet-only chrome */
+  .mpf-home-r26 .smart-search-mobile-trigger,
+  .mpf-home-r26 .smart-search-sheet-head,
+  .mpf-home-r26 .smart-search-sheet-backdrop {
+    display: none !important;
+  }
+
+  .mpf-home-r26 .home-search-container--hero-ss .smart-search-card,
+  .mpf-home-r26 .home-search-container.is-mobile-search-open .smart-search-card {
+    display: block !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    max-height: none !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+    overflow: visible !important;
+    border-radius: 16px !important;
+    padding: 0 6px 8px !important;
+    animation: none !important;
+  }
+
+  .mpf-home-r26 .smart-search-hero-extras {
+    display: none !important;
+  }
+
+  .mpf-home-r26 .smart-search-bar--hero-ss {
+    display: grid !important;
+    grid-template-columns: minmax(132px, 168px) minmax(0, 1fr) !important;
+    grid-template-areas: none !important;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--type .smart-search-category-trigger__text {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .mpf-home-r26 .smart-search-mobile-trigger__go {
-    flex: 0 0 auto;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(180deg, #148a3d 0%, #0d5834 100%);
-    color: #fff;
+  .mpf-home-r26 .smart-search-hero-field {
+    grid-area: auto !important;
+    min-height: 0;
+    padding: 6px 10px;
   }
 
-  .mpf-home-r26 .home-search-container.is-mobile-search-open .smart-search-below {
-    display: none !important;
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-tab {
+    height: 40px;
+    font-size: 13px !important;
+    padding: 0 10px !important;
   }
 
-  /* Inline card stays hidden until the sheet opens */
-  .mpf-home-r26 .home-search-container--hero-ss .smart-search-card {
-    display: none;
-  }
-
-  .mpf-home-r26 .smart-search-sheet-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 1200;
-    border: 0;
-    padding: 0;
-    background: rgba(8, 12, 16, 0.55);
-    animation: mpfSheetFade 220ms var(--mpf-ease) both;
-  }
-
-  /* The hero builds its own stacking contexts — lift them so the sheet wins */
-  .mpf-home-r26 .mpf-hero-search-dock:has(.is-mobile-search-open),
-  .mpf-home-r26 .home-search-container.is-mobile-search-open {
-    z-index: 1200;
-    overflow: visible;
-  }
-
-  /* Bottom sheet — anchored to the bottom edge, sized to its content */
-  .mpf-home-r26 .home-search-container.is-mobile-search-open .smart-search-card {
-    display: block !important;
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    z-index: 1201;
-    max-height: min(86vh, 720px);
-    background: #fff !important;
-    border-radius: 20px 20px 0 0 !important;
-    padding: 0 0 max(16px, env(safe-area-inset-bottom)) !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch;
-    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.28) !important;
-    margin-top: 0 !important;
-    animation: mpfSheetUp 260ms var(--mpf-ease) both;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-sheet-head {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 3;
-    padding: 8px 14px 12px;
-    background: #fff;
-    border-bottom: 1px solid var(--mpf-line);
-    border-radius: 20px 20px 0 0;
-  }
-
-  .mpf-home-r26 .smart-search-sheet-grabber {
-    display: block;
-    width: 40px;
-    height: 4px;
-    margin: 0 auto 10px;
-    border-radius: 999px;
-    background: var(--mpf-line-strong);
-  }
-
-  .mpf-home-r26 .smart-search-sheet-head__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .mpf-home-r26 .smart-search-sheet-close {
-    flex: 0 0 auto;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--mpf-line-strong);
-    background: #fff;
-    color: var(--mpf-ink);
-    padding: 0;
-    cursor: pointer;
-  }
-
-  .mpf-home-r26 .smart-search-sheet-title {
-    font-family: var(--mpf-sans);
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--mpf-ink);
-  }
-
-  /* Tabs inside the sheet — light pills, faded right edge hints at more */
-  .mpf-home-r26 .is-mobile-search-open .smart-search-tabs {
-    margin: 0 !important;
-    padding: 12px 32px 2px 14px !important;
-    gap: 6px;
-    scroll-snap-type: x proximity;
-    scroll-padding-left: 14px;
-    -webkit-mask-image: linear-gradient(90deg,
-        #000 0,
-        #000 calc(100% - 34px),
-        rgba(0, 0, 0, 0.15) 100%);
-    mask-image: linear-gradient(90deg,
-        #000 0,
-        #000 calc(100% - 34px),
-        rgba(0, 0, 0, 0.15) 100%);
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-tab {
-    scroll-snap-align: start;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-tab {
-    height: 34px;
-    min-width: max-content;
-    padding: 0 14px !important;
+  .mpf-home-r26 .smart-search-bar--hero-ss .smart-search-submit,
+  .mpf-home-r26 .smart-search-bar--hero-ss .search-btn-home-page {
+    min-width: 72px !important;
+    height: 34px !important;
+    min-height: 34px !important;
     font-size: 12.5px !important;
-    border-radius: 999px !important;
-    background: #f3f5f7 !important;
-    border: 1px solid var(--mpf-line) !important;
-    color: var(--mpf-ink-soft) !important;
-    margin-bottom: 0;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-tab--active,
-  .mpf-home-r26 .is-mobile-search-open .smart-search-tab[aria-selected="true"] {
-    background: var(--mpf-green) !important;
-    border-color: var(--mpf-green) !important;
-    color: #fff !important;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-bar-wrap {
-    padding: 14px !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  /* Stacked fields inside the sheet */
-  .mpf-home-r26 .is-mobile-search-open .smart-search-bar--hero-ss {
-    display: grid !important;
-    grid-template-columns: 1fr !important;
-    grid-template-areas: none !important;
-    gap: 0;
-    min-height: 0 !important;
-    padding: 0 !important;
-    border: 1px solid var(--mpf-line-strong) !important;
-    border-radius: 14px !important;
-    overflow: hidden !important;
-    background: #fff !important;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-hero-extras {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-hero-field {
-    grid-area: auto !important;
-    border-right: 0 !important;
-    border-bottom: 1px solid rgba(26, 29, 35, 0.08);
-    min-height: 62px;
-    padding: 10px 14px;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-bar--hero-ss .smart-search-submit {
-    grid-area: auto !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    min-height: 54px !important;
-    padding: 0 18px !important;
-    border-radius: 0 !important;
-    font-size: 15px !important;
-  }
-
-  .mpf-home-r26 .is-mobile-search-open .smart-search-suggestions,
-  .mpf-home-r26 .is-mobile-search-open .smart-search-property-panel {
-    left: 14px;
-    right: 14px;
-    top: auto;
-    max-height: min(52vh, 380px);
   }
 
   .mpf-home-r26 .smart-search-property-panel {
     left: 10px;
     right: 10px;
+  }
+
+  .mpf-home-r26 .smart-search-suggestions,
+  .mpf-home-r26 .smart-search-property-panel {
+    max-height: min(48vh, 360px);
   }
 
   .mpf-home-r26 .smart-search-trending {
@@ -1772,7 +1612,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 }
 
-/* Mobile — single-column stack */
+/* Mobile — stacked search card on the banner */
 @media (max-width: 767.98px) {
 
   /* Nothing may exceed the viewport width on phones */
@@ -1789,30 +1629,136 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     top: auto !important;
     bottom: auto !important;
     transform: none !important;
-    margin: 16px 0 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
     max-width: 100% !important;
   }
 
-  .mpf-home-r26 .smart-search-mobile-trigger {
-    min-height: 52px;
-    font-size: 13.5px;
+  .mpf-home-r26 .mpf-hero-search-dock {
+    width: calc(100% - 20px);
+    margin: -36px auto 0;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .search-filter-shadow,
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-card,
+  .mpf-home-r26 .home-search-container--hero-ss .smart-search-card {
+    border-radius: 20px !important;
+    padding: 4px 10px 12px !important;
+  }
+
+  .mpf-home-r26 .smart-search-below {
+    display: none !important;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-tab--post {
+    display: none;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-tabs {
+    margin: 0;
+    padding: 0 8px 0 4px !important;
+    gap: 0;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-tab {
+    height: 42px;
+    font-size: 13px !important;
+    padding: 0 12px !important;
+  }
+
+  /* Stack type + search so the input is usable */
+  .mpf-home-r26 .smart-search-bar--hero-ss {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    grid-template-areas: none !important;
+    gap: 0;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--type {
+    width: 100%;
+    padding: 4px 8px 2px;
+    border-right: 0 !important;
+    border-bottom: 1px solid #ececec;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--type .smart-search-category-trigger {
+    min-height: 40px;
+    padding: 0 4px 0 2px;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--type .smart-search-category-trigger__text {
+    overflow: visible;
+    text-overflow: unset;
+    white-space: nowrap;
+    font-size: 14px !important;
+    font-weight: 600;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--search {
+    width: 100%;
+    padding: 8px 4px 2px;
+    border-right: 0 !important;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--search .smart-search-input-wrap {
+    gap: 8px;
+    min-height: 44px;
+  }
+
+  .mpf-home-r26 .smart-search-hero-field--search .smart-search-input {
+    font-size: 16px !important;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-input-tools {
+    display: inline-flex !important;
+    gap: 4px;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-input-tool--location {
+    display: none !important;
+  }
+
+  .mpf-home-r26 .mpf-hero-search-dock .smart-search-input-tool--voice {
+    width: 36px;
+    height: 36px;
+    background: #f4f5f6;
+    color: #0d5834;
+  }
+
+  .mpf-home-r26 .smart-search-bar--hero-ss .smart-search-submit,
+  .mpf-home-r26 .smart-search-bar--hero-ss .search-btn-home-page {
+    min-width: 88px !important;
+    width: auto !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 16px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
   }
 
   .mpf-home-r26 .smart-search-hero-field__label {
     font-size: 10.5px;
   }
 
-  .mpf-home-r26 .smart-search-hero-field--search .smart-search-input,
-  .mpf-home-r26 .location-select__placeholder,
-  .mpf-home-r26 .location-select__single-value,
-  .mpf-home-r26 .smart-search-hero-field--type .smart-search-category-trigger__text {
-    font-size: 13.5px !important;
-  }
-
   .mpf-home-r26 .smart-search-property-panel__grid {
     grid-template-columns: 1fr !important;
+  }
+
+  .mpf-home-r26 .smart-search-property-panel,
+  .mpf-home-r26 .smart-search-suggestions {
+    left: 8px;
+    right: 8px;
+    max-height: min(50vh, 340px);
   }
 
   .mpf-home-r26 .smart-search-trending {
@@ -1823,7 +1769,6 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     padding: 10px 30px 0 0 !important;
     gap: 7px;
     scroll-snap-type: x proximity;
-    /* Fade the trailing edge so the row reads as scrollable */
     -webkit-mask-image: linear-gradient(90deg,
         #000 0,
         #000 calc(100% - 32px),
@@ -1836,6 +1781,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
   .mpf-home-r26 .smart-search-trending .smart-search-chip {
     scroll-snap-align: start;
+    flex-shrink: 0;
+    font-size: 11.5px;
+    padding: 6px 12px;
   }
 
   .mpf-home-r26 .smart-search-trending::-webkit-scrollbar {
@@ -1845,17 +1793,13 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .smart-search-trending-title {
     font-size: 11px;
   }
-
-  .mpf-home-r26 .smart-search-trending .smart-search-chip {
-    flex-shrink: 0;
-    font-size: 11.5px;
-    padding: 6px 12px;
-  }
 }
 
 @media (max-width: 575.98px) {
   .mpf-home-r26 .smart-search-bar--hero-ss {
-    grid-template-columns: 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
   }
 }
 
@@ -2018,14 +1962,14 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 @media (max-width: 991.98px) {
   .mpf-home-r26 .hero-section-wrapper {
-    --mpf-hero-banner-h: 350px;
+    --mpf-hero-banner-h: 420px;
     padding-bottom: 24px !important;
   }
 
   .mpf-home-r26 .mpf-hero-banner {
-    height: var(--mpf-hero-banner-h);
-    min-height: var(--mpf-hero-banner-h);
-    max-height: var(--mpf-hero-banner-h);
+    height: var(--mpf-hero-banner-h) !important;
+    min-height: var(--mpf-hero-banner-h) !important;
+    max-height: var(--mpf-hero-banner-h) !important;
     aspect-ratio: auto;
   }
 
@@ -2066,14 +2010,14 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 @media (max-width: 767.98px) {
   .mpf-home-r26 .hero-section-wrapper {
-    --mpf-hero-banner-h: 350px;
+    --mpf-hero-banner-h: 320px;
     padding-bottom: 16px !important;
   }
 
   .mpf-home-r26 .mpf-hero-banner {
-    height: var(--mpf-hero-banner-h);
-    min-height: var(--mpf-hero-banner-h);
-    max-height: var(--mpf-hero-banner-h);
+    height: var(--mpf-hero-banner-h) !important;
+    min-height: var(--mpf-hero-banner-h) !important;
+    max-height: var(--mpf-hero-banner-h) !important;
     aspect-ratio: auto;
   }
 
@@ -2174,16 +2118,16 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 .mpf-home-r26 .transform-home-image-wrap {
   position: relative !important;
-  display: grid !important;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: clamp(24px, 4vw, 48px);
+  display: flex !important;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
   min-height: 0 !important;
   height: auto !important;
-  border-radius: 0 !important;
-  overflow: visible !important;
-  background: transparent !important;
-  padding: 8px 0 !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+
+  padding: clamp(28px, 4vw, 44px) clamp(16px, 3vw, 32px) !important;
 }
 
 .mpf-home-r26 .transform-home-image-wrap::after,
@@ -2193,20 +2137,15 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 .mpf-home-r26 .transform-home-image {
-  position: relative !important;
-  inset: auto !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 280px;
-  max-height: 420px;
-  object-fit: cover !important;
-  border-radius: 16px;
+  display: none !important;
 }
 
 .mpf-home-r26 .transform-home-copy {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 16px;
+  width: 100%;
   min-width: 0;
 }
 
@@ -2227,16 +2166,32 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   box-shadow: none !important;
   transform: none !important;
   z-index: 2;
+  align-items: center;
+  text-align: center;
 }
 
 .mpf-home-r26 .transform-home-headline-stack {
   gap: 16px;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
   font-family: var(--mpf-sans) !important;
+}
+
+.mpf-home-r26 .transform-home-headline-inner {
+  justify-content: center;
+  text-align: center;
+}
+
+.mpf-home-r26 .transform-home-mpf-logo-wrap {
+  display: flex;
+  justify-content: center;
 }
 
 .mpf-home-r26 .transform-home-mpf-logo {
   max-width: 200px;
   height: auto;
+  margin-inline: auto;
 }
 
 .mpf-home-r26 .transform-home-why {
@@ -2244,13 +2199,32 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 .mpf-home-r26 .transform-home-developers {
-  border-top: 1px solid var(--mpf-line);
-  padding-top: 14px;
+  border-top: 0;
+  margin-top: -10px;
+  padding-top: 0;
+  width: 100%;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
 }
 
 .mpf-home-r26 .transform-home-developers-label {
   color: var(--mpf-muted);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mpf-home-r26 .transform-home-developers-divider {
+  display: none;
+}
+
+.mpf-home-r26 .transform-home-developers-marquee {
+  width: 100%;
+}
+
+.mpf-home-r26 .transform-home-explore-projects-wrap {
+  display: flex;
+  justify-content: center;
 }
 
 .mpf-home-r26 .transform-home-developers-link,
@@ -2284,14 +2258,30 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   transform: translateY(-1px);
 }
 
+@media (max-width: 767.98px) {
+  .mpf-home-r26 .transform-home-headline-inner {
+    flex-direction: column !important;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+  }
+
+  .mpf-home-r26 .transform-home-headline-base,
+  .mpf-home-r26 .transform-home-headline-highlight {
+    white-space: normal !important;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 991.98px) {
   .mpf-home-r26 .transform-home-image-wrap {
-    grid-template-columns: 1fr;
+    grid-template-columns: none;
   }
 
   .mpf-home-r26 .transform-home-image {
-    min-height: 200px;
-    max-height: 280px;
+    display: none !important;
   }
 }
 
@@ -2869,27 +2859,28 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   }
 
   .mpf-home-r26 .transform-home-image-wrap {
-    grid-template-columns: 1.05fr 0.95fr !important;
-    gap: clamp(20px, 3vw, 36px);
+    grid-template-columns: none !important;
+    display: flex !important;
+    flex-direction: column;
     align-items: center;
-    padding: 4px 0 !important;
+    padding: clamp(24px, 3.5vw, 36px) clamp(16px, 2.5vw, 28px) !important;
   }
 
   .mpf-home-r26 .transform-home-image {
-    min-height: clamp(220px, 32vw, 340px);
-    max-height: clamp(280px, 38vw, 380px);
-    border-radius: 14px;
+    display: none !important;
   }
 
   .mpf-home-r26 .transform-home-copy {
     min-width: 0;
     width: 100%;
+    align-items: center;
   }
 
   .mpf-home-r26 .transform-home-headline-stack {
     max-width: 100%;
     width: 100%;
     gap: 14px;
+    align-items: center;
   }
 
   .mpf-home-r26 .transform-home-headline-inner {
@@ -2911,15 +2902,21 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .transform-home-developers {
     width: 100%;
     max-width: 100%;
-    padding-top: 12px;
+    margin-top: -10px;
+    padding-top: 0;
+    flex-direction: column;
+    align-items: center;
   }
 
   .mpf-home-r26 .transform-home-developers-marquee {
     max-width: 100%;
+    width: 100%;
   }
 
   .mpf-home-r26 .transform-home-explore-projects-wrap {
     width: 100%;
+    display: flex;
+    justify-content: center;
   }
 
   .mpf-home-r26 .transform-home-explore-projects-btn {
@@ -4357,11 +4354,13 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .transform-home-headline-inner {
     display: flex !important;
     flex-wrap: wrap !important;
+    justify-content: center !important;
     white-space: normal !important;
     font-size: clamp(22px, 2.35vw, 34px) !important;
     line-height: 1.22 !important;
     max-width: 100%;
     overflow-wrap: break-word;
+    text-align: center;
   }
 
   .mpf-home-r26 .transform-home-headline-base,
@@ -4380,6 +4379,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .transform-home-headline-inner {
     font-size: 40px !important;
     flex-wrap: nowrap !important;
+    justify-content: center !important;
     white-space: nowrap !important;
     line-height: 100% !important;
   }
@@ -5290,9 +5290,34 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 }
 
 @media (max-width: 767.98px) {
-  .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__head,
+  .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__head {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+  }
+
+  .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__intro {
+    flex: 0 1 auto;
+    width: 100%;
+    text-align: center;
+  }
+
+  .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__kicker {
+    justify-content: center;
+  }
+
+  .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__sub {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 22rem;
+  }
+
   .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__toolbar {
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
   }
 
   .mpf-home-r26 .home-projects-preview__viewport {

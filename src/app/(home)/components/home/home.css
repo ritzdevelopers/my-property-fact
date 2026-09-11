@@ -368,31 +368,16 @@
 .transform-home-image-wrap {
   position: relative;
   width: 100%;
-  min-height: 550px;
+  min-height: 0;
   overflow: hidden;
-  /* border-radius: 14px; */
 }
 
 .transform-home-image-wrap::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(263deg,
-      rgba(246, 246, 246, 0.3) -3.37%,
-      #ffffff 106.16%);
-  z-index: 1;
-  pointer-events: none;
+  display: none;
 }
 
 .transform-home-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 500px;
-  object-fit: cover;
-  object-position: center left;
-  z-index: 0;
+  display: none;
 }
 
 .headgradient {
@@ -604,29 +589,31 @@
   }
 }
 
+.transform-home-copy {
+  width: 100%;
+}
+
 .transform-home-content {
   position: relative;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   box-sizing: border-box;
   width: 100%;
-  min-height: 100%;
-  text-align: left;
-  /* One shared left margin for headline, logo, and card (Figma column) */
-  padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 40px) clamp(28px, 5vw, 48px) clamp(24px, 5vw, 72px);
+  min-height: 0;
+  text-align: center;
+  padding: clamp(24px, 4vw, 40px) clamp(16px, 3vw, 32px);
   max-width: 100%;
 }
 
 .transform-home-headline-stack {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(10px, 1.6vw, 18px);
-  /* Same horizontal band as “Why choose us?” — use px cap only; % width was ~52% of container (~195px on phones) */
+  align-items: center;
+  gap: clamp(12px, 1.8vw, 20px);
   width: 100%;
-  max-width: min(620px, 100%);
+  max-width: 100%;
   min-width: 0;
   font-family: "Montserrat", sans-serif !important;
 }
@@ -648,7 +635,7 @@
   margin: 0;
   display: inline-flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: baseline;
   gap: 0;
   max-width: 100%;
@@ -659,7 +646,7 @@
   font-size: clamp(22px, 5vw, 48px);
   line-height: 100%;
   letter-spacing: 0;
-  text-align: left;
+  text-align: center;
   background: transparent;
 }
 
@@ -681,7 +668,7 @@
 .transform-home-headline-inner .transform-home-headline-base,
 .transform-home-headline-inner .transform-home-headline-highlight {
   will-change: transform, opacity, filter;
-  transform-origin: left center;
+  transform-origin: center center;
 }
 
 .transform-home-headline-inner.is-switching-in .transform-home-headline-base,
@@ -696,8 +683,7 @@
 
 @media (min-width: 992px) {
   .transform-home-headline-stack {
-    max-width: min(760px, 68%);
-    /* restore side-by-side proportion on large overlays */
+    max-width: 100%;
   }
 
   .transform-home-headline-inner {
@@ -905,52 +891,49 @@
   font-weight: 700;
 }
 
-/* Top Developers marquee (below Why choose us, same column) */
+/* Top Developers marquee — centered, full-width scroll */
 .transform-home-developers {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: clamp(14px, 2.2vw, 24px);
+  gap: 12px;
   box-sizing: border-box;
-  /* Fluid width: min 660px was forcing overflow math fights on small screens; cap by parent */
   width: 100%;
-  max-width: min(680px, 100%);
+  max-width: 100%;
   overflow: hidden;
-  margin-top: 0;
-  padding: clamp(12px, 2vw, 20px) 0 0;
+  margin-top: -10px;
+  padding: 0;
 }
 
 @media (min-width: 900px) {
   .transform-home-developers {
-    width: clamp(660px, 78vw, 980px);
-    max-width: calc(100vw - 20px);
+    width: 100%;
+    max-width: 100%;
   }
 }
 
 .transform-home-developers-label {
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
+  align-items: center;
   line-height: 1.05;
-  gap: 1px;
+  gap: 6px;
 }
 
 .transform-home-developers-label-line {
   display: block;
   font-family: "Montserrat", sans-serif !important;
   font-weight: 600;
-  font-size: clamp(13px, 1.6vw, 15px);
-  color: #2a2a2a;
-  letter-spacing: 0.02em;
+  font-size: 12px;
+  color: #6b7280;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
 .transform-home-developers-divider {
-  flex-shrink: 0;
-  width: 1px;
-  align-self: stretch;
-  min-height: 56px;
-  background: rgba(0, 0, 0, 0.12);
+  display: none;
 }
 
 .transform-home-developers-marquee {
@@ -963,13 +946,13 @@
   scrollbar-width: none;
   mask-image: linear-gradient(90deg,
       transparent,
-      #000 10px,
-      #000 calc(100% - 10px),
+      #000 48px,
+      #000 calc(100% - 48px),
       transparent);
   -webkit-mask-image: linear-gradient(90deg,
       transparent,
-      #000 10px,
-      #000 calc(100% - 10px),
+      #000 48px,
+      #000 calc(100% - 48px),
       transparent);
 }
 
@@ -987,7 +970,7 @@
   flex-direction: row;
   align-items: center;
   width: max-content;
-  animation: transform-home-developers-marquee 150s linear infinite;
+  animation: transform-home-developers-marquee 36s linear infinite;
 }
 
 .transform-home-developers-marquee:hover .transform-home-developers-track {
@@ -1082,8 +1065,8 @@
 
 .transform-home-developers-logo {
   width: auto;
-  max-width: clamp(112px, 14vw, 162px);
-  height: clamp(38px, 4.8vw, 48px);
+  max-width: clamp(120px, 12vw, 176px);
+  height: clamp(40px, 4.6vw, 52px);
   object-fit: contain;
 }
 
@@ -1110,7 +1093,9 @@
 
 .transform-home-explore-projects-wrap {
   width: 100%;
-  padding-top: 14px;
+  padding-top: 8px;
+  display: flex;
+  justify-content: center;
 }
 
 .transform-home-explore-projects-btn {
@@ -1148,15 +1133,15 @@
 
 @media (max-width: 991.98px) {
   .transform-home-image-wrap {
-    min-height: min(480px, 72vh);
+    min-height: 0;
   }
 
   .transform-home-image {
-    min-height: min(420px, 65vh);
+    display: none;
   }
 
   .transform-home-content {
-    padding: clamp(20px, 4vw, 40px) clamp(16px, 3vw, 24px) clamp(22px, 4vw, 40px) clamp(16px, 3vw, 28px);
+    padding: clamp(20px, 4vw, 32px) clamp(12px, 3vw, 20px);
   }
 
   .transform-home-headline-inner {
@@ -1224,28 +1209,29 @@
 
   .transform-home-headline-inner {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     flex-wrap: wrap;
-    align-items: baseline;
-    align-content: flex-start;
+    align-items: center;
+    align-content: center;
     gap: 0.28rem;
     font-size: clamp(19px, 4.6vw, 24px);
     line-height: 1.14;
     white-space: normal;
-    text-align: left;
+    text-align: center;
+    justify-content: center;
   }
 
   .transform-home-headline-base {
     display: inline;
     width: auto;
     max-width: 100%;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .transform-home-headline-highlight {
     display: inline-block;
     max-width: 100%;
-    white-space: nowrap;
+    white-space: normal;
     margin-top: 0;
     padding: 6px 10px 6px 8px;
     line-height: 1.2;
@@ -1278,12 +1264,12 @@
   }
 
   .transform-home-image-wrap {
-    min-height: min(400px, 68vh);
-    border-radius: 8px;
+    min-height: 0;
+    border-radius: 12px;
   }
 
   .transform-home-image {
-    min-height: 360px;
+    display: none;
   }
 
   .transform-home-headline-inner {
@@ -1292,13 +1278,11 @@
   }
 
   .transform-home-image-wrap::after {
-    background: linear-gradient(263.48deg,
-        rgba(246, 246, 246, 0.3) -3.37%,
-        #ffffff 106.16%);
+    display: none;
   }
 
   .transform-home-content {
-    padding: clamp(16px, 5vw, 24px) clamp(12px, 4vw, 16px) clamp(18px, 5vw, 28px) clamp(12px, 4vw, 16px);
+    padding: clamp(16px, 5vw, 24px) clamp(12px, 4vw, 16px);
   }
 }
 

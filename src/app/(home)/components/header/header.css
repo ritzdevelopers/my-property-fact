@@ -767,13 +767,13 @@ nav.d-none.d-lg-flex {
   white-space: normal;
 }
 
-@media (max-width: 1023.98px) {
+@media (max-width: 1024px) {
   .header.px-2 {
     padding-left: 8px;
     padding-right: 8px;
   }
 
-  /* Bootstrap lg is 992px — keep hamburger/mobile header through 1023px */
+  /* Bootstrap lg is 992px — keep hamburger/mobile header through 1024px */
   .header nav.d-lg-flex {
     display: none !important;
   }
@@ -1134,6 +1134,16 @@ nav.d-none.d-lg-flex {
   }
 }
 
+@media (min-width: 1025px) {
+  .header .header-post-property-cta--mobile {
+    display: none !important;
+  }
+
+  .header .menuBtn {
+    display: none !important;
+  }
+}
+
 /* Match home section containers from 1024px up */
 @media (min-width: 1024px) and (max-width: 1199.99px) {
   .header .container,
@@ -1161,7 +1171,7 @@ nav.d-none.d-lg-flex {
 }
 
 /* CTA shrink only on tablet/mobile — not mid laptops */
-@media (max-width: 1023.98px) {
+@media (max-width: 1024px) {
   .header-post-property-cta {
     padding: 0.5rem 0.85rem 0.5rem 0.95rem;
   }
@@ -1180,7 +1190,7 @@ nav.d-none.d-lg-flex {
 }
 
 /* Post Property Button Responsive — tablet/mobile only */
-@media (max-width: 1023.98px) {
+@media (max-width: 1024px) {
   .post-property-btn-wrapper {
     margin-right: 25px;
   }
@@ -3580,7 +3590,7 @@ button.mobile-menu-item {
 }
 
 /* Ensure dropdown indicators only show on mobile */
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
   .mobile-dropdown-icon {
     display: none !important;
   }

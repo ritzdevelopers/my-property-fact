@@ -279,16 +279,6 @@ export default function NewFooterDesign({
                     </li>
                     <li>
                       <Link
-                        href="/blog"
-                        className="footer-link"
-                        title="Web Stories"
-                        onClick={markFooterNavScrollTop}
-                      >
-                        Web Stories
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
                         href="/contact-us"
                         className="footer-link"
                         title="Contact My Property Fact"

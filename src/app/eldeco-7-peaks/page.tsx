@@ -198,7 +198,6 @@ export default function Home() {
     <SmoothScroll>
       <div className="box-border w-full bg-[#e1f1ea] font-[family-name:var(--font-7peaks-poppins)] text-[#0a0a0a] [&_*]:box-border [&_a]:no-underline [&_button]:font-[inherit] [&_input]:font-[inherit]">
         <SiteHeader logoSrc={assets.logo} />
-
         <main className="w-full overflow-x-hidden">
           <section id="top" className="w-full">
             <img
@@ -207,7 +206,6 @@ export default function Home() {
               className="block h-auto w-full"
             />
           </section>
-
           <section
             id="overview"
             className="flex h-[388px] items-center justify-center bg-[#e1f1ea] text-center max-[800px]:h-auto max-[800px]:min-h-[390px] max-[800px]:py-[50px]"
@@ -228,7 +226,6 @@ export default function Home() {
               <Button>Enquire Now</Button>
             </div>
           </section>
-
           <section
             id="highlights"
             className="relative mx-auto flex h-[667px] w-[min(1094px,calc(100%-48px))] items-center justify-center text-white max-[800px]:h-auto max-[800px]:min-h-[667px] max-[800px]:py-[60px] mb-[60px]"

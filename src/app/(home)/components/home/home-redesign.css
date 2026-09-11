@@ -2495,6 +2495,27 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     margin-top: 14px;
   }
 
+  /* Footer "View all" is the mobile CTA — the in-rail more-card sits off-screen
+     in a 2-up swipe row, and arrows are replaced by native swipe. */
+  .mpf-home-r26 .home-projects-preview__nav {
+    display: none;
+  }
+
+  .mpf-home-r26 .home-projects-preview__slide--more {
+    display: none;
+  }
+
+  .mpf-home-r26 .home-projects-preview__view-all,
+  .mpf-home-r26 .home-projects-preview__view-more {
+    justify-content: center;
+    width: auto;
+    max-width: none;
+    white-space: nowrap;
+    text-align: center;
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
   .mpf-home-r26 .home-projects-preview__title {
     font-size: 1.25rem !important;
     margin-bottom: 4px !important;

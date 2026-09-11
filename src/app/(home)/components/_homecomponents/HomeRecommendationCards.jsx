@@ -534,35 +534,12 @@ export default function HomeRecommendationCards({
         </div>
       </div>
 
-      {!loading && (viewAllHref || canSlide) && !showViewMore ? (
+      {!loading && (viewMoreHref || canSlide) ? (
         <div
-          className={`home-projects-preview__actions${canSlide ? "" : " home-projects-preview__actions--end"}`}
+          className={`home-projects-preview__actions${canSlide && !showViewMore ? "" : " home-projects-preview__actions--end"}`}
         >
-          {viewAllHref ? (
-            <Link
-              href={viewAllHref}
-              className="home-projects-preview__view-all"
-              title={viewMoreLabel}
-            >
-              {viewMoreLabel}
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-          ) : null}
-          {canSlide ? (
+          {renderViewMoreLink()}
+          {canSlide && !showViewMore ? (
             <div
               className="home-projects-preview__nav"
               aria-label={`${title} navigation`}

@@ -695,13 +695,23 @@ const HeaderComponent = () => {
   }, []);
 
   const requestBrowserLocation = useCallback(
-    ({ forceToast = false, preferGps = true, scrollToListings = false } = {}) => {
+    ({ forceToast = false, preferGps = true, scrollToListings = false, replaceSavedCity = false } = {}) => {
       const requestId = ++locationRequestIdRef.current;
       setIsLocating(true);
 
       const applyIfCurrent = (city, opts = {}) => {
         if (requestId !== locationRequestIdRef.current) return;
-        finishWithCity(city, { forceToast, scrollToListings, source: opts.source || "manual", ...opts });
+        const incomingSource = opts.source || "manual";
+        // A late GPS/IP result must not overwrite a city the user already chose.
+        if (
+          !replaceSavedCity &&
+          (incomingSource === "gps" || incomingSource === "ip") &&
+          isSpecificCity(selectedCityRef.current)
+        ) {
+          setIsLocating(false);
+          return;
+        }
+        finishWithCity(city, { forceToast, scrollToListings, source: incomingSource, ...opts });
         setIsLocating(false);
       };
 
@@ -768,19 +778,24 @@ const HeaderComponent = () => {
   );
 
   useEffect(() => {
+    let restoredCity = "";
     try {
       const saved = window.localStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
-        setSelectedCity(saved);
-        selectedCityRef.current = saved;
-        showMobileLocationToast();
+        restoredCity = String(saved).trim();
       }
     } catch {
       /* ignore */
     }
 
-    // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.
-    requestBrowserLocation({ preferGps: true });
+    if (restoredCity) {
+      // Keep the user's last pick (e.g. Bangalore). Do not GPS-overwrite to Noida on
+      // remount/back-navigation. "Use current location" still re-detects on demand.
+      finishWithCity(restoredCity, { source: "manual" });
+    } else {
+      // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.
+      requestBrowserLocation({ preferGps: true });
+    }
 
     return () => {
       locationRequestIdRef.current += 1;
@@ -789,7 +804,7 @@ const HeaderComponent = () => {
         cityListingsScrollTimerRef.current = null;
       }
     };
-  }, [requestBrowserLocation]);
+  }, [finishWithCity, requestBrowserLocation]);
 
   useEffect(() => {
     if (!showLocationMenu) return undefined;
@@ -834,7 +849,12 @@ const HeaderComponent = () => {
 
   const handleUseCurrentLocation = () => {
     setShowLocationMenu(false);
-    requestBrowserLocation({ forceToast: true, preferGps: true, scrollToListings: true });
+    requestBrowserLocation({
+      forceToast: true,
+      preferGps: true,
+      scrollToListings: true,
+      replaceSavedCity: true,
+    });
   };
 
   const locationMenuContent = (

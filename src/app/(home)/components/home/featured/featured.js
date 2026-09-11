@@ -72,6 +72,12 @@ export default function Featured({
   const swipeViewportRef = useRef(null);
   const isHomeFeaturedShowcase = type === "Featured" && !autoPlay;
   const isPremierTypeTabs = Boolean(autoPlay) && type !== "Similar";
+  const cardLayoutVariant =
+    badgeVariant === "home-featured"
+      ? "showcase"
+      : type === "Featured"
+        ? "overlap"
+        : "default";
   const [useSwipeRail, setUseSwipeRail] = useState(isPremierTypeTabs);
 
   // When residentialProjects + commercialProjects are passed, use them per tab (no filter). Else filter allProjects by type.
@@ -334,7 +340,7 @@ export default function Featured({
             </div>
           ) : filteredProjects?.length > 0 ? (
             useSwipeRail ? (
-              <div className="featured-page-slider featured-swipe-rail">
+              <div className={`featured-page-slider featured-swipe-rail${badgeVariant === "home-featured" ? " featured-page-slider--tiles" : ""}`}>
                 <div
                   className="featured-swipe-rail__viewport"
                   ref={swipeViewportRef}
@@ -348,7 +354,7 @@ export default function Featured({
                         <PropertyContainer
                           data={item}
                           badgeVariant={badgeVariant}
-                          layoutVariant={type === "Featured" ? "overlap" : "default"}
+                          layoutVariant={cardLayoutVariant}
                           imagePriority={index < 2}
                         />
                       </div>
@@ -358,9 +364,9 @@ export default function Featured({
               </div>
             ) : (
               <div
-                className={`featured-page-slider ${
-                  type === "Featured" && !autoPlay ? "featured-projects-mobile-arrows featured-page-slider--two-up" : ""
-                }`}
+                className={`featured-page-slider${
+                  type === "Featured" && !autoPlay ? " featured-projects-mobile-arrows featured-page-slider--two-up" : ""
+                }${badgeVariant === "home-featured" ? " featured-page-slider--tiles" : ""}`}
               >
                 <Slider key={projectType} {...settings}>
                   {filteredProjects.map((item, index) => (
@@ -375,7 +381,7 @@ export default function Featured({
                       <PropertyContainer
                         data={item}
                         badgeVariant={badgeVariant}
-                        layoutVariant={type === "Featured" ? "overlap" : "default"}
+                        layoutVariant={cardLayoutVariant}
                         imagePriority={index < 2}
                       />
                     </div>

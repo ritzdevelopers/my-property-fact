@@ -2,41 +2,97 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { PiCalculatorLight } from "react-icons/pi";
-import { GrScorecard } from "react-icons/gr";
+import {
+  LuArrowRight,
+  LuBadgeCheck,
+  LuBuilding2,
+  LuCalculator,
+  LuChartLine,
+  LuClock3,
+  LuHouse,
+  LuMapPin,
+  LuPercent,
+  LuPlay,
+  LuShieldCheck,
+  LuSparkles,
+  LuTrainFront,
+  LuTrees,
+  LuUsers,
+  LuWallet,
+} from "react-icons/lu";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+
+const HIGHLIGHTS = [
+  {
+    title: "Make Informed Decisions",
+    note: "Data-driven insights",
+    Icon: LuShieldCheck,
+  },
+  {
+    title: "Save Time",
+    note: "All tools in one place",
+    Icon: LuClock3,
+  },
+  {
+    title: "Trusted by Home Buyers",
+    note: "Built for your goals",
+    Icon: LuUsers,
+  },
+];
 
 const INSIGHTS = [
   {
+    id: "home-loan",
+    tabLabel: "Home Loan",
+    tabHint: "Plan your loan",
+    Icon: LuHouse,
+    iconTitle: "Home Loan — Expert Insights and Resources",
+    title: "Get the Right Home Loan for Your Needs",
+    description:
+      "Explore loan options, interest rates and eligibility from top banks , all in one place.",
+    points: [
+      { title: "Compare Loan Offers", note: "Find the best interest rates", Icon: LuBuilding2 },
+      { title: "Check Eligibility", note: "Know your loan amount", Icon: LuBadgeCheck },
+      { title: "Plan Better", note: "Make confident decisions", Icon: LuSparkles },
+    ],
+    cta: "Explore Home Loan Options",
+    href: "/home-loan-calculator",
+  },
+  {
     id: "emi-calculator",
     tabLabel: "EMI Calculator",
-    Icon: PiCalculatorLight,
+    tabHint: "Calculate easily",
+    Icon: LuCalculator,
     iconTitle: "EMI Calculator — Expert Insights and Resources",
-    badge: "Financial Tool",
-    readTime: "5 min read",
     title: "Master Your Mortgage with the EMI Calculator",
     description:
-      "Take the guesswork out of home financing. Our advanced EMI calculator provides a complete amortization schedule, helps you understand the impact of prepayments, and allows you to compare different loan offers side-by-side.",
+      "See monthly payments, prepayment impact, and compare loan offers with a full amortization view , all in one place.",
+    points: [
+      { title: "Estimate EMI Instantly", note: "Adjust tenure and rate", Icon: LuPercent },
+      { title: "Compare Offers", note: "See what fits your budget", Icon: LuWallet },
+      { title: "Plan Prepayments", note: "Reduce interest with clarity", Icon: LuChartLine },
+    ],
     cta: "Open EMI Calculator",
     href: "/emi-calculator",
   },
   {
     id: "locate-score",
     tabLabel: "Locate Score",
-    Icon: GrScorecard,
+    tabHint: "Find the best location",
+    Icon: LuMapPin,
     iconTitle: "Locate Score — Expert Insights and Resources",
-    badge: "Location Tool",
-    readTime: "5 min read",
     title: "Discover Location Potential with LOCATE Score",
     description:
-      "Assess location quality, growth potential, and investment risk. Check price trends, connectivity, amenities, and infrastructure to guide smarter property investments with clarity.",
+      "Assess growth potential, connectivity, and livability so you can invest in the right neighbourhood.",
+    points: [
+      { title: "Check Connectivity", note: "Transit and commute access", Icon: LuTrainFront },
+      { title: "See Amenities", note: "Parks, schools, and daily needs", Icon: LuTrees },
+      { title: "Track Growth", note: "Price trends and infrastructure", Icon: LuChartLine },
+    ],
     cta: "Open Locate Score",
     href: "/locate-score",
   },
 ];
-
-const SECTION_SUBTITLE =
-  "Expert resources to help you navigate your next big move with confidence.";
 
 export default function NewInsight() {
   useDeferredStylesheet(() => import("./newinsight.css"));
@@ -47,32 +103,97 @@ export default function NewInsight() {
 
   return (
     <div className="expert-insights-wrapper">
-    <section className="expert-insights-section" aria-labelledby="expert-insights-heading">
-      <div className="expert-insights-bg" aria-hidden="true">
-        <img
-          src="/static/home-meta-data/expert_insights.png"
-          alt="Decorative background artwork for Expert Insights and Resources section"
-          title="Decorative background artwork for Expert Insights and Resources section"
-          className="expert-insights-bg-image"
-        />
-      </div>
-
-      <div className="expert-insights-inner">
-        <header className="expert-insights-header">
-          <h2
-            id="expert-insights-heading"
-            className="expert-insights-title"
-          >
-            Expert Insights &amp; Resources
-          </h2>
-          <p className="expert-insights-subtitle">
-            {SECTION_SUBTITLE}
+      <section
+        className="expert-insights-section"
+        aria-labelledby="expert-insights-heading"
+      >
+        <div className="expert-insights-bg" aria-hidden="true">
+          <img
+            src="/static/banners/banner_expert.png"
+            alt=""
+            title="Plan your dream home with My Property Fact smart tools"
+            width={1920}
+            height={720}
+            className="expert-insights-bg-image"
+          />
+        </div>
+        <div className="expert-insights-inner">
+          <p className="expert-insights-scribble" aria-hidden="true">
+            Your Dream Home
+            <br />
+            Starts Here
           </p>
-        </header>
+          <div className="expert-insights-copy">
+            {/* <p className="expert-insights-kicker">
+              <span className="expert-insights-kicker-badge">Smart Tools</span>
+              <span className="expert-insights-kicker-rule" aria-hidden="true" />
+              For a brighter tomorrow
+            </p> */}
+            <h2 id="expert-insights-heading" className="expert-insights-title">
+              Plan Your Dream Home
+              <br />
+              with <em>Smart Tools</em>
+            </h2>
+            <p className="expert-insights-subtitle">
+              Get accurate insights, compare options, and make confident real
+              estate decisions , all in one place.
+            </p>
 
-        <div className="expert-insights-body">
-          <div className="expert-insights-card">
-            <div className="expert-insights-tabs" role="tablist" aria-label="Expert tools">
+            <ul className="expert-insights-highlights">
+              {HIGHLIGHTS.map((item) => {
+                const Icon = item.Icon;
+                return (
+                  <li key={item.title} className="expert-insights-highlight">
+                    <span className="expert-insights-highlight-icon" aria-hidden="true">
+                      <Icon />
+                    </span>
+                    <span>
+                      <strong>{item.title}</strong>
+                      {item.note}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {/* <div className="expert-insights-actions">
+              <a
+                href="#expert-insights-tools"
+                className="expert-insights-cta expert-insights-cta--primary"
+                title="Explore smart property tools"
+              >
+                Explore Tools
+                <LuArrowRight aria-hidden="true" />
+              </a>
+              <a
+                href="https://www.youtube.com/@my.propertyfact/"
+                className="expert-insights-watch"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Watch how My Property Fact tools help"
+              >
+                <span className="expert-insights-watch-play" aria-hidden="true">
+                  <LuPlay />
+                </span>
+                <span>
+                  <strong>Watch How It Helps</strong>
+                  <small>2 min video</small>
+                </span>
+              </a>
+            </div> */}
+
+            <p className="expert-insights-quote">
+              <span aria-hidden="true" />
+              “Smarter tools. Brighter homes.”
+            </p>
+          </div>
+
+          <div className="expert-insights-tools" id="expert-insights-tools">
+            <div
+              className="expert-insights-tabs"
+              role="tablist"
+              aria-label="Expert tools"
+            >
               {INSIGHTS.map((insight) => {
                 const isActive = insight.id === activeId;
                 const Icon = insight.Icon;
@@ -90,64 +211,53 @@ export default function NewInsight() {
                     <span className="expert-insights-tab-icon" title={insight.iconTitle}>
                       <Icon aria-hidden="true" />
                     </span>
-                    <span className="expert-insights-tab-label">
-                      {insight.tabLabel}
+                    <span className="expert-insights-tab-copy">
+                      <span className="expert-insights-tab-label">{insight.tabLabel}</span>
+                      <span className="expert-insights-tab-hint">{insight.tabHint}</span>
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="expert-insights-card-image">
-              <img
-                src="/static/home-meta-data/expert.png"
-                alt="Luxury home featured in Expert Insights and Resources"
-                title="Luxury home featured in Expert Insights and Resources"
-                width={297}
-                height={154}
-                className="expert-insights-feature-image"
-              />
-            </div>
-
-            <p className="expert-insights-card-caption">
-              {SECTION_SUBTITLE}
-            </p>
-          </div>
-
-          <div
-            className="expert-insights-detail"
-            role="tabpanel"
-            id={`expert-insights-panel-${activeInsight.id}`}
-            aria-labelledby={`expert-insights-tab-${activeInsight.id}`}
-          >
-            <div className="expert-insights-meta">
-              <span className="expert-insights-badge">
-                {activeInsight.badge}
-              </span>
-              <span className="expert-insights-read-time">
-                {activeInsight.readTime}
-              </span>
-            </div>
-
-            <h3 className="expert-insights-detail-title">
-              {activeInsight.title}
-            </h3>
-
-            <p className="expert-insights-detail-description">
-              {activeInsight.description}
-            </p>
-
-            <Link
-              href={activeInsight.href}
-              className="expert-insights-cta"
-              title={activeInsight.cta}
+            <div
+              className="expert-insights-card expert-insights-detail"
+              role="tabpanel"
+              id={`expert-insights-panel-${activeInsight.id}`}
+              aria-labelledby={`expert-insights-tab-${activeInsight.id}`}
             >
-              {activeInsight.cta}
-            </Link>
+              <h3 className="expert-insights-detail-title">{activeInsight.title}</h3>
+              <p className="expert-insights-detail-description">
+                {activeInsight.description}
+              </p>
+              <ul className="expert-insights-points">
+                {activeInsight.points.map((point) => {
+                  const Icon = point.Icon;
+                  return (
+                    <li key={point.title}>
+                      <span className="expert-insights-point-icon" aria-hidden="true">
+                        <Icon />
+                      </span>
+                      <span>
+                        <strong>{point.title}</strong>
+                        {point.note}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+              <Link
+                href={activeInsight.href}
+                className="expert-insights-cta"
+                title={activeInsight.cta}
+              >
+                {activeInsight.cta}
+                <LuArrowRight aria-hidden="true" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
     </div>
   );
 }

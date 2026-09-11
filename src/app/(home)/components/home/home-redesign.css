@@ -1568,7 +1568,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   min-height: 46px;
   padding: 12px 26px;
   border-radius: 10px;
-  background: var(--mpf-green);
+  background: #0d5834;
   color: #fff !important;
   font-family: var(--mpf-sans);
   font-weight: 700;
@@ -1580,7 +1580,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 .mpf-home-r26 .transform-home-explore-projects-btn:hover {
-  background: var(--mpf-green-deep);
+  background: #094a2b;
   color: #fff !important;
   transform: translateY(-1px);
 }

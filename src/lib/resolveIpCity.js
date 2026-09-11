@@ -38,7 +38,7 @@ function readBrowserCoords() {
       {
         enableHighAccuracy: true,
         timeout: 8000,
-        maximumAge: 60_000,
+        maximumAge: 0,
       },
     );
   });

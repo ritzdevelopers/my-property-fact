@@ -657,11 +657,13 @@ const HeaderComponent = () => {
     setSelectedCity(nextCity);
     selectedCityRef.current = nextCity;
     try {
+      // Tab-only: a closed tab must not restore this city on the next visit.
       if (isSpecificCity(nextCity)) {
-        window.localStorage.setItem("mpf_header_city", nextCity);
+        window.sessionStorage.setItem("mpf_header_city", nextCity);
       } else {
-        window.localStorage.removeItem("mpf_header_city");
+        window.sessionStorage.removeItem("mpf_header_city");
       }
+      window.localStorage.removeItem("mpf_header_city");
     } catch {
       /* ignore */
     }
@@ -780,7 +782,9 @@ const HeaderComponent = () => {
   useEffect(() => {
     let restoredCity = "";
     try {
-      const saved = window.localStorage.getItem("mpf_header_city");
+      // Ignore leftover localStorage from a previous tab so reopen can GPS-detect.
+      window.localStorage.removeItem("mpf_header_city");
+      const saved = window.sessionStorage.getItem("mpf_header_city");
       if (isSpecificCity(saved)) {
         restoredCity = String(saved).trim();
       }
@@ -789,8 +793,7 @@ const HeaderComponent = () => {
     }
 
     if (restoredCity) {
-      // Keep the user's last pick (e.g. Bangalore). Do not GPS-overwrite to Noida on
-      // remount/back-navigation. "Use current location" still re-detects on demand.
+      // Same-tab remount/back only. A new tab has empty sessionStorage and locates again.
       finishWithCity(restoredCity, { source: "manual" });
     } else {
       // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.

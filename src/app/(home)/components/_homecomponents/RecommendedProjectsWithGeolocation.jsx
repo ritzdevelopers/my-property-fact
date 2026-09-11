@@ -17,7 +17,7 @@ function isDelhiNcrLabel(city) {
 function readSavedHeaderCity() {
   if (typeof window === "undefined") return "";
   try {
-    const saved = String(window.localStorage.getItem(HEADER_CITY_STORAGE_KEY) || "").trim();
+    const saved = String(window.sessionStorage.getItem(HEADER_CITY_STORAGE_KEY) || "").trim();
     return saved && !isDelhiNcrLabel(saved) ? saved : "";
   } catch {
     return "";
@@ -180,7 +180,7 @@ export default function RecommendedProjectsWithGeolocation({
   const applyDetectedCity = useCallback(async () => {
     try {
       // Header stays mounted across city-page navigation; this rail remounts.
-      // Honor the last city the user picked so back/refresh does not snap to GPS (e.g. Noida).
+      // Honor the same-tab city so in-session back/nav does not snap to a stale GPS city.
       const savedCity = readSavedHeaderCity();
       if (savedCity) {
         cityOverrideRef.current = savedCity;

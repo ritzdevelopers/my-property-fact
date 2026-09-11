@@ -8,20 +8,28 @@ import { resolveDeviceCity } from "@/lib/resolveIpCity";
 /** Ultimate fallback when GPS is denied and IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_LOCATION = "Delhi NCR";
 const HEADER_CITY_STORAGE_KEY = "mpf_header_city";
+const HEADER_CHOSEN_CITY_STORAGE_KEY = "mpf_header_chosen_city";
 
 function isDelhiNcrLabel(city) {
   const n = String(city || "").trim().toLowerCase();
   return !n || n === "ncr" || n === "delhi ncr" || n.includes("delhi ncr");
 }
 
-function readSavedHeaderCity() {
-  if (typeof window === "undefined") return "";
+function readStoredCity(storage, key) {
   try {
-    const saved = String(window.sessionStorage.getItem(HEADER_CITY_STORAGE_KEY) || "").trim();
+    const saved = String(storage.getItem(key) || "").trim();
     return saved && !isDelhiNcrLabel(saved) ? saved : "";
   } catch {
     return "";
   }
+}
+
+function readSavedHeaderCity() {
+  if (typeof window === "undefined") return "";
+  return (
+    readStoredCity(window.localStorage, HEADER_CHOSEN_CITY_STORAGE_KEY) ||
+    readStoredCity(window.sessionStorage, HEADER_CITY_STORAGE_KEY)
+  );
 }
 
 function cityNameFromEvent(detail) {
@@ -180,7 +188,7 @@ export default function RecommendedProjectsWithGeolocation({
   const applyDetectedCity = useCallback(async () => {
     try {
       // Header stays mounted across city-page navigation; this rail remounts.
-      // Honor the same-tab city so in-session back/nav does not snap to a stale GPS city.
+      // Honor a user-saved city first, then the same-tab city, so rails stay in sync.
       const savedCity = readSavedHeaderCity();
       if (savedCity) {
         cityOverrideRef.current = savedCity;

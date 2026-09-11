@@ -652,16 +652,22 @@ const HeaderComponent = () => {
     cityListingsScrollTimerRef.current = window.setTimeout(run, 180);
   }, []);
 
-  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual" } = {}) => {
+  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual", persist } = {}) => {
     const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
+    const shouldPersist = persist ?? source === "manual";
     setSelectedCity(nextCity);
     selectedCityRef.current = nextCity;
     try {
-      // Tab-only: a closed tab must not restore this city on the next visit.
       if (isSpecificCity(nextCity)) {
         window.sessionStorage.setItem("mpf_header_city", nextCity);
+        if (shouldPersist) {
+          window.localStorage.setItem("mpf_header_chosen_city", nextCity);
+        }
       } else {
         window.sessionStorage.removeItem("mpf_header_city");
+        if (shouldPersist) {
+          window.localStorage.removeItem("mpf_header_chosen_city");
+        }
       }
       window.localStorage.removeItem("mpf_header_city");
     } catch {
@@ -713,7 +719,13 @@ const HeaderComponent = () => {
           setIsLocating(false);
           return;
         }
-        finishWithCity(city, { forceToast, scrollToListings, source: incomingSource, ...opts });
+        finishWithCity(city, {
+          forceToast,
+          scrollToListings,
+          source: incomingSource,
+          persist: replaceSavedCity || incomingSource === "manual",
+          ...opts,
+        });
         setIsLocating(false);
       };
 
@@ -781,22 +793,30 @@ const HeaderComponent = () => {
 
   useEffect(() => {
     let restoredCity = "";
+    let restoredSource = "manual";
     try {
-      // Ignore leftover localStorage from a previous tab so reopen can GPS-detect.
       window.localStorage.removeItem("mpf_header_city");
-      const saved = window.sessionStorage.getItem("mpf_header_city");
-      if (isSpecificCity(saved)) {
-        restoredCity = String(saved).trim();
+      const savedUser = window.localStorage.getItem("mpf_header_chosen_city");
+      const savedSession = window.sessionStorage.getItem("mpf_header_city");
+      if (isSpecificCity(savedUser)) {
+        restoredCity = String(savedUser).trim();
+        restoredSource = "manual";
+      } else if (isSpecificCity(savedSession)) {
+        restoredCity = String(savedSession).trim();
+        restoredSource = "gps";
       }
     } catch {
       /* ignore */
     }
 
     if (restoredCity) {
-      // Same-tab remount/back only. A new tab has empty sessionStorage and locates again.
-      finishWithCity(restoredCity, { source: "manual" });
+      // Saved user pick wins on a later visit. Session city only covers same-tab remounts.
+      finishWithCity(restoredCity, {
+        source: restoredSource,
+        persist: restoredSource === "manual",
+      });
     } else {
-      // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.
+      // No saved pick — locate the device (GPS, then IP).
       requestBrowserLocation({ preferGps: true });
     }
 

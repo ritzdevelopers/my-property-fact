@@ -5,6 +5,8 @@ import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import PropertyPage from "./propertypage";
 import ProjectsRedesigned from "../ProjectsRedesigned";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
+import ListingPageSeoContent from "../../components/common/ListingPageSeoContent";
+import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
 
 const COMMERCIAL_META = {
   title: "Top Commercial Real Estate Projects in India | MyPropertyFact",
@@ -82,20 +84,42 @@ const REDESIGNED_PROJECT_TYPE_PAGES = {
   },
 };
 
-function RedesignedProjectTypePage({ config }) {
+function RedesignedProjectTypePage({ config, listingContent = null }) {
+  const pageHeading = listingContent?.heading?.trim() || config.pageHeading;
+  const pageIntro = listingContent?.intro?.trim() || config.pageIntro || "";
+
   return (
     <main id="primary-content" aria-labelledby="mpf-page-heading">
-      <ProjectsRedesigned {...config} />
+      <ProjectsRedesigned {...config} pageHeading={pageHeading} pageIntro={pageIntro} />
+      <ListingPageSeoContent content={listingContent} />
     </main>
   );
 }
 
 //Generating metatitle and meta description
+function listingMetaFromContent(listingContent) {
+  const title = String(listingContent?.metaTitle || "").trim();
+  const description = String(listingContent?.metaDescription || "").trim();
+  const keywords = String(listingContent?.metaKeywords || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  return { title, description, keywords };
+}
+
 export async function generateMetadata({ params }) {
   const { projecttype } = await params;
+  const listingContent = await fetchListingPageContentBySlug(
+    `projects/${String(projecttype || "").trim().toLowerCase()}`,
+  );
+  const dbMeta = listingMetaFromContent(listingContent);
+
   if (projecttype?.toLowerCase() === "commercial") {
     return {
       ...COMMERCIAL_META,
+      ...(dbMeta.title ? { title: dbMeta.title } : {}),
+      ...(dbMeta.description ? { description: dbMeta.description } : {}),
+      ...(dbMeta.keywords.length ? { keywords: dbMeta.keywords } : {}),
       alternates: {
         canonical: `/projects/${projecttype}`,
       },
@@ -104,6 +128,9 @@ export async function generateMetadata({ params }) {
   if (projecttype?.toLowerCase() === "residential") {
     return {
       ...RESIDENTIAL_META,
+      ...(dbMeta.title ? { title: dbMeta.title } : {}),
+      ...(dbMeta.description ? { description: dbMeta.description } : {}),
+      ...(dbMeta.keywords.length ? { keywords: dbMeta.keywords } : {}),
       alternates: {
         canonical: `/projects/${projecttype}`,
       },
@@ -112,6 +139,9 @@ export async function generateMetadata({ params }) {
   if (projecttype?.toLowerCase() === "new-launches") {
     return {
       ...NEW_LAUNCHES_META,
+      ...(dbMeta.title ? { title: dbMeta.title } : {}),
+      ...(dbMeta.description ? { description: dbMeta.description } : {}),
+      ...(dbMeta.keywords.length ? { keywords: dbMeta.keywords } : {}),
       alternates: {
         canonical: `/projects/${projecttype}`,
       },
@@ -146,7 +176,15 @@ export default async function ProjectType({ params }) {
   const redesignedConfig = REDESIGNED_PROJECT_TYPE_PAGES[norm];
 
   if (redesignedConfig) {
-    return <RedesignedProjectTypePage config={redesignedConfig} />;
+    const listingContent = await fetchListingPageContentBySlug(
+      `projects/${norm}`,
+    );
+    return (
+      <RedesignedProjectTypePage
+        config={redesignedConfig}
+        listingContent={listingContent}
+      />
+    );
   }
 
   const validSlug = await resolveValidProjectTypeSlug(projecttype);

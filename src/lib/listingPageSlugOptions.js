@@ -52,7 +52,20 @@ function locationLabel(placeName, stateName) {
  * @param {Array} [projects] - projects from /projects (required to filter live pages)
  */
 export function buildListingPageSlugOptions(cityList = [], projects = []) {
-  const options = [];
+  const options = [
+    {
+      pageSlug: "projects/commercial",
+      pageTitle: "Commercial Property in India",
+    },
+    {
+      pageSlug: "projects/new-launches",
+      pageTitle: "New Projects in India",
+    },
+    {
+      pageSlug: "projects/residential",
+      pageTitle: "Residential Property in India",
+    },
+  ];
   const projectList = Array.isArray(projects) ? projects : [];
 
   for (const city of cityList) {
@@ -105,4 +118,48 @@ export function buildListingPageSlugOptions(cityList = [], projects = []) {
   }
 
   return options.sort((a, b) => a.pageTitle.localeCompare(b.pageTitle));
+}
+
+export const LISTING_CONTENT_CATEGORIES = [
+  { id: "all", label: "All pages" },
+  { id: "commercial", label: "Commercial Property" },
+  { id: "new-projects", label: "New Projects" },
+  { id: "apartments", label: "Apartments" },
+  { id: "flats", label: "Flats" },
+  { id: "offices", label: "Offices & Shop" },
+  { id: "config", label: "Shops / Config" },
+  { id: "bhk", label: "BHK listings" },
+  { id: "city", label: "City pages" },
+];
+
+/** Group a listing slug for the SEO content admin filters. */
+export function getListingPageCategory(slug = "") {
+  const value = String(slug || "").toLowerCase();
+  if (value === "projects/commercial" || value.startsWith("commercial-property-in-")) {
+    return "commercial";
+  }
+  if (value === "projects/new-launches" || value.startsWith("new-projects-in-")) {
+    return "new-projects";
+  }
+  if (value === "projects/residential" || value.startsWith("apartments-in-")) {
+    return "apartments";
+  }
+  if (value.startsWith("flats-in-")) return "flats";
+  if (value.startsWith("offices-and-shop-in-")) return "offices";
+  if (/^\d+-bhk-/.test(value)) return "bhk";
+  if (
+    /^(shops|office|kiosk|food-court|restaurant|showroom|sco-plots)-in-/.test(
+      value,
+    )
+  ) {
+    return "config";
+  }
+  return "city";
+}
+
+export function getListingPageCategoryLabel(slug = "") {
+  const match = LISTING_CONTENT_CATEGORIES.find(
+    (item) => item.id === getListingPageCategory(slug),
+  );
+  return match?.label || "Other";
 }

@@ -13,6 +13,7 @@ import {
   resolveCityFaqItemsForSchema,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
 import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
+import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
 
 export const dynamic = "force-dynamic";
 
@@ -119,9 +120,10 @@ export default async function AllCityProjects({ params }) {
     redirect(`/city/${canonicalSlug}`);
   }
   const slugToCheck = await ensureKnownCityOrNotFound(cityname);
-  const [cityData, listingFaqs] = await Promise.all([
+  const [cityData, listingFaqs, listingContent] = await Promise.all([
     fetchCityDataWithAliases(slugToCheck),
     fetchListingPageFaqsBySlug(slugToCheck),
+    fetchListingPageContentBySlug(slugToCheck),
   ]);
   if (!cityData) {
     notFound();
@@ -140,6 +142,7 @@ export default async function AllCityProjects({ params }) {
         citySlug={slugToCheck}
         cityData={cityMeta}
         initialProjects={projectList}
+        listingContent={listingContent}
       />
     </>
   );

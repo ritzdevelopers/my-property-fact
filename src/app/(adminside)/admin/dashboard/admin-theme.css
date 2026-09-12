@@ -1536,6 +1536,29 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .admin-dashboard-toolbar {
   border-bottom-color: rgba(255, 255, 255, 0.14);
 }
 
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-filter {
+  background: #111111;
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #e5e7eb;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-filter:hover,
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-filter.is-active {
+  background: rgba(111, 130, 41, 0.22);
+  border-color: #6f8229;
+  color: #f3f4f6;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-status {
+  background: #1f1f1f;
+  color: #d1d5db;
+}
+
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-status--ready {
+  background: rgba(13, 88, 52, 0.28);
+  color: #b7f0cc;
+}
+
 /* Default page copy + cards: black surfaces, white type */
 html[data-admin-theme="dark"] .admin-layout-wrapper .admin-page-container {
   color: #ffffff;

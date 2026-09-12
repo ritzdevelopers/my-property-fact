@@ -1,4 +1,5 @@
 import BlogFaqSection from "@/app/(home)/components/common/BlogFaqSection";
+import ListingPageSeoContent from "@/app/(home)/components/common/ListingPageSeoContent";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 import HeaderComponent from "@/app/(home)/components/header/headerComponent";
 import ProjectsRedesigned from "@/app/(home)/projects/ProjectsRedesigned";
@@ -10,6 +11,7 @@ export default function ProjectListByFloorType({
   compoundListing = null,
   initialProjects = [],
   faqItems = [],
+  listingContent = null,
 }) {
   const listingView = buildListingProjectsViewConfig({
     slug,
@@ -17,6 +19,8 @@ export default function ProjectListByFloorType({
     compoundListing,
   });
   const title = listingView.pageTitle || "All Projects";
+  const pageHeading = listingContent?.heading?.trim() || listingView.pageHeading;
+  const pageIntro = listingContent?.intro?.trim() || "";
 
   return (
     <>
@@ -32,9 +36,11 @@ export default function ProjectListByFloorType({
           lockCity={listingView.lockCity}
           breadcrumbParent={listingView.breadcrumbParent}
           breadcrumbLabel={listingView.breadcrumbLabel}
-          pageHeading={listingView.pageHeading}
+          pageHeading={pageHeading}
+          pageIntro={pageIntro}
           initialProjects={initialProjects}
         />
+        <ListingPageSeoContent content={listingContent} />
       </main>
       <BlogFaqSection
         faqItems={faqItems}

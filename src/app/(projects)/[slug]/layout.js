@@ -22,6 +22,7 @@ import { APARTMENTS_CITY_KEYWORDS } from "./apartments-city-keywords";
 import { NEW_PROJECTS_CITY_KEYWORDS } from "./new-projects-city-keywords";
 import { COMMERCIAL_PROPERTY_CITY_KEYWORDS } from "./commercial-property-city-keywords";
 import { FLATS_CITY_KEYWORDS } from "./flats-city-keywords";
+import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
 
 const NEW_PROJECTS_CITY_METADATA = {
   delhi: {
@@ -753,6 +754,13 @@ try {
 }
 
 if (!response || response?.slugURL !== slug) {
+  const listingContent = await fetchListingPageContentBySlug(slug);
+  const dbTitle = String(listingContent?.metaTitle || "").trim();
+  const dbDescription = String(listingContent?.metaDescription || "").trim();
+  const dbKeywords = String(listingContent?.metaKeywords || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
   const cityMeta = getStaticCityMetadata(slug);
   if (cityMeta) {
     const apartmentsCitySlug = slug.startsWith("apartments-in-")
@@ -773,10 +781,11 @@ if (!response || response?.slugURL !== slug) {
       (commercialCitySlug &&
         COMMERCIAL_PROPERTY_CITY_KEYWORDS[commercialCitySlug]) ||
       (flatsCitySlug && FLATS_CITY_KEYWORDS[flatsCitySlug]);
+    const keywords = dbKeywords.length ? dbKeywords : staticKeywords;
     return {
-      title: cityMeta.title,
-      description: cityMeta.description,
-      ...(staticKeywords?.length ? { keywords: staticKeywords } : {}),
+      title: dbTitle || cityMeta.title,
+      description: dbDescription || cityMeta.description,
+      ...(keywords?.length ? { keywords } : {}),
       alternates: {
         canonical: `/${slug}`,
       },
@@ -784,13 +793,15 @@ if (!response || response?.slugURL !== slug) {
   }
   const listingTitle = formatSlugAsListingTitle(slug);
   return {
-    title: listingTitle
-      ? `${listingTitle} | Flats in India`
-      : `${String(slug).replace(/-/g, " ")} Flats in India`,
-    description: listingTitle
-      ? `${listingTitle} | ${META_LISTING_BROWSE_SUFFIX}`
-      : META_LISTING_BROWSE_SUFFIX,
-    keywords: normalizeKeywords("", slug),
+    title: dbTitle
+      || (listingTitle
+        ? `${listingTitle} | Flats in India`
+        : `${String(slug).replace(/-/g, " ")} Flats in India`),
+    description: dbDescription
+      || (listingTitle
+        ? `${listingTitle} | ${META_LISTING_BROWSE_SUFFIX}`
+        : META_LISTING_BROWSE_SUFFIX),
+    keywords: dbKeywords.length ? dbKeywords : normalizeKeywords("", slug),
     alternates: {
       canonical: `/${slug}`,
     },

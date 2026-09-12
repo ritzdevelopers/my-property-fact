@@ -29,6 +29,7 @@ import {
   faImages,
   faGear,
   faCircleQuestion,
+  faFileLines,
   faClipboardList,
   faDatabase,
 } from "@fortawesome/free-solid-svg-icons";
@@ -186,6 +187,22 @@ export default function SideNav({ onLinkClick }) {
             <span>Dashboard</span>
           </Link>
         </li>
+        {hasPermission(ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS) && (
+          <li
+            className={
+              isActive("/admin/dashboard/manage-listing-content") ? "active" : ""
+            }
+          >
+            <Link
+              title="Listing Page Content"
+              href="/admin/dashboard/manage-listing-content"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon icon={faFileLines} className="admin-nav-ico" />
+              <span>Listing Page Content</span>
+            </Link>
+          </li>
+        )}
         {hasPermission(ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS) && (
           <li
             className={

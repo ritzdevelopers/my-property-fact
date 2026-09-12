@@ -1181,6 +1181,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
 
   const heroCitySelect = (
     <Select
+      instanceId="home-hero-city"
+      inputId="home-hero-city-input"
       classNamePrefix="location-select"
       options={cityOptions}
       placeholder="Select City"
@@ -1197,6 +1199,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
 
   const heroBudgetSelect = (
     <Select
+      instanceId="home-hero-budget"
+      inputId="home-hero-budget-input"
       classNamePrefix="location-select"
       options={budgetOptions}
       placeholder="Min - Max"

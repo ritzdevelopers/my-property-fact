@@ -28,6 +28,14 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 import { resolveIpCity } from "@/lib/resolveIpCity";
+import {
+  clearChosenHeaderCity,
+  isSpecificHeaderCity,
+  readChosenHeaderCity,
+  readSessionHeaderCity,
+  writeChosenHeaderCity,
+  writeSessionHeaderCity,
+} from "@/lib/headerChosenCity";
 
 const LOGO_ON_LIGHT = "/logo.webp";
 
@@ -605,10 +613,7 @@ const HeaderComponent = () => {
     showLocationFeedback({ force });
   };
 
-  const isSpecificCity = (cityName) => {
-    const n = String(cityName || "").trim().toLowerCase();
-    return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
-  };
+  const isSpecificCity = (cityName) => isSpecificHeaderCity(cityName);
 
   const scrollToHomeCityListings = useCallback(() => {
     if (typeof window === "undefined" || pathnameRef.current !== "/") return;
@@ -654,24 +659,21 @@ const HeaderComponent = () => {
 
   const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual", persist } = {}) => {
     const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
-    const shouldPersist = persist ?? source === "manual";
+    const alreadySaved = Boolean(readChosenHeaderCity());
+    const shouldPersist =
+      persist ?? (source === "manual" || !alreadySaved);
     setSelectedCity(nextCity);
     selectedCityRef.current = nextCity;
-    try {
-      if (isSpecificCity(nextCity)) {
-        window.sessionStorage.setItem("mpf_header_city", nextCity);
-        if (shouldPersist) {
-          window.localStorage.setItem("mpf_header_chosen_city", nextCity);
-        }
-      } else {
-        window.sessionStorage.removeItem("mpf_header_city");
-        if (shouldPersist) {
-          window.localStorage.removeItem("mpf_header_chosen_city");
-        }
+    if (isSpecificCity(nextCity)) {
+      writeSessionHeaderCity(nextCity);
+      if (shouldPersist) {
+        writeChosenHeaderCity(nextCity);
       }
-      window.localStorage.removeItem("mpf_header_city");
-    } catch {
-      /* ignore */
+    } else {
+      writeSessionHeaderCity("");
+      if (shouldPersist) {
+        clearChosenHeaderCity();
+      }
     }
     window.dispatchEvent(
       new CustomEvent("cityChanged", {
@@ -723,7 +725,10 @@ const HeaderComponent = () => {
           forceToast,
           scrollToListings,
           source: incomingSource,
-          persist: replaceSavedCity || incomingSource === "manual",
+          persist:
+            replaceSavedCity ||
+            incomingSource === "manual" ||
+            !readChosenHeaderCity(),
           ...opts,
         });
         setIsLocating(false);
@@ -791,33 +796,27 @@ const HeaderComponent = () => {
     [finishWithCity, resolveFromCoords, resolveFromIpCity],
   );
 
-  useEffect(() => {
-    let restoredCity = "";
-    let restoredSource = "manual";
-    try {
-      window.localStorage.removeItem("mpf_header_city");
-      const savedUser = window.localStorage.getItem("mpf_header_chosen_city");
-      const savedSession = window.sessionStorage.getItem("mpf_header_city");
-      if (isSpecificCity(savedUser)) {
-        restoredCity = String(savedUser).trim();
-        restoredSource = "manual";
-      } else if (isSpecificCity(savedSession)) {
-        restoredCity = String(savedSession).trim();
-        restoredSource = "gps";
-      }
-    } catch {
-      /* ignore */
-    }
+  const finishWithCityRef = useRef(finishWithCity);
+  const requestBrowserLocationRef = useRef(requestBrowserLocation);
+  finishWithCityRef.current = finishWithCity;
+  requestBrowserLocationRef.current = requestBrowserLocation;
 
-    if (restoredCity) {
-      // Saved user pick wins on a later visit. Session city only covers same-tab remounts.
-      finishWithCity(restoredCity, {
-        source: restoredSource,
-        persist: restoredSource === "manual",
+  useEffect(() => {
+    const savedUser = readChosenHeaderCity();
+    const savedSession = readSessionHeaderCity();
+
+    if (savedUser) {
+      finishWithCityRef.current(savedUser, {
+        source: "manual",
+        persist: true,
+      });
+    } else if (savedSession) {
+      finishWithCityRef.current(savedSession, {
+        source: "manual",
+        persist: true,
       });
     } else {
-      // No saved pick — locate the device (GPS, then IP).
-      requestBrowserLocation({ preferGps: true });
+      requestBrowserLocationRef.current({ preferGps: true });
     }
 
     return () => {
@@ -827,7 +826,7 @@ const HeaderComponent = () => {
         cityListingsScrollTimerRef.current = null;
       }
     };
-  }, [finishWithCity, requestBrowserLocation]);
+  }, []);
 
   useEffect(() => {
     if (!showLocationMenu) return undefined;

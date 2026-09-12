@@ -1123,6 +1123,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                     </span>
 
                     <Select
+                      instanceId="home-hero-city"
+                      inputId="home-hero-city-input"
                       classNamePrefix="location-select"
                       options={cityOptions}
                       placeholder="Select City"
@@ -1147,6 +1149,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                   <div className="smart-search-hero-field smart-search-hero-field--budget">
                     <span className="smart-search-hero-field__label">Budget</span>
                     <Select
+                      instanceId="home-hero-budget"
+                      inputId="home-hero-budget-input"
                       classNamePrefix="location-select"
                       options={budgetOptions}
                       placeholder="Min - Max"

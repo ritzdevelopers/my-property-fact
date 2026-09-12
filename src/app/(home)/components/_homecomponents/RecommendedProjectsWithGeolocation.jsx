@@ -4,32 +4,22 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import HomeRecommendationCards from "./HomeRecommendationCards";
 import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
 import { resolveDeviceCity } from "@/lib/resolveIpCity";
+import {
+  isSpecificHeaderCity,
+  readChosenHeaderCity,
+  readSessionHeaderCity,
+} from "@/lib/headerChosenCity";
 
 /** Ultimate fallback when GPS is denied and IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_LOCATION = "Delhi NCR";
-const HEADER_CITY_STORAGE_KEY = "mpf_header_city";
-const HEADER_CHOSEN_CITY_STORAGE_KEY = "mpf_header_chosen_city";
 
 function isDelhiNcrLabel(city) {
-  const n = String(city || "").trim().toLowerCase();
-  return !n || n === "ncr" || n === "delhi ncr" || n.includes("delhi ncr");
-}
-
-function readStoredCity(storage, key) {
-  try {
-    const saved = String(storage.getItem(key) || "").trim();
-    return saved && !isDelhiNcrLabel(saved) ? saved : "";
-  } catch {
-    return "";
-  }
+  return !isSpecificHeaderCity(city);
 }
 
 function readSavedHeaderCity() {
   if (typeof window === "undefined") return "";
-  return (
-    readStoredCity(window.localStorage, HEADER_CHOSEN_CITY_STORAGE_KEY) ||
-    readStoredCity(window.sessionStorage, HEADER_CITY_STORAGE_KEY)
-  );
+  return readChosenHeaderCity() || readSessionHeaderCity();
 }
 
 function cityNameFromEvent(detail) {

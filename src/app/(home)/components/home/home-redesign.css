@@ -1568,7 +1568,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   min-height: 46px;
   padding: 12px 26px;
   border-radius: 10px;
-  background: var(--mpf-green);
+  background: #0d5834;
   color: #fff !important;
   font-family: var(--mpf-sans);
   font-weight: 700;
@@ -1580,7 +1580,7 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 }
 
 .mpf-home-r26 .transform-home-explore-projects-btn:hover {
-  background: var(--mpf-green-deep);
+  background: #094a2b;
   color: #fff !important;
   transform: translateY(-1px);
 }
@@ -2229,47 +2229,23 @@ body:has(.mpf-home-r26) .home-right-type-rail {
     font-size: 0.9rem;
   }
 
-  /* Expert Insights — same tablet treatment */
+  /* Expert Insights — keep full-bleed editorial layout on tablet */
   .mpf-home-r26 .expert-insights-wrapper {
-    padding-left: clamp(20px, 3vw, 36px) !important;
-    padding-right: clamp(20px, 3vw, 36px) !important;
-    padding-top: clamp(1.5rem, 3vw, 2.5rem) !important;
-    padding-bottom: clamp(1.5rem, 3vw, 2.5rem) !important;
+    padding: 0 !important;
   }
 
   .mpf-home-r26 .expert-insights-section {
-    max-width: min(100%, 980px);
+    max-width: 100%;
     width: 100%;
-    margin-left: auto;
-    margin-right: auto;
     height: auto;
-    border-radius: 16px;
+    border-radius: 0;
     overflow: hidden;
   }
 
   .mpf-home-r26 .expert-insights-inner {
-    max-width: min(100%, 980px);
+    max-width: 1440px;
     width: 100%;
-    padding: 44px clamp(24px, 3.2vw, 40px) 48px !important;
-  }
-
-  .mpf-home-r26 .expert-insights-body {
-    grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
-    gap: clamp(20px, 3vw, 32px);
-  }
-
-  .mpf-home-r26 .expert-insights-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto;
-    padding: 18px !important;
-  }
-
-  .mpf-home-r26 .expert-insights-detail {
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    padding: clamp(28px, 3.5vw, 44px) clamp(24px, 3vw, 40px) !important;
+    padding: 48px clamp(24px, 4vw, 48px) 56px !important;
   }
 
   /* Noida / FAQ section — 3 stacked rows from 760px (container matched below) */
@@ -3046,95 +3022,47 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 /* ---------- Insights ---------- */
 .mpf-home-r26 .expert-insights-wrapper {
-  background: linear-gradient(180deg, #f4f7f5 0%, #fff 48%, #fff 100%) !important;
+  background: #fff !important;
   border-radius: 0;
-  padding: clamp(1.5rem, 3vw, 2.5rem) 0 !important;
+  padding: 0 !important;
 }
 
 .mpf-home-r26 .expert-insights-title {
-  font-family: var(--mpf-sans) !important;
   font-weight: 500 !important;
-  font-size: clamp(1.35rem, 2.4vw, 1.7rem) !important;
-  letter-spacing: -0.02em;
-  color: var(--mpf-ink) !important;
+  letter-spacing: 0 !important;
+  color: #111 !important;
 }
 
-.mpf-home-r26 .expert-insights-card {
-  background: #fff !important;
-  border: 1px solid rgba(26, 29, 35, 0.07) !important;
-  border-radius: 18px !important;
-  box-shadow: 0 10px 28px rgba(16, 18, 22, 0.05) !important;
+@media (min-width: 900px) {
+  .mpf-home-r26 .expert-insights-title {
+    font-size: 36px !important;
+    line-height: 100% !important;
+  }
 }
 
-.mpf-home-r26 .expert-insights-cta,
-.mpf-home-r26 a.expert-insights-cta {
-  border-radius: 999px !important;
-  box-shadow: 0 6px 16px rgba(13, 88, 52, 0.2) !important;
-  background: linear-gradient(180deg, #148a3d 0%, #0d5834 100%) !important;
-  color: #fff !important;
-  font-weight: 600 !important;
-}
-
-/* Expert Insights — prevent text clipping on 1024–1399 */
+/* Expert Insights — keep editorial layout on 1024–1399 */
 @media (min-width: 1024px) and (max-width: 1399.98px) {
   .mpf-home-r26 .expert-insights-wrapper {
-    padding-left: clamp(12px, 1.5vw, 24px) !important;
-    padding-right: clamp(12px, 1.5vw, 24px) !important;
+    padding: 0 !important;
   }
 
   .mpf-home-r26 .expert-insights-section {
     height: auto !important;
-    max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
-    width: min(100%, 98vw) !important;
-    margin-left: auto;
-    margin-right: auto;
-    overflow: visible !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    overflow: hidden !important;
   }
 
   .mpf-home-r26 .expert-insights-inner {
     height: auto !important;
-    max-width: 100% !important;
+    max-width: 1440px !important;
     width: 100%;
-    padding: clamp(36px, 3.2vw, 48px) clamp(20px, 2.4vw, 40px) clamp(40px, 3.5vw, 48px) !important;
-  }
-
-  .mpf-home-r26 .expert-insights-body {
-    grid-template-columns: minmax(240px, 0.38fr) minmax(0, 1fr) !important;
-    gap: clamp(16px, 2vw, 28px);
-    min-width: 0;
-  }
-
-  .mpf-home-r26 .expert-insights-card {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  .mpf-home-r26 .expert-insights-detail {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-width: 0 !important;
-    padding: clamp(24px, 2.8vw, 40px) clamp(18px, 2.2vw, 36px) !important;
+    padding: 56px 64px 64px !important;
   }
 
   .mpf-home-r26 .expert-insights-title {
-    font-size: clamp(26px, 2.4vw, 34px) !important;
-    line-height: 1.2 !important;
-  }
-
-  .mpf-home-r26 .expert-insights-detail-title {
-    font-size: clamp(24px, 2.55vw, 34px) !important;
-    line-height: 1.28 !important;
-    white-space: normal !important;
-    overflow-wrap: anywhere;
-    max-width: 100%;
-  }
-
-  .mpf-home-r26 .expert-insights-detail-description {
-    font-size: clamp(15px, 1.35vw, 17px) !important;
-    line-height: 1.55 !important;
-    overflow-wrap: anywhere;
-    max-width: 100%;
+    font-size: 36px !important;
+    line-height: 100% !important;
   }
 }
 

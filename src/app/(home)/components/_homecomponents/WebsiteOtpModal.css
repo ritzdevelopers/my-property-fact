@@ -1,0 +1,159 @@
+.mpf-otp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(12, 28, 20, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.mpf-otp-modal {
+  position: relative;
+  width: min(420px, 100%);
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(8, 20, 14, 0.28);
+}
+
+.mpf-otp-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.mpf-otp-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 22px 16px;
+  background: #051a10;
+  color: #fff;
+}
+
+.mpf-otp-brand img {
+  width: 48px;
+  height: auto;
+  object-fit: contain;
+}
+
+.mpf-otp-brand p {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #c9a84c;
+}
+
+.mpf-otp-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mpf-otp-body h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #122018;
+}
+
+.mpf-otp-body p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #4b5563;
+  line-height: 1.45;
+}
+
+.mpf-otp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.mpf-otp-field input {
+  min-height: 46px;
+  border: 1px solid #d7ddd9;
+  border-radius: 10px;
+  padding: 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.mpf-otp-field input:focus {
+  outline: 2px solid #c9a84c;
+  border-color: #c9a84c;
+}
+
+.mpf-otp-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.mpf-otp-digit {
+  width: 52px;
+  height: 56px;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 800;
+  border: 1px solid #d7ddd9;
+  border-radius: 12px;
+}
+
+.mpf-otp-digit.is-fail {
+  border-color: #c45c4a;
+  color: #c45c4a;
+}
+
+.mpf-otp-digit.is-success {
+  border-color: #148a3d;
+  color: #148a3d;
+}
+
+.mpf-otp-error {
+  color: #b42318 !important;
+  font-weight: 650;
+}
+
+.mpf-otp-submit {
+  min-height: 46px;
+  border: 0;
+  border-radius: 10px;
+  background: #148a3d;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mpf-otp-submit:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.mpf-otp-submit:hover:not(:disabled) {
+  background: #1a9d47;
+}
+
+.mpf-otp-link {
+  border: 0;
+  background: none;
+  color: #8d6d32;
+  font-weight: 700;
+  cursor: pointer;
+}

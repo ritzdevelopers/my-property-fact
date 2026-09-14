@@ -228,7 +228,7 @@ export default async function HomePage() {
             eagerImageCount={2}
           />,
         )}
-        {row(
+        {/* {row(
           1.5,
           <section className="mpf-expert-band" aria-label="Talk to an expert">
             <div className="container mpf-expert-band__inner">
@@ -252,37 +252,15 @@ export default async function HomePage() {
               </Link>
             </div>
           </section>,
-        )}
+        )} */}
         {row(
           2,
           <section className="container transform-home-section">
             <div className="transform-home-image-wrap">
-              <img
-                src="/static/transform_new.png"
-                alt="Transform your home visual section"
-                title="Transform your home visual section"
-                className="transform-home-image"
-                loading="lazy"
-                decoding="async"
-                fetchPriority="low"
-              />
               <div className="transform-home-copy">
                 <div className="transform-home-content">
                   <div className="transform-home-headline-stack">
                     <RotatingHeroHeadline />
-                    <div className="transform-home-mpf-logo-wrap">
-                      <img
-                        src="/static/mpf_text.png"
-                        alt="My Property Fact"
-                        title="My Property Fact"
-                        width={224}
-                        height={30}
-                        className="transform-home-mpf-logo"
-                        loading="lazy"
-                        decoding="async"
-                        fetchPriority="low"
-                      />
-                    </div>
                     <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
                     <div className="transform-home-explore-projects-wrap">
                       <Link

@@ -15,7 +15,7 @@ const TopPicksWithRotation = dynamic(() => import("../TopPicksWithRotation"), {
 });
 const NewInsight = dynamic(() => import("../_homecomponents/NewInsight"), {
   ssr: false,
-  loading: () => sectionPlaceholder(320),
+  loading: () => sectionPlaceholder(520),
 });
 const DreamPropertySection = dynamic(
   () => import("./dream-project/DreamPropertySection"),

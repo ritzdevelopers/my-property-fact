@@ -6,6 +6,9 @@ import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { Spinner } from "react-bootstrap";
 import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
+import WebsiteOtpModal from "../_homecomponents/WebsiteOtpModal";
+import HeaderAccountMenu from "./HeaderAccountMenu";
+import HeaderLatestSpark from "./HeaderLatestSpark";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -128,6 +131,8 @@ const HeaderComponent = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [isNavDropdownDismissed, setIsNavDropdownDismissed] = useState(false);
   const [showBrokerLoginModal, setShowBrokerLoginModal] = useState(false);
+  const [showWebsiteLoginModal, setShowWebsiteLoginModal] = useState(false);
+  const [websiteAuthFlow, setWebsiteAuthFlow] = useState("login");
   const [selectedCity, setSelectedCity] = useState("");
   const [showLocationToast, setShowLocationToast] = useState(false);
   const [locationHint, setLocationHint] = useState("");
@@ -157,7 +162,7 @@ const HeaderComponent = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
-    const mq = window.matchMedia("(max-width: 1023.98px)");
+    const mq = window.matchMedia("(max-width: 1024px)");
     const sync = () => setIsCompactLocationUi(mq.matches);
     sync();
     mq.addEventListener("change", sync);
@@ -318,41 +323,6 @@ const HeaderComponent = () => {
       }
     };
 
-    // Handle resize to close mobile menu on desktop
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        const menu = document.getElementById("mbdiv");
-        const menuButtons = document.getElementsByClassName("menuBtn");
-        if (menu && menu.classList.contains("active")) {
-          // Close the menu
-          for (let i = 0; i < menuButtons.length; i++) {
-            menuButtons[i].classList.remove("closeMenuBtn");
-          }
-          menu.style.display = "none";
-          menu.classList.remove("active");
-          document.body.classList.remove("menu-open");
-
-          // Remove notfixed class from header
-          const header = document.querySelector(".header");
-          if (header) {
-            header.classList.remove("notfixed");
-          }
-
-          // Restore body scroll
-          document.body.style.overflow = "";
-          document.body.style.position = "";
-          document.body.style.top = "";
-          document.body.style.width = "";
-          document.body.style.height = "";
-          document.documentElement.style.overflow = "";
-          document.documentElement.style.height = "";
-
-          // Restore scroll position
-          window.scrollTo(0, scrollPositionRef.current);
-        }
-      }
-    };
-
     window.addEventListener("scroll", handleScroll, { passive: false });
     window.addEventListener("wheel", preventScroll, { passive: false });
     // Use capture phase to check before other handlers
@@ -360,13 +330,11 @@ const HeaderComponent = () => {
       passive: false,
       capture: true,
     });
-    window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("wheel", preventScroll);
       window.removeEventListener("touchmove", preventScroll);
-      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -469,6 +437,22 @@ const HeaderComponent = () => {
   const openBrokerLoginModal = () => {
     setShowBrokerLoginModal(true);
   };
+
+  const openWebsiteLoginModal = (flow = "login") => {
+    setWebsiteAuthFlow(flow === "register" ? "register" : "login");
+    setShowWebsiteLoginModal(true);
+  };
+
+  useEffect(() => {
+    const openPost = () => setShowBrokerLoginModal(true);
+    const openLogin = (event) => openWebsiteLoginModal(event?.detail?.flow || "login");
+    window.addEventListener("mpf-open-post-property", openPost);
+    window.addEventListener("mpf-open-website-login", openLogin);
+    return () => {
+      window.removeEventListener("mpf-open-post-property", openPost);
+      window.removeEventListener("mpf-open-website-login", openLogin);
+    };
+  }, []);
 
   // Handle Project Search - keep typing responsive by debouncing actual search work
   useEffect(() => {
@@ -597,7 +581,7 @@ const HeaderComponent = () => {
   } = {}) => {
     if (typeof window === "undefined") return;
     // Permission hints show on all viewports; city toast stays mobile-only.
-    if (!hint && window.innerWidth >= 1024) return;
+    if (!hint && window.innerWidth > 1024) return;
     if (!force && !hint && locationToastShownRef.current) return;
     if (!hint) locationToastShownRef.current = true;
     setLocationHint(hint || "");
@@ -846,7 +830,7 @@ const HeaderComponent = () => {
     };
 
     const prevOverflow = document.body.style.overflow;
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+    if (typeof window !== "undefined" && window.innerWidth <= 1024) {
       document.body.style.overflow = "hidden";
     }
 
@@ -1075,6 +1059,7 @@ const HeaderComponent = () => {
                 {locationMenu}
               </div>
             ) : null}
+            {isHomePage ? <HeaderLatestSpark /> : null}
           </div>
           <nav className="d-none d-lg-flex flex-grow-1 justify-content-end align-items-center">
             <div className={`menu position-relative${isHomePage ? " header-home-ss__menu" : ""}`}>
@@ -1314,6 +1299,305 @@ const HeaderComponent = () => {
                     </Link>
                   </li>
                 ) : null} */}
+                {isBlogTypeRoute ? (
+                  <li
+                    className={`hasChild header-nav-projects${isNavDropdownDismissed ? " nav-dropdown-dismissed" : ""}`}
+                    onMouseEnter={() => {
+                      setIsDropdownHovered(true);
+                      setIsNavDropdownDismissed(false);
+                    }}
+                    onMouseLeave={handleNavDropdownMouseLeave}
+                  >
+                    <Link
+                      href="/projects"
+                      className={`text-light py-3 text-decoration-none plus-jakarta-sans-semi-bold${isProjectTypeRoute ? " header-link-active" : ""}`}
+                      title="Browse projects"
+                    >
+                      Projects
+                    </Link>
+                    <div
+                      className="dropdown dropdown-lg projects-dropdown z-3"
+                      ref={projectsDropdownRef}
+                    >
+                      {!isMounted || !projectTypes?.length ? (
+                        <div className="d-flex align-items-center justify-content-center p-3">
+                          <Spinner animation="border" variant="light" />
+                        </div>
+                      ) : (
+                        <>
+                          <div className="city-dropdown-content">
+                            <div className="city-dropdown-left">
+                              <Link
+                                href="/projects/commercial"
+                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                                prefetch={true}
+                                onClick={handleNavDropdownLinkClick}
+                                title="Commercial projects"
+                              >
+                                Commercial
+                              </Link>
+                              <Link
+                                href="/projects/residential"
+                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                                prefetch={true}
+                                onClick={handleNavDropdownLinkClick}
+                                title="Residential projects"
+                              >
+                                Residential
+                              </Link>
+                              <Link
+                                href="/projects/new-launches"
+                                className="city-dropdown-item with-badge plus-jakarta-sans-semi-bold"
+                                prefetch={true}
+                                onClick={handleNavDropdownLinkClick}
+                                title="New launch projects"
+                              >
+                                New Launches{" "}
+                                <NewBadge isVisible={isDropdownHovered} />
+                              </Link>
+                              <Link
+                                href="/blog"
+                                className="city-dropdown-item plus-jakarta-sans-semi-bold"
+                                onClick={handleNavDropdownLinkClick}
+                                title="Articles and news"
+                              >
+                                Articles &amp; News
+                              </Link>
+                            </div>
+                            <div className="city-dropdown-right projects-search-section">
+                              <div className="projects-search-wrapper">
+                                {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
+                                  <>
+                                    <p className="projects-search-title plus-jakarta-sans-semi-bold">
+                                      Search Your Dream Home
+                                    </p>
+                                    <div className="projects-search-container">
+                                      <div className="projects-search-input-wrapper">
+                                        <FontAwesomeIcon
+                                          icon={faSearch}
+                                          className="projects-search-icon"
+                                        />
+                                        <input
+                                          ref={projectSearchInputRef}
+                                          type="text"
+                                          placeholder="Search"
+                                          className="projects-search-input"
+                                          value={projectSearchInput}
+                                          onChange={(e) =>
+                                            setProjectSearchInput(e.target.value)
+                                          }
+                                          onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                              e.preventDefault();
+                                              handleExploreClick();
+                                            }
+                                          }}
+                                        />
+                                        <button
+                                          type="button"
+                                          className="projects-explore-btn"
+                                          onClick={handleExploreClick}
+                                        >
+                                          Explore
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </>
+                                )}
+                                {projectSearchQuery.trim().length >= 2 && (
+                                  <div className="projects-search-results-wrapper">
+                                    {isSearchingProjects ? (
+                                      <div className="projects-search-loader-box">
+                                        <Spinner
+                                          animation="border"
+                                          variant="light"
+                                          className="projects-search-loader-spinner"
+                                        />
+                                        <span className="projects-search-loader-text">
+                                          Searching projects...
+                                        </span>
+                                      </div>
+                                    ) : projectSearchResults.length > 0 ? (
+                                      <>
+                                        <div className="projects-search-results-header">
+                                          <span className="projects-search-results-label">
+                                            Projects
+                                          </span>
+                                          <div className="projects-search-results-header-search">
+                                            <FontAwesomeIcon
+                                              icon={faSearch}
+                                              className="projects-search-results-header-search-icon"
+                                            />
+                                            <input
+                                              type="text"
+                                              className="projects-search-results-header-input"
+                                              value={projectSearchInput}
+                                              onChange={(e) =>
+                                                setProjectSearchInput(e.target.value)
+                                              }
+                                              onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                  e.preventDefault();
+                                                  handleExploreClick();
+                                                }
+                                              }}
+                                              placeholder="Search"
+                                              aria-label="Edit search"
+                                            />
+                                            <button
+                                              type="button"
+                                              className="projects-search-back-link"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleBackToSearch();
+                                              }}
+                                              title="Clear and start new search"
+                                            >
+                                              New search
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <div className="projects-search-horizontal-slider">
+                                          {projectSearchResults.length > 2 && (
+                                            <button
+                                              type="button"
+                                              className="projects-search-arrow projects-search-arrow-left"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSearchResultsSlideIndex((i) =>
+                                                  Math.max(0, i - 1)
+                                                );
+                                              }}
+                                              disabled={searchResultsSlideIndex === 0}
+                                              aria-label="Previous projects"
+                                            >
+                                              <FontAwesomeIcon icon={faChevronLeft} />
+                                            </button>
+                                          )}
+                                          <div
+                                            className="projects-search-cards-track"
+                                            style={{
+                                              "--slide-index": searchResultsSlideIndex,
+                                            }}
+                                          >
+                                            {projectSearchResults.map((project) => {
+                                              const projectId = project.id || project.slugURL;
+                                              const searchProjectLabel =
+                                                project.projectName || project.name || "Project";
+                                              const searchProjectImgMeta = `${searchProjectLabel} — project banner preview, My Property Fact search`;
+                                              return (
+                                                <div
+                                                  key={projectId}
+                                                  className="project-search-card"
+                                                  onClick={() => handleProjectClick(project)}
+                                                  role="button"
+                                                  tabIndex={0}
+                                                  onKeyDown={(e) => {
+                                                    if (e.key === "Enter" || e.key === " ") {
+                                                      e.preventDefault();
+                                                      handleProjectClick(project);
+                                                    }
+                                                  }}
+                                                  aria-label={`View ${searchProjectLabel} (opens in new tab)`}
+                                                >
+                                                  <div className="project-search-card-image">
+                                                    <img
+                                                      src={getProjectImageSrc(project)}
+                                                      alt={searchProjectImgMeta}
+                                                      title={searchProjectImgMeta}
+                                                      width={200}
+                                                      height={140}
+                                                      loading="lazy"
+                                                      decoding="async"
+                                                      onError={() => handleImageError(projectId)}
+                                                    />
+                                                  </div>
+                                                  <div className="project-search-card-body">
+                                                    <p className="project-search-card-title plus-jakarta-sans-semi-bold mb-0">
+                                                      {[project.projectName || project.name, project.cityName]
+                                                        .filter(Boolean)
+                                                        .join(" ")}
+                                                    </p>
+                                                    {(project.projectAddress || project.cityName) && (
+                                                      <p className="project-search-card-location">
+                                                        {project.projectAddress || project.cityName}
+                                                      </p>
+                                                    )}
+                                                    {project.projectPrice != null && project.projectPrice !== "" && (
+                                                      <p className="project-search-card-price text-success plus-jakarta-sans-semi-bold">
+                                                        {formatProjectPrice(project.projectPrice)}
+                                                      </p>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                          {projectSearchResults.length > 2 && (
+                                            <button
+                                              type="button"
+                                              className="projects-search-arrow projects-search-arrow-right"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                const maxSlide = Math.ceil(
+                                                  projectSearchResults.length / 2
+                                                ) - 1;
+                                                setSearchResultsSlideIndex((i) =>
+                                                  Math.min(maxSlide, i + 1)
+                                                );
+                                              }}
+                                              disabled={
+                                                searchResultsSlideIndex >=
+                                                Math.ceil(projectSearchResults.length / 2) - 1
+                                              }
+                                              aria-label="Next projects"
+                                            >
+                                              <FontAwesomeIcon icon={faChevronRight} />
+                                            </button>
+                                          )}
+                                        </div>
+                                      </>
+                                    ) : (
+                                      <div className="projects-no-results">
+                                        No projects found matching &quot;
+                                        {projectSearchQuery}&quot;
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="dropdown-footer-bar city-dropdown-footer-bar">
+                            <div className="dropdown-footer-left">
+                              <span className="dropdown-footer-label">Contact Us</span>
+                              <a
+                                href="tel:+918920024793"
+                                className="dropdown-footer-phone"
+                                aria-label="Call My Property Fact at +91 8920024793"
+                                title="+91 8920024793"
+                              >
+                                <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                                +91 8920024793
+                              </a>
+                            </div>
+                            <div className="dropdown-footer-right-wrapper">
+                              <a
+                                href="mailto:social@mypropertyfact.com"
+                                className="dropdown-footer-right"
+                                aria-label="Email My Property Fact at social@mypropertyfact.com"
+                                title="Email us at social@mypropertyfact.com"
+                              >
+                                Email us at{" "}
+                                <span className="dropdown-footer-email">social@mypropertyfact.com</span>
+                              </a>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </li>
+                ) : null}
                 <li className="hasChild header-nav-blog">
                   <Link
                     href="/blog"
@@ -1348,6 +1632,7 @@ const HeaderComponent = () => {
             </div>
             {isHomePage ? (
               <div className="mpf-header-home-actions d-none d-lg-flex align-items-center">
+                <div id="mpf-header-sticky-search" className="mpf-header-sticky-search" />
                 <a href="tel:+918920024793" className="mpf-header-phone" title="Sales enquiry">
                   <svg className="mpf-header-phone__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.12.89.32 1.76.6 2.6a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.48-1.17a2 2 0 012.11-.45c.84.28 1.71.48 2.6.6A2 2 0 0122 16.92z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -1368,15 +1653,17 @@ const HeaderComponent = () => {
                 </button>
               </div>
             ) : (
-              <button
-                type="button"
-                className="header-post-property-cta d-none d-lg-inline-flex"
-                onClick={openBrokerLoginModal}
-                title="Post your property for free"
-              >
-                <span className="header-post-property-cta__text">Post Your Property</span>
-                <span className="header-post-property-cta__badge">FREE</span>
-              </button>
+              <div className="d-none d-lg-flex align-items-center gap-2">
+                <button
+                  type="button"
+                  className="header-post-property-cta d-none d-lg-inline-flex"
+                  onClick={openBrokerLoginModal}
+                  title="Post your property for free"
+                >
+                  <span className="header-post-property-cta__text">Post Your Property</span>
+                  <span className="header-post-property-cta__badge">FREE</span>
+                </button>
+              </div>
             )}
           </nav>
           <button
@@ -1388,7 +1675,8 @@ const HeaderComponent = () => {
             <span className="header-post-property-cta__text">Post Property</span>
             <span className="header-post-property-cta__badge">FREE</span>
           </button>
-          <div className="header-mobile-actions d-flex d-lg-none align-items-center">
+          <div className="header-mobile-actions d-flex align-items-center">
+            <HeaderAccountMenu onRequestAuth={openWebsiteLoginModal} />
             <button
               type="button"
               className="menuBtn"
@@ -1448,6 +1736,34 @@ const HeaderComponent = () => {
             </button>
           </div>
           <div className="h-100 scroller">
+            <div className="mpf-drawer-header-links">
+              <p className="mpf-drawer-header-links__label">Explore</p>
+              <div className="mpf-drawer-header-links__grid">
+                <Link href="/projects/residential" onClick={openMenu} title="Residential projects">
+                  Residential
+                </Link>
+                <Link href="/projects/commercial" onClick={openMenu} title="Commercial projects">
+                  Commercial
+                </Link>
+                <Link href="/projects/new-launches" onClick={openMenu} title="New launch projects">
+                  New Launches
+                </Link>
+                <Link href="/blog" onClick={openMenu} title="Articles and news">
+                  Articles &amp; News
+                </Link>
+              </div>
+              <button
+                type="button"
+                className="mpf-drawer-post-property"
+                onClick={() => {
+                  openMenu();
+                  openBrokerLoginModal();
+                }}
+              >
+                Post Your Property
+                <span>FREE</span>
+              </button>
+            </div>
             {/* Mobile Projects Search - aligned with desktop */}
             <div className="mobile-projects-search">
               {!(projectSearchQuery.trim().length >= 2 && projectSearchResults.length > 0 && !isSearchingProjects) && (
@@ -1747,6 +2063,55 @@ const HeaderComponent = () => {
                     About Us
                   </Link>
                 </li>
+                {isBlogTypeRoute ? (
+                  <li
+                    className={`mb-hasChild ${activeDropdown === "projects" ? "active" : ""}`}
+                  >
+                    <div className="mobile-menu-item mobile-menu-item--split">
+                      <Link
+                        href="/projects"
+                        onClick={openMenu}
+                        className={`text-decoration-none mobile-menu-item__label${isProjectTypeRoute ? " header-link-active" : ""}`}
+                        title="Browse all projects"
+                      >
+                        Projects
+                      </Link>
+                      <button
+                        type="button"
+                        className="mobile-menu-item__toggle"
+                        onClick={() => openMenuMobile("projects")}
+                        aria-expanded={activeDropdown === "projects"}
+                        aria-controls="mobile-projects-submenu"
+                        aria-label="Show project types"
+                        title="Show project types"
+                      >
+                        <FontAwesomeIcon
+                          icon={faChevronDown}
+                          className={`mobile-dropdown-icon ${activeDropdown === "projects" ? "rotate" : ""}`}
+                        />
+                      </button>
+                    </div>
+                    <div
+                      id="mobile-projects-submenu"
+                      className={`dropdown mobile-dropdown ${activeDropdown === "projects" ? "activeHeader" : ""}`}
+                    >
+                      <ul className="list-inline list-unstyled">
+                        {(isMounted ? projectTypes : [])?.map((project) => (
+                          <li key={project.id}>
+                            <Link
+                              href={`/projects/${project.slugUrl}`}
+                              onClick={openMenu}
+                              className="text-decoration-none"
+                              title={`${project.projectTypeName} projects`}
+                            >
+                              {project.projectTypeName}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                ) : null}
               </ul>
             </div>
             <div className="smallMenuList">
@@ -1868,6 +2233,11 @@ const HeaderComponent = () => {
         </div>
       ) : null}
       <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
+      <WebsiteOtpModal
+        show={showWebsiteLoginModal}
+        onClose={setShowWebsiteLoginModal}
+        initialFlow={websiteAuthFlow}
+      />
     </>
   );
 };

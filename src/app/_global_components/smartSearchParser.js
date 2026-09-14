@@ -563,7 +563,75 @@ export function buildSmartSearchSuggestions(
 }
 
 export const RECENT_SEARCHES_KEY = "mpf-recent-searches";
-export const RECENT_SEARCHES_LIMIT = 5;
+export const RECENT_ACTIVITY_KEY = "mpf-recent-activity";
+export const RECENT_SEARCHES_LIMIT = 8;
+export const RECENT_ACTIVITY_LIMIT = 24;
+export const RECENT_SEARCHES_CHANGED_EVENT = "mpf-recent-searches-changed";
+
+function emitRecentChange() {
+  if (typeof window === "undefined") return;
+  try {
+    window.dispatchEvent(new Event(RECENT_SEARCHES_CHANGED_EVENT));
+  } catch {
+    /* ignore */
+  }
+}
+
+function activityId(kind, label, href) {
+  return `${kind || "keyword"}:${href || label}`.toLowerCase();
+}
+
+function normalizeActivityItem(item, fallbackKind = "keyword") {
+  if (typeof item === "string") {
+    const label = item.trim();
+    if (!label) return null;
+    return {
+      id: activityId(fallbackKind, label, ""),
+      label,
+      kind: fallbackKind,
+      href: "",
+      at: Date.now(),
+    };
+  }
+  if (!item || typeof item !== "object") return null;
+  const label = String(item.label || "").trim();
+  if (!label) return null;
+  const kind = item.kind || fallbackKind;
+  const href = item.href || "";
+  return {
+    id: item.id || activityId(kind, label, href),
+    label,
+    kind,
+    href,
+    at: item.at || Date.now(),
+  };
+}
+
+export function loadRecentActivity() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(RECENT_ACTIVITY_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (Array.isArray(parsed) && parsed.length) {
+      return parsed.map((item) => normalizeActivityItem(item)).filter(Boolean);
+    }
+    return loadRecentSearches().map((label) => normalizeActivityItem(label)).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function persistActivity(items) {
+  if (typeof window === "undefined") return;
+  const next = items.slice(0, RECENT_ACTIVITY_LIMIT);
+  localStorage.setItem(RECENT_ACTIVITY_KEY, JSON.stringify(next));
+  const keywords = next
+    .filter((item) => !item.kind || item.kind === "keyword")
+    .map((item) => item.label)
+    .slice(0, RECENT_SEARCHES_LIMIT);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(keywords));
+  emitRecentChange();
+}
 
 export function loadRecentSearches() {
   if (typeof window === "undefined") return [];
@@ -580,9 +648,16 @@ export function saveRecentSearch(label, options = {}) {
   if (typeof window === "undefined" || !label) return;
   const trimmed = String(label).trim();
   if (!trimmed) return;
-  const existing = loadRecentSearches().filter((s) => s !== trimmed);
-  const next = [trimmed, ...existing].slice(0, RECENT_SEARCHES_LIMIT);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+  const kind = options.kind || "keyword";
+  const href = options.href || "";
+  const incoming = normalizeActivityItem(
+    { label: trimmed, kind, href, at: Date.now() },
+    kind,
+  );
+  if (!incoming) return;
+
+  const existing = loadRecentActivity().filter((item) => item.id !== incoming.id);
+  persistActivity([incoming, ...existing]);
 
   try {
     trackSearchEvent({
@@ -598,15 +673,29 @@ export function saveRecentSearch(label, options = {}) {
   }
 }
 
-export function removeRecentSearch(label) {
+export function recordBrowsedItem({ label, kind = "property", href = "" } = {}) {
+  if (!label) return;
+  saveRecentSearch(label, { kind, href, searchType: kind });
+}
+
+export function removeRecentSearch(label, options = {}) {
   if (typeof window === "undefined" || !label) return [];
   const trimmed = String(label).trim();
-  const next = loadRecentSearches().filter((s) => s !== trimmed);
-  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
-  return next;
+  const kind = options?.kind;
+  const next = loadRecentActivity().filter((item) => {
+    if (item.label !== trimmed) return true;
+    if (kind && item.kind && item.kind !== kind) return true;
+    return false;
+  });
+  persistActivity(next);
+  return next
+    .filter((item) => !item.kind || item.kind === "keyword")
+    .map((item) => item.label);
 }
 
 export function clearRecentSearches() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(RECENT_SEARCHES_KEY);
+  localStorage.removeItem(RECENT_ACTIVITY_KEY);
+  emitRecentChange();
 }

@@ -26,6 +26,7 @@ import "@/app/(home)/components/common/projectStatusRibbon.css";
 import "@/app/(home)/components/common/premiumBadges.css";
 import { saveListingReturnState } from "@/lib/listingScrollRestore";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
+import ProjectShortlistButton from "@/app/(home)/components/common/ProjectShortlistButton";
 
 const API_BASE = String(process.env.NEXT_PUBLIC_API_URL || "").trim();
 
@@ -487,6 +488,8 @@ export default function ProjectCard({
 
           <LuxuryPricePlaque price={project.projectPrice} />
 
+          <ProjectShortlistButton project={project} />
+
           <ProjectStatusRibbon
             status={project.projectStatusName}
             className="mpf-status-ribbon--compact mpf-status-ribbon--lux"
@@ -537,6 +540,8 @@ export default function ProjectCard({
           <ProjectCardSlider {...sliderProps} />
 
           <LuxuryPricePlaque price={project.projectPrice} />
+
+          <ProjectShortlistButton project={project} />
 
           <ProjectStatusRibbon
             status={project.projectStatusName}

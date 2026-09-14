@@ -4735,6 +4735,20 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
   pointer-events: none;
 }
 
+.mpf-home-r26 #popular-projects {
+  background: #f6f3ec;
+  padding: 28px 0 36px;
+}
+
+.mpf-home-r26 #popular-projects .home-projects-preview--showcase {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.mpf-home-r26 #popular-projects .home-projects-preview--showcase::before {
+  display: none;
+}
+
 .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__head {
   display: flex;
   flex-direction: row;

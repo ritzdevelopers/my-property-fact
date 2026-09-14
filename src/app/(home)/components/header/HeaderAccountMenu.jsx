@@ -230,21 +230,6 @@ function AccountPanel({
             My Activity
           </button>
         )}
-        <Link href="/portal" className="mpf-account-panel__link" onClick={onClose}>
-          Broker Portal
-        </Link>
-        <button
-          type="button"
-          className="mpf-account-panel__link"
-          onClick={() => {
-            onClose();
-            if (typeof window !== "undefined") {
-              window.dispatchEvent(new Event("mpf-open-post-property"));
-            }
-          }}
-        >
-          Post Property
-        </button>
         {loggedIn ? (
           <button type="button" className="mpf-account-panel__link mpf-account-panel__link--danger" onClick={onLogout}>
             Logout

@@ -5,7 +5,6 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
   findBestProjectBySearch,
   findBestSearchCorrection,
-  isLikelyProjectNameQuery,
   projectNameLooksLikeDirectMatch,
   scoreProjectFieldsSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
@@ -15,6 +14,7 @@ import {
   formatParsedSearchLabel,
   hasStructuredSearchIntent,
   loadRecentActivity,
+  loadRecentSearches,
   parseSmartSearchQuery,
   removeRecentSearch,
   RECENT_SEARCHES_CHANGED_EVENT,
@@ -723,6 +723,30 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     [heroBudget, heroCityId, isHomeHero],
   );
 
+  const getProjectHref = useCallback((project) => {
+    const slug = String(project?.slugURL || project?.slugUrl || project?.slug || "").trim();
+    return slug ? `/${slug}` : "";
+  }, []);
+
+  const goToMatchedProject = useCallback(
+    (project, label) => {
+      const href = getProjectHref(project);
+      if (!href) return false;
+      const searchLabel = String(label || project?.projectName || "").trim();
+      if (searchLabel) {
+        saveRecentSearch(searchLabel, {
+          kind: "property",
+          href,
+          searchType: "property",
+        });
+        setRecentSearches(loadRecentSearches());
+      }
+      router.push(href);
+      return true;
+    },
+    [getProjectHref, router],
+  );
+
   const navigateToProjects = useCallback(
     async (params) => {
       const {
@@ -843,6 +867,10 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     setSearchInput(label);
     setDebouncedSearch(label);
 
+    if (suggestion.kind === "project" && goToMatchedProject(suggestion.item, label)) {
+      return;
+    }
+
     if (suggestion.kind === "city" && suggestion.item?.id != null) {
       setHeroCityId(String(suggestion.item.id));
     }
@@ -887,6 +915,30 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       projectTypes: effectiveProjectTypes,
     });
 
+    const projectMatch = findBestProjectBySearch(q, projectList);
+    const matchedProjectByName =
+      projectMatch &&
+      projectNameLooksLikeDirectMatch(projectMatch, q, [parsed.cleanQuery]);
+    const qLower = q.toLowerCase();
+    const projectFromSuggestions = suggestions.find((s) => {
+      if (s.kind !== "project" || !s.item) return false;
+      const label = String(s.label || "").trim().toLowerCase();
+      if (!label) return false;
+      return label === qLower || label.startsWith(qLower) || qLower.startsWith(label);
+    });
+
+    // Project name search should open the project, even if the query also
+    // contains a city / type word that would otherwise go to /projects.
+    if (matchedProjectByName && goToMatchedProject(projectMatch, projectMatch.projectName || q)) {
+      return;
+    }
+    if (
+      projectFromSuggestions &&
+      goToMatchedProject(projectFromSuggestions.item, projectFromSuggestions.label || q)
+    ) {
+      return;
+    }
+
     if (hasStructuredSearchIntent(parsed)) {
       const quickTab = resolveNavigationQuickTab({ activeTab, parsed });
       const typeId =
@@ -907,7 +959,6 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       return;
     }
 
-    const projectMatch = findBestProjectBySearch(q, projectList);
     const correction = findBestSearchCorrection(q, {
       projectList,
       builderList,
@@ -915,32 +966,8 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       cleanQuery: parsed.cleanQuery,
     });
 
-    // Only jump straight to a project page when the PROJECT NAME matches.
-    // Area typos like "croessfridgdg republik" → search Crossing Republik listings.
-    if (
-      projectMatch?.slugURL &&
-      isLikelyProjectNameQuery(q) &&
-      projectNameLooksLikeDirectMatch(projectMatch, q, [parsed.cleanQuery])
-    ) {
-      saveRecentSearch(projectMatch.projectName || q, {
-        kind: "property",
-        href: `/${projectMatch.slugURL}`,
-        searchType: "property",
-      });
-      setRecentSearches(loadRecentSearches());
-      window.open(`/${projectMatch.slugURL}`, "_blank", "noopener,noreferrer");
-      return;
-    }
-
     if (correction?.isCorrection && correction.label) {
-      if (correction.kind === "project" && correction.item?.slugURL) {
-        saveRecentSearch(correction.label, {
-          kind: "property",
-          href: `/${correction.item.slugURL}`,
-          searchType: "property",
-        });
-        setRecentSearches(loadRecentSearches());
-        window.open(`/${correction.item.slugURL}`, "_blank", "noopener,noreferrer");
+      if (correction.kind === "project" && goToMatchedProject(correction.item, correction.label)) {
         return;
       }
 

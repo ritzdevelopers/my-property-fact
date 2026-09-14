@@ -4818,15 +4818,23 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__nav-btn {
   width: 42px !important;
   height: 42px !important;
+  border: 1px solid #12382c !important;
+  background: #fff !important;
+  color: #12382c !important;
+  box-shadow: none !important;
+}
+
+.mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__nav-btn:last-child {
   border: 0 !important;
   background: #12382c !important;
   color: #fff !important;
-  box-shadow: none !important;
 }
 
 .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__nav-btn:hover,
 .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__nav-btn:focus-visible {
   background: #0d5834 !important;
+  border-color: #0d5834 !important;
+  color: #fff !important;
 }
 
 .mpf-home-r26 .home-projects-preview--showcase .home-projects-preview__nav-btn svg {

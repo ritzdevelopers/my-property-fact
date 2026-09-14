@@ -33,6 +33,7 @@ import {
   resolveProjectFaqRawList,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
 import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
+import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
 import { slimProjectForListing } from "@/lib/slimProjectListing";
 
 /** ISR-friendly cache for valid project/listing pages. */
@@ -156,7 +157,10 @@ export default async function PropertyPage({ params }) {
       !isCompoundFloorListing && !isCitySlug && Boolean(parsedFloorCity) && isKnownFloorCity;
 
     if (isCitySlug) {
-      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
+      const [listingFaqs, listingContent] = await Promise.all([
+        fetchListingPageFaqsBySlug(slug),
+        fetchListingPageContentBySlug(slug),
+      ]);
       return (
         <>
           <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
@@ -164,6 +168,7 @@ export default async function PropertyPage({ params }) {
             slug={slug}
             cityList={cityList}
             faqItems={listingFaqs}
+            listingContent={listingContent}
           />
         </>
       );
@@ -177,7 +182,10 @@ export default async function PropertyPage({ params }) {
       if (compoundProjects.length === 0) {
         notFound();
       }
-      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
+      const [listingFaqs, listingContent] = await Promise.all([
+        fetchListingPageFaqsBySlug(slug),
+        fetchListingPageContentBySlug(slug),
+      ]);
       return (
         <>
           <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
@@ -187,11 +195,15 @@ export default async function PropertyPage({ params }) {
             compoundListing={maybeCompoundListing}
             initialProjects={compoundProjects.map(slimProjectCardForPayload)}
             faqItems={listingFaqs}
+            listingContent={listingContent}
           />
         </>
       );
     } else if (isFloorTypeSlug) {
-      const listingFaqs = await fetchListingPageFaqsBySlug(slug);
+      const [listingFaqs, listingContent] = await Promise.all([
+        fetchListingPageFaqsBySlug(slug),
+        fetchListingPageContentBySlug(slug),
+      ]);
       return (
         <>
           <JsonLdScript data={buildFaqJsonLd(listingFaqs)} />
@@ -200,6 +212,7 @@ export default async function PropertyPage({ params }) {
             cityList={cityList}
             initialProjects={floorListingProjects.map(slimProjectCardForPayload)}
             faqItems={listingFaqs}
+            listingContent={listingContent}
           />
         </>
       );

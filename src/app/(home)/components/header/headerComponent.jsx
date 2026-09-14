@@ -31,6 +31,14 @@ import {
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { motion } from "framer-motion";
 import { resolveIpCity } from "@/lib/resolveIpCity";
+import {
+  clearChosenHeaderCity,
+  isSpecificHeaderCity,
+  readChosenHeaderCity,
+  readSessionHeaderCity,
+  writeChosenHeaderCity,
+  writeSessionHeaderCity,
+} from "@/lib/headerChosenCity";
 
 const LOGO_ON_LIGHT = "/logo.webp";
 
@@ -589,10 +597,7 @@ const HeaderComponent = () => {
     showLocationFeedback({ force });
   };
 
-  const isSpecificCity = (cityName) => {
-    const n = String(cityName || "").trim().toLowerCase();
-    return Boolean(n) && n !== "ncr" && n !== "delhi ncr" && !n.includes("delhi ncr");
-  };
+  const isSpecificCity = (cityName) => isSpecificHeaderCity(cityName);
 
   const scrollToHomeCityListings = useCallback(() => {
     if (typeof window === "undefined" || pathnameRef.current !== "/") return;
@@ -636,18 +641,23 @@ const HeaderComponent = () => {
     cityListingsScrollTimerRef.current = window.setTimeout(run, 180);
   }, []);
 
-  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual" } = {}) => {
+  const finishWithCity = useCallback((cityName, { forceToast = false, skipToast = false, scrollToListings = false, source = "manual", persist } = {}) => {
     const nextCity = String(cityName || "").trim() || DEFAULT_CITY_WITHOUT_GEO;
+    const alreadySaved = Boolean(readChosenHeaderCity());
+    const shouldPersist =
+      persist ?? (source === "manual" || !alreadySaved);
     setSelectedCity(nextCity);
     selectedCityRef.current = nextCity;
-    try {
-      if (isSpecificCity(nextCity)) {
-        window.localStorage.setItem("mpf_header_city", nextCity);
-      } else {
-        window.localStorage.removeItem("mpf_header_city");
+    if (isSpecificCity(nextCity)) {
+      writeSessionHeaderCity(nextCity);
+      if (shouldPersist) {
+        writeChosenHeaderCity(nextCity);
       }
-    } catch {
-      /* ignore */
+    } else {
+      writeSessionHeaderCity("");
+      if (shouldPersist) {
+        clearChosenHeaderCity();
+      }
     }
     window.dispatchEvent(
       new CustomEvent("cityChanged", {
@@ -695,7 +705,16 @@ const HeaderComponent = () => {
           setIsLocating(false);
           return;
         }
-        finishWithCity(city, { forceToast, scrollToListings, source: incomingSource, ...opts });
+        finishWithCity(city, {
+          forceToast,
+          scrollToListings,
+          source: incomingSource,
+          persist:
+            replaceSavedCity ||
+            incomingSource === "manual" ||
+            !readChosenHeaderCity(),
+          ...opts,
+        });
         setIsLocating(false);
       };
 
@@ -761,24 +780,27 @@ const HeaderComponent = () => {
     [finishWithCity, resolveFromCoords, resolveFromIpCity],
   );
 
-  useEffect(() => {
-    let restoredCity = "";
-    try {
-      const saved = window.localStorage.getItem("mpf_header_city");
-      if (isSpecificCity(saved)) {
-        restoredCity = String(saved).trim();
-      }
-    } catch {
-      /* ignore */
-    }
+  const finishWithCityRef = useRef(finishWithCity);
+  const requestBrowserLocationRef = useRef(requestBrowserLocation);
+  finishWithCityRef.current = finishWithCity;
+  requestBrowserLocationRef.current = requestBrowserLocation;
 
-    if (restoredCity) {
-      // Keep the user's last pick (e.g. Bangalore). Do not GPS-overwrite to Noida on
-      // remount/back-navigation. "Use current location" still re-detects on demand.
-      finishWithCity(restoredCity, { source: "manual" });
+  useEffect(() => {
+    const savedUser = readChosenHeaderCity();
+    const savedSession = readSessionHeaderCity();
+
+    if (savedUser) {
+      finishWithCityRef.current(savedUser, {
+        source: "manual",
+        persist: true,
+      });
+    } else if (savedSession) {
+      finishWithCityRef.current(savedSession, {
+        source: "manual",
+        persist: true,
+      });
     } else {
-      // Device GPS first (Noida vs Gurugram). IP is a fallback — NCR ISPs often mislabel Noida.
-      requestBrowserLocation({ preferGps: true });
+      requestBrowserLocationRef.current({ preferGps: true });
     }
 
     return () => {
@@ -788,7 +810,7 @@ const HeaderComponent = () => {
         cityListingsScrollTimerRef.current = null;
       }
     };
-  }, [finishWithCity, requestBrowserLocation]);
+  }, []);
 
   useEffect(() => {
     if (!showLocationMenu) return undefined;

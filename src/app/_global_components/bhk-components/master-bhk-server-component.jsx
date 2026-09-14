@@ -1,12 +1,20 @@
 import BlogFaqSection from "@/app/(home)/components/common/BlogFaqSection";
+import ListingPageSeoContent from "@/app/(home)/components/common/ListingPageSeoContent";
 import HeaderComponent from "@/app/(home)/components/header/headerComponent";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 import ProjectsRedesigned from "@/app/(home)/projects/ProjectsRedesigned";
 import { buildListingProjectsViewConfig } from "@/lib/listingProjectsViewConfig";
 
-export default function MasterBHKProjectsPage({ slug, cityList = [], faqItems = [] }) {
+export default function MasterBHKProjectsPage({
+  slug,
+  cityList = [],
+  faqItems = [],
+  listingContent = null,
+}) {
   const listingView = buildListingProjectsViewConfig({ slug, cityList });
   const title = listingView.pageTitle || "All Projects";
+  const pageHeading = listingContent?.heading?.trim() || listingView.pageHeading;
+  const pageIntro = listingContent?.intro?.trim() || "";
 
   return (
     <>
@@ -22,8 +30,10 @@ export default function MasterBHKProjectsPage({ slug, cityList = [], faqItems = 
           lockCity={listingView.lockCity}
           breadcrumbParent={listingView.breadcrumbParent}
           breadcrumbLabel={listingView.breadcrumbLabel}
-          pageHeading={listingView.pageHeading}
+          pageHeading={pageHeading}
+          pageIntro={pageIntro}
         />
+        <ListingPageSeoContent content={listingContent} />
       </main>
       <BlogFaqSection
         faqItems={faqItems}

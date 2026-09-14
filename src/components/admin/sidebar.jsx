@@ -44,6 +44,7 @@ import {
   ChevronRight,
   Search,
   CircleHelp,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
@@ -53,6 +54,13 @@ const navItems = [
     icon: LayoutDashboard,
     href: "/admin/dashboard",
     exact: true,
+  },
+  {
+    id: "listing-content",
+    label: "Listing Page Content",
+    icon: FileText,
+    href: "/admin/dashboard/manage-listing-content",
+    permission: "MANAGE_LISTING_FAQS",
   },
   {
     id: "listing-faqs",

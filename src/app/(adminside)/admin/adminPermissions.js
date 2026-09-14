@@ -79,7 +79,7 @@ export const ADMIN_PERMISSION_DEFINITIONS = [
     key: ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
     label: "Manage listing page FAQs",
     description:
-      "FAQs for listing pages (city hubs, BHK, shops, food court, etc.)",
+      "FAQs and SEO content for listing pages (commercial property, new projects, flats, apartments, BHK, shops, etc.)",
     pro: false,
   },
   {
@@ -213,6 +213,10 @@ export function canAccessAdminPath(roles, permissions, pathname) {
     ["/admin/dashboard/manage-testimonials", ADMIN_PERMISSIONS.MANAGE_WEBSITE],
     [
       "/admin/dashboard/manage-listing-faqs",
+      ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
+    ],
+    [
+      "/admin/dashboard/manage-listing-content",
       ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS,
     ],
     [

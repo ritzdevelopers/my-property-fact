@@ -408,13 +408,19 @@ export default function HomeRecommendationCards({
   }, []);
 
   const handlePrev = () => {
-    if (scrollRailBy(-1)) return;
-    setStartIndex((prev) => (prev <= 0 ? maxStartIndex : prev - 1));
+    if (canSlide) {
+      setStartIndex((prev) => (prev <= 0 ? maxStartIndex : prev - 1));
+      return;
+    }
+    scrollRailBy(-1);
   };
 
   const handleNext = () => {
-    if (scrollRailBy(1)) return;
-    setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
+    if (canSlide) {
+      setStartIndex((prev) => (prev >= maxStartIndex ? 0 : prev + 1));
+      return;
+    }
+    scrollRailBy(1);
   };
 
   const showViewMore = Boolean(

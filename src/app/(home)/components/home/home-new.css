@@ -2200,8 +2200,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 .mpf-home-r26 .transform-home-developers {
   border-top: 0;
-  margin-top: -10px;
+  margin-top: 2px;
   padding-top: 0;
+  gap: 18px;
   width: 100%;
   max-width: 100%;
   flex-direction: column;
@@ -2670,10 +2671,15 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   font-family: var(--mpf-sans) !important;
   font-size: clamp(0.92rem, 1.8vw, 1.05rem) !important;
   font-weight: 700 !important;
-  color: #f3dca3 !important;
+  color: #0d5834 !important;
   letter-spacing: 0.01em;
   white-space: nowrap;
   line-height: 1.2;
+  text-shadow: none;
+}
+
+.mpf-home-r26 .home-project-card--poster .home-project-card__price {
+  color: #f3dca3 !important;
   text-shadow:
     0 1px 0 rgba(80, 58, 8, 0.35),
     0 2px 10px rgba(0, 0, 0, 0.45);
@@ -2902,8 +2908,9 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   .mpf-home-r26 .transform-home-developers {
     width: 100%;
     max-width: 100%;
-    margin-top: -10px;
+    margin-top: 2px;
     padding-top: 0;
+    gap: 18px;
     flex-direction: column;
     align-items: center;
   }
@@ -4835,7 +4842,7 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 
 .mpf-home-r26 .home-projects-preview--tiles .home-projects-preview__stage,
 .mpf-home-r26 .home-projects-preview--tiles .home-projects-preview__viewport {
-  overflow: visible;
+  overflow: hidden;
   min-height: 320px;
 }
 
@@ -5077,7 +5084,7 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
   flex: 0 0 auto;
   margin: 0;
   text-align: right;
-  color: #0d5834;
+  color: #0d5834 !important;
   font-family: var(--mpf-sans);
 }
 
@@ -5086,7 +5093,7 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
   font-size: 14px;
   font-weight: 800;
   line-height: 1.2;
-  color: #0d5834;
+  color: #0d5834 !important;
 }
 
 .mpf-home-r26 .home-projects-preview--tiles .home-project-card--showcase .home-project-card__price span {
@@ -5317,13 +5324,14 @@ body:has(.mpf-home-r26) .lead-form-popup-trigger__enquire-label {
 .mpf-home-r26 .home-featured-section .home-project-card--showcase .home-project-card__price {
   margin: 0;
   text-align: right;
-  color: #0d5834;
+  color: #0d5834 !important;
 }
 
 .mpf-home-r26 .home-featured-section .home-project-card--showcase .home-project-card__price strong {
   display: block;
   font-size: 14px;
   font-weight: 800;
+  color: #0d5834 !important;
 }
 
 .mpf-home-r26 .home-featured-section .home-project-card--showcase .home-project-card__price span {

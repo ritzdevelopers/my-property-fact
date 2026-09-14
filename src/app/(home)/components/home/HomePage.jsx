@@ -261,19 +261,6 @@ export default async function HomePage() {
                 <div className="transform-home-content">
                   <div className="transform-home-headline-stack">
                     <RotatingHeroHeadline />
-                    <div className="transform-home-mpf-logo-wrap">
-                      <img
-                        src="/static/mpf_text.png"
-                        alt="My Property Fact"
-                        title="My Property Fact"
-                        width={224}
-                        height={30}
-                        className="transform-home-mpf-logo"
-                        loading="lazy"
-                        decoding="async"
-                        fetchPriority="low"
-                      />
-                    </div>
                     <TopDevelopersMarquee items={topDevelopersMarqueeItems} />
                     <div className="transform-home-explore-projects-wrap">
                       <Link

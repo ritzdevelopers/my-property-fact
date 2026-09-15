@@ -136,6 +136,7 @@ export function DashboardStatsGrid({
 
 const ACTION_META = {
   Approvals: { icon: CheckCircle2, tone: "blue" },
+  "Live listings": { icon: Building2, tone: "green" },
   Users: { icon: Users, tone: "green" },
   Enquiries: { icon: MessageSquare, tone: "orange" },
   Blogs: { icon: FileText, tone: "purple" },

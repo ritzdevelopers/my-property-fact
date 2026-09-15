@@ -32,6 +32,8 @@ import {
   faFileLines,
   faClipboardList,
   faDatabase,
+  faRss,
+  faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
@@ -271,6 +273,38 @@ export default function SideNav({ onLinkClick }) {
               </Link>
             </li>
           )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/live-listings") ? "active" : ""
+            }
+          >
+            <Link
+              title="Live Listings"
+              href="/admin/dashboard/live-listings"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon icon={faRss} className="admin-nav-ico" />
+              <span>Live Listings</span>
+            </Link>
+          </li>
+        )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/project-activity") ? "active" : ""
+            }
+          >
+            <Link
+              title="Project Listings"
+              href="/admin/dashboard/project-activity"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon icon={faCalendarDays} className="admin-nav-ico" />
+              <span>Project Listings</span>
+            </Link>
+          </li>
+        )}
         {isSuperAdmin && (
           <li
             className={isActive("/admin/dashboard/manage-users") ? "active" : ""}

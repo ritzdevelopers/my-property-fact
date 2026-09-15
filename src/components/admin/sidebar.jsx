@@ -45,6 +45,8 @@ import {
   Search,
   CircleHelp,
   FileText,
+  Radio,
+  CalendarClock,
 } from "lucide-react";
 
 const navItems = [
@@ -75,6 +77,20 @@ const navItems = [
     icon: ClipboardCheck,
     href: "/admin/dashboard/property-approvals",
     permission: "MANAGE_PROPERTY_APPROVALS",
+  },
+  {
+    id: "live-listings",
+    label: "Live Listings",
+    icon: Radio,
+    href: "/admin/dashboard/live-listings",
+    superAdminOnly: true,
+  },
+  {
+    id: "project-activity",
+    label: "Project Listings",
+    icon: CalendarClock,
+    href: "/admin/dashboard/project-activity",
+    superAdminOnly: true,
   },
   {
     id: "manage-users",

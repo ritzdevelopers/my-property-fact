@@ -337,6 +337,8 @@ export default function PortalListingStatsPage() {
         )}
         <div className="portal-listing-stats__foot">
           <Link href="/admin/dashboard/property-approvals">Open property approvals</Link>
+          <Link href="/admin/dashboard/live-listings">View live listings</Link>
+          <Link href="/admin/dashboard/project-activity">Project listings by date</Link>
           <Link href="/admin/dashboard/manage-portal-users">Manage portal users</Link>
         </div>
       </div>

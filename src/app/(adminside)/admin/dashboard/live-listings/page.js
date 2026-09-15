@@ -94,6 +94,92 @@ function sourceLabel(row) {
   return row?.listerType === "OWNER" ? "Owner portal" : "Broker portal";
 }
 
+function rowEdits(row) {
+  return Array.isArray(row?.edits) ? row.edits : [];
+}
+
+function uniqueEditorNames(edits) {
+  const names = [];
+  const seen = new Set();
+  for (const edit of edits) {
+    const name = String(edit?.actorName || "").trim();
+    if (!name) continue;
+    const key = name.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    names.push(name);
+  }
+  return names;
+}
+
+function editorToggleLabel(edits, editors) {
+  const count = edits.length;
+  if (!editors.length) return `${count} edits`;
+  if (editors.length <= 2) {
+    return `${count} edits by ${editors.join(" and ")}`;
+  }
+  return `${count} edits by ${editors.length} people`;
+}
+
+function EditsCell({ row, expanded, onToggle }) {
+  const edits = rowEdits(row);
+  const latest = edits[0];
+  const editor = latest?.actorName || row.lastEditedBy;
+  const summary = latest
+    ? [latest.actionLabel, latest.detail && latest.detail !== row.title ? latest.detail : null]
+        .filter(Boolean)
+        .join(" · ")
+    : row.lastEditSummary;
+  const when = latest?.occurredAt || row.lastEditedAt;
+  const editors = uniqueEditorNames(edits);
+
+  if (!editor && !summary && !edits.length) {
+    return <span className="live-listings__meta">No edits recorded</span>;
+  }
+
+  const preview = expanded ? edits : edits.slice(0, 1);
+
+  return (
+    <div className="live-listings__edits">
+      {preview.length ? (
+        <ul className="live-listings__edit-list">
+          {preview.map((edit, idx) => (
+            <li key={`${edit.action}-${edit.occurredAt}-${idx}`}>
+              <div className="live-listings__edit-name">{edit.actorName || "Unknown"}</div>
+              <div className="live-listings__meta">
+                {[edit.actionLabel, edit.detail && edit.detail !== row.title ? edit.detail : null]
+                  .filter(Boolean)
+                  .join(" · ") || "Edited"}
+              </div>
+              <div className="live-listings__date">{formatDateTime(edit.occurredAt)}</div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <>
+          <div className="live-listings__edit-name">{editor || "—"}</div>
+          {summary ? <div className="live-listings__meta">{summary}</div> : null}
+          <div className="live-listings__date">{formatDateTime(when)}</div>
+        </>
+      )}
+      {edits.length > 1 ? (
+        <button
+          type="button"
+          className="live-listings__edit-toggle"
+          aria-expanded={expanded}
+          onClick={onToggle}
+        >
+          {expanded
+            ? "Hide edits"
+            : editorToggleLabel(edits, editors)}
+        </button>
+      ) : editors.length > 1 ? (
+        <div className="live-listings__meta">{editors.join(", ")}</div>
+      ) : null}
+    </div>
+  );
+}
+
 export default function LiveListingsPage() {
   const { isSuperAdmin, loading: roleLoading } = useAdminRole();
   const [report, setReport] = useState(null);
@@ -102,6 +188,7 @@ export default function LiveListingsPage() {
   const [source, setSource] = useState("all");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
+  const [expandedEdits, setExpandedEdits] = useState({});
 
   const base = useMemo(() => getPublicApiBase(), []);
 
@@ -130,6 +217,11 @@ export default function LiveListingsPage() {
     setPage(0);
   }, [source, query]);
 
+  const toggleEdits = useCallback((row) => {
+    const key = `${row.source}-${row.id}`;
+    setExpandedEdits((current) => ({ ...current, [key]: !current[key] }));
+  }, []);
+
   const rows = useMemo(() => {
     const list = Array.isArray(report?.rows) ? report.rows : [];
     const q = query.trim().toLowerCase();
@@ -143,6 +235,11 @@ export default function LiveListingsPage() {
         return false;
       }
       if (!q) return true;
+      const editorBits = rowEdits(row).flatMap((edit) => [
+        edit.actorName,
+        edit.actionLabel,
+        edit.detail,
+      ]);
       return [
         row.title,
         row.projectName,
@@ -151,10 +248,13 @@ export default function LiveListingsPage() {
         row.locality,
         row.listedBy,
         row.listedByEmail,
+        row.lastEditedBy,
+        row.lastEditSummary,
         row.sourceLabel,
         row.listerType,
         row.listingType,
         row.configuration,
+        ...editorBits,
       ]
         .filter(Boolean)
         .some((value) => String(value).toLowerCase().includes(q));
@@ -186,7 +286,8 @@ export default function LiveListingsPage() {
       <h1 className="super-tracking__title">Live listings</h1>
       <p className="super-tracking__note">
         Everything currently live on the website: admin-managed project pages and
-        approved broker / owner portal listings.
+        approved broker / owner portal listings. See who last edited each listing
+        and what they changed.
       </p>
 
       <div className="live-listings__toolbar">
@@ -214,7 +315,7 @@ export default function LiveListingsPage() {
           <input
             type="search"
             className="live-listings__search"
-            placeholder="Search name, city, builder, or lister"
+            placeholder="Search name, city, builder, lister, or editor"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
@@ -294,6 +395,7 @@ export default function LiveListingsPage() {
                   <th>Location</th>
                   <th>Price</th>
                   <th>Listed by</th>
+                  <th>Edited by</th>
                   <th>Went live</th>
                   <th>Open</th>
                 </tr>
@@ -301,8 +403,9 @@ export default function LiveListingsPage() {
               <tbody>
                 {pagedRows.map((row, idx) => {
                   const publicUrl = publicHref(row.publicPath);
+                  const rowKey = `${row.source}-${row.id}`;
                   return (
-                    <tr key={`${row.source}-${row.id}`}>
+                    <tr key={rowKey}>
                       <td className="super-tracking__mono">
                         {safePage * PAGE_SIZE + idx + 1}
                       </td>
@@ -331,6 +434,13 @@ export default function LiveListingsPage() {
                         {row.listedByEmail ? (
                           <div className="live-listings__meta">{row.listedByEmail}</div>
                         ) : null}
+                      </td>
+                      <td>
+                        <EditsCell
+                          row={row}
+                          expanded={Boolean(expandedEdits[rowKey])}
+                          onToggle={() => toggleEdits(row)}
+                        />
                       </td>
                       <td className="live-listings__date">{formatDateTime(row.wentLiveAt)}</td>
                       <td>

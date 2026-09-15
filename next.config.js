@@ -57,6 +57,18 @@ const nextConfig = {
         destination: "/commercial-property-in-noida",
         permanent: true,
       },
+      {
+        source:
+          "/blog/top-10-best-luxurious-apartments-in-noida-extension-2025",
+        destination: "/apartments-in-noida-extension",
+        permanent: true,
+      },
+      {
+        source:
+          "/blog/top-3-bhk-flats-in-noida-under-2-crore-affordable-ready-to-move-apartments-2025",
+        destination: "/3-bhk-in-noida",
+        permanent: true,
+      },
 
       // Hidden builder + projects (Ashiana)
       {

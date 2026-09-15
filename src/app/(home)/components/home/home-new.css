@@ -1303,6 +1303,12 @@ body:has(.mpf-home-r26) .home-right-type-rail {
   color: var(--mpf-green);
 }
 
+.mpf-home-r26 .smart-search-input-tool--voice.is-listening,
+.mpf-home-r26 .smart-search-input-tool--voice.is-listening:hover {
+  background: var(--mpf-green-deep);
+  color: #fff;
+}
+
 .mpf-home-r26 .home-search-container--hero-ss .smart-search-bar-wrap {
   border-radius: 0;
   box-shadow: none !important;

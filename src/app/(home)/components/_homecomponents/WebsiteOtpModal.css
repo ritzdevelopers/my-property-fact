@@ -135,7 +135,7 @@
   min-height: 46px;
   border: 0;
   border-radius: 10px;
-  background: #148a3d;
+  background: #0d5834;
   color: #fff;
   font-weight: 700;
   cursor: pointer;
@@ -147,7 +147,7 @@
 }
 
 .mpf-otp-submit:hover:not(:disabled) {
-  background: #1a9d47;
+  background: #0a4729;
 }
 
 .mpf-otp-link {

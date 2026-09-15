@@ -5,6 +5,8 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import {
   findBestProjectBySearch,
   findBestSearchCorrection,
+  findVoiceMatchedProjects,
+  normalizeSpokenSearchQuery,
   projectNameLooksLikeDirectMatch,
   scoreProjectFieldsSearchMatch,
 } from "@/app/_global_components/projectSearchUtils";
@@ -447,6 +449,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [isSearchSticky, setIsSearchSticky] = useState(false);
   const [stickyHost, setStickyHost] = useState(null);
   const [searchTourStep, setSearchTourStep] = useState(null);
+  const [isListening, setIsListening] = useState(false);
+  const [voiceOriginQuery, setVoiceOriginQuery] = useState(false);
+  const [voiceError, setVoiceError] = useState("");
 
   const openHeroSelectMenu = (menu) => {
     setHeroSelectMenu(menu);
@@ -462,6 +467,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const searchWrapRef = useRef(null);
   const cardRef = useRef(null);
   const propertyPanelRef = useRef(null);
+  const recognitionRef = useRef(null);
   const trimmedInput = searchInput.trim();
   const isSuggestionsLoading =
     dropdownOpen &&
@@ -711,6 +717,25 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     [debouncedSearch, projectList, effectiveCityList, builderList, effectiveProjectTypes],
   );
 
+  const voiceProjectMatches = useMemo(
+    () => (voiceOriginQuery ? findVoiceMatchedProjects(debouncedSearch || searchInput, projectList) : []),
+    [voiceOriginQuery, debouncedSearch, searchInput, projectList],
+  );
+
+  const displayedSuggestions = useMemo(() => {
+    if (!voiceOriginQuery) return suggestions;
+    return voiceProjectMatches.map((match) => ({
+      kind: "project",
+      item: match.project,
+      label: match.label,
+      meta: [match.project?.projectLocality, match.project?.cityName || match.project?.city]
+        .map((part) => String(part || "").trim())
+        .filter(Boolean)
+        .join(", ") || "Project",
+      score: match.score,
+    }));
+  }, [voiceOriginQuery, suggestions, voiceProjectMatches]);
+
   const withHeroFilters = useCallback(
     (params) =>
       isHomeHero
@@ -741,10 +766,151 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         });
         setRecentSearches(loadRecentSearches());
       }
-      router.push(href);
+      window.open(href, "_blank", "noopener,noreferrer");
       return true;
     },
-    [getProjectHref, router],
+    [getProjectHref],
+  );
+
+  const stopVoiceListening = useCallback(() => {
+    try {
+      recognitionRef.current?.stop();
+    } catch {
+      /* already stopped */
+    }
+    recognitionRef.current = null;
+    setIsListening(false);
+  }, []);
+
+  const applySpokenProjectSearch = useCallback(
+    (spokenRaw, alternatives = []) => {
+      const transcripts = [
+        ...new Set(
+          [spokenRaw, ...alternatives]
+            .map((text) => String(text || "").trim())
+            .filter(Boolean),
+        ),
+      ];
+      if (!transcripts.length) return;
+
+      let bestMatches = [];
+      let bestTranscript = transcripts[0];
+      for (const transcript of transcripts) {
+        const matches = findVoiceMatchedProjects(transcript, projectList);
+        if (!bestMatches.length && matches.length) {
+          bestMatches = matches;
+          bestTranscript = transcript;
+          continue;
+        }
+        if (matches.length && matches[0].score < (bestMatches[0]?.score ?? Infinity)) {
+          bestMatches = matches;
+          bestTranscript = transcript;
+        }
+      }
+
+      const cleaned = normalizeSpokenSearchQuery(bestTranscript) || bestTranscript;
+      setVoiceOriginQuery(true);
+      setVoiceError("");
+      setDropdownOpen(true);
+
+      if (!bestMatches.length) {
+        setSearchInput(cleaned);
+        setDebouncedSearch(cleaned);
+        return;
+      }
+
+      const top = bestMatches[0];
+      const runnerUp = bestMatches[1];
+      const clearWinner = !runnerUp || top.score + 2 < runnerUp.score;
+      const displayName =
+        top.score <= 5 || (clearWinner && top.score <= 10) ? top.label : cleaned;
+      setSearchInput(displayName);
+      setDebouncedSearch(displayName);
+    },
+    [projectList],
+  );
+
+  const toggleVoiceSearch = useCallback(() => {
+    if (typeof window === "undefined") return;
+    if (isListening) {
+      stopVoiceListening();
+      return;
+    }
+
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      setVoiceError("Voice search is not supported in this browser.");
+      setDropdownOpen(true);
+      return;
+    }
+
+    stopVoiceListening();
+    const rec = new SpeechRecognitionAPI();
+    rec.lang = "en-IN";
+    rec.interimResults = true;
+    rec.maxAlternatives = 5;
+    rec.continuous = false;
+
+    rec.onstart = () => {
+      setIsListening(true);
+      setVoiceError("");
+      setDropdownOpen(true);
+    };
+
+    rec.onresult = (event) => {
+      let interim = "";
+      let finalText = "";
+      const alternatives = [];
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const result = event.results[i];
+        const top = result[0]?.transcript || "";
+        if (result.isFinal) {
+          finalText += `${top} `;
+          for (let a = 0; a < result.length; a += 1) {
+            const alt = String(result[a]?.transcript || "").trim();
+            if (alt) alternatives.push(alt);
+          }
+        } else {
+          interim += top;
+        }
+      }
+      const live = (finalText || interim).trim();
+      if (live) setSearchInput(live);
+      if (finalText.trim()) applySpokenProjectSearch(finalText.trim(), alternatives);
+    };
+
+    rec.onerror = (event) => {
+      if (event?.error !== "aborted" && event?.error !== "no-speech") {
+        setVoiceError("Couldn't hear you. Try speaking again.");
+      }
+      setIsListening(false);
+    };
+
+    rec.onend = () => {
+      setIsListening(false);
+      recognitionRef.current = null;
+    };
+
+    recognitionRef.current = rec;
+    try {
+      rec.start();
+      setIsListening(true);
+      setDropdownOpen(true);
+    } catch {
+      setIsListening(false);
+      setVoiceError("Unable to start voice search. Try again.");
+    }
+  }, [applySpokenProjectSearch, isListening, stopVoiceListening]);
+
+  useEffect(
+    () => () => {
+      try {
+        recognitionRef.current?.abort();
+      } catch {
+        /* ignore */
+      }
+    },
+    [],
   );
 
   const navigateToProjects = useCallback(
@@ -863,13 +1029,11 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
 
   const handleSuggestionSelect = (suggestion) => {
     const label = String(suggestion?.label || "").trim();
+    stopVoiceListening();
+    setVoiceOriginQuery(false);
     setDropdownOpen(false);
     setSearchInput(label);
     setDebouncedSearch(label);
-
-    if (suggestion.kind === "project" && goToMatchedProject(suggestion.item, label)) {
-      return;
-    }
 
     if (suggestion.kind === "city" && suggestion.item?.id != null) {
       setHeroCityId(String(suggestion.item.id));
@@ -895,10 +1059,11 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const handleSearch = async (e) => {
     e.preventDefault();
     const q = searchInput.trim();
-    setDropdownOpen(false);
+    stopVoiceListening();
     setMobileSearchOpen(false);
 
     if (!q) {
+      setDropdownOpen(false);
       const quickTab = resolveNavigationQuickTab({ activeTab });
       const typeId = findTypeIdForTab(activeTab === "Plots" ? "Plots" : quickTab, effectiveProjectTypes);
       navigateToProjects({
@@ -909,6 +1074,21 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       });
       return;
     }
+
+    if (voiceOriginQuery) {
+      const voiceMatches = findVoiceMatchedProjects(q, projectList);
+      if (!voiceMatches.length) {
+        setDropdownOpen(true);
+        return;
+      }
+      const best = voiceMatches[0].project;
+      if (goToMatchedProject(best, best?.projectName || q)) {
+        setDropdownOpen(false);
+        return;
+      }
+    }
+
+    setDropdownOpen(false);
 
     const parsed = parseSmartSearchQuery(q, {
       cities: effectiveCityList,
@@ -1116,7 +1296,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     });
   };
 
-  const showSuggestionsPanel = dropdownOpen && trimmedInput.length >= 2 && !categoryOpen;
+  const showSuggestionsPanel =
+    !categoryOpen &&
+    (isListening || Boolean(voiceError) || (dropdownOpen && (voiceOriginQuery || trimmedInput.length >= 2)));
   const keywordRecents = recentActivity.filter((item) => !item.kind || item.kind === "keyword");
   const continueBrowsing = recentActivity.filter((item) => CONTINUE_BROWSE_KINDS.has(item.kind));
 
@@ -1132,16 +1314,20 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         className="smart-search-input"
         value={searchInput}
         onChange={(e) => {
+          setVoiceOriginQuery(false);
+          setVoiceError("");
           setSearchInput(e.target.value);
           setSuggestionsReady(false);
           setDropdownOpen(true);
         }}
         onFocus={() => {
-          if (trimmedInput.length >= 2) setDropdownOpen(true);
+          if (trimmedInput.length >= 2 || isListening) setDropdownOpen(true);
           if (isSearchSticky) startSearchTour();
         }}
         placeholder={
-          isHomeHero
+          isListening
+            ? "Smart search is listening to you…"
+            : isHomeHero
             ? isSearchSticky
               ? "Enter Locality / Project / Society / Landmark"
               : PLACEHOLDER_EXAMPLES[placeholderIdx]
@@ -1162,11 +1348,24 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
             setSearchInput("");
             setDebouncedSearch("");
             setDropdownOpen(false);
+            setVoiceOriginQuery(false);
+            setVoiceError("");
+            stopVoiceListening();
           }}
           aria-label="Clear search"
         >
           ×
         </button>
+      ) : null}
+      {isListening ? (
+        <span className="smart-search-listening-live" aria-live="polite">
+          <span className="smart-search-eq" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          Listening to you
+        </span>
       ) : null}
       {isHomeHero ? (
         <span className="smart-search-input-tools">
@@ -1189,23 +1388,13 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           </button>
           <button
             type="button"
-            className={`smart-search-input-tool smart-search-input-tool--voice${isSearchSticky && searchTourStep === "voice" ? " is-tour-on" : ""}`}
-            aria-label="Search by voice"
-            title="Search by voice"
+            className={`smart-search-input-tool smart-search-input-tool--voice${isListening ? " is-listening" : ""}${isSearchSticky && searchTourStep === "voice" ? " is-tour-on" : ""}`}
+            aria-label={isListening ? "Stop voice search" : "Search by voice"}
+            aria-pressed={isListening}
+            title={isListening ? "Smart search is listening — tap to stop" : "Search by voice"}
             onClick={() => {
               if (searchTourStep) finishSearchTour();
-              const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-              if (!Speech) return;
-              const rec = new Speech();
-              rec.lang = "en-IN";
-              rec.onresult = (event) => {
-                const spoken = event.results?.[0]?.[0]?.transcript;
-                if (spoken) {
-                  setSearchInput(spoken);
-                  setDebouncedSearch(spoken);
-                }
-              };
-              rec.start();
+              toggleVoiceSearch();
             }}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
@@ -1396,7 +1585,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           <form
             className={`smart-search-bar${isHomeHero ? " smart-search-bar--hero-ss" : ""}${
               isClassicHero ? " smart-search-bar--classic" : ""
-            }`}
+            }${isListening ? " is-listening" : ""}`}
             onSubmit={handleSearch}
           >
             {isClassicHero ? (
@@ -1540,15 +1729,30 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           {showSuggestionsPanel ? (
             <div
               id="smart-search-suggestions"
-              className="smart-search-suggestions"
+              className={`smart-search-suggestions${isListening ? " is-listening" : ""}`}
               role="listbox"
               aria-label="Search suggestions"
-              aria-busy={isSuggestionsLoading}
+              aria-busy={isSuggestionsLoading || isListening}
             >
-              {isSuggestionsLoading ? (
+              {voiceError ? (
+                <div className="smart-search-suggestion smart-search-suggestion--empty" role="status">
+                  {voiceError}
+                </div>
+              ) : isListening ? (
+                <div className="smart-search-listening-panel" role="status" aria-live="polite">
+                  <span className="smart-search-eq smart-search-eq--lg" aria-hidden="true">
+                    <i />
+                    <i />
+                    <i />
+                    <i />
+                  </span>
+                  <strong>Smart search is listening to you</strong>
+                  <span>Speak a project name. Close matches will appear here</span>
+                </div>
+              ) : isSuggestionsLoading && !voiceOriginQuery ? (
                 <SuggestionDotsLoader />
-              ) : suggestions.length > 0 ? (
-                suggestions.map((s, idx) => (
+              ) : displayedSuggestions.length > 0 ? (
+                displayedSuggestions.map((s, idx) => (
                   <button
                     key={`${s.kind}-${s.label}-${idx}`}
                     type="button"
@@ -1571,7 +1775,9 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
                 ))
               ) : (
                 <div className="smart-search-suggestion smart-search-suggestion--empty" role="status">
-                  No matches for &ldquo;{debouncedSearch}&rdquo; — press Search to explore
+                  {voiceOriginQuery
+                    ? "No results"
+                    : <>No matches for &ldquo;{debouncedSearch}&rdquo; — press Search to explore</>}
                 </div>
               )}
             </div>
@@ -1808,7 +2014,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       ) : null}
       {isHomeHero && !isClassicHero && isSearchSticky && stickyHost
         ? createPortal(
-            <form className="smart-search-bar smart-search-bar--sticky-ss" onSubmit={handleSearch}>
+            <form className={`smart-search-bar smart-search-bar--sticky-ss${isListening ? " is-listening" : ""}`} onSubmit={handleSearch}>
               <div className="smart-search-input-wrap">{searchInputField}</div>
               <button type="submit" className="smart-search-sticky-go" aria-label="Search">
                 {loading ? (

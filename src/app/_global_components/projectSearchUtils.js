@@ -509,3 +509,67 @@ export function projectNameLooksLikeDirectMatch(project, rawQuery, extraQueries 
   const score = scoreTextAgainstQueries(name, [rawQuery, ...extraQueries]);
   return score >= 0 && score <= 10;
 }
+
+const SPOKEN_NUMBER_WORDS = {
+  zero: "0",
+  oh: "0",
+  one: "1",
+  two: "2",
+  three: "3",
+  four: "4",
+  five: "5",
+  six: "6",
+  seven: "7",
+  eight: "8",
+  nine: "9",
+  ten: "10",
+  eleven: "11",
+  twelve: "12",
+  thirteen: "13",
+  fourteen: "14",
+  fifteen: "15",
+  sixteen: "16",
+  seventeen: "17",
+  eighteen: "18",
+  nineteen: "19",
+  twenty: "20",
+};
+
+const VOICE_FILLER_RE =
+  /\b(?:please|want|wanna|looking|look|show|find|search|open|go|tell|about|named|called|project|projects|society|societies|apartment|apartments|flat|flats|property|properties|residences?|i'm|im|i|me|my|hai|hain|ka|ke|ki|ko|mein|wala|wale|wali)\b/gi;
+
+/** Turn spoken phrases like "eldeco seven peaks" into searchable text. */
+export function normalizeSpokenSearchQuery(raw) {
+  let text = String(raw || "").toLowerCase().trim();
+  if (!text) return "";
+  text = text.replace(
+    /\b(?:zero|oh|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\b/g,
+    (word) => SPOKEN_NUMBER_WORDS[word] || word,
+  );
+  text = text.replace(VOICE_FILLER_RE, " ");
+  return normalizeProjectSearchText(text);
+}
+
+/**
+ * Rank projects whose names somewhat match spoken text.
+ * Lower score = closer match. Empty array means no result.
+ */
+export function findVoiceMatchedProjects(raw, list, { limit = 8 } = {}) {
+  const pool = Array.isArray(list) ? list : [];
+  const spoken = normalizeSpokenSearchQuery(raw);
+  const rawNorm = normalizeProjectSearchText(raw);
+  const queries = [...new Set([spoken, rawNorm, String(raw || "").trim()].filter((q) => q && q.length >= 2))];
+  if (!queries.length) return [];
+
+  const ranked = [];
+  for (const project of pool) {
+    const name = String(project?.projectName || "").trim();
+    if (!name) continue;
+    const score = scoreTextAgainstQueries(name, queries);
+    if (score < 0) continue;
+    ranked.push({ project, score, label: name });
+  }
+
+  ranked.sort((a, b) => a.score - b.score || a.label.localeCompare(b.label));
+  return ranked.slice(0, limit);
+}

@@ -210,6 +210,10 @@ export default function Dashboard({
 
   const quickLinks = useMemo(() => {
     const links = [];
+    if (isSuperAdmin)
+      links.push({ href: "/admin/dashboard/live-listings", label: "Live listings" });
+    if (isSuperAdmin)
+      links.push({ href: "/admin/dashboard/project-activity", label: "Project listings" });
     if (canApprovals)
       links.push({ href: "/admin/dashboard/property-approvals", label: "Approvals" });
     if (isSuperAdmin)

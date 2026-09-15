@@ -98,11 +98,17 @@ function rowEdits(row) {
   return Array.isArray(row?.edits) ? row.edits : [];
 }
 
+function displayPerson(name) {
+  const n = String(name || "").trim();
+  if (!n || n.toLowerCase() === "admin") return "";
+  return n;
+}
+
 function uniqueEditorNames(edits) {
   const names = [];
   const seen = new Set();
   for (const edit of edits) {
-    const name = String(edit?.actorName || "").trim();
+    const name = displayPerson(edit?.actorName);
     if (!name) continue;
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
@@ -124,7 +130,7 @@ function editorToggleLabel(edits, editors) {
 function EditsCell({ row, expanded, onToggle }) {
   const edits = rowEdits(row);
   const latest = edits[0];
-  const editor = latest?.actorName || row.lastEditedBy;
+  const editor = displayPerson(latest?.actorName || row.lastEditedBy);
   const summary = latest
     ? [latest.actionLabel, latest.detail && latest.detail !== row.title ? latest.detail : null]
         .filter(Boolean)
@@ -145,7 +151,7 @@ function EditsCell({ row, expanded, onToggle }) {
         <ul className="live-listings__edit-list">
           {preview.map((edit, idx) => (
             <li key={`${edit.action}-${edit.occurredAt}-${idx}`}>
-              <div className="live-listings__edit-name">{edit.actorName || "Unknown"}</div>
+              <div className="live-listings__edit-name">{displayPerson(edit.actorName) || "Unknown"}</div>
               <div className="live-listings__meta">
                 {[edit.actionLabel, edit.detail && edit.detail !== row.title ? edit.detail : null]
                   .filter(Boolean)
@@ -430,7 +436,7 @@ export default function LiveListingsPage() {
                       </td>
                       <td className="super-tracking__mono">{row.price || "—"}</td>
                       <td>
-                        <div>{row.listedBy || "—"}</div>
+                        <div>{displayPerson(row.listedBy) || "—"}</div>
                         {row.listedByEmail ? (
                           <div className="live-listings__meta">{row.listedByEmail}</div>
                         ) : null}

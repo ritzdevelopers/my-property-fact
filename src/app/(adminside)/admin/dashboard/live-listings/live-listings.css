@@ -98,6 +98,43 @@
   font-size: 0.78rem;
 }
 
+.live-listings__edits {
+  min-width: 168px;
+  max-width: 240px;
+}
+
+.live-listings__edit-name {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 0.84rem;
+  word-break: break-word;
+}
+
+.live-listings__edit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.live-listings__edit-toggle {
+  margin-top: 0.4rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0d5834;
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.live-listings__edit-toggle:hover {
+  text-decoration: underline;
+}
+
 .live-listings__links {
   display: flex;
   flex-direction: column;
@@ -141,4 +178,27 @@
 
 .live-listings__foot a:hover {
   text-decoration: underline;
+}
+
+html[data-admin-theme="dark"] .live-listings__search {
+  border-color: #334155;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+html[data-admin-theme="dark"] .live-listings__name,
+html[data-admin-theme="dark"] .live-listings__edit-name {
+  color: #f8fafc;
+}
+
+html[data-admin-theme="dark"] .live-listings__meta,
+html[data-admin-theme="dark"] .live-listings__date,
+html[data-admin-theme="dark"] .live-listings__count {
+  color: #94a3b8;
+}
+
+html[data-admin-theme="dark"] .live-listings__edit-toggle,
+html[data-admin-theme="dark"] .live-listings__links a,
+html[data-admin-theme="dark"] .live-listings__foot a {
+  color: #6ee7b7;
 }

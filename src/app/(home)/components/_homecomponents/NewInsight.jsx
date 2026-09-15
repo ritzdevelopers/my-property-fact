@@ -23,6 +23,7 @@ const INSIGHTS = [
     description:
       "Explore loan options, interest rates, and eligibility from top banks in one place so you can choose a plan that fits your budget and timeline.",
     href: "/home-loan-calculator",
+    ctaLabel: "Explore Home Loan",
   },
   {
     id: "emi-calculator",
@@ -34,6 +35,7 @@ const INSIGHTS = [
     description:
       "Take the guesswork out of home financing. Our advanced EMI calculator provides a complete amortization schedule, helps you understand the impact of prepayments, and allows you to compare different loan offers side-by-side.",
     href: "/emi-calculator",
+    ctaLabel: "Open EMI Calculator",
   },
   {
     id: "locate-score",
@@ -45,6 +47,7 @@ const INSIGHTS = [
     description:
       "Assess growth potential, connectivity, and livability so you can invest in the right neighbourhood with a clearer picture of commute, amenities, and future value.",
     href: "/locate-score",
+    ctaLabel: "View Locate Score",
   },
 ];
 
@@ -135,6 +138,27 @@ export default function NewInsight() {
             <p className="expert-insights-article-copy">
               {activeInsight.description}
             </p>
+            <Link
+              href={activeInsight.href}
+              className="expert-insights-cta"
+              title={activeInsight.ctaLabel}
+            >
+              {activeInsight.ctaLabel}
+              <svg
+                className="expert-insights-cta-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 8h10M9 4l4 4-4 4"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </Link>
           </div>
         </div>
       </section>

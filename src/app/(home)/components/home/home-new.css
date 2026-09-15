@@ -3698,10 +3698,10 @@ body:has(.mpf-home-r26) .home-right-type-rail {
 
 .mpf-home-r26 .expert-insights-cta,
 .mpf-home-r26 a.expert-insights-cta {
-  border-radius: 999px !important;
+  border-radius: 0 !important;
   background: #12382c !important;
   color: #fff !important;
-  font-weight: 650 !important;
+  font-weight: 700 !important;
   box-shadow: 0 8px 18px rgba(18, 56, 44, 0.22) !important;
 }
 

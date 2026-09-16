@@ -185,7 +185,7 @@ export default function MasterBHKProjectList() {
   const includeFloorTypeInHubCategory = (slugType, category) => {
     const slug = String(slugType || "").toLowerCase();
     if (category === "flats") {
-      return isHubFlatFloorSlug(slug) || slug === "plot";
+      return isHubFlatFloorSlug(slug) || slug === "plot" || slug === "villa";
     }
     if (category === "apartments") {
       return isHubBhkSlug(slug);

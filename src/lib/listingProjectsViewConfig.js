@@ -86,6 +86,8 @@ function floorSlugToFilter(floorSlug) {
 
   if (slug === "plot") return { bhkType: "Plots", configType: "" };
 
+  if (slug === "villa") return { bhkType: "Villa", configType: "" };
+
   if (/^\d+-br-villa$/.test(slug)) return { bhkType: "Villa", configType: "" };
 
   if (COMMERCIAL_CONFIG_SLUGS.has(slug)) {

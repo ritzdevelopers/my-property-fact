@@ -36,6 +36,7 @@ export function floorSlugToListingLabel(floorSlug) {
   const sqFt = s.match(/^(\d+)-sq\.ft$/);
   if (sqFt) return `${sqFt[1]} Sq.ft`;
   if (s === "sco-plots") return "SCO Plots";
+  if (s === "villa") return "Villa";
   return s
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -82,6 +83,7 @@ const FLOOR_URL_CONFIG_TYPES = {
   shops: ["shops", "shop"],
   office: ["office", "offices"],
   plot: ["plot", "plots"],
+  villa: ["villa"],
   restaurant: ["restaurant", "restaurants"],
   showroom: ["showroom", "showrooms"],
   "sco-plots": ["sco plots", "sco plot"],
@@ -89,12 +91,13 @@ const FLOOR_URL_CONFIG_TYPES = {
 
 /**
  * Non-canonical URL segments → canonical listing slug.
- * shops-in-{city} | office-in-{city} | plot-in-{city} | restaurant-in-{city} | showroom-in-{city}
+ * shops-in-{city} | office-in-{city} | plot-in-{city} | villa-in-{city} | restaurant-in-{city} | showroom-in-{city}
  */
 const CANONICAL_FLOOR_URL_SLUG = {
   shop: "shops",
   offices: "office",
   plots: "plot",
+  villas: "villa",
   restaurants: "restaurant",
   showrooms: "showroom",
 };
@@ -186,6 +189,7 @@ export function collectKnownFloorSlugs(projects) {
 const BLOCKED_FLOOR_URL_SLUGS = new Set([
   "shop",
   "plots",
+  "villas",
   "offices",
   "restaurants",
   "showrooms",
@@ -194,7 +198,7 @@ const BLOCKED_FLOOR_URL_SLUGS = new Set([
 
 /** Well-formed `{floor}` segments allowed as listing pages even before project data exists. */
 const RECOGNIZED_FLOOR_SLUG_PATTERN =
-  /^(?:\d+-bhk|\d+-rk-studio|\d+-sq\.ft|\d+-br-villa|plot|shops|office|kiosk|food-court|restaurant|showroom|sco-plots)$/;
+  /^(?:\d+-bhk|\d+-rk-studio|\d+-sq\.ft|\d+-br-villa|plot|villa|shops|office|kiosk|food-court|restaurant|showroom|sco-plots)$/;
 
 export function isRecognizedFloorSlugSegment(floorSlug) {
   const normalized = normalizeFloorSlugSegment(floorSlug || "");
@@ -308,6 +312,10 @@ export function projectConfigurationIncludesFloorSlug(
       projectConfiguration,
     );
     return configTypes.some((type) => configTypeMatchesWanted(type, wanted));
+  }
+
+  if (normalizedFloor === "villa") {
+    return /\bvilla\b/i.test(String(projectConfiguration || ""));
   }
 
   const sqFtSlug = normalizedFloor.match(/^(\d+)-sq\.ft$/);

@@ -976,6 +976,17 @@ export default function ProjectsRedesigned({
           router.push(`/1-rk-studio-in-${citySlugForUrl}`, { scroll: false });
           return;
         }
+
+        if (/^plots?$/i.test(String(nextBhkType))) {
+          router.push(`/plot-in-${citySlugForUrl}`, { scroll: false });
+          return;
+        }
+
+        if (/^villa$/i.test(String(nextBhkType))) {
+          router.push(`/villa-in-${citySlugForUrl}`, { scroll: false });
+          return;
+        }
+
         const m = String(nextBhkType).match(/^(\d+)\s*BHK/i);
         const n = m?.[1];
         if (!n) return;
@@ -987,7 +998,14 @@ export default function ProjectsRedesigned({
         router.push(path, { scroll: false });
       }
     },
-    [citySlugForUrl, hubUrlCategorySegment, isListingPage, pathname, resolveListingReturnPath, router],
+    [
+      citySlugForUrl,
+      hubUrlCategorySegment,
+      isListingPage,
+      pathname,
+      resolveListingReturnPath,
+      router,
+    ],
   );
 
   const filteredProjects = useMemo(() => {

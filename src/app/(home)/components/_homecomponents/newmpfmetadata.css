@@ -270,7 +270,7 @@
 }
 
 .home-projects-preview {
-  margin-top: 36px;
+  margin-top: 10px;
   padding-bottom: 10px;
   margin-bottom: 36px;
 }
@@ -702,7 +702,7 @@
   font-size: 13px;
   line-height: 1.35;
   font-weight: 700;
-  color: #000000;
+  color: #0d5834;
   font-family: var(--heaing-font);
 }
 

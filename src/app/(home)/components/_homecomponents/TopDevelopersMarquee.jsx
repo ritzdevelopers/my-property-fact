@@ -116,11 +116,9 @@ export default function TopDevelopersMarquee({ items = [] }) {
 
   return (
     <div className="transform-home-developers" aria-label="Top developers">
-      <div className="transform-home-developers-label" aria-hidden>
-        <span className="transform-home-developers-label-line">Top</span>
-        <span className="transform-home-developers-label-line">Developers</span>
+      <div className="transform-home-developers-label">
+        <span className="transform-home-developers-label-line">Top Developers</span>
       </div>
-      <div className="transform-home-developers-divider" aria-hidden />
       <div
         ref={marqueeRef}
         className={[

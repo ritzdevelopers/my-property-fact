@@ -1,5 +1,6 @@
 import { getImageProps } from "next/image";
 import {
+  BANNER_ALT,
   BANNER_DESKTOP,
   BANNER_MOBILE,
   BANNER_TABLET,
@@ -52,7 +53,7 @@ export default function HeroLcpPreloads() {
       <link
         rel="preload"
         as="image"
-        title="My Property Fact Home Banner"
+        title={BANNER_ALT}
         imageSrcSet={mobileSrcSet}
         imageSizes={mobileSizes}
         media="(max-width: 767.98px)"
@@ -61,7 +62,7 @@ export default function HeroLcpPreloads() {
       <link
         rel="preload"
         as="image"
-        title="My Property Fact Home Banner"
+        title={BANNER_ALT}
         imageSrcSet={tabletSrcSet}
         imageSizes={tabletSizes}
         media="(min-width: 768px) and (max-width: 991.98px)"
@@ -70,7 +71,7 @@ export default function HeroLcpPreloads() {
       <link
         rel="preload"
         as="image"
-        title="My Property Fact Home Banner"
+        title={BANNER_ALT}
         imageSrcSet={desktopSrcSet}
         imageSizes={desktopSizes}
         media="(min-width: 992px)"

@@ -15,8 +15,89 @@ import {
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
+import ProjectShortlistButton from "./ProjectShortlistButton";
 import "./common.css";
 import "./propertyContainerTablet.css";
+
+function cleanMetaText(value, fallback = "") {
+  const text = String(value ?? "").trim();
+  if (!text || text === "/" || text.toLowerCase() === "null") return fallback;
+  return text;
+}
+
+function formatCompactPrice(value) {
+  if (value == null || value === "") return "On request";
+  const strValue = String(value).trim();
+  if (!strValue) return "On request";
+  if (/request/i.test(strValue)) return "On request";
+  const cleaned = strValue.replace(/\s*onwards\.?\s*/gi, "").replace(/\*/g, "").trim();
+  if (/cr|lakh|lac|\bl\b/i.test(cleaned) && /[a-zA-Z]/.test(cleaned)) {
+    return cleaned.startsWith("₹") ? cleaned : `₹ ${cleaned}`;
+  }
+  const numericValue = Number.parseFloat(cleaned.replace(/,/g, ""));
+  if (!Number.isFinite(numericValue) || numericValue <= 0) return "On request";
+  if (numericValue < 1) return `₹ ${Math.round(numericValue * 100)} L`;
+  const pretty = Number.isInteger(numericValue)
+    ? String(numericValue)
+    : numericValue.toFixed(2).replace(/0+$/, "").replace(/\.$/, "");
+  return `₹ ${pretty} Cr`;
+}
+
+function getBadgeLabel(raw) {
+  const value = String(raw || "").trim();
+  if (!value) return "";
+  if (/new\s*launch/i.test(value)) return "New Launch";
+  if (/ready/i.test(value)) return "Ready To Move";
+  if (/under\s*construction/i.test(value)) return "Under Construction";
+  return value;
+}
+
+function getBadgeTone(badge) {
+  if (/ready/i.test(badge)) return "ready";
+  if (/under\s*construction/i.test(badge)) return "construction";
+  if (/new\s*launch/i.test(badge)) return "launch";
+  return "default";
+}
+
+function formatConfigChip(config, propertyType) {
+  const raw = String(config || "").trim();
+  const type = String(propertyType || "").trim();
+  const blob = `${raw} ${type}`;
+  const typeWord = /plot|land/i.test(blob)
+    ? "Plots"
+    : /villa/i.test(blob)
+      ? "Villas"
+      : /commercial|office|shop|retail|sco/i.test(blob)
+        ? "Units"
+        : "Apartments";
+  const bhks = [...raw.matchAll(/(\d+)\s*BHK/gi)].map((match) => match[1]);
+  const unique = [...new Set(bhks)];
+  if (unique.length === 1) return `${unique[0]} BHK ${typeWord}`;
+  if (unique.length === 2) return `${unique[0]} & ${unique[1]} BHK ${typeWord}`;
+  if (unique.length > 2) return `${unique[0]} & ${unique[unique.length - 1]} BHK ${typeWord}`;
+  if (raw) return raw.split(",")[0].trim();
+  return type;
+}
+
+function getLifestyleChip(data) {
+  const type = String(data?.propertyTypeName || "").toLowerCase();
+  const name = String(data?.projectName || "").toLowerCase();
+  const status = String(data?.projectStatusName || "").toLowerCase();
+  const blob = `${type} ${name}`;
+  if (/luxury|ultra/.test(blob)) return "Luxury Residences";
+  if (/plot|land/.test(blob)) return "Premium Plots";
+  if (/commercial|office|retail/.test(blob)) return "Modern Workspaces";
+  if (/ready/.test(status)) return "Premium Residences";
+  if (/under.?construction|new.?launch/.test(status)) return "Green Community";
+  return "Premium Residences";
+}
+
+function getLocationChip(data) {
+  const locality = cleanMetaText(data?.projectLocality);
+  const city = cleanMetaText(data?.cityName);
+  const parts = [locality, city].filter(Boolean);
+  return parts.length ? parts.join(", ") : "Location on project page";
+}
 
 export default function PropertyContainer({
   data,
@@ -169,6 +250,115 @@ export default function PropertyContainer({
       </div>
     );
   };
+
+  if (layoutVariant === "showcase") {
+    const badge = getBadgeLabel(data.projectStatusName);
+    const price = formatCompactPrice(data.projectPrice);
+    const onwards = price !== "On request";
+    const meta = formatConfigChip(data.projectConfiguration, propertyTypeName);
+    const lifestyle = getLifestyleChip(data);
+    const place = getLocationChip(data);
+    const builder = cleanMetaText(data.builderName);
+    return (
+      <article className="home-project-card home-project-card--tile home-project-card--showcase">
+        <Link
+          href={`/${data.slugURL}`}
+          className="home-project-card__hit"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`View details about ${projectTitle}`}
+          title={projectLinkTitle}
+        />
+        <div className="home-project-card__media">
+          <img
+            src={imageSrc}
+            alt={projectCardImageAlt}
+            title={projectCardImageAlt}
+            className="home-project-card__image"
+            width={400}
+            height={168}
+            loading={imagePriority ? "eager" : "lazy"}
+            fetchPriority={imagePriority ? "high" : "low"}
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
+          {badge ? (
+            <span className={`home-project-card__chip home-project-card__chip--${getBadgeTone(badge)}`}>
+              {badge}
+            </span>
+          ) : null}
+        </div>
+        <span className="home-project-card__loc">
+          <span className="home-project-card__loc-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 21.5s7.25-6.4 7.25-12.05A7.25 7.25 0 0 0 4.75 9.45C4.75 15.1 12 21.5 12 21.5Z"
+                fill="currentColor"
+              />
+              <circle cx="12" cy="9.4" r="2.55" fill="#fff" />
+            </svg>
+          </span>
+          <span className="home-project-card__loc-text">{place}</span>
+        </span>
+        <div className="home-project-card__body">
+          <div className="home-project-card__title-row">
+            <h3 className="home-project-card__title">{projectTitle}</h3>
+            <p className="home-project-card__price">
+              <strong>{price}</strong>
+              {onwards ? <span>Onwards</span> : null}
+            </p>
+          </div>
+          {builder ? <p className="home-project-card__by">By {builder}</p> : null}
+          <div className="home-project-card__facts">
+            {meta ? (
+              <span className="home-project-card__fact">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 20V8l8-4 8 4v12" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                  <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                </svg>
+                {meta}
+              </span>
+            ) : null}
+            {lifestyle ? (
+              <span className="home-project-card__fact">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path
+                    d="M12 3l1.6 5.2L19 10l-5.4 1.8L12 17l-1.6-5.2L5 10l5.4-1.8L12 3Z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                {lifestyle}
+              </span>
+            ) : null}
+          </div>
+          <div className="home-project-card__foot">
+            <span className="home-project-card__view">View Details</span>
+            <span className="home-project-card__go" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+        <ProjectShortlistButton
+          project={{
+            id: data.id,
+            slugURL: data.slugURL,
+            projectName: projectTitle,
+          }}
+          className="home-project-card__save"
+        />
+      </article>
+    );
+  }
 
   if (layoutVariant === "overlap") {
     return (

@@ -4,24 +4,22 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import HomeRecommendationCards from "./HomeRecommendationCards";
 import { getCityPageHref } from "@/app/_global_components/cityAliasUtils";
 import { resolveDeviceCity } from "@/lib/resolveIpCity";
+import {
+  isSpecificHeaderCity,
+  readChosenHeaderCity,
+  readSessionHeaderCity,
+} from "@/lib/headerChosenCity";
 
 /** Ultimate fallback when GPS is denied and IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_LOCATION = "Delhi NCR";
-const HEADER_CITY_STORAGE_KEY = "mpf_header_city";
 
 function isDelhiNcrLabel(city) {
-  const n = String(city || "").trim().toLowerCase();
-  return !n || n === "ncr" || n === "delhi ncr" || n.includes("delhi ncr");
+  return !isSpecificHeaderCity(city);
 }
 
 function readSavedHeaderCity() {
   if (typeof window === "undefined") return "";
-  try {
-    const saved = String(window.localStorage.getItem(HEADER_CITY_STORAGE_KEY) || "").trim();
-    return saved && !isDelhiNcrLabel(saved) ? saved : "";
-  } catch {
-    return "";
-  }
+  return readChosenHeaderCity() || readSessionHeaderCity();
 }
 
 function cityNameFromEvent(detail) {
@@ -180,7 +178,7 @@ export default function RecommendedProjectsWithGeolocation({
   const applyDetectedCity = useCallback(async () => {
     try {
       // Header stays mounted across city-page navigation; this rail remounts.
-      // Honor the last city the user picked so back/refresh does not snap to GPS (e.g. Noida).
+      // Honor a user-saved city first, then the same-tab city, so rails stay in sync.
       const savedCity = readSavedHeaderCity();
       if (savedCity) {
         cityOverrideRef.current = savedCity;

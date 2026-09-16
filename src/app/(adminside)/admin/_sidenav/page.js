@@ -29,8 +29,11 @@ import {
   faImages,
   faGear,
   faCircleQuestion,
+  faFileLines,
   faClipboardList,
   faDatabase,
+  faRss,
+  faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function SideNav({ onLinkClick }) {
@@ -100,6 +103,10 @@ export default function SideNav({ onLinkClick }) {
       dropdown6: [
         "/admin/dashboard/manage-home-banners",
         "/admin/dashboard/manage-testimonials",
+      ],
+      dropdownListing: [
+        "/admin/dashboard/manage-listing-content",
+        "/admin/dashboard/manage-listing-faqs",
       ],
     };
 
@@ -186,20 +193,64 @@ export default function SideNav({ onLinkClick }) {
             <span>Dashboard</span>
           </Link>
         </li>
-        {hasPermission(ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS) && (
+        {(isSuperAdmin ||
+          hasPermission(ADMIN_PERMISSIONS.MANAGE_LISTING_FAQS)) && (
           <li
             className={
-              isActive("/admin/dashboard/manage-listing-faqs") ? "active" : ""
+              activeDropdown === "dropdownListing" ||
+              isDropdownActive([
+                "/admin/dashboard/manage-listing-content",
+                "/admin/dashboard/manage-listing-faqs",
+              ])
+                ? "active"
+                : ""
             }
           >
-            <Link
-              title="Listing Page FAQs"
-              href="/admin/dashboard/manage-listing-faqs"
-              onClick={handleLinkClick}
+            <button
+              type="button"
+              onClick={(e) => toggleDropdown(e, "dropdownListing")}
+              aria-expanded={activeDropdown === "dropdownListing"}
+              className="dropdown-toggle"
             >
-              <FontAwesomeIcon icon={faCircleQuestion} className="admin-nav-ico" />
-              <span>Listing Page FAQs</span>
-            </Link>
+              <FontAwesomeIcon icon={faFileLines} className="admin-nav-ico" />
+              <span className="admin-nav-label">Listing Pages</span>
+            </button>
+            <ul
+              className={`collapse list-unstyled ms-4 ${
+                activeDropdown === "dropdownListing" ? "show" : ""
+              }`}
+            >
+              <li
+                className={
+                  isActive("/admin/dashboard/manage-listing-content")
+                    ? "active"
+                    : ""
+                }
+              >
+                <Link
+                  title="Listing Page Content"
+                  href="/admin/dashboard/manage-listing-content"
+                  onClick={handleLinkClick}
+                >
+                  Page Content
+                </Link>
+              </li>
+              <li
+                className={
+                  isActive("/admin/dashboard/manage-listing-faqs")
+                    ? "active"
+                    : ""
+                }
+              >
+                <Link
+                  title="Listing Page FAQs"
+                  href="/admin/dashboard/manage-listing-faqs"
+                  onClick={handleLinkClick}
+                >
+                  Page FAQs
+                </Link>
+              </li>
+            </ul>
           </li>
         )}
         {(isSuperAdmin ||
@@ -222,6 +273,38 @@ export default function SideNav({ onLinkClick }) {
               </Link>
             </li>
           )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/live-listings") ? "active" : ""
+            }
+          >
+            <Link
+              title="Live Listings"
+              href="/admin/dashboard/live-listings"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon icon={faRss} className="admin-nav-ico" />
+              <span>Live Listings</span>
+            </Link>
+          </li>
+        )}
+        {isSuperAdmin && (
+          <li
+            className={
+              isActive("/admin/dashboard/project-activity") ? "active" : ""
+            }
+          >
+            <Link
+              title="Project Listings"
+              href="/admin/dashboard/project-activity"
+              onClick={handleLinkClick}
+            >
+              <FontAwesomeIcon icon={faCalendarDays} className="admin-nav-ico" />
+              <span>Project Listings</span>
+            </Link>
+          </li>
+        )}
         {isSuperAdmin && (
           <li
             className={isActive("/admin/dashboard/manage-users") ? "active" : ""}

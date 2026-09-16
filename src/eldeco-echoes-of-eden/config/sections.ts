@@ -32,7 +32,7 @@ export const sectionsConfig = {
     },
     startingPrice: {
       label: "Starting Price",
-      value: "₹ 1.74 Cr*",
+      value: "₹ 1.99 Cr*",
     },
     enquiry: {
       title: "QUICK ENQUIRY!",

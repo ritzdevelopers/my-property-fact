@@ -7,6 +7,7 @@ import gsap from "gsap";
 import SearchFilter from "./searchFilterClassic";
 import "../home/home.css";
 import "./newmpfmetadata.css";
+import { isSpecificHeaderCity, readChosenHeaderCity } from "@/lib/headerChosenCity";
 import {
   BANNER_ALT,
   BANNER_DESKTOP,
@@ -44,6 +45,10 @@ function HeroCityTypewriter() {
   const [phase, setPhase] = useState("hold");
 
   useEffect(() => {
+    const savedCity = readChosenHeaderCity();
+    if (isSpecificHeaderCity(savedCity)) {
+      setLocatedCity(savedCity);
+    }
     const handleCityChanged = (e) => {
       const cityName = cityNameFromEvent(e.detail);
       if (cityName) setLocatedCity(cityName);

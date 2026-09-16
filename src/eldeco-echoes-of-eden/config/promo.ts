@@ -66,7 +66,7 @@ export const priceConfig = {
       id: "3bhk-1550",
       type: "3 BHK",
       size: "1550 Sq.Ft",
-      price: "₹ 1.74 Cr*",
+      price: "₹ 1.99 Cr*",
       ctaLabel: "View Details",
     },
     {

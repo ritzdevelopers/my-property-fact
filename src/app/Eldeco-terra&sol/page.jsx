@@ -12,21 +12,23 @@ import FloatingEnquiryButton from "@/components/FloatingEnquiryButton";
 import LeadPopup from "@/components/LeadPopup";
 import Navbar from "@/components/Navbar";
 
+const CRM_PROJECT_NAME = "Eldeco Terra N Sol";
+
 function Page() {
   return (
     <>
-      <LeadPopup />
+      <LeadPopup project={CRM_PROJECT_NAME} />
       <FloatingEnquiryButton />
       <Navbar />
       <Home />
-      <Section2 />
+      <Section2 project={CRM_PROJECT_NAME} />
       <Section3 />
       <Section4 />
       <Section5 />
       <Section6 />
       <Section8 />
       <Section9 />
-      <Section10 />
+      <Section10 project={CRM_PROJECT_NAME} />
       <Footer />
     </>
   );

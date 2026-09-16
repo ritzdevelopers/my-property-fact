@@ -5,7 +5,7 @@ import { goToEldecoThankYou } from "./eldecoPaths";
 import { handleLeadFormSubmit } from "./leadFormSubmit";
 import styles from "./page.module.css";
 
-function Section10() {
+function Section10({ project }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -13,7 +13,7 @@ function Section10() {
     try {
       setIsSubmitting(true);
       setFormError("");
-      await handleLeadFormSubmit(event);
+      await handleLeadFormSubmit(event, undefined, project);
       goToEldecoThankYou();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Something went wrong.");

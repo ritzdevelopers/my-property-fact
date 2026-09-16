@@ -13,7 +13,7 @@ const stats = [
   { value: "2.7 Acres", label: "Land Parcel" },
 ];
 
-function Section2() {
+function Section2({ project }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -21,7 +21,7 @@ function Section2() {
     try {
       setIsSubmitting(true);
       setFormError("");
-      await handleLeadFormSubmit(event);
+      await handleLeadFormSubmit(event, undefined, project);
       goToEldecoThankYou();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Something went wrong.");

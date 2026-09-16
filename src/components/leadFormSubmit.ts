@@ -82,6 +82,7 @@ async function postToRitzGoogleCrm(payload: {
   mob: string;
   email: string;
   name: string;
+  project?: string;
   remark: string;
   url: string;
   uniqueId: string;
@@ -106,6 +107,7 @@ async function postToRitzGoogleCrm(payload: {
 export async function handleLeadFormSubmit(
   event: FormEvent<HTMLFormElement>,
   otpContext?: LeadOtpContext,
+  project?: string,
 ) {
   event.preventDefault();
 
@@ -136,6 +138,7 @@ export async function handleLeadFormSubmit(
     mob: formData.phone,
     email: formData.email,
     name: formData.name,
+    project,
     remark: formData.message,
     url: landingUrl,
     uniqueId,

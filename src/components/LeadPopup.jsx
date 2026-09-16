@@ -11,7 +11,7 @@ const REOPEN_INTERVAL_MS = 30000;
 
 export const OPEN_LEAD_POPUP_EVENT = "open-lead-popup";
 
-function LeadPopup() {
+function LeadPopup({ project }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,7 +67,7 @@ function LeadPopup() {
     try {
       setIsSubmitting(true);
       setFormError("");
-      await handleLeadFormSubmit(event);
+      await handleLeadFormSubmit(event, undefined, project);
       window.sessionStorage.setItem(SESSION_KEY, "true");
       setIsSubmitted(true);
       setIsOpen(false);

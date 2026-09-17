@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  ELDECO TERRA & SOL — design tokens
+  Every value below is read directly from the Figma frame
+  (file to28JffFfMbVRJHdRR4C0i, node 1:3 "Desktop - 1", 1440 x 7035).
+  Token names carry the hex so a value can be traced back to the frame.
+*/
+
+:root {
+  /* ── brand ─────────────────────────────────────────────────────── */
+  --color-eld-bronze: #8e704c; /* primary buttons, metric chip, footer bar */
+  --color-eld-bronze-deep: #ad7736; /* submit button, required asterisk */
+  --color-eld-gold: #d4af37; /* eyebrow text, HARERA line, counter */
+  --color-eld-cream: #f2e5c0; /* button label + border on bronze */
+  --color-eld-check: #ecd8c1; /* highlight check chip */
+
+  /* ── surfaces ──────────────────────────────────────────────────── */
+  --color-eld-page: #fffdfb; /* overview + virtual tour ground */
+  --color-eld-surface: #f9f5ec; /* icon circles, eyebrow pill */
+  --color-eld-surface-2: #fbf9f4; /* time badges */
+  --color-eld-field: #faf8f5; /* form inputs */
+  --color-eld-line: #efebe4; /* card borders */
+  --color-eld-line-2: #eae3da; /* form borders, copyright text */
+  --color-eld-line-3: #dcdad4; /* accordion rules */
+
+  /* ── ink ───────────────────────────────────────────────────────── */
+  --color-eld-ink: #161210;
+  --color-eld-ink-2: #1a1613; /* amenity titles */
+  --color-eld-ink-3: #1c120b; /* developer + form headings */
+  --color-eld-body: #60554e; /* developer paragraphs, input text */
+  --color-eld-muted: #6b6661; /* subtitles, card meta */
+  --color-eld-muted-2: #706963; /* active amenity description */
+  --color-eld-numeral: #5c574d; /* accordion numerals */
+  --color-eld-on-dark: #f5f3ef; /* nav links, footer strip tags */
+  --color-eld-on-dark-2: #bab6b2; /* hero sub-copy, HARERA url */
+  --color-eld-on-dark-3: #ececec; /* carousel counter */
+
+  /* width of the Figma artboard */
+  --spacing-frame: 1440px;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-eld-ink);
+  font-family: var(--font-schibsted), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Figma sets `fontVariationSettings: "opsz" 12, "wdth" 100` on every
+   Playfair heading in the frame. */
+.font-playfair {
+  font-family: var(--font-playfair), Georgia, "Times New Roman", serif;
+  font-variation-settings: "opsz" 12, "wdth" 100;
+}
+
+.font-playfair-display {
+  font-family: var(--font-playfair-display), Georgia, "Times New Roman", serif;
+}
+
+.font-montserrat {
+  font-family: var(--font-montserrat), system-ui, sans-serif;
+}
+
+.eld-no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.eld-no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

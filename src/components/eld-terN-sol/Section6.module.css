@@ -1,0 +1,24 @@
+.slider {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.slide {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.action {
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 300ms ease,
+    transform 300ms ease;
+}
+
+.slide:global(.swiper-slide-active) .action {
+  pointer-events: auto;
+  opacity: 1;
+}

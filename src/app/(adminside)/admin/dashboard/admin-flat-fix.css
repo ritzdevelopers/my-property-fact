@@ -502,6 +502,9 @@
   font-size: 0.75rem !important;
   text-decoration: none !important;
   margin-top: 0.15rem !important;
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
 }
 
 .enquiries-lead__line:hover {

@@ -24,6 +24,29 @@ import {
 } from "@/lib/leadFormOtpUi";
 import "./popupform.css";
 
+function getProjectSlug(project) {
+  return String(project?.slugURL || project?.slugUrl || project?.slug || "")
+    .trim()
+    .replace(/^\/+/, "");
+}
+
+function getProjectPropertyId(project) {
+  const id = Number(project?.id);
+  return Number.isFinite(id) && id > 0 ? id : undefined;
+}
+
+function buildEnquiryProjectLink(from, project, pathname) {
+  const base = String(process.env.NEXT_PUBLIC_UI_URL || "").replace(/\/$/, "");
+  const slug = getProjectSlug(project);
+  if (from === "Project Detail" && slug) {
+    return `${base}/${slug}`;
+  }
+  if (from === "Project Detail") {
+    return `${base}${pathname || ""}`;
+  }
+  return base;
+}
+
 export default function CommonPopUpform({
   show,
   handleClose,
@@ -142,14 +165,18 @@ export default function CommonPopUpform({
         return;
       }
 
+      const isProjectLead = from === "Project Detail";
+      const propertyId = isProjectLead ? getProjectPropertyId(data) : undefined;
+      const listingPath = pathname || null;
       const submitData = await buildEnquirySubmitData(
         {
           ...formData,
-          enquiryFrom: from === "Project Detail" ? (data?.projectName || "Project Detail") : "Home Page",
-          projectLink: from === "Project Detail" ? `${process.env.NEXT_PUBLIC_UI_URL}${pathname}` : `${process.env.NEXT_PUBLIC_UI_URL}`,
-          pageName: from === "Project Detail" ? "Project Detail" : "Home",
+          enquiryFrom: isProjectLead ? (data?.projectName || "Project Detail") : "Home Page",
+          projectLink: buildEnquiryProjectLink(from, data, pathname),
+          pageName: isProjectLead ? "Project Detail" : "Home",
+          ...(propertyId ? { propertyId } : {}),
         },
-        from === "Project Detail"
+        isProjectLead
           ? {
               property: {
                 property_name: data?.projectName ?? null,
@@ -157,6 +184,7 @@ export default function CommonPopUpform({
                 builder: data?.builderName ?? null,
                 city: data?.cityName ?? null,
                 locality: data?.location ?? null,
+                source_listing_page: listingPath,
               },
               userLocation: formData.userLocation?.trim() || null,
             }

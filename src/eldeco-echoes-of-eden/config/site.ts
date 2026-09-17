@@ -39,7 +39,7 @@ export const siteColors: SiteColors = {
 export const siteConfig = {
   brand: {
     name: "ELDECO",
-    href: "/",
+    href: "#home",
   },
   contact: {
     phone: "+91-8929007384",

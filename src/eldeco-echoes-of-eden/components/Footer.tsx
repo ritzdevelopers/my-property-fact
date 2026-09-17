@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { siteConfig } from "@/eldeco-echoes-of-eden/config/site";
-import { FloatingActionButtons } from "@/eldeco-echoes-of-eden/components/ui/FloatingActionButtons";
 import { MobileEnquireBar } from "@/eldeco-echoes-of-eden/components/ui/MobileEnquireBar";
 import { QrCodePlaceholder } from "@/eldeco-echoes-of-eden/components/ui/QrCodePlaceholder";
 
@@ -107,12 +106,7 @@ export function Footer() {
         </section>
       </footer>
 
-      {!isThankYouPage && (
-        <>
-          <MobileEnquireBar />
-          <FloatingActionButtons />
-        </>
-      )}
+      {!isThankYouPage && <MobileEnquireBar />}
     </>
   );
 }

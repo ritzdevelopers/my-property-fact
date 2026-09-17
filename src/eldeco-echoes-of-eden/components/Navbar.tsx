@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState, type MouseEvent } from "react";
 import { siteConfig } from "@/eldeco-echoes-of-eden/config/site";
-import { PhoneIcon } from "@/eldeco-echoes-of-eden/components/ui/PhoneIcon";
 
 const LANDING_HERO_HREF = "#home";
 

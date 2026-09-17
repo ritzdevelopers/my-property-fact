@@ -768,6 +768,13 @@ nav.d-none.d-lg-flex {
 }
 
 @media (max-width: 1024px) {
+  /* Extra vertical room for mobile Post Property CTA + FREE badge pin */
+  .header {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+  }
+
   .header.px-2 {
     padding-left: 8px;
     padding-right: 8px;
@@ -1010,7 +1017,7 @@ nav.d-none.d-lg-flex {
     z-index: 10050;
     align-items: flex-start;
     justify-content: center;
-    padding: calc(88px + env(safe-area-inset-top)) 16px 16px;
+    padding: calc(108px + env(safe-area-inset-top)) 16px 16px;
     pointer-events: none;
     animation: mpfLocationToastIn 0.25s ease;
   }

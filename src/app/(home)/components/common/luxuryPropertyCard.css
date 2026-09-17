@@ -1344,3 +1344,28 @@ a.mpf-lux-card__frame:focus-visible {
 .mpf-shortlist-btn:hover {
   transform: scale(1.05);
 }
+
+@media (min-width: 768px) {
+  .mpf-lux-card .mpf-status-ribbon.mpf-status-ribbon--lux,
+  .mpf-lux-card .mpf-status-ribbon--lux.mpf-status-ribbon {
+    right: calc(12px + 34px + 10px);
+  }
+}
+
+/* Poster cards: keep slider arrows below the status badge on narrow phones only. */
+@media (max-width: 766px) {
+  .mpf-lux-card--poster .mpf-listing-slider__nav,
+  .mpf-listing-poster-grid .mpf-listing-slider__nav {
+    top: calc(54px + 28px + 12px);
+    bottom: auto;
+    transform: none;
+    z-index: 35;
+  }
+
+  .mpf-lux-card--poster .mpf-listing-slider__nav:hover,
+  .mpf-lux-card--poster .mpf-listing-slider__nav:focus-visible,
+  .mpf-listing-poster-grid .mpf-listing-slider__nav:hover,
+  .mpf-listing-poster-grid .mpf-listing-slider__nav:focus-visible {
+    transform: scale(1.04);
+  }
+}

@@ -66,7 +66,7 @@
 
   .mpf-lux-card--poster .mpf-status-ribbon--lux {
     top: 14px;
-    right: 12px;
+    right: calc(12px + 34px + 10px);
   }
 
   /* Overlap layout (layoutVariant="overlap") */

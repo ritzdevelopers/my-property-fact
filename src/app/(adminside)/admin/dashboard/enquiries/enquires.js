@@ -2,7 +2,7 @@
 import { exportTOExcel } from "../common-model/exporttoexcel";
 import { toast } from "../../_lib/adminToast";
 import DashboardHeader from "../common-model/dashboardHeader";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, Fragment } from "react";
 import CommonModal from "../common-model/common-model";
 import {
   Button,
@@ -14,17 +14,31 @@ import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 import { getPublicApiBase } from "@/lib/publicApiBase";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock, faMagnifyingGlass, faFilter, faEnvelope, faPhone, faLocationDot, faArrowUpRightFromSquare, faInbox } from "@fortawesome/free-solid-svg-icons";
+import { faLock, faMagnifyingGlass, faFilter, faEnvelope, faPhone, faLocationDot, faArrowUpRightFromSquare, faInbox, faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
 import { parsePriceToCrore } from "@/app/_global_components/projectFilterUtils";
 import { AdminLoader } from "@/components/admin/admin-loader";
+import {
+  buildEnquiryInsight,
+  EnquiryInsightPanel,
+  parseEnquiryMetadata,
+} from "./enquiryInsights";
 import "./enquiries-unlock.css";
 
 function enquirySource(row) {
+  if (row?.insight?.channel) return row.insight.channel;
   const from = String(row.enquiryFrom || "").trim().toUpperCase();
   if (from === "APP") return "App";
-  // Existing frontend flow should be treated as Website by default.
   return "Website";
+}
+
+function sourcePillClass(row) {
+  const key = row?.insight?.channelKey;
+  if (key === "ads") return "is-ads";
+  if (key === "fb") return "is-fb";
+  if (key === "organic") return "is-organic";
+  if (key === "app") return "is-app";
+  return "is-web";
 }
 
 function formatEnquiryDate(row) {
@@ -58,7 +72,31 @@ function truncate(text, max) {
 }
 
 
+function publicSiteBase() {
+  const fromEnv = String(process.env.NEXT_PUBLIC_UI_URL || "")
+    .trim()
+    .replace(/\/$/, "");
+  if (fromEnv) return fromEnv;
+  return "https://mypropertyfact.in";
+}
+
+function getMetadataProperty(row) {
+  const meta = parseEnquiryMetadata(row);
+  const property = meta?.property;
+  return property && typeof property === "object" ? property : null;
+}
+
+function normalizeProjectName(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 function getSourcePageLink(row) {
+  const preferred = String(row?.resolvedProjectLink || "").trim();
+  if (preferred) return preferred;
+
   const direct = String(row?.projectLink || "").trim();
   if (direct) return direct;
 
@@ -66,10 +104,7 @@ function getSourcePageLink(row) {
   if (!pageName) return "";
   if (/^https?:\/\//i.test(pageName)) return pageName;
   if (pageName.startsWith("/")) {
-    if (typeof window !== "undefined" && window.location?.origin) {
-      return `${window.location.origin}${pageName}`;
-    }
-    return pageName;
+    return `${publicSiteBase()}${pageName}`;
   }
   return "";
 }
@@ -92,16 +127,33 @@ function extractSlugFromProjectLink(link) {
   }
 }
 
+function buildProjectUrl(project) {
+  const slug = String(project?.slugURL || project?.slugUrl || "")
+    .trim()
+    .replace(/^\/+/, "");
+  if (!slug) return "";
+  return `${publicSiteBase()}/${slug}`;
+}
+
 function buildProjectLookups(projects) {
   const bySlug = new Map();
   const byId = new Map();
+  const byName = new Map();
   (projects || []).forEach((project) => {
-    const slug = String(project?.slugURL || "").trim().toLowerCase();
+    const slug = String(project?.slugURL || project?.slugUrl || "")
+      .trim()
+      .toLowerCase();
     if (slug) bySlug.set(slug, project);
     const id = Number(project?.id);
     if (Number.isFinite(id)) byId.set(id, project);
+    const name = normalizeProjectName(project?.projectName || project?.name);
+    if (name) {
+      const bucket = byName.get(name);
+      if (bucket) bucket.push(project);
+      else byName.set(name, [project]);
+    }
   });
-  return { bySlug, byId };
+  return { bySlug, byId, byName };
 }
 
 function buildCityStateMap(cities) {
@@ -114,7 +166,7 @@ function buildCityStateMap(cities) {
   return map;
 }
 
-function resolveProjectForEnquiry(row, lookups) {
+function resolveProjectForEnquiry(row, lookups, metaProperty) {
   if (!lookups) return null;
   const propertyId = Number(row?.propertyId);
   if (Number.isFinite(propertyId) && lookups.byId.has(propertyId)) {
@@ -124,32 +176,52 @@ function resolveProjectForEnquiry(row, lookups) {
   if (slug && lookups.bySlug.has(slug)) {
     return lookups.bySlug.get(slug);
   }
+  const metaName = normalizeProjectName(
+    metaProperty?.property_name || metaProperty?.project,
+  );
+  if (metaName && lookups.byName.has(metaName)) {
+    const matches = lookups.byName.get(metaName) || [];
+    if (matches.length === 1) return matches[0];
+    const cityKey = normalizeProjectName(metaProperty?.city);
+    if (cityKey) {
+      const cityMatch = matches.find(
+        (item) => normalizeProjectName(item?.cityName) === cityKey,
+      );
+      if (cityMatch) return cityMatch;
+    }
+    return matches[0];
+  }
   return null;
 }
 
 function enrichEnquiryWithProject(row, lookups, cityStateMap) {
-  const project = resolveProjectForEnquiry(row, lookups);
-  if (!project) {
-    return {
-      ...row,
-      projectLocation: row.projectLocation || "",
-      projectPrice: row.projectPrice || "",
-      projectCity: row.projectCity || "",
-      projectState: row.projectState || "",
-    };
-  }
+  const metaProperty = getMetadataProperty(row);
+  const project = resolveProjectForEnquiry(row, lookups, metaProperty);
+  const metaName = String(
+    metaProperty?.property_name || metaProperty?.project || "",
+  ).trim();
+  const metaCity = String(metaProperty?.city || "").trim();
+  const metaBuilder = String(metaProperty?.builder || "").trim();
+  const metaListing = String(metaProperty?.source_listing_page || "").trim();
 
-  const cityName = String(project.cityName || "").trim();
+  const projectName = String(project?.projectName || metaName || "").trim();
+  const cityName = String(project?.cityName || metaCity || "").trim();
+  const location = String(
+    project?.projectLocality || project?.projectAddress || "",
+  ).trim();
+  const resolvedProjectLink = buildProjectUrl(project);
+
   return {
     ...row,
-    projectLocation:
-      project.projectLocality ||
-      project.projectAddress ||
-      project.projectName ||
-      "",
-    projectPrice: project.projectPrice || "",
+    projectDisplayName: projectName,
+    projectLocation: location || projectName,
+    projectPrice: project?.projectPrice || row.projectPrice || "",
     projectCity: cityName,
     projectState: cityName ? cityStateMap.get(cityName) || "" : "",
+    projectBuilder: String(project?.builderName || metaBuilder || "").trim(),
+    resolvedProjectLink,
+    listingPageLink: String(row.projectLink || metaListing || "").trim(),
+    insight: buildEnquiryInsight(row),
   };
 }
 
@@ -408,6 +480,7 @@ export default function Enquiries() {
   const [filterMonth, setFilterMonth] = useState("");
   const [filterLeadType, setFilterLeadType] = useState("exclude_test");
   const [page, setPage] = useState(0);
+  const [expandedId, setExpandedId] = useState(null);
   const [accessStatus, setAccessStatus] = useState(null);
   const [unlockCells, setUnlockCells] = useState(["", "", "", ""]);
   const [unlockBusy, setUnlockBusy] = useState(false);
@@ -653,11 +726,18 @@ export default function Enquiries() {
         row.enquiryFrom,
         row.pageName,
         row.projectLink,
+        row.resolvedProjectLink,
+        row.projectDisplayName,
+        row.projectBuilder,
         row.projectLocation,
         row.projectPrice,
         row.projectCity,
         row.projectState,
         row.status,
+        row.insight?.channel,
+        row.insight?.referrer,
+        row.insight?.landingPage,
+        row.insight?.campaignId,
         enquirySource(row),
         String(row.id ?? ""),
       ]
@@ -673,6 +753,7 @@ export default function Enquiries() {
 
   useEffect(() => {
     setPage(0);
+    setExpandedId(null);
   }, [search, filterCity, filterState, filterPrice, filterMonth, filterLeadType]);
 
   const pageCount = Math.max(1, Math.ceil(filteredList.length / PAGE_SIZE));
@@ -692,7 +773,9 @@ export default function Enquiries() {
   ].filter(Boolean).length;
 
   const enquiryStats = useMemo(() => {
-    const withProject = enrichedList.filter((row) => row.projectLocation || row.projectCity).length;
+    const withProject = enrichedList.filter(
+      (row) => row.projectDisplayName || row.projectLocation || row.projectCity,
+    ).length;
     const testLeads = enrichedList.filter(isTestLead).length;
     return {
       total: list.length,
@@ -716,12 +799,23 @@ export default function Enquiries() {
       phone: row.phone,
       message: row.message,
       enquiryFrom: enquirySource(row),
+      projectName: row.projectDisplayName,
       projectLocation: row.projectLocation,
       projectPrice: formatMpfProjectPrice(row.projectPrice),
       projectCity: row.projectCity,
       projectState: row.projectState,
-      projectLink: row.projectLink,
+      projectLink: row.resolvedProjectLink || row.projectLink,
+      listingPage: row.listingPageLink,
       pageName: row.pageName,
+      channel: row.insight?.channel,
+      referrer: row.insight?.referrer,
+      landingPage: row.insight?.landingPage,
+      campaignId: row.insight?.campaignId,
+      device: row.insight?.deviceLabel,
+      location: row.insight?.geoLabel,
+      journey: (row.insight?.journey || [])
+        .map((step) => `${step.time} ${step.action} ${step.page}`.trim())
+        .join(" | "),
       date: formatEnquiryDate(row),
       status: row.status,
     }));
@@ -929,7 +1023,7 @@ export default function Enquiries() {
                 </InputGroup.Text>
                 <Form.Control
                   type="search"
-                  placeholder="Search name, email, phone, location, city, state, price…"
+                  placeholder="Search name, email, phone, project, Google Ads, landing page…"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search enquiries"
@@ -1017,14 +1111,14 @@ export default function Enquiries() {
               <thead>
                 <tr>
                   <th style={{ width: 44 }}>#</th>
-                  <th style={{ minWidth: 160 }}>Lead</th>
+                  <th style={{ minWidth: 260 }}>Lead</th>
                   <th style={{ minWidth: 220 }}>Property</th>
                   <th style={{ minWidth: 140 }}>Message</th>
                   <th style={{ width: 90 }}>Source</th>
                   <th style={{ minWidth: 180 }}>Source Page</th>
                   <th style={{ width: 120 }}>When</th>
                   <th style={{ width: 130 }}>Status</th>
-                  <th style={{ width: 52 }} className="text-center">Action</th>
+                  <th style={{ width: 88 }} className="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -1043,21 +1137,57 @@ export default function Enquiries() {
                     const rowNum = safePage * PAGE_SIZE + idx + 1;
                     const sourcePageLink = getSourcePageLink(row);
                     const priceLabel = formatMpfProjectPrice(row.projectPrice);
-                    const locationLine = [row.projectCity, row.projectState].filter(Boolean).join(" · ");
+                    const locationParts = [
+                      row.projectLocation &&
+                      row.projectLocation !== row.projectDisplayName
+                        ? row.projectLocation
+                        : "",
+                      row.projectCity,
+                      row.projectState,
+                    ].filter(Boolean);
+                    const locationLine = locationParts.join(" · ");
+                    const sourcePageTitle = [
+                      sourcePageLink,
+                      row.listingPageLink &&
+                      row.resolvedProjectLink &&
+                      row.listingPageLink !== row.resolvedProjectLink
+                        ? `Form opened on ${row.listingPageLink.replace(/^https?:\/\//i, "")}`
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" — ");
+                    const isExpanded = expandedId === row.id;
+                    const landingPage = row.insight?.landingPage || "";
                     return (
-                      <tr key={row.id} className="enquiries-row">
+                      <Fragment key={row.id}>
+                      <tr
+                        className={`enquiries-row${isExpanded ? " is-open" : ""}`}
+                        onClick={() =>
+                          setExpandedId((current) => (current === row.id ? null : row.id))
+                        }
+                      >
                         <td className="enquiries-row__num">{rowNum}</td>
                         <td>
                           <div className="enquiries-lead">
                             <div className="enquiries-lead__name">{row.name || "—"}</div>
                             {row.email ? (
-                              <a href={`mailto:${row.email}`} className="enquiries-lead__line">
+                              <a
+                                href={`mailto:${row.email}`}
+                                className="enquiries-lead__line"
+                                title={row.email}
+                                onClick={(event) => event.stopPropagation()}
+                              >
                                 <FontAwesomeIcon icon={faEnvelope} />
                                 <span>{row.email}</span>
                               </a>
                             ) : null}
                             {row.phone ? (
-                              <a href={`tel:${row.phone}`} className="enquiries-lead__line enquiries-lead__line--phone">
+                              <a
+                                href={`tel:${row.phone}`}
+                                className="enquiries-lead__line enquiries-lead__line--phone"
+                                title={row.phone}
+                                onClick={(event) => event.stopPropagation()}
+                              >
                                 <FontAwesomeIcon icon={faPhone} />
                                 <span>{row.phone}</span>
                               </a>
@@ -1066,12 +1196,20 @@ export default function Enquiries() {
                         </td>
                         <td>
                           <div className="enquiries-property">
-                            <div className="enquiries-property__location" title={row.projectLocation || ""}>
-                              <FontAwesomeIcon icon={faLocationDot} />
-                              <span>{row.projectLocation || "—"}</span>
+                            <div
+                              className="enquiries-property__name"
+                              title={row.projectDisplayName || ""}
+                            >
+                              {row.projectDisplayName || "—"}
                             </div>
                             {locationLine ? (
-                              <div className="enquiries-property__meta">{locationLine}</div>
+                              <div className="enquiries-property__location" title={locationLine}>
+                                <FontAwesomeIcon icon={faLocationDot} />
+                                <span>{locationLine}</span>
+                              </div>
+                            ) : null}
+                            {row.projectBuilder ? (
+                              <div className="enquiries-property__meta">{row.projectBuilder}</div>
                             ) : null}
                             {priceLabel !== "—" ? (
                               <span className="enquiries-price-badge">{priceLabel}</span>
@@ -1084,7 +1222,7 @@ export default function Enquiries() {
                           </div>
                         </td>
                         <td>
-                          <span className={`enquiries-source-pill ${src === "App" ? "is-app" : "is-web"}`}>
+                          <span className={`enquiries-source-pill ${sourcePillClass(row)}`}>
                             {src}
                           </span>
                         </td>
@@ -1095,7 +1233,8 @@ export default function Enquiries() {
                               target="_blank"
                               rel="noopener noreferrer"
                               className="enquiries-page-url"
-                              title={sourcePageLink}
+                              title={sourcePageTitle}
+                              onClick={(event) => event.stopPropagation()}
                             >
                               <span className="enquiries-page-url__text">
                                 {truncate(sourcePageLink.replace(/^https?:\/\//i, ""), 42)}
@@ -1109,11 +1248,16 @@ export default function Enquiries() {
                           ) : (
                             "—"
                           )}
+                          {landingPage ? (
+                            <div className="enquiries-source-page" title={`Landed on ${landingPage}`}>
+                              Landed on {truncate(landingPage.replace(/^https?:\/\//i, ""), 36)}
+                            </div>
+                          ) : null}
                         </td>
                         <td>
                           <div className="enquiries-when">{when}</div>
                         </td>
-                        <td>
+                        <td onClick={(event) => event.stopPropagation()}>
                           <StatusDropdown
                             currentStatus={st}
                             options={statusOptions}
@@ -1125,14 +1269,40 @@ export default function Enquiries() {
                         <td className="text-center">
                           <button
                             type="button"
+                            className={`enquiries-expand-btn${isExpanded ? " is-open" : ""}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              setExpandedId((current) => (current === row.id ? null : row.id));
+                            }}
+                            aria-label={isExpanded ? "Hide lead path" : "Show lead path"}
+                            aria-expanded={isExpanded}
+                          >
+                            <FontAwesomeIcon icon={faChevronDown} />
+                          </button>
+                          <button
+                            type="button"
                             className="admin-grid-action admin-grid-action--delete enquiries-delete-btn"
-                            onClick={() => openConfirmationDialog(row.id)}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              openConfirmationDialog(row.id);
+                            }}
                             aria-label="Delete enquiry"
                           >
                             <img src="/images/admin/delete.svg" alt="" width={12} height={14} style={{ filter: "brightness(10)" }} />
                           </button>
                         </td>
                       </tr>
+                      {isExpanded ? (
+                        <tr className="enquiries-insight-row">
+                          <td colSpan={9}>
+                            <EnquiryInsightPanel
+                              insight={row.insight}
+                              listingPage={row.listingPageLink}
+                            />
+                          </td>
+                        </tr>
+                      ) : null}
+                      </Fragment>
                     );
                   })
                 )}

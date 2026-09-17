@@ -1267,6 +1267,27 @@ html[data-admin-theme="dark"] .mu-user-type-badge--portal {
   border-color: rgba(167, 139, 250, 0.45);
 }
 
+html[data-admin-theme="dark"] .mu-user-logs-stat {
+  background: #111111;
+  border-color: #333333;
+  color: #5eead4;
+}
+
+html[data-admin-theme="dark"] .mu-user-logs-stat strong,
+html[data-admin-theme="dark"] .mu-user-logs-list__title {
+  color: #f5f5f5;
+}
+
+html[data-admin-theme="dark"] .mu-user-logs-meta__label,
+html[data-admin-theme="dark"] .mu-user-logs-stat span,
+html[data-admin-theme="dark"] .mu-user-logs-list__meta {
+  color: #9ca3af;
+}
+
+html[data-admin-theme="dark"] .mu-user-logs-list li {
+  border-bottom-color: #333333;
+}
+
 html[data-admin-theme="dark"]
   .admin-layout-wrapper
   .manage-users-table-scroll

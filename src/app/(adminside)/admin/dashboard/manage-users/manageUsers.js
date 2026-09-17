@@ -18,6 +18,10 @@ import {
   faUserSlash,
   faClock,
   faCircleExclamation,
+  faClipboardList,
+  faEye,
+  faStar,
+  faRightToBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useRouter } from "next/navigation";
@@ -133,6 +137,46 @@ function UserVerifiedBadge({ verified }) {
   );
 }
 
+function parseAdminDateTime(raw) {
+  if (raw == null || raw === "") return null;
+  if (Array.isArray(raw) && raw.length >= 3) {
+    const y = Number(raw[0]);
+    const mo = Number(raw[1]) - 1;
+    const d = Number(raw[2]);
+    const h = raw.length > 3 ? Number(raw[3]) : 0;
+    const mi = raw.length > 4 ? Number(raw[4]) : 0;
+    const s = raw.length > 5 ? Number(raw[5]) : 0;
+    const ms = raw.length > 6 ? Math.floor(Number(raw[6]) / 1e6) : 0;
+    if ([y, mo, d, h, mi, s].some((x) => Number.isNaN(x))) return null;
+    return new Date(y, mo, d, h, mi, s, ms);
+  }
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatAdminDateTime(raw, withSeconds = true) {
+  const d = parseAdminDateTime(raw);
+  if (!d) return "—";
+  return d.toLocaleString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    ...(withSeconds ? { second: "2-digit" } : {}),
+    hour12: true,
+    timeZone: "Asia/Kolkata",
+  });
+}
+
+function activityTypeLabel(type) {
+  const t = String(type || "").toUpperCase();
+  if (t === "VIEW") return "Viewed";
+  if (t === "SHORTLIST") return "Shortlisted";
+  if (t === "SEARCH") return "Searched";
+  return t || "Activity";
+}
+
 function UserTypeBadge({ user }) {
   if (isPortalManagedUser(user)) {
     return (
@@ -182,6 +226,9 @@ export default function ManageUsers({
   /** Pending permanent delete confirmation (modal). */
   const [deleteConfirmUser, setDeleteConfirmUser] = useState(null);
   const [deleteSubmitting, setDeleteSubmitting] = useState(false);
+  const [userLogs, setUserLogs] = useState(null);
+  const [userLogsLoading, setUserLogsLoading] = useState(false);
+  const [userLogsError, setUserLogsError] = useState("");
   /** Reject pending portal registration (modal). */
   const [rejectStaffUser, setRejectStaffUser] = useState(null);
   const [rejectStaffSubmitting, setRejectStaffSubmitting] = useState(false);
@@ -738,6 +785,54 @@ export default function ManageUsers({
     }
   };
 
+  const closeUserLogs = () => {
+    setUserLogs(null);
+    setUserLogsError("");
+    setUserLogsLoading(false);
+  };
+
+  const openUserLogs = async (user) => {
+    if (!isSuperAdmin || !user?.id) return;
+    setUserLogs({
+      userId: user.id,
+      fullName: user.fullName,
+      email: user.email,
+      phone: user.phone,
+      userCategory: user.userCategory,
+      enabled: user.enabled,
+      verified: user.verified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      roles: (user.roles || []).map((r) => r?.roleName).filter(Boolean),
+      viewedCount: 0,
+      shortlistedCount: 0,
+      searchCount: 0,
+      loginCount: 0,
+      recentActivity: [],
+      recentLogins: [],
+    });
+    setUserLogsError("");
+    setUserLogsLoading(true);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}users/${user.id}/logs`,
+        adminApiWithAuth(),
+      );
+      if (response.status === 200 && response.data) {
+        setUserLogs(response.data);
+      } else {
+        setUserLogsError("Could not load user logs.");
+      }
+    } catch (error) {
+      console.error("Error fetching user logs:", error);
+      setUserLogsError(
+        error.response?.data?.message || "Could not load user logs.",
+      );
+    } finally {
+      setUserLogsLoading(false);
+    }
+  };
+
   const openDeleteConfirm = (row) => {
     if (
       currentUserId != null &&
@@ -910,6 +1005,7 @@ export default function ManageUsers({
         user.dashboardUsername,
         user.location,
         String(user.id ?? ""),
+        formatAdminDateTime(user.createdAt, false),
         ...(user.roles || []).map((r) => String(r?.roleName ?? "")),
       ]
         .filter(Boolean)
@@ -1036,6 +1132,7 @@ export default function ManageUsers({
                 <th>User type</th>
                 {isSuperAdmin ? (
                   <>
+                    <th>Created</th>
                     <th>Admin</th>
                     <th>Perms</th>
                     <th>Enq. code</th>
@@ -1050,7 +1147,7 @@ export default function ManageUsers({
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={isSuperAdmin ? 13 : 10}
+                    colSpan={isSuperAdmin ? 14 : 10}
                     className="text-center text-muted py-4"
                   >
                     {statusFilter !== "all" || roleFilter || userSearch.trim()
@@ -1106,6 +1203,12 @@ export default function ManageUsers({
                       </td>
                       {isSuperAdmin ? (
                         <>
+                          <td
+                            className="small text-muted"
+                            title={formatAdminDateTime(user.createdAt)}
+                          >
+                            {formatAdminDateTime(user.createdAt, false)}
+                          </td>
                           <td>
                             {pendingPortalApproval ? (
                               <span className="admin-chip-warn">Pending</span>
@@ -1199,6 +1302,17 @@ export default function ManageUsers({
                                 <FontAwesomeIcon icon={faTimes} />
                               </button>
                             </>
+                          ) : null}
+                          {isSuperAdmin ? (
+                            <button
+                              type="button"
+                              className="mu-action-btn mu-action-btn--logs"
+                              title="View user logs"
+                              aria-label="View user logs"
+                              onClick={() => openUserLogs(user)}
+                            >
+                              <FontAwesomeIcon icon={faClipboardList} />
+                            </button>
                           ) : null}
                           <button
                             className="mu-action-btn mu-action-btn--edit"
@@ -2027,6 +2141,133 @@ export default function ManageUsers({
             onClick={() => setAccountCreatedReveal(null)}
           >
             Done
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal
+        show={!!userLogs}
+        onHide={closeUserLogs}
+        centered
+        scrollable
+        dialogClassName="admin-modal-dialog admin-modal-dialog-wide"
+        contentClassName="admin-modal-surface"
+      >
+        <Modal.Header closeButton closeVariant="white">
+          <Modal.Title className="d-flex align-items-center gap-2">
+            <FontAwesomeIcon icon={faClipboardList} aria-hidden />
+            User logs
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {userLogs ? (
+            <>
+              <p className="mb-1 fw-semibold" style={{ fontSize: "1.05rem" }}>
+                {userLogs.fullName || "—"}
+              </p>
+              <p className="text-muted small mb-1" style={{ wordBreak: "break-all" }}>
+                {userLogs.email || "—"}
+                {userLogs.phone ? ` · ${userLogs.phone}` : ""}
+              </p>
+              <p className="text-muted small mb-3">
+                {(userLogs.roles || []).length
+                  ? (userLogs.roles || []).join(", ")
+                  : "No roles"}
+                {userLogs.userCategory
+                  ? ` · ${USER_CATEGORY_LABELS[userLogs.userCategory] || userLogs.userCategory}`
+                  : ""}
+              </p>
+
+              <div className="mu-user-logs-meta">
+                <div>
+                  <span className="mu-user-logs-meta__label">Account created</span>
+                  <strong>{formatAdminDateTime(userLogs.createdAt)}</strong>
+                </div>
+                <div>
+                  <span className="mu-user-logs-meta__label">Last updated</span>
+                  <strong>{formatAdminDateTime(userLogs.updatedAt)}</strong>
+                </div>
+              </div>
+
+              <div className="mu-user-logs-stats" aria-label="User activity counts">
+                <div className="mu-user-logs-stat">
+                  <FontAwesomeIcon icon={faEye} aria-hidden />
+                  <strong>{userLogs.viewedCount ?? 0}</strong>
+                  <span>Views</span>
+                </div>
+                <div className="mu-user-logs-stat">
+                  <FontAwesomeIcon icon={faStar} aria-hidden />
+                  <strong>{userLogs.shortlistedCount ?? 0}</strong>
+                  <span>Shortlists</span>
+                </div>
+                <div className="mu-user-logs-stat">
+                  <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden />
+                  <strong>{userLogs.searchCount ?? 0}</strong>
+                  <span>Searches</span>
+                </div>
+                <div className="mu-user-logs-stat">
+                  <FontAwesomeIcon icon={faRightToBracket} aria-hidden />
+                  <strong>{userLogs.loginCount ?? 0}</strong>
+                  <span>Logins</span>
+                </div>
+              </div>
+
+              {userLogsLoading ? (
+                <p className="text-muted small mb-0">Loading logs…</p>
+              ) : null}
+              {userLogsError ? (
+                <p className="text-danger small mb-3">{userLogsError}</p>
+              ) : null}
+
+              <div className="admin-modal-section-title">Login history</div>
+              {(userLogs.recentLogins || []).length === 0 ? (
+                <p className="text-muted small">No login events recorded yet.</p>
+              ) : (
+                <ul className="mu-user-logs-list">
+                  {(userLogs.recentLogins || []).map((row) => (
+                    <li key={row.id || `${row.loggedInAt}-${row.source}`}>
+                      <div className="mu-user-logs-list__title">
+                        {row.source || "Login"}
+                        {row.accountStatus ? ` · ${row.accountStatus}` : ""}
+                      </div>
+                      <div className="mu-user-logs-list__meta">
+                        {formatAdminDateTime(row.loggedInAt)}
+                        {row.locationLabel ? ` · ${row.locationLabel}` : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="admin-modal-section-title">Site activity</div>
+              {(userLogs.recentActivity || []).length === 0 ? (
+                <p className="text-muted small mb-0">No viewed, shortlisted, or search activity yet.</p>
+              ) : (
+                <ul className="mu-user-logs-list">
+                  {(userLogs.recentActivity || []).map((row) => (
+                    <li key={row.id || `${row.type}-${row.entitySlug}-${row.at}`}>
+                      <div className="mu-user-logs-list__title">
+                        {activityTypeLabel(row.type)}
+                        {row.entityLabel ? ` · ${row.entityLabel}` : ""}
+                      </div>
+                      <div className="mu-user-logs-list__meta">
+                        {formatAdminDateTime(row.at)}
+                        {row.entitySlug ? ` · ${row.entitySlug}` : ""}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </>
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            className="btn-admin-secondary"
+            variant="secondary"
+            onClick={closeUserLogs}
+          >
+            Close
           </Button>
         </Modal.Footer>
       </Modal>

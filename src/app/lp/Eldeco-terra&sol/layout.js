@@ -48,13 +48,12 @@ export const metadata = {
     "3 / 3.5 BHK premium residences at Sector 80, Gurugram. Exclusive starting price ₹3.11 Cr*.",
 };
 
-export default function RootLayout({ children }) {
+export default function EldecoLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${schibsted.variable} ${playfair.variable} ${playfairDisplay.variable} ${montserrat.variable}`}
+    <div
+      className={`eldeco-terra-sol-page ${schibsted.variable} ${playfair.variable} ${playfairDisplay.variable} ${montserrat.variable}`}
     >
-      <body className="overflow-x-hidden">{children}</body>
-    </html>
+      {children}
+    </div>
   );
 }

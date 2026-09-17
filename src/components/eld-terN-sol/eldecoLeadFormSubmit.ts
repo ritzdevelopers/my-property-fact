@@ -5,6 +5,7 @@ import {
 } from "@/lib/leadValidation";
 import {
   ELDECO_CRM_PROJECT_NAME,
+  ELDECO_GOOGLE_SHEET_NAME,
   ELDECO_GOOGLE_SHEET_URL,
 } from "../eldecoPaths";
 
@@ -83,9 +84,16 @@ export async function handleEldecoLeadFormSubmit(
       })
     : Promise.resolve();
 
+  const sheetBody = new FormData();
+  sheetBody.append("sheetName", ELDECO_GOOGLE_SHEET_NAME);
+  sheetBody.append("Name", formData.name);
+  sheetBody.append("Email", formData.email);
+  sheetBody.append("Phone", formData.phone);
+  sheetBody.append("Message", formData.message || "No Message");
+
   const sheetPromise = fetch(ELDECO_GOOGLE_SHEET_URL, {
     method: "POST",
-    body: JSON.stringify(formData),
+    body: sheetBody,
     mode: "no-cors",
   }).catch(() => {
     throw new Error("Could not save your enquiry. Please try again.");

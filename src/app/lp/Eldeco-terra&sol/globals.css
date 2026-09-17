@@ -50,7 +50,9 @@ html {
   scroll-behavior: smooth;
 }
 
-body {
+.eldeco-terra-sol-page {
+  min-height: 100%;
+  overflow-x: hidden;
   background: #ffffff;
   color: var(--color-eld-ink);
   font-family: var(--font-schibsted), system-ui, -apple-system, sans-serif;

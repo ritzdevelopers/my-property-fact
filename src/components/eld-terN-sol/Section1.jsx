@@ -114,7 +114,7 @@ export default function Section1() {
               src={asset}
               alt=""
               fill
-              preload={index === 0}
+              priority={index === 0}
               sizes="100vw"
               data-hero-slide
               className="object-cover"

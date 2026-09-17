@@ -1,9 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import { siteConfig } from "@/eldeco-echoes-of-eden/config/site";
 import { PhoneIcon } from "@/eldeco-echoes-of-eden/components/ui/PhoneIcon";
+
+const LANDING_HERO_HREF = "#home";
+
+function scrollToLandingHero(event: MouseEvent<HTMLAnchorElement>) {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) {
+    return;
+  }
+  event.preventDefault();
+  const hero = document.getElementById("home");
+  if (hero) {
+    hero.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.history.replaceState(null, "", LANDING_HERO_HREF);
+    return;
+  }
+  window.location.hash = "home";
+}
 
 export function Navbar() {
   const { brand, contact, navigation } = siteConfig;
@@ -29,7 +45,13 @@ export function Navbar() {
         <div className="mx-auto flex h-16 max-w-8xl items-stretch justify-between lg:h-[5.5rem]">
           <div className="flex min-w-0 flex-1 items-center px-4 sm:px-6 lg:px-8">
             <Link
-              href={brand.href}
+              href={brand.href || LANDING_HERO_HREF}
+              onClick={(event) => {
+                closeMenu();
+                scrollToLandingHero(event);
+              }}
+              title="Back to Echoes of Eden home"
+              aria-label="Back to Echoes of Eden hero"
               className="text-2xl font-extrabold tracking-wide text-[#2E7D32] transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2E7D32] sm:text-[2.75rem]"
             >
               {brand.name}

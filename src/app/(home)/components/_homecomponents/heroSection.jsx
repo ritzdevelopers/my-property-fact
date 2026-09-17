@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect } from "react";
 import { getImageProps } from "next/image";
 import SearchFilter from "./searchFilterNew";
 import "../home/home.css";
 import "./newmpfmetadata.css";
 import { isSpecificHeaderCity, readChosenHeaderCity } from "@/lib/headerChosenCity";
+import { MPF_GATEWAY_HIDDEN_EVENT } from "@/app/_global_components/mpfGatewayEvents";
 import {
   BANNER_ALT,
   BANNER_DESKTOP,
@@ -15,6 +17,35 @@ import {
 } from "./heroBannerAssets";
 
 const NEW_LAUNCHES_RAIL_ICON = "/icon/house (1).png";
+const HOME_HERO_HASH = "#mpf-home-hero";
+
+function scrollHomeHeroIntoView() {
+  const el = document.getElementById("mpf-home-hero");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function useHomeHeroHashScroll() {
+  useEffect(() => {
+    const shouldScroll = () => window.location.hash === HOME_HERO_HASH;
+    const run = () => {
+      if (shouldScroll()) scrollHomeHeroIntoView();
+    };
+
+    run();
+    window.addEventListener(MPF_GATEWAY_HIDDEN_EVENT, run);
+    window.addEventListener("hashchange", run);
+    const t1 = window.setTimeout(run, 80);
+    const t2 = window.setTimeout(run, 450);
+
+    return () => {
+      window.removeEventListener(MPF_GATEWAY_HIDDEN_EVENT, run);
+      window.removeEventListener("hashchange", run);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, []);
+}
 
 const HERO_TYPED_CITIES = [
   "Delhi NCR",
@@ -176,6 +207,7 @@ export default function HeroSection({
   title = "Find Flats & Property Across India | Buy & Invest",
   subtitle = "Browse flats, apartments, and commercial properties in India with verified listings, price trends, and expert insights.",
 }) {
+  useHomeHeroHashScroll();
   return (
     <section
       id="mpf-home-hero"

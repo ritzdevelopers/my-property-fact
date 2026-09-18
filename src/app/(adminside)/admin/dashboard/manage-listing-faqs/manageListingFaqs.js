@@ -5,15 +5,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
-import { useRouter } from "next/navigation";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
+
+const DEFAULT_PAGE_SIZE = 10;
 
 function emptyBulkRow() {
   return {
@@ -25,8 +26,7 @@ function emptyBulkRow() {
   };
 }
 
-export default function ManageListingFaqs({ list, pageOptions = [] }) {
-  const router = useRouter();
+export default function ManageListingFaqs({ pageOptions = [] }) {
   const { hasPermission } = useAdminRole();
   const canBulkAdd = hasPermission(ADMIN_PERMISSIONS.BULK_LISTING_FAQS);
 
@@ -52,6 +52,13 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [showKeepSelectionModal, setShowKeepSelectionModal] = useState(false);
   const [pendingPageChange, setPendingPageChange] = useState(null);
+  const [list, setList] = useState([]);
+  const [tableLoading, setTableLoading] = useState(true);
+  const [rowCount, setRowCount] = useState(0);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
 
   const mutationHeaders = () => {
     const token =
@@ -68,6 +75,69 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   useEffect(() => {
     loadPageOptions();
   }, [pageOptions]);
+
+  const mapFaqRows = useCallback((content, page, pageSize) => {
+    return (Array.isArray(content) ? content : []).map((item, index) => ({
+      ...item,
+      index: page * pageSize + index + 1,
+      id: item.pageSlug,
+      noOfFaqs: item.noOfFaqs ?? item.faqs?.length ?? 0,
+    }));
+  }, []);
+
+  const fetchListingFaqs = useCallback(async (page, pageSize) => {
+    setTableLoading(true);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get-all`,
+        {
+          params: { page, size: pageSize },
+        },
+      );
+      const data = response.data ?? {};
+      const content = data.content ?? [];
+      const rows = mapFaqRows(content, page, pageSize);
+      setList(rows);
+      setRowCount(Number(data.totalElements) || 0);
+      return rows;
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Could not load listing page FAQs",
+      );
+      setList([]);
+      setRowCount(0);
+      return [];
+    } finally {
+      setTableLoading(false);
+    }
+  }, [mapFaqRows]);
+
+  const refreshFaqTable = useCallback(async () => {
+    const rows = await fetchListingFaqs(
+      paginationModel.page,
+      paginationModel.pageSize,
+    );
+    if (showFaqList && pageSlug) {
+      const updatedPage = rows.find((item) => item.pageSlug === pageSlug);
+      if (updatedPage?.faqs?.length) {
+        setFaqList(updatedPage.faqs);
+      } else {
+        setShowFaqList(false);
+        setPageSlug("");
+        setPageTitle("");
+      }
+    }
+  }, [
+    fetchListingFaqs,
+    pageSlug,
+    paginationModel.page,
+    paginationModel.pageSize,
+    showFaqList,
+  ]);
+
+  useEffect(() => {
+    fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
+  }, [fetchListingFaqs, paginationModel.page, paginationModel.pageSize]);
 
   const resolvePageTitle = (slug) => {
     const match = pageOptions.find((opt) => opt.pageSlug === slug);
@@ -129,7 +199,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
       );
       if (response.data.isSuccess === 1) {
         toast.success(response.data.message);
-        router.refresh();
+        await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
         setShow(false);
         setShowFaqList(false);
       } else {
@@ -172,10 +242,17 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     );
   };
 
-  const getFirstFaqForPage = (slug) => {
+  const getFirstFaqForPage = async (slug) => {
     if (!slug) return null;
-    const page = (list || []).find((item) => item.pageSlug === slug);
-    return page?.faqs?.[0] || null;
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get/${encodeURIComponent(slug)}`,
+      );
+      const faqs = Array.isArray(response.data) ? response.data : [];
+      return faqs[0] || null;
+    } catch {
+      return null;
+    }
   };
 
   const resolveBulkPageTitle = (value) =>
@@ -195,11 +272,11 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
   };
 
   /** No: only this FAQ row + load that page's first FAQ. */
-  const applyPageToSingleBulkRow = (index, pageSlug, pageTitle) => {
-    const firstFaq = getFirstFaqForPage(pageSlug);
+  const applyPageToSingleBulkRow = async (index, pageSlugValue, pageTitleValue) => {
+    const firstFaq = await getFirstFaqForPage(pageSlugValue);
     updateBulkRow(index, {
-      pageSlug,
-      pageTitle,
+      pageSlug: pageSlugValue,
+      pageTitle: pageTitleValue,
       question: firstFaq?.question ?? "",
       answer: firstFaq?.answer ?? "",
       sortOrder: firstFaq?.sortOrder ?? 0,
@@ -246,10 +323,10 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
     setPendingPageChange(null);
   };
 
-  const confirmUseFirstFaq = () => {
+  const confirmUseFirstFaq = async () => {
     if (!pendingPageChange) return;
     // No → only this single row; load first FAQ for the selected page.
-    applyPageToSingleBulkRow(
+    await applyPageToSingleBulkRow(
       pendingPageChange.index,
       pendingPageChange.pageSlug,
       pendingPageChange.pageTitle,
@@ -330,7 +407,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         toast.success(response.data.message);
         setShowBulk(false);
         setBulkRows([emptyBulkRow()]);
-        router.refresh();
+        await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
       } else {
         toast.error(response?.data?.message || "Failed to bulk add FAQs");
       }
@@ -408,7 +485,15 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         exportIconType="add"
       />
       <div className="table-container">
-        <DataTable columns={columns} list={list} />
+        <DataTable
+          columns={columns}
+          list={list}
+          paginationMode="server"
+          rowCount={rowCount}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          loading={tableLoading}
+        />
       </div>
 
       <Modal
@@ -843,6 +928,7 @@ export default function ManageListingFaqs({ list, pageOptions = [] }) {
         confirmBox={showConfirmationBox}
         setConfirmBox={setShowConfirmationBox}
         api={`${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/delete/${faqId}`}
+        onSuccess={refreshFaqTable}
       />
     </>
   );

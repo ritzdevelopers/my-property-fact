@@ -127,6 +127,7 @@ export function LeadForm({ compact = false, onComplete }) {
         phone: form.phone,
         homeType: form.cfg,
       });
+      sessionStorage.setItem('userFilled', 'true');
       onComplete?.();
       goToEchoesEdenThankYou();
     } catch (error) {

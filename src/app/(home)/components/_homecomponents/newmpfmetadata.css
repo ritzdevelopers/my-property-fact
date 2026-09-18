@@ -388,6 +388,20 @@
   width: 100%;
 }
 
+.home-projects-preview__viewport.is-draggable {
+  cursor: grab;
+  touch-action: pan-x pan-y;
+}
+
+.home-projects-preview__viewport.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.home-projects-preview__viewport.is-dragging .home-project-card__hit {
+  pointer-events: none;
+}
+
 .home-projects-preview__viewport.is-loading {
   pointer-events: none;
   opacity: 0.35;

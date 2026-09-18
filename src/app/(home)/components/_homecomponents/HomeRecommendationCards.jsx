@@ -345,12 +345,20 @@ export default function HomeRecommendationCards({
   );
   const [visibleCount, setVisibleCount] = useState(4);
   const [startIndex, setStartIndex] = useState(0);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
   const viewportRef = useRef(null);
+  const dragStartRef = useRef({ x: 0, pointerId: null });
+  const hasDraggedRef = useRef(false);
+  const scrollPxRef = useRef(0);
+  const wheelSnapTimerRef = useRef(null);
 
+  const tileStep = TILE_WIDTH + TILE_GAP;
   const maxStartIndex = Math.max(0, safeItems.length - visibleCount);
   const canSlide = safeItems.length > visibleCount;
   const trackStyle = {
-    transform: `translateX(-${startIndex * (TILE_WIDTH + TILE_GAP)}px)`,
+    transform: `translateX(-${startIndex * tileStep - dragOffset}px)`,
+    transition: isDragging ? "none" : undefined,
     "--preview-visible": visibleCount,
     "--tile-width": `${TILE_WIDTH}px`,
     "--tile-gap": `${TILE_GAP}px`,
@@ -358,6 +366,8 @@ export default function HomeRecommendationCards({
 
   useEffect(() => {
     setStartIndex(0);
+    setDragOffset(0);
+    setIsDragging(false);
   }, [items, kind, title]);
 
   useEffect(() => {
@@ -382,6 +392,12 @@ export default function HomeRecommendationCards({
   useEffect(() => {
     setStartIndex((prev) => Math.min(prev, maxStartIndex));
   }, [maxStartIndex]);
+
+  useEffect(() => {
+    if (!isDragging) {
+      scrollPxRef.current = startIndex * tileStep;
+    }
+  }, [isDragging, startIndex, tileStep]);
 
   const scrollRailBy = useCallback((direction) => {
     const viewport = viewportRef.current;
@@ -422,6 +438,136 @@ export default function HomeRecommendationCards({
     }
     scrollRailBy(1);
   };
+
+  const finishDrag = useCallback(
+    (clientX) => {
+      const delta = clientX - dragStartRef.current.x;
+      const nextPx = Math.max(
+        0,
+        Math.min(maxStartIndex * tileStep, startIndex * tileStep - delta),
+      );
+      const nextIndex = Math.round(nextPx / tileStep);
+      scrollPxRef.current = nextIndex * tileStep;
+      setStartIndex(nextIndex);
+      setDragOffset(0);
+      setIsDragging(false);
+      dragStartRef.current.pointerId = null;
+    },
+    [maxStartIndex, startIndex, tileStep],
+  );
+
+  const handleViewportPointerDown = (event) => {
+    if (!canSlide || loading) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+
+    hasDraggedRef.current = false;
+    dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
+    setIsDragging(true);
+    setDragOffset(0);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleViewportPointerMove = (event) => {
+    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
+
+    const delta = event.clientX - dragStartRef.current.x;
+    if (Math.abs(delta) > 6) {
+      hasDraggedRef.current = true;
+    }
+    setDragOffset(delta);
+  };
+
+  const handleViewportPointerUp = (event) => {
+    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    finishDrag(event.clientX);
+  };
+
+  const handleViewportPointerCancel = (event) => {
+    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    setDragOffset(0);
+    setIsDragging(false);
+    dragStartRef.current.pointerId = null;
+  };
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+
+    const preventMisclick = (event) => {
+      if (!hasDraggedRef.current) return;
+      event.preventDefault();
+      event.stopPropagation();
+      hasDraggedRef.current = false;
+    };
+
+    viewport.addEventListener("click", preventMisclick, true);
+    return () => viewport.removeEventListener("click", preventMisclick, true);
+  }, []);
+
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || !canSlide || loading) return undefined;
+
+    const getWheelDelta = (event) => {
+      const { deltaX, deltaY, shiftKey } = event;
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 0.5) {
+        return deltaX;
+      }
+      if (shiftKey && Math.abs(deltaY) > 0.5) {
+        return deltaY;
+      }
+      return 0;
+    };
+
+    const applyScrollPx = (px, snap) => {
+      const maxPx = maxStartIndex * tileStep;
+      const clamped = Math.max(0, Math.min(maxPx, px));
+      scrollPxRef.current = clamped;
+
+      if (snap) {
+        const nextIndex = Math.round(clamped / tileStep);
+        const snappedPx = nextIndex * tileStep;
+        scrollPxRef.current = snappedPx;
+        setStartIndex(nextIndex);
+        setDragOffset(0);
+        return;
+      }
+
+      const baseIndex = Math.min(maxStartIndex, Math.floor(clamped / tileStep));
+      setStartIndex(baseIndex);
+      setDragOffset(baseIndex * tileStep - clamped);
+    };
+
+    const scheduleSnap = () => {
+      clearTimeout(wheelSnapTimerRef.current);
+      wheelSnapTimerRef.current = setTimeout(() => {
+        applyScrollPx(scrollPxRef.current, true);
+      }, 120);
+    };
+
+    const onWheel = (event) => {
+      const delta = getWheelDelta(event);
+      if (!delta) return;
+
+      event.preventDefault();
+      applyScrollPx(scrollPxRef.current + delta, false);
+      scheduleSnap();
+    };
+
+    viewport.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      viewport.removeEventListener("wheel", onWheel);
+      clearTimeout(wheelSnapTimerRef.current);
+    };
+  }, [canSlide, loading, maxStartIndex, tileStep]);
 
   const showViewMore = Boolean(
     cityHref && !loading && safeItems.length < FEW_ITEMS_THRESHOLD,
@@ -682,8 +828,12 @@ export default function HomeRecommendationCards({
       <div className="home-projects-preview__stage">
         {loading ? <SectionLoader cityName={cityName} overlay /> : null}
         <div
-          className={`home-projects-preview__viewport${loading ? " is-loading" : ""}`}
+          className={`home-projects-preview__viewport${loading ? " is-loading" : ""}${canSlide ? " is-draggable" : ""}${isDragging ? " is-dragging" : ""}`}
           ref={viewportRef}
+          onPointerDown={handleViewportPointerDown}
+          onPointerMove={handleViewportPointerMove}
+          onPointerUp={handleViewportPointerUp}
+          onPointerCancel={handleViewportPointerCancel}
         >
           <div
             className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}

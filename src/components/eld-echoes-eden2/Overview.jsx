@@ -23,8 +23,8 @@ export function KeyFacts() {
     ['Sizes', '1550 and 1850 sq ft'],
     ['Starting price', '₹1.99 Cr*'],
     ['Land and open space', '5 acres, 80% open'],
-    ['Possession', <span className={s.confirm}>date</span>],
-    ['Towers and homes', <span className={s.confirm}>count</span>],
+    ['Possession', <span key="possession" className={s.confirm}>date</span>],
+    ['Towers and homes', <span key="towers" className={s.confirm}>count</span>],
   ];
   return (
     <section aria-label="Key facts" className={s.factsWrap}>

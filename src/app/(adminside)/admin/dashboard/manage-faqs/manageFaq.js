@@ -5,16 +5,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { AdminTableDeleteIcon } from "../common-model/admin-table-icons";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
 import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
-import { useRouter } from "next/navigation";
-export default function ManageFaqs({ list, projectsList }) {
-    const router = useRouter();
 
+const DEFAULT_PAGE_SIZE = 10;
+
+export default function ManageFaqs({ projectsList }) {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState("");
     const [buttonName, setButtonName] = useState("");
@@ -28,6 +28,13 @@ export default function ManageFaqs({ list, projectsList }) {
     const [showFaqList, setShowFaqList] = useState(false);
     const [faqList, setFaqList] = useState([]);
     const [projetOption, setProjectOption] = useState([]);
+    const [list, setList] = useState([]);
+    const [tableLoading, setTableLoading] = useState(true);
+    const [rowCount, setRowCount] = useState(0);
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: DEFAULT_PAGE_SIZE,
+    });
 
     const mutationHeaders = () => {
         const token =
@@ -36,6 +43,70 @@ export default function ManageFaqs({ list, projectsList }) {
             "Content-Type": "application/json",
         };
     };
+
+    const mapFaqRows = useCallback((content, page, pageSize) => {
+        return (Array.isArray(content) ? content : []).map((item, index) => ({
+            ...item,
+            index: page * pageSize + index + 1,
+            id: item.projectId,
+            noOfFaqs: item.noOfFaqs ?? item.projectFaq?.length ?? 0,
+        }));
+    }, []);
+
+    const fetchFaqs = useCallback(async (page, pageSize) => {
+        setTableLoading(true);
+        try {
+            const response = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}project-faqs/get-all`,
+                {
+                    params: { page, size: pageSize },
+                }
+            );
+            const data = response.data ?? {};
+            const content = data.content ?? [];
+            const rows = mapFaqRows(content, page, pageSize);
+            setList(rows);
+            setRowCount(Number(data.totalElements) || 0);
+            return rows;
+        } catch (error) {
+            toast.error(
+                error?.response?.data?.message || "Could not load FAQs"
+            );
+            setList([]);
+            setRowCount(0);
+            return [];
+        } finally {
+            setTableLoading(false);
+        }
+    }, [mapFaqRows]);
+
+    const refreshFaqTable = useCallback(async () => {
+        const rows = await fetchFaqs(
+            paginationModel.page,
+            paginationModel.pageSize
+        );
+        if (showFaqList && projectId) {
+            const updatedProject = rows.find(
+                (item) => Number(item.projectId) === Number(projectId)
+            );
+            if (updatedProject?.projectFaq?.length) {
+                setFaqList(updatedProject.projectFaq);
+            } else {
+                setShowFaqList(false);
+                setProjectId(0);
+            }
+        }
+    }, [
+        fetchFaqs,
+        paginationModel.page,
+        paginationModel.pageSize,
+        projectId,
+        showFaqList,
+    ]);
+
+    useEffect(() => {
+        fetchFaqs(paginationModel.page, paginationModel.pageSize);
+    }, [fetchFaqs, paginationModel.page, paginationModel.pageSize]);
 
     //Handling submitting form
     const handleSubmit = async (e) => {
@@ -82,7 +153,7 @@ export default function ManageFaqs({ list, projectsList }) {
                 );
                 if (response.data.isSuccess === 1) {
                     toast.success(response.data.message);
-                    router.refresh();
+                    await fetchFaqs(paginationModel.page, paginationModel.pageSize);
                     setShow(false);
                     setShowFaqList(false);
                 } else {
@@ -166,7 +237,15 @@ export default function ManageFaqs({ list, projectsList }) {
         <>
             <DashboardHeader buttonName={"+Add FAQ"} functionName={openAddModel} heading={"Manage FAQs"} />
             <div className="table-container">
-                <DataTable columns={columns} list={list} />
+                <DataTable
+                    columns={columns}
+                    list={list}
+                    paginationMode="server"
+                    rowCount={rowCount}
+                    paginationModel={paginationModel}
+                    onPaginationModelChange={setPaginationModel}
+                    loading={tableLoading}
+                />
             </div>
             <Modal size="lg" show={show} onHide={() => setShow(false)} centered>
                 <Modal.Header closeButton>
@@ -289,6 +368,7 @@ export default function ManageFaqs({ list, projectsList }) {
                 confirmBox={showConfirmationBox}
                 setConfirmBox={setShowConfirmationBox}
                 api={`${process.env.NEXT_PUBLIC_API_URL}project-faqs/delete/${faqId}`}
+                onSuccess={refreshFaqTable}
             />
         </>
     );

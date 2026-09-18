@@ -41,6 +41,8 @@ export default function LazyBelowFold() {
     "/eldeco-7-peaks/thank-you",
     "/eldeco-echoes-of-eden",
     "/eldeco-echoes-of-eden/thankyou",
+    "/lp/eldeco-echoes-of-eden",
+    "/lp/eldeco-echoes-of-eden/thankyou",
     "/Eldeco-terra&sol",
     "/Eldeco-terra&sol/thankyou",
     "/Eldeco-terra%26sol",

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Script from "next/script";
 import {
   ECHOES_EDEN_LANDING_PATH,
 } from "@/components/eld-echoes-eden2/echoesEdenLeadSubmit";
@@ -27,6 +28,32 @@ export default function ThankYouPage() {
   };
 
   return (
+    <>
+      <Script
+        id="spotify-ads-lead-pixel"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(w, d){
+              var id='spdt-capture', n='script';
+              if (!d.getElementById(id)) {
+                w.spdt = w.spdt || function() {
+                  (w.spdt.q = w.spdt.q || []).push(arguments);
+                };
+                var e = d.createElement(n); e.id = id; e.async=1;
+                e.src = 'https://pixel.byspotify.com/ping.min.js';
+                var s = d.getElementsByTagName(n)[0];
+                s.parentNode.insertBefore(e, s);
+              }
+              w.spdt('conf', { key: '534241ed97624828ac8decf3ea10a044' });
+              w.spdt('lead', {
+                value: 1.0,
+                currency: 'INR',
+              });
+            })(window, document);
+          `,
+        }}
+      />
     <main className={styles.page}>
       <div className={styles.glowTop} aria-hidden="true" />
       <div className={styles.glowBottom} aria-hidden="true" />
@@ -53,5 +80,6 @@ export default function ThankYouPage() {
         </button>
       </section>
     </main>
+    </>
   );
 }

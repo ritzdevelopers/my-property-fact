@@ -4,6 +4,7 @@ import {
   Playfair_Display,
   Schibsted_Grotesk,
 } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 /*
@@ -50,10 +51,34 @@ export const metadata = {
 
 export default function EldecoLayout({ children }) {
   return (
-    <div
-      className={`eldeco-terra-sol-page ${schibsted.variable} ${playfair.variable} ${playfairDisplay.variable} ${montserrat.variable}`}
-    >
-      {children}
-    </div>
+    <>
+      <Script
+        id="spotify-ads-pixel"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(w, d){
+              var id='spdt-capture', n='script';
+              if (!d.getElementById(id)) {
+                w.spdt = w.spdt || function() {
+                  (w.spdt.q = w.spdt.q || []).push(arguments);
+                };
+                var e = d.createElement(n); e.id = id; e.async=1;
+                e.src = 'https://pixel.byspotify.com/ping.min.js';
+                var s = d.getElementsByTagName(n)[0];
+                s.parentNode.insertBefore(e, s);
+              }
+              w.spdt('conf', { key: '534241ed97624828ac8decf3ea10a044' });
+              w.spdt('view');
+            })(window, document);
+          `,
+        }}
+      />
+      <div
+        className={`eldeco-terra-sol-page ${schibsted.variable} ${playfair.variable} ${playfairDisplay.variable} ${montserrat.variable}`}
+      >
+        {children}
+      </div>
+    </>
   );
 }

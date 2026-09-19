@@ -2,7 +2,7 @@
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import dynamic from "next/dynamic";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
@@ -12,16 +12,18 @@ import {
   AdminTableDeleteIcon,
   AdminTableEditIcon,
 } from "../common-model/admin-table-icons";
-import { useRouter } from "next/navigation";
 import {
   LISTING_CONTENT_CATEGORIES,
   getListingPageCategory,
   getListingPageCategoryLabel,
 } from "@/lib/listingPageSlugOptions";
+import { fetchListingPageOptions } from "@/lib/fetchListingPageOptions";
 
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
 });
+
+const DEFAULT_PAGE_SIZE = 10;
 
 function emptyForm() {
   return {
@@ -37,87 +39,54 @@ function emptyForm() {
   };
 }
 
-function hasSavedBody(row) {
-  return Boolean(
-    String(row?.content || "").replace(/<[^>]*>/g, "").trim() ||
-      String(row?.intro || "").trim() ||
-      String(row?.heading || "").trim() ||
-      String(row?.metaTitle || "").trim() ||
-      String(row?.metaDescription || "").trim() ||
-      String(row?.metaKeywords || "").trim(),
-  );
+function mapContentRows(content, page, pageSize) {
+  return (Array.isArray(content) ? content : []).map((item, index) => ({
+    id: item.pageSlug,
+    index: page * pageSize + index + 1,
+    pageSlug: item.pageSlug,
+    pageTitle: item.pageTitle || item.pageSlug,
+    category: getListingPageCategory(item.pageSlug),
+    categoryLabel: getListingPageCategoryLabel(item.pageSlug),
+    heading: item.heading || "",
+    metaTitle: item.metaTitle || "",
+    recordId: item.id || 0,
+    hasContent: Boolean(item.hasContent),
+  }));
 }
 
-export default function ManageListingContent({
-  savedRows = [],
-  pageOptions = [],
-}) {
-  const router = useRouter();
+function formFromContent(data = {}, fallback = {}) {
+  return {
+    id: data.id || fallback.id || 0,
+    pageSlug: data.pageSlug || fallback.pageSlug || "",
+    pageTitle: data.pageTitle || fallback.pageTitle || "",
+    heading: data.heading || "",
+    intro: data.intro || "",
+    content: data.content || "",
+    metaTitle: data.metaTitle || "",
+    metaDescription: data.metaDescription || "",
+    metaKeywords: data.metaKeywords || "",
+  };
+}
+
+export default function ManageListingContent({ pageOptions = [] }) {
   const [category, setCategory] = useState("all");
   const [show, setShow] = useState(false);
   const [validated, setValidated] = useState(false);
   const [form, setForm] = useState(emptyForm());
   const [showLoading, setShowLoading] = useState(false);
+  const [formLoading, setFormLoading] = useState(false);
   const [showConfirmationBox, setShowConfirmationBox] = useState(false);
   const [deleteId, setDeleteId] = useState(0);
-
-  const savedBySlug = useMemo(() => {
-    const map = new Map();
-    (savedRows || []).forEach((row) => {
-      if (row?.pageSlug) map.set(row.pageSlug, row);
-    });
-    return map;
-  }, [savedRows]);
-
-  const list = useMemo(() => {
-    const rows = (pageOptions || []).map((option, index) => {
-      const saved = savedBySlug.get(option.pageSlug);
-      return {
-        id: option.pageSlug,
-        index: index + 1,
-        pageSlug: option.pageSlug,
-        pageTitle: saved?.pageTitle || option.pageTitle,
-        category: getListingPageCategory(option.pageSlug),
-        categoryLabel: getListingPageCategoryLabel(option.pageSlug),
-        heading: saved?.heading || "",
-        intro: saved?.intro || "",
-        content: saved?.content || "",
-        metaTitle: saved?.metaTitle || "",
-        metaDescription: saved?.metaDescription || "",
-        metaKeywords: saved?.metaKeywords || "",
-        recordId: saved?.id || 0,
-        hasContent: hasSavedBody(saved),
-      };
-    });
-
-    const known = new Set(rows.map((row) => row.pageSlug));
-    (savedRows || []).forEach((saved) => {
-      if (!saved?.pageSlug || known.has(saved.pageSlug)) return;
-      rows.push({
-        id: saved.pageSlug,
-        index: rows.length + 1,
-        pageSlug: saved.pageSlug,
-        pageTitle: saved.pageTitle || saved.pageSlug,
-        category: getListingPageCategory(saved.pageSlug),
-        categoryLabel: getListingPageCategoryLabel(saved.pageSlug),
-        heading: saved.heading || "",
-        intro: saved.intro || "",
-        content: saved.content || "",
-        metaTitle: saved.metaTitle || "",
-        metaDescription: saved.metaDescription || "",
-        metaKeywords: saved.metaKeywords || "",
-        recordId: saved.id || 0,
-        hasContent: hasSavedBody(saved),
-      });
-    });
-
-    const filtered =
-      category === "all"
-        ? rows
-        : rows.filter((row) => row.category === category);
-
-    return filtered.map((row, index) => ({ ...row, index: index + 1 }));
-  }, [pageOptions, savedBySlug, savedRows, category]);
+  const [list, setList] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
+  const [tableLoading, setTableLoading] = useState(true);
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: DEFAULT_PAGE_SIZE,
+  });
+  const [slugOptions, setSlugOptions] = useState(
+    Array.isArray(pageOptions) ? pageOptions : [],
+  );
 
   const mutationHeaders = () => ({
     "Content-Type": "application/json",
@@ -125,42 +94,131 @@ export default function ManageListingContent({
 
   const patchForm = (patch) => setForm((prev) => ({ ...prev, ...patch }));
 
-  const handlePageSlugChange = (value) => {
-    const match = pageOptions.find((opt) => opt.pageSlug === value);
-    const saved = savedBySlug.get(value);
-    patchForm({
-      pageSlug: value,
-      pageTitle: saved?.pageTitle || match?.pageTitle || "",
-      heading: saved?.heading || "",
-      intro: saved?.intro || "",
-      content: saved?.content || "",
-      metaTitle: saved?.metaTitle || "",
-      metaDescription: saved?.metaDescription || "",
-      metaKeywords: saved?.metaKeywords || "",
-      id: saved?.id || 0,
+  const fetchContents = useCallback(async (page, pageSize, selectedCategory) => {
+    setTableLoading(true);
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/get-all`,
+        {
+          params: {
+            page,
+            size: pageSize,
+            category: selectedCategory || "all",
+          },
+        },
+      );
+      const data = response.data ?? {};
+      if (Array.isArray(data)) {
+        const filtered =
+          selectedCategory && selectedCategory !== "all"
+            ? data.filter(
+                (item) => getListingPageCategory(item.pageSlug) === selectedCategory,
+              )
+            : data;
+        const from = page * pageSize;
+        setList(
+          mapContentRows(filtered.slice(from, from + pageSize), page, pageSize),
+        );
+        setRowCount(filtered.length);
+        return;
+      }
+      const rows = mapContentRows(data.content ?? [], page, pageSize);
+      setList(rows);
+      setRowCount(Number(data.totalElements) || 0);
+    } catch (error) {
+      toast.error(
+        error?.response?.data?.message || "Could not load listing page content",
+      );
+      setList([]);
+      setRowCount(0);
+    } finally {
+      setTableLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchContents(paginationModel.page, paginationModel.pageSize, category);
+  }, [fetchContents, paginationModel.page, paginationModel.pageSize, category]);
+
+  useEffect(() => {
+    if (Array.isArray(pageOptions) && pageOptions.length) {
+      setSlugOptions(pageOptions);
+      return;
+    }
+    let cancelled = false;
+    fetchListingPageOptions().then((options) => {
+      if (!cancelled) setSlugOptions(options);
     });
+    return () => {
+      cancelled = true;
+    };
+  }, [pageOptions]);
+
+  const loadContentBySlug = async (slug, recordId = 0) => {
+    if (recordId > 0) {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/get-by-id/${recordId}`,
+      );
+      return response.data?.pageSlug ? response.data : null;
+    }
+    if (!slug) return null;
+    const response = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/get-by-slug`,
+      { params: { slug } },
+    );
+    return response.data?.pageSlug ? response.data : null;
+  };
+
+  const handlePageSlugChange = async (value) => {
+    const match = slugOptions.find((opt) => opt.pageSlug === value);
+    patchForm({
+      ...emptyForm(),
+      pageSlug: value,
+      pageTitle: match?.pageTitle || "",
+    });
+    if (!value) return;
+    try {
+      setFormLoading(true);
+      const saved = await loadContentBySlug(value);
+      if (saved) {
+        setForm(formFromContent(saved, { pageTitle: match?.pageTitle || "" }));
+      }
+    } catch {
+      // Keep the selected page even if it has no saved content yet.
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const openAddModel = () => {
     setValidated(false);
     setForm(emptyForm());
     setShow(true);
+    if (!slugOptions.length) {
+      fetchListingPageOptions().then(setSlugOptions);
+    }
   };
 
-  const openEditModel = (row) => {
+  const openEditModel = async (row) => {
     setValidated(false);
     setForm({
+      ...emptyForm(),
       id: row.recordId || 0,
       pageSlug: row.pageSlug || "",
       pageTitle: row.pageTitle || "",
       heading: row.heading || "",
-      intro: row.intro || "",
-      content: row.content || "",
       metaTitle: row.metaTitle || "",
-      metaDescription: row.metaDescription || "",
-      metaKeywords: row.metaKeywords || "",
     });
     setShow(true);
+    setFormLoading(true);
+    try {
+      const saved = await loadContentBySlug(row.pageSlug, row.recordId);
+      if (saved) setForm(formFromContent(saved, row));
+    } catch {
+      toast.error("Could not load this page's content");
+    } finally {
+      setFormLoading(false);
+    }
   };
 
   const publicPageHref = (slug) => {
@@ -208,7 +266,11 @@ export default function ManageListingContent({
       if (response.data.isSuccess === 1) {
         toast.success(response.data.message);
         setShow(false);
-        router.refresh();
+        await fetchContents(
+          paginationModel.page,
+          paginationModel.pageSize,
+          category,
+        );
       } else {
         toast.error(response?.data?.message || "Failed to save content");
       }
@@ -311,7 +373,10 @@ export default function ManageListingContent({
                 ? "listing-content-filter is-active"
                 : "listing-content-filter"
             }
-            onClick={() => setCategory(item.id)}
+            onClick={() => {
+              setCategory(item.id);
+              setPaginationModel((prev) => ({ ...prev, page: 0 }));
+            }}
           >
             {item.label}
           </button>
@@ -319,7 +384,15 @@ export default function ManageListingContent({
       </div>
 
       <div className="table-container">
-        <DataTable columns={columns} list={list} />
+        <DataTable
+          columns={columns}
+          list={list}
+          paginationMode="server"
+          rowCount={rowCount}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          loading={tableLoading}
+        />
       </div>
 
       <Modal
@@ -341,6 +414,9 @@ export default function ManageListingContent({
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          {formLoading ? (
+            <div className="mpf-modal__empty">Loading page content…</div>
+          ) : null}
           <Form
             id="listing-content-form"
             noValidate
@@ -356,9 +432,14 @@ export default function ManageListingContent({
                     value={form.pageSlug}
                     onChange={(e) => handlePageSlugChange(e.target.value)}
                     required
+                    disabled={formLoading}
                   >
-                    <option value="">Choose a listing page…</option>
-                    {pageOptions.map((item) => (
+                    <option value="">
+                      {slugOptions.length
+                        ? "Choose a listing page…"
+                        : "Loading pages…"}
+                    </option>
+                    {slugOptions.map((item) => (
                       <option key={item.pageSlug} value={item.pageSlug}>
                         {item.pageTitle}
                       </option>
@@ -374,8 +455,17 @@ export default function ManageListingContent({
                     type="text"
                     placeholder="e.g. commercial-property-in-delhi"
                     value={form.pageSlug}
-                    onChange={(e) => handlePageSlugChange(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const match = slugOptions.find((opt) => opt.pageSlug === value);
+                      patchForm({
+                        pageSlug: value,
+                        pageTitle: match?.pageTitle || form.pageTitle,
+                      });
+                    }}
+                    onBlur={(e) => handlePageSlugChange(e.target.value)}
                     required
+                    disabled={formLoading}
                   />
                   <Form.Text>
                     URL path without a leading slash — e.g.{" "}
@@ -482,7 +572,7 @@ export default function ManageListingContent({
             type="submit"
             form="listing-content-form"
             className="btn btn-success mpf-modal__btn-primary"
-            disabled={showLoading}
+            disabled={showLoading || formLoading}
           >
             Save content <LoadingSpinner show={showLoading} />
           </Button>
@@ -493,6 +583,9 @@ export default function ManageListingContent({
         confirmBox={showConfirmationBox}
         setConfirmBox={setShowConfirmationBox}
         api={`${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/delete/${deleteId}`}
+        onSuccess={() =>
+          fetchContents(paginationModel.page, paginationModel.pageSize, category)
+        }
       />
     </>
   );

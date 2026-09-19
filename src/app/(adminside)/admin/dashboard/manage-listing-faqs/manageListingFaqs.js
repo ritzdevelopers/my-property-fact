@@ -13,6 +13,7 @@ import DataTable from "../common-model/data-table";
 import DashboardHeader from "../common-model/dashboardHeader";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
+import { fetchListingPageOptions } from "@/lib/fetchListingPageOptions";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -44,7 +45,10 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   const [showConfirmationBox, setShowConfirmationBox] = useState(false);
   const [showFaqList, setShowFaqList] = useState(false);
   const [faqList, setFaqList] = useState([]);
-  const [slugOptions, setSlugOptions] = useState(pageOptions);
+  const [slugOptions, setSlugOptions] = useState(
+    Array.isArray(pageOptions) ? pageOptions : [],
+  );
+  const [faqListLoading, setFaqListLoading] = useState(false);
 
   const [showBulk, setShowBulk] = useState(false);
   const [bulkRows, setBulkRows] = useState([emptyBulkRow()]);
@@ -68,12 +72,24 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     };
   };
 
-  const loadPageOptions = () => {
-    setSlugOptions(Array.isArray(pageOptions) ? pageOptions : []);
-  };
+  const loadPageOptions = useCallback(async () => {
+    const options = await fetchListingPageOptions();
+    setSlugOptions(options);
+    return options;
+  }, []);
 
   useEffect(() => {
-    loadPageOptions();
+    if (Array.isArray(pageOptions) && pageOptions.length) {
+      setSlugOptions(pageOptions);
+      return;
+    }
+    let cancelled = false;
+    fetchListingPageOptions().then((options) => {
+      if (!cancelled) setSlugOptions(options);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [pageOptions]);
 
   const mapFaqRows = useCallback((content, page, pageSize) => {
@@ -112,16 +128,35 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     }
   }, [mapFaqRows]);
 
+  const loadFaqsForSlug = useCallback(async (slug) => {
+    if (!slug) return [];
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get-by-slug`,
+        { params: { slug } },
+      );
+      return Array.isArray(response.data) ? response.data : [];
+    } catch {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get/${encodeURIComponent(slug)}`,
+      );
+      return Array.isArray(response.data) ? response.data : [];
+    }
+  }, []);
+
   const refreshFaqTable = useCallback(async () => {
-    const rows = await fetchListingFaqs(
-      paginationModel.page,
-      paginationModel.pageSize,
-    );
+    await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
     if (showFaqList && pageSlug) {
-      const updatedPage = rows.find((item) => item.pageSlug === pageSlug);
-      if (updatedPage?.faqs?.length) {
-        setFaqList(updatedPage.faqs);
-      } else {
+      try {
+        const faqs = await loadFaqsForSlug(pageSlug);
+        if (faqs.length) {
+          setFaqList(faqs);
+        } else {
+          setShowFaqList(false);
+          setPageSlug("");
+          setPageTitle("");
+        }
+      } catch {
         setShowFaqList(false);
         setPageSlug("");
         setPageTitle("");
@@ -129,6 +164,7 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     }
   }, [
     fetchListingFaqs,
+    loadFaqsForSlug,
     pageSlug,
     paginationModel.page,
     paginationModel.pageSize,
@@ -140,13 +176,13 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   }, [fetchListingFaqs, paginationModel.page, paginationModel.pageSize]);
 
   const resolvePageTitle = (slug) => {
-    const match = pageOptions.find((opt) => opt.pageSlug === slug);
+    const match = slugOptions.find((opt) => opt.pageSlug === slug);
     return match?.pageTitle || "";
   };
 
   const handlePageSlugChange = (value) => {
     setPageSlug(value);
-    const match = pageOptions.find((opt) => opt.pageSlug === value);
+    const match = slugOptions.find((opt) => opt.pageSlug === value);
     if (match) {
       setPageTitle(match.pageTitle);
     }
@@ -245,10 +281,7 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   const getFirstFaqForPage = async (slug) => {
     if (!slug) return null;
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get/${encodeURIComponent(slug)}`,
-      );
-      const faqs = Array.isArray(response.data) ? response.data : [];
+      const faqs = await loadFaqsForSlug(slug);
       return faqs[0] || null;
     } catch {
       return null;
@@ -256,7 +289,7 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   };
 
   const resolveBulkPageTitle = (value) =>
-    pageOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
+    slugOptions.find((opt) => opt.pageSlug === value)?.pageTitle ||
     resolvePageTitle(value) ||
     "";
 
@@ -439,11 +472,20 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     setShowConfirmationBox(true);
   };
 
-  const openFaqList = (data) => {
+  const openFaqList = async (data) => {
     setShowFaqList(true);
-    setFaqList(data.faqs || []);
+    setFaqList(Array.isArray(data.faqs) ? data.faqs : []);
     setPageSlug(data.pageSlug);
     setPageTitle(data.pageTitle || data.pageSlug);
+    setFaqListLoading(true);
+    try {
+      const faqs = await loadFaqsForSlug(data.pageSlug);
+      setFaqList(faqs);
+    } catch {
+      toast.error("Could not load FAQs for this page");
+    } finally {
+      setFaqListLoading(false);
+    }
   };
 
   const columns = [
@@ -816,7 +858,9 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
         </Modal.Header>
         <Modal.Body>
           <div className="admin-faq-list">
-            {faqList.length === 0 ? (
+            {faqListLoading ? (
+              <div className="mpf-modal__empty">Loading FAQs…</div>
+            ) : faqList.length === 0 ? (
               <div className="mpf-modal__empty">No FAQs on this page yet.</div>
             ) : (
               faqList.map((item, index) => (

@@ -1570,6 +1570,12 @@ html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-filter.is-a
   color: #f3f4f6;
 }
 
+html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-search {
+  background: #111111;
+  border-color: rgba(255, 255, 255, 0.16);
+  color: #f3f4f6;
+}
+
 html[data-admin-theme="dark"] .admin-layout-wrapper .listing-content-status {
   background: #1f1f1f;
   color: #d1d5db;

@@ -18,6 +18,7 @@ import {
   getListingPageCategoryLabel,
 } from "@/lib/listingPageSlugOptions";
 import { fetchListingPageOptions } from "@/lib/fetchListingPageOptions";
+import { fetchListingPageCatalog } from "@/lib/fetchListingPageCatalog";
 
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -80,6 +81,8 @@ export default function ManageListingContent({ pageOptions = [] }) {
   const [list, setList] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [tableLoading, setTableLoading] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -94,37 +97,18 @@ export default function ManageListingContent({ pageOptions = [] }) {
 
   const patchForm = (patch) => setForm((prev) => ({ ...prev, ...patch }));
 
-  const fetchContents = useCallback(async (page, pageSize, selectedCategory) => {
+  const fetchContents = useCallback(async (page, pageSize, selectedCategory, query) => {
     setTableLoading(true);
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/get-all`,
-        {
-          params: {
-            page,
-            size: pageSize,
-            category: selectedCategory || "all",
-          },
-        },
-      );
-      const data = response.data ?? {};
-      if (Array.isArray(data)) {
-        const filtered =
-          selectedCategory && selectedCategory !== "all"
-            ? data.filter(
-                (item) => getListingPageCategory(item.pageSlug) === selectedCategory,
-              )
-            : data;
-        const from = page * pageSize;
-        setList(
-          mapContentRows(filtered.slice(from, from + pageSize), page, pageSize),
-        );
-        setRowCount(filtered.length);
-        return;
-      }
-      const rows = mapContentRows(data.content ?? [], page, pageSize);
-      setList(rows);
-      setRowCount(Number(data.totalElements) || 0);
+      const data = await fetchListingPageCatalog({
+        kind: "content",
+        page,
+        pageSize,
+        category: selectedCategory || "all",
+        q: query || "",
+      });
+      setList(mapContentRows(data.content, page, pageSize));
+      setRowCount(data.totalElements);
     } catch (error) {
       toast.error(
         error?.response?.data?.message || "Could not load listing page content",
@@ -137,8 +121,31 @@ export default function ManageListingContent({ pageOptions = [] }) {
   }, []);
 
   useEffect(() => {
-    fetchContents(paginationModel.page, paginationModel.pageSize, category);
-  }, [fetchContents, paginationModel.page, paginationModel.pageSize, category]);
+    const timer = setTimeout(() => {
+      const next = searchInput.trim();
+      setSearchQuery((prev) => {
+        if (prev === next) return prev;
+        setPaginationModel((model) => ({ ...model, page: 0 }));
+        return next;
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    fetchContents(
+      paginationModel.page,
+      paginationModel.pageSize,
+      category,
+      searchQuery,
+    );
+  }, [
+    fetchContents,
+    paginationModel.page,
+    paginationModel.pageSize,
+    category,
+    searchQuery,
+  ]);
 
   useEffect(() => {
     if (Array.isArray(pageOptions) && pageOptions.length) {
@@ -270,6 +277,7 @@ export default function ManageListingContent({ pageOptions = [] }) {
           paginationModel.page,
           paginationModel.pageSize,
           category,
+          searchQuery,
         );
       } else {
         toast.error(response?.data?.message || "Failed to save content");
@@ -381,6 +389,13 @@ export default function ManageListingContent({ pageOptions = [] }) {
             {item.label}
           </button>
         ))}
+        <input
+          type="search"
+          className="listing-content-search"
+          placeholder="Search page or slug…"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
       </div>
 
       <div className="table-container">
@@ -584,7 +599,12 @@ export default function ManageListingContent({ pageOptions = [] }) {
         setConfirmBox={setShowConfirmationBox}
         api={`${process.env.NEXT_PUBLIC_API_URL}listing-page-contents/delete/${deleteId}`}
         onSuccess={() =>
-          fetchContents(paginationModel.page, paginationModel.pageSize, category)
+          fetchContents(
+            paginationModel.page,
+            paginationModel.pageSize,
+            category,
+            searchQuery,
+          )
         }
       />
     </>

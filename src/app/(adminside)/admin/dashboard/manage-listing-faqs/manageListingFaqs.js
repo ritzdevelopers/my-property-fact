@@ -14,6 +14,8 @@ import DashboardHeader from "../common-model/dashboardHeader";
 import { useAdminRole } from "../../_contexts/AdminRoleContext";
 import { ADMIN_PERMISSIONS } from "../../adminPermissions";
 import { fetchListingPageOptions } from "@/lib/fetchListingPageOptions";
+import { fetchListingPageCatalog } from "@/lib/fetchListingPageCatalog";
+import { LISTING_CONTENT_CATEGORIES } from "@/lib/listingPageSlugOptions";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -59,6 +61,9 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   const [list, setList] = useState([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [rowCount, setRowCount] = useState(0);
+  const [category, setCategory] = useState("all");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [paginationModel, setPaginationModel] = useState({
     page: 0,
     pageSize: DEFAULT_PAGE_SIZE,
@@ -101,20 +106,19 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     }));
   }, []);
 
-  const fetchListingFaqs = useCallback(async (page, pageSize) => {
+  const fetchListingFaqs = useCallback(async (page, pageSize, selectedCategory, query) => {
     setTableLoading(true);
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}listing-page-faqs/get-all`,
-        {
-          params: { page, size: pageSize },
-        },
-      );
-      const data = response.data ?? {};
-      const content = data.content ?? [];
-      const rows = mapFaqRows(content, page, pageSize);
+      const data = await fetchListingPageCatalog({
+        kind: "faqs",
+        page,
+        pageSize,
+        category: selectedCategory || "all",
+        q: query || "",
+      });
+      const rows = mapFaqRows(data.content, page, pageSize);
       setList(rows);
-      setRowCount(Number(data.totalElements) || 0);
+      setRowCount(data.totalElements);
       return rows;
     } catch (error) {
       toast.error(
@@ -145,35 +149,56 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
   }, []);
 
   const refreshFaqTable = useCallback(async () => {
-    await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
+    await fetchListingFaqs(
+      paginationModel.page,
+      paginationModel.pageSize,
+      category,
+      searchQuery,
+    );
     if (showFaqList && pageSlug) {
       try {
-        const faqs = await loadFaqsForSlug(pageSlug);
-        if (faqs.length) {
-          setFaqList(faqs);
-        } else {
-          setShowFaqList(false);
-          setPageSlug("");
-          setPageTitle("");
-        }
+        setFaqList(await loadFaqsForSlug(pageSlug));
       } catch {
-        setShowFaqList(false);
-        setPageSlug("");
-        setPageTitle("");
+        setFaqList([]);
       }
     }
   }, [
+    category,
     fetchListingFaqs,
     loadFaqsForSlug,
     pageSlug,
     paginationModel.page,
     paginationModel.pageSize,
+    searchQuery,
     showFaqList,
   ]);
 
   useEffect(() => {
-    fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
-  }, [fetchListingFaqs, paginationModel.page, paginationModel.pageSize]);
+    const timer = setTimeout(() => {
+      const next = searchInput.trim();
+      setSearchQuery((prev) => {
+        if (prev === next) return prev;
+        setPaginationModel((model) => ({ ...model, page: 0 }));
+        return next;
+      });
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  useEffect(() => {
+    fetchListingFaqs(
+      paginationModel.page,
+      paginationModel.pageSize,
+      category,
+      searchQuery,
+    );
+  }, [
+    fetchListingFaqs,
+    paginationModel.page,
+    paginationModel.pageSize,
+    category,
+    searchQuery,
+  ]);
 
   const resolvePageTitle = (slug) => {
     const match = slugOptions.find((opt) => opt.pageSlug === slug);
@@ -235,7 +260,12 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
       );
       if (response.data.isSuccess === 1) {
         toast.success(response.data.message);
-        await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
+        await fetchListingFaqs(
+          paginationModel.page,
+          paginationModel.pageSize,
+          category,
+          searchQuery,
+        );
         setShow(false);
         setShowFaqList(false);
       } else {
@@ -440,7 +470,12 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
         toast.success(response.data.message);
         setShowBulk(false);
         setBulkRows([emptyBulkRow()]);
-        await fetchListingFaqs(paginationModel.page, paginationModel.pageSize);
+        await fetchListingFaqs(
+          paginationModel.page,
+          paginationModel.pageSize,
+          category,
+          searchQuery,
+        );
       } else {
         toast.error(response?.data?.message || "Failed to bulk add FAQs");
       }
@@ -497,6 +532,7 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
     },
     { field: "pageTitle", headerName: "Page", flex: 1.2 },
     { field: "pageSlug", headerName: "Page Slug", flex: 1 },
+    { field: "categoryLabel", headerName: "Type", flex: 0.8 },
     {
       field: "noOfFaqs",
       headerName: "Total FAQs",
@@ -526,6 +562,32 @@ export default function ManageListingFaqs({ pageOptions = [] }) {
         exportFunction={canBulkAdd ? openBulkModel : undefined}
         exportIconType="add"
       />
+      <div className="listing-content-filters">
+        {LISTING_CONTENT_CATEGORIES.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={
+              category === item.id
+                ? "listing-content-filter is-active"
+                : "listing-content-filter"
+            }
+            onClick={() => {
+              setCategory(item.id);
+              setPaginationModel((prev) => ({ ...prev, page: 0 }));
+            }}
+          >
+            {item.label}
+          </button>
+        ))}
+        <input
+          type="search"
+          className="listing-content-search"
+          placeholder="Search page or slug…"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+      </div>
       <div className="table-container">
         <DataTable
           columns={columns}

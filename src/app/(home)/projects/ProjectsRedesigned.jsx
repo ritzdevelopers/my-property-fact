@@ -1414,7 +1414,7 @@ export default function ProjectsRedesigned({
               <p className="mpf-page-count">{projectCountLabel}</p>
             ) : null}
             {pageIntro ? (
-              <h2 className="mpf-page-intro">{pageIntro}</h2>
+              <p className="mpf-page-intro">{pageIntro}</p>
             ) : null}
           </div>
 

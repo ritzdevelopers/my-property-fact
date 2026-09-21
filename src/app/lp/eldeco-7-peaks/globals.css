@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f4ed;
+  --foreground: #18372f;
+  --card: #fffdf8;
+  --card-foreground: #18372f;
+  --popover: #fffdf8;
+  --popover-foreground: #18372f;
+  --primary: #15382f;
+  --primary-foreground: #fffdf8;
+  --secondary: #e2e9e2;
+  --secondary-foreground: #15382f;
+  --muted: #ece8df;
+  --muted-foreground: #5d6c67;
+  --accent: #b76a47;
+  --accent-foreground: #ffffff;
+  --destructive: #a82c2c;
+  --border: #15382f26;
+  --input: #15382f33;
+  --ring: #b76a47;
+  --chart-1: #b76a47;
+  --chart-2: #15382f;
+  --chart-3: #6f877a;
+  --chart-4: #d7b095;
+  --chart-5: #3f6558;
+  --radius: 0.875rem;
+  --sidebar: #f7f4ed;
+  --sidebar-foreground: #18372f;
+  --sidebar-primary: #15382f;
+  --sidebar-primary-foreground: #fffdf8;
+  --sidebar-accent: #e2e9e2;
+  --sidebar-accent-foreground: #15382f;
+  --sidebar-border: #15382f26;
+  --sidebar-ring: #b76a47;
+}
+
+* { border-color: var(--border); }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "DM Sans", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+button, a, input { -webkit-tap-highlight-color: transparent; }
+button:not(:disabled), a[href] { cursor: pointer; }
+::selection { background: #b76a4740; }
+.font-serif,
+.eldeco-7-peaks-lp h1,
+.eldeco-7-peaks-lp h2,
+.eldeco-7-peaks-lp h3,
+.eldeco-7-peaks-lp h4,
+.eldeco-7-peaks-lp h5,
+.eldeco-7-peaks-lp h6 {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif !important;
+}
+.section-shell { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
+.section-pad { padding-block: clamp(4.5rem, 8vw, 7.5rem); }
+.eyebrow { color: #a85f3f; font-size: .75rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.focus-ring:focus-visible { outline: 3px solid #b76a47; outline-offset: 3px; }
+.image-fallback {
+  background:
+    radial-gradient(circle at 72% 22%, rgba(183,106,71,.28), transparent 28%),
+    linear-gradient(135deg, #15382f 0%, #315b4e 55%, #779083 100%);
+}
+.gallery-swiper .swiper-slide { height: auto; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}

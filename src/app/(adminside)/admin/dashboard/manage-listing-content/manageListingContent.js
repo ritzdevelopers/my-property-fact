@@ -2,7 +2,7 @@
 import { LoadingSpinner } from "@/app/_global_components/LoadingSpinner";
 import axios from "axios";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "../../_lib/adminToast";
 import CommonModal from "../common-model/common-model";
@@ -17,8 +17,8 @@ import {
   getListingPageCategory,
   getListingPageCategoryLabel,
 } from "@/lib/listingPageSlugOptions";
-import { fetchListingPageOptions } from "@/lib/fetchListingPageOptions";
 import { fetchListingPageCatalog } from "@/lib/fetchListingPageCatalog";
+import { parseListingContentDocument } from "./parseListingContentDocument";
 
 const Editor = dynamic(() => import("../common-model/joe-editor"), {
   ssr: false,
@@ -69,7 +69,7 @@ function formFromContent(data = {}, fallback = {}) {
   };
 }
 
-export default function ManageListingContent({ pageOptions = [] }) {
+export default function ManageListingContent() {
   const [category, setCategory] = useState("all");
   const [show, setShow] = useState(false);
   const [validated, setValidated] = useState(false);
@@ -87,9 +87,11 @@ export default function ManageListingContent({ pageOptions = [] }) {
     page: 0,
     pageSize: DEFAULT_PAGE_SIZE,
   });
-  const [slugOptions, setSlugOptions] = useState(
-    Array.isArray(pageOptions) ? pageOptions : [],
-  );
+  const [pageSearch, setPageSearch] = useState("");
+  const [pageSearchResults, setPageSearchResults] = useState([]);
+  const [pageSearchLoading, setPageSearchLoading] = useState(false);
+  const [importParsing, setImportParsing] = useState(false);
+  const importFileInputRef = useRef(null);
 
   const mutationHeaders = () => ({
     "Content-Type": "application/json",
@@ -148,18 +150,29 @@ export default function ManageListingContent({ pageOptions = [] }) {
   ]);
 
   useEffect(() => {
-    if (Array.isArray(pageOptions) && pageOptions.length) {
-      setSlugOptions(pageOptions);
-      return;
-    }
-    let cancelled = false;
-    fetchListingPageOptions().then((options) => {
-      if (!cancelled) setSlugOptions(options);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [pageOptions]);
+    if (!show) return undefined;
+
+    const query = pageSearch.trim();
+    const timer = setTimeout(async () => {
+      setPageSearchLoading(true);
+      try {
+        const data = await fetchListingPageCatalog({
+          kind: "content",
+          page: 0,
+          pageSize: 20,
+          category: "all",
+          q: query,
+        });
+        setPageSearchResults(Array.isArray(data.content) ? data.content : []);
+      } catch {
+        setPageSearchResults([]);
+      } finally {
+        setPageSearchLoading(false);
+      }
+    }, query ? 250 : 0);
+
+    return () => clearTimeout(timer);
+  }, [show, pageSearch]);
 
   const loadContentBySlug = async (slug, recordId = 0) => {
     if (recordId > 0) {
@@ -176,19 +189,24 @@ export default function ManageListingContent({ pageOptions = [] }) {
     return response.data?.pageSlug ? response.data : null;
   };
 
-  const handlePageSlugChange = async (value) => {
-    const match = slugOptions.find((opt) => opt.pageSlug === value);
+  const selectListingPage = async (option) => {
+    const value = String(option?.pageSlug || "").trim();
+    const title = String(option?.pageTitle || "").trim();
+    if (!value) return;
+
+    setPageSearch(title);
+    setPageSearchResults([]);
     patchForm({
       ...emptyForm(),
       pageSlug: value,
-      pageTitle: match?.pageTitle || "",
+      pageTitle: title,
     });
-    if (!value) return;
+
     try {
       setFormLoading(true);
       const saved = await loadContentBySlug(value);
       if (saved) {
-        setForm(formFromContent(saved, { pageTitle: match?.pageTitle || "" }));
+        setForm(formFromContent(saved, { pageSlug: value, pageTitle: title }));
       }
     } catch {
       // Keep the selected page even if it has no saved content yet.
@@ -197,17 +215,71 @@ export default function ManageListingContent({ pageOptions = [] }) {
     }
   };
 
+  const handlePageSlugChange = async (value) => {
+    const normalized = String(value || "").trim().toLowerCase();
+    if (!normalized) return;
+
+    const match = pageSearchResults.find((opt) => opt.pageSlug === normalized);
+    await selectListingPage({
+      pageSlug: normalized,
+      pageTitle: match?.pageTitle || form.pageTitle || normalized,
+    });
+  };
+
   const openAddModel = () => {
     setValidated(false);
     setForm(emptyForm());
+    setPageSearch("");
+    setPageSearchResults([]);
     setShow(true);
-    if (!slugOptions.length) {
-      fetchListingPageOptions().then(setSlugOptions);
+  };
+
+  const canImportDocument =
+    Boolean(form.pageSlug.trim()) && Boolean(form.pageTitle.trim());
+
+  const showPagePickerResults =
+    !formLoading &&
+    pageSearchResults.length > 0 &&
+    !(form.pageSlug && pageSearch === form.pageTitle);
+
+  const openImportFilePicker = () => {
+    if (importParsing || !canImportDocument) return;
+    importFileInputRef.current?.click();
+  };
+
+  const handleImportFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file || !canImportDocument) return;
+
+    setImportParsing(true);
+    try {
+      const imported = await parseListingContentDocument(file, {
+        skipPageFields: true,
+      });
+      patchForm({
+        heading: imported.heading || "",
+        intro: imported.intro || "",
+        content: imported.content || "",
+        metaTitle: imported.metaTitle || "",
+        metaDescription: imported.metaDescription || "",
+        metaKeywords: imported.metaKeywords || "",
+      });
+      toast.success("Document imported. Review the fields before saving.");
+    } catch (error) {
+      toast.error(
+        error?.message ||
+          "Could not import the document. Please check the file format and try again.",
+      );
+    } finally {
+      setImportParsing(false);
     }
   };
 
   const openEditModel = async (row) => {
     setValidated(false);
+    setPageSearch(row.pageTitle || "");
+    setPageSearchResults([]);
     setForm({
       ...emptyForm(),
       id: row.recordId || 0,
@@ -220,7 +292,9 @@ export default function ManageListingContent({ pageOptions = [] }) {
     setFormLoading(true);
     try {
       const saved = await loadContentBySlug(row.pageSlug, row.recordId);
-      if (saved) setForm(formFromContent(saved, row));
+      if (saved) {
+        setForm(formFromContent(saved, row));
+      }
     } catch {
       toast.error("Could not load this page's content");
     } finally {
@@ -365,6 +439,15 @@ export default function ManageListingContent({ pageOptions = [] }) {
 
   return (
     <>
+      <input
+        ref={importFileInputRef}
+        type="file"
+        accept=".docx,.txt,.html,.htm,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/html"
+        onChange={handleImportFileChange}
+        style={{ display: "none" }}
+        aria-hidden="true"
+        tabIndex={-1}
+      />
       <DashboardHeader
         buttonName={"+ Add page content"}
         functionName={openAddModel}
@@ -443,23 +526,70 @@ export default function ManageListingContent({ pageOptions = [] }) {
               <div className="mpf-modal__grid mpf-modal__grid--2">
                 <Form.Group controlId="listingContentPage">
                   <Form.Label>Select page</Form.Label>
-                  <Form.Select
-                    value={form.pageSlug}
-                    onChange={(e) => handlePageSlugChange(e.target.value)}
-                    required
+                  <Form.Control
+                    type="search"
+                    placeholder="Search listing page…"
+                    value={pageSearch}
+                    onChange={(e) => setPageSearch(e.target.value)}
                     disabled={formLoading}
-                  >
-                    <option value="">
-                      {slugOptions.length
-                        ? "Choose a listing page…"
-                        : "Loading pages…"}
-                    </option>
-                    {slugOptions.map((item) => (
-                      <option key={item.pageSlug} value={item.pageSlug}>
-                        {item.pageTitle}
-                      </option>
-                    ))}
-                  </Form.Select>
+                    autoComplete="off"
+                  />
+                  {form.pageTitle && form.pageSlug ? (
+                    <Form.Text className="d-block mt-1">
+                      Selected: <strong>{form.pageTitle}</strong>
+                    </Form.Text>
+                  ) : null}
+                  {pageSearchLoading ? (
+                    <Form.Text className="d-block mt-1">Searching pages…</Form.Text>
+                  ) : null}
+                  {showPagePickerResults ? (
+                    <div
+                      className="listing-page-picker-results"
+                      style={{
+                        marginTop: "0.35rem",
+                        border: "1px solid #e6e8ec",
+                        borderRadius: "10px",
+                        maxHeight: "220px",
+                        overflowY: "auto",
+                      }}
+                    >
+                      {pageSearchResults.map((item) => (
+                        <button
+                          key={item.pageSlug}
+                          type="button"
+                          className="w-100 text-start border-0 bg-white px-3 py-2"
+                          style={{
+                            borderBottom: "1px solid #f1f3f5",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => selectListingPage(item)}
+                        >
+                          <div style={{ fontWeight: 600, fontSize: "0.875rem" }}>
+                            {item.pageTitle}
+                          </div>
+                          <div style={{ fontSize: "0.75rem", color: "#6b7280" }}>
+                            {item.pageSlug}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                  <input
+                    type="text"
+                    value={form.pageSlug}
+                    required
+                    readOnly
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    style={{
+                      opacity: 0,
+                      height: 0,
+                      width: 0,
+                      position: "absolute",
+                      pointerEvents: "none",
+                    }}
+                    onChange={() => {}}
+                  />
                   <Form.Control.Feedback type="invalid">
                     Page is required
                   </Form.Control.Feedback>
@@ -472,7 +602,9 @@ export default function ManageListingContent({ pageOptions = [] }) {
                     value={form.pageSlug}
                     onChange={(e) => {
                       const value = e.target.value;
-                      const match = slugOptions.find((opt) => opt.pageSlug === value);
+                      const match = pageSearchResults.find(
+                        (opt) => opt.pageSlug === value.trim().toLowerCase(),
+                      );
                       patchForm({
                         pageSlug: value,
                         pageTitle: match?.pageTitle || form.pageTitle,
@@ -501,6 +633,23 @@ export default function ManageListingContent({ pageOptions = [] }) {
                   </Form.Text>
                 </Form.Group>
               </div>
+              {canImportDocument ? (
+                <div className="mt-3">
+                  <button
+                    type="button"
+                    className="admin-header-btn admin-header-btn--secondary"
+                    onClick={openImportFilePicker}
+                    disabled={importParsing || formLoading}
+                  >
+                    {importParsing ? "Importing…" : "Import from Document"}
+                  </button>
+                  <Form.Text className="d-block mt-2">
+                    Upload a .docx, .html, or .txt file to fill heading, intro,
+                    editor, and meta fields. Page and slug stay as you entered
+                    above.
+                  </Form.Text>
+                </div>
+              ) : null}
             </div>
 
             <div className="mpf-modal__section">
@@ -526,10 +675,14 @@ export default function ManageListingContent({ pageOptions = [] }) {
               </Form.Group>
               <Form.Group controlId="listingContentEditor">
                 <Form.Label>Page editor</Form.Label>
-                <Editor
-                  value={form.content}
-                  onChange={(value) => patchForm({ content: value })}
-                />
+                {show && !formLoading ? (
+                  <Editor
+                    value={form.content}
+                    onChange={(value) => patchForm({ content: value })}
+                  />
+                ) : (
+                  <div className="mpf-modal__empty">Editor will load after page is selected…</div>
+                )}
                 <Form.Text>
                   This article appears on the public listing page below the
                   project cards.

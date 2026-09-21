@@ -37,6 +37,7 @@ import {
   BLOG_STATUS,
 } from "../common-model/adminContentFilters";
 import BlogPreviewModal from "./BlogPreviewModal";
+import { parseBlogDocument } from "./parseBlogDocument";
 
 
 // 🔥 This prevents SSR errors
@@ -363,8 +364,10 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
   const [blogs, setBlogs] = useState(list || []);
   const [togglingBlogIds, setTogglingBlogIds] = useState(() => new Set());
   const [previewBlog, setPreviewBlog] = useState(null);
+  const [importParsing, setImportParsing] = useState(false);
   const blogFormRef = useRef(null);
   const blogImageInputRef = useRef(null);
+  const importFileInputRef = useRef(null);
   const modalFormSnapshotRef = useRef(null);
   const skipDraftOnCloseRef = useRef(false);
   const autoDraftSavingRef = useRef(false);
@@ -809,6 +812,61 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
     setIsShowCityDropDown(false);
     resetScheduleFields();
     rememberModalSnapshot(inputFields, "", 0);
+  };
+
+  const openAddModelWithImport = (imported) => {
+    const importedFormData = {
+      ...inputFields,
+      blogTitle: imported.blogTitle || "",
+      blogKeywords: imported.blogKeywords || "",
+      blogMetaDescription: imported.blogMetaDescription || "",
+      slugUrl: imported.slugUrl || "",
+      authorName: imported.authorName || "",
+      blogCategory: imported.blogCategory || "",
+      cityId: imported.cityId || 0,
+    };
+    const importedDescription = imported.blogDescription || "";
+
+    setTitle("Add Blog");
+    setShowModal(true);
+    setValidated(false);
+    setButtonName("Add Blog");
+    setFormData(importedFormData);
+    setBlogDescription(importedDescription);
+    setPreviousBlogImage(null);
+    setBlogId(0);
+    setIsShowCityDropDown(String(importedFormData.blogCategory) === "5");
+    resetScheduleFields();
+    rememberModalSnapshot(importedFormData, importedDescription, 0);
+  };
+
+  const openImportFilePicker = () => {
+    if (importParsing) return;
+    importFileInputRef.current?.click();
+  };
+
+  const handleImportFileChange = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    setImportParsing(true);
+    try {
+      const imported = await parseBlogDocument(file, {
+        categoryList,
+        cityList,
+        authors: BLOG_AUTHORS,
+      });
+      openAddModelWithImport(imported);
+      toast.success("Document imported. Review the fields before publishing.");
+    } catch (error) {
+      toast.error(
+        error?.message ||
+          "Could not import the document. Please check the file format and try again.",
+      );
+    } finally {
+      setImportParsing(false);
+    }
   };
 
   //handling opening of image urls popup
@@ -1257,9 +1315,23 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
           ) : null}
         </Modal.Body>
       </Modal>
+      <input
+        ref={importFileInputRef}
+        type="file"
+        accept=".docx,.txt,.html,.htm,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/html"
+        onChange={handleImportFileChange}
+        style={{ display: "none" }}
+        aria-hidden="true"
+        tabIndex={-1}
+      />
       <DashboardHeader
         buttonName={"+ Add New Blog"}
         functionName={openAddModel}
+        secondaryButtonName={
+          importParsing ? "Importing…" : "Import Blog from Document"
+        }
+        secondaryFunctionName={openImportFilePicker}
+        secondaryDisabled={importParsing}
         heading={"Manage Blogs"}
         pageStyle="executive"
         exportExcel={"Export to Excel"}

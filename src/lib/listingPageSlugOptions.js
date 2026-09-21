@@ -51,8 +51,40 @@ function locationLabel(placeName, stateName) {
  * @param {Array} cityList - cities from /city/all API
  * @param {Array} [projects] - projects from /projects (required to filter live pages)
  */
-export function buildListingPageSlugOptions(cityList = [], projects = []) {
-  const options = [
+const HUB_CATEGORY_BY_PREFIX = {
+  "new-projects-in-": "new-projects",
+  "apartments-in-": "apartments",
+  "flats-in-": "flats",
+  "commercial-property-in-": "commercial",
+  "offices-and-shop-in-": "offices",
+};
+
+function hubMatchesCategory(hub, category) {
+  if (!category || category === "all") return true;
+  return HUB_CATEGORY_BY_PREFIX[hub.prefix] === category;
+}
+
+function includeIndiaHubPage(category, pageSlug) {
+  if (!category || category === "all") return true;
+  if (pageSlug === "projects/commercial") return category === "commercial";
+  if (pageSlug === "projects/new-launches") return category === "new-projects";
+  if (pageSlug === "projects/residential") return category === "apartments";
+  return false;
+}
+
+/**
+ * @param {Array} cityList
+ * @param {Array} [projects]
+ * @param {string} [category] - filter slug generation to one listing group
+ */
+export function buildListingPageSlugOptions(
+  cityList = [],
+  projects = [],
+  category = "all",
+) {
+  const cat = category || "all";
+  const options = [];
+  const indiaPages = [
     {
       pageSlug: "projects/commercial",
       pageTitle: "Commercial Property in India",
@@ -66,7 +98,20 @@ export function buildListingPageSlugOptions(cityList = [], projects = []) {
       pageTitle: "Residential Property in India",
     },
   ];
+
+  indiaPages.forEach((page) => {
+    if (includeIndiaHubPage(cat, page.pageSlug)) {
+      options.push(page);
+    }
+  });
+
   const projectList = Array.isArray(projects) ? projects : [];
+  const includeCityPages = cat === "all" || cat === "city";
+  const includeHubPages =
+    cat === "all" ||
+    ["commercial", "new-projects", "apartments", "flats", "offices"].includes(cat);
+  const includeConfigPages = cat === "all" || cat === "config";
+  const includeBhkPages = cat === "all" || cat === "bhk";
 
   for (const city of cityList) {
     const citySlug = city.slugURL || city.slugUrl || "";
@@ -75,44 +120,53 @@ export function buildListingPageSlugOptions(cityList = [], projects = []) {
     const placeLabel = locationLabel(cityName, stateName);
     if (!citySlug) continue;
 
-    options.push({
-      pageSlug: citySlug,
-      pageTitle: `Property in ${placeLabel}`,
-    });
-
-    for (const hub of LISTING_HUB_PREFIXES) {
+    if (includeCityPages) {
       options.push({
-        pageSlug: `${hub.prefix}${citySlug}`,
-        pageTitle: `${hub.label} ${placeLabel}`,
+        pageSlug: citySlug,
+        pageTitle: `Property in ${placeLabel}`,
       });
     }
 
-    for (const floor of LISTING_FLOOR_TYPES) {
-      if (!hasFloorListingDataInCity(projectList, citySlug, floor.slug)) continue;
-      options.push({
-        pageSlug: `${floor.slug}-in-${citySlug}`,
-        pageTitle: `${floor.label} ${placeLabel}`,
-      });
-    }
-
-    for (const n of LISTING_BHK_COUNTS) {
-      const bhkSlug = `${n}-bhk`;
-      if (hasFloorListingDataInCity(projectList, citySlug, bhkSlug)) {
+    if (includeHubPages) {
+      for (const hub of LISTING_HUB_PREFIXES) {
+        if (!hubMatchesCategory(hub, cat)) continue;
         options.push({
-          pageSlug: `${bhkSlug}-in-${citySlug}`,
-          pageTitle: `${n} BHK in ${placeLabel}`,
+          pageSlug: `${hub.prefix}${citySlug}`,
+          pageTitle: `${hub.label} ${placeLabel}`,
         });
       }
+    }
 
-      for (const category of LISTING_BHK_CATEGORIES) {
-        const compoundKey = `${bhkSlug}-${category.segment}`;
-        if (!hasCompoundListingDataInCity(projectList, citySlug, compoundKey)) {
-          continue;
-        }
+    if (includeConfigPages) {
+      for (const floor of LISTING_FLOOR_TYPES) {
+        if (!hasFloorListingDataInCity(projectList, citySlug, floor.slug)) continue;
         options.push({
-          pageSlug: `${compoundKey}-in-${citySlug}`,
-          pageTitle: `${n} BHK ${category.label} in ${placeLabel}`,
+          pageSlug: `${floor.slug}-in-${citySlug}`,
+          pageTitle: `${floor.label} ${placeLabel}`,
         });
+      }
+    }
+
+    if (includeBhkPages) {
+      for (const n of LISTING_BHK_COUNTS) {
+        const bhkSlug = `${n}-bhk`;
+        if (hasFloorListingDataInCity(projectList, citySlug, bhkSlug)) {
+          options.push({
+            pageSlug: `${bhkSlug}-in-${citySlug}`,
+            pageTitle: `${n} BHK in ${placeLabel}`,
+          });
+        }
+
+        for (const bhkCategory of LISTING_BHK_CATEGORIES) {
+          const compoundKey = `${bhkSlug}-${bhkCategory.segment}`;
+          if (!hasCompoundListingDataInCity(projectList, citySlug, compoundKey)) {
+            continue;
+          }
+          options.push({
+            pageSlug: `${compoundKey}-in-${citySlug}`,
+            pageTitle: `${n} BHK ${bhkCategory.label} in ${placeLabel}`,
+          });
+        }
       }
     }
   }

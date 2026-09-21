@@ -112,7 +112,7 @@ export default function ManageProjects({
   const initialFormData = {
     id: 0,
     builderId: 0,
-    cityId: 0,
+    cityId: null,
     stateId: 0,
     countryId: 0,
     propertyTypeId: 0,
@@ -175,7 +175,7 @@ export default function ManageProjects({
       ...prev,
       countryId,
       stateId: 0,
-      cityId: 0,
+      cityId: null,
     }));
     const country = countryData?.find((c) => c.id === countryId);
     setStates(country ? country?.stateList : []);
@@ -187,7 +187,7 @@ export default function ManageProjects({
     setFormData((prev) => ({
       ...prev,
       stateId,
-      cityId: 0,
+      cityId: null,
     }));
     const state = states.find((s) => s.id === stateId);
     setCities(state ? state.cityList : []);
@@ -246,7 +246,7 @@ export default function ManageProjects({
       projectLogo: null,
       projectThumbnail: null,
       builderId: project.builder?.id ?? 0,
-      cityId: project.cityId || 0,
+      cityId: project.cityId ?? null,
       stateId: project.stateId || 0,
       countryId: project.countryId || 0,
       locationMapPreview: project.locationMap && imageBase
@@ -353,18 +353,22 @@ export default function ManageProjects({
     }
 
     // Append DTO as JSON
-    const toId = (value) => {
+    const toRequiredId = (value) => {
       const n = Number(value);
       return Number.isFinite(n) && n > 0 ? n : 0;
     };
+    const toOptionalCityId = (value) => {
+      const n = Number(value);
+      return Number.isFinite(n) && n > 0 ? n : null;
+    };
     const dto = {
       ...formData,
-      cityId: toId(formData.cityId),
-      stateId: toId(formData.stateId),
-      countryId: toId(formData.countryId),
-      builderId: toId(formData.builderId),
-      propertyTypeId: toId(formData.propertyTypeId),
-      projectStatusId: toId(formData.projectStatusId),
+      cityId: toOptionalCityId(formData.cityId),
+      stateId: toRequiredId(formData.stateId),
+      countryId: toRequiredId(formData.countryId),
+      builderId: toRequiredId(formData.builderId),
+      propertyTypeId: toRequiredId(formData.propertyTypeId),
+      projectStatusId: toRequiredId(formData.projectStatusId),
     };
     delete dto.projectLogo;
     delete dto.locationMap;

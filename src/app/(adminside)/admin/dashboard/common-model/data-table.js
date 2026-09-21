@@ -102,14 +102,34 @@ export default function DataTable({
   checkboxSelection = true,
   showToolbar = true,
   getRowClassName,
+  paginationMode = "client",
+  rowCount,
+  paginationModel: paginationModelProp,
+  onPaginationModelChange,
+  loading = false,
 }) {
   const [mounted, setMounted] = useState(false);
+  const [clientPaginationModel, setClientPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const paginationModel = { page: 0, pageSize: 10 };
+  const isServerPagination = paginationMode === "server";
+  const paginationModel = isServerPagination
+    ? paginationModelProp ?? { page: 0, pageSize: 10 }
+    : clientPaginationModel;
+
+  const handlePaginationModelChange = (model) => {
+    if (isServerPagination) {
+      onPaginationModelChange?.(model);
+      return;
+    }
+    setClientPaginationModel(model);
+  };
 
   const mergedSx = useMemo(() => {
     if (typeof dataGridSx === "object" && dataGridSx !== null) {
@@ -142,7 +162,16 @@ export default function DataTable({
         <DataGrid
           rows={list ?? []}
           columns={columns ?? []}
-          initialState={{ pagination: { paginationModel } }}
+          initialState={
+            isServerPagination
+              ? undefined
+              : { pagination: { paginationModel: { page: 0, pageSize: 10 } } }
+          }
+          paginationMode={paginationMode}
+          rowCount={isServerPagination ? rowCount : undefined}
+          paginationModel={paginationModel}
+          onPaginationModelChange={handlePaginationModelChange}
+          loading={loading}
           pageSizeOptions={[10, 15, 20, 50]}
           rowHeight={gridRowHeight}
           getRowHeight={getRowHeight}

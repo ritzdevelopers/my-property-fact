@@ -39,6 +39,8 @@ export default function LazyBelowFold() {
   const landing_pages_links = [
     "/eldeco-7-peaks",
     "/eldeco-7-peaks/thank-you",
+    "/lp/eldeco-7-peaks",
+    "/lp/eldeco-7-peaks/thank-you",
     "/eldeco-echoes-of-eden",
     "/eldeco-echoes-of-eden/thankyou",
     "/lp/eldeco-echoes-of-eden",
@@ -82,7 +84,9 @@ export default function LazyBelowFold() {
     const hideChatbot =
       landing_pages_links.includes(path) ||
       path === "/eldeco-7-peaks" ||
-      path.startsWith("/eldeco-7-peaks/");
+      path.startsWith("/eldeco-7-peaks/") ||
+      path === "/lp/eldeco-7-peaks" ||
+      path.startsWith("/lp/eldeco-7-peaks/");
     setIsLandingPage(hideChatbot);
   }, [current_path_name]);
 

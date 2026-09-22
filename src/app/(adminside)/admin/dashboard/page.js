@@ -1,4 +1,3 @@
-import axios from "axios";
 import Dashboard from "./dashboard";
 import { fetchAllProjects } from "@/app/_global_components/masterFunction";
 import { cookies } from "next/headers";
@@ -48,11 +47,15 @@ const fetchDashboardStats = async () => {
 };
 
 export default async function DashboardPage() {
-  const dashboardStats = await fetchDashboardStats();
-  
+  const [dashboardStats, projects] = await Promise.all([
+    fetchDashboardStats(),
+    // Same filtered list as Manage Projects (hiddenBuilderUtils).
+    fetchAllProjects(),
+  ]);
+
   const noOfUsers = dashboardStats.userCount || 0;
   const noOfEnquiries = dashboardStats.enquiryCount || 0;
-  const noOfProjects = dashboardStats.projectCount || 0;
+  const noOfProjects = projects.length;
   const noOfBlogs = dashboardStats.blogCount || 0;
   const noOfBlogCategories = dashboardStats.blogCategoryCount || 0;
   const noOfCities = dashboardStats.cityCount || 0;

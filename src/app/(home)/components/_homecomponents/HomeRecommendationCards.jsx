@@ -350,6 +350,8 @@ export default function HomeRecommendationCards({
   const viewportRef = useRef(null);
   const dragStartRef = useRef({ x: 0, pointerId: null });
   const hasDraggedRef = useRef(false);
+  const draggingRef = useRef(false);
+  const dragCleanupRef = useRef(null);
   const scrollPxRef = useRef(0);
   const wheelSnapTimerRef = useRef(null);
 
@@ -365,10 +367,15 @@ export default function HomeRecommendationCards({
   };
 
   useEffect(() => {
+    dragCleanupRef.current?.();
+    draggingRef.current = false;
+    dragStartRef.current.pointerId = null;
     setStartIndex(0);
     setDragOffset(0);
     setIsDragging(false);
   }, [items, kind, title]);
+
+  useEffect(() => () => dragCleanupRef.current?.(), []);
 
   useEffect(() => {
     const el = viewportRef.current;
@@ -459,42 +466,71 @@ export default function HomeRecommendationCards({
   const handleViewportPointerDown = (event) => {
     if (!canSlide || loading) return;
     if (event.pointerType === "mouse" && event.button !== 0) return;
+    if (
+      event.target instanceof Element &&
+      event.target.closest("button, .mpf-shortlist-btn, .home-project-card__save")
+    ) {
+      return;
+    }
 
+    dragCleanupRef.current?.();
+
+    const pointerId = event.pointerId;
+    const startX = event.clientX;
+    const viewport = event.currentTarget;
     hasDraggedRef.current = false;
-    dragStartRef.current = { x: event.clientX, pointerId: event.pointerId };
-    setIsDragging(true);
-    setDragOffset(0);
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
+    draggingRef.current = false;
+    dragStartRef.current = { x: startX, pointerId };
 
-  const handleViewportPointerMove = (event) => {
-    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
+    const detach = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      if (dragCleanupRef.current === detach) dragCleanupRef.current = null;
+    };
 
-    const delta = event.clientX - dragStartRef.current.x;
-    if (Math.abs(delta) > 6) {
-      hasDraggedRef.current = true;
-    }
-    setDragOffset(delta);
-  };
+    const onMove = (ev) => {
+      if (ev.pointerId !== pointerId) return;
+      const delta = ev.clientX - startX;
+      // Capturing on pointerdown retargets the click to the rail, so a
+      // desktop card tap never reaches the link. Wait until the pointer moves.
+      if (!draggingRef.current) {
+        if (Math.abs(delta) < 8) return;
+        draggingRef.current = true;
+        hasDraggedRef.current = true;
+        setIsDragging(true);
+        try {
+          viewport.setPointerCapture(pointerId);
+        } catch {
+          /* pointer already released */
+        }
+      }
+      setDragOffset(delta);
+    };
 
-  const handleViewportPointerUp = (event) => {
-    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
+    const onUp = (ev) => {
+      if (ev.pointerId !== pointerId) return;
+      detach();
+      if (viewport.hasPointerCapture?.(pointerId)) {
+        viewport.releasePointerCapture(pointerId);
+      }
+      const didDrag = draggingRef.current;
+      draggingRef.current = false;
+      dragStartRef.current.pointerId = null;
+      if (ev.type === "pointercancel") {
+        hasDraggedRef.current = false;
+        setDragOffset(0);
+        setIsDragging(false);
+        return;
+      }
+      if (!didDrag) return;
+      finishDrag(ev.clientX);
+    };
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    finishDrag(event.clientX);
-  };
-
-  const handleViewportPointerCancel = (event) => {
-    if (!isDragging || dragStartRef.current.pointerId !== event.pointerId) return;
-
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setDragOffset(0);
-    setIsDragging(false);
-    dragStartRef.current.pointerId = null;
+    dragCleanupRef.current = detach;
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
   };
 
   useEffect(() => {
@@ -831,9 +867,6 @@ export default function HomeRecommendationCards({
           className={`home-projects-preview__viewport${loading ? " is-loading" : ""}${canSlide ? " is-draggable" : ""}${isDragging ? " is-dragging" : ""}`}
           ref={viewportRef}
           onPointerDown={handleViewportPointerDown}
-          onPointerMove={handleViewportPointerMove}
-          onPointerUp={handleViewportPointerUp}
-          onPointerCancel={handleViewportPointerCancel}
         >
           <div
             className={`home-projects-preview__track${showViewMore ? " is-compact" : ""}`}

@@ -13,7 +13,10 @@ import {
   resolveCityFaqItemsForSchema,
 } from "@/app/_global_components/jsonLd/buildJsonLd";
 import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
-import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
+import {
+  fetchListingPageContentBySlug,
+  slimListingContentForClient,
+} from "@/lib/fetchListingPageContent";
 
 export const dynamic = "force-dynamic";
 
@@ -142,7 +145,7 @@ export default async function AllCityProjects({ params }) {
         citySlug={slugToCheck}
         cityData={cityMeta}
         initialProjects={projectList}
-        listingContent={listingContent}
+        listingContent={slimListingContentForClient(listingContent)}
       />
     </>
   );

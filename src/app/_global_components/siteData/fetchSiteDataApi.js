@@ -1,6 +1,11 @@
 import { getDisplayCityList } from "../cityAliasUtils";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 import {
+  slimCityListForNav,
+  slimProjectStatusListForNav,
+  slimProjectTypeListForNav,
+} from "@/lib/slimSiteCatalog";
+import {
   filterHiddenBuilders,
   filterHiddenProjects,
 } from "../hiddenBuilderUtils";
@@ -51,13 +56,13 @@ export async function fetchSiteMetaFromApi() {
     parseJson(statusesRes, "project-status"),
   ]);
 
-  const allCities = cities || [];
+  const allCities = slimCityListForNav(cities || []);
   return {
     cityList: getDisplayCityList(allCities),
     allCityList: allCities,
     builderList: filterHiddenBuilders(buildersData?.builders || []),
-    projectTypes: typesData || [],
-    projectStatuses: statusesData || [],
+    projectTypes: slimProjectTypeListForNav(typesData || []),
+    projectStatuses: slimProjectStatusListForNav(statusesData || []),
   };
 }
 

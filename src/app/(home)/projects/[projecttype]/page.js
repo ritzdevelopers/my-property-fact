@@ -6,7 +6,10 @@ import PropertyPage from "./propertypage";
 import ProjectsRedesigned from "../ProjectsRedesigned";
 import CommonHeaderBanner from "../../components/common/commonheaderbanner";
 import ListingPageSeoContent from "../../components/common/ListingPageSeoContent";
-import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
+import {
+  fetchListingPageContentBySlug,
+  slimListingContentForClient,
+} from "@/lib/fetchListingPageContent";
 
 const COMMERCIAL_META = {
   title: "Top Commercial Real Estate Projects in India | MyPropertyFact",
@@ -91,7 +94,7 @@ function RedesignedProjectTypePage({ config, listingContent = null }) {
   return (
     <main id="primary-content" aria-labelledby="mpf-page-heading">
       <ProjectsRedesigned {...config} pageHeading={pageHeading} pageIntro={pageIntro} />
-      <ListingPageSeoContent content={listingContent} />
+      <ListingPageSeoContent content={slimListingContentForClient(listingContent)} />
     </main>
   );
 }

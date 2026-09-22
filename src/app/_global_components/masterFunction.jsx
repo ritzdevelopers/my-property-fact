@@ -18,6 +18,7 @@ import {
   hasCompoundListingDataInCity,
   hasFloorListingDataInCity as hasFloorListingDataForProjects,
 } from "../../lib/listingFloorValidation";
+import { slimCityListForNav } from "../../lib/slimSiteCatalog";
 
 export { floorSlugToListingLabel } from "../../lib/listingFloorValidation";
 
@@ -72,7 +73,7 @@ export const fetchCityData = cache(async () => {
     });
     if (!res.ok) throw new Error("Failed to fetch cities");
     const data = await res.json();
-    return getDisplayCityList(data);
+    return slimCityListForNav(getDisplayCityList(data));
   } catch (error) {
     console.error("Error fetching cities:", error);
     return [];

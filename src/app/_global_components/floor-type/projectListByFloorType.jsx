@@ -4,6 +4,7 @@ import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 import HeaderComponent from "@/app/(home)/components/header/headerComponent";
 import ProjectsRedesigned from "@/app/(home)/projects/ProjectsRedesigned";
 import { buildListingProjectsViewConfig } from "@/lib/listingProjectsViewConfig";
+import { slimListingContentForClient } from "@/lib/fetchListingPageContent";
 
 export default function ProjectListByFloorType({
   slug,
@@ -40,7 +41,7 @@ export default function ProjectListByFloorType({
           pageIntro={pageIntro}
           initialProjects={initialProjects}
         />
-        <ListingPageSeoContent content={listingContent} />
+        <ListingPageSeoContent content={slimListingContentForClient(listingContent)} />
       </main>
       <BlogFaqSection
         faqItems={faqItems}

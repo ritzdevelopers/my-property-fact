@@ -23,6 +23,10 @@ import {
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
 import HomeDeferredSections from "./HomeDeferredSections";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
+import {
+  slimCityForNav,
+  slimProjectTypeForNav,
+} from "@/lib/slimSiteCatalog";
 
 /** Keep first HTML small — carousels still work; client sections hydrate below the fold. */
 const HOME_SSR_CARD_LIMIT = 6;
@@ -30,25 +34,6 @@ const HOME_FEATURED_TAB_LIMIT = 6;
 const HOME_MARQUEE_LOGO_LIMIT = 16;
 
 const HOME_NCR_LABEL = "Delhi NCR";
-
-function slimCityForHome(city) {
-  if (!city || typeof city !== "object") return city;
-  return {
-    id: city.id,
-    cityName: city.cityName,
-    slugURL: city.slugURL || city.slugUrl,
-  };
-}
-
-function slimProjectTypeForHome(type) {
-  if (!type || typeof type !== "object") return type;
-  return {
-    id: type.id,
-    projectTypeName: type.projectTypeName || type.name,
-    name: type.name,
-    slugURL: type.slugURL || type.slugUrl,
-  };
-}
 
 function slimBlogForHome(blog) {
   if (!blog || typeof blog !== "object") return blog;
@@ -101,10 +86,10 @@ export default async function HomePage() {
   ]);
 
   const cityList = Array.isArray(cityListRaw)
-    ? cityListRaw.map(slimCityForHome)
+    ? cityListRaw.map(slimCityForNav)
     : [];
   const projectTypeList = Array.isArray(projectTypeListRaw)
-    ? projectTypeListRaw.map(slimProjectTypeForHome)
+    ? projectTypeListRaw.map(slimProjectTypeForNav)
     : [];
   // Already normalized to spotlight-sized objects — slimming here would drop `builderSlug`.
   const mpfTopPickProjects = Array.isArray(mpfTopPickProjectsRaw)

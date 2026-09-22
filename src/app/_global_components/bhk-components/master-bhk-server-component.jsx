@@ -4,6 +4,7 @@ import HeaderComponent from "@/app/(home)/components/header/headerComponent";
 import NewFooterDesign from "@/app/(home)/components/footer/NewFooterDesign";
 import ProjectsRedesigned from "@/app/(home)/projects/ProjectsRedesigned";
 import { buildListingProjectsViewConfig } from "@/lib/listingProjectsViewConfig";
+import { slimListingContentForClient } from "@/lib/fetchListingPageContent";
 
 export default function MasterBHKProjectsPage({
   slug,
@@ -33,7 +34,7 @@ export default function MasterBHKProjectsPage({
           pageHeading={pageHeading}
           pageIntro={pageIntro}
         />
-        <ListingPageSeoContent content={listingContent} />
+        <ListingPageSeoContent content={slimListingContentForClient(listingContent)} />
       </main>
       <BlogFaqSection
         faqItems={faqItems}

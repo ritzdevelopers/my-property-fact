@@ -23,6 +23,14 @@ export async function fetchListingPageContentBySlug(slug) {
   }
 }
 
+/** CMS body only — heading/intro/meta stay on the server for titles. */
+export function slimListingContentForClient(content) {
+  if (!content || typeof content !== "object") return null;
+  const html = String(content.content || "").trim();
+  if (!html) return null;
+  return { content: html };
+}
+
 export function listingContentHasBody(content) {
   if (!content) return false;
   const html = String(content.content || "").replace(/<[^>]*>/g, "").trim();

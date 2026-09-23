@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { formatAgeOfConstruction } from "@/lib/utils";
 import { useParams, useRouter } from "next/navigation";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay, Zoom } from "swiper/modules";
@@ -736,8 +737,7 @@ export default function AdminPropertyDetailPage() {
                       <tr>
                         <td style={{ fontWeight: "600" }}>Property Age</td>
                         <td>
-                          {property.ageOfConstruction} to{" "}
-                          {property.ageOfConstruction + 1} Year Old
+                          {formatAgeOfConstruction(property.ageOfConstruction)}
                         </td>
                       </tr>
                     )}

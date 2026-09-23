@@ -44,6 +44,12 @@ import {
   fetchProjectTypes,
 } from "@/app/_global_components/masterFunction";
 import axios from "axios";
+import {
+  formatParkingValue,
+  parseParkingValue,
+  extractParkingSlots,
+  PARKING_OPTIONS,
+} from "@/lib/utils";
 import ListingWizardLayout from "./ListingWizardLayout";
 import "./ListingWizardLayout.css";
 import { useUser } from "../_contexts/UserContext";
@@ -248,7 +254,7 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     bedrooms: "",
     bathrooms: "",
     balconies: "",
-    parking: "",
+    parking: [],
     furnished: "",
     amenityIds: [], // Array of amenity IDs
     featureIds: [], // Array of feature IDs
@@ -1039,7 +1045,9 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
               property.balconies !== null && property.balconies !== undefined
                 ? property.balconies.toString()
                 : "",
-            parking: property.parking || property.parkingType || "",
+            parking: parseParkingValue(
+              property.parking || property.parkingType || "",
+            ),
             furnished: property.furnished || property.furnishingLevel || "",
             amenityIds: Array.isArray(property.amenityIds)
               ? property.amenityIds
@@ -1276,12 +1284,6 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
     const emptyToNull = (value) =>
       value === undefined || value === null || value === "" ? null : value;
 
-    const extractParkingSlots = (value) => {
-      if (!value) return null;
-      const match = value.match(/(\d+)/);
-      return match ? parseInt(match[0], 10) : null;
-    };
-
     // Generate title from property details if not provided
     const generateTitle = () => {
       const parts = [];
@@ -1357,10 +1359,10 @@ export default function ModernPropertyListing({ listingId: propListingId }) {
         formData.listingType === "Residential"
           ? emptyToNull(formData.facing)
           : null,
-      ageOfConstruction: toInteger(formData.ageOfConstruction),
+      ageOfConstruction: emptyToNull(formData.ageOfConstruction),
       // Remove duplicate ageOfProperty field
       carParkingSlots: extractParkingSlots(formData.parking),
-      parkingType: emptyToNull(formData.parking),
+      parkingType: emptyToNull(formatParkingValue(formData.parking)),
       powerBackup: emptyToNull(formData.powerBackup),
 
       // Configuration - residential-specific fields set to null for commercial (1RK sent as 1 for Studio)
@@ -3651,11 +3653,10 @@ function PricingDetailsStep({ data, onChange, errors }) {
             <Form.Group>
               <Form.Label>Age of Construction</Form.Label>
               <Form.Control
-                type="number"
+                type="text"
                 value={data.ageOfConstruction}
                 onChange={(e) => onChange("ageOfConstruction", e.target.value)}
-                placeholder="Years since construction"
-                min={0}
+                placeholder="e.g. 1 to 5"
               />
             </Form.Group>
           </Col>
@@ -3778,6 +3779,22 @@ function FeaturesAmenitiesStep({
     onChange("featureIds", updatedIds);
   };
 
+  const handleParkingToggle = (option) => {
+    const current = parseParkingValue(data.parking);
+    let updated;
+
+    if (option === "No Parking") {
+      updated = current.includes("No Parking") ? [] : ["No Parking"];
+    } else {
+      const withoutNoParking = current.filter((item) => item !== "No Parking");
+      updated = withoutNoParking.includes(option)
+        ? withoutNoParking.filter((item) => item !== option)
+        : [...withoutNoParking, option];
+    }
+
+    onChange("parking", updated);
+  };
+
   // Handle nearby benefit click - open distance modal
   const handleNearbyBenefitClick = (benefit) => {
     const currentBenefits = data.nearbyBenefits || [];
@@ -3880,7 +3897,9 @@ function FeaturesAmenitiesStep({
                 <option value="2">2 BHK</option>
                 <option value="3">3 BHK</option>
                 <option value="4">4 BHK</option>
-                <option value="5">5+ BHK</option>
+                <option value="5">5 BHK</option>
+                <option value="6">6 BHK</option>
+                <option value="7">7+ BHK</option>
               </Form.Select>
               <Form.Control.Feedback type="invalid">
                 {errors.bedrooms}
@@ -3915,7 +3934,10 @@ function FeaturesAmenitiesStep({
                   3 {isResidential ? "Bathrooms" : "Washrooms"}
                 </option>
                 <option value="4">
-                  4+ {isResidential ? "Bathrooms" : "Washrooms"}
+                  4 {isResidential ? "Bathrooms" : "Washrooms"}
+                </option>
+                <option value="5">
+                  5+ {isResidential ? "Bathrooms" : "Washrooms"}
                 </option>
               </Form.Select>
               <Form.Control.Feedback type="invalid">
@@ -3937,7 +3959,8 @@ function FeaturesAmenitiesStep({
                 <option value="0">No Balcony</option>
                 <option value="1">1 Balcony</option>
                 <option value="2">2 Balconies</option>
-                <option value="3">3+ Balconies</option>
+                <option value="3">3 Balconies</option>
+                <option value="4">4+ Balconies</option>
               </Form.Select>
             </Form.Group>
           </Col>
@@ -3948,18 +3971,22 @@ function FeaturesAmenitiesStep({
           <Col md={6}>
             <Form.Group>
               <Form.Label>Parking</Form.Label>
-              <Form.Select
-                value={data.parking}
-                onChange={(e) => onChange("parking", e.target.value)}
-              >
-                <option value="">Select Parking</option>
-                <option value="No Parking">No Parking</option>
-                <option value="1 Covered">1 Covered</option>
-                <option value="1 Open">1 Open</option>
-                <option value="2 Covered">2 Covered</option>
-                <option value="2 Open">2 Open</option>
-                <option value="Multiple">Multiple</option>
-              </Form.Select>
+              <div className="d-flex flex-column gap-1">
+                {PARKING_OPTIONS.map((option) => {
+                  const selectedParking = parseParkingValue(data.parking);
+                  const isSelected = selectedParking.includes(option);
+                  return (
+                    <Form.Check
+                      key={option}
+                      type="checkbox"
+                      id={`parking-${option.replace(/\s+/g, "-").toLowerCase()}`}
+                      label={option}
+                      checked={isSelected}
+                      onChange={() => handleParkingToggle(option)}
+                    />
+                  );
+                })}
+              </div>
             </Form.Group>
           </Col>
         )}

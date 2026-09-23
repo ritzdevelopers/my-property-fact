@@ -19,6 +19,7 @@ import {
 } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import axios from "axios";
+import { formatAgeOfConstruction } from "@/lib/utils";
 import { getPublicPropertyUrl } from "../../_utils/propertySlug";
 import BrokerListingsStats from "../../_components/BrokerListingsStats";
 import "../../_components/BrokerPhase2Styles.css";
@@ -391,7 +392,10 @@ export default function ListingPage() {
       }
       
       // Age of construction filter
-      if (filters.ageOfConstruction && property.ageOfConstruction !== parseInt(filters.ageOfConstruction)) {
+      if (
+        filters.ageOfConstruction &&
+        String(property.ageOfConstruction ?? "") !== filters.ageOfConstruction
+      ) {
         return false;
       }
       
@@ -591,7 +595,7 @@ export default function ListingPage() {
     values.balconies.sort((a, b) => a - b);
     values.floorNumbers.sort((a, b) => a - b);
     values.totalFloors.sort((a, b) => a - b);
-    values.ageOfConstruction.sort((a, b) => a - b);
+    values.ageOfConstruction.sort((a, b) => String(a).localeCompare(String(b)));
     
     return values;
   }, [allListings, action]);
@@ -1137,7 +1141,7 @@ export default function ListingPage() {
                       >
                         <option value="">All</option>
                         {uniqueValues.ageOfConstruction.map(age => (
-                          <option key={age} value={age}>{age} Year{age > 1 ? 's' : ''}</option>
+                          <option key={age} value={age}>{formatAgeOfConstruction(age)}</option>
                         ))}
                       </Form.Select>
                     </Form.Group>

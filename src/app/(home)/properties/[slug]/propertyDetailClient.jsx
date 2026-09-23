@@ -39,6 +39,7 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import axios from "axios";
+import { formatAgeOfConstruction } from "@/lib/utils";
 import "./property-detail.css";
 import "./property-listing-pdp.css";
 
@@ -677,7 +678,7 @@ export default function PropertyDetailClient({
     property.facing && { label: "Facing", value: property.facing },
     property.ageOfConstruction != null && {
       label: "Property Age",
-      value: `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`,
+      value: formatAgeOfConstruction(property.ageOfConstruction),
     },
     property.maintenanceCharges && {
       label: "Maintenance",
@@ -893,7 +894,7 @@ export default function PropertyDetailClient({
                 <span>Property Age</span>
                 <strong>
                   {property.ageOfConstruction != null
-                    ? `${property.ageOfConstruction} to ${property.ageOfConstruction + 1} Year Old`
+                    ? formatAgeOfConstruction(property.ageOfConstruction)
                     : property.status || "—"}
                 </strong>
               </div>

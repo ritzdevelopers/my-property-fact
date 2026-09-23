@@ -82,6 +82,53 @@ export function normalizeDistanceKm(value) {
   return numericPart ? `${numericPart} Km` : "";
 }
 
+export const PARKING_OPTIONS = [
+  "No Parking",
+  "1 Covered",
+  "1 Open",
+  "2 Covered",
+  "2 Open",
+  "Multiple",
+];
+
+export function parseParkingValue(value) {
+  if (value == null || value === "") return [];
+  if (Array.isArray(value)) {
+    return value.filter((item) => PARKING_OPTIONS.includes(item));
+  }
+  const text = String(value).trim();
+  if (!text) return [];
+  if (PARKING_OPTIONS.includes(text)) return [text];
+  return text
+    .split(/\s*\+\s*/)
+    .map((part) => part.trim())
+    .filter((part) => PARKING_OPTIONS.includes(part));
+}
+
+export function formatParkingValue(selections) {
+  const selected = parseParkingValue(selections);
+  if (selected.length === 0) return "";
+  return PARKING_OPTIONS.filter((option) => selected.includes(option)).join(
+    " + ",
+  );
+}
+
+export function extractParkingSlots(value) {
+  const formatted = formatParkingValue(value);
+  if (!formatted) return null;
+  if (formatted.includes("No Parking")) return 0;
+  const nums = formatted.match(/\d+/g);
+  if (!nums || nums.length === 0) return null;
+  return nums.reduce((sum, num) => sum + parseInt(num, 10), 0);
+}
+
+export function formatAgeOfConstruction(value) {
+  if (value == null || value === "") return null;
+  const text = String(value).trim();
+  if (!text) return null;
+  return `${text} Year Old`;
+}
+
 export function getInitials(name) {
   if (!name) return "?";
   return name

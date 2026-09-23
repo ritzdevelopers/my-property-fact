@@ -109,7 +109,7 @@ function PodcastCard({ podcast, duplicate = false, index, onSelect }) {
     >
       <img
         src={podcast.img}
-        alt={duplicate ? "" : podcast.title}
+        alt={duplicate ? "" : podcast.title} title={duplicate ? "" : podcast.title}
         loading="lazy"
         decoding="async"
         draggable={false}

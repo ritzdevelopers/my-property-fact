@@ -16,7 +16,7 @@ export function AdminGridImageThumb({ src, alt, onPreviewClick, fit = "cover" })
     <div className={thumbClass}>
       <img
         src={src}
-        alt={alt || ""}
+        alt={alt || ""} title={alt || ""}
         width={40}
         height={40}
         className="admin-grid-thumb__img"

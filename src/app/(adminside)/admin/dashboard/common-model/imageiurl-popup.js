@@ -105,7 +105,7 @@ export default function ImageUrlPopup({ confirmBox, setConfirmBox }) {
             renderCell: (params) => (
                 <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/content-image/${params.row.image}`}
-                    alt={`${params.row.altTag}`}
+                    alt={`${params.row.altTag}`} title={`${params.row.altTag}`}
                     width={100}
                     height={50}
                     style={{ borderRadius: '5px' }}

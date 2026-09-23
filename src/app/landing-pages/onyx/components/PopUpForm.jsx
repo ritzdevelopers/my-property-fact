@@ -144,6 +144,7 @@ export default function PopUpForm() {
                 <img
                   src={bg.src}
                   alt="Popup Visual"
+                  title="Popup Visual"
                   className="img-fluid h-100 w-100 object-fit-cover"
                   style={{ objectFit: "cover", height: "100%" }}
                 />

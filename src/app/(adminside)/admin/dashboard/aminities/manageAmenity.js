@@ -316,7 +316,7 @@ export default function ManageAminity({ list }) {
                   <div className="mb-3">
                     <img
                       src={previousImage}
-                      alt="Current amenity"
+                      alt="Current amenity" title="Current amenity"
                       width={100}
                       height={100}
                     />
@@ -356,7 +356,7 @@ export default function ManageAminity({ list }) {
                   >
                     <img
                       src={img.preview}
-                      alt={`preview-${index}`}
+                      alt={`preview-${index}`} title={`preview-${index}`}
                       className="img-fluid rounded shadow"
                     />
                     <Button

@@ -770,7 +770,7 @@ gsap.ticker.lagSmoothing(0);
               </button>
 
               <div className={`${styles.logoWrapper} logo`}>
-                <img src="/images/eldecoLogo-removebg-preview.png" alt="eledeco_logo" />
+                <img src="/images/eldecoLogo-removebg-preview.png" alt="eledeco_logo" title="eledeco_logo" />
               </div>
 
               <ul className={`nav_ul ${styles.navList}`}>
@@ -806,12 +806,12 @@ gsap.ticker.lagSmoothing(0);
             <img
               className={`${styles.desktopBanner} img-fluid`}
               src="/images/up-banner.jpg"
-              alt="Eldeco Banner Desktop"
+              alt="Eldeco Banner Desktop" title="Eldeco Banner Desktop"
             />
             <img
               className={`${styles.mobileBanner} img-fluid`}
               src="/images/banner-for-mobiles-with-logos.jpg"
-              alt="Eldeco Banner Mobile"
+              alt="Eldeco Banner Mobile" title="Eldeco Banner Mobile"
             />
           </div>
         </main>
@@ -825,12 +825,12 @@ gsap.ticker.lagSmoothing(0);
           <div className={styles.ideaVisual}>
             <img
               src="/images/s3/s3.png"
-              alt="Idea Image Desktop"
+              alt="Idea Image Desktop" title="Idea Image Desktop"
               className={`${styles.ideaImageDesktop} img-fluid`}
             />
             <img
               src="/images/eldeco-mb.jpg"
-              alt="Idea Image Mobile"
+              alt="Idea Image Mobile" title="Idea Image Mobile"
               className={`${styles.ideaImageMobile} img-fluid`}
             />
           </div>
@@ -858,7 +858,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn1.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -869,7 +869,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn2.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -880,7 +880,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn3.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -891,7 +891,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn4.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -902,7 +902,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn5.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -913,7 +913,7 @@ gsap.ticker.lagSmoothing(0);
               <div className={styles.ideaFeature}>
                 <img
                   src="/images/s3/s3icn6.png"
-                  alt="icon"
+                  alt="icon" title="icon"
                   className={styles.ideaFeatureIcon}
                 />
                 <p className={styles.ideaFeatureText}>
@@ -930,7 +930,7 @@ gsap.ticker.lagSmoothing(0);
                 <div className={`${styles.ideaCtaButtonWrapper} btmBtn`}>
                   <img
                     src="/images/s3/s3btn.png"
-                    alt="button"
+                    alt="button" title="button"
                     className={styles.ideaCtaImage}
                   />
                 </div>
@@ -948,7 +948,7 @@ gsap.ticker.lagSmoothing(0);
           <img
             id="about-image"
             src="/images/elAbout.jpg"
-            alt="About image"
+            alt="About image" title="About image"
             className={styles.aboutImage}
             style={{ transformOrigin: "center center" }}
           />
@@ -1042,7 +1042,7 @@ gsap.ticker.lagSmoothing(0);
             <div className={styles.floorImageWrapper}>
               <img
                 src="/images/eldecoPlan.jpg"
-                alt="3 BHK with 2 Toilets Floor Plan"
+                alt="3 BHK with 2 Toilets Floor Plan" title="3 BHK with 2 Toilets Floor Plan"
                 className={styles.floorImage}
               />
             </div>
@@ -1065,7 +1065,7 @@ gsap.ticker.lagSmoothing(0);
             <div className={styles.floorImageWrapper}>
               <img
                 src="/images/eldecoPlan.jpg"
-                alt="3 BHK with 3 Toilets Floor Plan"
+                alt="3 BHK with 3 Toilets Floor Plan" title="3 BHK with 3 Toilets Floor Plan"
                 className={styles.floorImage}
               />
             </div>
@@ -1136,7 +1136,7 @@ gsap.ticker.lagSmoothing(0);
           <div id="location-map" className={styles.locationMapWrapper}>
             <img
               src="/images/eldecoLocation.jpg"
-              alt="Eldeco Location Map"
+              alt="Eldeco Location Map" title="Eldeco Location Map"
               className={styles.locationMapImage}
             />
           </div>
@@ -1158,6 +1158,7 @@ gsap.ticker.lagSmoothing(0);
             <img
               src="/images/eldecoContract.jpg"
               alt="Contact Visual"
+              title="Contact Visual"
               className={styles.contactImage}
             />
           </div>
@@ -1230,6 +1231,7 @@ gsap.ticker.lagSmoothing(0);
             <img
               src="/images/eldecoLogo-removebg-preview.png"
               alt="Logo"
+              title="Logo"
               className={styles.footerLogo}
             />
             <p className={styles.footerText}>

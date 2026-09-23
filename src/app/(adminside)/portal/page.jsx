@@ -186,7 +186,7 @@ export default function PortalSignInPage() {
         <div className="broker-login-card">
           {/* Brand */}
           <div className="broker-login-brand">
-            <img src="/logo.webp" alt="My Property Fact" className="broker-login-logo" />
+            <img src="/logo.webp" alt="My Property Fact" title="My Property Fact" className="broker-login-logo" />
             <h1>Property Portal</h1>
             <p>
               {step === "email"

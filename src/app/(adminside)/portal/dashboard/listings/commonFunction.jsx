@@ -134,7 +134,7 @@ export function FileInput({ label, name, onChange, multiple }) {
               {/* Image Preview */}
               <img
                 src={URL.createObjectURL(file)}
-                alt={`preview-${index}`}
+                alt={`preview-${index}`} title={`preview-${index}`}
                 width={200}
                 height={100}
                 className="rounded-3"

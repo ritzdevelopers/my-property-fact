@@ -127,7 +127,7 @@ export default function AmenitiesSection() {
               >
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={item.title} title={item.title}
                   width={100}
                   height={100}
                   className="mb-3 object-fit-contain"
@@ -162,7 +162,7 @@ export default function AmenitiesSection() {
               >
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={item.title} title={item.title}
                   width={100}
                   height={100}
                   className="mb-3 object-fit-contain"

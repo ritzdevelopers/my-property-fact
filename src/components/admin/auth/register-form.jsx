@@ -120,6 +120,7 @@ export function RegisterForm({ className }) {
             <img
               src="/images/admin/logo.svg"
               alt="My Property Fact"
+              title="My Property Fact"
               className="mpf-zoho-login__logo"
             />
             <span className="mpf-zoho-login__pill">
@@ -328,6 +329,7 @@ export function RegisterForm({ className }) {
             <img
               src="/images/admin/login-building.png"
               alt="Modern property building"
+              title="Modern property building"
               className="mpf-zoho-login__building-img"
             />
           </div>

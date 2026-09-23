@@ -336,7 +336,7 @@ export default function ManageBanners({ list, config = {} }) {
                 return (
                     <img
                         src={src}
-                        alt={params.row.imageAlt || "Banner"}
+                        alt={params.row.imageAlt || "Banner"} title={params.row.imageAlt || "Banner"}
                         width={params.row.deviceType === "desktop" ? 120 : 60}
                         height={50}
                         className="rounded-2"
@@ -412,7 +412,7 @@ export default function ManageBanners({ list, config = {} }) {
                             <img
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.mobileImage}`}
-                                alt={item.mobileAltTag || "Project Mobile Banner"}
+                                alt={item.mobileAltTag || "Project Mobile Banner"} title={item.mobileAltTag || "Project Mobile Banner"}
                                 width={50}
                                 height={50}
                                 className="rounded-2 mx-1"
@@ -433,7 +433,7 @@ export default function ManageBanners({ list, config = {} }) {
                             <img
                                 key={index}
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${item.slugURL}/${item.desktopImage}`}
-                                alt={item.desktopAltTag || "Project Desktop Banner"}
+                                alt={item.desktopAltTag || "Project Desktop Banner"} title={item.desktopAltTag || "Project Desktop Banner"}
                                 width={150}
                                 height={50}
                                 className="rounded-2 mx-1"
@@ -458,7 +458,7 @@ export default function ManageBanners({ list, config = {} }) {
                                     <img
                                         key={index}
                                         src={`${process.env.NEXT_PUBLIC_IMAGE_URL}properties/${slug}/${imageName}`}
-                                        alt={item.tabletAltTag || item.altTag || "Home Tablet Banner"}
+                                        alt={item.tabletAltTag || item.altTag || "Home Tablet Banner"} title={item.tabletAltTag || item.altTag || "Home Tablet Banner"}
                                         width={120}
                                         height={50}
                                         className="rounded-2 mx-1"
@@ -625,7 +625,7 @@ export default function ManageBanners({ list, config = {} }) {
                                                 <img
                                                     className="rounded-2 d-block my-2"
                                                     src={img.preview}
-                                                    alt="preview"
+                                                    alt="preview" title="preview"
                                                     width={100}
                                                     height={100}
                                                     
@@ -687,7 +687,7 @@ export default function ManageBanners({ list, config = {} }) {
                                                 <img
                                                     className="rounded-2 d-block my-2"
                                                     src={img.preview}
-                                                    alt="preview"
+                                                    alt="preview" title="preview"
                                                     width={200}
                                                     height={100}
                                                     
@@ -749,7 +749,7 @@ export default function ManageBanners({ list, config = {} }) {
                                                     <img
                                                         className="rounded-2 d-block my-2"
                                                         src={img.preview}
-                                                        alt="preview"
+                                                        alt="preview" title="preview"
                                                         width={160}
                                                         height={90}
                                                         onClick={() => openImagePopUp(img.preview)}
@@ -848,7 +848,7 @@ export default function ManageBanners({ list, config = {} }) {
                         <img
                             className="rounded-2"
                             src={popUpImageSrc}
-                            alt="pop-up-image"
+                            alt="pop-up-image" title="pop-up-image"
                             width={0}
                             height={0}
                             style={{

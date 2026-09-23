@@ -8,6 +8,7 @@ function Footer() {
           <img
             src="/eld-imgs/logo/eldecologo.png"
             alt="Eldeco" 
+            title="Eldeco"
             className="h-auto w-[196px]"
           />
         </div>

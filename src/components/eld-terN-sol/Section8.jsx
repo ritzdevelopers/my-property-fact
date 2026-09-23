@@ -43,19 +43,21 @@ export default function Section8() {
           >
             <Image
               src={ASSETS.videoPoster.src}
-              alt=""
+              alt="Eldeco Ter N Sol Video Poster"
               fill
               sizes="(max-width: 768px) 100vw, 672px"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
+              title="Eldeco Ter N Sol Video Poster"
             />
             {/* 1:392 image 15 — play badge */}
             <span className="absolute top-1/2 left-1/2 block h-[46px] w-[66px] -translate-x-1/2 -translate-y-1/2 lg:h-[65px] lg:w-[94px]">
               <Image
                 src={ASSETS.playBadge.src}
-                alt=""
+                alt="Eldeco Ter N Sol Play Badge"
                 fill
                 sizes="94px"
                 className="object-cover"
+                title="Eldeco Ter N Sol Play Badge"
               />
             </span>
           </button>

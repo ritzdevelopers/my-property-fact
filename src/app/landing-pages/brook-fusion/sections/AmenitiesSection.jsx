@@ -70,7 +70,7 @@ export default function AmenitiesSection() {
           <div className="col-12 col-lg-6">
             <img
               src={amenitiesImage.src}
-              alt="Amenities"
+              alt="Amenities" title="Amenities"
               className="img-fluid rounded shadow"
               style={{
                 width: "100%",

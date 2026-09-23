@@ -404,7 +404,7 @@ function Home() {
 
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">
-                    <a className="navbar-brand font-weight-bold text-white" href="#"><img src="/eldeco-la-vida-bella-images2/images/updated-logo.png" alt=""
+                    <a className="navbar-brand font-weight-bold text-white" href="#"><img src="/eldeco-la-vida-bella-images2/images/updated-logo.png" alt="Updated Logo" title="Updated Logo"
                         className="updatedLogo" /></a>
 
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu">
@@ -431,14 +431,14 @@ function Home() {
             <section id="home" className="heroslider">
                 <div className="carousel-inner">
                     <div className="carousel-item active">
-                        <div className="mobile-slider"><img className="d-block w-100" src="/eldeco-la-vida-bella-images2/images/black-banner-img.jpg" alt="" /></div>
-                        <div className="desktop-slider"><img className="d-block w-100" src="/eldeco-la-vida-bella-images2/images/eldeco-desktop-bbanner.jpg" alt="" /></div>
+                        <div className="mobile-slider"><img className="d-block w-100" src="/eldeco-la-vida-bella-images2/images/black-banner-img.jpg" alt="Black Banner Image" title="Black Banner Image" /></div>
+                        <div className="desktop-slider"><img className="d-block w-100" src="/eldeco-la-vida-bella-images2/images/eldeco-desktop-bbanner.jpg" alt="Eldeco Desktop Banner" title="Eldeco Desktop Banner" /></div>
 
                         <div className="homeBannerContent">
                             <div className="homeBannerContentInner">
                                 <div className="leftSideContainer">
                                     <div>
-                                        <img src="/eldeco-la-vida-bella-images2/images/updated-logo2.png" className="lftImg" alt="" />
+                                        <img src="/eldeco-la-vida-bella-images2/images/updated-logo2.png" className="lftImg" alt="Updated Logo" title="Updated Logo" />
                                         <h1 style={{ margin: 0, padding: 0, fontFamily: "'Montserrat', sans-serif" }}>Sector 12, Greater Noida (West)</h1>
                                     </div>
 
@@ -479,7 +479,7 @@ function Home() {
                                 </div>
 
                                 <div className="rightSideContainer">
-                                    <img src="/eldeco-la-vida-bella-images2/images/qr-code.png" alt="" />
+                                    <img src="/eldeco-la-vida-bella-images2/images/qr-code.png" alt="QR Code" title="QR Code" />
                                 </div>
                             </div>
                         </div>
@@ -554,7 +554,7 @@ function Home() {
                             </p>
 
                             <a href="#" className="download-btn mt-4" id="downloadBrochureBtn">
-                                Download Brochure <img src="/eldeco-la-vida-bella-images2/images/downloan-icon.png" alt="" /></a>
+                                Download Brochure <img src="/eldeco-la-vida-bella-images2/images/downloan-icon.png" alt="Download Brochure" title="Download Brochure" /></a>
 
                         </div>
 
@@ -583,15 +583,15 @@ function Home() {
                                     </div>
                                 </div>
 
-                                <div className="about2img"><img src="/eldeco-la-vida-bella-images2/images/about2.jpg" alt="" /></div>
+                                <div className="about2img"><img src="/eldeco-la-vida-bella-images2/images/about2.jpg" alt="About 2" title="About 2" /></div>
 
 
                                 <div className="livebox-box-outer">
-                                    <div className="livebox-box-gray"><img src="/eldeco-la-vida-bella-images2/images/about1.jpg" alt="" /></div>
+                                    <div className="livebox-box-gray"><img src="/eldeco-la-vida-bella-images2/images/about1.jpg" alt="About 1" title="About 1" /></div>
                                     <div className="livebox-box p-4 text-white">
 
                                         <h3>live big <br /><strong>live b<img className="boldimg" src="/eldeco-la-vida-bella-images2/images/bold.png"
-                                            alt="" />ld</strong></h3>
+                                            alt="Bold Image" title="Bold Image" />ld</strong></h3>
                                         <p><strong>Eldeco La Vida Bella</strong> rises along the city&apos;s vital connection where
                                             the Noida-Greater Noida Link Road keeps life following effortlessly.</p>
 
@@ -615,34 +615,34 @@ function Home() {
 
                             <ul className="highlights-list">
 
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight1.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight1.png" alt="Only 2 Apartments On Each Floor" title="Only 2 Apartments On Each Floor" />
                                     <p>Only 2 Apartments On Each Floor</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight2.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight2.png" alt="360-Degree View with L-Shaped Balconies" title="360-Degree View with L-Shaped Balconies" />
                                     <p>360-Degree View with L-Shaped Balconies</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight3.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight3.png" alt="Fewer People, More Serenity" title="Fewer People, More Serenity" />
                                     <p>Fewer People, <br /> More Serenity</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight4.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight4.png" alt="75% Of Open Spaces" title="75% Of Open Spaces" />
                                     <p>75% Of Open Spaces</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight5.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight5.png" alt="Over 35 + Amenities" title="Over 35 + Amenities" />
                                     <p>Over 35 + Amenities</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight6.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight6.png" alt="All Weather Air Conditioning In All Rooms" title="All Weather Air Conditioning In All Rooms" />
                                     <p>All Weather Air Conditioning In All Rooms</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight7.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight7.png" alt="9-Ft Entrance Door With Digital Lock" title="9-Ft Entrance Door With Digital Lock" />
                                     <p>9-Ft Entrance Door With Digital Lock</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight8.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight8.png" alt="Floor To Floor 11 Ft Height" title="Floor To Floor 11 Ft Height" />
                                     <p>Floor To Floor 11 Ft Height</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight9.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight9.png" alt="Double-Height, Air-Conditioned Lobby" title="Double-Height, Air-Conditioned Lobby" />
                                     <p>Double-Height, <br /> Air-Conditioned Lobby</p>
                                 </li>
-                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight10.png" alt="" />
+                                <li><img src="/eldeco-la-vida-bella-images2/images/highlight10.png" alt="Rooftop swimming pool with loungers" title="Rooftop swimming pool with loungers" />
                                     <p>Rooftop swimming pool with loungers</p>
                                 </li>
 
@@ -685,86 +685,84 @@ function Home() {
                                                 <button className="nav-link active" id="amenities-tab1-tab" data-toggle="tab"
                                                     data-target="#amenitiestab1" type="button" role="tab" aria-controls="home"
                                                     aria-selected="true"><img className="amenity-icon" src="/eldeco-la-vida-bella-images2/images/amenity1.png"
-                                                        alt="" />Badminton Court
+                                                        alt="Badminton Court" title="Badminton Court" />Badminton Court
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Badminton Court" title="Badminton Court" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab2-tab" data-toggle="tab"
                                                     data-target="#amenitiestab2"
                                                     type="but```````````````````````````````````````````````1ton" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity2.png" alt="" />Cricket Pitch
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity2.png" alt="Cricket Pitch" title="Cricket Pitch" />Cricket Pitch
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Cricket Pitch" title="Cricket Pitch" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab3-tab" data-toggle="tab"
                                                     data-target="#amenitiestab3" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity3.png" alt="" />Party Hall
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity3.png" alt="Party Hall" title="Party Hall" />Party Hall
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Party Hall" title="Party Hall" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab4-tab" data-toggle="tab"
                                                     data-target="#amenitiestab4" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity4.png" alt="" />Club Roof Top Swimming Pool
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity4.png" alt="Club Roof Top Swimming Pool" title="Club Roof Top Swimming Pool" />Club Roof Top Swimming Pool
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Club Roof Top Swimming Pool" title="Club Roof Top Swimming Pool" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab5-tab" data-toggle="tab"
                                                     data-target="#amenitiestab5" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity5.png" alt="" />Multipurpose Court
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity5.png" alt="Multipurpose Court" title="Multipurpose Court" />Multipurpose Court
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Multipurpose Court" title="Multipurpose Court" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab6-tab" data-toggle="tab"
                                                     data-target="#amenitiestab6" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity6.png" alt="" />Table Tennis
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity6.png" alt="Table Tennis" title="Table Tennis" />Table Tennis
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Table Tennis" title="Table Tennis" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab7-tab" data-toggle="tab"
                                                     data-target="#amenitiestab7" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity7.png" alt="" />Kid&apos;s Play Area
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity7.png" alt="Kids Play Area" title="Kids Play Area" />Kid&apos;s Play Area
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Kids Play Area" title="Kids Play Area" /></span></button>
                                             </li>
 
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab8-tab" data-toggle="tab"
                                                     data-target="#amenitiestab8" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity8.png" alt="" />Gym
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity8.png" alt="Gym" title="Gym" />Gym
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Gym" title="Gym" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab9-tab" data-toggle="tab"
                                                     data-target="#amenitiestab9" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity9.png" alt="" />Billiards
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity9.png" alt="Billiards" title="Billiards" />Billiards
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Billiards" title="Billiards" /></span></button>
                                             </li>
                                             <li className="nav-item" role="presentation">
                                                 <button className="nav-link" id="amenities-tab10-tab" data-toggle="tab"
                                                     data-target="#amenitiestab10" type="button" role="tab"
                                                     aria-controls="profile" aria-selected="false"><img className="amenity-icon"
-                                                        src="/eldeco-la-vida-bella-images2/images/amenity10.png" alt="" />Pickle Ball
+                                                        src="/eldeco-la-vida-bella-images2/images/amenity10.png" alt="Pickle Ball" title="Pickle Ball" />Pickle Ball
                                                     <span className="active-arrow"><img src="/eldeco-la-vida-bella-images2/images/arrow-right-white.png"
-                                                        alt="" /></span></button>
+                                                        alt="Pickle Ball" title="Pickle Ball" /></span></button>
                                             </li>
-
-
                                         </ul>
                                     </div>
                                 </div>
@@ -784,52 +782,52 @@ function Home() {
 
                                             <div className="tab-pane fade show active" id="amenitiestab1" role="tabpanel"
                                                 aria-labelledby="amenities-tab1-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/badminton-2.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/badminton-2.jpg" alt="Badminton Court" title="Badminton Court" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab2" role="tabpanel"
                                                 aria-labelledby="amenities-tab2-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/cricket-pitch.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/cricket-pitch.jpg" alt="Cricket Pitch" title="Cricket Pitch" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab3" role="tabpanel"
                                                 aria-labelledby="amenities-tab3-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/party-hall.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/party-hall.jpg" alt="Party Hall" title="Party Hall" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab4" role="tabpanel"
                                                 aria-labelledby="amenities-tab4-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/badminton-court.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/badminton-court.jpg" alt="Club Roof Top Swimming Pool" title="Club Roof Top Swimming Pool" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab5" role="tabpanel"
                                                 aria-labelledby="amenities-tab5-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/multipurpose-court.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/multipurpose-court.jpg" alt="Multipurpose Court" title="Multipurpose Court" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab6" role="tabpanel"
                                                 aria-labelledby="amenities-tab6-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/table-tenis.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/table-tenis.jpg" alt="Table Tennis" title="Table Tennis" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab7" role="tabpanel"
                                                 aria-labelledby="amenities-tab7-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/kidsplay.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/kidsplay.jpg" alt="Kids Play Area" title="Kids Play Area" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab8" role="tabpanel"
                                                 aria-labelledby="amenities-tab8-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gym.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gym.jpg" alt="Gym" title="Gym" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab9" role="tabpanel"
                                                 aria-labelledby="amenities-tab9-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/billiards.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/billiards.jpg" alt="Billiards" title="Billiards" />
                                             </div>
 
                                             <div className="tab-pane fade" id="amenitiestab10" role="tabpanel"
                                                 aria-labelledby="amenities-tab10-tab">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/pickle-ball.jpg" alt="" />
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/pickle-ball.jpg" alt="Pickle Ball" title="Pickle Ball" />
                                             </div>
 
 
@@ -873,14 +871,14 @@ function Home() {
                                 <div className="col-6 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery1-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery1.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery1.jpg" alt="Gallery 1" title="Gallery 1" /></a>
                                     </div>
                                 </div>
 
                                 <div className="col-6 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery2-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery2.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery2.jpg" alt="Gallery 2" title="Gallery 2" /></a>
                                     </div>
                                 </div>
 
@@ -892,13 +890,13 @@ function Home() {
                                 <div className="col-8 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery3-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery3.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery3.jpg" alt="Gallery 3" title="Gallery 3" /></a>
                                     </div>
                                 </div>
                                 <div className="col-4 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery4-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery4.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery4.jpg" alt="Gallery 4" title="Gallery 4" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -913,13 +911,13 @@ function Home() {
                                 <div className="col-4 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery5-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery5.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery5.jpg" alt="Gallery 5" title="Gallery 5" /></a>
                                     </div>
                                 </div>
                                 <div className="col-8 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery6-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery6.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery6.jpg" alt="Gallery 6" title="Gallery 6" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -930,13 +928,13 @@ function Home() {
                                 <div className="col-6 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery7-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery7.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery7.jpg" alt="Gallery 7" title="Gallery 7" /></a>
                                     </div>
                                 </div>
                                 <div className="col-6 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery8-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery8.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery8.jpg" alt="Gallery 8" title="Gallery 8" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -945,7 +943,7 @@ function Home() {
                                 <div className="col-12 item">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/gallery9-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery9.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/gallery9.jpg" alt="Gallery 9" title="Gallery 9" /></a>
                                     </div>
                                 </div>
                             </div>
@@ -968,7 +966,7 @@ function Home() {
                                 <div className="masterplanimg">
                                     <div className="gallerybox">
                                         <a href="/eldeco-la-vida-bella-images2/images/master-plan-large.jpg" className="thumbnail">
-                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/master-plan.jpg" alt="" /></a>
+                                            <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/master-plan.jpg" alt="Master Plan" title="Master Plan" /></a>
                                     </div>
                                 </div>
 
@@ -985,14 +983,14 @@ function Home() {
                                     <div className="item">
                                         <div className="gallerybox">
                                             <a href="/eldeco-la-vida-bella-images2/images/floor-plan-large.jpg" className="thumbnail">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/type4-1.jpg" alt="" /></a>
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/type4-1.jpg" alt="Floor Plan 1" title="Floor Plan 1" /></a>
                                         </div>
                                     </div>
 
                                     <div className="item">
                                         <div className="gallerybox">
                                             <a href="/eldeco-la-vida-bella-images2/images/floor-plan2-large.jpg" className="thumbnail">
-                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/type5-1.jpg" alt="" /></a>
+                                                <img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/type5-1.jpg" alt="Floor Plan 2" title="Floor Plan 2" /></a>
                                         </div>
                                     </div>
                                 </div>
@@ -1011,7 +1009,7 @@ function Home() {
 
                     <div className="row">
                         <div className="col-12 col-sm-12 col-md-12 col-lg-5 col-xl-5">
-                            <div className="eldecolocation"><img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/eldecolocation.png" alt="" /></div>
+                            <div className="eldecolocation"><img className="img-fluid" src="/eldeco-la-vida-bella-images2/images/eldecolocation.png" alt="Eldeco Location" title="Eldeco Location" /></div>
                         </div>
 
                         <div className="col-12 col-sm-12 col-md-12 col-lg-7 col-xl-7">
@@ -1022,7 +1020,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-3 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon1.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon1.png" alt="Location Icon 1" title="Location Icon 1" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1033,7 +1031,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-3 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon2.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon2.png" alt="Location Icon 2" title="Location Icon 2" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1044,7 +1042,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-3 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon3.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon3.png" alt="Location Icon 3" title="Location Icon 3" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1055,7 +1053,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-3 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon4.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon4.png" alt="Location Icon 4" title="Location Icon 4" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1066,7 +1064,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-3 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon5.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon5.png" alt="Location Icon 5" title="Location Icon 5" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1077,7 +1075,7 @@ function Home() {
 
                                     <div className="col-12 col-md-4 mb-2 d-flex">
                                         <div className="icon-wrap">
-                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon6.png" alt="" />
+                                            <img src="/eldeco-la-vida-bella-images2/images/location-icon6.png" alt="Location Icon 6" title="Location Icon 6" />
                                         </div>
                                         <div className="ml-3">
                                             <p className="feature-text">
@@ -1132,7 +1130,7 @@ function Home() {
 
                                         <div className="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
                                             <div className="text-center"><img src="/eldeco-la-vida-bella-images2/images/updated-logo.png" style={{ width: 140 }}
-                                                alt="" /></div>
+                                                alt="Eldeco Logo" title="Eldeco Logo" /></div>
                                         </div>
 
                                         <div className="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
@@ -1166,7 +1164,7 @@ function Home() {
 
 
                                 <div className="about-developer">
-                                    <img src="/eldeco-la-vida-bella-images2/images/building.png" className="img-fluid" alt="" />
+                                    <img src="/eldeco-la-vida-bella-images2/images/building.png" className="img-fluid" alt="Building" title="Building" />
                                 </div>
                             </div>
 
@@ -1285,7 +1283,7 @@ function Home() {
             <footer className="project-footer">
                 <div className="container text-center">
 
-                    <img src="/eldeco-la-vida-bella-images2/images/barcode.png" alt="QR Code" className="qr-image" />
+                    <img src="/eldeco-la-vida-bella-images2/images/barcode.png" alt="QR Code" title="QR Code" className="qr-image" />
 
                     <p className="rera-text mt-3">
                         <strong>RERA NO.: UPRERAPRJ136219/04/2024</strong>

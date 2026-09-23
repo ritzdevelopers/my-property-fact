@@ -533,7 +533,7 @@ export default function AdminPropertyDetailPage() {
                     >
                       <img
                         src={url}
-                        alt={`Property image ${index + 1}`}
+                        alt={`Property image ${index + 1}`} title={`Property image ${index + 1}`}
                         style={{ objectFit: "contain" }}
                       />
                     </div>
@@ -821,7 +821,7 @@ export default function AdminPropertyDetailPage() {
                           <div className="amenity-image-wrapper">
                             <img
                               src={imageUrl}
-                              alt={amenity.altTag || amenity.title || "Amenity"}
+                              alt={amenity.altTag || amenity.title || "Amenity"} title={amenity.altTag || amenity.title || "Amenity"}
                               width={60}
                               height={60}
                               className="amenity-image"
@@ -862,7 +862,7 @@ export default function AdminPropertyDetailPage() {
                           <div className="amenity-image-wrapper">
                             <img
                               src={imageUrl}
-                              alt={feature.altTag || feature.title || "Feature"}
+                              alt={feature.altTag || feature.title || "Feature"} title={feature.altTag || feature.title || "Feature"}
                               width={60}
                               height={60}
                               className="amenity-image"
@@ -919,6 +919,10 @@ export default function AdminPropertyDetailPage() {
                             <img
                               src={imageUrl}
                               alt={
+                                benefit.altTag ||
+                                fullBenefit?.altTag ||
+                                benefitName
+                              } title={
                                 benefit.altTag ||
                                 fullBenefit?.altTag ||
                                 benefitName
@@ -1144,7 +1148,7 @@ export default function AdminPropertyDetailPage() {
                   {property.userAvatar && (
                     <img
                       src={property.userAvatar}
-                      alt={property.userName || "User"}
+                      alt={property.userName || "User"} title={property.userName || "User"}
                       width={60}
                       height={60}
                       className="rounded-circle me-3"

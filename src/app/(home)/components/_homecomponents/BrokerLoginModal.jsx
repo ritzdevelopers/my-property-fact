@@ -490,7 +490,7 @@ export default function BrokerLoginModal({
           <div className="broker-login-modal-visual-media">
             <img
               src="/static/broker-portal/post-property-hero.png"
-              alt="Post your property on My Property Fact"
+              alt="Post your property on My Property Fact" title="Post your property on My Property Fact"
               className="broker-login-modal-hero"
             />
           </div>

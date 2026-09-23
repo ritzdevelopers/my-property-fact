@@ -765,7 +765,7 @@ export default function PropertyDetailClient({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={currentGallery}
-                  alt={property.title || "Property"}
+                  alt={property.title || "Property"} title={property.title || "Property"}
                   onClick={() => openLightbox(galleryIndex)}
                 />
                 <div className="pdp99-carousel__pills">
@@ -997,7 +997,7 @@ export default function PropertyDetailClient({
                   <div className="pdp99-avatar">
                     {property.userAvatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={property.userAvatar} alt="" />
+                      <img src={property.userAvatar} alt="Owner Avatar" title="Owner Avatar" />
                     ) : (
                       ownerInitials || (isBroker ? "B" : "O")
                     )}
@@ -1062,7 +1062,7 @@ export default function PropertyDetailClient({
                           <div key={amenity.id || index} className="pdp99-amenity">
                             {imageUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={imageUrl} alt={amenity.title || "Amenity"} />
+                              <img src={imageUrl} alt={amenity.title || "Amenity"} title={amenity.title || "Amenity"} />
                             ) : (
                               <span className="pdp99-amenity-ico">
                                 <FontAwesomeIcon icon={faCheck} />
@@ -1100,7 +1100,7 @@ export default function PropertyDetailClient({
                           <div key={feature.id || index} className="pdp99-amenity">
                             {imageUrl ? (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={imageUrl} alt={feature.title || "Feature"} />
+                              <img src={imageUrl} alt={feature.title || "Feature"} title={feature.title || "Feature"} />
                             ) : (
                               <span className="pdp99-amenity-ico">
                                 <FontAwesomeIcon icon={faCheck} />
@@ -1222,7 +1222,7 @@ export default function PropertyDetailClient({
                       <div key={benefit.id || index} className="pdp99-amenity">
                         {imageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={imageUrl} alt={benefitName} />
+                          <img src={imageUrl} alt={benefitName} title={benefitName} />
                         ) : (
                           <span className="pdp99-amenity-ico">
                             <FontAwesomeIcon icon={faMapMarkerAlt} />
@@ -1258,7 +1258,7 @@ export default function PropertyDetailClient({
                     >
                       {relatedImageUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={relatedImageUrl} alt="" />
+                        <img src={relatedImageUrl} alt="Similar Property" title="Similar Property" />
                       ) : (
                         <div className="pdp99-aside-ph" />
                       )}
@@ -1571,7 +1571,7 @@ export default function PropertyDetailClient({
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={allImageUrls[lightboxImageIndex]}
-                  alt={`${property?.title || "Property"} - Image ${lightboxImageIndex + 1}`}
+                  alt={`${property?.title || "Property"} - Image ${lightboxImageIndex + 1}`} title={`${property?.title || "Property"} - Image ${lightboxImageIndex + 1}`}
                   className="property-lightbox-img-normal"
                 />
               </div>

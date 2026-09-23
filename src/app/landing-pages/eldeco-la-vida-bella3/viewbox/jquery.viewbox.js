@@ -189,7 +189,7 @@
 	};
 	
 	function showImage(href,caption){
-		var $img = $('<img class="viewbox-image" alt="">').attr('src',href);
+		var $img = $('<img class="viewbox-image" alt="Viewbox Image" title="Viewbox Image">').attr('src',href);
 		if(!isImageLoaded($img))
 			loader(true);
 		set('content','');

@@ -69,7 +69,7 @@ export default function ThankYouPage() {
               >
                 <img
                   src="/dolera/dolera-logo.png"
-                  alt="Dholera Logo"
+                  alt="Dholera Logo" title="Dholera Logo"
                   style={{
                     maxWidth: "180px",
                     height: "auto",

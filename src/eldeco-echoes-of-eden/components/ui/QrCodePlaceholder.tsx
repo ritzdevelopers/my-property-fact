@@ -14,7 +14,7 @@ export function QrCodePlaceholder({
       // eslint-disable-next-line @next/next/no-img-element
       <img
         src={src}
-        alt={alt}
+        alt={alt} title={alt}
         width={size}
         height={size}
         className="mx-auto block rounded-sm bg-[#F5F7F5] p-1"

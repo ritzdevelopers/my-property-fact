@@ -67,7 +67,7 @@ export default function NewInsight() {
         <div className="expert-insights-bg" aria-hidden="true">
           <img
             src="/static/home-meta-data/bg%20image.png"
-            alt=""
+            alt="Expert Insights and Resources Background"
             title="Expert Insights and Resources"
             width={1920}
             height={720}

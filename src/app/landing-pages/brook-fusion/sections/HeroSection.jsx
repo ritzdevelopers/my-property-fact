@@ -31,7 +31,7 @@ export default function HeroSection() {
       >
         <img loading="eager"
           src={heroImg}
-          alt="Hero Image"
+          alt="Hero Image" title="Hero Image"
           className="object-fit-cover"
          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
       </div>

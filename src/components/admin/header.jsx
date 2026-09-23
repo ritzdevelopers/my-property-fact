@@ -75,12 +75,13 @@ export function AdminHeader({
           <img
             src="/images/admin/logo.svg"
             alt="My Property Fact"
+            title="My Property Fact"
             className="h-7 w-auto object-contain"
           />
         </Link>
 
         <Link href="/admin/dashboard" className="admin-header-logo-wrap">
-          <img src="/images/admin/logo.svg" alt="My Property Fact" />
+          <img src="/images/admin/logo.svg" alt="My Property Fact" title="My Property Fact" />
         </Link>
 
         <Badge

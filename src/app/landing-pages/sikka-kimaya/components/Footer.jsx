@@ -15,6 +15,7 @@ export default function Footer() {
               <img
                 src={logo}
                 alt="Sikka Logo"
+                title="Sikka Logo"
                 width={120}
                 height={60}
                 style={{ objectFit: 'contain' }}

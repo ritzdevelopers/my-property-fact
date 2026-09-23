@@ -286,7 +286,7 @@ export default function City({ list, stateList }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
-            alt={params.row.monumentName || params.row.cityName || "Monument"}
+            alt={params.row.monumentName || params.row.cityName || "Monument"} title={params.row.monumentName || params.row.cityName || "Monument"}
             style={{ width: 72, height: 48, objectFit: "cover", borderRadius: 6 }}
           />
         );
@@ -437,6 +437,7 @@ export default function City({ list, stateList }) {
                 <img
                   src={currentMonumentPreview}
                   alt={formData.cityName ? `${formData.cityName} monument preview` : "Monument preview"}
+                  title={formData.cityName ? `${formData.cityName} monument preview` : "Monument preview"}
                   style={{
                     display: "block",
                     marginTop: 12,

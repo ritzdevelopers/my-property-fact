@@ -75,6 +75,7 @@ function Section3() {
               <img
                 src="/eld-imgs/imgs/n-circle2.png"
                 alt="Eldeco luxury towers"
+                title="Eldeco luxury towers"
                 className="absolute inset-0 h-full w-full object-contain"
               />
             </div>
@@ -121,6 +122,7 @@ function Section3() {
                 <img
                   src="/eld-imgs/imgs/n-circle2.png"
                   alt="Eldeco luxury towers"
+                  title="Eldeco luxury towers"
                   className="absolute inset-0 h-full w-full"
                 />
               </div>
@@ -181,7 +183,7 @@ function HighlightCard({
       className={`flex w-full flex-col items-center text-center ${offsetClass}`}
     >
       <div className={iconWrapClass}>
-        <img src={icon} alt="" className="h-full w-full object-contain" />
+        <img src={icon} alt="Key Highlight Icon" title="Key Highlight Icon" className="h-full w-full object-contain" />
       </div>
       <p className={textClass}>{text}</p>
     </div>

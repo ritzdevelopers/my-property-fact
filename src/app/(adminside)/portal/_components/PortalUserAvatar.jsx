@@ -11,7 +11,7 @@ export default function PortalUserAvatar({ userData, size = "md", className = ""
     return (
       <img
         src={avatarUrl}
-        alt=""
+        alt="User Avatar" title="User Avatar"
         className={`portal-user-avatar portal-user-avatar--${size} ${className}`.trim()}
       />
     );

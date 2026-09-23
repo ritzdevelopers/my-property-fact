@@ -397,7 +397,7 @@ export default function PropertyContainer({
           {/* <div className="home-featured-location">
             <img
               src="/icon/map-pin.svg"
-              alt=""
+              alt="Map Pin" title="Map Pin"
               width={14}
               height={14}
             />

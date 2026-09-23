@@ -252,7 +252,7 @@ export default function Builder({ list }) {
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={src}
-            alt=""
+            alt="Builder Logo" title="Builder Logo"
             style={{ width: 44, height: 44, objectFit: "contain", borderRadius: 6 }}
           />
         );
@@ -373,7 +373,7 @@ export default function Builder({ list }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={builderMediaImageUrl(mediaRow.slugUrl, mediaRow.builderLogo)}
-                  alt=""
+                  alt="Current logo" title="Current logo"
                   style={{ maxHeight: 48, objectFit: "contain" }}
                 />
                 <Button

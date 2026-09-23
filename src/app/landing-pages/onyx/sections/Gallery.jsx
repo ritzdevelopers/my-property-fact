@@ -102,7 +102,7 @@ export default function Gallery() {
             <SwiperSlide key={index} className="rounded overflow-hidden">
               <img
                 src={src}
-                alt={`Gallery Image ${index + 1}`}
+                alt={`Gallery Image ${index + 1}`} title={`Gallery Image ${index + 1}`}
                 className="img-fluid w-100"
                 style={{
                   height: "300px",

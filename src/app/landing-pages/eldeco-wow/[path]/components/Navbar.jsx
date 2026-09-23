@@ -14,6 +14,7 @@ export default function Navbar({ setFormPopup }) {
             src="/images/eldeco-log.png"
             className="w-137 h-27"
             alt="Eldeco-Wow"
+            title="Eldeco-Wow"
             style={{ width: "137px", height: "27px" }}
           />
         </div>

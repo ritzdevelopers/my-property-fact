@@ -44,6 +44,7 @@ export default function Header() {
               sizes="253px"
               loading="eager"
               className="object-cover"
+              title="Eldeco Terra & Sol Logo"
             />
           </span>
         </a>

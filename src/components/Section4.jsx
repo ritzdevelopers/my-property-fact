@@ -85,7 +85,7 @@ function Section4() {
                   <span className="mb-[5px] max-md:hidden md:flex h-[27px] items-center justify-center">
                     <img
                       src={amenity.icon}
-                      alt={amenity.title}
+                      alt={amenity.title} title={amenity.title}
                       className={`h-[27px] w-[40px] object-contain transition ${
                         isActive ? "brightness-0 invert" : "brightness-0"
                       }`}
@@ -111,7 +111,7 @@ function Section4() {
             <img
               key={activeAmenity}
               src={amenities[activeAmenity].image}
-              alt={amenities[activeAmenity].title}
+              alt={amenities[activeAmenity].title} title={amenities[activeAmenity].title}
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>

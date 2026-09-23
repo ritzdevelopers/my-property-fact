@@ -217,7 +217,7 @@ function S3() {
               height: "100% !important",
               objectFit: "cover !important",
             }}
-            alt="Dholera Overview"
+            alt="Dholera Overview" title="Dholera Overview"
           />
         </div>
       </div>

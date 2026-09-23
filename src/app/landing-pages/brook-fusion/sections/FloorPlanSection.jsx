@@ -81,7 +81,7 @@ const FloorPlansSection = () => {
               >
                 <img
                   src={accordionData[openIndex].image}
-                  alt={accordionData[openIndex].title}
+                  alt={accordionData[openIndex].title} title={accordionData[openIndex].title}
                   className="img-fluid"
                   style={{
                     filter: "blur(3px) drop-shadow(0 0 3px gold)",

@@ -38,7 +38,7 @@ export default function FloorPlans() {
               <div className="position-relative rounded overflow-hidden shadow bg-white">
                 <img
                   src={floor.image}
-                  alt={`${floor.title} Floor Plan`}
+                  alt={`${floor.title} Floor Plan`} title={`${floor.title} Floor Plan`}
                   className="w-100"
                   style={{ height: "260px", objectFit: "cover" }}
                 />

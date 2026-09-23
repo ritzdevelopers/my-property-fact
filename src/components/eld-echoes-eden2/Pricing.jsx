@@ -3,7 +3,7 @@ import s from './Eden.module.css';
 function PlanSketch() {
   return (
     <div className={s.planPreview}>
-      <img className={s.planPreviewImg} src="/echoes-eden/floor-plan.webp" alt="" aria-hidden="true" />
+      <img className={s.planPreviewImg} src="/echoes-eden/floor-plan.webp" alt="Eldeco Echoes of Eden Floor Plan" title="Eldeco Echoes of Eden Floor Plan" aria-hidden="true" />
       <span className={s.planLock}>▣ Floor plan on request</span>
     </div>
   );

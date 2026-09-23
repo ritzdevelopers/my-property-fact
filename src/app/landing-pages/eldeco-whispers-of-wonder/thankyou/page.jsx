@@ -32,6 +32,7 @@ export default function ThankYouPage() {
         <img
           src="/images/eldecoLogo-removebg-preview.png"
           alt="Eldeco Wow Logo"
+          title="Eldeco Wow Logo"
           className={styles.logo}
         />
 

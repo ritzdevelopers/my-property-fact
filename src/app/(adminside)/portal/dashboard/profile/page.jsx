@@ -401,7 +401,7 @@ export default function Profile() {
                     {profile.avatar && profile.avatar.trim() ? (
                       <img
                         src={profile.avatar}
-                        alt="Profile"
+                        alt="Profile" title="Profile"
                         width={140}
                         height={140}
                         className="avatar-image"

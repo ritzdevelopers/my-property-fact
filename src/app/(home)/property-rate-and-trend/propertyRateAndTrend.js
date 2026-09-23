@@ -186,7 +186,7 @@ export default function PropertyRateAndTrend({ cityList1, insightsArray }) {
                     {data.map((item) => (
                         <div key={item.id} className={`p-3 border rounded-5 ${styles.valueCheckContainer}`}>
                             <div className="d-flex justify-content-center my-3">
-                                <img className="w-25" src={item.img} alt={item.img} />
+                                <img className="w-25" src={item.img} alt={item.img} title={item.img} />
                             </div>
                             <p className="h3 text-center my-3">{item.heading}</p>
                             <p className="text-center fs-5">{item.paragraph}</p>

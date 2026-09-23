@@ -71,6 +71,7 @@ function Home() {
               <img
                 src={src}
                 alt="Iconic luxury apartments in Gurgaon"
+                title="Iconic luxury apartments in Gurgaon"
                 className="h-full w-full object-cover"
               />
             </SwiperSlide>
@@ -162,10 +163,10 @@ function Home() {
 
          <div className="flex items-center gap-0">
          <button type="button" onClick={previousSlide} className="cursor-pointer">
-           <img src="/lft.svg" alt="" className="w-[25px] h-[25px]"/>
+           <img src="/lft.svg" alt="Previous slide" title="Previous slide" className="w-[25px] h-[25px]"/>
           </button>
           <button type="button" onClick={nextSlide} className="cursor-pointer">
-          <img src="/rght.svg" alt="" className="w-[25px] h-[25px]"/>
+          <img src="/rght.svg" alt="Next slide" title="Next slide" className="w-[25px] h-[25px]"/>
           </button>
          </div>
         </div>

@@ -56,7 +56,7 @@ export default function ModernPortalSidenav({ onNavigate }) {
       <aside className="brk-side">
         <div className="brk-side__head">
           <Link href="/portal/dashboard" className="brk-side__brand" onClick={onNavigate}>
-            <img src="/logo.webp" alt="" width={34} height={34} className="brk-side__logo" />
+            <img src="/logo.webp" alt="Logo" title="Logo" width={34} height={34} className="brk-side__logo" />
             <span className="brk-side__brand-text">
               <span className="brk-side__brand-title">Broker Portal</span>
               <span className="brk-side__brand-sub">My Property Fact</span>

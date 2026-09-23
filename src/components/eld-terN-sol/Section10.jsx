@@ -23,10 +23,11 @@ export default function Section10() {
       <div className="relative w-full overflow-hidden">
         <Image
           src={ASSETS.footerBg.src}
-          alt=""
+          alt="Eldeco Ter N Sol Footer Background"
           fill
           sizes="100vw"
           className="object-cover"
+          title="Eldeco Ter N Sol Footer Background"
         />
         <div aria-hidden="true" className="absolute inset-0 bg-[rgba(0,0,0,0.7)]" />
 
@@ -40,6 +41,7 @@ export default function Section10() {
                 fill
                 sizes="253px"
                 className="object-cover"
+                title="Eldeco Ter N Sol Logo"
               />
             </div>
           </div>

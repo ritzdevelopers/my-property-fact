@@ -836,7 +836,7 @@ export default function Properties({
                 >
                   <img
                     src="/icon/filter_icon.svg"
-                    alt="Filter"
+                    alt="Filter" title="Filter"
                     width={18}
                     height={18}
                   />
@@ -927,7 +927,7 @@ export default function Properties({
                     <div className="properties-mobile-filter-title">
                       <img
                         src="/icon/filter_icon.svg"
-                        alt="Filter"
+                        alt="Filter" title="Filter"
                         width={20}
                         height={20}
                       />
@@ -1360,7 +1360,7 @@ export default function Properties({
                   <div className="filters-title">
                     <img
                       src="/icon/filter_icon.svg"
-                      alt="Filter"
+                      alt="Filter" title="Filter"
                       width={20}
                       height={20}
                       className="filter-icon"
@@ -2049,7 +2049,7 @@ export default function Properties({
                                   <div className="property-card-image-wrapper">
                                     <img
                                       src={imageUrl}
-                                      alt={`${property.title} - Image ${index + 1}`}
+                                      alt={`${property.title} - Image ${index + 1}`} title={`${property.title} - Image ${index + 1}`}
                                       className="property-card-img"
                                       loading={index === 0 ? "eager" : "lazy"}
                                       decoding="async"
@@ -2077,7 +2077,7 @@ export default function Properties({
                             <div className="new-verified-badge">
                               <img
                                 src="/icon/verify.svg"
-                                alt="Verified"
+                                alt="Verified" title="Verified"
                                 width={16}
                                 height={16}
                               />
@@ -2133,7 +2133,7 @@ export default function Properties({
                           <div className="new-posted-date-below">
                             <img
                               src="/icon/calendar.svg"
-                              alt="Posted"
+                              alt="Posted" title="Posted"
                               width={14}
                               height={14}
                             />
@@ -2156,7 +2156,7 @@ export default function Properties({
                         <div className="property-card-location">
                           <img
                             src="/icon/location.svg"
-                            alt="Location"
+                            alt="Location" title="Location"
                             width={14}
                             height={14}
                           />
@@ -2168,7 +2168,7 @@ export default function Properties({
                           <div className="property-stat-item">
                             <img
                               src="/icon/carpet_area.svg"
-                              alt="Area"
+                              alt="Area" title="Area"
                               width={18}
                               height={18}
                             />
@@ -2185,7 +2185,7 @@ export default function Properties({
                             <div className="property-stat-item">
                               <img
                                 src="/icon/bedroom.svg"
-                                alt="Bedrooms"
+                                alt="Bedrooms" title="Bedrooms"
                                 width={18}
                                 height={18}
                               />
@@ -2201,7 +2201,7 @@ export default function Properties({
                           <div className="property-stat-item">
                             <img
                               src="/icon/bathrooms.svg"
-                              alt="Bathrooms"
+                              alt="Bathrooms" title="Bathrooms"
                               width={18}
                               height={18}
                             />

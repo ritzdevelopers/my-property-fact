@@ -389,7 +389,7 @@ export default function NewAboutUs({ platformStats }) {
             ></motion.div> */}
             {/* <img
               src="/static/about-us/vision_and_mission.png"
-              alt="Vision and Mission"
+              alt="Vision and Mission" title="Vision and Mission"
               width={1040}
               height={492}
               className="img-fluid"

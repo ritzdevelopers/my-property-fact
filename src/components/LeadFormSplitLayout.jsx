@@ -43,7 +43,7 @@ export default function LeadFormSplitLayout({
       <div className="lead-form-split__media">
         <img
           src={imageSrc}
-          alt={imageAlt}
+          alt={imageAlt} title={imageAlt}
           className="lead-form-split__media-img"
           loading="lazy"
           decoding="async"
@@ -53,7 +53,7 @@ export default function LeadFormSplitLayout({
         <div className="lead-form-split__brand">
           <img
             src={MPF_LOGO_SRC}
-            alt={MPF_LOGO_ALT}
+            alt={MPF_LOGO_ALT} title={MPF_LOGO_ALT}
             className="lead-form-split__brand-logo"
             width={132}
             height={36}
@@ -67,7 +67,7 @@ export default function LeadFormSplitLayout({
         <div className="lead-form-split__panel-logo">
           <img
             src={MPF_LOGO_SRC}
-            alt={MPF_LOGO_ALT}
+            alt={MPF_LOGO_ALT} title={MPF_LOGO_ALT}
             className="lead-form-split__panel-logo-img"
             width={120}
             height={32}

@@ -156,6 +156,7 @@ export default function PopupForm() {
                 <img
                   src={logo}
                   alt="Kimaya Greens"
+                  title="Kimaya Greens"
                   width={600}
                   height={600}
                   className="w-100 h-100 object-fit-cover"

@@ -254,7 +254,7 @@ export default function BlogPreviewModal({ blog, onClose }) {
                 <div className={styles.heroWrap}>
                   <img
                     src={heroSrc}
-                    alt={blog.blogTitle || "Blog image"}
+                    alt={blog.blogTitle || "Blog image"} title={blog.blogTitle || "Blog image"}
                     className={styles.hero}
                   />
                 </div>

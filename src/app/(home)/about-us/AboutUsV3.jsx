@@ -336,7 +336,7 @@ export default function AboutUsV3({ platformStats }) {
               >
                 <img
                   src="/static/about-us/about_us_section.jpg"
-                  alt="My Property Fact — research and verification team at work"
+                  alt="My Property Fact — research and verification team at work" title="My Property Fact — research and verification team at work"
                   width={515}
                   height={441}
                   loading="lazy"

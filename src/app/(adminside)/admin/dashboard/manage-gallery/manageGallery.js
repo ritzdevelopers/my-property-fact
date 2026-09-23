@@ -167,7 +167,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
                   className="mx-2 rounded-2 cursor-pointer"
                   key={item.id ?? `${params.row.projectId}-${index}`}
                   src={imageSrc}
-                  alt={params.row.pName || "Gallery image"}
+                  alt={params.row.pName || "Gallery image"} title={params.row.pName || "Gallery image"}
                   width={100}
                   height={40}
                   onError={(e) => {
@@ -292,7 +292,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
                         <img
                           className="rounded-2 d-block my-2"
                           src={img.preview}
-                          alt="preview"
+                          alt="preview" title="preview"
                           width={200}
                           height={100}
                           
@@ -372,7 +372,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
             <img
               className="rounded-2"
               src={popUpImageSrc}
-              alt="Gallery preview"
+              alt="Gallery preview" title="Gallery preview"
               width={0}
               height={0}
               style={{
@@ -408,7 +408,7 @@ export default function ManageGallery({ list, projectsList, newList }) {
               <img
                 className="rounded-2 d-block my-2"
                 src={getGalleryImageSrc(projectSlug, item.image)}
-                alt={projectSlug || "Gallery image"}
+                alt={projectSlug || "Gallery image"} title={projectSlug || "Gallery image"}
                 width={200}
                 height={100}
                 onError={(e) => {

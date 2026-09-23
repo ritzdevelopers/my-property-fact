@@ -480,7 +480,7 @@ function Page({ sheet_name }) {
     className="navbar-desktop w-full fixed top-0 z-50 justify-between items-center px-4 xl:px-6 py-2 lg:py-5 transition-all duration-300 bg-transparent">
     <div className="w-full max-w-7xl mx-auto md:w-[668px] lg:w-full flex justify-between  items-center">
         <div className="flex items-center">
-            <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco"
+            <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco" title="Eldeco"
                     className="h-[38px] lg:h-[38px] w-[213px] object-contain mt-2" /></a>
         </div>
         <div className="flex justify-between items-center gap-4 xl:gap-4 2xl:gap-3">
@@ -516,7 +516,7 @@ function Page({ sheet_name }) {
 {/* Mobile / Tablet Header */}
 <nav id="mobile-navbar"
     className="navbar-mobile w-full fixed top-0 z-50 flex justify-between items-center px-3 xs:px-4 sm:px-4 py-2.5 xs:py-3 transition-all duration-300 bg-transparent">
-    <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco"
+    <a href="#" className="block"><img src="/eldeco-imgs/images/logo-01 1.png" alt="Eldeco" title="Eldeco"
             className="h-9 xs:h-10 sm:h-12 w-auto max-w-[100px] xs:max-w-[110px] sm:max-w-[130px] object-contain" /></a>
     <button id="menu-toggle" className="z-50 p-1.5 xs:p-2 cursor-pointer rounded-lg hover:bg-white/10 transition-colors"
         aria-label="Toggle menu">
@@ -575,24 +575,24 @@ function Page({ sheet_name }) {
             <div className="banner-slider-wrapper flex relative transition-transform duration-500 ease-out"
                 style={{ width: '300%', height: '100%' }}>
                 <div className="banner-slide w-1/3 h-full shrink-0">
-                    <img src="/eldeco-imgs/img/sl-phone.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/img/sl-phone.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-mobile w-full h-full object-cover" />
 
-                    <img src="/eldeco-imgs/images/sl1.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/images/sl1.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
                 <div className="banner-slide w-1/3 h-full shrink-0">
-                    <img src="/eldeco-imgs/img/sl-phone2.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/img/sl-phone2.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-mobile w-full h-full object-cover" />
 
-                    <img src="/eldeco-imgs/images/sl2.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/images/sl2.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
                 <div className="banner-slide w-1/3 h-full shrink-0">
-                    <img src="/eldeco-imgs/img/sl-phone3.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/img/sl-phone3.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-mobile w-full h-full object-cover" />
 
-                    <img src="/eldeco-imgs/images/sl3.jpg" alt="Oxy-Rich Luxury Residences"
+                    <img src="/eldeco-imgs/images/sl3.jpg" alt="Oxy-Rich Luxury Residences" title="Oxy-Rich Luxury Residences"
                         className="banner-slide-img-desktop w-full h-full object-cover" />
                 </div>
             </div>
@@ -609,7 +609,7 @@ function Page({ sheet_name }) {
                         WWW.UP-RERA.IN<br />LAUNCH DATE: 28TH JANUARY, 2026</p>
                     <div
                         className="rera-qr-img-wrapper bg-white flex items-center justify-center h-[35px] w-[35px] xs:h-[38px] xs:w-[38px] sm:h-[43px] sm:w-[43px] shrink-0">
-                        <img src="/eldeco-imgs/images/Qr-code.jpg" alt="QR Code"
+                        <img src="/eldeco-imgs/images/Qr-code.jpg" alt="QR Code" title="QR Code"
                             className="rera-qr-img w-[28px] h-[28px] xs:w-[30px] xs:h-[30px] sm:w-[35px] sm:h-[35px]" />
                     </div>
                 </div>
@@ -638,7 +638,7 @@ function Page({ sheet_name }) {
                 </h1>
                 <p
                     className="font-montserrat text-white text-[12px] xs:text-[13px] sm:text-[15px] md:text-[16px] lg:text-[22px] flex items-center gap-1.5 xs:gap-2 mb-4 xs:mb-5 sm:mb-6 font-bold">
-                    <img src="/eldeco-imgs/images/location_eldeco.svg" alt="Location" className="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
+                    <img src="/eldeco-imgs/images/location_eldeco.svg" alt="Location" title="Location" className="w-3.5 h-3.5 xs:w-4 xs:h-4 shrink-0" />
                     Omicron 1A, <span className="font-normal">Gr. Noida</span>
                 </p>
                 <div
@@ -667,7 +667,7 @@ function Page({ sheet_name }) {
             <span
                 className="text-white font-montserrat font-[700] text-[12px] xs:text-[13px] sm:text-[14px] md:text-[16px]">Enquiry
                 Now</span>
-            <img src="/eldeco-imgs/images/arrow.svg" alt="Arrow Right"
+            <img src="/eldeco-imgs/images/arrow.svg" alt="Arrow Right" title="Arrow Right"
                 className="w-4 h-4 xs:w-[18px] xs:h-[18px] sm:w-5 sm:h-5 rotate-40 shrink-0" />
         </button>
 
@@ -795,7 +795,7 @@ function Page({ sheet_name }) {
                     className="order-2 lg:order-2 overview-right-col flex md:flex-row flex-col lg:flex-col gap-6 xs:gap-8 sm:gap-10 lg:gap-6 xl:gap-8 items-center justify-between w-full lg:flex-[0_0_18%] lg:max-w-[18%] xl:flex-[0_0_238px] xl:max-w-[238px]">
                     <div
                         className="w-full   md:max-w-[40%] lg:max-w-[100%] xl:max-w-[238px]   rounded-[5px] overflow-hidden mx-auto  px-0  ">
-                        <img src="/eldeco-imgs/images/city.jpg" alt="City Skyline"
+                        <img src="/eldeco-imgs/images/city.jpg" alt="City Skyline" title="City Skyline"
                             className="w-full h-full object-cover rounded-[5px]" />
                     </div>
                     <div className="w-full md:max-w-[45%] lg:max-w-[85%] xl:max-w-[238px] 
@@ -873,7 +873,7 @@ function Page({ sheet_name }) {
                     {/* <!-- Slide 1 --> */}
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
-                            <img src="/eldeco-imgs/img/Oxy-rich-green-surroundings.jpg" alt="Oxy-rich green surroundings"
+                            <img src="/eldeco-imgs/img/Oxy-rich-green-surroundings.jpg" alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -885,7 +885,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Open-&-unobstructed-skyline-views.jpg"
-                                alt="Double-heighted, air-conditioned lobbies"
+                                alt="Double-heighted, air-conditioned lobbies" title="Double-heighted, air-conditioned lobbies"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -898,7 +898,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Double--heighted,-air-conditioned-lobbies.jpg"
-                                alt="Sunlit canopies & natural surroundings"
+                                alt="Sunlit canopies & natural surroundings" title="Sunlit canopies & natural surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -911,7 +911,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Premium-balconies-with-panoramic-green-views.jpg"
-                                alt="Oxy-rich green surroundings"
+                                alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -923,7 +923,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Sunlit-canopies-&-nature---filled-environmen.jpg"
-                                alt="Oxy-rich green surroundings"
+                                alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -934,7 +934,7 @@ function Page({ sheet_name }) {
                     {/* <!-- Slide 6 --> */}
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
-                            <img src="/eldeco-imgs/img/Iconic-towers-inspired-by-7-peaks.jpg" alt="Oxy-rich green surroundings"
+                            <img src="/eldeco-imgs/img/Iconic-towers-inspired-by-7-peaks.jpg" alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -948,7 +948,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Bright,-&-well-ventilated-living-spaces.jpg"
-                                alt="Oxy-rich green surroundings"
+                                alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -962,7 +962,7 @@ function Page({ sheet_name }) {
                     {/* <!-- Slide 6 --> */}
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
-                            <img src="/eldeco-imgs/img/Nature-integrated-layout.jpg" alt="Oxy-rich green surroundings"
+                            <img src="/eldeco-imgs/img/Nature-integrated-layout.jpg" alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -976,7 +976,7 @@ function Page({ sheet_name }) {
                     <div className="highlights-slide shrink-0 highlights-slide-width">
                         <div className="rounded-[5px] overflow-hidden mb-3 xs:mb-4">
                             <img src="/eldeco-imgs/img/Elevated,-serene,-&-low-density-living.jpg"
-                                alt="Oxy-rich green surroundings"
+                                alt="Oxy-rich green surroundings" title="Oxy-rich green surroundings"
                                 className="w-full h-auto aspect-[513/314] object-cover xl:w-[513px] xl:h-[314px]" />
                         </div>
                         <p
@@ -991,13 +991,13 @@ function Page({ sheet_name }) {
             <button type="button" id="highlights-prev"
                 className="highlights-nav absolute left-0 top-1/2 -translate-y-1/2 translate-x-1 xs:translate-x-2 sm:translate-x-4 lg:-translate-x-5 w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all duration-300 z-10 rotate-180"
                 aria-label="Previous slide">
-                <img src="/eldeco-imgs/images/slider.svg" alt="" className="w-4 h-4 xs:w-[18px] xs:h-[18px] sm:w-5 sm:h-5" />
+                <img src="/eldeco-imgs/images/slider.svg" alt="Slider" title="Slider" className="w-4 h-4 xs:w-[18px] xs:h-[18px] sm:w-5 sm:h-5" />
             </button>
             {/* <!-- Slider Next Button (Right) --> */}
             <button type="button" id="highlights-next"
                 className="highlights-nav absolute right-0 top-1/2 -translate-y-1/2 -translate-x-1 xs:-translate-x-2 sm:-translate-x-4 lg:translate-x-5 w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:bg-gray-50 hover:scale-110 transition-all duration-300 z-10"
                 aria-label="Next slide">
-                <img src="/eldeco-imgs/images/slider.svg" alt="" className="w-4 h-4 xs:w-[18px] xs:h-[18px] sm:w-5 sm:h-5" />
+                <img src="/eldeco-imgs/images/slider.svg" alt="Slider" title="Slider" className="w-4 h-4 xs:w-[18px] xs:h-[18px] sm:w-5 sm:h-5" />
             </button>
         </div>
     </section>
@@ -1141,7 +1141,7 @@ function Page({ sheet_name }) {
                     <div
                         className="w-full md:w-[341px] lg:w-[380px] xl:w-[499px] md:h-[287px] lg:h-auto xl:h-[471px] flex flex-col justify-between gap-[10px] min-h-[260px] md:min-h-0">
                         <div className="flex-1 overflow-hidden md:flex-none">
-                            <img src="/eldeco-imgs/images/kids-play2.jpg" alt=""
+                            <img src="/eldeco-imgs/images/kids-play2.jpg" alt="Kids Play Area" title="Kids Play Area"
                                 className="w-full h-full md:h-auto object-cover md:object-contain" />
                         </div>
 
@@ -1156,7 +1156,7 @@ function Page({ sheet_name }) {
                         {/* <!-- Div 1  --> */}
                         <div className="flex flex-col w-full gap-[10px] justify-between flex-1 md:flex-none">
                             <div className="flex-1 overflow-hidden md:flex-none md:h-auto">
-                                <img src="/eldeco-imgs/images/cctv2.jpg" alt=""
+                                <img src="/eldeco-imgs/images/cctv2.jpg" alt="CCTV Security" title="CCTV Security"
                                     className="w-full h-full md:h-auto lg:h-[123px] xl:h-[166px] object-cover md:object-contain" />
                             </div>
 
@@ -1168,7 +1168,7 @@ function Page({ sheet_name }) {
                         {/* <!-- Div 2  --> */}
                         <div className="flex flex-col w-full gap-[10px] justify-between flex-1 md:flex-none">
                             <div className="flex-1 overflow-hidden md:flex-none md:h-auto">
-                                <img src="/eldeco-imgs/images/kotyyard2.jpg" alt=""
+                                <img src="/eldeco-imgs/images/kotyyard2.jpg" alt="Courtyard Garden" title="Courtyard Garden"
                                     className="w-full h-full md:h-auto lg:h-[123px] xl:h-[166px] object-cover md:object-contain" />
                             </div>
 
@@ -1182,7 +1182,7 @@ function Page({ sheet_name }) {
                     <div
                         className="w-full md:w-auto xl:w-[209px] md:w-[381px] lg:h-auto lg:w-auto xl:h-[471px] flex flex-col justify-between gap-[10px] min-h-[260px] md:min-h-0">
                         <div className="flex-1 overflow-hidden md:flex-none">
-                            <img src="/eldeco-imgs/images/cctv3.jpg" alt=""
+                            <img src="/eldeco-imgs/images/cctv3.jpg" alt="Cycling Track" title="Cycling Track"
                                 className="w-full h-full md:h-[236px] lg:h-[326px] xl:h-[419px] object-cover" />
                         </div>
 
@@ -1199,7 +1199,7 @@ function Page({ sheet_name }) {
                     <div
                         className="w-full md:w-auto xl:w-[347px] xl:h-[318px] gap-[10px] flex flex-col justify-between min-h-[220px] md:min-h-0 xl:justify-between">
                         <div className="flex-1 overflow-hidden md:flex-none">
-                            <img src="/eldeco-imgs/images/path.jpg" alt=""
+                            <img src="/eldeco-imgs/images/path.jpg" alt="Reflexology Path" title="Reflexology Path"
                                 className="w-full h-full md:h-auto object-cover md:object-contain" />
                         </div>
                         <button
@@ -1212,7 +1212,7 @@ function Page({ sheet_name }) {
                     <div
                         className="w-full md:w-auto xl:w-[512px] xl:h-[318px] gap-[10px] flex flex-col justify-between min-h-[220px] md:min-h-0 xl:justify-between">
                         <div className="flex-1 overflow-hidden md:flex-none">
-                            <img src="/eldeco-imgs/images/fit.jpg" alt=""
+                            <img src="/eldeco-imgs/images/fit.jpg" alt="Bonfire-Fit" title="Bonfire-Fit"
                                 className="w-full h-full md:h-auto object-cover md:object-contain" />
                         </div>
                         <button
@@ -1226,7 +1226,7 @@ function Page({ sheet_name }) {
                     <div
                         className="w-full md:w-auto xl:w-[347px] xl:h-[318px] gap-[10px] flex flex-col justify-between min-h-[220px] md:min-h-0 xl:justify-between">
                         <div className="flex-1 overflow-hidden md:flex-none">
-                            <img src="/eldeco-imgs/images/zone.jpg" alt=""
+                            <img src="/eldeco-imgs/images/zone.jpg" alt="Yoga & Meditation Zone" title="Yoga & Meditation Zone"
                                 className="w-full h-full md:h-auto object-cover md:object-contain" />
                         </div>
                         <button
@@ -1259,7 +1259,7 @@ function Page({ sheet_name }) {
                 {/* <!-- Left: Tower Image --> */}
                 <div
                     className="w-full max-w-full lg:max-w-[622px] h-[220px] xs:h-[260px] sm:h-[320px] md:h-[380px] lg:h-[480px] xl:h-[551px] rounded-[5px] overflow-hidden shrink-0">
-                    <img src="/eldeco-imgs/images/tower.jpg" alt="Apartment Towers" className="w-full h-full" />
+                    <img src="/eldeco-imgs/images/tower.jpg" alt="Apartment Towers" title="Apartment Towers" className="w-full h-full" />
                 </div>
                 {/* <!-- Right: Content --> */}
                 <div className="flex flex-col">
@@ -1461,7 +1461,7 @@ function Page({ sheet_name }) {
         <div
             className="w-full max-w-7xl mx-auto relative rounded-[5px] overflow-hidden min-h-[240px] xs:min-h-[280px] sm:min-h-[350px] md:min-h-[400px] lg:h-[522px]">
             <div className="absolute inset-0 z-0">
-                <img src="/eldeco-imgs/images/night_city.jpg" alt="Eldeco Cityscape"
+                <img src="/eldeco-imgs/images/night_city.jpg" alt="Eldeco Cityscape" title="Eldeco Cityscape"
                     className="w-full h-full object-cover min-h-[240px] xs:min-h-[280px]" />
             </div>
             <div className="absolute inset-0 z-10"></div>
@@ -1577,7 +1577,7 @@ function Page({ sheet_name }) {
                     <a href="#"
                         className="btn-overview-solid inline-flex items-center justify-center gap-2 text-white font-montserrat font-semibold text-[12px] xs:text-[13px] sm:text-[14px] px-5 xs:px-6 py-2.5 xs:py-3 sm:py-3.5 rounded-[5px] transition-all hover:opacity-95 shadow-sm mt-5 xs:mt-6 sm:w-auto self-center lg:self-start">
                         Connect with us
-                        <img src="/eldeco-imgs/images/rotate_arrow.svg" alt=""
+                        <img src="/eldeco-imgs/images/rotate_arrow.svg" alt="Rotate Arrow" title="Rotate Arrow"
                             className="w-[17px] h-[17px] xs:w-[18px] xs:h-[18px] sm:w-[19px] sm:h-[19px] rotate-40 filter invert brightness-0 saturate-0" />
                     </a>
                 </div>
@@ -1590,7 +1590,7 @@ function Page({ sheet_name }) {
         <div className="max-w-5xl mx-auto text-center">
             {/* <!-- Logo & Location --> */}
             <div className="mb-8 sm:mb-10">
-                <img src="/eldeco-imgs/images/eld-lg.png" alt="Eldeco 7 Peaks Residences"
+                <img src="/eldeco-imgs/images/eld-lg.png" alt="Eldeco 7 Peaks Residences" title="Eldeco 7 Peaks Residences"
                     className="h-16 sm:h-20 md:h-24 w-auto mx-auto mb-3" />
 
             </div>
@@ -1600,7 +1600,7 @@ function Page({ sheet_name }) {
                     className="space-y-2 mb-8 sm:mb-10 text-[#000000] text-[12px] font-[600] sm:text-[13px] font-opensans leading-relaxed">
                     <div
                         className="w-12 h-12 sm:w-[69px] sm:h-[69px] flex items-center justify-center mx-auto bg-white p-[6px]">
-                        <img src="/eldeco-imgs/images/Qr-code.jpg" alt="QR Code" className="w-full h-full " />
+                        <img src="/eldeco-imgs/images/Qr-code.jpg" alt="QR Code" title="QR Code" className="w-full h-full " />
                     </div>
                     <p>UP RERA REG NO.: UPRERAPRJ106523/01/2026, WEBSITE: WWW.UP-RERA.IN, LAUNCH DATE: 28TH JANUARY,
                         2026</p>

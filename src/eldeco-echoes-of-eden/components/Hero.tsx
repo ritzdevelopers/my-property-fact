@@ -152,11 +152,12 @@ export function Hero() {
           >
             <Image
               src={hero.backgroundImage}
-              alt=""
+              alt="Eldeco Echoes of Eden"
               fill
               priority
               sizes="100vw"
               className="object-cover object-center"
+              title="Eldeco Echoes of Eden Background"
             />
           </motion.div>
 

@@ -971,7 +971,7 @@ export default function ManageProjects({
                         <div>
                           <img
                             src={field.previousImage}
-                            alt="Current Project Logo"
+                            alt="Current Project Logo" title="Current Project Logo"
                             width={field.width || 200}
                             height={field.height || 200}
                             className="mb-3 img-fluid rounded"

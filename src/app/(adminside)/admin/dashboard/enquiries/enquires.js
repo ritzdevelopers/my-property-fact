@@ -1288,7 +1288,7 @@ export default function Enquiries() {
                             }}
                             aria-label="Delete enquiry"
                           >
-                            <img src="/images/admin/delete.svg" alt="" width={12} height={14} style={{ filter: "brightness(10)" }} />
+                            <img src="/images/admin/delete.svg" alt="Delete" title="Delete" width={12} height={14} style={{ filter: "brightness(10)" }} />
                           </button>
                         </td>
                       </tr>

@@ -141,6 +141,7 @@ export default function Home() {
             src="/images/s1/hero-banner.png"
             className="img-fluid w-100"
             alt="Hero Banner"
+            title="Hero Banner"
           />
         </section>
 
@@ -186,6 +187,7 @@ export default function Home() {
               src="/images/s2/sec2_img.png"
               className="img-fluid w-100"
               alt="Key highlights"
+              title="Key highlights"
             />
           </div>
         </section>
@@ -266,6 +268,7 @@ export default function Home() {
                 className="img-fluid"
                 src="/images/s2/Girl_with_House.jpg"
                 alt="Feature illustration"
+                title="Feature illustration"
                 style={{ display: "block", width: "100%", height: "auto" }}
               />
             </div>
@@ -343,7 +346,7 @@ export default function Home() {
                   <img
                     src={amenity.icon}
                     style={{ width: "70px", height: "70px" }}
-                    alt={amenity.title}
+                    alt={amenity.title} title={amenity.title}
                   />
                   <p
                     style={{
@@ -373,7 +376,7 @@ export default function Home() {
                   <img
                     src={amenity.icon}
                     style={{ width: "70px", height: "70px" }}
-                    alt={amenity.title}
+                    alt={amenity.title} title={amenity.title}
                   />
                   <p
                     style={{
@@ -488,6 +491,7 @@ export default function Home() {
                 className="img-fluid w-100 h-100"
                 style={{ objectFit: "cover" }}
                 alt="Location Map"
+                title="Location Map"
               />
             </div>
           </div>
@@ -533,6 +537,7 @@ export default function Home() {
                     className="img-fluid w-100 h-100"
                     style={{ objectFit: "cover", minHeight: "300px" }}
                     alt="Gallery Image 1"
+                    title="Gallery Image 1"
                   />
                 </div>
               </div>
@@ -561,7 +566,7 @@ export default function Home() {
                           src={item.image}
                           className="img-fluid w-100"
                           style={{ height: "342px", objectFit: "cover" }}
-                          alt={`Gallery Image ${index + 2}`}
+                          alt={`Gallery Image ${index + 2}`} title={`Gallery Image ${index + 2}`}
                         />
                       </div>
                     </div>

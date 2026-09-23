@@ -123,7 +123,7 @@ export default function ManageBlogCategory({ list }) {
                         title="Delete"
                         onClick={(e) => { e.stopPropagation(); openConfirmationBox(params.row.id); }}
                     >
-                        <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+                        <img src="/images/admin/delete.svg" alt="Delete" title="Delete" width={12} height={15} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
                     </button>
                     <button
                         type="button"
@@ -131,7 +131,7 @@ export default function ManageBlogCategory({ list }) {
                         title="Edit"
                         onClick={(e) => { e.stopPropagation(); openEditModel(params.row); }}
                     >
-                        <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
+                        <img src="/images/admin/edit.svg" alt="Edit" title="Edit" width={14} height={14} style={{ filter: "brightness(10)", pointerEvents: "none" }} />
                     </button>
                 </div>
             ),

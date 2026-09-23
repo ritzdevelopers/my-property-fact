@@ -28,7 +28,7 @@ export default function Section3() {
   return (
     <section id="highlights" className="relative w-full overflow-hidden">
       {/* 1:123 — background plate */}
-      <Image src={ASSETS.highlightsBg.src} alt="" fill sizes="100vw" className="object-cover" />
+      <Image src={ASSETS.highlightsBg.src} alt="Eldeco Ter N Sol Highlights Background" title="Eldeco Ter N Sol Highlights Background" fill sizes="100vw" className="object-cover" />
       <div aria-hidden="true" className="absolute inset-0 bg-[rgba(0,0,0,0.46)]" />
 
       <div className="relative mx-auto w-full max-w-frame px-4 py-16 sm:px-8 lg:px-[83px] lg:pt-[175px] lg:pb-[51px]">
@@ -40,10 +40,11 @@ export default function Section3() {
           >
             <Image
               src={ASSETS.headlineBrush.src}
-              alt=""
+              alt="Eldeco Ter N Sol Headline Brush"
               width={ASSETS.headlineBrush.width}
               height={ASSETS.headlineBrush.height}
               className="block size-full"
+              title="Eldeco Ter N Sol Headline Brush"
             />
           </span>
           <h2 className="font-playfair relative text-[28px] leading-[normal] font-semibold whitespace-nowrap text-white lg:pl-[31px] lg:text-[36px]">
@@ -113,10 +114,11 @@ export default function Section3() {
             >
               <Image
                 src={ASSETS.highlightImage.src}
-                alt=""
+                alt="Eldeco Ter N Sol Highlight Image"
                 fill
                 sizes="(max-width: 1024px) 100vw, 400px"
                 className="object-cover"
+                title="Eldeco Ter N Sol Highlight Image"
               />
             </div>
           </div>

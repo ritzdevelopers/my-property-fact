@@ -187,6 +187,7 @@ export function LoginForm({ className }) {
             <img
               src="/images/admin/logo.svg"
               alt="My Property Fact"
+              title="My Property Fact"
               className="mpf-zoho-login__logo"
             />
             <span className="mpf-zoho-login__pill">
@@ -306,6 +307,7 @@ export function LoginForm({ className }) {
               src="/images/admin/login-building.png"
               alt="Modern property building"
               className="mpf-zoho-login__building-img"
+              title="Modern property building"
             />
           </div>
           <h2 className="mpf-zoho-login__promo-title">{activeSlide.title}</h2>

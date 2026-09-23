@@ -209,7 +209,7 @@ export default function ManageFeatures({ list }) {
                 >
                   <img
                     src={img.preview}
-                    alt={`preview-${index}`}
+                    alt={`preview-${index}`} title={`preview-${index}`}
                     className="img-fluid rounded shadow"
                   />
                   <Button

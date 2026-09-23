@@ -118,7 +118,7 @@ export default function ListingWizardLayout({
           <Link href="/portal/dashboard/listings" className="lw-header__back" title="Back to listings">
             <ArrowLeft size={16} />
           </Link>
-          <img src="/logo.webp" alt="My Property Fact" className="lw-header__logo" />
+          <img src="/logo.webp" alt="My Property Fact" title="My Property Fact" className="lw-header__logo" />
           <span className="lw-header__title">{isEditMode ? "Edit Property" : "Add Property"}</span>
         </div>
         <div className="lw-header__user">

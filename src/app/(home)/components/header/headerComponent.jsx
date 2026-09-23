@@ -1148,7 +1148,7 @@ const HeaderComponent = () => {
                               aria-label="Call My Property Fact at +91 8920024793"
                               title="+91 8920024793"
                             >
-                              <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                               +91 8920024793
                             </a>
                           </div>
@@ -1255,7 +1255,7 @@ const HeaderComponent = () => {
                               aria-label="Call My Property Fact at +91 8920024793"
                               title="+91 8920024793"
                             >
-                              <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                              <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                               +91 8920024793
                             </a>
                           </div>
@@ -1577,7 +1577,7 @@ const HeaderComponent = () => {
                                 aria-label="Call My Property Fact at +91 8920024793"
                                 title="+91 8920024793"
                               >
-                                <img src="/static/icon/Vector (1).svg" alt="" className="dropdown-footer-phone-icon" />
+                                <img src="/static/icon/Vector (1).svg" alt="Phone Icon" title="Phone Icon" className="dropdown-footer-phone-icon" />
                                 +91 8920024793
                               </a>
                             </div>

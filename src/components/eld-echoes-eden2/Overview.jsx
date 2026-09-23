@@ -63,6 +63,7 @@ export function Overview({ openModal }) {
               alt="Towers of Eldeco Echoes of Eden, artist’s impression"
               width={640}
               height={460}
+              title="Towers of Eldeco Echoes of Eden, artist’s impression"
             />
             <figcaption className={s.overviewCaption}>Towers of Eldeco Echoes of Eden, artist’s impression.</figcaption>
           </figure>

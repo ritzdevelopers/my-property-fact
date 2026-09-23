@@ -76,6 +76,7 @@ function Navbar() {
                 : "/eld-imgs/logo/eldeco-logo-white.png"
             }
             alt="Eldeco"
+            title="Eldeco"
             className="h-auto w-[196px]"
           />
         </a>
@@ -141,6 +142,7 @@ function Navbar() {
                   <img
                     src="/eld-imgs/logo/eldecologo.png"
                     alt="Eldeco"
+                    title="Eldeco"
                     className="h-auto w-[160px]"
                   />
                 </a>

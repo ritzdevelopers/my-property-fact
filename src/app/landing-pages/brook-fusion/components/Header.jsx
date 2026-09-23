@@ -51,7 +51,7 @@ export default function Header() {
             <div className="d-none d-md-block">
               <img
                 src={isScrolled ? mainLogo : parentLogo}
-                alt="Logo"
+                alt="Logo" title="Logo"
                 height={isScrolled ? 80 : 40}
                 style={{ width: "auto" }}
               />
@@ -60,7 +60,7 @@ export default function Header() {
             <div className="d-md-none d-flex align-items-center">
               <img
                 src={isScrolled ? mainLogo : parentLogo}
-                alt="Mobile Logo"
+                alt="Mobile Logo" title="Mobile Logo"
                 height={isScrolled ? 60 : 40}
                 style={{ width: "auto" }}
               />

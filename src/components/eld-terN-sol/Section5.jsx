@@ -28,7 +28,7 @@ export default function Section5() {
       className="relative w-full overflow-hidden py-14 lg:h-[582px] lg:py-[56px]"
     >
       {/* section background */}
-      <Image src={ASSETS.pricingBg.src} alt="" fill sizes="100vw" className="object-cover" />
+      <Image src={ASSETS.pricingBg.src} alt="Eldeco Ter N Sol Pricing Background" fill sizes="100vw" className="object-cover" title="Eldeco Ter N Sol Pricing Background" />
       <div aria-hidden="true" className="absolute inset-0 bg-[rgba(255,255,255,0.8)]" />
 
       <div className="relative mx-auto flex w-full max-w-frame flex-col items-center gap-[40px] px-4 sm:px-8 lg:gap-[53px] lg:px-[80px]">

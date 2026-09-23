@@ -74,6 +74,7 @@ export default function GallerySection() {
                 <img
                   src={item.image}
                   alt="gallery image"
+                  title="gallery image"
                   style={{ objectFit: "cover", borderRadius: "0.75rem" }}
                 />
               </div>

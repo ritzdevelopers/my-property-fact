@@ -23,7 +23,8 @@ function Section5() {
     <section id="price" className="relative isolate flex min-h-[646px] items-center justify-center overflow-hidden bg-black px-6 py-[35px] text-white sm:px-10 lg:px-0 lg:py-[70px] ">
       <img
         src="/eld-imgs/s5/s5-bg.png"
-        alt=""
+        alt="Our Price Background"
+        title="Our Price Background"
         className="absolute inset-0 -z-20 h-full w-full object-cover lg:object-fill "
       />
       <div className="absolute inset-0 -z-10 bg-black/20" />

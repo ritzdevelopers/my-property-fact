@@ -79,6 +79,7 @@ export default function AboutSection() {
             <img
               src={aboutImg.src}
               alt="About Sikka Kimaya"
+              title="About Sikka Kimaya"
               className="img-fluid rounded shadow"
             />
           </div>

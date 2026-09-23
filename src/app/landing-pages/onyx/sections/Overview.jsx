@@ -29,6 +29,7 @@ export default function Overview() {
             <img
               src={overviewImg}
               alt="Overview Image"
+              title="Overview Image"
               width={400}
               height={400}
               style={{

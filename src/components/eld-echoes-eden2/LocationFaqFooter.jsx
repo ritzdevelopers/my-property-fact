@@ -146,6 +146,7 @@ export function DeveloperFooter({ openModal }) {
               alt="UP RERA QR code for Eldeco Echoes of Eden"
               width={120}
               height={120}
+              title="UP RERA QR code for Eldeco Echoes of Eden"
             />
             <span className={s.reraHint}>Scan to verify on UP RERA</span>
           </div>

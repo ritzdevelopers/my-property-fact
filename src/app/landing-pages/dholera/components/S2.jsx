@@ -391,7 +391,7 @@ function S2() {
         >
           <img
             src="/dolera/s2/dol-s2-i1.png"
-            alt=""
+            alt="Dholera S2 Image" title="Dholera S2 Image"
             className="s2-main-image"
             style={{
               width: "100% !important",

@@ -69,7 +69,7 @@ export function Amenities() {
               >
                 <Image
                   src={amenityIconMap[item.icon]}
-                  alt=""
+                  alt="Eldeco Echoes of Eden Amenity"
                   width={48}
                   height={48}
                   className="
@@ -77,6 +77,7 @@ export function Amenities() {
                     brightness-0 invert
                     lg:size-11
                   "
+                  title="Eldeco Echoes of Eden Amenity"
                   aria-hidden="true"
                 />
               </motion.span>

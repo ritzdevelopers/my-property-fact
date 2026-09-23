@@ -178,7 +178,7 @@ export default function SideNav({ onLinkClick }) {
                 ? "/images/admin/login-register.svg"
                 : "/images/admin/logo.svg"
             }
-            alt="My Property Fact"
+            alt="My Property Fact" title="My Property Fact"
             width={101}
             height={84}
             style={{ objectFit: "contain" }}
@@ -1024,11 +1024,11 @@ export default function SideNav({ onLinkClick }) {
 
       <div className="sidebar-footer">
         {/* <Link title="Settings" href="/admin/dashboard/manage-projects" onClick={handleLinkClick} className="sidebar-footer-link">
-          <img src="/images/admin/Setting.svg" alt="" width={17} height={17} style={{ flexShrink: 0 }} />
+          <img src="/images/admin/Setting.svg" alt="" title="" width={17} height={17} style={{ flexShrink: 0 }} />
           <span className="sidebar-footer-text">Settings</span>
         </Link>
         <Link href="#" onClick={(e) => e.preventDefault()} title="Support" className="sidebar-footer-link">
-          <img src="/images/admin/Support.svg" alt="" width={17} height={17} style={{ flexShrink: 0 }} />
+          <img src="/images/admin/Support.svg" alt="" title="" width={17} height={17} style={{ flexShrink: 0 }} />
           <span className="sidebar-footer-text">Support</span>
         </Link> */}
         <a

@@ -58,7 +58,7 @@ function Navbar() {
                 height: "100%",
                 objectFit: "contain",
               }}
-              alt="Dolera Logo"
+              alt="Dolera Logo" title="Dolera Logo"
             />
           </div>
 

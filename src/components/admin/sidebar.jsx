@@ -459,6 +459,7 @@ export function AdminSidebar({
               <img
                 src="/images/admin/login-register.svg"
                 alt="MPF"
+                title="My Property Fact"
                 className="h-9 w-9 object-contain admin-sidebar-brand__logo"
               />
             ) : (
@@ -466,6 +467,7 @@ export function AdminSidebar({
                 <img
                   src="/images/admin/login-register.svg"
                   alt="My Property Fact"
+                  title="My Property Fact"
                   className="h-10 w-auto object-contain admin-sidebar-brand__logo"
                 />
                 <div className="flex flex-col">

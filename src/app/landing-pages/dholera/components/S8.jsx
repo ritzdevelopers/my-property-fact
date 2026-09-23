@@ -214,7 +214,7 @@ function S8() {
                 height: "100%",
                 objectFit: "contain",
               }}
-              alt="Location Map"
+              alt="Location Map" title="Location Map"
             />
           </div>
           <button
@@ -293,7 +293,7 @@ function S8() {
           <img
             src="/dolera/lft-elips.png"
             style={{ width: "100%", height: "100%" }}
-            alt=""
+            alt="Right Elips" title="Right Elips"
           />
         </div>
 
@@ -313,7 +313,7 @@ function S8() {
           <img
             src="/dolera/rght-elips.png"
             style={{ width: "100%", height: "100%" }}
-            alt=""
+            alt="Left Elips" title="Left Elips"
           />
         </div>
 

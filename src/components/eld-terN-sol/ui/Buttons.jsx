@@ -60,10 +60,11 @@ export function EllipseLink({
       <span className="absolute top-0 left-0 block h-[42px] w-[45px]">
         <Image
           src={ellipse.src}
-          alt=""
+          alt="Eldeco Ter N Sol Ellipse"
           width={ellipse.width}
           height={ellipse.height}
           className="block h-[42px] w-[28.3234px]"
+          title="Eldeco Ter N Sol Ellipse"
         />
       </span>
       <span

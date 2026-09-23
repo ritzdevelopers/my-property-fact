@@ -592,7 +592,7 @@ function S1() {
           >
             {/* 1st Image  */}
             <div>
-              <img src="/dolera/s1/dolera-txt.png" alt="" />
+              <img src="/dolera/s1/dolera-txt.png" alt="Dholera S1 Image 1" title="Dholera S1 Image 1" />
             </div>
 
             {/* 2nd Image  */}
@@ -604,7 +604,7 @@ function S1() {
                 alignItems: "center",
               }}
             >
-              <img src="/dolera/s1/dolera-txt-2.png" alt="" />
+              <img src="/dolera/s1/dolera-txt-2.png" alt="Dholera S1 Image 2" title="Dholera S1 Image 2" />
             </div>
 
             {/* List  */}

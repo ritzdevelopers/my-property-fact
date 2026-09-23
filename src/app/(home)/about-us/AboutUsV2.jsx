@@ -155,7 +155,7 @@ export default function AboutUsV2({ platformStats }) {
               <div className="about-v2-media">
                 <img
                   src="/static/about-us/about_us_section.jpg"
-                  alt="My Property Fact — team and research overview"
+                  alt="My Property Fact — team and research overview" title="My Property Fact — team and research overview"
                   width={666}
                   height={440}
                   className="about-v2-image"
@@ -266,7 +266,7 @@ export default function AboutUsV2({ platformStats }) {
               <div key={p.id} className="col-md-6 col-lg-3">
                 <div className="about-v2-card">
                   <div className="about-v2-card__icon" aria-hidden="true">
-                    <img src={p.icon} alt="" width={28} height={28} />
+                    <img src={p.icon} alt="Principle Icon" title="Principle Icon" width={28} height={28} />
                   </div>
                   <h3 className="about-v2-card__heading plus-jakarta-sans-semi-bold">{p.title}</h3>
                   <p className="about-v2-card__text plus-jakarta-sans-regular">{p.text}</p>

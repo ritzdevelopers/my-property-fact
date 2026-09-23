@@ -112,12 +112,13 @@ export default function Section1() {
           >
             <Image
               src={asset}
-              alt=""
+              alt="Eldeco Ter N Sol Hero Image"
               fill
               priority={index === 0}
               sizes="100vw"
               data-hero-slide
               className="object-cover"
+              title="Eldeco Ter N Sol Hero Image"
             />
           </span>
         ))}

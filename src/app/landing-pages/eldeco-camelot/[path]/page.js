@@ -324,7 +324,7 @@ export default function EldecoCamelotPage() {
               <div className="about-image-wrapper">
                 <img
                   src="/landing-pages/eldeco-camelot/img/s2nimg.jpg"
-                  alt="Overview Image"
+                  alt="Overview Image" title="Overview Image"
                   width={800}
                   height={600}
                   style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -440,7 +440,7 @@ export default function EldecoCamelotPage() {
                 <div className="image-overlay-effect"></div>
                 <img
                   src="/landing-pages/eldeco-camelot/img/s3nimg.jpg"
-                  alt="Project Features"
+                  alt="Project Features" title="Project Features"
                   className="features-image"
                   width={800}
                   height={600}
@@ -537,7 +537,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-1.webp"
-                    alt="Gallery Image 1"
+                    alt="Gallery Image 1" title="Gallery Image 1"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -553,7 +553,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-2.webp"
-                    alt="Gallery Image 2"
+                    alt="Gallery Image 2" title="Gallery Image 2"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -569,7 +569,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-3.webp"
-                    alt="Gallery Image 3"
+                    alt="Gallery Image 3" title="Gallery Image 3"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -585,7 +585,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-4.webp"
-                    alt="Gallery Image 4"
+                    alt="Gallery Image 4" title="Gallery Image 4"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -601,7 +601,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-5.webp"
-                    alt="Gallery Image 5"
+                    alt="Gallery Image 5" title="Gallery Image 5"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -617,7 +617,7 @@ export default function EldecoCamelotPage() {
                 <div className="gallery-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/eldeco-g-6.webp"
-                    alt="Gallery Image 6"
+                    alt="Gallery Image 6" title="Gallery Image 6"
                     className="gallery-img"
                     width={800}
                     height={600}
@@ -649,7 +649,7 @@ export default function EldecoCamelotPage() {
                 <div className="map-image-wrapper">
                   <img
                     src="/landing-pages/eldeco-camelot/img/MAP.webp"
-                    alt="Location Map"
+                    alt="Location Map" title="Location Map"
                     className="location-map-img"
                     width={800}
                     height={600}

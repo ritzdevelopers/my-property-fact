@@ -101,7 +101,7 @@ function FallbackImage({ src, alt, className = "", priority = false }: { src: st
   const [failed, setFailed] = useState(false);
   return (
     <div className={`image-fallback overflow-hidden ${className}`} style={{ position: className.includes("absolute") ? "absolute" : "relative" }} role={failed ? "img" : undefined} aria-label={failed ? alt : undefined}>
-      {!failed && <img src={src} alt={alt} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} width="1200" height="800" className="h-full w-full object-cover" onError={() => setFailed(true)} />}
+      {!failed && <img src={src} alt={alt} title={alt} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} width="1200" height="800" className="h-full w-full object-cover" onError={() => setFailed(true)} />}
       {failed && <span className="absolute inset-0 grid place-items-center p-5 text-center text-sm font-semibold text-white/80">{alt}</span>}
     </div>
   );
@@ -266,7 +266,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-40 border-b border-[#15382f]/10 bg-[#f7f4ed]/95 backdrop-blur-xl">
         <div className="section-shell flex h-[72px] items-center gap-4">
           <a href="#top" className="focus-ring flex items-center rounded-lg" aria-label="Eldeco 7 Peaks home">
-            <img src="/eldeco-7-peak-new/elde-logo.png" alt="Eldeco" width="180" height="40" className="h-8 w-auto sm:h-9" />
+            <img src="/eldeco-7-peak-new/elde-logo.png" alt="Eldeco" title="Eldeco" width="180" height="40" className="h-8 w-auto sm:h-9" />
           </a>
           <nav className="ml-auto hidden items-center gap-5 lg:flex" aria-label="Primary navigation">
             {["Overview", "Price", "Floor Plans", "Amenities", "Site Plan", "Location", "FAQs"].map((item) => <a key={item} href={`#${item.toLowerCase().replace(" ", "-")}`} className="focus-ring rounded px-1 text-sm font-semibold hover:text-[#a85f3f]">{item}</a>)}
@@ -361,7 +361,7 @@ export default function LandingPage() {
           <div className="section-shell">
             <SectionTitle light eyebrow="Site plan" title="Seven named towers around club, pools and gardens" summary="The site plan shows the seven residential towers, the Club block, the Commercial plaza and the main arrival zone." />
             <div className="mt-10 overflow-hidden rounded-[2rem] border border-white/15 bg-white">
-              <FallbackImage src="/eldeco-7-peak-new/gl13.webp" alt="Site plan of Eldeco 7 Peaks Residences showing seven towers, club, pools and commercial plaza" className="min-h-[280px] w-full bg-white [&_img]:h-auto [&_img]:object-contain" />
+              <FallbackImage src="/eldeco-7-peak-new/gl13.webp" alt="pools and commercial plaza" className="min-h-[280px] w-full bg-white [&_img]:h-auto [&_img]:object-contain" />
             </div>
             <div className="mt-6 rounded-[2rem] border border-white/15 bg-white/[.055] p-6">
               <h3 className="font-serif font-bold text-white">All tower names</h3>

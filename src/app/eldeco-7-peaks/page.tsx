@@ -202,7 +202,7 @@ export default function Home() {
           <section id="top" className="w-full">
             <img
               src={assets.hero}
-              alt="Eldeco 7 Peaks Residences"
+              alt="Eldeco 7 Peaks Residences" title="Eldeco 7 Peaks Residences"
               className="block h-auto w-full"
             />
           </section>
@@ -233,7 +233,7 @@ export default function Home() {
             <div className="absolute inset-0 overflow-hidden">
               <Image
                 src={assets.highlightImage}
-                alt=""
+                alt="Eldeco 7 Peaks Residences Highlights Background"
                 fill
                 unoptimized
                 sizes="100vw"
@@ -259,7 +259,7 @@ export default function Home() {
                     <div className="flex h-[62px] w-[62px] items-center justify-center">
                       <Image
                         src={icons[i % icons.length]}
-                        alt=""
+                        alt="Eldeco 7 Peaks Residences Highlights"
                         width={62}
                         height={62}
                         unoptimized
@@ -324,7 +324,7 @@ export default function Home() {
           <section id="floor-plan" className="w-full">
             <img
               src={assets.sitePlan}
-              alt="Eldeco 7 Peaks site plan"
+              alt="Eldeco 7 Peaks site plan" title="Eldeco 7 Peaks site plan"
               className="block h-auto w-full"
             />
           </section>
@@ -362,7 +362,7 @@ export default function Home() {
                 <div className="absolute left-6 top-[358px] flex h-[76px] w-[calc(100%-48px)] items-center gap-3 rounded-[14px] bg-white/95 p-4 shadow-[0_10px_15px_rgba(0,0,0,0.1),0_4px_6px_rgba(0,0,0,0.1)] max-[520px]:top-[250px]">
                   <img
                     src="/eldeco-7-peak/location.png"
-                    alt=""
+                    alt="Eldeco 7 Peaks Residences Location" title="Eldeco 7 Peaks Residences Location"
                     className="h-6 w-6 object-contain"
                   />
                   <div>
@@ -381,7 +381,7 @@ export default function Home() {
                 >
                   <img
                     src="/eldeco-7-peak/download.png"
-                    alt=""
+                    alt="Download Location Map" title="Download Location Map"
                     className="h-5 w-5 object-contain transition-[filter] duration-[450ms] ease-[ease]"
                   />
                   Get Location Map
@@ -400,7 +400,7 @@ export default function Home() {
                       <div className="grid h-12 w-12 place-items-center rounded-[14px]">
                         <Image
                           src={locationIcons[i % locationIcons.length]}
-                          alt=""
+                          alt="Nearby Landmarks"
                           width={24}
                           height={24}
                           unoptimized
@@ -504,7 +504,7 @@ export default function Home() {
           >
             <img
               src="/eldeco-7-peak/gallery-bg.jpg"
-              alt=""
+              alt="Eldeco 7 Peaks Gallery Background" title="Eldeco 7 Peaks Gallery Background"
               aria-hidden="true"
               className="pointer-events-none absolute left-0 top-0 z-0 h-auto w-full"
             />
@@ -525,7 +525,7 @@ export default function Home() {
             <div className="absolute inset-0 after:absolute after:inset-0 after:bg-black/70 after:content-['']">
               <Image
                 src={assets.formBg}
-                alt=""
+                alt="Eldeco 7 Peaks Enquiry Form Background"
                 fill
                 unoptimized
                 sizes="100vw"

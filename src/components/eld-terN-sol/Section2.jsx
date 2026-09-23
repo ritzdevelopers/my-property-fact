@@ -86,10 +86,11 @@ export default function Section2() {
               >
                 <Image
                   src={asset.src}
-                  alt=""
+                  alt="Eldeco Ter N Sol Overview Image"
                   fill
                   sizes="(max-width: 640px) 100vw, 616px"
                   className="object-cover"
+                  title="Eldeco Ter N Sol Overview Image"
                 />
               </div>
             ))}

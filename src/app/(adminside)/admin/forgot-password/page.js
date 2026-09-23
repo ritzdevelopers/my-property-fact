@@ -131,7 +131,7 @@ export default function AdminForgotPasswordPage() {
           <div className="mpf-zoho-login__brand-row">
             <img
               src="/images/admin/logo.svg"
-              alt="My Property Fact"
+              alt="My Property Fact" title="My Property Fact"
               className="mpf-zoho-login__logo"
             />
             <span className="mpf-zoho-login__pill">
@@ -329,7 +329,7 @@ export default function AdminForgotPasswordPage() {
           <div className="mpf-zoho-login__promo-visual mpf-zoho-login__promo-visual--building">
             <img
               src="/images/admin/login-building.png"
-              alt=""
+              alt="Login Building" title="Login Building"
               className="mpf-zoho-login__building-img"
             />
           </div>

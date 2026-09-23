@@ -32,7 +32,7 @@ export default function GallerySlider({ images }: GallerySliderProps) {
           <div className="relative h-[260px] w-full max-w-[831px] overflow-hidden rounded-[30px] min-[760px]:h-[459px]">
             <img
               src={src}
-              alt={`Eldeco 7 Peaks gallery ${index + 1}`}
+              alt={`Eldeco 7 Peaks gallery ${index + 1}`} title={`Eldeco 7 Peaks gallery ${index + 1}`}
               className="block h-full w-full object-cover select-none"
               draggable={false}
             />

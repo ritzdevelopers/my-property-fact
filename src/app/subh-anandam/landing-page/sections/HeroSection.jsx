@@ -19,6 +19,7 @@ const HeroSection = () => {
         alt="Background"
         layout="fill"
         objectFit="cover"
+        title="Background"
         className="z-n1"
       />
 
@@ -28,7 +29,7 @@ const HeroSection = () => {
       <div className="head">
         {/* Top Bar: Logo + CTA */}
         <div className="top-bar position-relative z-1 px-3 px-sm-4 py-3 d-flex justify-content-between align-items-center">
-          <img src={logo} alt="Logo" />
+          <img src={logo} alt="Logo" title="Logo" />
           <button className="cta-btn" onClick={handleScrollToForm}>
             Enquire now
           </button>

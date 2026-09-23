@@ -57,7 +57,7 @@ export default function App() {
                 height: "100px",
               }}
               src="/dolera/s4/dol-s4-i1.png"
-              alt=""
+              alt="infrastructure & connectivity" title="infrastructure & connectivity"
             />
             <p
               style={{
@@ -88,7 +88,7 @@ export default function App() {
                 height: "100px",
               }}
               src="/dolera/s4/dol-s4-i2.png"
-              alt=""
+              alt="International & Domestic Markets" title="International & Domestic Markets"
             />
             <p
               style={{
@@ -119,7 +119,7 @@ export default function App() {
                 height: "100px",
               }}
               src="/dolera/s4/dol-s4-i3.png"
-              alt=""
+              alt="Benefit of the sea coast" title="Benefit of the sea coast"
             />
             <p
               style={{

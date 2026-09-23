@@ -21,6 +21,7 @@ export function FloorPlans({ openModal, unlocked }) {
             className={`${s.largePlanImg} ${unlocked ? '' : s.largePlanBlur}`}
             src="/echoes-eden/floor-plan.webp"
             alt={unlocked ? `Floor plan for ${plan.label}` : ''}
+            title={unlocked ? `Floor plan for ${plan.label}` : ''}
             aria-hidden={!unlocked}
           />
           {!unlocked && (
@@ -120,7 +121,7 @@ export function Gallery({ openModal }) {
               onClick={() => setActive(i)}
               aria-label={`Open gallery image ${i + 1}`}
             >
-              <img src={src} alt="" className={s.galleryImg} />
+              <img src={src} alt="Eldeco Echoes of Eden Gallery Image" title="Eldeco Echoes of Eden Gallery Image" className={s.galleryImg} />
             </button>
           ))}
         </div>
@@ -148,7 +149,7 @@ export function Gallery({ openModal }) {
           >
             ‹
           </button>
-          <img className={s.lightboxImg} src={photos[active]} alt={`Gallery image ${active + 1}`} />
+          <img className={s.lightboxImg} src={photos[active]} alt={`Gallery image ${active + 1}`} title={`Gallery image ${active + 1}`} />
           <button
             type="button"
             className={`${s.lightboxNav} ${s.lightboxNext}`}

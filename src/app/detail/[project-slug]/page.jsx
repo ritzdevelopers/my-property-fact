@@ -266,7 +266,7 @@ export default function ProjectDetailPage() {
               {imageUrl ? (
                 <img
                   src={imageUrl}
-                  alt={image.altTag || image.mobileAltTag || image.desktopAltTag || `Project image ${index + 1}`}
+                  alt={image.altTag || image.mobileAltTag || image.desktopAltTag || `Project image ${index + 1}`} title={image.altTag || image.mobileAltTag || image.desktopAltTag || `Project image ${index + 1}`}
                   className="hero-image"
                   style={{ width: "100%", height: "70vh", objectFit: "cover", display: "block" }}
                   onError={(e) => {
@@ -593,7 +593,7 @@ export default function ProjectDetailPage() {
                             <div className="mb-2 d-flex justify-content-center">
                               <img
                                 src={`${process.env.NEXT_PUBLIC_IMAGE_URL || ""}amenity/${amenity.image}`}
-                                alt={amenity.title || amenity.mobileAltTag || amenity.desktopAltTag || `Amenity ${index + 1}`}
+                                alt={amenity.title || amenity.mobileAltTag || amenity.desktopAltTag || `Amenity ${index + 1}`} title={amenity.title || amenity.mobileAltTag || amenity.desktopAltTag || `Amenity ${index + 1}`}
                                 width={50}
                                 height={50}
                                 style={{ objectFit: "contain" }}
@@ -860,7 +860,7 @@ export default function ProjectDetailPage() {
                 <Card.Body className="p-0">
                   <img
                     src={`${process.env.NEXT_PUBLIC_IMAGE_URL || ""}properties/${project.slugURL}/${project.locationMapImage}`}
-                    alt="Location Map"
+                    alt="Location Map" title="Location Map"
                     width={400}
                     height={300}
                     className="w-100"

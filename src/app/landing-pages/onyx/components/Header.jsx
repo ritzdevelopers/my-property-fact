@@ -58,6 +58,7 @@ export default function Header() {
             <img
               src={logo}
               alt="logo"
+              title="logo"
               width={150}
               height={40}
               style={{ height: "auto" }}

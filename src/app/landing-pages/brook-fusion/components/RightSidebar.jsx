@@ -24,7 +24,7 @@
 //             >
 //                 {/* Logo */}
 //                 <div className="my-3">
-//                     <img src={logo} alt="Logo" width={100} height={60} />
+//                     <img src={logo} alt="Logo" title="Logo" width={100} height={60} />
 //                 </div>
 
 //                 {/* Hamburger */}
@@ -117,7 +117,7 @@ export default function RightSidebar() {
             >
                 {/* Logo */}
                 <div className="my-3">
-                    <img src={logo} alt="Logo" width={100} height={60} />
+                    <img src={logo} alt="Logo" title="Logo" width={100} height={60} />
                 </div>
 
                 {/* Hamburger Button */}

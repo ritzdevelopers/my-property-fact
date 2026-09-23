@@ -54,7 +54,7 @@ function NewS2() {
         </div>
 
         <div className="s2-image-container">
-          <img src="/dolera/s2/dol-s2-i1.png" alt="section visual" />
+          <img src="/dolera/s2/dol-s2-i1.png" alt="section visual" title="section visual" />
         </div>
       </div>
     </section>

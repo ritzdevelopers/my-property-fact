@@ -388,7 +388,8 @@ export function WeatherLocationBanner() {
         <img
           className={`mpf-wx-banner__photo ${bgLoaded ? "is-loaded" : ""}`}
           src={bgSrc}
-          alt=""
+          alt="Weather Background"
+          title="Weather Background"
           aria-hidden="true"
           onLoad={() => setBgLoaded(true)}
         />

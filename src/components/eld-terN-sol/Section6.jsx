@@ -99,10 +99,11 @@ export default function Section6() {
                   >
                     <Image
                       src={ASSETS.galleryCircle.src}
-                      alt=""
+                      alt="Eldeco Ter N Sol Gallery Circle"
                       width={ASSETS.galleryCircle.width}
                       height={ASSETS.galleryCircle.height}
                       className="block size-full"
+                      title="Eldeco Ter N Sol Gallery Circle"
                     />
                   </a>
                 </SwiperSlide>

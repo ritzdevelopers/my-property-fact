@@ -87,7 +87,7 @@ function FieldIcon({ name, onDark = false }) {
   return (
     <img
       src={FIELD_ICONS[name]}
-      alt=""
+      alt="Field Icon" title="Field Icon"
       width={18}
       height={18}
       className={onDark ? styles.fieldIconOnDark : styles.fieldIcon}
@@ -559,7 +559,7 @@ export default function LoanEligibilityCalculator() {
       <section className={styles.hero} aria-labelledby="loan-eligibility-heading">
         <img
           src="/static/home-loan-calculator-banner.jpg"
-          alt=""
+          alt="Home Loan Calculator Banner" title="Home Loan Calculator Banner"
           className={styles.heroImage}
           width={1024}
           height={326}
@@ -593,7 +593,7 @@ export default function LoanEligibilityCalculator() {
               <span className={styles.smartCardIcon} aria-hidden="true">
                 <img
                   src="/static/home-loan-calculator/icon-smart-calculator.svg"
-                  alt=""
+                  alt="Smart Calculator" title="Smart Calculator"
                   width={22}
                   height={27}
                 />
@@ -781,7 +781,7 @@ export default function LoanEligibilityCalculator() {
             <div className={styles.resultNote} data-lec-note="">
               <img
                 src={FIELD_ICONS.info}
-                alt=""
+                alt="Info Icon" title="Info Icon"
                 width={24}
                 height={24}
                 className={styles.resultNoteIcon}
@@ -935,7 +935,7 @@ export default function LoanEligibilityCalculator() {
               <li key={step.id} className={styles.step}>
                 <div className={styles.stepVisual}>
                   <span className={styles.stepIcon}>
-                    <img src={step.icon} alt="" width={24} height={24} aria-hidden="true" />
+                    <img src={step.icon} alt="Step Icon" title="Step Icon" width={24} height={24} aria-hidden="true" />
                   </span>
                   <span className={`${styles.stepNum} ${plusJakarta.className}`}>{step.id}</span>
                 </div>
@@ -945,9 +945,9 @@ export default function LoanEligibilityCalculator() {
                   <span className={styles.stepChevron} aria-hidden="true">
                     <span className={styles.stepChevronIcon} data-lec-chevron="">
                       <img
-                        src="/static/home-loan-calculator/icon-step-arrow.svg"
-                        alt=""
-                        width={7}
+                              src="/static/home-loan-calculator/icon-step-arrow.svg"
+                              alt="Step Arrow" title="Step Arrow"
+                              width={7}
                         height={11}
                       />
                     </span>
@@ -963,7 +963,7 @@ export default function LoanEligibilityCalculator() {
         <aside className={`${styles.disclaimer} ${manrope.className}`} role="note">
           <img
             src="/static/home-loan-calculator/icon-note.svg"
-            alt=""
+            alt="Important Note" title="Important Note"
             width={21}
             height={21}
             aria-hidden="true"
@@ -980,7 +980,7 @@ export default function LoanEligibilityCalculator() {
         <div className={styles.ctaInner}>
           <img
             src="/static/home-loan-calculator-cta.jpg"
-            alt=""
+            alt="Home Loan Calculator CTA" title="Home Loan Calculator CTA"
             className={styles.ctaImage}
             width={1024}
             height={173}

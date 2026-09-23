@@ -287,7 +287,7 @@ export default function Home() {
           <div className="container"> {/* Optional: Add a container for better layout */}
             <Link className="navbar-brand" href="#" title="Logo"> {/* Replace with your logo or brand name */}
               {/* Your Logo Here */}
-              <img src="/eldeco-la-vida-bella-images/images/developer-logo.webp" alt="Logo" />
+              <img src="/eldeco-la-vida-bella-images/images/developer-logo.webp" alt="Logo" title="Logo" />
             </Link>
 
             <button
@@ -298,7 +298,7 @@ export default function Home() {
               aria-expanded={isMenuOpen}
               aria-label="Toggle navigation"
             >
-              <img src="/eldeco-la-vida-bella-images/images/menu-bar.png" alt="Menu" className="img-fluid menu_bar" width={30} height={30} />
+              <img src="/eldeco-la-vida-bella-images/images/menu-bar.png" alt="Menu" title="Menu" className="img-fluid menu_bar" width={30} height={30} />
             </button>
 
             <div
@@ -345,14 +345,14 @@ export default function Home() {
             <div className="carousel-item active">
               <img
                 src="/eldeco-la-vida-bella-images/images/banner_img.jpg"
-                alt="Eldeco-la-vida-bella "
+                alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                 className="w-100"
               />
             </div>
             {/* <!-- <div className="carousel-item">
             <img
               src="/eldeco-la-vida-bella-images/images/banner-2.jpg"
-              alt="Eldeco-la-vida-bella "
+              alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
               className="w-100"
             />
           </div> --> */}
@@ -361,10 +361,10 @@ export default function Home() {
           {/* <!-- Left and right controls --> */}
           {/* <!-- <div className="btn-group">
                 <Link className="carousel-control-prev" href="#demo" data-slide="prev">
-                    <img src="/eldeco-la-vida-bella-images/images/leftarrow.png" alt="left arrow" className="img-fluid arrow-icon">
+                    <img src="/eldeco-la-vida-bella-images/images/leftarrow.png" alt="left arrow" title="left arrow" className="img-fluid arrow-icon">
                 </Link>
                 <Link className="carousel-control-next" href="#demo" data-slide="next">
-                    <img src="/eldeco-la-vida-bella-images/images/rightarrow.png" alt="left arrow" className="img-fluid arrow-icon">
+                    <img src="/eldeco-la-vida-bella-images/images/rightarrow.png" alt="left arrow" title="left arrow" className="img-fluid arrow-icon">
                 </Link>
             </div> --> */}
         </div>
@@ -376,7 +376,7 @@ export default function Home() {
                         <div className="box-1">
                             <p className="location-p">Sector 12, Greater Noida (west)</p>
                             <h1 className="projectName_heading">
-                                <img src="/eldeco-la-vida-bella-images/images/project-logo.png" alt="developer-logo" className="img-fluid project-logo" />
+                                <img src="/eldeco-la-vida-bella-images/images/project-logo.png" alt="developer-logo" title="developer-logo" className="img-fluid project-logo" />
                             </h1>
                             <h4 className="typology_heading">3/4 BR Premium Residences</h4>
                             <p className="price_heading">STARTING AT</p>
@@ -400,7 +400,7 @@ export default function Home() {
             <span>
               <img
                 src="/eldeco-la-vida-bella-images/images/minus.png"
-                alt="minus-icon"
+                alt="minus-icon" title="minus-icon"
                 className="img-fluid mybtn iconimgTop"
                 id="showfrm"
               />
@@ -490,7 +490,7 @@ export default function Home() {
 
       {/* <!-------------- Overview Section Codes Starts From Here -----------------> */}
       <div className="container-fluid overview_container p-0" id="overview">
-        {/* <!-- <img src="/eldeco-la-vida-bella-images/images/logo/rotate-logo.png" alt="" className="img-fluid overview_bg_logo">  --> */}
+        {/* <!-- <img src="/eldeco-la-vida-bella-images/images/logo/rotate-logo.png" alt="Rotate Logo" title="Rotate Logo" className="img-fluid overview_bg_logo">  --> */}
         <div className="row">
           <div className="col-sm-12 col-md-6 col-lg-6">
             <div className="forbox_imgs">
@@ -498,28 +498,28 @@ export default function Home() {
                 <div className="col-6 col-sm-12 col-md-6 col-lg-6 first_col">
                   <img
                     src="/eldeco-la-vida-bella-images/images/o1.png"
-                    alt="Eldeco-la-vida-bella "
+                    alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                     className="img-fluid img-1"
                   />
                 </div>
                 <div className="col-6 col-sm-12 col-md-6 col-lg-6 second_col">
                   <img
                     src="/eldeco-la-vida-bella-images/images/o2.png"
-                    alt="Eldeco-la-vida-bella "
+                    alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                     className="img-fluid img-1"
                   />
                 </div>
                 <div className="col-6 col-sm-12 col-md-6 col-lg-6 third_col">
                   <img
                     src="/eldeco-la-vida-bella-images/images/o3.png"
-                    alt="Eldeco-la-vida-bella "
+                    alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                     className="img-fluid img-1"
                   />
                 </div>
                 <div className="col-6 col-sm-12 col-md-6 col-lg-6 forth_col">
                   <img
                     src="/eldeco-la-vida-bella-images/images/o4.png"
-                    alt="Eldeco-la-vida-bella "
+                    alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                     className="img-fluid img-1"
                   />
                 </div>
@@ -579,7 +579,7 @@ export default function Home() {
                   <span className="span-count">1</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h1.png"
-                    alt=""
+                    alt="All Weather Air Conditioning In All Rooms" title="All Weather Air Conditioning In All Rooms"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para">
@@ -594,7 +594,7 @@ export default function Home() {
                   <span className="span-count">2</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h2.png"
-                    alt=""
+                    alt="9-Ft Entrance Door With Digital Lock" title="9-Ft Entrance Door With Digital Lock"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para">
@@ -609,7 +609,7 @@ export default function Home() {
                   <span className="span-count">3</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h3.png"
-                    alt=""
+                    alt="Floor To Floor 11 Ft Height" title="Floor To Floor 11 Ft Height"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para">
@@ -624,7 +624,7 @@ export default function Home() {
                   <span className="span-count">4</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h4.png"
-                    alt=""
+                    alt="Double height air-conditioned lobby" title="Double height air-conditioned lobby"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para">
@@ -639,7 +639,7 @@ export default function Home() {
                   <span className="span-count">5</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h5.png"
-                    alt=""
+                    alt="Rooftop swimming pool with loungers" title="Rooftop swimming pool with loungers"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para">
@@ -654,7 +654,7 @@ export default function Home() {
                   <span className="span-count">6</span>
                   <img
                     src="/eldeco-la-vida-bella-images/images/h3.png"
-                    alt=""
+                    alt="High street retail 9 kms" title="High street retail 9 kms"
                     className="img-fluid highlights-icons"
                   />
                   <div className="p-para"><span>High street retail 9 kms</span></div>
@@ -740,7 +740,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>01</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a1.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a1.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Lifestyle club</h4>
                 </div>
               </div>
@@ -749,7 +749,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>02</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a2.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a2.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Roof Top Swimming Pool With Loungers</h4>
                 </div>
               </div>
@@ -758,7 +758,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>03</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a3.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a3.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Gym</h4>
                 </div>
               </div>
@@ -767,7 +767,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>04</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a4.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a4.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Yoga and Meditation</h4>
                 </div>
               </div>
@@ -776,7 +776,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>05</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a5.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a5.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Amphitheatre</h4>
                 </div>
               </div>
@@ -785,7 +785,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>06</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a6.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a6.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Multi-Purpose Court</h4>
                 </div>
               </div>
@@ -794,7 +794,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>07</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a7.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a7.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Table Tennis</h4>
                 </div>
               </div>
@@ -803,7 +803,7 @@ export default function Home() {
               <div className="amenities_box">
                 <div className="box">
                   <span>08</span>
-                  <img src="/eldeco-la-vida-bella-images/images/a9.png" alt="amenities" className="img-fluid" />
+                  <img src="/eldeco-la-vida-bella-images/images/a9.png" alt="amenities" title="amenities" className="img-fluid" />
                   <h4>Kids Play Area</h4>
                 </div>
               </div>
@@ -832,7 +832,7 @@ export default function Home() {
                   <a href="/eldeco-la-vida-bella-images/images/m-plan.png" className="with-caption image-link" title="floor plan">
                     <img
                       src="/eldeco-la-vida-bella-images/images/m-plan.png"
-                      alt="floor plan"
+                      alt="floor plan" title="floor plan"
                       className="img-fluid"
                       width={800} // Adjust width as needed
                       height={600} // Adjust height as needed
@@ -851,7 +851,7 @@ export default function Home() {
                 <div className={`tab-pane fade ${activeTab === 'menu1' ? 'show active' : ''}`} id="menu1">
                   <img
                     src="/eldeco-la-vida-bella-images/images/floorplan-min-1.webp"
-                    alt="floor plan"
+                    alt="floor plan" title="floor plan"
                     style={{ filter: 'blur(5px)' }}
                     className="img-fluid"
                     width={800} // Adjust width as needed
@@ -870,7 +870,7 @@ export default function Home() {
                 <div className={`tab-pane fade ${activeTab === 'menu2' ? 'show active' : ''}`} id="menu2">
                   <img
                     src="/eldeco-la-vida-bella-images/images/floorplan-min-1.webp"
-                    alt="floor plan"
+                    alt="floor plan" title="floor plan"
                     style={{ filter: 'blur(5px)' }}
                     className="img-fluid"
                     width={800} // Adjust width as needed
@@ -998,7 +998,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g1-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1011,7 +1011,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g2-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1024,7 +1024,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g3-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1037,7 +1037,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g4-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1050,7 +1050,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g5-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1063,7 +1063,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g6-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1076,7 +1076,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g7-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1089,7 +1089,7 @@ export default function Home() {
               >
                 <img
                   src="/eldeco-la-vida-bella-images/images/g8-sm.png"
-                  alt="Eldeco-la-vida-bella "
+                  alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella "
                   className="img-fluid gallery_img"
                 />
               </Link>
@@ -1138,7 +1138,7 @@ export default function Home() {
                   >
                 </p>
                 {/* <!-- <Link href="/eldeco-la-vida-bella-images/images/qrcode.jpeg" className="with-caption image-link" title="Eldeco-la-vida-bella"> -->
-              <!-- <img src="/eldeco-la-vida-bella-images/images/qrcode.jpeg" alt="Eldeco-la-vida-bella " className="img-fluid gallery_img"> --> */}
+              <!-- <img src="/eldeco-la-vida-bella-images/images/qrcode.jpeg" alt="Eldeco-la-vida-bella " title="Eldeco-la-vida-bella " className="img-fluid gallery_img"> --> */}
               </div>
             </div>
           </div>
@@ -1170,7 +1170,7 @@ export default function Home() {
             <button type="button" className="close" data-dismiss="modal">
               <img
                 src="/eldeco-la-vida-bella-images/images/modal-close.png"
-                alt="close-icon"
+                alt="close-icon" title="close-icon"
                 className="img-fluid modal_close"
               />
             </button>
@@ -1179,7 +1179,7 @@ export default function Home() {
               <div className="top_modal_content">
                 <img
                   src="/eldeco-la-vida-bella-images/images/project-logo.png"
-                  alt="project-logo"
+                  alt="project-logo" title="project-logo"
                   className="img-fluid modal-logo"
                 />
                 <p className="location-p">Sector 12, Greater Noida (west)</p>
@@ -1275,7 +1275,7 @@ export default function Home() {
                 <div className="col-md-6 left_col">
                   {/* <img
                     src="/eldeco-la-vida-bella-images/images/modal-img.webp"
-                    alt="modal img"
+                    alt="modal img" title="modal img"
                     className="img-fluid"
                   /> */}
                 </div>
@@ -1286,7 +1286,7 @@ export default function Home() {
                   </button>
                   <div className="formbox2">
                     <div className="top_modal_content">
-                      {/* <!-- <img src="/eldeco-la-vida-bella-images/images/logo/project-logo.png" alt="project-logo"
+                      {/* <!-- <img src="/eldeco-la-vida-bella-images/images/logo/project-logo.png" alt="project-logo" title="project-logo"
                                         className="img-fluid modal-logo"> --> */}
                       <p className="location-p">Sector 12, Greater Noida (west)</p>
                       <h4 className="typology_heading">4 BR Premium Residences</h4>

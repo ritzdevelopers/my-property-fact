@@ -154,7 +154,7 @@ export default function WebsiteGateway() {
         <div className="mpf-gateway-loader__center">
           <img loading="eager"
             src="/static/icon/mpf 1.png"
-            alt=""
+            alt="My Property Fact Logo" title="My Property Fact Logo"
             width={88}
             height={88}
             className="mpf-gateway-loader__logo"

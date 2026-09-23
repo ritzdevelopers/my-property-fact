@@ -157,7 +157,7 @@ export default function Thanks() {
             <nav className="navbar navbar-expand-lg navbar-light">
                 <div className="container">
                     <Link className="navbar-brand font-weight-bold text-white" href={HOME}>
-                        <img src={`${IMG}/updated-logo.png`} alt="Eldeco" className="updatedLogo" />
+                        <img src={`${IMG}/updated-logo.png`} alt="Eldeco" title="Eldeco" className="updatedLogo" />
                     </Link>
                     <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarMenu" aria-label="Toggle menu">
                         <span className="navbar-toggler-icon" />
@@ -202,7 +202,7 @@ export default function Thanks() {
 
             <footer className="project-footer">
                 <div className="container text-center">
-                    <img src={`${IMG}/barcode.png`} alt="QR Code" className="qr-image" />
+                    <img src={`${IMG}/barcode.png`} alt="QR Code" title="QR Code" className="qr-image" />
                     <p className="rera-text mt-3">
                         <strong>RERA NO.: UPRERAPRJ136219/04/2024</strong>{" "}
                         <a href="https://www.up-rera.in" target="_blank" rel="noopener noreferrer">www.up-rera.in</a>

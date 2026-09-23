@@ -396,7 +396,7 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
               <span className="vaastu-strip-media__play" aria-hidden="true">
                 <img
                   src="/static/vaastu-strip/play-circle-line.svg"
-                  alt=""
+                  alt="Play Circle Line" title="Play Circle Line"
                   width={34}
                   height={34}
                   decoding="async"
@@ -483,7 +483,7 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
                           <span className="vaastu-reels-thumb-play">
                             <img
                               src="/static/vaastu-strip/play-circle-line.svg"
-                              alt=""
+                              alt="Play Circle Line" title="Play Circle Line"
                               width={52}
                               height={52}
                               decoding="async"

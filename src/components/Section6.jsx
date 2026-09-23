@@ -61,7 +61,7 @@ function Section6() {
               className="transition hover:text-[#c9a846]"
             >
               
-             <img src="/eld-imgs/s6/lft-icn.svg" alt="" className=""/>
+             <img src="/eld-imgs/s6/lft-icn.svg" alt="Previous photo" title="Previous photo" className=""/>
             </button>
             <button
               type="button"
@@ -69,7 +69,7 @@ function Section6() {
               onClick={() => swiper?.slideNext()}
               className="transition hover:text-[#c9a846]"
             >
-             <img src="/eld-imgs/s6/rght-icn.svg" alt="" />
+             <img src="/eld-imgs/s6/rght-icn.svg" alt="Next photo" title="Next photo" />
             </button>
           </div>
         </div>
@@ -92,7 +92,7 @@ function Section6() {
               <div className="relative h-[260px] overflow-hidden rounded-[3px] sm:h-[340px] md:h-[380px] lg:h-[430px]">
                 <img
                   src={image.src}
-                  alt={image.alt}
+                  alt={image.alt} title={image.alt}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
               </div>
@@ -108,7 +108,7 @@ function Section6() {
               onClick={() => swiper?.slidePrev()}
               className="transition hover:text-[#c9a846]"
             >
-             <img src="/eld-imgs/s6/lft-icn.svg" alt="" />
+             <img src="/eld-imgs/s6/lft-icn.svg" alt="Previous photo" title="Previous photo" />
             </button>
             <button
               type="button"
@@ -116,7 +116,7 @@ function Section6() {
               onClick={() => swiper?.slideNext()}
               className="transition hover:text-[#c9a846]"
             >
-             <img src="/eld-imgs/s6/rght-icn.svg" alt="" />
+             <img src="/eld-imgs/s6/rght-icn.svg" alt="Next photo" title="Next photo" />
             </button>
           </div>
         </div>

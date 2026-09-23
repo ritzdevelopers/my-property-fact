@@ -244,7 +244,7 @@ export default function AdminTopBar() {
             <img
               className="admin-topbar-aux-icon"
               src="/images/admin/notification.svg"
-              alt=""
+              alt="Notification" title="Notification"
               style={{ width: "22px", height: "auto" }}
             />
             {isSuperAdmin && pendingTotal > 0 ? (

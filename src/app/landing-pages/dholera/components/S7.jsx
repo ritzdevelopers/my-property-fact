@@ -114,7 +114,7 @@ function S7() {
                   height: "100%",
                   objectFit: "cover",
                 }}
-                alt="Gallery Image 1"
+                alt="Gallery Image 1" title="Gallery Image 1"
               />
             </div>
 
@@ -133,7 +133,7 @@ function S7() {
                   height: "100%",
                   objectFit: "cover",
                 }}
-                alt="Gallery Image 2"
+                alt="Gallery Image 2" title="Gallery Image 2"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@ function S7() {
                   height: "100%",
                   objectFit: "cover",
                 }}
-                alt="Gallery Image 3"
+                alt="Gallery Image 3" title="Gallery Image 3"
               />
             </div>
             <div
@@ -181,7 +181,7 @@ function S7() {
                   height: "100%",
                   objectFit: "cover",
                 }}
-                alt="Gallery Image 4"
+                alt="Gallery Image 4" title="Gallery Image 4"
               />
             </div>
             <div
@@ -199,7 +199,7 @@ function S7() {
                   height: "100%",
                   objectFit: "cover",
                 }}
-                alt="Gallery Image 5"
+                alt="Gallery Image 5" title="Gallery Image 5"
               />
             </div>
           </div>

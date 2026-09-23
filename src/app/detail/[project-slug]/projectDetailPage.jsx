@@ -98,7 +98,7 @@ export default function ProjectDetailPage() {
             <div className="main-image-container position-relative mb-3">
               <img
                 src={property.image}
-                alt={property.title}
+                alt={property.title} title={property.title}
                 width={800}
                 height={600}
                 className="main-image"

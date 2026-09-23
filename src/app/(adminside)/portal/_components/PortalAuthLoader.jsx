@@ -33,7 +33,7 @@ export default function PortalAuthLoader({ message = "Loading your dashboard…"
     <div className="portal-auth-loader" role="status" aria-live="polite" aria-busy="true">
       <div className="portal-auth-loader__card">
         <div className={`portal-auth-loader__thumb${fading ? " is-fading" : ""}`}>
-          <img src={current.src} alt={current.alt} />
+          <img src={current.src} alt={current.alt} title={current.alt} />
         </div>
         <div className="portal-auth-loader__spinner" aria-hidden="true" />
         <p className="portal-auth-loader__text">{message}</p>

@@ -82,6 +82,7 @@ export default function Section7() {
           width={ASSETS.map.width}
           height={ASSETS.map.height}
           sizes="100vw"
+          title="Map showing the location of Eldeco Terra & Sol"
           className="absolute top-0 left-0 h-full w-full max-w-none object-cover lg:top-[-33.54%] lg:h-[202%]"
         />
 

@@ -92,6 +92,7 @@ export default function ContactForm() {
             <img
               src={contactImg.src}
               alt="Contact Visual"
+              title="Contact Visual"
               className="img-fluid rounded-4 shadow"
             />
           </div>

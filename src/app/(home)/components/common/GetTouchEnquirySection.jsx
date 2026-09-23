@@ -190,7 +190,7 @@ export default function GetTouchEnquirySection({
               <span className="get-touch-point-icon">
                 <img
                   src="/icon/verify.svg"
-                  alt=""
+                  alt="Verify Icon" title="Verify Icon"
                   width={12}
                   height={12}
                   aria-hidden

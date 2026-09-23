@@ -196,7 +196,7 @@ export default function ManageLocationBenefits({ allBenefits }) {
                 >
                   <img
                     src={img.preview}
-                    alt={`preview-${index}`}
+                    alt={`preview-${index}`} title={`preview-${index}`}
                     className="img-fluid rounded shadow"
                   />
                   <Button

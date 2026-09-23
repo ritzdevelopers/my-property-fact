@@ -46,6 +46,7 @@ export function Header({ openModal }) {
             alt="Echoes of Eden by Eldeco"
             width={160}
             height={48}
+            title="Echoes of Eden by Eldeco"
           />
         </a>
         <nav className={s.nav} aria-label="Page sections">

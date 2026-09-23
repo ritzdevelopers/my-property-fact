@@ -1195,7 +1195,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
               openConfirmationBox(params.row.id);
             }}
           >
-            <img src="/images/admin/delete.svg" alt="" width={12} height={15} style={{ pointerEvents: "none" }} />
+            <img src="/images/admin/delete.svg" alt="Delete" title="Delete" width={12} height={15} style={{ pointerEvents: "none" }} />
           </button>
           <button
             type="button"
@@ -1206,7 +1206,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
               openEditModel(params.row);
             }}
           >
-            <img src="/images/admin/edit.svg" alt="" width={14} height={14} style={{ pointerEvents: "none" }} />
+            <img src="/images/admin/edit.svg" alt="Edit" title="Edit" width={14} height={14} style={{ pointerEvents: "none" }} />
           </button>
         </div>
       ),
@@ -1306,7 +1306,7 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
             <div className="admin-image-lightbox-inner">
               <img
                 src={imagePreview.src}
-                alt={imagePreview.alt}
+                alt={imagePreview.alt} title={imagePreview.alt}
                 width={1200}
                 height={900}
                 className="admin-image-lightbox-img"
@@ -1553,13 +1553,13 @@ export default function ManageBlogs({ list, categoryList, cityList }) {
                       {newImagePreviewUrl ? (
                         <img
                           src={newImagePreviewUrl}
-                          alt="New blog featured image preview"
+                          alt="New blog featured image preview" title="New blog featured image preview"
                           className={styles.imagePreview}
                         />
                       ) : previousBlogImage ? (
                         <img
                           src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${previousBlogImage}`}
-                          alt="Current blog featured image"
+                          alt="Current blog featured image" title="Current blog featured image"
                           className={styles.imagePreview}
                         />
                       ) : (

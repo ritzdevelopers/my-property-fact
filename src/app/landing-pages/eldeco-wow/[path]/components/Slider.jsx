@@ -91,7 +91,7 @@ useEffect(() => {
             <img
               src={card.image}
               className="w-100 h-auto h-lg-408"
-              alt=""
+              alt={card.text} title={card.text}
               style={{ objectFit: "cover" }}
             />
             <div className="w-100 text-center p-2" style={{ maxWidth: "428px" }}>

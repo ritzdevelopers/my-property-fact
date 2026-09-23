@@ -66,7 +66,7 @@ export default function FloorPlanSection() {
                 <div className="position-relative" style={{ height: "250px" }}>
                   <img
                     src={plan.image}
-                    alt={plan.title}
+                    alt={plan.title} title={plan.title}
                     className="object-fit-cover rounded-top"
                     style={{ filter: "blur(4px)" }}
                   />

@@ -29,7 +29,7 @@ export default function PortalSideNav() {
             <CSidebarBrand>
               <img
                 src="/logo.webp"
-                alt="portal-logo"
+                alt="portal-logo" title="portal-logo"
                 height={100}
                 width={100}
                 className="img-fluid rounded rounded-3"
@@ -82,7 +82,7 @@ export default function PortalSideNav() {
               >
                 <img
                   src="/logo.webp"
-                  alt="user-icon"
+                  alt="user-icon" title="user-icon"
                   height={50}
                   width={50}
                   className="img-fluid rounded-pill bg-danger"

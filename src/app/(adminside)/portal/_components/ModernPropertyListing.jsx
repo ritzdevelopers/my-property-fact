@@ -4053,7 +4053,7 @@ function FeaturesAmenitiesStep({
                         <div className="item-icon" style={{ flexShrink: 0 }}>
                           <img
                             src={iconUrl}
-                            alt={amenity.altTag || amenityName}
+                            alt={amenity.altTag || amenityName} title={amenity.altTag || amenityName}
                             width={40}
                             height={40}
                             style={{ objectFit: "contain" }}
@@ -4170,7 +4170,7 @@ function FeaturesAmenitiesStep({
                         <div className="item-icon" style={{ flexShrink: 0 }}>
                           <img
                             src={iconUrl}
-                            alt={feature.altTag || featureName}
+                            alt={feature.altTag || featureName} title={feature.altTag || featureName}
                             width={40}
                             height={40}
                             style={{ objectFit: "contain" }}
@@ -4284,6 +4284,10 @@ function FeaturesAmenitiesStep({
                           <img
                             src={iconUrl}
                             alt={
+                              benefit.altTag ||
+                              benefit.benefitName ||
+                              "Nearby Benefit"
+                            } title={
                               benefit.altTag ||
                               benefit.benefitName ||
                               "Nearby Benefit"
@@ -4574,7 +4578,7 @@ function MediaContactStep({
                     >
                       <img
                         src={imageData.preview}
-                        alt={`Property image ${index + 1}`}
+                        alt={`Property image ${index + 1}`} title={`Property image ${index + 1}`}
                         style={{
                           objectFit: "cover",
                         }}

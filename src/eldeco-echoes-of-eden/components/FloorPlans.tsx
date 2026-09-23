@@ -58,7 +58,7 @@ export function FloorPlans() {
               <div className="relative aspect-[4/3] w-full">
                 <Image
                   src={plan.previewSrc}
-                  alt=""
+                  alt="Eldeco Echoes of Eden Floor Plan"
                   fill
                   sizes="350px"
                   className="
@@ -69,6 +69,7 @@ export function FloorPlans() {
         group-hover:blur-sm
         group-hover:scale-110
       "
+      title="Eldeco Echoes of Eden Floor Plan"
                   aria-hidden="true"
                 />
 

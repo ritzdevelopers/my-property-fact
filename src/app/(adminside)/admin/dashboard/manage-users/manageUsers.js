@@ -1321,7 +1321,7 @@ export default function ManageUsers({
                           >
                             <img
                               src="/images/admin/edit.svg"
-                              alt="Edit"
+                              alt="Edit" title="Edit"
                               width={16}
                               height={16}
                               style={{ pointerEvents: "none" }}
@@ -1335,7 +1335,7 @@ export default function ManageUsers({
                             >
                               <img
                                 src="/images/admin/delete.svg"
-                                alt="Deactivate"
+                                alt="Deactivate" title="Deactivate"
                                 width={14}
                                 height={14}
                                 style={{ pointerEvents: "none" }}

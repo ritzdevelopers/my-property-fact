@@ -75,6 +75,7 @@ function Section2({ project }) {
             <img
               src="/eld-imgs/imgs/s2-nimg.jpg"
               alt="Luxury apartment living room"
+              title="Luxury apartment living room"
               className={` w-full object-cover ${styles.height_responsive}`}
             />
           </div>
@@ -155,7 +156,7 @@ function Section2({ project }) {
               className="flex items-center justify-center gap-3 rounded-[5px] bg-[#cdae55] px-5 xl:px-6 py-4 cursor-pointer text-[14px] xl:text-[16px] font-[600] text-white transition-all duration-300 hover:-translate-y-[2px] hover:bg-[#b8963f] hover:shadow-[0_10px_22px_rgba(201,168,70,0.35)] active:translate-y-0"
             >
               Download Brochure
-              <img src="/eld-imgs/s2/down-brochure.svg" alt="Download Brochure"  className="w-[15px] h-[15px]" />
+              <img src="/eld-imgs/s2/down-brochure.svg" alt="Download Brochure" title="Download Brochure" className="w-[15px] h-[15px]" />
             </button>
 
             <button

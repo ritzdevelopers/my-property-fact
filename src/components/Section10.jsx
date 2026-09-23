@@ -79,6 +79,7 @@ function Section10({ project }) {
             <img
               src="/eld-imgs/s10/s10-nimg.jpg"
               alt="Luxury apartment balcony"
+              title="Luxury apartment balcony"
               className="absolute inset-0 h-full w-full object-cover"
             />
           </div>

@@ -278,7 +278,7 @@ function S9() {
                 width: "100%",
                 objectFit: "cover",
               }}
-              alt="Developer Image"
+              alt="Developer Image" title="Developer Image"
             />
           </div>
 
@@ -560,7 +560,7 @@ function S9() {
               bottom: 0,
               zIndex: 0,
             }}
-            alt="Decorative Image"
+            alt="Decorative Image" title="Decorative Image"
           />
         </div>
       </div>

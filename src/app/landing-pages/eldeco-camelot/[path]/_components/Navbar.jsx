@@ -35,7 +35,7 @@ export default function Navbar() {
       <nav className="navbar navbar-expand-lg">
         <div className="container-fluid">
           <Link className="navbar-brand" href="/" title="Logo">
-            <img src="/landing-pages/eldeco-camelot/img/nlg.png" className='img-fluid' alt="Logo" width={150} height={30} />
+            <img src="/landing-pages/eldeco-camelot/img/nlg.png" className='img-fluid' alt="Logo" title="Logo" width={150} height={30} />
           </Link>
 
           <button

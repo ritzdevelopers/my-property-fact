@@ -62,7 +62,7 @@
 //                     <div className="w-100 w-md-50 mb-4 mb-md-0" style={{ border: '1px solid #D0B674', borderRadius: '10px' }}>
 //                         <img
 //                             src={highlightImg}
-//                             alt="Highlight"
+//                             alt="Highlight" title="Highlight"
 //                             className="img-fluid rounded shadow"
 //                             style={{ borderRadius: '10px' }}
 //                         />
@@ -197,7 +197,7 @@ export default function HighlightsSection() {
             <div style={{ border: "1px solid #D0B674", borderRadius: "10px" }}>
               <img
                 src={highlightImg}
-                alt="Highlight"
+                alt="Highlight" title="Highlight"
                 className="img-fluid rounded shadow"
                 style={{ borderRadius: "10px" }}
               />

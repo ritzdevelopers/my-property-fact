@@ -101,9 +101,10 @@ export default function Popup() {
         <div className="relative hidden min-h-[560px] overflow-hidden bg-eld-bronze p-8 text-white md:flex md:flex-col md:justify-between lg:p-10">
           <Image
             src={ASSETS.hero.src}
-            alt=""
+            alt="Eldeco Ter N Sol Hero Image"
             fill
             sizes="360px"
+            title="Eldeco Ter N Sol Hero Image"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/25 via-[#5d351d]/75 to-[#1c120b]/95" />

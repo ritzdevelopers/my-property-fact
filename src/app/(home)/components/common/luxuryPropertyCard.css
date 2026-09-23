@@ -1352,6 +1352,19 @@ a.mpf-lux-card__frame:focus-visible {
   }
 }
 
+@media (max-width: 1024px) {
+  .mpf-lux-card .mpf-status-ribbon.mpf-status-ribbon--listing,
+  .mpf-lux-card .mpf-status-ribbon--listing.mpf-status-ribbon {
+    top: calc(12px + 34px + 8px);
+    right: 12px;
+  }
+
+  .mpf-lux-card .mpf-status-ribbon__fold.mpf-status-ribbon--listing {
+    top: calc(12px + 34px + 8px);
+    right: calc(12px - 6px);
+  }
+}
+
 /* Poster cards: keep slider arrows below the status badge on narrow phones only. */
 @media (max-width: 766px) {
   .mpf-lux-card--poster .mpf-listing-slider__nav,

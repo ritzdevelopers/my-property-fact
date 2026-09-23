@@ -29,7 +29,7 @@ function Section7() {
             <div className="relative aspect-[16/10] overflow-hidden sm:aspect-[16/9] lg:aspect-auto lg:min-h-[441px]">
               <img
                 src={section.image}
-                alt={section.title}
+                alt={section.title} title={section.title}
                 className="absolute inset-0 h-full w-full object-cover lg:object-fill"
               />
               <div className="absolute inset-0 flex items-center justify-center">

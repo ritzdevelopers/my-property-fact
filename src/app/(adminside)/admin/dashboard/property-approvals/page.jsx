@@ -272,7 +272,7 @@ export default function PropertyApprovalsPage() {
                       src={
                         getImageUrl(property.imageUrls[0]) || "/placeholder.jpg"
                       }
-                      alt={property.title || "Property"}
+                      alt={property.title || "Property"} title={property.title || "Property"}
                       className="approval-card__image"
                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                     {property.listingType && (

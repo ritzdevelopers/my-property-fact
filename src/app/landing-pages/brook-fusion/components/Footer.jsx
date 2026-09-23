@@ -16,7 +16,7 @@ export default function Footer() {
           <div className="col-md-6">
             <img
               src={mainLogo}
-              alt="The Brook Logo"
+              alt="The Brook Logo" title="The Brook Logo"
               width={160}
               height={90}
               className="mb-0"
@@ -43,7 +43,7 @@ export default function Footer() {
           <div className="col-md-6">
             <img
               src={parentLogo}
-              alt="Fusion Logo"
+              alt="Fusion Logo" title="Fusion Logo"
               width={180}
               height={60}
               className="mb-3"

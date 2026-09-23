@@ -16,7 +16,7 @@ const FooterSection = () => {
     >
       {/* Logo on Top Center */}
       <div className="text-center mb-4">
-        <img src={logo} alt="Logo" width={120} height={80} />
+        <img src={logo} alt="Logo" title="Logo" width={120} height={80} />
       </div>
 
       {/* Keywords */}

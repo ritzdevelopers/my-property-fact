@@ -291,7 +291,7 @@ export default function ListingDetailPage() {
                         >
                           <img
                             src={fullImageUrl}
-                            alt={`Property image ${index + 1}`}
+                            alt={`Property image ${index + 1}`} title={`Property image ${index + 1}`}
                             style={{ objectFit: "cover" }}
                             onError={(e) => {
                               console.error("Image load error:", fullImageUrl);

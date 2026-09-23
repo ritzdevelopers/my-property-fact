@@ -31,6 +31,7 @@ export default function Header() {
                 <img loading="eager"
                   src={logo}
                   alt="Logo"
+                  title="Logo"
                   width={100}
                   height={32}
                   className="img-fluid d-none d-sm-block"
@@ -38,6 +39,7 @@ export default function Header() {
                 <img loading="eager"
                   src={logo}
                   alt="Logo"
+                  title="Logo"
                   width={80}
                   height={26}
                   className="img-fluid d-block d-sm-none"
@@ -50,6 +52,7 @@ export default function Header() {
                 <img loading="eager"
                   src={kimayaLogo}
                   alt="Second Logo"
+                  title="Second Logo"
                   width={110}
                   height={42}
                   className="img-fluid"

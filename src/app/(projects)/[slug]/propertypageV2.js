@@ -208,7 +208,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Previous nearby benefits"
       >
-        <img src="/icon/arrow-left-s-line.svg" alt="" width={24} height={24} />
+        <img src="/icon/arrow-left-s-line.svg" alt="Previous nearby benefits" title="Previous nearby benefits" width={24} height={24} />
       </button>
     );
   };
@@ -222,7 +222,7 @@ export default function Property({
         onClick={onClick}
         aria-label="Next nearby benefits"
       >
-        <img src="/icon/arrow-right-s-line.svg" alt="" width={24} height={24} />
+        <img src="/icon/arrow-right-s-line.svg" alt="Next nearby benefits" title="Next nearby benefits" width={24} height={24} />
       </button>
     );
   };
@@ -897,7 +897,7 @@ const addNearbyImageIcon = (benefit) => {
                   width={198}
                   height={50.75}
                   src={projectImageSrc(projectDetail.projectLogo)}
-                  alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
+                  alt={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"} title={projectDetail.builder?.builderName || projectDetail.projectName || "Project logo"}
                   className="img-fluid"
                 />
               </Link>
@@ -1121,7 +1121,7 @@ const addNearbyImageIcon = (benefit) => {
                   {/* Default fallback */}
                   <img
                     src={projectImageSrc(item.desktopImage)}
-                    alt={getBannerAltText(item, index)}
+                    alt={getBannerAltText(item, index)} title={getBannerAltText(item, index)}
                     width={2225}
                     height={1065}
                   />
@@ -1138,7 +1138,7 @@ const addNearbyImageIcon = (benefit) => {
             >
               <img
                 src="/icon/enquire_now.svg"
-                alt=""
+                alt="Enquire Now" title="Enquire Now"
                 width={32}
                 height={32}
                 className="hero-enquire-btn__icon"
@@ -1207,7 +1207,7 @@ const addNearbyImageIcon = (benefit) => {
                         src={`${amenityIconBase}${item.image}`}
                         height={32}
                         width={32}
-                        alt={item.altTag || item.title || "Amenity icon"}
+                        alt={item.altTag || item.title || "Amenity icon"} title={item.altTag || item.title || "Amenity icon"}
                         className="d-flex mx-auto amenity-modern-icon-img"
                       />
                     </div>
@@ -1269,7 +1269,7 @@ const addNearbyImageIcon = (benefit) => {
                             height={300}
                             className="img-fluid floorplan-image floorplan-image--blurred"
                             src={getFloorPlanImage(item)}
-                            alt={item.altTag || item.planType || "Floor plan"}
+                            alt={item.altTag || item.planType || "Floor plan"} title={item.altTag || item.planType || "Floor plan"}
                           />
                         </div>
 
@@ -1311,7 +1311,7 @@ const addNearbyImageIcon = (benefit) => {
                         height={300}
                         className="img-fluid floorplan-image floorplan-image--blurred"
                         src={getFloorPlanImage(item)}
-                        alt={item.altTag || item.planType || "Floor plan"}
+                        alt={item.altTag || item.planType || "Floor plan"} title={item.altTag || item.planType || "Floor plan"}
                       />
                     </div>
 
@@ -1346,7 +1346,7 @@ const addNearbyImageIcon = (benefit) => {
                       >
                         <img
                           src={projectImageSrc(item.imageName)}
-                          alt={item.altTag || `Gallery image ${index + 1}`}
+                          alt={item.altTag || `Gallery image ${index + 1}`} title={item.altTag || `Gallery image ${index + 1}`}
                           className="gallery-modern-image"
                          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                       </button>
@@ -1366,7 +1366,7 @@ const addNearbyImageIcon = (benefit) => {
                   >
                     <img
                       src={projectImageSrc(item.imageName)}
-                      alt={item.altTag || `Gallery image ${index + 1}`}
+                      alt={item.altTag || `Gallery image ${index + 1}`} title={item.altTag || `Gallery image ${index + 1}`}
                       className="gallery-modern-image"
                      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
                   </button>
@@ -1386,7 +1386,7 @@ const addNearbyImageIcon = (benefit) => {
               <div className="location-modern-map">
                 <img
                   src={projectImageSrc(projectDetail.locationMap)}
-                  alt="Project Location Map"
+                  alt="Project Location Map" title="Project Location Map"
                   className="location-modern-map-image"
                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               </div>
@@ -1451,7 +1451,7 @@ const addNearbyImageIcon = (benefit) => {
                                 addNearbyImageIcon(benefit.benefitName) ||
                                 "/icon/fallback-icon.png"
                               }
-                              alt={benefitName}
+                              alt={benefitName} title={benefitName}
                               width={22}
                               height={22}
                             />
@@ -1485,14 +1485,14 @@ const addNearbyImageIcon = (benefit) => {
               >
                 <img
                   src={aboutBuilderImageSrc}
-                  alt={projectDetail.builder?.builderName || "Builder"}
+                  alt={projectDetail.builder?.builderName || "Builder"} title={projectDetail.builder?.builderName || "Builder"}
                   className="about-modern-image"
                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
               </Link>
             ) : (
               <img
                 src={aboutBuilderImageSrc}
-                alt={projectDetail.builder?.builderName || "Builder"}
+                alt={projectDetail.builder?.builderName || "Builder"} title={projectDetail.builder?.builderName || "Builder"}
                 className="about-modern-image"
                style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
             )}
@@ -1630,7 +1630,7 @@ const addNearbyImageIcon = (benefit) => {
                         src={`${amenityIconBase}${item.image}`}
                         height={28}
                         width={28}
-                        alt={item.altTag || item.title || "Amenity icon"}
+                        alt={item.altTag || item.title || "Amenity icon"} title={item.altTag || item.title || "Amenity icon"}
                         className="d-flex mx-auto amenity-modern-icon-img"
                       />
                     </div>
@@ -1692,7 +1692,7 @@ const addNearbyImageIcon = (benefit) => {
             {galleryImages[activeGalleryIndex] && (
               <img
                 src={projectImageSrc(galleryImages[activeGalleryIndex].imageName)}
-                alt={galleryImages[activeGalleryIndex].altTag || "Gallery preview"}
+                alt={galleryImages[activeGalleryIndex].altTag || "Gallery preview"} title={galleryImages[activeGalleryIndex].altTag || "Gallery preview"}
                 width={1400}
                 height={1000}
                 className="gallery-zoom-image"

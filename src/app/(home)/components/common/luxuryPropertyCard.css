@@ -1352,7 +1352,9 @@ a.mpf-lux-card__frame:focus-visible {
   }
 }
 
-@media (max-width: 1024px) {
+/* Narrow listing thumbnails (sidebar layout ~1025–1200px): stack status under shortlist so it
+   does not overlap the starting-price plaque. */
+@media (max-width: 1200px) {
   .mpf-lux-card .mpf-status-ribbon.mpf-status-ribbon--listing,
   .mpf-lux-card .mpf-status-ribbon--listing.mpf-status-ribbon {
     top: calc(12px + 34px + 8px);

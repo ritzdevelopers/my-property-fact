@@ -223,11 +223,9 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(9, 20, 33, 0) 45%,
-    rgba(9, 20, 33, 0.55) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(9, 20, 33, 0) 45%,
+      rgba(9, 20, 33, 0.55) 100%);
 }
 
 /* Cream lozenge with the editorial line, hugging the right edge of the card */
@@ -391,10 +389,12 @@
 }
 
 @keyframes mpf-tp-badge-breathe {
+
   0%,
   100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.06);
   }
@@ -407,12 +407,14 @@
       0 0 0 0 rgba(13, 88, 52, 0.4);
     opacity: 1;
   }
+
   70% {
     box-shadow:
       0 0 0 12px rgba(255, 255, 255, 0),
       0 0 0 22px rgba(13, 88, 52, 0);
     opacity: 0.35;
   }
+
   100% {
     box-shadow:
       0 0 0 16px rgba(255, 255, 255, 0),
@@ -434,12 +436,11 @@
   justify-content: center;
   gap: clamp(0.85rem, 1.4vw, 1.35rem);
   align-self: stretch;
-  padding: clamp(1.35rem, 2.2vw, 2.3rem) clamp(0.9rem, 1.4vw, 1.5rem)
-    clamp(1.35rem, 2.2vw, 2.3rem) clamp(1.2rem, 2.2vw, 2.2rem);
+  padding: clamp(1.35rem, 2.2vw, 2.3rem) clamp(0.9rem, 1.4vw, 1.5rem) clamp(1.35rem, 2.2vw, 2.3rem) clamp(1.2rem, 2.2vw, 2.2rem);
 }
 
 /* A touch more breathing room above the stats block. */
-.mpf-tp__panel > .mpf-tp__stats {
+.mpf-tp__panel>.mpf-tp__stats {
   margin-top: 0.25rem;
 }
 
@@ -545,7 +546,7 @@ a.mpf-tp__dev-name:focus-visible {
   min-width: 0;
 }
 
-.mpf-tp__stat + .mpf-tp__stat {
+.mpf-tp__stat+.mpf-tp__stat {
   padding-left: clamp(0.6rem, 1.1vw, 1.1rem);
   border-left: 1px solid var(--mpf-tp-line);
 }
@@ -619,18 +620,16 @@ a.mpf-tp__dev-name:focus-visible {
   left: -120%;
   width: 70%;
   height: 100%;
-  background: linear-gradient(
-    100deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.55) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(100deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 100%);
   transform: skewX(-18deg);
   transition: left 0.6s ease;
   pointer-events: none;
 }
 
-.mpf-tp__cta > span {
+.mpf-tp__cta>span {
   position: relative;
   z-index: 1;
 }
@@ -756,9 +755,10 @@ a.mpf-tp__dev-name:focus-visible {
     gap: 0.5rem 0.75rem;
   }
 
-  .mpf-tp__stat + .mpf-tp__stat {
+  .mpf-tp__stat+.mpf-tp__stat {
     padding-left: 0.75rem;
   }
+
 }
 
 @media (max-width: 575.98px) {
@@ -787,6 +787,7 @@ a.mpf-tp__dev-name:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .mpf-tp__card,
   .mpf-tp__img,
   .mpf-tp__track-fill {
@@ -805,8 +806,9 @@ a.mpf-tp__dev-name:focus-visible {
 
 /* Top Picks — small laptop (1024–1200): fluid vw width */
 @media (min-width: 1024px) and (max-width: 1199.98px) {
-  .mpf-home-r26 .mpf-tp__band > .container,
-  .mpf-tp__band > .container {
+
+  .mpf-home-r26 .mpf-tp__band>.container,
+  .mpf-tp__band>.container {
     max-width: min(100%, calc(100vw - clamp(26px, 1vw, 67px))) !important;
     width: min(100%, 98vw) !important;
     margin-left: auto;
@@ -818,8 +820,9 @@ a.mpf-tp__dev-name:focus-visible {
 
 /* Top Picks — desktop (1200+): 98% width, cap at 1400px */
 @media (min-width: 1200px) {
-  .mpf-home-r26 .mpf-tp__band > .container,
-  .mpf-tp__band > .container {
+
+  .mpf-home-r26 .mpf-tp__band>.container,
+  .mpf-tp__band>.container {
     max-width: 1400px !important;
     width: 98% !important;
     margin-left: auto;
@@ -831,7 +834,7 @@ a.mpf-tp__dev-name:focus-visible {
 
 /* Use full content width below tablet; home redesign overrides 768–1200 */
 @media (max-width: 767.98px) {
-  .mpf-tp__band > .container {
+  .mpf-tp__band>.container {
     max-width: 100%;
   }
 }

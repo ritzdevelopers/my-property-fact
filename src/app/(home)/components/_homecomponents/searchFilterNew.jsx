@@ -705,6 +705,12 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     return `${selectedFilterPayload.labels.length} types selected`;
   }, [selectedFilterPayload.labels, activeTab, filterMode]);
 
+  const homeHeroEmptyCategoryLabel = useMemo(() => {
+    const tabDef = HOME_HERO_TABS.find((t) => t.key === activeTab);
+    if (!tabDef || tabDef.key === "All") return "All Residential";
+    return tabDef.label;
+  }, [activeTab]);
+
   const suggestions = useMemo(
     () =>
       buildSmartSearchSuggestions(debouncedSearch, {
@@ -1438,7 +1444,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
           : isClassicHero
             ? "All Type"
             : isHomeHero
-              ? "All Residential"
+              ? homeHeroEmptyCategoryLabel
               : selectedCategoryLabel}
       </span>
       <svg

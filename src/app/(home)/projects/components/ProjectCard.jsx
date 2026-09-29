@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChevronLeft,
@@ -103,29 +104,21 @@ function ProjectCardSlider({
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
     >
-      {slides.map((src, index) => {
-        const imageMeta = getSlideImageMeta?.(index) || {
-          alt: `${projectName} — photo ${index + 1}`,
-          title: `${projectName} — photo ${index + 1}`,
-        };
-
-        return (
-        <img
-          key={`${src}-${index}`}
-          src={imageErrors[index] ? DEFAULT_PROJECT_CARD_IMAGE : src}
-          alt={imageMeta.alt}
-          title={imageMeta.title}
-          className={`${imageClassName}${
-            index === activeSlide ? " is-active" : ""
-          }`}
-          loading={imagePriority && index === 0 ? "eager" : "lazy"}
-          decoding="async"
-          draggable={false}
-          fetchPriority={imagePriority && index === 0 ? "high" : "low"}
-          onError={() => onImageError(index)}
+      {slides[activeSlide] ? (
+        <Image
+          key={`${slides[activeSlide]}-${activeSlide}`}
+          src={imageErrors[activeSlide] ? DEFAULT_PROJECT_CARD_IMAGE : slides[activeSlide]}
+          alt={(getSlideImageMeta?.(activeSlide) || {}).alt || `${projectName} photo`}
+          title={(getSlideImageMeta?.(activeSlide) || {}).title || `${projectName} photo`}
+          fill
+          sizes="(max-width: 768px) 100vw, 360px"
+          quality={60}
+          priority={Boolean(imagePriority && activeSlide === 0)}
+          loading={imagePriority && activeSlide === 0 ? undefined : "lazy"}
+          className={`${imageClassName} is-active`}
+          onError={() => onImageError(activeSlide)}
         />
-        );
-      })}
+      ) : null}
 
       {hasMultipleSlides ? (
         <>
@@ -214,13 +207,15 @@ function ProjectCardNearby({ items = [] }) {
                 title={item.title}
               >
                 {item.icon ? (
-                  <img
+                  <Image
                     src={item.icon}
                     alt={item.alt}
                     title={item.title || item.alt}
                     className="mpf-listing-nearby__icon"
+                    width={16}
+                    height={16}
+                    quality={60}
                     loading="lazy"
-                    decoding="async"
                   />
                 ) : null}
                 <span className="mpf-listing-nearby__text">
@@ -290,6 +285,7 @@ export default function ProjectCard({
   variant = "horizontal",
   onGetDetails,
   showUnderConstructionOverlay = true,
+  listingPage = 1,
 }) {
   const [slides, setSlides] = useState([]);
   const [activeSlide, setActiveSlide] = useState(0);
@@ -307,8 +303,9 @@ export default function ProjectCard({
       search: window.location.search,
       slug,
       scrollY: window.scrollY,
+      page: listingPage,
     });
-  }, [slug]);
+  }, [listingPage, slug]);
 
   useEffect(() => {
     if (isPoster) return undefined;
@@ -321,21 +318,37 @@ export default function ProjectCard({
     };
   }, [isPoster]);
 
+  const hasListingPayload =
+    Array.isArray(project?.locationBenefits) || Array.isArray(project?.galleryImageNames);
+
   useEffect(() => {
     if (!project) return;
     const primary = buildProjectImageUrl(project, { preferThumbnail: true });
-    setSlides(mergeSlideUrls(primary));
+    const galleryNames = Array.isArray(project.galleryImageNames) ? project.galleryImageNames : [];
+    const gallery = galleryNames
+      .map((imageName) => buildGalleryImageUrl(slug, imageName))
+      .filter(Boolean);
+    setSlides(mergeSlideUrls(primary, gallery));
     setActiveSlide(0);
     setImageErrors({});
+    if (hasListingPayload) {
+      setLocationBenefits(
+        Array.isArray(project.locationBenefits) ? project.locationBenefits : [],
+      );
+    }
   }, [
-    project?.projectThumbnailImage,
-    project?.projectBannerImage,
-    project?.slugURL,
+    hasListingPayload,
     project,
+    project?.galleryImageNames,
+    project?.locationBenefits,
+    project?.projectBannerImage,
+    project?.projectThumbnailImage,
+    project?.slugURL,
+    slug,
   ]);
 
   useEffect(() => {
-    if (!slug || !API_BASE) return undefined;
+    if (hasListingPayload || !slug || !API_BASE) return undefined;
 
     const controller = new AbortController();
     const url = `${API_BASE}projects/get/${encodeURIComponent(slug)}`;

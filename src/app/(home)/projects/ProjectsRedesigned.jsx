@@ -40,6 +40,7 @@ import {
 } from "@/lib/listingFloorValidation";
 import { isListingOriginPath } from "@/lib/listingProjectsViewConfig";
 import { trackSearchEvent } from "@/lib/trackSearchEvent";
+import { fetchProjectListingPage } from "@/lib/fetchProjectListingPage";
 
 import {
   scrollToProjectListings,
@@ -190,12 +191,15 @@ export default function ProjectsRedesigned({
   const [listingsLoaderVisible, setListingsLoaderVisible] = useState(false);
   const [showLeadPopup, setShowLeadPopup] = useState(false);
   const [leadPopupProject, setLeadPopupProject] = useState(null);
+  const [serverPage, setServerPage] = useState(null);
+  const [loadedListingKey, setLoadedListingKey] = useState("");
+  const [suggestionProjects, setSuggestionProjects] = useState([]);
   const scrollAfterLoaderRef = useRef(false);
   const listingsLoaderHideAtRef = useRef(0);
   const listingsLoaderTimerRef = useRef(null);
   const pendingListingRestoreRef = useRef(null);
   const listingRestoreDoneRef = useRef(false);
-  const LISTINGS_LOADER_MIN_MS = 1200;
+  const LISTINGS_LOADER_MIN_MS = 0;
 
   const showListingsLoader = useCallback(() => {
     const now = Date.now();
@@ -215,6 +219,126 @@ export default function ProjectsRedesigned({
 
   const router = useRouter();
   const pathname = usePathname();
+  const useServerListing =
+    pathname === "/projects" &&
+    !String(hubCategory || "").trim() &&
+    !String(initialCity || "").trim() &&
+    !String(initialBhkType || "").trim() &&
+    !String(initialConfigType || "").trim() &&
+    !lockCity;
+
+  const pinnedSearch = selectedSearchProjectKey.startsWith("id:")
+    ? { projectId: selectedSearchProjectKey.slice(3), slug: "" }
+    : selectedSearchProjectKey.startsWith("slug:")
+      ? { projectId: "", slug: selectedSearchProjectKey.slice(5) }
+      : { projectId: "", slug: "" };
+
+  const listingRequestKey = useServerListing
+    ? JSON.stringify({
+        page: currentPage,
+        tab: activeTab,
+        filters,
+        quick: activeQuickFilter,
+        sort: sortBy,
+        q: searchListQuery.trim(),
+        projectId: pinnedSearch.projectId,
+        slug: pinnedSearch.slug,
+      })
+    : "";
+
+  const serverListingLoading = useServerListing && listingRequestKey !== loadedListingKey;
+
+  useEffect(() => {
+    if (!useServerListing) return undefined;
+    const controller = new AbortController();
+    const requestKey = listingRequestKey;
+    let active = true;
+    fetchProjectListingPage(
+      {
+        page: currentPage,
+        limit: PROJECTS_PER_PAGE,
+        tab: activeTab,
+        filters,
+        quick: activeQuickFilter,
+        sort: sortBy,
+        q: searchListQuery.trim(),
+        projectId: pinnedSearch.projectId,
+        slug: pinnedSearch.slug,
+      },
+      { signal: controller.signal },
+    )
+      .then((page) => {
+        if (!active) return;
+        setServerPage(page);
+        setLoadedListingKey(requestKey);
+      })
+      .catch((error) => {
+        if (!active || error?.name === "AbortError") return;
+        setServerPage({
+          projects: [],
+          total: 0,
+          totalPages: 1,
+          quickFilterCounts: {},
+        });
+        setLoadedListingKey(requestKey);
+      });
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [
+    activeQuickFilter,
+    activeTab,
+    currentPage,
+    filters,
+    listingRequestKey,
+    pinnedSearch.projectId,
+    pinnedSearch.slug,
+    searchListQuery,
+    sortBy,
+    useServerListing,
+  ]);
+
+  useEffect(() => {
+    if (!useServerListing) return undefined;
+    const q = debouncedSearch.trim();
+    if (q.length < 2 || selectedSearchProjectKey) {
+      setSuggestionProjects([]);
+      return undefined;
+    }
+    const controller = new AbortController();
+    let active = true;
+    fetchProjectListingPage(
+      {
+        page: 1,
+        limit: SEARCH_SUGGESTION_LIMIT,
+        tab: activeTab,
+        filters,
+        quick: activeQuickFilter,
+        q,
+        suggest: true,
+      },
+      { signal: controller.signal },
+    )
+      .then((page) => {
+        if (active) setSuggestionProjects(page.projects || []);
+      })
+      .catch((error) => {
+        if (!active || error?.name === "AbortError") return;
+        setSuggestionProjects([]);
+      });
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [
+    activeQuickFilter,
+    activeTab,
+    debouncedSearch,
+    filters,
+    selectedSearchProjectKey,
+    useServerListing,
+  ]);
 
   useEffect(() => {
     const saved = peekListingReturnState();
@@ -535,13 +659,14 @@ export default function ProjectsRedesigned({
   );
 
   const baseProjectsBeforeQuickFilter = useMemo(() => {
+    if (useServerListing) return [];
     const source = allProjectsList?.length
       ? allProjectsList
       : Array.isArray(initialProjects)
         ? initialProjects
         : [];
     return source.filter((item) => matchesListingContext(item));
-  }, [allProjectsList, initialProjects, matchesListingContext]);
+  }, [allProjectsList, initialProjects, matchesListingContext, useServerListing]);
 
   const projectsAfterQuickFilter = useMemo(() => {
     if (!activeQuickFilter) return baseProjectsBeforeQuickFilter;
@@ -560,6 +685,7 @@ export default function ProjectsRedesigned({
   }, [activeQuickFilter, baseProjectsBeforeQuickFilter, matchesQuickFilter]);
 
   const searchSuggestions = useMemo(() => {
+    if (useServerListing) return suggestionProjects;
     const q = debouncedSearch.trim();
     if (q.length < 2) return [];
 
@@ -579,7 +705,7 @@ export default function ProjectsRedesigned({
     );
 
     return ranked.slice(0, SEARCH_SUGGESTION_LIMIT).map(({ item }) => item);
-  }, [debouncedSearch, searchSuggestionPool]);
+  }, [debouncedSearch, searchSuggestionPool, suggestionProjects, useServerListing]);
 
   const pinSearchProject = useCallback(
     (project) => {
@@ -776,6 +902,14 @@ export default function ProjectsRedesigned({
   }, [normalizeConfigType]);
 
   const visibleQuickFilters = useMemo(() => {
+    if (useServerListing) {
+      const counts = serverPage?.quickFilterCounts || {};
+      return QUICK_FILTERS_ALL.filter((qf) => {
+        if (isNewLaunchHubPage && qf.key === "new") return false;
+        return (counts[qf.key] || 0) > 0;
+      });
+    }
+
     // Hide quick filters with no matching projects in the current context
     // (e.g. Ultra Luxury when Commercial is selected and none exist).
     const sourceForCounts = baseProjectsBeforeQuickFilter.filter((item) => {
@@ -809,6 +943,8 @@ export default function ProjectsRedesigned({
     matchesBhkFilter,
     matchesConfigTypeFilter,
     matchesQuickFilter,
+    serverPage,
+    useServerListing,
   ]);
 
   useEffect(() => {
@@ -1057,11 +1193,16 @@ export default function ProjectsRedesigned({
     }
   }, [filteredProjects, sortBy]);
 
-  const totalPages = Math.max(1, Math.ceil(sortedProjects.length / PROJECTS_PER_PAGE));
+  const clientTotalPages = Math.max(1, Math.ceil(sortedProjects.length / PROJECTS_PER_PAGE));
+  const totalPages = useServerListing
+    ? Math.max(1, serverPage?.totalPages || 1)
+    : clientTotalPages;
+  const resultCount = useServerListing ? Number(serverPage?.total) || 0 : sortedProjects.length;
   const paginatedProjects = useMemo(() => {
+    if (useServerListing) return serverPage?.projects || [];
     const start = (currentPage - 1) * PROJECTS_PER_PAGE;
     return sortedProjects.slice(start, start + PROJECTS_PER_PAGE);
-  }, [sortedProjects, currentPage]);
+  }, [currentPage, serverPage, sortedProjects, useServerListing]);
 
   const paginationItems = useMemo(() => {
     if (totalPages <= 1) return [];
@@ -1171,7 +1312,9 @@ export default function ProjectsRedesigned({
     if (cityLocked && key === "city") return false;
     return true;
   }).length;
-  const isLoading = siteDataLoading && !(Array.isArray(initialProjects) && initialProjects.length);
+  const isLoading = useServerListing
+    ? serverListingLoading && !serverPage
+    : siteDataLoading && !(Array.isArray(initialProjects) && initialProjects.length);
   const hasAnyAppliedFilter =
     activeFiltersCount > 0 ||
     Boolean(activeQuickFilter) ||
@@ -1314,12 +1457,14 @@ export default function ProjectsRedesigned({
     };
   }, [isListingsPinPending, isSortPending, listingsLoaderVisible]);
 
-  const showListingsAreaLoader = listingsLoaderVisible || isListingsPinPending || isSortPending;
+  const showListingsAreaLoader = useServerListing
+    ? serverListingLoading && Boolean(serverPage)
+    : listingsLoaderVisible || isListingsPinPending || isSortPending;
 
   // Restore list page + scroll when returning from a project detail via Back.
   useEffect(() => {
     if (listingRestoreDoneRef.current || pendingListingRestoreRef.current) return;
-    if (isLoading || !sortedProjects.length) return;
+    if (isLoading || (!useServerListing && !sortedProjects.length) || (useServerListing && !serverPage)) return;
     const search = typeof window !== "undefined" ? window.location.search : "";
     const saved = consumeListingReturnState(pathname, search);
     if (!saved) {
@@ -1328,7 +1473,7 @@ export default function ProjectsRedesigned({
     }
 
     let page = saved.page > 0 ? saved.page : 1;
-    if (saved.slug) {
+    if (!useServerListing && saved.slug) {
       const idx = sortedProjects.findIndex(
         (p) => (p.slugURL || p.slugUrl) === saved.slug,
       );
@@ -1336,16 +1481,13 @@ export default function ProjectsRedesigned({
         page = Math.floor(idx / PROJECTS_PER_PAGE) + 1;
       }
     }
-    page = Math.max(
-      1,
-      Math.min(page, Math.max(1, Math.ceil(sortedProjects.length / PROJECTS_PER_PAGE))),
-    );
+    page = Math.max(1, Math.min(page, totalPages));
     pendingListingRestoreRef.current = {
       slug: saved.slug || "",
       scrollY: saved.scrollY || 0,
     };
     setCurrentPage(page);
-  }, [isLoading, sortedProjects, pathname]);
+  }, [isLoading, pathname, serverPage, sortedProjects, totalPages, useServerListing]);
 
   useEffect(() => {
     if (listingRestoreDoneRef.current) return;
@@ -1379,8 +1521,8 @@ export default function ProjectsRedesigned({
   }, [currentPage, paginatedProjects, isLoading, showListingsAreaLoader]);
 
   const displayHeading = pageHeading || breadcrumbLabel;
-  const projectCountLabel = `${sortedProjects.length} ${
-    sortedProjects.length === 1 ? "Project" : "Projects"
+  const projectCountLabel = `${resultCount} ${
+    resultCount === 1 ? "Project" : "Projects"
   }`;
 
   return (
@@ -1461,7 +1603,7 @@ export default function ProjectsRedesigned({
                   </button>
                 ) : (
                   <span className="mpf-page-top-search__count" aria-hidden>
-                    {sortedProjects.length}
+                    {resultCount}
                   </span>
                 )}
               </form>
@@ -1725,7 +1867,7 @@ export default function ProjectsRedesigned({
             )}
 
             {/* No Results */}
-            {!isLoading && !showListingsAreaLoader && sortedProjects.length === 0 && (
+            {!isLoading && !showListingsAreaLoader && resultCount === 0 && (
               <div className="mpf-no-results">
                 <FontAwesomeIcon icon={faHome} className="mpf-no-results-icon" />
                 <h3>No Projects Found</h3>
@@ -1737,13 +1879,14 @@ export default function ProjectsRedesigned({
             )}
 
             {/* Project Listings */}
-            {!isLoading && !showListingsAreaLoader && sortedProjects.length > 0 && (
+            {!isLoading && !showListingsAreaLoader && resultCount > 0 && (
               <div className="mpf-listings-list">
                 {paginatedProjects.map((project, idx) => (
                   <ProjectCard
                     key={project.id || idx}
                     project={project}
                     imagePriority={idx < 2}
+                    listingPage={currentPage}
                     onGetDetails={openLeadForm}
                   />
                 ))}

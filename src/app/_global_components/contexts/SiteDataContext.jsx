@@ -9,10 +9,10 @@ import {
   useMemo,
   Suspense,
 } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, usePathname } from "next/navigation";
 import { projectMatchesCityFilter } from "../cityAliasUtils";
 import { matchesBudgetRangeForProject } from "../projectFilterUtils";
-import { fetchSiteDataFromApi } from "../siteData/fetchSiteDataApi";
+import { fetchSiteDataFromApi, fetchSiteMetaFromApi } from "../siteData/fetchSiteDataApi";
 import { projectNameMatchesSearch, scoreProjectFieldsSearchMatch } from "../projectSearchUtils";
 
 const DEFAULT_PROJECT_FILTERS = {
@@ -100,6 +100,8 @@ function QueryFiltersFromSearchParams({ onFiltersFromUrl }) {
 }
 
 export function SiteDataProvider({ children, initialData = null }) {
+  const pathname = usePathname();
+  const deferProjectCatalog = pathname === "/projects";
   const initialHasProjects = hasProjectCatalog(initialData);
 
   const [cityList, setCityList] = useState(() =>
@@ -140,6 +142,21 @@ export function SiteDataProvider({ children, initialData = null }) {
 
     async function loadData() {
       try {
+        if (deferProjectCatalog) {
+          if (!initialData && !cityList.length) {
+            const meta = await fetchSiteMetaFromApi();
+            if (!cancelled) {
+              setCityList(meta.cityList || []);
+              setAllCityList(meta.allCityList || meta.cityList || []);
+              setBuilderList(meta.builderList || []);
+              setProjectTypes(meta.projectTypes || []);
+              setProjectStatuses(meta.projectStatuses || []);
+            }
+          }
+          if (!cancelled) setLoading(false);
+          return;
+        }
+
         if (siteDataCache?.projectList?.length) {
           if (!cancelled) {
             setCityList(siteDataCache.cityList);
@@ -205,7 +222,28 @@ export function SiteDataProvider({ children, initialData = null }) {
     return () => {
       cancelled = true;
     };
-  }, [initialData, initialHasProjects]);
+  }, [deferProjectCatalog, initialData, initialHasProjects]);
+
+  const ensureProjectCatalog = useCallback(async () => {
+    if (siteDataCache?.projectList?.length) {
+      setProjectList(siteDataCache.projectList);
+      return siteDataCache.projectList;
+    }
+    if (!siteDataPromise) {
+      siteDataPromise = fetchSiteDataFromApi()
+        .then((data) => {
+          siteDataCache = data;
+          return data;
+        })
+        .catch((err) => {
+          siteDataPromise = null;
+          throw err;
+        });
+    }
+    const data = await siteDataPromise;
+    setProjectList(data.projectList || []);
+    return data.projectList || [];
+  }, []);
 
   const setProjectFilters = useCallback((nextFilters) => {
     setProjectFiltersState((previous) => ({
@@ -425,7 +463,11 @@ export function SiteDataProvider({ children, initialData = null }) {
     const q = normalizeText(query);
     if (q.length < 2) return [];
 
-    return (projectList || []).filter((project) => {
+    const source = projectList?.length
+      ? projectList
+      : siteDataCache?.projectList || [];
+
+    return source.filter((project) => {
       const name = project?.projectName || project?.name || "";
       if (projectNameMatchesSearch(name, q)) return true;
 
@@ -466,6 +508,7 @@ export function SiteDataProvider({ children, initialData = null }) {
     loading,
     error,
     searchProjects,
+    ensureProjectCatalog,
   };
 
   return (

@@ -125,7 +125,7 @@ const NewBadge = ({ isVisible }) => (
 );
 
 const HeaderComponent = () => {
-  const { cityList = [], projectTypes = [], builderList = [], projectList = [], searchProjects } = useSiteData();
+  const { cityList = [], projectTypes = [], builderList = [], projectList = [], searchProjects, ensureProjectCatalog } = useSiteData();
   const [isMounted, setIsMounted] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
@@ -473,16 +473,20 @@ const HeaderComponent = () => {
       }
       setProjectSearchQuery(q);
       setIsSearchingProjects(true);
-      Promise.resolve(searchProjects(q)).then((filtered) => {
-        setProjectSearchResults(filtered || []);
-        setIsSearchingProjects(false);
-      }).catch(() => {
-        setProjectSearchResults([]);
-        setIsSearchingProjects(false);
-      });
+      Promise.resolve()
+        .then(() => (ensureProjectCatalog ? ensureProjectCatalog() : null))
+        .then(() => searchProjects(q))
+        .then((filtered) => {
+          setProjectSearchResults(filtered || []);
+          setIsSearchingProjects(false);
+        })
+        .catch(() => {
+          setProjectSearchResults([]);
+          setIsSearchingProjects(false);
+        });
     }, 280);
     return () => clearTimeout(timeoutId);
-  }, [projectSearchInput, searchProjects]);
+  }, [ensureProjectCatalog, projectSearchInput, searchProjects]);
 
   /** Open project detail in a new tab (header search bar). */
   const openProjectInNewTab = (project) => {

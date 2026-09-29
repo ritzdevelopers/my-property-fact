@@ -24,13 +24,13 @@ export default function CommonHeaderBanner({
 }) {
   const breadcrumbItems = [{ label: "Home", href: "/" }];
 
-  if (firstPage) {
-    const cleanFirstPage = firstPage.replace(/\//g, "");
-    breadcrumbItems.push({
-      label: cleanFirstPage.charAt(0).toUpperCase() + cleanFirstPage.slice(1),
-      href: `/${cleanFirstPage.toLowerCase()}`,
-    });
-  }
+  // if (firstPage) {
+  //   const cleanFirstPage = firstPage.replace(/\//g, "");
+  //   breadcrumbItems.push({
+  //     label: cleanFirstPage.charAt(0).toUpperCase() + cleanFirstPage.slice(1),
+  //     href: `/${cleanFirstPage.toLowerCase()}`,
+  //   });
+  // }
 
   if (pageName) {
     const cleanPageName = pageName.replace(/\//g, "");

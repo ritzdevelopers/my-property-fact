@@ -2,10 +2,16 @@ import CityPage from "./citypage";
 import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import {
+  cityNameMatchesFilter,
   LEGACY_CITY_SLUGS_FOR_PAGE_MERGE,
+  projectMatchesCitySlug,
   resolveCitySlug,
 } from "@/app/_global_components/cityAliasUtils";
-import { fetchCityDetailsBySlug, isKnownCitySlug } from "@/app/_global_components/masterFunction";
+import {
+  fetchAllProjects,
+  fetchCityDetailsBySlug,
+  isKnownCitySlug,
+} from "@/app/_global_components/masterFunction";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 import JsonLdScript from "@/app/_global_components/jsonLd/JsonLdScript";
 import {
@@ -63,16 +69,28 @@ function mergeCityProjectLists(primary, secondary) {
 async function fetchCityDataWithAliases(canonicalSlug) {
   const cityData = await fetchCityDataBySlug(canonicalSlug);
   if (!cityData) return null;
-  const legacySlugs = LEGACY_CITY_SLUGS_FOR_PAGE_MERGE[canonicalSlug];
-  if (!legacySlugs?.length) return cityData;
 
   let merged = cityData;
-  for (const legacySlug of legacySlugs) {
+  const legacySlugs = LEGACY_CITY_SLUGS_FOR_PAGE_MERGE[canonicalSlug];
+  for (const legacySlug of legacySlugs || []) {
     const legacy = await fetchCityDataBySlug(legacySlug);
     if (legacy) {
       merged = mergeCityProjectLists(merged, legacy);
     }
   }
+
+  // Same matching as /apartments-in-{city}: city name, address, locality,
+  // and legacy slugs (Dwarka → Delhi). city/get/{slug} alone can miss these.
+  const cityLabel = merged.cityName || canonicalSlug;
+  const fromMaster = (await fetchAllProjects()).filter(
+    (project) =>
+      cityNameMatchesFilter(cityLabel, project) ||
+      projectMatchesCitySlug(project, canonicalSlug),
+  );
+  if (fromMaster.length) {
+    merged = mergeCityProjectLists(merged, { projectList: fromMaster });
+  }
+
   return merged;
 }
 

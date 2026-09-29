@@ -442,18 +442,21 @@ export async function resolveValidProjectTypeSlug(slug) {
 export const fetchCityDetailsBySlug = cache(async (slug) => {
   if (!apiUrl || slug == null || String(slug).trim() === "") return null;
   const clean = String(slug).trim();
-  const canonical = resolveCitySlug(clean) || clean.toLowerCase();
+  const apiSlug = clean.toLowerCase();
+  const canonical = resolveCitySlug(apiSlug) || apiSlug;
   if (!(await isKnownCitySlug(canonical))) return null;
   try {
+    // Fetch the requested API slug (e.g. dwarka), not the canonical alias
+    // (delhi). City pages merge legacy slugs into the canonical list.
     const res = await fetch(
-      `${apiUrl}city/get/${encodeURIComponent(canonical)}`,
+      `${apiUrl}city/get/${encodeURIComponent(apiSlug)}`,
       { next: { revalidate: 60 } },
     );
     if (!res.ok) return null;
     const data = await res.json();
     if (!data || typeof data !== "object") return null;
     const resolvedSlug = resolveCitySlug(
-      data.slugURL || data.slugUrl || canonical,
+      data.slugURL || data.slugUrl || apiSlug,
     );
     if (resolvedSlug !== canonical) return null;
     return filterHiddenProjectsFromPayload(data);

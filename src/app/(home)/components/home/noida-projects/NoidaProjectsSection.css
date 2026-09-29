@@ -845,7 +845,8 @@
   border-bottom-color: var(--primaryColor, #eceff3);
 }
 
-.destination-faq__icon {
+.destination-faq__question-btn::after {
+  content: "+";
   flex-shrink: 0;
   width: 1.5rem;
   height: 1.5rem;
@@ -859,7 +860,8 @@
   transition: transform 0.45s cubic-bezier(0.33, 1, 0.32, 1);
 }
 
-.destination-faq__item.is-open .destination-faq__icon {
+.destination-faq__item.is-open .destination-faq__question-btn::after {
+  content: "-";
   transform: rotate(180deg);
 }
 
@@ -904,7 +906,7 @@
     transition-duration: 0.01ms;
   }
 
-  .destination-faq__icon {
+  .destination-faq__question-btn::after {
     transition-duration: 0.01ms;
   }
 }

@@ -1,18 +1,22 @@
 import axios from "axios";
 import ManageProjects from "./manageProjects";
-import { fetchAllProjects } from "@/app/_global_components/masterFunction";
+import { filterHiddenProjects } from "@/app/_global_components/hiddenBuilderUtils";
 
 export const dynamic = "force-dynamic";
 
-//fetching all project list details
+// Admin list must not use the public 60s project cache, or a slug change
+// still shows the previous slug and edit requests a project that no longer exists.
 const fetchProjectsWithDetail = async () => {
-  const response = await fetchAllProjects();
-  const res = response;
-  const list = res.map((item, index) => ({
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl) return [];
+  const response = await fetch(`${apiUrl}projects`, { cache: "no-store" });
+  if (!response.ok) return [];
+  const data = await response.json();
+  const list = filterHiddenProjects(Array.isArray(data) ? data : []);
+  return list.map((item, index) => ({
     ...item,
     index: index + 1,
   }));
-  return list;
 };
 
 //Fetching all builder list from api

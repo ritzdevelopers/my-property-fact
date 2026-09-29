@@ -217,14 +217,15 @@ export default function ManageProjects({
     const slugURL = String(item?.slugURL || "").trim();
     let response;
 
-    if (slugURL) {
-      response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}projects/admin/get/${encodeURIComponent(slugURL)}`,
-        authConfig,
-      );
-    } else if (item?.id) {
+    // Load by id so a slug change does not 404 the edit screen on the old slug.
+    if (item?.id) {
       response = await axios.get(
         `${process.env.NEXT_PUBLIC_API_URL}projects/admin/get-by-id/${item.id}`,
+        authConfig,
+      );
+    } else if (slugURL) {
+      response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}projects/admin/get/${encodeURIComponent(slugURL)}`,
         authConfig,
       );
     } else {

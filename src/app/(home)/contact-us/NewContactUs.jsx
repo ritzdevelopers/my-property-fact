@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import "./contact.css";
 import axios from "axios";
 import { buildEnquirySubmitData } from "@/lib/leadTracker";
 import { toast } from "react-toastify";
-import SocialFeedsOfMPF from "../components/_homecomponents/SocialFeedsOfMPF";
 import {
   validateLeadEmail,
   validateLeadName,
@@ -290,12 +290,14 @@ export default function NewContactUs() {
                 <div className="contact-expert-address-card-wrap">
                   <div className="contact-expert-address-card">
                     <div className="contact-expert-address-icon">
-                      <img
+                      <Image
                         src="/icon/location.svg"
                         alt="Location pin — office address on My Property Fact contact page"
                         title="Location pin — office address"
                         width={16}
                         height={20}
+                        sizes="16px"
+                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-address-body">
@@ -319,12 +321,14 @@ export default function NewContactUs() {
                     title="Call My Property Fact — +91 8920024793"
                   >
                     <div className="contact-expert-phone-icon">
-                      <img
+                      <Image
                         src="/static/icon/phone_call.svg"
                         alt="Phone call icon — My Property Fact contact page"
                         title="Phone call icon — tap to call"
                         width={18}
                         height={18}
+                        sizes="18px"
+                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-phone-body">
@@ -347,12 +351,14 @@ export default function NewContactUs() {
                     title="Email My Property Fact — social@mypropertyfact.com"
                   >
                     <div className="contact-expert-email-icon">
-                      <img
+                      <Image
                         src="/static/icon/email.svg"
                         alt="Email icon — My Property Fact contact page"
                         title="Email icon — tap to compose email"
                         width={20}
                         height={16}
+                        sizes="20px"
+                        unoptimized
                       />
                     </div>
                     <div className="contact-expert-email-body">
@@ -366,14 +372,16 @@ export default function NewContactUs() {
 
                 <div className="contact-expert-image-card">
                   <div className="contact-expert-image-slide">
-                    <img
+                    <Image
                       src={CONTACT_SPOTLIGHT.imageSrc}
                       alt={CONTACT_SPOTLIGHT.imageAlt}
                       title={CONTACT_SPOTLIGHT.imageAlt}
                       className="contact-expert-image-cover"
-                      loading="lazy"
-                      decoding="async"
-                     style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+                      fill
+                      sizes="(max-width: 991px) 100vw, 373px"
+                      quality={70}
+                      style={{ objectFit: "cover" }}
+                    />
                     <div
                       className="contact-expert-image-gradient"
                       aria-hidden
@@ -659,56 +667,6 @@ export default function NewContactUs() {
           </div>
         </div>
       </div> */}
-
-      {/* Looking for a dream home section  */}
-      <div className="container-fluid looking-for-dream-home-section">
-        <div className="looking-for-dream-home-section-image1">
-          <img
-            src="/static/contact-us/looking_for_Dream_home_bg.png"
-            alt="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
-            title="Dream home — background graphic for Looking for a dream home on My Property Fact contact page"
-            width={414}
-            height={603}
-          />
-        </div>
-        <div className="looking-for-dream-home-section-content">
-          <h2 className="plus-jakarta-sans-semi-bold">Looking For A Dream Home?</h2>
-          <p>We can help you realize your dream of a new home</p>
-          <div>
-            <button
-              onClick={() => {
-                window.location.href = "/projects";
-              }}
-            >
-              View Projects
-            </button>
-          </div>
-        </div>
-        <div className="looking-for-dream-home-section-image2">
-          <img
-            src="/static/contact-us/looking_for_dream_home.png"
-            alt="Dream home — illustration for Looking for a dream home on My Property Fact contact page"
-            title="Dream home — illustration for Looking for a dream home on My Property Fact contact page"
-            width={480}
-            height={500}
-          />
-        </div>
-      </div>
-
-      {/* social media feeds section  */}
-      <SocialFeedsOfMPF />
-
-      {/* Location map section with full width  */}
-      <div className="container-fluid mt-3 mb-2 p-0 map-container">
-        <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3506.2218239019567!2d77.4114103!3d28.502973100000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390ce9cc1ae0ebad%3A0xc60e4de11898150c!2sMy%20Property%20Fact!5e0!3m2!1sen!2sin!4v1777278399978!5m2!1sen!2sin"
-          className="contact-map-iframe"
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          title="Location Map"
-        ></iframe>
-      </div>
     </>
   );
 }

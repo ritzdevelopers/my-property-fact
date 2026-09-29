@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import "./style/HeroIntroSection.css";
 
@@ -65,10 +66,16 @@ export default function HeroIntroSection() {
 
           <div className="leftImage" ref={leftImageRef}>
 
-            <img
+            <Image
               src="/about/about_us_section.jpg"
               alt="Building"
               title="Building"
+              width={390}
+              height={650}
+              sizes="(max-width: 991px) 90vw, 390px"
+              quality={75}
+              priority
+              fetchPriority="high"
             />
 
           </div>
@@ -85,10 +92,14 @@ export default function HeroIntroSection() {
             </p>
 
             <div className="rightImageFrame" ref={rightImageRef}>
-              <img
+              <Image
                 src="/about/about_us_banner.jpg"
                 alt="Property"
                 title="Property"
+                width={1200}
+                height={390}
+                sizes="(max-width: 991px) 100vw, 760px"
+                quality={75}
               />
             </div>
           </div>

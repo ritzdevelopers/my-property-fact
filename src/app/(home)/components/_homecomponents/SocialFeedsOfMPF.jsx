@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination } from "swiper/modules";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
@@ -434,13 +435,13 @@ export default function SocialFeedsOfMPF({
               <div className="video-popup-frame">
                 {/* top bar inside frame */}
                 <div className="video-popup-top-bar">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src="/logo.webp"
                     alt="My Property Fact logo — social video popup"
                     title="My Property Fact logo — social video popup"
                     width={28}
                     height={28}
+                    sizes="30px"
                     className="video-popup-avatar"
                   />
                   <span className="video-popup-handle">my.property.fact</span>

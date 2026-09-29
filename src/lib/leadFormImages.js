@@ -1,11 +1,10 @@
-import { BANNER_DESKTOP } from "@/app/(home)/components/_homecomponents/heroBannerAssets";
 import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
 
 /** MPF home hero — used on home-page and site-wide lead forms without project context. */
-export const MPF_LEAD_FORM_BANNER = BANNER_DESKTOP.src;
+export const MPF_LEAD_FORM_BANNER = "/static/banners/lead-form-hero.webp";
 
 /** Site-wide My Property Fact logo used in lead forms. */
 export const MPF_LOGO_SRC = "/logo.webp";

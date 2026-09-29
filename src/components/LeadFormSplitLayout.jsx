@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { MPF_LOGO_ALT, MPF_LOGO_SRC } from "@/lib/leadFormImages";
 import "./leadFormSplitLayout.css";
 
@@ -44,6 +45,7 @@ export default function LeadFormSplitLayout({
         <img
           src={imageSrc}
           alt={imageAlt} title={imageAlt}
+          quality={70}
           className="lead-form-split__media-img"
           loading="lazy"
           decoding="async"
@@ -51,28 +53,28 @@ export default function LeadFormSplitLayout({
         {mediaOverlay ? <div className="lead-form-split__media-shade" aria-hidden /> : null}
         {badge ? <span className="lead-form-split__badge">{badge}</span> : null}
         <div className="lead-form-split__brand">
-          <img
+          <Image
             src={MPF_LOGO_SRC}
-            alt={MPF_LOGO_ALT} title={MPF_LOGO_ALT}
+            alt={MPF_LOGO_ALT}
+            title={MPF_LOGO_ALT}
             className="lead-form-split__brand-logo"
             width={132}
             height={36}
-            loading="eager"
-            decoding="async"
+            sizes="140px"
           />
         </div>
       </div>
 
       <div className="lead-form-split__panel">
         <div className="lead-form-split__panel-logo">
-          <img
+          <Image
             src={MPF_LOGO_SRC}
-            alt={MPF_LOGO_ALT} title={MPF_LOGO_ALT}
+            alt={MPF_LOGO_ALT}
+            title={MPF_LOGO_ALT}
             className="lead-form-split__panel-logo-img"
             width={120}
             height={32}
-            loading="eager"
-            decoding="async"
+            sizes="130px"
           />
         </div>
         {eyebrow ? <p className="lead-form-split__eyebrow">{eyebrow}</p> : null}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { MPF_SOCIAL_REELS_OPEN_CLASS } from "@/app/_global_components/mpfGatewayEvents";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
 
@@ -394,21 +395,25 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
               onClick={() => openReels(index)}
             >
               <span className="vaastu-strip-media__play" aria-hidden="true">
-                <img
+                <Image
                   src="/static/vaastu-strip/play-circle-line.svg"
-                  alt="Play Circle Line" title="Play Circle Line"
+                  alt="Play Circle Line"
+                  title="Play Circle Line"
                   width={34}
                   height={34}
-                  decoding="async"
+                  sizes="34px"
+                  unoptimized
                 />
               </span>
-              <img
+              <Image
                 src={card.imageSrc}
                 alt={card.alt}
                 title={card.title}
                 className="vaastu-strip-media__img"
-                loading="lazy"
-                decoding="async"
+                fill
+                sizes="302px"
+                quality={70}
+                style={{ objectFit: "cover" }}
               />
             </button>
           ))}
@@ -481,12 +486,14 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
                           />
                           <div className="vaastu-reels-thumb-dim" />
                           <span className="vaastu-reels-thumb-play">
-                            <img
+                            <Image
                               src="/static/vaastu-strip/play-circle-line.svg"
-                              alt="Play Circle Line" title="Play Circle Line"
+                              alt="Play Circle Line"
+                              title="Play Circle Line"
                               width={52}
                               height={52}
-                              decoding="async"
+                              sizes="52px"
+                              unoptimized
                             />
                           </span>
                         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import "./style/VideoCTASection.css";
 
@@ -107,12 +108,15 @@ function PodcastCard({ podcast, duplicate = false, index, onSelect }) {
         if (!duplicate) onSelect?.(podcast, index);
       }}
     >
-      <img
+      <Image
         src={podcast.img}
-        alt={duplicate ? "" : podcast.title} title={duplicate ? "" : podcast.title}
-        loading="lazy"
-        decoding="async"
+        alt={duplicate ? "" : podcast.title}
+        title={duplicate ? "" : podcast.title}
+        fill
+        sizes="(max-width: 767px) 50vw, 243px"
+        quality={70}
         draggable={false}
+        style={{ objectFit: "cover" }}
       />
       <span className="videoPodcastPlay" aria-hidden="true">
         <svg viewBox="0 0 68 48" width="54" height="38" focusable="false">
@@ -264,6 +268,7 @@ export default function VideoCTASection() {
             key={activeEmbedSrc}
             src={activeEmbedSrc}
             title={defaultPodcast.title || "My Property Fact Video"}
+            loading="lazy"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowFullScreen
           />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 
 import "./style/TimelineSection.css";
@@ -71,7 +72,15 @@ export default function TimelineSection() {
                 duration: 0.6,
               }}
             >
-              <img src={item.image} alt={item.year} title={item.year} />
+              <Image
+                src={item.image}
+                alt={item.year}
+                title={item.year}
+                fill
+                sizes="(max-width: 480px) 220px, (max-width: 767px) 260px, (max-width: 991px) 320px, 460px"
+                quality={70}
+                style={{ objectFit: "cover" }}
+              />
             </motion.div>
 
           </AnimatePresence>

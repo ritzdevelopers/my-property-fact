@@ -16,6 +16,7 @@
 /* LEFT IMAGE */
 
 .timeline-image {
+    position: relative;
     width: 100%;
     max-width: 460px;
     aspect-ratio: 460/294;

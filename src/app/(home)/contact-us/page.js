@@ -1,5 +1,6 @@
 import CommonHeaderBanner from "../components/common/commonheaderbanner";
 import NewContactUs from "./NewContactUs";
+import ContactBelowFold from "./ContactBelowFold";
 
 export default function ContactUsPage() {
   return (
@@ -11,6 +12,7 @@ export default function ContactUsPage() {
       />
       {/* <CommonBreadCrum pageName={"Contact-us"} /> */}
       <NewContactUs />
+      <ContactBelowFold />
     </main>
   );
 }

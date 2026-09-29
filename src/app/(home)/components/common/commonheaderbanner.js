@@ -1,12 +1,10 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   BANNER_IMAGE_QUALITY,
   BANNER_IMAGE_SIZES,
-  DEFAULT_PAGE_BANNER,
-  getOptimizedImageProps,
   resolvePageBannerSrc,
 } from "@/lib/optimizedImage";
-import PageBannerLcpPreload from "./PageBannerLcpPreload";
 import "./common.css";
 
 function resolveBannerHeadingText(headerText, pageName) {
@@ -48,45 +46,21 @@ export default function CommonHeaderBanner({
       : "My Property Fact — real estate page banner";
 
   const bannerSrc = resolvePageBannerSrc(image);
-  const {
-    src: optimizedSrc,
-    srcSet,
-    sizes,
-    ...imgRest
-  } = getOptimizedImageProps({
-    src: bannerSrc,
-    width: DEFAULT_PAGE_BANNER.width,
-    height: DEFAULT_PAGE_BANNER.height,
-    alt: bannerImageAlt,
-    sizes: BANNER_IMAGE_SIZES,
-    quality: BANNER_IMAGE_QUALITY,
-  });
 
   return (
-    <>
-      <PageBannerLcpPreload image={image} />
-      <div className="container-fluid p-0 position-relative">
-        <div className="top-banner-each-pages">
-          <img
-            {...imgRest}
-            src={optimizedSrc}
-            srcSet={srcSet}
-            sizes={sizes}
+    <div className="container-fluid p-0 position-relative">
+      <div className="top-banner-each-pages">
+          <Image
+            src={bannerSrc}
             alt={bannerImageAlt}
             title={bannerImageAlt}
-            className="banner-background-image"
-            width={DEFAULT_PAGE_BANNER.width}
-            height={DEFAULT_PAGE_BANNER.height}
-            loading="eager"
+            fill
+            sizes={BANNER_IMAGE_SIZES}
+            quality={BANNER_IMAGE_QUALITY}
+            priority
             fetchPriority="high"
-            decoding="async"
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            className="banner-background-image"
+            style={{ objectFit: "cover", objectPosition: "center" }}
           />
           <div className="banner-overlay"></div>
 
@@ -124,6 +98,5 @@ export default function CommonHeaderBanner({
           </div>
         </div>
       </div>
-    </>
   );
 }

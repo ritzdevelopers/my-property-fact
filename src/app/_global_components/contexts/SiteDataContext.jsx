@@ -175,7 +175,7 @@ export function SiteDataProvider({ children, initialData = null }) {
               return data;
             })
             .catch((err) => {
-              siteDataPromise = null;
+              siteDataPromise = null; 
               throw err;
             });
         }

@@ -1120,6 +1120,12 @@ a.contact-expert-email-card:focus-visible {
   position: relative;
 }
 
+.looking-for-dream-home-section-image1 img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
 .looking-for-dream-home-section-image2 img {
   position: absolute;
   bottom: 0;

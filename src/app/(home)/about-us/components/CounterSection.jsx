@@ -91,6 +91,8 @@ export default function CounterSection({
                   title={item.alt}
                   width={28}
                   height={28}
+                  sizes="28px"
+                  unoptimized
                 />
               </div>
 

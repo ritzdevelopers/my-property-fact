@@ -60,12 +60,17 @@ export default function ChatbotV2() {
   const {
     projectList = [],
     projectTypes = [],
+    ensureProjectCatalog,
     setQueryFilters,
     setQuickProjectFilter,
     resetProjectFilters,
   } = useSiteData();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) ensureProjectCatalog?.();
+  }, [ensureProjectCatalog, isOpen]);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);

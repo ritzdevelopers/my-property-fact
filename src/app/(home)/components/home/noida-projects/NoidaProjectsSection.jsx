@@ -381,9 +381,6 @@ export default function NoidaProjectsSection() {
                       <span className="destination-faq__question-text">
                         {item.question}
                       </span>
-                      <span className="destination-faq__icon" aria-hidden="true">
-                        {isOpen ? "-" : "+"}
-                      </span>
                     </button>
                   </h3>
                   <div

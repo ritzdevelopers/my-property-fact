@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
+import { buildHomeCardImageProps } from "@/lib/optimizedImage";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import ProjectShortlistButton from "@/app/(home)/components/common/ProjectShortlistButton";
 import "@/app/(home)/components/common/luxuryPropertyCard.css";
@@ -389,9 +390,7 @@ export default function HomeRecommendationCards({
         ? new ResizeObserver(update)
         : null;
     if (el && ro) ro.observe(el);
-    window.addEventListener("resize", update);
     return () => {
-      window.removeEventListener("resize", update);
       ro?.disconnect();
     };
   }, [safeItems.length]);
@@ -751,15 +750,16 @@ export default function HomeRecommendationCards({
           />
           <div className="home-project-card__media">
             <img
-              src={card.image}
-              alt={cardImageMeta}
-              title={cardImageMeta}
+              {...buildHomeCardImageProps({
+                src: card.image,
+                width: TILE_WIDTH,
+                height: TILE_IMAGE_HEIGHT,
+                alt: cardImageMeta,
+                priority: idx < eagerImageCount,
+              })}
               className="home-project-card__image"
               width={TILE_WIDTH}
               height={TILE_IMAGE_HEIGHT}
-              loading={idx < eagerImageCount ? "eager" : "lazy"}
-              fetchPriority={idx === 0 && eagerImageCount > 0 ? "high" : "low"}
-              decoding="async"
             />
             {card.badge ? (
               <span

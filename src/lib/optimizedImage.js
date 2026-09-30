@@ -130,3 +130,44 @@ export function buildProjectHeroLcpProps(src, projectName) {
     quality: BANNER_IMAGE_QUALITY,
   });
 }
+
+/** Homepage listing tiles (~248×168 CSS). */
+export const HOME_TILE_CARD_SIZES = "(max-width: 768px) 42vw, 248px";
+export const HOME_POSTER_CARD_SIZES = "(max-width: 768px) 85vw, 400px";
+export const HOME_FEATURED_OVERLAP_SIZES = "(max-width: 768px) 92vw, 510px";
+export const HOME_CARD_IMAGE_QUALITY = 60;
+export const HOME_SECTION_BG_SIZES = "100vw";
+export const HOME_CITY_PILL_SIZES = "22px";
+export const HOME_CITY_HERO_SIZES = "(max-width: 768px) 88vw, 320px";
+export const HOME_BLOG_CARD_SIZES = "(max-width: 768px) 100vw, 400px";
+
+/**
+ * Spread onto a native <img> for next/image-optimized delivery (URLs unchanged).
+ */
+export function buildHomeCardImageProps({
+  src,
+  width,
+  height,
+  alt = "",
+  sizes = HOME_TILE_CARD_SIZES,
+  quality = HOME_CARD_IMAGE_QUALITY,
+  priority = false,
+}) {
+  const optimized = getOptimizedImageProps({
+    src: src || "/static/no_image.png",
+    width,
+    height,
+    alt,
+    sizes,
+    quality,
+  });
+
+  return {
+    ...optimized,
+    alt,
+    title: alt,
+    loading: priority ? "eager" : "lazy",
+    fetchPriority: priority ? "high" : "low",
+    decoding: "async",
+  };
+}

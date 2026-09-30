@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+import {
+  buildHomeCardImageProps,
+  HOME_SECTION_BG_SIZES,
+} from "@/lib/optimizedImage";
 
 const CITY_ORDER = [
   "Bareilly",
@@ -66,11 +70,15 @@ const DreamPropertySection = () => {
     <section className="dream-property-section mb-4 mb-lg-5">
       <div className="dream-property-section-bg" aria-hidden="true">
         <img
-          src="/dream-cities/image 1009.png"
-          alt="Decorative cityscape background for Find Your Dream Property section"
-          title="Decorative cityscape background for Find Your Dream Property section"
+          {...buildHomeCardImageProps({
+            src: "/dream-cities/dream-section-bg.webp",
+            width: 1920,
+            height: 600,
+            alt: "Decorative cityscape background for Find Your Dream Property section",
+            sizes: HOME_SECTION_BG_SIZES,
+            quality: 70,
+          })}
           className="dream-property-bg-image"
-          loading="lazy"
         />
       </div>
 
@@ -97,13 +105,17 @@ const DreamPropertySection = () => {
               >
                 <div className="dream-city-icon-circle">
                   <img
-                    src={city.image}
+                    {...buildHomeCardImageProps({
+                      src: city.image,
+                      width: 72,
+                      height: 72,
+                      alt: city.name,
+                      sizes: "72px",
+                      quality: 75,
+                    })}
                     data-fallback={city.imageFallback}
-                    alt={city.name}
-                    title={city.name}
                     width={72}
                     height={72}
-                    loading="lazy"
                     onError={(e) => {
                       const fallback = e.currentTarget.dataset.fallback;
                       if (!fallback) return;

@@ -8,7 +8,7 @@ export default function ThirdPartyScripts() {
     return (
         <>
             {/* Start of google tag manager script  */}
-            <Script id="google-tag-manager" strategy="lazyOnload">
+            <Script id="google-tag-manager" strategy="afterInteractive">
                 {`
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -19,8 +19,8 @@ export default function ThirdPartyScripts() {
             </Script>
             {/* End Google Tag Manager */}
 
-            {/* Meta Pixel Script - lazyOnload loads after everything else */}
-            <Script id="facebook-pixel" strategy="lazyOnload">
+            {/* Meta Pixel — afterInteractive so it runs once loader mounts (post-idle), not during hydration */}
+            <Script id="facebook-pixel" strategy="afterInteractive">
                 {`
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -39,10 +39,10 @@ export default function ThirdPartyScripts() {
             {/* Load Google Analytics script */}
             <Script
                 src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-                strategy="lazyOnload"
+                strategy="afterInteractive"
             />
             {/* Initialize GA */}
-            <Script id="google-analytics" strategy="lazyOnload">
+            <Script id="google-analytics" strategy="afterInteractive">
                 {`
                     window.dataLayer = window.dataLayer || [];
                     function gtag(){dataLayer.push(arguments);}

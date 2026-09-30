@@ -14,6 +14,11 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import {
+  buildHomeCardImageProps,
+  HOME_FEATURED_OVERLAP_SIZES,
+  HOME_POSTER_CARD_SIZES,
+} from "@/lib/optimizedImage";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import ProjectShortlistButton from "./ProjectShortlistButton";
 import "./common.css";
@@ -188,6 +193,41 @@ export default function PropertyContainer({
       ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
       : "Real estate project thumbnail — My Property Fact";
 
+  const tileImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 168,
+    alt: projectCardImageAlt,
+    priority: imagePriority,
+  });
+
+  const overlapImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 510,
+    height: 300,
+    alt: projectCardImageAlt,
+    sizes: HOME_FEATURED_OVERLAP_SIZES,
+    priority: imagePriority,
+  });
+
+  const posterImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 360,
+    alt: projectCardImageAlt,
+    sizes: HOME_POSTER_CARD_SIZES,
+    priority: imagePriority,
+  });
+
+  const defaultCardImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 230,
+    alt: projectCardImageAlt,
+    sizes: HOME_POSTER_CARD_SIZES,
+    priority: imagePriority,
+  });
+
   const getFeaturedPillBadgeModifier = (status) => {
     const normalized = status?.trim().toLowerCase();
     if (normalized === "new launched" || normalized === "new launch") {
@@ -271,15 +311,10 @@ export default function PropertyContainer({
         />
         <div className="home-project-card__media">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...tileImageProps}
             className="home-project-card__image"
             width={400}
             height={168}
-            loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority={imagePriority ? "high" : "low"}
-            decoding="async"
             onError={() => setImageError(true)}
           />
           {badge ? (
@@ -372,14 +407,10 @@ export default function PropertyContainer({
       >
         <div className="home-featured-image-card">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...overlapImageProps}
             className="home-featured-image"
             width={510}
             height={300}
-            loading={imagePriority ? "eager" : "lazy"}
-            decoding="async"
             onError={() => setImageError(true)}
           />
 
@@ -431,15 +462,10 @@ export default function PropertyContainer({
         <div className="home-project-card__media">
           <div className="home-project-card__image-wrap">
             <img
-              src={imageSrc}
-              alt={projectCardImageAlt}
-              title={projectCardImageAlt}
+              {...posterImageProps}
               className="home-project-card__image"
               width={400}
               height={360}
-              loading={imagePriority ? "eager" : "lazy"}
-              fetchPriority={imagePriority ? "high" : "low"}
-              decoding="async"
               draggable={false}
               onError={() => setImageError(true)}
             />
@@ -497,15 +523,10 @@ export default function PropertyContainer({
       >
         <div className="w-100 project-image-container">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...defaultCardImageProps}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             width={400}
             height={230}
-            loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority="auto"
-            decoding="async"
             onError={() => setImageError(true)}
           />
         </div>

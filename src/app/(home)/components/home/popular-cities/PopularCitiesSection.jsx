@@ -2,18 +2,25 @@
 
 import Link from "next/link";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+import {
+  buildHomeCardImageProps,
+  HOME_CITY_PILL_SIZES,
+} from "@/lib/optimizedImage";
 
 /* Row 1 marquee starts with Agra; row 2 uses the same list in reverse */
 const cities = [
-  { name: "Agra", link: "/city/agra", image: "/dream-cities/agra_new.png" },
-  { name: "Delhi", link: "/city/delhi", image: "/dream-cities/delhi_new.png" },
-  { name: "Noida", link: "/city/noida", image: "/dream-cities/noida_new.png" },
-  { name: "Ghaziabad", link: "/city/ghaziabad", image: "/dream-cities/ghaziabad_new.png" },
-  { name: "Gurugram", link: "/city/gurugram", image: "/dream-cities/gurugram_new.png" },
-  { name: "Bangalore", link: "/city/bangalore", image: "/dream-cities/bangalore_new.png" },
-  { name: "Jaipur", link: "/city/jaipur", image: "/dream-cities/jaipur_new.png" },
-  { name: "Mumbai", link: "/city/mumbai", image: "/dream-cities/mumbai_new.png" },
+  { name: "Agra", link: "/city/agra", image: "/dream-cities/pills/agra_pill.webp" },
+  { name: "Delhi", link: "/city/delhi", image: "/dream-cities/pills/delhi_pill.webp" },
+  { name: "Noida", link: "/city/noida", image: "/dream-cities/pills/noida_pill.webp" },
+  { name: "Ghaziabad", link: "/city/ghaziabad", image: "/dream-cities/pills/ghaziabad_pill.webp" },
+  { name: "Gurugram", link: "/city/gurugram", image: "/dream-cities/pills/gurugram_pill.webp" },
+  { name: "Bangalore", link: "/city/bangalore", image: "/dream-cities/pills/bangalore_pill.webp" },
+  { name: "Jaipur", link: "/city/jaipur", image: "/dream-cities/pills/jaipur_pill.webp" },
+  { name: "Mumbai", link: "/city/mumbai", image: "/dream-cities/pills/mumbai_pill.webp" },
 ];
+
+const CITY_PILL_W = 48;
+const CITY_PILL_H = 48;
 
 function getRowCities(rowIndex) {
   /** One row forward, one reverse; double the sequence so each strip is long enough to fill very wide viewports. */
@@ -28,6 +35,15 @@ function CityStrip({ list, idPrefix, ariaHidden = false }) {
   return (
     <div className="pc__group" aria-hidden={ariaHidden} role={ariaHidden ? "none" : undefined}>
       {list.map((city, cityIndex) => {
+        const pillAlt = `${city.name} — city image on My Property Fact`;
+        const iconProps = buildHomeCardImageProps({
+          src: city.image,
+          width: CITY_PILL_W,
+          height: CITY_PILL_H,
+          alt: pillAlt,
+          sizes: HOME_CITY_PILL_SIZES,
+          quality: 75,
+        });
         return (
           <Link
             key={`${idPrefix}-${city.name}-${cityIndex}`}
@@ -39,12 +55,12 @@ function CityStrip({ list, idPrefix, ariaHidden = false }) {
           >
             <span className="pc__pill-icon" aria-hidden>
               <img
-                src={city.image}
-                alt={`${city.name} — city image on My Property Fact`}
-                title={`Explore properties in ${city.name}`}
+                {...iconProps}
+                className="pc__pill-img"
                 width={22}
                 height={22}
-                className="pc__pill-img"
+                loading={ariaHidden ? "lazy" : iconProps.loading}
+                fetchPriority={ariaHidden ? "low" : iconProps.fetchPriority}
               />
             </span>
             <span className="pc__pill-text">{city.name}</span>

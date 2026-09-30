@@ -27,7 +27,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Spinner } from "react-bootstrap";
 import { useRouter } from "next/navigation";
-import Select from "react-select";
+
+let reactSelectModulePromise;
+
+function loadReactSelectModule() {
+  if (!reactSelectModulePromise) {
+    reactSelectModulePromise = import("react-select").then((mod) => mod.default);
+  }
+  return reactSelectModulePromise;
+}
 
 const HOME_HERO_TABS = [
   { key: "All", label: "Buy" },
@@ -452,11 +460,22 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const [isListening, setIsListening] = useState(false);
   const [voiceOriginQuery, setVoiceOriginQuery] = useState(false);
   const [voiceError, setVoiceError] = useState("");
+  const [HeroSelect, setHeroSelect] = useState(null);
+
+  const ensureHeroSelect = useCallback(() => {
+    if (HeroSelect) return Promise.resolve(HeroSelect);
+    return loadReactSelectModule().then((Select) => {
+      setHeroSelect(() => Select);
+      return Select;
+    });
+  }, [HeroSelect]);
 
   const openHeroSelectMenu = (menu) => {
-    setHeroSelectMenu(menu);
-    setCategoryOpen(false);
-    setDropdownOpen(false);
+    ensureHeroSelect().then(() => {
+      setHeroSelectMenu(menu);
+      setCategoryOpen(false);
+      setDropdownOpen(false);
+    });
   };
 
   const closeHeroSelectMenu = (menu) => {
@@ -466,6 +485,38 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
   const router = useRouter();
   const searchWrapRef = useRef(null);
   const cardRef = useRef(null);
+
+  useEffect(() => {
+    if (!isHomeHero) return undefined;
+
+    const preload = () => {
+      loadReactSelectModule().then((Select) => {
+        setHeroSelect(() => Select);
+      });
+    };
+
+    let idleId;
+    if (typeof window.requestIdleCallback === "function") {
+      idleId = window.requestIdleCallback(preload, { timeout: 2200 });
+    } else {
+      idleId = window.setTimeout(preload, 400);
+    }
+
+    const wrap = searchWrapRef.current;
+    const onWarm = () => preload();
+    wrap?.addEventListener("pointerenter", onWarm, { once: true, passive: true });
+    wrap?.addEventListener("focusin", onWarm, { once: true });
+
+    return () => {
+      if (typeof window.cancelIdleCallback === "function" && idleId) {
+        window.cancelIdleCallback(idleId);
+      } else if (idleId) {
+        window.clearTimeout(idleId);
+      }
+      wrap?.removeEventListener("pointerenter", onWarm);
+      wrap?.removeEventListener("focusin", onWarm);
+    };
+  }, [isHomeHero]);
   const propertyPanelRef = useRef(null);
   const recognitionRef = useRef(null);
   const trimmedInput = searchInput.trim();
@@ -1460,14 +1511,59 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
     </button>
   );
 
-  const heroCitySelect = (
-    <Select
+  const heroCityValue =
+    cityOptions.find((option) => option.value === heroCityId) || null;
+  const heroBudgetValue =
+    budgetOptions.find((option) => option.value === heroBudget) || null;
+
+  const heroSelectShell = (menu, { placeholder, valueLabel }) => (
+    <div
+      className="location-select location-select--preload"
+      onPointerEnter={() => ensureHeroSelect()}
+    >
+      <div
+        className="location-select__control"
+        role="button"
+        aria-expanded={heroSelectMenu === menu}
+        aria-haspopup="listbox"
+        tabIndex={0}
+        onPointerDown={(event) => {
+          event.preventDefault();
+          openHeroSelectMenu(menu);
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openHeroSelectMenu(menu);
+          }
+        }}
+      >
+        <div className="location-select__value-container">
+          <span
+            className={
+              valueLabel
+                ? "location-select__single-value"
+                : "location-select__placeholder"
+            }
+          >
+            {valueLabel || placeholder}
+          </span>
+        </div>
+        <span className="location-select__indicators">
+          <span className="location-select__dropdown-indicator" aria-hidden />
+        </span>
+      </div>
+    </div>
+  );
+
+  const heroCitySelect = HeroSelect ? (
+    <HeroSelect
       instanceId="home-hero-city"
       inputId="home-hero-city-input"
       classNamePrefix="location-select"
       options={cityOptions}
       placeholder="Select City"
-      value={cityOptions.find((option) => option.value === heroCityId) || null}
+      value={heroCityValue}
       onChange={(selected) => setHeroCityId(selected ? selected.value : "")}
       menuIsOpen={heroSelectMenu === "city"}
       onMenuOpen={() => openHeroSelectMenu("city")}
@@ -1476,16 +1572,21 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       maxMenuHeight={220}
       menuPlacement="auto"
     />
+  ) : (
+    heroSelectShell("city", {
+      placeholder: "Select City",
+      valueLabel: heroCityValue?.label,
+    })
   );
 
-  const heroBudgetSelect = (
-    <Select
+  const heroBudgetSelect = HeroSelect ? (
+    <HeroSelect
       instanceId="home-hero-budget"
       inputId="home-hero-budget-input"
       classNamePrefix="location-select"
       options={budgetOptions}
       placeholder="Min - Max"
-      value={budgetOptions.find((option) => option.value === heroBudget) || null}
+      value={heroBudgetValue}
       onChange={(selected) => setHeroBudget(selected ? selected.value : "")}
       menuIsOpen={heroSelectMenu === "budget"}
       onMenuOpen={() => openHeroSelectMenu("budget")}
@@ -1494,6 +1595,11 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
       maxMenuHeight={220}
       menuPlacement="auto"
     />
+  ) : (
+    heroSelectShell("budget", {
+      placeholder: "Min - Max",
+      valueLabel: heroBudgetValue?.label,
+    })
   );
 
   return (

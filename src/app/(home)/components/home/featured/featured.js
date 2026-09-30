@@ -355,7 +355,9 @@ export default function Featured({
                           data={item}
                           badgeVariant={badgeVariant}
                           layoutVariant={cardLayoutVariant}
-                          imagePriority={index < 2}
+                          imagePriority={
+                            badgeVariant === "home-featured" ? false : index < 2
+                          }
                         />
                       </div>
                     ))}
@@ -382,7 +384,9 @@ export default function Featured({
                         data={item}
                         badgeVariant={badgeVariant}
                         layoutVariant={cardLayoutVariant}
-                        imagePriority={index < 2}
+                        imagePriority={
+                          badgeVariant === "home-featured" ? false : index < 2
+                        }
                       />
                     </div>
                   ))}

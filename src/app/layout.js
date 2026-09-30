@@ -6,10 +6,10 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 import { config } from "@fortawesome/fontawesome-svg-core";
 import SiteDataShell from "./_global_components/SiteDataShell";
 import LeadTrackerInit from "@/components/LeadTrackerInit";
-import ThirdPartyScripts from "./(home)/components/_homecomponents/ThirdPartyScripts";
+import ThirdPartyScriptsLoader from "./(home)/components/_homecomponents/ThirdPartyScriptsLoader";
 import WebsiteGateway from "./_global_components/WebsiteGateway";
 import PopularProjectPromoFromRequest from "./_global_components/PopularProjectPromoFromRequest";
-import LazyBelowFold from "./(home)/components/_homecomponents/LazyBelowFold";
+import LazyBelowFoldClient from "./(home)/components/_homecomponents/LazyBelowFoldClient";
 import { serializeJsonLd } from "./_global_components/jsonLd/JsonLdScript";
 
 config.autoAddCss = false;
@@ -152,14 +152,14 @@ export default function RootLayout({ children }) {
         <SiteDataShell>
           <LeadTrackerInit />
           {children}
-          <LazyBelowFold />
+          <LazyBelowFoldClient />
         </SiteDataShell>
         <WebsiteGateway />
         <Suspense fallback={null}>
           <PopularProjectPromoFromRequest />
         </Suspense>
 
-        <ThirdPartyScripts />
+        <ThirdPartyScriptsLoader />
       </body>
     </html>
   );

@@ -2,8 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
-import SocialFeed from "./social-feed/socialfeed";
 
 const sectionPlaceholder = (minHeight) => (
   <section className="py-4" style={{ minHeight }} aria-busy="true" />
@@ -46,6 +44,14 @@ const TestimonialSection = dynamic(
   () => import("./testimonials/TestimonialSection"),
   { ssr: false, loading: () => sectionPlaceholder(280) },
 );
+const RecommendedProjectsWithGeolocation = dynamic(
+  () => import("../_homecomponents/RecommendedProjectsWithGeolocation"),
+  { ssr: false, loading: () => sectionPlaceholder(320) },
+);
+const SocialFeed = dynamic(() => import("./social-feed/socialfeed"), {
+  ssr: false,
+  loading: () => sectionPlaceholder(240),
+});
 
 /**
  * Below-fold homepage sections — client-only so heavy markup/videos stay out of first HTML.

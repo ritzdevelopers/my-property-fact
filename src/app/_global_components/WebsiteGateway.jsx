@@ -64,12 +64,13 @@ export default function WebsiteGateway() {
     setIsVisible(true);
     document.body.classList.add("gateway-open");
 
-    const stepMs = Math.max(16, Math.floor(LOAD_MS / 100));
+    const steps = 50;
+    const stepMs = Math.max(32, Math.floor(LOAD_MS / steps));
     let p = 0;
 
     const intervalId = window.setInterval(() => {
-      p += 1;
-      setProgress(p);
+      p += 2;
+      setProgress(Math.min(100, p));
       if (p >= 100) {
         window.clearInterval(intervalId);
         holdRef.current = window.setTimeout(() => {

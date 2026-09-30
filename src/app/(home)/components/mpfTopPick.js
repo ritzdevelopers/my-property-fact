@@ -18,6 +18,7 @@ import {
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
 import { getTopPickEditorial } from "./topPicksContent";
+import { buildHomeCardImageProps, HOME_POSTER_CARD_SIZES } from "@/lib/optimizedImage";
 import "./common.css";
 import "./mpfTopPick.css";
 
@@ -262,15 +263,19 @@ export default function MpfTopPicks({ topProjects }) {
                   className={`mpf-tp__card${isActive ? " is-active" : ""}`}
                 >
                   <div className="mpf-tp__media">
-                    <img
-                      src={slide.image}
-                      alt={slide.imageAlt}
-                      title={slide.imageAlt}
-                      className="mpf-tp__img"
-                      loading="lazy"
-                      decoding="async"
-                      fetchPriority="low"
-                    />
+                    {isActive ? (
+                      <img
+                        {...buildHomeCardImageProps({
+                          src: slide.image,
+                          width: 960,
+                          height: 540,
+                          alt: slide.imageAlt,
+                          sizes: HOME_POSTER_CARD_SIZES,
+                          quality: 65,
+                        })}
+                        className="mpf-tp__img"
+                      />
+                    ) : null}
                     <span className="mpf-tp__scrim" aria-hidden="true" />
 
                     {slide.plaqueTitle && (
@@ -326,16 +331,21 @@ export default function MpfTopPicks({ topProjects }) {
 
                   <div className="mpf-tp__panel">
                     <div className="mpf-tp__dev">
-                      <img
-                        src={slide.logo}
-                        alt={slide.logoAlt}
-                        title={slide.logoAlt}
-                        className="mpf-tp__dev-logo"
-                        width={160}
-                        height={64}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      {isActive ? (
+                        <img
+                          {...buildHomeCardImageProps({
+                            src: slide.logo,
+                            width: 160,
+                            height: 64,
+                            alt: slide.logoAlt,
+                            sizes: "160px",
+                            quality: 70,
+                          })}
+                          className="mpf-tp__dev-logo"
+                          width={160}
+                          height={64}
+                        />
+                      ) : null}
                       <span className="mpf-tp__dev-rule" aria-hidden="true" />
                       <div className="mpf-tp__dev-txt">
                         <span className="mpf-tp__eyebrow">Developer</span>

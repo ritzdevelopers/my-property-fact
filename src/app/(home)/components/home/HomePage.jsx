@@ -1,3 +1,4 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import HeroSection from "../_homecomponents/heroSection";
 import {
@@ -9,7 +10,6 @@ import {
   fetchLatestBlogs,
 } from "@/app/_global_components/masterFunction";
 import RecommendedProjectsWithGeolocation from "../_homecomponents/RecommendedProjectsWithGeolocation";
-import TopDevelopersMarquee from "../_homecomponents/TopDevelopersMarquee";
 import { buildTopDevelopersMarqueeItems } from "../_homecomponents/topDevelopersMarqueeData";
 import {
   buildLatestProjectsForRegion,
@@ -21,7 +21,6 @@ import {
   scopeHomeProjectsToDelhiNcr,
 } from "@/app/_global_components/popularRightNowProjects";
 import RotatingHeroHeadline from "./RotatingHeroHeadline";
-import HomeDeferredSections from "./HomeDeferredSections";
 import { slimProjectListForListing } from "@/lib/slimProjectListing";
 import {
   slimCityForNav,
@@ -34,6 +33,30 @@ const HOME_FEATURED_TAB_LIMIT = 6;
 const HOME_MARQUEE_LOGO_LIMIT = 16;
 
 const HOME_NCR_LABEL = "Delhi NCR";
+
+const TopDevelopersMarquee = dynamic(
+  () => import("../_homecomponents/TopDevelopersMarquee"),
+  { ssr: true },
+);
+
+const HomeDeferredSections = dynamic(() => import("./HomeDeferredSections"), {
+  ssr: true,
+  loading: () => (
+    <>
+      <section className="py-4" style={{ minHeight: 180 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 320 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 320 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 200 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 360 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 400 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 280 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 280 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 160 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 320 }} aria-busy="true" />
+      <section className="py-4" style={{ minHeight: 200 }} aria-busy="true" />
+    </>
+  ),
+});
 
 function slimBlogForHome(blog) {
   if (!blog || typeof blog !== "object") return blog;
@@ -210,7 +233,7 @@ export default async function HomePage() {
             viewAllHref="/projects"
             sectionId="new-property-launches"
             className="recommended-properties-section"
-            eagerImageCount={2}
+            eagerImageCount={0}
           />,
         )}
         {/* {row(

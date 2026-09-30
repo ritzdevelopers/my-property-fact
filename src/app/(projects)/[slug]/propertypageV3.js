@@ -2,7 +2,7 @@
 
 /**
  * Property Detail V3 — 99acres-style layout, MPF branding.
- * Consumes the same props as V1/V2 (`projectDetail`, `similarProjects`, `nearbyBenefitsList`).
+ * Consumes the same props as V1/V2 (`projectDetail`, `similarProjects`, `priceRangeProjects`, `nearbyBenefitsList`).
  */
 
 import Link from "next/link";
@@ -45,6 +45,8 @@ import { buildProjectDisplayName } from "@/lib/projectDisplayName";
 import "./propertyV3.css";
 /** Amenity grid + “View more” side panel + gallery lightbox (shared with V2). */
 import "./propertyV2.css";
+import PriceRangeProjectsSection from "./PriceRangeProjectsSection";
+import ProjectExpertAdviceModal from "./ProjectExpertAdviceModal";
 
 /* ---------------------------- Utilities ---------------------------- */
 
@@ -496,6 +498,7 @@ const TAB_LIST = [
 export default function PropertyV3({
   projectDetail,
   similarProjects = [],
+  priceRangeProjects = [],
   nearbyBenefitsList,
   heroSlides: heroSlidesProp,
   heroPrimaryLcp,
@@ -503,6 +506,7 @@ export default function PropertyV3({
   const [openFaq, setOpenFaq] = useState(null);
   const [activeBhk, setActiveBhk] = useState(null);
   const [popUp, setPopUp] = useState(false);
+  const [expertAdviceOpen, setExpertAdviceOpen] = useState(false);
   const [touchForm, setTouchForm] = useState({
     name: "",
     email: "",
@@ -1019,10 +1023,10 @@ export default function PropertyV3({
               <div className="pd3-summary__cta">
                 <button
                   type="button"
-                  className="pd3-btn pd3-btn--outline pd3-btn--lg"
-                  onClick={() => setPopUp(true)}
+                  className="pd3-btn pd3-btn--outline pd3-btn--lg pd3-btn--expert-advice"
+                  onClick={() => setExpertAdviceOpen(true)}
                 >
-                  <FontAwesomeIcon icon={faPhone} /> View Number
+                  Get Expert Property Advice
                 </button>
                 <button
                   type="button"
@@ -1237,23 +1241,33 @@ export default function PropertyV3({
                 ) : null}
                 {floorPlans.length ? (
                   <>
-                    <div className="pd3-bhk-tabs" role="tablist">
-                      {bhkGroups.map(({ bhk, items }) => (
-                        <button
-                          key={bhk}
-                          type="button"
-                          role="tab"
-                          aria-selected={resolvedActiveBhk === bhk}
-                          className={`pd3-bhk-tab${resolvedActiveBhk === bhk ? " is-active" : ""
-                            }`}
-                          onClick={() => setActiveBhk(bhk)}
-                        >
-                          {bhk}
-                          <span style={{ opacity: 0.6, marginLeft: 6 }}>
-                            ({items.length})
-                          </span>
-                        </button>
-                      ))}
+                    <div className="pd3-bhk-tabs-row">
+                      <div className="pd3-bhk-tabs" role="tablist">
+                        {bhkGroups.map(({ bhk, items }) => (
+                          <button
+                            key={bhk}
+                            type="button"
+                            role="tab"
+                            aria-selected={resolvedActiveBhk === bhk}
+                            className={`pd3-bhk-tab${resolvedActiveBhk === bhk ? " is-active" : ""
+                              }`}
+                            onClick={() => setActiveBhk(bhk)}
+                          >
+                            {bhk}
+                            <span style={{ opacity: 0.6, marginLeft: 6 }}>
+                              ({items.length})
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="pd3-bhk-brochure-btn"
+                        onClick={() => setPopUp(true)}
+                      >
+                        <FontAwesomeIcon icon={faDownload} aria-hidden />
+                        <span>Download Brochure</span>
+                      </button>
                     </div>
                     <div className="pd3-fp-count">
                       {activeBhkItems.length} Floor Plan
@@ -1651,6 +1665,13 @@ export default function PropertyV3({
               </section>
             ) : null}
 
+            {priceRangeProjects?.length ? (
+              <PriceRangeProjectsSection
+                projects={priceRangeProjects}
+                referencePrice={projectDetail.projectPrice}
+              />
+            ) : null}
+
             {/* Similar projects */}
             {similarProjects && similarProjects.length ? (
               <section className="pd3-card">
@@ -1665,7 +1686,7 @@ export default function PropertyV3({
                   </Link>
                 </div>
                 <div className="pd3-sim-grid">
-                  {similarProjects.slice(0, 8).map((p) => {
+                  {similarProjects.slice(0, 5).map((p) => {
                     const simName = buildProjectDisplayName(p, "Project");
                     const simImgMeta = `${simName} — similar project photo on My Property Fact`;
                     return (
@@ -1775,10 +1796,10 @@ export default function PropertyV3({
       <div className="pd3-mobile-cta" role="region" aria-label="Quick actions">
         <button
           type="button"
-          className="pd3-btn pd3-btn--outline pd3-btn--lg"
-          onClick={() => setPopUp(true)}
+          className="pd3-btn pd3-btn--outline pd3-btn--lg pd3-btn--expert-advice"
+          onClick={() => setExpertAdviceOpen(true)}
         >
-          <FontAwesomeIcon icon={faPhone} /> Call
+          Expert Advice
         </button>
         <button
           type="button"
@@ -1795,6 +1816,12 @@ export default function PropertyV3({
         handleClose={setPopUp}
         from="Project Detail"
         data={projectDetail}
+      />
+
+      <ProjectExpertAdviceModal
+        show={expertAdviceOpen}
+        onClose={setExpertAdviceOpen}
+        projectDetail={projectDetail}
       />
 
       {showAllAmenitiesPanel ? (

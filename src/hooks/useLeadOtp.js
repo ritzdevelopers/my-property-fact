@@ -6,7 +6,7 @@ import { sendLeadOtp, verifyLeadOtpClient } from "@/lib/leadOtpClient";
 
 const RESEND_SECONDS = 30;
 
-export function useLeadOtp(phone) {
+export function useLeadOtp(phone, { autoVerify = true } = {}) {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
@@ -104,6 +104,7 @@ export function useLeadOtp(phone) {
   }, [phone, otp]);
 
   useEffect(() => {
+    if (!autoVerify) return;
     if (otp.length < 4) {
       lastAutoVerifyOtpRef.current = "";
       return;
@@ -117,7 +118,7 @@ export function useLeadOtp(phone) {
 
     lastAutoVerifyOtpRef.current = otp;
     verifyOtp();
-  }, [otp, otpSent, isVerified, verifying, verifyOtp]);
+  }, [autoVerify, otp, otpSent, isVerified, verifying, verifyOtp]);
 
   const reset = useCallback(() => {
     setOtp("");

@@ -35,6 +35,7 @@ import {
 import { fetchListingPageFaqsBySlug } from "@/lib/fetchListingPageFaqs";
 import { fetchListingPageContentBySlug } from "@/lib/fetchListingPageContent";
 import { slimProjectForListing } from "@/lib/slimProjectListing";
+import { getProjectsInPriceRange } from "@/app/_global_components/projectFilterUtils";
 
 /** ISR-friendly cache for valid project/listing pages. */
 export const revalidate = 120;
@@ -236,6 +237,11 @@ export default async function PropertyPage({ params }) {
         .slice(0, SIMILAR_PROJECTS_MAX)
         .map(slimProjectCardForPayload);
 
+      const priceRangeProjectsSlim = getProjectsInPriceRange(
+        featuredProjects,
+        projectDetail,
+      ).map(slimProjectCardForPayload);
+
       const hasLocationBenefits =
         Array.isArray(projectDetail.locationBenefits) &&
         projectDetail.locationBenefits.length > 0;
@@ -265,6 +271,7 @@ export default async function PropertyPage({ params }) {
           <Property
             projectDetail={projectDetail}
             similarProjects={similarProjectsSlim}
+            priceRangeProjects={priceRangeProjectsSlim}
             nearbyBenefitsList={nearbyBenefitsList}
           />
           <NewFooterDesign compactTop={true} />

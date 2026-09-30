@@ -395,6 +395,11 @@
   padding: 12px 22px;
   font-size: 15px;
 }
+.pd3-btn--expert-advice {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.25;
+}
 
 .pd3-summary__badges {
   display: flex;
@@ -769,6 +774,53 @@
 }
 
 /* ======================= Floor Plans (BHK tabs) ======================= */
+.pd3-bhk-tabs-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.pd3-bhk-tabs-row .pd3-bhk-tabs {
+  margin-bottom: 0;
+  flex: 1 1 200px;
+}
+.pd3-bhk-brochure-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #c4b5fd;
+  background: linear-gradient(180deg, #faf5ff 0%, #ede9fe 100%);
+  color: #5b21b6;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+  white-space: nowrap;
+}
+.pd3-bhk-brochure-btn:hover {
+  border-color: #8b5cf6;
+  box-shadow: 0 6px 16px rgba(91, 33, 182, 0.12);
+  transform: translateY(-1px);
+}
+.pd3-bhk-brochure-btn svg {
+  font-size: 14px;
+}
+@media (max-width: 520px) {
+  .pd3-bhk-brochure-btn {
+    width: 100%;
+    order: 3;
+  }
+  .pd3-bhk-tabs-row .pd3-bhk-tabs {
+    width: 100%;
+    order: 1;
+  }
+}
 .pd3-bhk-tabs {
   display: flex;
   gap: 8px;
@@ -1233,6 +1285,76 @@
   border-radius: 999px;
   font-size: 11px;
   font-weight: 600;
+}
+
+/* ======================= Price range carousel ======================= */
+.pd3-price-range__head {
+  align-items: flex-start;
+}
+.pd3-price-range__sub {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--pd3-muted);
+  line-height: 1.4;
+}
+.pd3-price-range__controls {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.pd3-price-range__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--pd3-border);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--pd3-heading);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, opacity 0.15s;
+}
+.pd3-price-range__btn:hover:not(:disabled) {
+  background: var(--pd3-surface-muted, #f4f7fa);
+  border-color: var(--pd3-brand);
+  color: var(--pd3-brand);
+}
+.pd3-price-range__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.pd3-price-range__track {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin: 0 -4px;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+.pd3-price-range__track::-webkit-scrollbar {
+  display: none;
+}
+.pd3-price-range__item {
+  flex: 0 0 min(280px, calc(100vw - 56px));
+  scroll-snap-align: start;
+  max-width: 320px;
+}
+@media (min-width: 768px) {
+  .pd3-price-range__item {
+    flex: 0 0 260px;
+  }
+}
+@media (min-width: 992px) {
+  .pd3-price-range__item {
+    flex: 0 0 240px;
+  }
 }
 
 /* ======================= Brochure card ======================= */

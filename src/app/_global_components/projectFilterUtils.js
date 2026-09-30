@@ -171,6 +171,18 @@ function extractProjectPrice(project = {}) {
     : rawStartingPrice;
 }
 
+/** Listing cards use `cityName`; project detail uses `city`. */
+function resolveProjectCityName(project = {}) {
+  return String(project.cityName || project.city || "").trim();
+}
+
+function isSameProjectCity(a, b) {
+  const cityA = normalizeText(resolveProjectCityName(a));
+  const cityB = normalizeText(resolveProjectCityName(b));
+  if (!cityA || !cityB) return false;
+  return cityA === cityB;
+}
+
 export function matchesBudgetRangeForProject(project, budgetSelection) {
   const bucket = findBudgetBucket(budgetSelection);
   if (!bucket) return true;
@@ -179,4 +191,52 @@ export function matchesBudgetRangeForProject(project, budgetSelection) {
   if (!Number.isFinite(priceInCr)) return false;
 
   return bucket.test(priceInCr);
+}
+
+/** ±25% band around the reference project price (crore units). */
+export const PRICE_RANGE_TOLERANCE = 0.25;
+
+export const PRICE_RANGE_PROJECTS_MAX = 12;
+
+/**
+ * Projects in the same city as the reference whose price falls within `tolerance`
+ * of the reference (default ±25%). Sorted by closest price; excludes the reference.
+ */
+export function getProjectsInPriceRange(
+  allProjects,
+  referenceProject,
+  { tolerance = PRICE_RANGE_TOLERANCE, max = PRICE_RANGE_PROJECTS_MAX } = {},
+) {
+  if (!Array.isArray(allProjects) || !referenceProject) return [];
+
+  const refPrice = parsePriceToCrore(extractProjectPrice(referenceProject));
+  if (!Number.isFinite(refPrice) || refPrice <= 0) return [];
+
+  const refCity = normalizeText(resolveProjectCityName(referenceProject));
+  if (!refCity) return [];
+
+  const minCr = refPrice * (1 - tolerance);
+  const maxCr = refPrice * (1 + tolerance);
+  const refId = referenceProject.id;
+
+  return allProjects
+    .filter(
+      (p) => p && p.id !== refId && isSameProjectCity(p, referenceProject),
+    )
+    .map((p) => {
+      const priceInCr = parsePriceToCrore(extractProjectPrice(p));
+      return { project: p, priceInCr };
+    })
+    .filter(
+      ({ priceInCr }) =>
+        Number.isFinite(priceInCr) &&
+        priceInCr >= minCr &&
+        priceInCr <= maxCr,
+    )
+    .sort(
+      (a, b) =>
+        Math.abs(a.priceInCr - refPrice) - Math.abs(b.priceInCr - refPrice),
+    )
+    .slice(0, max)
+    .map(({ project }) => project);
 }

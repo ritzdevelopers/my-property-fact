@@ -1896,7 +1896,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
         </div>
 
       </div>
-      {isHomeHero && !isClassicHero ? (
+      {/* {isHomeHero && !isClassicHero ? (
         <div className="smart-search-below">
           <div className="smart-search-recent smart-search-recent--acres">
             <span className="smart-search-recent__label">Recent searches:</span>
@@ -1954,7 +1954,7 @@ export default function SearchFilter({ projectTypeList = [], cityList = [], layo
             )}
           </div>
         </div>
-      ) : null}
+      ) : null} */}
       {!isHomeHero && recentSearches.length > 0 ? (
         <div className="smart-search-recent">
           <span className="smart-search-recent__label">Recent searches:</span>

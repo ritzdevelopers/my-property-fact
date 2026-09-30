@@ -1,0 +1,163 @@
+.pd3-expert-advice-dialog {
+  max-width: min(400px, calc(100vw - 1.25rem));
+  margin: 0.75rem auto;
+}
+
+.pd3-expert-advice-modal .modal-content {
+  border: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.16);
+}
+
+.pd3-expert-advice-modal__inner {
+  position: relative;
+  padding: 1.25rem 1.15rem 1.15rem;
+}
+
+.pd3-expert-advice-modal__inner--busy {
+  min-height: 120px;
+}
+
+.pd3-expert-advice-modal__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.65rem;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #334155;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.pd3-expert-advice-modal__close:hover {
+  background: #e2e8f0;
+}
+
+.pd3-expert-advice-modal__head {
+  padding-right: 2.25rem;
+  margin-bottom: 1rem;
+}
+
+.pd3-expert-advice-modal__title {
+  font-size: clamp(1.1rem, 2vw + 0.65rem, 1.35rem);
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.4rem;
+  line-height: 1.3;
+}
+
+.pd3-expert-advice-modal__subtitle {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: rgba(15, 23, 42, 0.62);
+}
+
+.pd3-expert-advice-modal__link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--pd3-brand, #0d5c4b);
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pd3-expert-advice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.pd3-expert-advice-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.pd3-expert-advice-input {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 15px;
+  color: #0f172a;
+  background: #fff;
+}
+
+.pd3-expert-advice-input:focus {
+  outline: none;
+  border-color: var(--pd3-brand, #0d5c4b);
+  box-shadow: 0 0 0 3px rgba(13, 92, 75, 0.12);
+}
+
+.pd3-expert-advice-input.is-invalid {
+  border-color: #dc3545;
+}
+
+.pd3-expert-advice-error {
+  margin: 0;
+  font-size: 12px;
+  color: #dc3545;
+}
+
+.pd3-expert-advice-btn {
+  width: 100%;
+  margin-top: 0.15rem;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--pd3-brand, #0d5c4b);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+}
+
+.pd3-expert-advice-btn:hover:not(:disabled) {
+  background: var(--pd3-brand-dark, #094539);
+}
+
+.pd3-expert-advice-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Step 2: OTP panel from Contact Us — tighten for small modal */
+.pd3-expert-advice-otp-panel.lead-otp-panel {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pd3-expert-advice-otp-panel .lead-otp-panel__header {
+  display: none;
+}
+
+.pd3-expert-advice-otp-panel .lead-otp-panel__actions {
+  margin-top: 0.35rem;
+}
+
+@media (max-width: 575.98px) {
+  .pd3-expert-advice-modal__inner {
+    padding: 1.1rem 0.95rem 0.95rem;
+  }
+
+  .pd3-expert-advice-otp-panel .lead-otp-panel__digit {
+    width: 44px;
+    height: 48px;
+  }
+}

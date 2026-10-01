@@ -2,6 +2,7 @@ import CityPage from "./citypage";
 import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import {
+  buildCityStateLookup,
   cityNameMatchesFilter,
   LEGACY_CITY_SLUGS_FOR_PAGE_MERGE,
   projectMatchesCitySlug,
@@ -9,6 +10,7 @@ import {
 } from "@/app/_global_components/cityAliasUtils";
 import {
   fetchAllProjects,
+  fetchCityData,
   fetchCityDetailsBySlug,
   isKnownCitySlug,
 } from "@/app/_global_components/masterFunction";
@@ -82,10 +84,15 @@ async function fetchCityDataWithAliases(canonicalSlug) {
   // Same matching as /apartments-in-{city}: city name, address, locality,
   // and legacy slugs (Dwarka → Delhi). city/get/{slug} alone can miss these.
   const cityLabel = merged.cityName || canonicalSlug;
-  const fromMaster = (await fetchAllProjects()).filter(
+  const allProjects = await fetchAllProjects();
+  const cityStateLookup =
+    canonicalSlug === "delhi"
+      ? buildCityStateLookup(await fetchCityData())
+      : null;
+  const fromMaster = allProjects.filter(
     (project) =>
-      cityNameMatchesFilter(cityLabel, project) ||
-      projectMatchesCitySlug(project, canonicalSlug),
+      cityNameMatchesFilter(cityLabel, project, cityStateLookup) ||
+      projectMatchesCitySlug(project, canonicalSlug, cityStateLookup),
   );
   if (fromMaster.length) {
     merged = mergeCityProjectLists(merged, { projectList: fromMaster });
@@ -151,7 +158,16 @@ export default async function AllCityProjects({ params }) {
   }
 
   const { projectList: _projectList, ...cityMeta } = cityData;
-  const projectList = slimProjectListForListing(cityData.projectList || []);
+  const hubStateName = String(cityMeta.stateName || "").trim();
+  const projectsForCards = (_projectList || []).map((project) => {
+    if (!project || typeof project !== "object") return project;
+    const city = String(project.cityName || project.city || "").trim();
+    if (city) return project;
+    if (String(project.stateName || project.state || "").trim()) return project;
+    if (!hubStateName) return project;
+    return { ...project, stateName: hubStateName };
+  });
+  const projectList = slimProjectListForListing(projectsForCards);
   const faqItems = listingFaqs.length
     ? listingFaqs
     : resolveCityFaqItemsForSchema(cityMeta);

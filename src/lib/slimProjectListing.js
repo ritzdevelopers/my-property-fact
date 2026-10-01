@@ -23,6 +23,9 @@ export function slimProjectForListing(project) {
     status: project.status,
   };
 
+  const stateName = String(project.stateName || project.state || "").trim();
+  if (stateName) slim.stateName = stateName;
+
   if (project.propertyTypeId != null) slim.propertyTypeId = project.propertyTypeId;
   if (project.cityId != null) slim.cityId = project.cityId;
   if (project.builderId != null) slim.builderId = project.builderId;

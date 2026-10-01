@@ -5,6 +5,7 @@ import Link from "next/link";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import { buildHomeCardImageProps } from "@/lib/optimizedImage";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
+import { resolveProjectCardLocationLabel } from "@/lib/projectCardHelpers";
 import ProjectShortlistButton from "@/app/(home)/components/common/ProjectShortlistButton";
 import "@/app/(home)/components/common/luxuryPropertyCard.css";
 import "./newmpfmetadata.css";
@@ -79,10 +80,7 @@ function getLocationChip(source, kind) {
       "Location on listing",
     );
   }
-  const locality = cleanMetaText(source?.projectLocality);
-  const city = cleanMetaText(source?.cityName);
-  const parts = [locality, city].filter(Boolean);
-  return parts.length ? parts.join(", ") : "Location on project page";
+  return resolveProjectCardLocationLabel(source);
 }
 
 function formatConfigChip(config, propertyType) {
@@ -124,10 +122,9 @@ function getLifestyleChip(source, kind) {
 }
 
 function getProjectLocation(project) {
-  return (
-    project?.projectAddress ||
-    [project?.cityName, project?.stateName].filter(Boolean).join(", ") ||
-    "Location details available on project page"
+  return resolveProjectCardLocationLabel(
+    project,
+    "Location details available on project page",
   );
 }
 

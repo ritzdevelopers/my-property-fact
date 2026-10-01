@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { getBlogAuthorDisplayName } from "./blogAuthor";
+import { buildHomeCardImageProps, HOME_BLOG_CARD_SIZES } from "@/lib/optimizedImage";
 import './common.css';
 export default function BlogCard({ blog }) {
 
@@ -25,14 +26,17 @@ export default function BlogCard({ blog }) {
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
             >
                 <img
-                    width={1200}
-                    height={628}
-                    src={`${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`}
-                    alt={featuredImageAlt}
-                    title={featuredImageAlt}
+                    {...buildHomeCardImageProps({
+                      src: `${process.env.NEXT_PUBLIC_IMAGE_URL}blog/${blog.blogImage}`,
+                      width: 800,
+                      height: 450,
+                      alt: featuredImageAlt,
+                      sizes: HOME_BLOG_CARD_SIZES,
+                      quality: 65,
+                    })}
                     className="img-fluid"
-                    loading="lazy"
-                    decoding="async"
+                    width={800}
+                    height={450}
                 />
                 <div className="card-body d-flex flex-column plus-jakarta-semi-bold">
                     <p className="blog-date m-0 mb-1 text-muted small">

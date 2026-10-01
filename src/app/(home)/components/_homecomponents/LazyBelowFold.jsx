@@ -129,6 +129,7 @@ export default function LazyBelowFold() {
     const mq = window.matchMedia("(max-width: 767.98px)");
     const root = document.documentElement;
 
+    let raf = 0;
     const sync = () => {
       if (!mq.matches) {
         root.classList.remove(HIDE);
@@ -142,16 +143,24 @@ export default function LazyBelowFold() {
       const pastHero = hero.getBoundingClientRect().bottom <= 96;
       root.classList.toggle(HIDE, !pastHero);
     };
+    const schedule = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        sync();
+      });
+    };
 
     sync();
-    window.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
-    mq.addEventListener("change", sync);
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule, { passive: true });
+    mq.addEventListener("change", schedule);
     return () => {
       root.classList.remove(HIDE);
-      window.removeEventListener("scroll", sync);
-      window.removeEventListener("resize", sync);
-      mq.removeEventListener("change", sync);
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      mq.removeEventListener("change", schedule);
     };
   }, [isHome]);
 

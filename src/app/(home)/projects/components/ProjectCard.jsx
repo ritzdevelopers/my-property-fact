@@ -15,8 +15,10 @@ import {
 } from "@/lib/projectImageUrl";
 import { formatDistanceKm } from "@/lib/utils";
 import {
+  formatProjectCardLocation,
   loadNearbyBenefitCatalog,
   resolveNearbyBenefitMeta,
+  resolveProjectCardLocationLabel,
 } from "@/lib/projectCardHelpers";
 import ProjectStatusRibbon from "@/app/(home)/components/common/ProjectStatusRibbon";
 import PropertyTypeTag from "@/app/(home)/components/common/PropertyTypeTag";
@@ -43,23 +45,6 @@ function mergeSlideUrls(primaryUrl, galleryUrls = []) {
   galleryUrls.forEach(add);
 
   return merged.length ? merged : [DEFAULT_PROJECT_CARD_IMAGE];
-}
-
-function formatProjectAddress(address) {
-  const parts = String(address || "")
-    .split(",")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  if (!parts.length) return "";
-
-  const normalized = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
-  const deduped = [];
-  for (const part of parts) {
-    const prev = deduped[deduped.length - 1];
-    if (prev && normalized(prev) === normalized(part)) continue;
-    deduped.push(part);
-  }
-  return deduped.join(", ");
 }
 
 function ProjectCardSlider({
@@ -439,17 +424,14 @@ export default function ProjectCard({
   const projectTitle = buildProjectDisplayName(project, "Project");
   const propertyTypeLabel = String(project.propertyTypeName || "").trim();
   const hasMultipleSlides = slides.length > 1;
-  const addressSummary = formatProjectAddress(project.projectAddress);
-  const locationLabel =
-    addressSummary ||
-    String(project.cityName || "").trim() ||
-    "Location on project page";
+  const locationSummary = formatProjectCardLocation(project);
+  const locationLabel = resolveProjectCardLocationLabel(project);
   const metaLabel =
     String(project.projectConfiguration || "").trim() ||
     propertyTypeLabel;
   const projectLinkTitle = `View ${projectTitle} on My Property Fact`;
   const projectCardImageAlt = projectName
-    ? `${projectName} — ${propertyTypeLabel || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
+    ? `${projectName} — ${propertyTypeLabel || "real estate project"} thumbnail${locationSummary ? `, ${locationSummary}` : ""}`
     : "Real estate project thumbnail — My Property Fact";
   const getSlideImageMeta = (index) => {
     if (index === 0) {

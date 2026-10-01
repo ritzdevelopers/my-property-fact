@@ -14,7 +14,16 @@ import {
   buildProjectImageUrl,
   DEFAULT_PROJECT_CARD_IMAGE,
 } from "@/lib/projectImageUrl";
+import {
+  buildHomeCardImageProps,
+  HOME_FEATURED_OVERLAP_SIZES,
+  HOME_POSTER_CARD_SIZES,
+} from "@/lib/optimizedImage";
 import { buildProjectDisplayName } from "@/lib/projectDisplayName";
+import {
+  formatProjectCardLocation,
+  resolveProjectCardLocationLabel,
+} from "@/lib/projectCardHelpers";
 import ProjectShortlistButton from "./ProjectShortlistButton";
 import "./common.css";
 import "./propertyContainerTablet.css";
@@ -93,10 +102,7 @@ function getLifestyleChip(data) {
 }
 
 function getLocationChip(data) {
-  const locality = cleanMetaText(data?.projectLocality);
-  const city = cleanMetaText(data?.cityName);
-  const parts = [locality, city].filter(Boolean);
-  return parts.length ? parts.join(", ") : "Location on project page";
+  return resolveProjectCardLocationLabel(data);
 }
 
 export default function PropertyContainer({
@@ -119,24 +125,9 @@ export default function PropertyContainer({
     ? buildProjectImageUrl(data, { preferThumbnail: true })
     : DEFAULT_PROJECT_CARD_IMAGE;
 
-  const formatProjectAddress = (address) => {
-    const parts = String(address || "")
-      .split(",")
-      .map((part) => part.trim())
-      .filter(Boolean);
-    if (!parts.length) return "";
-
-    const normalized = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
-    const deduped = [];
-    for (const part of parts) {
-      const prev = deduped[deduped.length - 1];
-      if (prev && normalized(prev) === normalized(part)) continue;
-      deduped.push(part);
-    }
-    return deduped.join(", ");
-  };
-
-  //Generating price in lakh & cr
+  const locationSummary = formatProjectCardLocation(data);
+  const locationLabel = resolveProjectCardLocationLabel(data);
+  const projectTitle = buildProjectDisplayName(data, "Project");
   const generatePrice = (price) => {
     if (/[a-zA-Z]/.test(price)) {
       return price;
@@ -172,21 +163,54 @@ export default function PropertyContainer({
     return colorMap[normalized] || defaultStyle;
   };
 
-  const addressSummary = formatProjectAddress(data.projectAddress);
-  const projectTitle = buildProjectDisplayName(data, "Project");
   const propertyTypeName = String(data.propertyTypeName || "").trim();
   const projectLinkTitle = `View ${projectTitle} on My Property Fact`;
 
   const buildFeaturedSubtitle = () => {
     const config = String(data.projectConfiguration || "").trim();
     if (config) return config;
-    return addressSummary;
+    return locationSummary;
   };
 
   const projectCardImageAlt =
     data.projectName
-      ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${addressSummary ? `, ${addressSummary}` : ""}`
+      ? `${data.projectName} — ${data.propertyTypeName || "real estate project"} thumbnail${locationSummary ? `, ${locationSummary}` : ""}`
       : "Real estate project thumbnail — My Property Fact";
+
+  const tileImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 168,
+    alt: projectCardImageAlt,
+    priority: imagePriority,
+  });
+
+  const overlapImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 510,
+    height: 300,
+    alt: projectCardImageAlt,
+    sizes: HOME_FEATURED_OVERLAP_SIZES,
+    priority: imagePriority,
+  });
+
+  const posterImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 360,
+    alt: projectCardImageAlt,
+    sizes: HOME_POSTER_CARD_SIZES,
+    priority: imagePriority,
+  });
+
+  const defaultCardImageProps = buildHomeCardImageProps({
+    src: imageSrc,
+    width: 400,
+    height: 230,
+    alt: projectCardImageAlt,
+    sizes: HOME_POSTER_CARD_SIZES,
+    priority: imagePriority,
+  });
 
   const getFeaturedPillBadgeModifier = (status) => {
     const normalized = status?.trim().toLowerCase();
@@ -271,15 +295,10 @@ export default function PropertyContainer({
         />
         <div className="home-project-card__media">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...tileImageProps}
             className="home-project-card__image"
             width={400}
             height={168}
-            loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority={imagePriority ? "high" : "low"}
-            decoding="async"
             onError={() => setImageError(true)}
           />
           {badge ? (
@@ -372,14 +391,10 @@ export default function PropertyContainer({
       >
         <div className="home-featured-image-card">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...overlapImageProps}
             className="home-featured-image"
             width={510}
             height={300}
-            loading={imagePriority ? "eager" : "lazy"}
-            decoding="async"
             onError={() => setImageError(true)}
           />
 
@@ -431,15 +446,10 @@ export default function PropertyContainer({
         <div className="home-project-card__media">
           <div className="home-project-card__image-wrap">
             <img
-              src={imageSrc}
-              alt={projectCardImageAlt}
-              title={projectCardImageAlt}
+              {...posterImageProps}
               className="home-project-card__image"
               width={400}
               height={360}
-              loading={imagePriority ? "eager" : "lazy"}
-              fetchPriority={imagePriority ? "high" : "low"}
-              decoding="async"
               draggable={false}
               onError={() => setImageError(true)}
             />
@@ -464,7 +474,7 @@ export default function PropertyContainer({
               <path d="M12 22s7-7.2 7-12a7 7 0 10-14 0c0 4.8 7 12 7 12z" stroke="currentColor" strokeWidth="1.8" />
               <circle cx="12" cy="10" r="2.5" stroke="currentColor" strokeWidth="1.8" />
             </svg>
-            <span>{addressSummary || "Location on project page"}</span>
+            <span>{locationLabel}</span>
           </p>
           <div className="mpf-lux-card__bar">
             <span className="mpf-lux-card__action">
@@ -497,15 +507,10 @@ export default function PropertyContainer({
       >
         <div className="w-100 project-image-container">
           <img
-            src={imageSrc}
-            alt={projectCardImageAlt}
-            title={projectCardImageAlt}
+            {...defaultCardImageProps}
             className="img-fluid w-100 rounded-top-4 object-fit-cover"
             width={400}
             height={230}
-            loading={imagePriority ? "eager" : "lazy"}
-            fetchPriority="auto"
-            decoding="async"
             onError={() => setImageError(true)}
           />
         </div>
@@ -525,7 +530,7 @@ export default function PropertyContainer({
           <span className="flex-shrink-0">
             <FontAwesomeIcon icon={faLocationDot} style={{ color: "#35A332" }} />
           </span>
-          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{addressSummary}</p>
+          <p className="p-0 m-0 plus-jakarta-sans-semi-bold">{locationSummary || locationLabel}</p>
         </div>
       </Link>
     </>

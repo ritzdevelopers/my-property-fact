@@ -323,7 +323,16 @@ const HeaderComponent = () => {
       }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: false });
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = window.requestAnimationFrame(() => {
+        scrollRaf = 0;
+        handleScroll();
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("wheel", preventScroll, { passive: false });
     // Use capture phase to check before other handlers
     window.addEventListener("touchmove", preventScroll, {
@@ -332,7 +341,8 @@ const HeaderComponent = () => {
     });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      if (scrollRaf) window.cancelAnimationFrame(scrollRaf);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("wheel", preventScroll);
       window.removeEventListener("touchmove", preventScroll);
     };

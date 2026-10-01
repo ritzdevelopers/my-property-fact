@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { buildHomeCardImageProps } from "@/lib/optimizedImage";
 import "../home/home.css";
 
 function sanitizeMetaText(value, fallback = "Developer") {
@@ -13,18 +14,20 @@ function sanitizeMetaText(value, fallback = "Developer") {
 function LogoCell({ item, suppressA11y }) {
   const safeName = sanitizeMetaText(item.name, "Developer");
   const logoMeta = `${safeName} — developer logo`;
-  const alt = suppressA11y ? logoMeta : logoMeta;
+  const alt = suppressA11y ? "" : logoMeta;
   const img = (
     <img
-      src={item.src}
-      alt={alt}
-      title={logoMeta}
+      {...buildHomeCardImageProps({
+        src: item.src,
+        width: 176,
+        height: 56,
+        alt,
+        sizes: "176px",
+        quality: 65,
+      })}
+      className="transform-home-developers-logo"
       width={176}
       height={56}
-      className="transform-home-developers-logo"
-      loading="lazy"
-      decoding="async"
-      fetchPriority="low"
       draggable={false}
     />
   );

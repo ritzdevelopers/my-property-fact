@@ -3,6 +3,86 @@ const IMAGE_BASE = String(process.env.NEXT_PUBLIC_IMAGE_URL || "").trim();
 
 let nearbyCatalogPromise = null;
 
+export const PROJECT_CARD_LOCATION_FALLBACK = "Location on project page";
+
+function dedupeCommaSeparatedParts(value) {
+  const parts = String(value || "")
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (!parts.length) return "";
+
+  const normalized = (part) => part.toLowerCase().replace(/\s+/g, " ").trim();
+  const deduped = [];
+  for (const part of parts) {
+    const prev = deduped[deduped.length - 1];
+    if (prev && normalized(prev) === normalized(part)) continue;
+    deduped.push(part);
+  }
+  return deduped.join(", ");
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function partAlreadyInLocationBlob(part, blobNorm) {
+  const token = String(part || "")
+    .trim()
+    .toLowerCase();
+  if (!token || !blobNorm) return false;
+  if (blobNorm === token) return true;
+  const pattern = new RegExp(`(?:^|[\\s,])${escapeRegExp(token)}(?:[\\s,]|$)`);
+  return pattern.test(blobNorm);
+}
+
+function cleanLocationPart(value) {
+  const text = String(value ?? "").trim();
+  if (!text || text === "/" || text.toLowerCase() === "null") return "";
+  return text;
+}
+
+/**
+ * Project card location line:
+ * 1. place (locality/location/address) + city → `place, city`
+ * 2. place + empty city + state → `place, state`
+ */
+export function formatProjectCardLocation(project) {
+  if (!project || typeof project !== "object") return "";
+
+  const locality = cleanLocationPart(
+    project.projectLocality || project.location,
+  );
+  const address = dedupeCommaSeparatedParts(project.projectAddress);
+  const city = cleanLocationPart(project.cityName || project.city);
+  const state = cleanLocationPart(project.stateName || project.state);
+
+  const place = locality || address;
+  const placeNorm = place.toLowerCase();
+
+  if (place && city) {
+    if (partAlreadyInLocationBlob(city, placeNorm)) return place;
+    return `${place}, ${city}`;
+  }
+
+  if (place && !city && state) {
+    if (partAlreadyInLocationBlob(state, placeNorm)) return place;
+    return `${place}, ${state}`;
+  }
+
+  if (place) return place;
+  if (city) return city;
+  return "";
+}
+
+export function resolveProjectCardLocationLabel(
+  project,
+  fallback = PROJECT_CARD_LOCATION_FALLBACK,
+) {
+  const formatted = formatProjectCardLocation(project);
+  return formatted || fallback;
+}
+
 export function formatListingStatusLabel(status) {
   const normalized = String(status || "").toLowerCase().trim();
   if (normalized.includes("under construction")) return "Under Construction";

@@ -8,6 +8,10 @@ import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
 import { buildProjectImageUrl } from "@/lib/projectImageUrl";
 import { HOME_FAQ_ITEMS } from "./homeFaqItems";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+import {
+  buildHomeCardImageProps,
+  HOME_CITY_HERO_SIZES,
+} from "@/lib/optimizedImage";
 
 function getProjectImageUrl(project) {
   return buildProjectImageUrl(project, { preferThumbnail: true });
@@ -433,6 +437,14 @@ function CityCard({ city }) {
   const iconNavigateTitle = `View ${cityLabel} real estate on My Property Fact (opens city page)`;
   const iconArrowTitle = `See all ${cityLabel} properties for sale (opens city page)`;
   const heroSrc = city.displayImageSrc || city.imageSrc;
+  const heroImageProps = buildHomeCardImageProps({
+    src: heroSrc,
+    width: 640,
+    height: 360,
+    alt: heroImgDescription,
+    sizes: HOME_CITY_HERO_SIZES,
+    quality: 65,
+  });
 
   const cityLinkTitle = `Explore ${cityLabel} real estate, listings and price trends on My Property Fact`;
 
@@ -446,13 +458,16 @@ function CityCard({ city }) {
       <div className="city-card-hero">
         <div className="city-card-hero__img">
           <img
-            src={heroSrc}
-            alt={heroImgDescription}
-            title={heroImgDescription}
+            {...heroImageProps}
             className="city-card-hero__image"
-            loading="lazy"
-            decoding="async"
-           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}/>
+            style={{
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
         </div>
         <div className="city-card-hero__bar" aria-hidden="true" />
         <div className="city-card-hero__overlay">

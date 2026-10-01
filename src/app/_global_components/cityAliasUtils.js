@@ -509,6 +509,138 @@ function fieldMatchesCityFilter(fieldNorm, matchName, canonicalSlug) {
   return pattern.test(fieldNorm);
 }
 
+function isDelhiCanonicalSlug(canonicalSlug) {
+  return canonicalSlug === "delhi";
+}
+
+/**
+ * Lookup maps from {@link buildCityStateLookup} / existing `city/all` data.
+ * Used to resolve project state without changing the projects API.
+ */
+export function buildCityStateLookup(cities) {
+  const bySlug = new Map();
+  const byName = new Map();
+  (cities || []).forEach((city) => {
+    const stateName = String(city?.stateName || "").trim();
+    if (!stateName) return;
+    const slug = resolveCitySlug(city?.slugURL || city?.slugUrl || "");
+    if (slug) bySlug.set(slug, stateName);
+    const name = normalizeKey(city?.cityName || city?.name || "");
+    if (name) byName.set(name, stateName);
+  });
+  return { bySlug, byName };
+}
+
+function resolveProjectStateName(item, cityStateLookup) {
+  const direct = String(item?.stateName || item?.state || "").trim();
+  if (direct) return direct;
+
+  const slug = resolveCitySlug(item?.citySlug || item?.cityURL || "");
+  if (slug && cityStateLookup?.bySlug?.has(slug)) {
+    return cityStateLookup.bySlug.get(slug);
+  }
+
+  const cityNorm = normalizeKey(item?.cityName || "");
+  if (cityNorm && cityStateLookup?.byName?.has(cityNorm)) {
+    return cityStateLookup.byName.get(cityNorm);
+  }
+
+  return "";
+}
+
+function isDelhiStateName(stateName) {
+  const stateNorm = normalizeKey(stateName);
+  if (!stateNorm) return false;
+  if (stateNorm === "delhi" || stateNorm === "new delhi") return true;
+  if (stateNorm.includes("national capital") && stateNorm.includes("delhi")) {
+    return true;
+  }
+  return stateNorm.includes("nct") && stateNorm.includes("delhi");
+}
+
+function projectCitySlugMatchesDelhi(item) {
+  return resolveCitySlug(item?.citySlug || item?.cityURL || "") === "delhi";
+}
+
+function isDelhiEquivalentCityName(cityNorm) {
+  if (!cityNorm) return false;
+  return getEquivalentCityNames("delhi").has(cityNorm);
+}
+
+/** Primary city is set to a non-Delhi place (blocks Gurugram + Dwarka Expressway leaks). */
+function hasConflictingNonDelhiPrimaryCity(item) {
+  const cityNorm = normalizeKey(item?.cityName || "");
+  if (!cityNorm || isDelhiEquivalentCityName(cityNorm)) return false;
+  return true;
+}
+
+function delhiLegacyLocationMatch(item, matchNames, canonical) {
+  const addrNorm = normalizeKey(item?.projectAddress || "");
+  const localityNorm = normalizeKey(item?.projectLocality || "");
+  for (const name of matchNames) {
+    if (
+      fieldMatchesCityFilter(addrNorm, name, canonical) ||
+      fieldMatchesCityFilter(localityNorm, name, canonical)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function projectLocationBlob(item) {
+  return normalizeKey(
+    [item?.projectLocality, item?.projectAddress].filter(Boolean).join(" "),
+  );
+}
+
+/**
+ * When the projects API omits state, infer Delhi NCT from address/locality only
+ * (not from the project cityName field).
+ */
+function localityImpliesDelhiState(item) {
+  const blob = projectLocationBlob(item);
+  if (!blob) return false;
+
+  if (/\bdelhi\b/.test(blob) || /\bdwarka\b/.test(blob)) return true;
+
+  const markers = [
+    "rohini",
+    "okhla",
+    "chandni chowk",
+    "karol bagh",
+    "kirti nagar",
+    "connaught place",
+    "moti nagar",
+    "timar pur",
+    "timarpur",
+    "pushpanjali",
+  ];
+  if (markers.some((marker) => blob.includes(marker))) return true;
+
+  if (/sector\s+\d+[a-z]?\s*(rohini|dwarka)\b/.test(blob)) return true;
+  if (/\brohini\b/.test(blob)) return true;
+
+  return false;
+}
+
+/**
+ * Delhi hub: match by state = Delhi (from row or city catalog), slug alias, or
+ * address/locality when state/city are missing — never by project cityName alone.
+ */
+function matchesDelhiCityFilter(item, matchNames, canonical, cityStateLookup) {
+  const stateName = resolveProjectStateName(item, cityStateLookup);
+  if (isDelhiStateName(stateName)) return true;
+  if (stateName && !isDelhiStateName(stateName)) return false;
+
+  if (projectCitySlugMatchesDelhi(item)) return true;
+
+  if (hasConflictingNonDelhiPrimaryCity(item)) return false;
+
+  if (delhiLegacyLocationMatch(item, matchNames, canonical)) return true;
+  return localityImpliesDelhiState(item);
+}
+
 /** Sort city slugs so longer names (e.g. noida-extension) win over shorter ones (noida). */
 export function sortCitySlugsBySpecificity(citySlugs) {
   return [...citySlugs].sort((a, b) => {
@@ -519,11 +651,19 @@ export function sortCitySlugsBySpecificity(citySlugs) {
 }
 
 /** Whether a project row belongs to a city slug (sitemap + listing validation). */
-export function projectMatchesCitySlug(project, citySlug) {
+export function projectMatchesCitySlug(project, citySlug, cityStateLookup = null) {
   const canonical = resolveCitySlug(citySlug);
   if (!canonical) return false;
 
   const matchNames = getEquivalentCityNames(canonical);
+  if (isDelhiCanonicalSlug(canonical)) {
+    return matchesDelhiCityFilter(
+      project,
+      matchNames,
+      canonical,
+      cityStateLookup,
+    );
+  }
   const projectSlug = resolveCitySlug(project?.citySlug || project?.cityURL || "");
   if (projectSlug && projectSlug === canonical) return true;
 
@@ -567,7 +707,7 @@ export function projectMatchesCityFilter(
   item,
   city,
   allCities,
-  { cityNorm, cityIdNum, projectAddressNorm, localityNorm } = {},
+  { cityNorm, cityIdNum, projectAddressNorm, localityNorm, cityStateLookup } = {},
 ) {
   if (!city) return false;
 
@@ -577,6 +717,13 @@ export function projectMatchesCityFilter(
   if (cityIdNum != null && matchIds.has(cityIdNum)) return true;
 
   const canonical = canonicalSlugFromCity(city);
+  const lookup =
+    cityStateLookup ||
+    (allCities?.length ? buildCityStateLookup(allCities) : null);
+
+  if (isDelhiCanonicalSlug(canonical)) {
+    return matchesDelhiCityFilter(item, matchNames, canonical, lookup);
+  }
   const itemCityNorm = cityNorm ?? normalizeKey(item?.cityName);
   if (itemCityNorm && isBlockedSubstringCityField(itemCityNorm, canonical)) {
     return false;
@@ -598,12 +745,24 @@ export function projectMatchesCityFilter(
 }
 
 /** Client-side city match for BHK / floor listing pages (cityName from URL). */
-export function cityNameMatchesFilter(cityFilterName, item) {
+export function cityNameMatchesFilter(
+  cityFilterName,
+  item,
+  cityStateLookup = null,
+) {
   const ck = normalizeKey(cityFilterName);
   if (!ck) return false;
 
   const canonical = resolveCitySlug(cityFilterName);
   const matchNames = getEquivalentCityNames(cityFilterName);
+  if (isDelhiCanonicalSlug(canonical)) {
+    return matchesDelhiCityFilter(
+      item,
+      matchNames,
+      canonical,
+      cityStateLookup,
+    );
+  }
   const cityNorm = normalizeKey(item?.cityName || "");
   const addrNorm = normalizeKey(item?.projectAddress || "");
   const localityNorm = normalizeKey(item?.projectLocality || "");

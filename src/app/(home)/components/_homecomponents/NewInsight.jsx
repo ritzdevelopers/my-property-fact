@@ -4,6 +4,10 @@ import { useState } from "react";
 import Link from "next/link";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { useDeferredStylesheet } from "@/lib/useDeferredStylesheet";
+import {
+  buildHomeCardImageProps,
+  HOME_SECTION_BG_SIZES,
+} from "@/lib/optimizedImage";
 
 const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -66,11 +70,14 @@ export default function NewInsight() {
       >
         <div className="expert-insights-bg" aria-hidden="true">
           <img
-            src="/static/home-meta-data/bg%20image.png"
-            alt="Expert Insights and Resources Background"
-            title="Expert Insights and Resources"
-            width={1920}
-            height={720}
+            {...buildHomeCardImageProps({
+              src: "/static/home-meta-data/bg-image-home.webp",
+              width: 1920,
+              height: 720,
+              alt: "Expert Insights and Resources Background",
+              sizes: HOME_SECTION_BG_SIZES,
+              quality: 70,
+            })}
             className="expert-insights-bg-image"
           />
         </div>

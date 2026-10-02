@@ -23,7 +23,7 @@ function LogoCell({ item, suppressA11y }) {
         height: 56,
         alt,
         sizes: "176px",
-        quality: 65,
+        quality: 45,
       })}
       className="transform-home-developers-logo"
       width={176}

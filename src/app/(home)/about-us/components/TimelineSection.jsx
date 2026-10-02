@@ -78,7 +78,7 @@ export default function TimelineSection() {
                 title={item.year}
                 fill
                 sizes="(max-width: 480px) 220px, (max-width: 767px) 260px, (max-width: 991px) 320px, 460px"
-                quality={70}
+                quality={50}
                 style={{ objectFit: "cover" }}
               />
             </motion.div>

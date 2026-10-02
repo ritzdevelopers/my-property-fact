@@ -42,7 +42,7 @@ function CityStrip({ list, idPrefix, ariaHidden = false }) {
           height: CITY_PILL_H,
           alt: pillAlt,
           sizes: HOME_CITY_PILL_SIZES,
-          quality: 75,
+          quality: 40,
         });
         return (
           <Link

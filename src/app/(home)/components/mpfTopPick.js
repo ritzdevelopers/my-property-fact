@@ -271,7 +271,7 @@ export default function MpfTopPicks({ topProjects }) {
                           height: 540,
                           alt: slide.imageAlt,
                           sizes: HOME_POSTER_CARD_SIZES,
-                          quality: 65,
+                          quality: 45,
                         })}
                         className="mpf-tp__img"
                       />
@@ -339,7 +339,7 @@ export default function MpfTopPicks({ topProjects }) {
                             height: 64,
                             alt: slide.logoAlt,
                             sizes: "160px",
-                            quality: 70,
+                            quality: 45,
                           })}
                           className="mpf-tp__dev-logo"
                           width={160}

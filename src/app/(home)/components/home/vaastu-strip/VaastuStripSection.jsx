@@ -42,14 +42,14 @@ const MEDIA_CARDS = [
   {
     id: "vaastu-business-growth",
     reelId: "DZg62TblKL-",
-    imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_003.jpeg",
+    imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_003.jpg",
     alt: "BUSINESS GROWTH SECRET TIPS",
     title: "BUSINESS GROWTH SECRET TIPS",
   },
   {
     id: "vaastu-ambani-house",
     reelId: "DZOyVGPiaPw",
-    imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_002.jpeg",
+    imageSrc: "/static/vaastu-strip/signal-2026-06-17-173831_002.jpg",
     alt: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
     title: "AMBANI HOUSE KA SABSE POWERFUL VASTU",
   },
@@ -412,7 +412,7 @@ export default function VaastuStripSection({ ariaLabelledBy } = {}) {
                 className="vaastu-strip-media__img"
                 fill
                 sizes="302px"
-                quality={70}
+                quality={45}
                 style={{ objectFit: "cover" }}
               />
             </button>

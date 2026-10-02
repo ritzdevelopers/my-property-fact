@@ -72,11 +72,11 @@ const DreamPropertySection = () => {
         <img
           {...buildHomeCardImageProps({
             src: "/dream-cities/dream-section-bg.webp",
-            width: 1920,
-            height: 600,
+            width: 960,
+            height: 300,
             alt: "Decorative cityscape background for Find Your Dream Property section",
             sizes: HOME_SECTION_BG_SIZES,
-            quality: 70,
+            quality: 35,
           })}
           className="dream-property-bg-image"
         />
@@ -111,7 +111,7 @@ const DreamPropertySection = () => {
                       height: 72,
                       alt: city.name,
                       sizes: "72px",
-                      quality: 75,
+                      quality: 40,
                     })}
                     data-fallback={city.imageFallback}
                     width={72}

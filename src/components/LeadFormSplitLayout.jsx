@@ -45,7 +45,7 @@ export default function LeadFormSplitLayout({
         <img
           src={imageSrc}
           alt={imageAlt} title={imageAlt}
-          quality={70}
+          quality={50}
           className="lead-form-split__media-img"
           loading="lazy"
           decoding="async"

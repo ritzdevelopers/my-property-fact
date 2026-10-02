@@ -73,7 +73,7 @@ export default function HeroIntroSection() {
               width={390}
               height={650}
               sizes="(max-width: 991px) 90vw, 390px"
-              quality={75}
+              quality={50}
               priority
               fetchPriority="high"
             />
@@ -99,7 +99,7 @@ export default function HeroIntroSection() {
                 width={1200}
                 height={390}
                 sizes="(max-width: 991px) 100vw, 760px"
-                quality={75}
+                quality={50}
               />
             </div>
           </div>

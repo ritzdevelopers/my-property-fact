@@ -115,7 +115,6 @@ function HeroBannerPicture({ mediaRef }) {
     props: { srcSet: mobileSrcSet },
   } = getImageProps({
     ...common,
-    quality: 88,
     src: BANNER_MOBILE.src,
     width: BANNER_MOBILE.width,
     height: BANNER_MOBILE.height,
@@ -125,7 +124,6 @@ function HeroBannerPicture({ mediaRef }) {
     props: { srcSet: tabletSrcSet },
   } = getImageProps({
     ...common,
-    quality: 88,
     src: BANNER_TABLET.src,
     width: BANNER_TABLET.width,
     height: BANNER_TABLET.height,

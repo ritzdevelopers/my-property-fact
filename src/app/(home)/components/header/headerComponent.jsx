@@ -4,9 +4,8 @@ import "./header.css";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Spinner } from "react-bootstrap";
-import BrokerLoginModal from "../_homecomponents/BrokerLoginModal";
-import WebsiteOtpModal from "../_homecomponents/WebsiteOtpModal";
 import HeaderAccountMenu from "./HeaderAccountMenu";
 import HeaderLatestSpark from "./HeaderLatestSpark";
 import axios from "axios";
@@ -29,7 +28,6 @@ import {
   faYoutube,
 } from "@fortawesome/free-brands-svg-icons";
 import { useSiteData } from "@/app/_global_components/contexts/SiteDataContext";
-import { motion } from "framer-motion";
 import { resolveIpCity } from "@/lib/resolveIpCity";
 import {
   clearChosenHeaderCity,
@@ -40,7 +38,16 @@ import {
   writeSessionHeaderCity,
 } from "@/lib/headerChosenCity";
 
-const LOGO_ON_LIGHT = "/logo.webp";
+const BrokerLoginModal = dynamic(
+  () => import("../_homecomponents/BrokerLoginModal"),
+  { ssr: false },
+);
+const WebsiteOtpModal = dynamic(
+  () => import("../_homecomponents/WebsiteOtpModal"),
+  { ssr: false },
+);
+
+const LOGO_ON_LIGHT = "/logo-header.webp";
 
 /** Ultimate fallback when GPS/IP city has no listings. */
 const DEFAULT_CITY_WITHOUT_GEO = "Delhi NCR";
@@ -87,40 +94,13 @@ function formatHeaderCityLabel(city) {
   }
   return value;
 }
-const LOGO_ON_DARK = "/logo.webp";
+const LOGO_ON_DARK = "/logo-header.webp";
 
 const NewBadge = ({ isVisible }) => (
-  <span className="city-dropdown-badge">
-    {["N", "e", "w"].map((char, i) => (
-      <motion.span
-        key={i}
-        className="new-char"
-        initial={{ opacity: 0, y: 6, scale: 0.8 }}
-        animate={
-          isVisible
-            ? {
-              opacity: [0, 1, 1, 0],
-              y: [6, 0, 0, 6],
-              scale: [0.8, 1, 1, 0.8],
-            }
-            : { opacity: 0, y: 6, scale: 0.8 }
-        }
-        transition={
-          isVisible
-            ? {
-              duration: 2.5,
-              repeat: Infinity,
-              repeatDelay: 0.5,
-              delay: i * 0.15,
-              times: [0, 0.12, 0.75, 0.9],
-              ease: "easeInOut",
-            }
-            : { duration: 0.2 }
-        }
-      >
-        {char}
-      </motion.span>
-    ))}
+  <span className={`city-dropdown-badge${isVisible ? " city-dropdown-badge--live" : ""}`}>
+    <span className="new-char">N</span>
+    <span className="new-char">e</span>
+    <span className="new-char">w</span>
   </span>
 );
 
@@ -1732,7 +1712,7 @@ const HeaderComponent = () => {
                 : {})}
             >
               <img
-                src="/logo.webp"
+                src="/logo-header.webp"
                 alt="My Property Fact logo — site header mobile menu"
                 title="My Property Fact logo — site header mobile menu"
                 height={50}
@@ -2246,12 +2226,16 @@ const HeaderComponent = () => {
           </div>
         </div>
       ) : null}
-      <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
-      <WebsiteOtpModal
-        show={showWebsiteLoginModal}
-        onClose={setShowWebsiteLoginModal}
-        initialFlow={websiteAuthFlow}
-      />
+      {showBrokerLoginModal ? (
+        <BrokerLoginModal show={showBrokerLoginModal} onClose={setShowBrokerLoginModal} />
+      ) : null}
+      {showWebsiteLoginModal ? (
+        <WebsiteOtpModal
+          show={showWebsiteLoginModal}
+          onClose={setShowWebsiteLoginModal}
+          initialFlow={websiteAuthFlow}
+        />
+      ) : null}
     </>
   );
 };

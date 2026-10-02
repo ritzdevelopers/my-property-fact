@@ -32,7 +32,7 @@ export default function BlogCard({ blog }) {
                       height: 450,
                       alt: featuredImageAlt,
                       sizes: HOME_BLOG_CARD_SIZES,
-                      quality: 65,
+                      quality: 45,
                     })}
                     className="img-fluid"
                     width={800}

@@ -58,7 +58,7 @@ function ContactDreamHomeSection() {
           width={414}
           height={603}
           sizes="(max-width: 767px) 100vw, 414px"
-          quality={70}
+          quality={50}
         />
       </div>
       <div className="looking-for-dream-home-section-content">
@@ -82,7 +82,7 @@ function ContactDreamHomeSection() {
           width={480}
           height={500}
           sizes="(max-width: 767px) 100vw, 480px"
-          quality={70}
+          quality={50}
         />
       </div>
     </div>

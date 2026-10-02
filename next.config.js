@@ -301,6 +301,15 @@ const nextConfig = {
         ],
       },
       {
+        source: "/(.*)\\.(svg|jpg|jpeg|png|webp|avif|gif|ico)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
         source: "/(.*)",
         headers: [
           {
@@ -332,10 +341,11 @@ const nextConfig = {
   transpilePackages: ["@mui/material", "@mui/system", "@mui/utils"],
   images: {
 
-    qualities: [45, 60, 65, 68, 70, 75, 88, 100],
+    formats: ["image/avif", "image/webp"],
+    qualities: [35, 40, 45, 50, 55, 60, 65, 68, 70, 75],
     // Cache optimized images longer so repeat visits aren't re-rushed through the optimizer.
     minimumCacheTTL: 60 * 60 * 24 * 30,
-    deviceSizes: [640, 750, 828, 1080, 1200, 1400, 1920, 2048, 3840],
+    deviceSizes: [480, 640, 750, 828, 1080, 1200, 1400, 1920],
     imageSizes: [16, 32, 48, 64, 80, 96, 128, 160, 192, 256, 384],
     remotePatterns: [
       {
@@ -372,6 +382,14 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
+    optimizePackageImports: [
+      "framer-motion",
+      "lucide-react",
+      "@fortawesome/free-solid-svg-icons",
+      "@fortawesome/free-brands-svg-icons",
+      "@mui/material",
+      "@mui/icons-material",
+    ],
   },
 };
 

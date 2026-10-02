@@ -9,6 +9,7 @@ const mpfDisplay = Fraunces({
   variable: "--mpf-font-display",
   display: "swap",
   weight: ["500", "600", "700"],
+  preload: false,
 });
 
 const mpfSans = Outfit({
@@ -26,12 +27,12 @@ const HeaderComponent = dynamic(
       <header className="d-flex justify-content-between align-items-center px-2 px-lg-4 header" style={{ minHeight: 74 }}>
         <Link title="My Property Fact Home" href="/" aria-label="My Property Fact Home">
           <img loading="eager"
-            src="/logo.webp"
+            src="/logo-header.webp"
             alt="My Property Fact — home"
             title="My Property Fact — home"
             width={80}
             height={74}
-            fetchPriority="high"
+            fetchPriority="low"
             decoding="async"
           />
         </Link>

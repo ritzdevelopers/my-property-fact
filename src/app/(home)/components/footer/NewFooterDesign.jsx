@@ -108,11 +108,13 @@ export default function NewFooterDesign({
                     onClick={markFooterNavScrollTop}
                   >
                     <img
-                      src="/mpf_new_footer_logo.png"
+                      src="/mpf_new_footer_logo.webp"
                       alt="My Property Fact"
                       title="My Property Fact"
-                      width={113}
-                      height={103}
+                      width={198}
+                      height={155}
+                      decoding="async"
+                      loading="lazy"
                     />
                   </Link>
                 </div>

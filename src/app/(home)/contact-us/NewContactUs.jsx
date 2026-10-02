@@ -379,7 +379,7 @@ export default function NewContactUs() {
                       className="contact-expert-image-cover"
                       fill
                       sizes="(max-width: 991px) 100vw, 373px"
-                      quality={70}
+                      quality={50}
                       style={{ objectFit: "cover" }}
                     />
                     <div

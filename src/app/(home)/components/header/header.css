@@ -1532,9 +1532,45 @@ button.header-nav-dropdown-trigger {
   display: inline-flex;
 }
 
-/* New badge - letters animated via framer-motion (inline-block for transform) */
 .city-dropdown-badge .new-char {
   display: inline-block;
+}
+
+.city-dropdown-badge--live .new-char {
+  animation: mpf-new-char 3s ease-in-out infinite;
+}
+
+.city-dropdown-badge--live .new-char:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.city-dropdown-badge--live .new-char:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes mpf-new-char {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+  12%,
+  75% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  90% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-dropdown-badge--live .new-char {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .city-dropdown-right {

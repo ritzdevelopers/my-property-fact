@@ -76,7 +76,7 @@ export default function NewInsight() {
               height: 720,
               alt: "Expert Insights and Resources Background",
               sizes: HOME_SECTION_BG_SIZES,
-              quality: 70,
+              quality: 45,
             })}
             className="expert-insights-bg-image"
           />

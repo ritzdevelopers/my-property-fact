@@ -24,5 +24,6 @@ export const BANNER_WIDTH = BANNER_DESKTOP.width;
 export const BANNER_HEIGHT = BANNER_DESKTOP.height;
 export const BANNER_SRC = BANNER_DESKTOP.src;
 
-export const HERO_IMAGE_QUALITY = 88;
+/** Mobile LCP candidate. Keep this low — PageSpeed flags q=88 on the hero. */
+export const HERO_IMAGE_QUALITY = 50;
 export const HERO_IMAGE_SIZES = "100vw";

@@ -1,19 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { getImageProps } from "next/image";
 import SearchFilter from "./searchFilterNew";
 import "../home/home.css";
 import "./newmpfmetadata.css";
 import { MPF_GATEWAY_HIDDEN_EVENT } from "@/app/_global_components/mpfGatewayEvents";
-import {
-  BANNER_ALT,
-  BANNER_DESKTOP,
-  BANNER_MOBILE,
-  BANNER_TABLET,
-  HERO_IMAGE_QUALITY,
-  HERO_IMAGE_SIZES,
-} from "./heroBannerAssets";
+import { BANNER_ALT } from "./heroBannerAssets";
+
+const HERO_LCP_MOBILE = "/static/banners/hero-lcp-mobile.webp";
+const HERO_LCP_TABLET = "/static/banners/hero-lcp-tablet.webp";
+const HERO_LCP_DESKTOP = "/static/banners/hero-lcp-desktop.webp";
 
 const HOME_HERO_HASH = "#mpf-home-hero";
 
@@ -46,66 +42,25 @@ function useHomeHeroHashScroll() {
 }
 
 function HeroBannerPicture() {
-  const common = {
-    alt: BANNER_ALT,
-    sizes: HERO_IMAGE_SIZES,
-    quality: HERO_IMAGE_QUALITY,
-  };
-
-  const {
-    props: { srcSet: mobileSrcSet },
-  } = getImageProps({
-    ...common,
-    quality: 88,
-    src: BANNER_MOBILE.src,
-    width: BANNER_MOBILE.width,
-    height: BANNER_MOBILE.height,
-  });
-
-  const {
-    props: { srcSet: tabletSrcSet },
-  } = getImageProps({
-    ...common,
-    quality: 88,
-    src: BANNER_TABLET.src,
-    width: BANNER_TABLET.width,
-    height: BANNER_TABLET.height,
-  });
-
-  const {
-    props: { src: desktopSrc, srcSet: desktopSrcSet, sizes, ...desktopRest },
-  } = getImageProps({
-    ...common,
-    src: BANNER_DESKTOP.src,
-    width: BANNER_DESKTOP.width,
-    height: BANNER_DESKTOP.height,
-  });
-
   return (
     <div className="position-relative home-banner hero-banner-responsive-images hero-art-direction">
       <div className="hero-parallax-media">
         <picture>
-          <source
-            media="(max-width: 767.98px)"
-            srcSet={mobileSrcSet}
-            sizes={sizes}
-          />
+          <source media="(min-width: 992px)" srcSet={HERO_LCP_DESKTOP} />
           <source
             media="(min-width: 768px) and (max-width: 991.98px)"
-            srcSet={tabletSrcSet}
-            sizes={sizes}
+            srcSet={HERO_LCP_TABLET}
           />
           <img
-            {...desktopRest}
-            src={desktopSrc}
-            srcSet={desktopSrcSet}
-            sizes={sizes}
+            src={HERO_LCP_MOBILE}
             alt={BANNER_ALT}
             title={BANNER_ALT}
+            width={640}
+            height={305}
             className="hero-banner-image hero-banner-image--full"
             loading="eager"
             fetchPriority="high"
-            decoding="sync"
+            decoding="async"
             draggable={false}
           />
         </picture>

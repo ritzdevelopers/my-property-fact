@@ -25,5 +25,5 @@ export const BANNER_MOBILE = {
   height: BANNER_HEIGHT,
 };
 
-export const HERO_IMAGE_QUALITY = 100;
+export const HERO_IMAGE_QUALITY = 50;
 export const HERO_IMAGE_SIZES = "2167px";

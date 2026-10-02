@@ -97,6 +97,7 @@ const accentFont = Damion({
   weight: ["400"],
   variable: "--accent-font",
   display: "swap",
+  preload: false,
 });
 
 const textFont = Inter({

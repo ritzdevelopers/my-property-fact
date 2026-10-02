@@ -114,7 +114,7 @@ function PodcastCard({ podcast, duplicate = false, index, onSelect }) {
         title={duplicate ? "" : podcast.title}
         fill
         sizes="(max-width: 767px) 50vw, 243px"
-        quality={70}
+        quality={50}
         draggable={false}
         style={{ objectFit: "cover" }}
       />

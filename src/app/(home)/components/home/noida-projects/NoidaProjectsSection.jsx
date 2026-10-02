@@ -443,7 +443,7 @@ function CityCard({ city }) {
     height: 360,
     alt: heroImgDescription,
     sizes: HOME_CITY_HERO_SIZES,
-    quality: 65,
+    quality: 45,
   });
 
   const cityLinkTitle = `Explore ${cityLabel} real estate, listings and price trends on My Property Fact`;

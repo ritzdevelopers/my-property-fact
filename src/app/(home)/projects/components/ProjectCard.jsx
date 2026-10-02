@@ -97,7 +97,7 @@ function ProjectCardSlider({
           title={(getSlideImageMeta?.(activeSlide) || {}).title || `${projectName} photo`}
           fill
           sizes="(max-width: 768px) 100vw, 360px"
-          quality={60}
+          quality={45}
           priority={Boolean(imagePriority && activeSlide === 0)}
           loading={imagePriority && activeSlide === 0 ? undefined : "lazy"}
           className={`${imageClassName} is-active`}
@@ -199,7 +199,7 @@ function ProjectCardNearby({ items = [] }) {
                     className="mpf-listing-nearby__icon"
                     width={16}
                     height={16}
-                    quality={60}
+                    quality={45}
                     loading="lazy"
                   />
                 ) : null}

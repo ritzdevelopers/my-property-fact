@@ -107,6 +107,50 @@ body {
   overflow: hidden;
 }
 
+/* Homepage LCP frame — must match home-new.css so the hero paints before that file loads. */
+.mpf-home-r26 .hero-section-wrapper {
+  --mpf-hero-banner-h: 420px;
+  position: relative;
+  width: 100%;
+}
+
+.mpf-home-r26 .mpf-hero-banner {
+  position: relative;
+  width: 100%;
+  height: var(--mpf-hero-banner-h);
+  min-height: var(--mpf-hero-banner-h);
+  max-height: var(--mpf-hero-banner-h);
+  overflow: hidden;
+  background: #1c140e;
+}
+
+.mpf-home-r26 .hero-art-direction {
+  aspect-ratio: auto;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.mpf-home-r26 .hero-parallax-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 767.98px) {
+  .mpf-home-r26 .hero-section-wrapper {
+    --mpf-hero-banner-h: 320px;
+  }
+
+  .mpf-home-r26 .mpf-hero-banner {
+    height: 320px;
+    min-height: 320px;
+    max-height: 320px;
+  }
+}
+
 @media (min-width: 768px) and (max-width: 991.98px) {
   .hero-art-direction {
     aspect-ratio: 1024 / 629;

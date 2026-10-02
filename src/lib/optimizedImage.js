@@ -1,7 +1,7 @@
 import { getImageProps } from "next/image";
 
 /** Quality tuned for banner/LCP images — balances size vs visual fidelity. */
-export const BANNER_IMAGE_QUALITY = 65;
+export const BANNER_IMAGE_QUALITY = 55;
 export const BANNER_IMAGE_SIZES = "100vw";
 
 export const DEFAULT_PAGE_BANNER = {
@@ -135,7 +135,7 @@ export function buildProjectHeroLcpProps(src, projectName) {
 export const HOME_TILE_CARD_SIZES = "(max-width: 768px) 42vw, 248px";
 export const HOME_POSTER_CARD_SIZES = "(max-width: 768px) 85vw, 400px";
 export const HOME_FEATURED_OVERLAP_SIZES = "(max-width: 768px) 92vw, 510px";
-export const HOME_CARD_IMAGE_QUALITY = 60;
+export const HOME_CARD_IMAGE_QUALITY = 45;
 export const HOME_SECTION_BG_SIZES = "100vw";
 export const HOME_CITY_PILL_SIZES = "22px";
 export const HOME_CITY_HERO_SIZES = "(max-width: 768px) 88vw, 320px";

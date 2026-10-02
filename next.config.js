@@ -381,8 +381,11 @@ const nextConfig = {
     styledComponents: true,
   },
   experimental: {
-    // One build worker so Windows does not SIGKILL the compile when RAM is tight.
+    // One page worker, and compile in this process. A separate webpack
+    // worker is what the server kills with SIGKILL when RAM is tight.
     cpus: 1,
+    webpackBuildWorker: false,
+    webpackMemoryOptimizations: true,
     optimizeCss: true,
     optimizePackageImports: [
       "framer-motion",

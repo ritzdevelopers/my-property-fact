@@ -381,6 +381,8 @@ const nextConfig = {
     styledComponents: true,
   },
   experimental: {
+    // One build worker so Windows does not SIGKILL the compile when RAM is tight.
+    cpus: 1,
     optimizeCss: true,
     optimizePackageImports: [
       "framer-motion",
